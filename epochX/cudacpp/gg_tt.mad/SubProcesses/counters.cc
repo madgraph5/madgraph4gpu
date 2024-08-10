@@ -9,8 +9,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring> // for strlen
-#include <map>
-#include <memory>
+#include <sstream>
 
 // NB1: The C functions counters_xxx_ in this file are called by Fortran code
 // Hence the trailing "_": 'call counters_end()' links to counters_end_
@@ -24,19 +23,22 @@ extern "C"
 {
   namespace counters
   {
+    constexpr int NCOUNTERSMAX = 10;
     // Overall program timer
     static mgOnGpu::Timer<TIMERTYPE> program_timer;
     static float program_totaltime = 0;
     // Individual timers
-    static std::map<unsigned int, std::string> map_tags;
-    static std::map<unsigned int, std::unique_ptr< mgOnGpu::Timer<TIMERTYPE> > > map_timers;
-    static std::map<unsigned int, float > map_totaltimes;
-    static std::map<unsigned int, int > map_counters;
+    static std::string map_tags[NCOUNTERSMAX];
+    static mgOnGpu::Timer<TIMERTYPE> map_timers[NCOUNTERSMAX];
+    static float map_totaltimes[NCOUNTERSMAX] = { 0 };
+    static int map_counters[NCOUNTERSMAX] = { 0 };
   }
   
   void counters_initialise_()
   {
     using namespace counters;
+    for( int icounter=0; icounter<NCOUNTERSMAX; icounter++ )
+      map_tags[icounter] = ""; // ensure that this is initialized to ""
     program_timer.Start();
     return;
   }
@@ -44,19 +46,30 @@ extern "C"
   void counters_register_counter_( const int* picounter, const char* ctag )
   {
     using namespace counters;
-    unsigned int icounter = *picounter;
+    int icounter = *picounter;
     std::cout << "INFO: register counter #" << icounter << " with tag '" << ctag << "' (tag strlen=" << strlen(ctag) << ")" << std::endl;
     const std::string tag(ctag);
-    if( map_tags.find( icounter ) == map_tags.end() )
+    if( icounter < 0 || icounter >= NCOUNTERSMAX )
+    {
+      std::ostringstream sstr;
+      sstr << "ERROR! Invalid counter# '" << icounter << "'";
+      throw std::runtime_error( sstr.str() );
+    }
+    if( tag == "" )
+    {
+      std::ostringstream sstr;
+      sstr << "ERROR! Invalid empty tag ''";
+      throw std::runtime_error( sstr.str() );
+    }
+    if( map_tags[icounter] == "" )
     {
       map_tags[icounter] = tag;
-      map_timers[icounter] = std::make_unique<mgOnGpu::Timer<TIMERTYPE>>();
-      map_totaltimes[icounter] = 0;
-      map_counters[icounter] = 0;
     }
     else
     {
-      std::cout << "ERROR! counter #" << icounter << " already exists with tag '" << map_tags[ icounter ] << "'" << std::endl;
+      std::ostringstream sstr;
+      sstr << "ERROR! counter #" << icounter << " already exists with tag '" << map_tags[ icounter ] << "'";
+      throw std::runtime_error( sstr.str() );
     }
     return;
   }
@@ -64,21 +77,29 @@ extern "C"
   void counters_start_counter_( const int* picounter, const int* pnevt )
   {
     using namespace counters;
-    unsigned int icounter = *picounter;
-    if( map_tags.find( icounter ) == map_tags.end() )
-      std::cout << "ERROR! counter #" << icounter << " does not exist" << std::endl;
+    int icounter = *picounter;
+    if( map_tags[icounter] == "" )
+    {
+      std::ostringstream sstr;
+      sstr << "ERROR! counter #" << icounter << " does not exist";
+      throw std::runtime_error( sstr.str() );
+    }
     map_counters[icounter] += *pnevt;
-    map_timers[icounter]->Start();
+    map_timers[icounter].Start();
     return;
   }
 
   void counters_stop_counter_( const int* picounter )
   {
     using namespace counters;
-    unsigned int icounter = *picounter;
-    if( map_tags.find( icounter ) == map_tags.end() )
-      std::cout << "ERROR! counter #" << icounter << " does not exist" << std::endl;
-    map_totaltimes[icounter] += map_timers[icounter]->GetDuration();
+    int icounter = *picounter;
+    if( map_tags[icounter] == "" )
+    {
+      std::ostringstream sstr;
+      sstr << "ERROR! counter #" << icounter << " does not exist";
+      throw std::runtime_error( sstr.str() );
+    }
+    map_totaltimes[icounter] += map_timers[icounter].GetDuration();
     return;
   }
 
@@ -88,26 +109,29 @@ extern "C"
     program_totaltime += program_timer.GetDuration();
     // Write to stdout
     float overhead_totaltime = program_totaltime;
-    for( auto const& [icounter, totaltime] : map_totaltimes ) overhead_totaltime -= totaltime;
+    for( int icounter=0; icounter<NCOUNTERSMAX; icounter++ ) overhead_totaltime -= map_totaltimes[icounter];
     printf( " [COUNTERS] PROGRAM TOTAL          : %9.4fs\n", program_totaltime );
     printf( " [COUNTERS] Fortran Overhead ( 0 ) : %9.4fs\n", overhead_totaltime );
-    for( auto const& [icounter, tag] : map_tags )
+    for( int icounter=0; icounter<NCOUNTERSMAX; icounter++ )
     {
-      if( map_counters[icounter] > 1 ) // event counters
+      if( map_tags[icounter] != "" )
       {
-        printf( " [COUNTERS] %11s      ( %1d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
-                tag.c_str(),
-                icounter,
-                map_totaltimes[icounter],
-                map_counters[icounter],
-                map_totaltimes[icounter] / map_counters[icounter] );
-      }
-      else if( map_counters[icounter] == 1 ) // one-off counters for initialisation tasks (e.g. helicity filtering)
-      {
-        printf( " [COUNTERS] %11s      ( %1d ) : %9.4fs\n",
-                tag.c_str(),
-                icounter,
-                map_totaltimes[icounter] );
+        if( map_counters[icounter] > 1 ) // event counters
+        {
+          printf( " [COUNTERS] %11s      ( %1d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
+                  map_tags[icounter].c_str(),
+                  icounter,
+                  map_totaltimes[icounter],
+                  map_counters[icounter],
+                  map_totaltimes[icounter] / map_counters[icounter] );
+        }
+        else if( map_counters[icounter] == 1 ) // one-off counters for initialisation tasks (e.g. helicity filtering)
+        {
+          printf( " [COUNTERS] %11s      ( %1d ) : %9.4fs\n",
+                  map_tags[icounter].c_str(),
+                  icounter,
+                  map_totaltimes[icounter] );
+        }
       }
     }
     return;
