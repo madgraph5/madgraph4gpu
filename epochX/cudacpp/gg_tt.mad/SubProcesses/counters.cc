@@ -8,6 +8,9 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstring> // for strlen
+#include <map>
+#include <memory>
 
 // NB1: The C functions counters_xxx_ in this file are called by Fortran code
 // Hence the trailing "_": 'call counters_end()' links to counters_end_
@@ -21,27 +24,14 @@ extern "C"
 {
   namespace counters
   {
-    // Now: fortran=-1, cudacpp=0
-    // Eventually: fortran=-1, cuda=0, cpp/none=1, cpp/sse4=2, etc...
-    constexpr unsigned int nimplC = 3;
-    constexpr unsigned int iimplF2C( int iimplF ) { return iimplF + 1; }
-    const char* iimplC2TXT( int iimplC )
-    {
-      const int iimplF = iimplC - 1;
-      switch( iimplF )
-      {
-      case -1: return "Fortran MEs"; break;
-      case +0: return "CudaCpp MEs"; break;
-      case +1: return "CudaCpp HEL"; break;
-      default: assert( false ); break;
-      }
-    }
-
+    // Overall program timer
     static mgOnGpu::Timer<TIMERTYPE> program_timer;
     static float program_totaltime = 0;
-    static mgOnGpu::Timer<TIMERTYPE> smatrix1multi_timer[nimplC];
-    static float smatrix1multi_totaltime[nimplC] = { 0 };
-    static int smatrix1multi_counter[nimplC] = { 0 };
+    // Individual timers
+    static std::map<unsigned int, std::string> map_tags;
+    static std::map<unsigned int, std::unique_ptr< mgOnGpu::Timer<TIMERTYPE> > > map_timers;
+    static std::map<unsigned int, float > map_totaltimes;
+    static std::map<unsigned int, int > map_counters;
   }
   
   void counters_initialise_()
@@ -51,20 +41,44 @@ extern "C"
     return;
   }
 
-  void counters_smatrix1multi_start_( const int* iimplF, const int* pnevt )
+  void counters_register_counter_( const int* picounter, const char* ctag )
   {
     using namespace counters;
-    const unsigned int iimplC = iimplF2C( *iimplF );
-    smatrix1multi_counter[iimplC] += *pnevt;
-    smatrix1multi_timer[iimplC].Start();
+    unsigned int icounter = *picounter;
+    std::cout << "INFO: register counter #" << icounter << " with tag '" << ctag << "' (tag strlen=" << strlen(ctag) << ")" << std::endl;
+    const std::string tag(ctag);
+    if( map_tags.find( icounter ) == map_tags.end() )
+    {
+      map_tags[icounter] = tag;
+      map_timers[icounter] = std::make_unique<mgOnGpu::Timer<TIMERTYPE>>();
+      map_totaltimes[icounter] = 0;
+      map_counters[icounter] = 0;
+    }
+    else
+    {
+      std::cout << "ERROR! counter #" << icounter << " already exists with tag '" << map_tags[ icounter ] << "'" << std::endl;
+    }
     return;
   }
 
-  void counters_smatrix1multi_stop_( const int* iimplF )
+  void counters_start_counter_( const int* picounter, const int* pnevt )
   {
     using namespace counters;
-    const unsigned int iimplC = iimplF2C( *iimplF );
-    smatrix1multi_totaltime[iimplC] += smatrix1multi_timer[iimplC].GetDuration();
+    unsigned int icounter = *picounter;
+    if( map_tags.find( icounter ) == map_tags.end() )
+      std::cout << "ERROR! counter #" << icounter << " does not exist" << std::endl;
+    map_counters[icounter] += *pnevt;
+    map_timers[icounter]->Start();
+    return;
+  }
+
+  void counters_stop_counter_( const int* picounter )
+  {
+    using namespace counters;
+    unsigned int icounter = *picounter;
+    if( map_tags.find( icounter ) == map_tags.end() )
+      std::cout << "ERROR! counter #" << icounter << " does not exist" << std::endl;
+    map_totaltimes[icounter] += map_timers[icounter]->GetDuration();
     return;
   }
 
@@ -74,25 +88,26 @@ extern "C"
     program_totaltime += program_timer.GetDuration();
     // Write to stdout
     float overhead_totaltime = program_totaltime;
-    for( unsigned int iimplC = 0; iimplC < nimplC; iimplC++ ) overhead_totaltime -= smatrix1multi_totaltime[iimplC];
+    for( auto const& [icounter, totaltime] : map_totaltimes ) overhead_totaltime -= totaltime;
     printf( " [COUNTERS] PROGRAM TOTAL          : %9.4fs\n", program_totaltime );
     printf( " [COUNTERS] Fortran Overhead ( 0 ) : %9.4fs\n", overhead_totaltime );
-    for( unsigned int iimplC = 0; iimplC < nimplC; iimplC++ )
+    for( auto const& [icounter, tag] : map_tags )
     {
-      if( smatrix1multi_counter[iimplC] > 0 )
+      if( map_counters[icounter] > 1 ) // event counters
       {
-        if( iimplC < nimplC - 1 ) // MEs
-          printf( " [COUNTERS] %11s      ( %1d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
-                  iimplC2TXT( iimplC ),
-                  iimplC + 1,
-                  smatrix1multi_totaltime[iimplC],
-                  smatrix1multi_counter[iimplC],
-                  smatrix1multi_counter[iimplC] / smatrix1multi_totaltime[iimplC] );
-        else
-          printf( " [COUNTERS] %11s      ( %1d ) : %9.4fs\n",
-                  iimplC2TXT( iimplC ),
-                  iimplC + 1,
-                  smatrix1multi_totaltime[iimplC] );
+        printf( " [COUNTERS] %11s      ( %1d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
+                tag.c_str(),
+                icounter,
+                map_totaltimes[icounter],
+                map_counters[icounter],
+                map_totaltimes[icounter] / map_counters[icounter] );
+      }
+      else if( map_counters[icounter] == 1 ) // one-off counters for initialisation tasks (e.g. helicity filtering)
+      {
+        printf( " [COUNTERS] %11s      ( %1d ) : %9.4fs\n",
+                tag.c_str(),
+                icounter,
+                map_totaltimes[icounter] );
       }
     }
     return;

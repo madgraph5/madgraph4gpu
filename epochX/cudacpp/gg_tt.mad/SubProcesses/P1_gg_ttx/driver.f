@@ -94,7 +94,6 @@ C-----
       CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
 #endif
       CALL COUNTERS_INITIALISE()
-
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
 #else
