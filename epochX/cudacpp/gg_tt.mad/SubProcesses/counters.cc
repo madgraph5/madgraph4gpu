@@ -19,36 +19,41 @@
 
 extern "C"
 {
-  // Now: fortran=-1, cudacpp=0
-  // Eventually: fortran=-1, cuda=0, cpp/none=1, cpp/sse4=2, etc...
-  constexpr unsigned int nimplC = 3;
-  constexpr unsigned int iimplF2C( int iimplF ) { return iimplF + 1; }
-  const char* iimplC2TXT( int iimplC )
+  namespace counters
   {
-    const int iimplF = iimplC - 1;
-    switch( iimplF )
+    // Now: fortran=-1, cudacpp=0
+    // Eventually: fortran=-1, cuda=0, cpp/none=1, cpp/sse4=2, etc...
+    constexpr unsigned int nimplC = 3;
+    constexpr unsigned int iimplF2C( int iimplF ) { return iimplF + 1; }
+    const char* iimplC2TXT( int iimplC )
     {
+      const int iimplF = iimplC - 1;
+      switch( iimplF )
+      {
       case -1: return "Fortran MEs"; break;
       case +0: return "CudaCpp MEs"; break;
       case +1: return "CudaCpp HEL"; break;
       default: assert( false ); break;
+      }
     }
+
+    static mgOnGpu::Timer<TIMERTYPE> program_timer;
+    static float program_totaltime = 0;
+    static mgOnGpu::Timer<TIMERTYPE> smatrix1multi_timer[nimplC];
+    static float smatrix1multi_totaltime[nimplC] = { 0 };
+    static int smatrix1multi_counter[nimplC] = { 0 };
   }
-
-  static mgOnGpu::Timer<TIMERTYPE> program_timer;
-  static float program_totaltime = 0;
-  static mgOnGpu::Timer<TIMERTYPE> smatrix1multi_timer[nimplC];
-  static float smatrix1multi_totaltime[nimplC] = { 0 };
-  static int smatrix1multi_counter[nimplC] = { 0 };
-
+  
   void counters_initialise_()
   {
+    using namespace counters;
     program_timer.Start();
     return;
   }
 
   void counters_smatrix1multi_start_( const int* iimplF, const int* pnevt )
   {
+    using namespace counters;
     const unsigned int iimplC = iimplF2C( *iimplF );
     smatrix1multi_counter[iimplC] += *pnevt;
     smatrix1multi_timer[iimplC].Start();
@@ -57,6 +62,7 @@ extern "C"
 
   void counters_smatrix1multi_stop_( const int* iimplF )
   {
+    using namespace counters;
     const unsigned int iimplC = iimplF2C( *iimplF );
     smatrix1multi_totaltime[iimplC] += smatrix1multi_timer[iimplC].GetDuration();
     return;
@@ -64,6 +70,7 @@ extern "C"
 
   void counters_finalise_()
   {
+    using namespace counters;
     program_totaltime += program_timer.GetDuration();
     // Write to stdout
     float overhead_totaltime = program_totaltime;
