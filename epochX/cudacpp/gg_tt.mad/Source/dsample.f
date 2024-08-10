@@ -1755,9 +1755,18 @@ c      common /to_fx/   fx
       data fprb/maxfprb*1d0/
       data jpnt,jplace /1,1/
 
+      LOGICAL FIRST
+      SAVE FIRST
+      DATA FIRST/.TRUE./
 c-----
 c  Begin Code
 c-----
+
+      IF ( FIRST ) THEN
+        CALL COUNTERS_REGISTER_COUNTER( 6, 'Fortran I/O'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        FIRST=.FALSE.
+      ENDIF
+      CALL COUNTERS_START_COUNTER( 6, 1 ) ! FortranI/O=6
 
       if (first_time) then
          first_time = .false.
@@ -2288,6 +2297,7 @@ c 122              close(22)
                      call store_events(-1d0, .True.)
                   endif
                   cur_it = itm+2
+                  CALL COUNTERS_STOP_COUNTER( 6 ) ! FortranI/O=6
                   return
                endif
             endif                  
@@ -2354,6 +2364,7 @@ c                  write(22, 80) real(tmean), real(tsigma), real(chi2)
 c 129              close(22)
                   tsigma = tsigma*sqrt(max(0d0,chi2)) !This gives the 68% confidence cross section
                   cur_it = itm+20
+                  CALL COUNTERS_STOP_COUNTER( 6 ) ! FortranI/O=6
                   return
                endif
             endif                     
@@ -2395,6 +2406,7 @@ c                  write(*,*) 'Estimated unweighted events ', nun
          endif
       else
       endif
+      CALL COUNTERS_STOP_COUNTER( 6 ) ! FortranI/O=6
       end
 
       subroutine none_pass(max_events)
