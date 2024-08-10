@@ -54,15 +54,25 @@ c
       INTEGER                    ISUM_HEL
       LOGICAL                    MULTI_CHANNEL
       COMMON/TO_MATRIX/ISUM_HEL, MULTI_CHANNEL
+
+      LOGICAL FIRST
+      SAVE FIRST
+      DATA FIRST/.TRUE./
 c-----
 c  Begin Code
 c-----
+      IF ( FIRST ) THEN
+        CALL COUNTERS_REGISTER_COUNTER( 4, 'Fortran X2F'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        FIRST=.FALSE.
+      ENDIF
+      CALL COUNTERS_START_COUNTER( 4, 1 ) ! FortranX2F=4
       call gen_mom(iconfig,mincfig,maxcfig,invar,wgt,x,p)
 C     Pick the helicity configuration from the DiscreteSampler if user
 C     decided to perform MC over helicity configurations.
       if(ISUM_HEL.ne.0) then
         call sample_get_discrete_x(wgt,hel_picked,iconfig,'Helicity')
       endif
+      CALL COUNTERS_STOP_COUNTER( 4 ) ! FortranX2F=4
       end
 
       subroutine gen_mom(iconfig,mincfig,maxcfig,invar,wgt,x,p1)
