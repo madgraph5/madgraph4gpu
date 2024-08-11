@@ -52,7 +52,7 @@ extern "C"
     if( icounter < 0 || icounter >= NCOUNTERSMAX )
     {
       std::ostringstream sstr;
-      sstr << "ERROR! Invalid counter# '" << icounter << "'";
+      sstr << "ERROR! Invalid counter# '" << icounter << "' (valid values are 0 to " << NCOUNTERSMAX-1 << ")";
       throw std::runtime_error( sstr.str() );
     }
     if( tag == "" )
