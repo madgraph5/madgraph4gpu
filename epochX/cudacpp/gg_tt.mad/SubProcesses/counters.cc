@@ -24,6 +24,7 @@ extern "C"
   namespace counters
   {
     constexpr int NCOUNTERSMAX = 10;
+    static bool disablecounters = false;
     // Overall program timer
     static mgOnGpu::Timer<TIMERTYPE> program_timer;
     static float program_totaltime = 0;
@@ -37,6 +38,7 @@ extern "C"
   void counters_initialise_()
   {
     using namespace counters;
+    if( getenv( "CUDACPP_RUNTIME_DISABLECOUNTERS" ) ) disablecounters=true;
     for( int icounter=0; icounter<NCOUNTERSMAX; icounter++ )
       array_tags[icounter] = ""; // ensure that this is initialized to ""
     program_timer.Start();
@@ -77,6 +79,7 @@ extern "C"
   void counters_start_counter_( const int* picounter, const int* pnevt )
   {
     using namespace counters;
+    if( disablecounters ) return;
     int icounter = *picounter;
     if( array_tags[icounter] == "" )
     {
@@ -92,6 +95,7 @@ extern "C"
   void counters_stop_counter_( const int* picounter )
   {
     using namespace counters;
+    if( disablecounters ) return;
     int icounter = *picounter;
     if( array_tags[icounter] == "" )
     {
@@ -106,11 +110,13 @@ extern "C"
   void counters_finalise_()
   {
     using namespace counters;
+    // Overall timer
     program_totaltime += program_timer.GetDuration();
-    // Write to stdout
+    printf( " [COUNTERS] PROGRAM TOTAL          : %9.4fs\n", program_totaltime );
+    // Individual timers
     float overhead_totaltime = program_totaltime;
     for( int icounter=0; icounter<NCOUNTERSMAX; icounter++ ) overhead_totaltime -= array_totaltimes[icounter];
-    printf( " [COUNTERS] PROGRAM TOTAL          : %9.4fs\n", program_totaltime );
+    if( disablecounters ) return;
     printf( " [COUNTERS] Fortran Overhead ( 0 ) : %9.4fs\n", overhead_totaltime );
     for( int icounter=0; icounter<NCOUNTERSMAX; icounter++ )
     {
