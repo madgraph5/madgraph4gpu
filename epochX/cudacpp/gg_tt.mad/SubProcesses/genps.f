@@ -62,17 +62,17 @@ c-----
 c  Begin Code
 c-----
       IF ( FIRST ) THEN
-        CALL COUNTERS_REGISTER_COUNTER( 4, 'Fortran X2F'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran X2F'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
         FIRST=.FALSE.
       ENDIF
-      CALL COUNTERS_START_COUNTER( 4, 1 ) ! FortranX2F=4
+      CALL COUNTERS_START_COUNTER( 1, 1 ) ! FortranX2F=1
       call gen_mom(iconfig,mincfig,maxcfig,invar,wgt,x,p)
 C     Pick the helicity configuration from the DiscreteSampler if user
 C     decided to perform MC over helicity configurations.
       if(ISUM_HEL.ne.0) then
         call sample_get_discrete_x(wgt,hel_picked,iconfig,'Helicity')
       endif
-      CALL COUNTERS_STOP_COUNTER( 4 ) ! FortranX2F=4
+      CALL COUNTERS_STOP_COUNTER( 1 ) ! FortranX2F=1
       end
 
       subroutine gen_mom(iconfig,mincfig,maxcfig,invar,wgt,x,p1)

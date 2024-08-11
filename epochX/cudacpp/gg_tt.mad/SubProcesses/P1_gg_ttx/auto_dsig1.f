@@ -515,14 +515,14 @@ C
       DATA FIRST/.TRUE./
       
       IF ( FIRST ) THEN
-        CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran MEs'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
-        CALL COUNTERS_REGISTER_COUNTER( 2, 'CudaCpp MEs'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
-        CALL COUNTERS_REGISTER_COUNTER( 3, 'CudaCpp HEL'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        CALL COUNTERS_REGISTER_COUNTER( 4, 'Fortran MEs'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        CALL COUNTERS_REGISTER_COUNTER( 5, 'CudaCpp HEL'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        CALL COUNTERS_REGISTER_COUNTER( 6, 'CudaCpp MEs'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
       ENDIF
 
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
-        CALL COUNTERS_START_COUNTER( 1, VECSIZE_USED ) ! FortranMEs=-1      
+        CALL COUNTERS_START_COUNTER( 4, VECSIZE_USED ) ! FortranMEs=-4
 !$OMP PARALLEL
 !$OMP DO
         DO IVEC=1, VECSIZE_USED
@@ -538,7 +538,7 @@ C
         ENDDO
 !$OMP END DO
 !$OMP END PARALLEL
-        CALL COUNTERS_STOP_COUNTER( 1 ) ! FortranMEs=1
+        CALL COUNTERS_STOP_COUNTER( 4 ) ! FortranMEs=4
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
 
@@ -548,7 +548,7 @@ C
           STOP
         ENDIF
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          CALL COUNTERS_START_COUNTER( 3, 1 ) ! CudaCppHEL=3 (second argument is 1: one-off counter)
+          CALL COUNTERS_START_COUNTER( 5, 1 ) ! CudaCppHEL=5 (second argument is 1: one-off counter)
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .TRUE.) ! quit after computing helicities
@@ -564,9 +564,9 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
           ENDIF
           WRITE (6,*) 'NGOODHEL =', NGOODHEL
           WRITE (6,*) 'NCOMB =', NCOMB
-          CALL COUNTERS_STOP_COUNTER( 3 ) ! CudaCppHEL=3
+          CALL COUNTERS_STOP_COUNTER( 5 ) ! CudaCppHEL=5
         ENDIF
-        CALL COUNTERS_START_COUNTER( 2, VECSIZE_USED ) ! CudaCppMEs=2      
+        CALL COUNTERS_START_COUNTER( 6, VECSIZE_USED ) ! CudaCppMEs=6
         IF ( .NOT. MULTI_CHANNEL ) THEN
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
@@ -580,7 +580,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
      &      HEL_RAND, COL_RAND, CHANNEL, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .FALSE.) ! do not quit after computing helicities
         ENDIF
-        CALL COUNTERS_STOP_COUNTER( 2 ) ! CudaCppMEs=2      
+        CALL COUNTERS_STOP_COUNTER( 6 ) ! CudaCppMEs=6
       ENDIF
 
       IF( FBRIDGE_MODE .LT. 0 ) THEN ! (BothQuiet=-1 or BothDebug=-2)

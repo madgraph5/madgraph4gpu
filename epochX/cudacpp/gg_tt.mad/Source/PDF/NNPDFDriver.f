@@ -171,10 +171,10 @@
       DATA FIRST/.TRUE./
       
       IF ( FIRST ) THEN
-        CALL COUNTERS_REGISTER_COUNTER( 5, 'Fortran PDF'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        CALL COUNTERS_REGISTER_COUNTER( 2, 'Fortran PDF'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
         FIRST=.FALSE.
       ENDIF
-      CALL COUNTERS_START_COUNTER( 5, 1 ) ! FortranPDF=5
+      CALL COUNTERS_START_COUNTER( 2, 1 ) ! FortranPDF=2
 
       Q2 = Q*Q
 *     check bounds
@@ -277,7 +277,7 @@ c$$$         write(6,*) "Q2 = ",Q2, " GeV2", q2grid(1)
          call lh_polin2(x1a,x2a,ya,m,n,x1,x2,y,dy)
          XPDF(IPDF) = y
       enddo                 
-      CALL COUNTERS_STOP_COUNTER( 5 ) ! FortranPDF=5
+      CALL COUNTERS_STOP_COUNTER( 2 ) ! FortranPDF=2
       end subroutine
 
       subroutine lh_polin2(x1a,x2a,ya,m,n,x1,x2,y,dy) 
