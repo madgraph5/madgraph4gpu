@@ -253,7 +253,10 @@ c         itmin = itmin + 1
       endif
 
       write(*,*) "about to integrate ", ndim,ncall,itmax,itmin,ninvar,nconfigs
+      CALL COUNTERS_REGISTER_COUNTER( 11, 'PROGRAM sample_full'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+      CALL COUNTERS_START_COUNTER( 11, 1 ) ! sample_full=11
       call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs,VECSIZE_USED)
+      CALL COUNTERS_STOP_COUNTER( 11 ) ! sample_full=11
 
 c
 c     Now write out events to permanent file

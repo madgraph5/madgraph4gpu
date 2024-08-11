@@ -23,7 +23,7 @@ extern "C"
 {
   namespace counters
   {
-    constexpr int NCOUNTERSMAX = 10;
+    constexpr int NCOUNTERSMAX = 20;
     // Overall program timer
     static mgOnGpu::Timer<TIMERTYPE> program_timer;
     static float program_totaltime = 0;
@@ -108,10 +108,14 @@ extern "C"
     using namespace counters;
     // Dump program counters
     program_totaltime += program_timer.GetDuration();
-    printf( " [COUNTERS] PROGRAM TOTAL           : %9.4fs\n", program_totaltime );
+    printf( " [COUNTERS] PROGRAM TOTAL               : %9.4fs\n", program_totaltime );
     // Create counter[0] "Fortran Other"
     float fortranother_totaltime = program_totaltime;
-    for( int icounter=1; icounter<NCOUNTERSMAX+1; icounter++ ) fortranother_totaltime -= array_totaltimes[icounter];
+    for( int icounter=1; icounter<NCOUNTERSMAX+1; icounter++ )
+    {
+      if( array_tags[icounter].rfind( "PROGRAM", 0 ) != 0 ) // skip counters whose tags start with "PROGRAM"
+        fortranother_totaltime -= array_totaltimes[icounter];
+    }
     array_tags[0] = "Fortran Other";
     array_counters[0] = 1;
     array_totaltimes[0] = fortranother_totaltime;
@@ -122,7 +126,7 @@ extern "C"
       {
         if( array_counters[icounter] > 1 ) // event counters
         {
-          printf( " [COUNTERS] %-16s ( %2d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
+          printf( " [COUNTERS] %-20s ( %2d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
                   array_tags[icounter].c_str(),
                   icounter,
                   array_totaltimes[icounter],
@@ -131,7 +135,7 @@ extern "C"
         }
         else if( array_counters[icounter] == 1 ) // one-off counters for initialisation tasks (e.g. helicity filtering)
         {
-          printf( " [COUNTERS] %-16s ( %2d ) : %9.4fs\n",
+          printf( " [COUNTERS] %-20s ( %2d ) : %9.4fs\n",
                   array_tags[icounter].c_str(),
                   icounter,
                   array_totaltimes[icounter] );
