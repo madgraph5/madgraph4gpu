@@ -28,16 +28,16 @@ extern "C"
     static mgOnGpu::Timer<TIMERTYPE> program_timer;
     static float program_totaltime = 0;
     // Individual timers
-    static std::string array_tags[NCOUNTERSMAX];
-    static mgOnGpu::Timer<TIMERTYPE> array_timers[NCOUNTERSMAX];
-    static float array_totaltimes[NCOUNTERSMAX] = { 0 };
-    static int array_counters[NCOUNTERSMAX] = { 0 };
+    static std::string array_tags[NCOUNTERSMAX+1];
+    static mgOnGpu::Timer<TIMERTYPE> array_timers[NCOUNTERSMAX+1];
+    static float array_totaltimes[NCOUNTERSMAX+1] = { 0 };
+    static int array_counters[NCOUNTERSMAX+1] = { 0 };
   }
   
   void counters_initialise_()
   {
     using namespace counters;
-    for( int icounter=0; icounter<NCOUNTERSMAX; icounter++ )
+    for( int icounter=1; icounter<NCOUNTERSMAX+1; icounter++ )
       array_tags[icounter] = ""; // ensure that this is initialized to ""
     program_timer.Start();
     return;
@@ -49,10 +49,10 @@ extern "C"
     int icounter = *picounter;
     std::cout << "INFO: register counter #" << icounter << " with tag '" << ctag << "' (tag strlen=" << strlen(ctag) << ")" << std::endl;
     const std::string tag(ctag);
-    if( icounter < 0 || icounter >= NCOUNTERSMAX )
+    if( icounter < 1 || icounter >= NCOUNTERSMAX+1 )
     {
       std::ostringstream sstr;
-      sstr << "ERROR! Invalid counter# '" << icounter << "' (valid values are 0 to " << NCOUNTERSMAX-1 << ")";
+      sstr << "ERROR! Invalid counter# '" << icounter << "' (valid values are 1 to " << NCOUNTERSMAX << ")";
       throw std::runtime_error( sstr.str() );
     }
     if( tag == "" )
@@ -106,19 +106,23 @@ extern "C"
   void counters_finalise_()
   {
     using namespace counters;
+    // Dump program counters
     program_totaltime += program_timer.GetDuration();
-    // Write to stdout
-    float overhead_totaltime = program_totaltime;
-    for( int icounter=0; icounter<NCOUNTERSMAX; icounter++ ) overhead_totaltime -= array_totaltimes[icounter];
-    printf( " [COUNTERS] PROGRAM TOTAL          : %9.4fs\n", program_totaltime );
-    printf( " [COUNTERS] Fortran Overhead ( 0 ) : %9.4fs\n", overhead_totaltime );
-    for( int icounter=0; icounter<NCOUNTERSMAX; icounter++ )
+    printf( " [COUNTERS] PROGRAM TOTAL           : %9.4fs\n", program_totaltime );
+    // Create counter[0] "Fortran Other"
+    float fortranother_totaltime = program_totaltime;
+    for( int icounter=1; icounter<NCOUNTERSMAX+1; icounter++ ) fortranother_totaltime -= array_totaltimes[icounter];
+    array_tags[0] = "Fortran Other";
+    array_counters[0] = 1;
+    array_totaltimes[0] = fortranother_totaltime;
+    // Dump individual counters
+    for( int icounter=0; icounter<NCOUNTERSMAX+1; icounter++ )
     {
       if( array_tags[icounter] != "" )
       {
         if( array_counters[icounter] > 1 ) // event counters
         {
-          printf( " [COUNTERS] %11s      ( %1d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
+          printf( " [COUNTERS] %-16s ( %2d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
                   array_tags[icounter].c_str(),
                   icounter,
                   array_totaltimes[icounter],
@@ -127,7 +131,7 @@ extern "C"
         }
         else if( array_counters[icounter] == 1 ) // one-off counters for initialisation tasks (e.g. helicity filtering)
         {
-          printf( " [COUNTERS] %11s      ( %1d ) : %9.4fs\n",
+          printf( " [COUNTERS] %-16s ( %2d ) : %9.4fs\n",
                   array_tags[icounter].c_str(),
                   icounter,
                   array_totaltimes[icounter] );
