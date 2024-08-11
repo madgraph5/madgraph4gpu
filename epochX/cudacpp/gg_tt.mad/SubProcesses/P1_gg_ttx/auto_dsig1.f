@@ -441,11 +441,13 @@ C         Set sign of dsig based on sign of PDF and matrix element
           ALL_OUT(IVEC)=0D0
         ENDIF
 C       Generate events only if IMODE is 0.
+        CALL COUNTERS_START_COUNTER( 16, 1 ) ! TEST=12
         IF(IMODE.EQ.0.AND.DABS(ALL_OUT(IVEC)).GT.0D0)THEN
 C         Call UNWGT to unweight and store events
           CALL UNWGT(ALL_PP(0,1,IVEC), ALL_OUT(IVEC)*ALL_WGT(IVEC),1,
      $      SELECTED_HEL(IVEC), SELECTED_COL(IVEC), IVEC)
         ENDIF
+        CALL COUNTERS_STOP_COUNTER( 16 ) ! TEST=12
       ENDDO
 
       END

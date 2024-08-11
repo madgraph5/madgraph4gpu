@@ -141,6 +141,10 @@ c-----
         CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran final_I/O'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
         CALL COUNTERS_REGISTER_COUNTER( 12, 'Fortran TEST'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
         CALL COUNTERS_REGISTER_COUNTER( 13, 'Fortran TEST2'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        CALL COUNTERS_REGISTER_COUNTER( 14, 'Fortran TEST3'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        CALL COUNTERS_REGISTER_COUNTER( 15, 'Fortran TEST4'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        CALL COUNTERS_REGISTER_COUNTER( 16, 'Fortran TEST5'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        CALL COUNTERS_REGISTER_COUNTER( 17, 'Fortran TEST6'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
         FIRST=.FALSE.
       ENDIF
 
