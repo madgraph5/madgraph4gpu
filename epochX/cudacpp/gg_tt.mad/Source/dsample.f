@@ -140,6 +140,7 @@ c-----
       IF ( FIRST ) THEN
         CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran final_I/O'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
         CALL COUNTERS_REGISTER_COUNTER( 12, 'Fortran TEST'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        CALL COUNTERS_REGISTER_COUNTER( 13, 'Fortran TEST2'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
         FIRST=.FALSE.
       ENDIF
 
