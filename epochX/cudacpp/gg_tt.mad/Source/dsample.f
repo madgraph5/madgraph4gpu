@@ -139,6 +139,7 @@ c Begin Code
 c-----
       IF ( FIRST ) THEN
         CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran final_I/O'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+        CALL COUNTERS_REGISTER_COUNTER( 12, 'Fortran TEST'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
         FIRST=.FALSE.
       ENDIF
 
@@ -201,6 +202,7 @@ c               all_wgt(i) = all_wgt(i)*fx
                if (VECSIZE_USED.le.1) then
                   all_fx(1) = dsig(all_p, all_wgt,0)
                else
+               CALL COUNTERS_START_COUNTER( 12, VECSIZE_USED ) ! TEST=12
                do i=1, VECSIZE_USED
 c                 need to restore common block                  
                   xbk(:) = all_xbk(:, i)
@@ -211,6 +213,7 @@ c                 need to restore common block
                   call prepare_grouping_choice(all_p(1,i), all_wgt(i), i.eq.1)
                enddo
                call select_grouping(imirror, iproc, iconf, all_wgt, VECSIZE_USED)
+               CALL COUNTERS_STOP_COUNTER( 12 ) ! TEST=12
                call dsig_vec(all_p, all_wgt, all_xbk, all_q2fact, all_cm_rap,
      &                          iconf, iproc, imirror, all_fx,VECSIZE_USED)
 
