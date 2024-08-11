@@ -147,6 +147,8 @@ C-----
 c
 c     Read process number
 c
+      CALL COUNTERS_REGISTER_COUNTER( 7, 'Fortran initial_I/O'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+      CALL COUNTERS_START_COUNTER( 7, 1 ) ! initial_I/O=7
       call open_file(lun+1, 'dname.mg', fopened)
       if (.not.fopened)then
          goto 11
@@ -217,6 +219,7 @@ c   If CKKW-type matching, read IS Sudakov grid
           print *,'Running CKKW as lower mult sample'
         endif
       endif
+      CALL COUNTERS_STOP_COUNTER( 7 ) ! initial_I/O=7
 
 c     
 c     Get user input
