@@ -28,7 +28,6 @@ extern "C"
     static mgOnGpu::Timer<TIMERTYPE> program_timer;
     static float program_totaltime = 0;
     // Individual timers
-    static bool array_defined[NCOUNTERSMAX]; // counter[icounter] has been defined
     static std::string array_tags[NCOUNTERSMAX];
     static mgOnGpu::Timer<TIMERTYPE> array_timers[NCOUNTERSMAX];
     static float array_totaltimes[NCOUNTERSMAX] = { 0 };
@@ -39,7 +38,7 @@ extern "C"
   {
     using namespace counters;
     for( int icounter=0; icounter<NCOUNTERSMAX; icounter++ )
-      array_defined[icounter] = false; // ensure this is properly initialised
+      array_tags[icounter] = ""; // ensure that this is initialized to ""
     program_timer.Start();
     return;
   }
@@ -62,9 +61,8 @@ extern "C"
       sstr << "ERROR! Invalid empty tag ''";
       throw std::runtime_error( sstr.str() );
     }
-    if( ! array_defined[icounter] )
+    if( array_tags[icounter] == "" )
     {
-      array_defined[icounter] = true;
       array_tags[icounter] = tag;
     }
     else
@@ -80,7 +78,7 @@ extern "C"
   {
     using namespace counters;
     int icounter = *picounter;
-    if( ! array_defined[icounter] )
+    if( array_tags[icounter] == "" )
     {
       std::ostringstream sstr;
       sstr << "ERROR! counter #" << icounter << " does not exist";
@@ -95,7 +93,7 @@ extern "C"
   {
     using namespace counters;
     int icounter = *picounter;
-    if( ! array_defined[icounter] )
+    if( array_tags[icounter] == "" )
     {
       std::ostringstream sstr;
       sstr << "ERROR! counter #" << icounter << " does not exist";
@@ -116,7 +114,7 @@ extern "C"
     printf( " [COUNTERS] Fortran Overhead ( 0 ) : %9.4fs\n", overhead_totaltime );
     for( int icounter=0; icounter<NCOUNTERSMAX; icounter++ )
     {
-      if( array_defined[icounter] )
+      if( array_tags[icounter] != "" )
       {
         if( array_counters[icounter] > 1 ) // event counters
         {
