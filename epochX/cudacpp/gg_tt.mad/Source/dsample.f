@@ -138,6 +138,7 @@ c-----
 c Begin Code
 c-----
       IF ( FIRST ) THEN
+        CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran X2F'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
         CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran final_I/O'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
         CALL COUNTERS_REGISTER_COUNTER( 12, 'Fortran TEST'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
         CALL COUNTERS_REGISTER_COUNTER( 13, 'Fortran TEST2'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
@@ -182,7 +183,9 @@ c
          if (iter .le. itmax) then
 c            write(*,*) 'iter/ievent/ivec', iter, ievent, ivec
             ievent=ievent+1
+            CALL COUNTERS_START_COUNTER( 1, 1 ) ! FortranX2F=1
             call x_to_f_arg(ndim,ipole,mincfig,maxcfig,ninvar,wgt,x,p)
+            CALL COUNTERS_STOP_COUNTER( 1 ) ! FortranX2F=1
             CUTSDONE=.FALSE.
             CUTSPASSED=.FALSE.
             if (passcuts(p,VECSIZE_USED)) then
@@ -424,7 +427,9 @@ c
          call sample_get_config(wgt,iter,ipole)
          if (iter .le. itmax) then
             ievent=ievent+1
+            CALL COUNTERS_START_COUNTER( 1, 1 ) ! FortranX2F=1
             call x_to_f_arg(ndim,ipole,mincfig,maxcfig,ninvar,wgt,x,p)
+            CALL COUNTERS_STOP_COUNTER( 1 ) ! FortranX2F=1
             if (pass_point(p)) then
                xzoomfact = 1d0
                fx = dsig(p,wgt,0) !Evaluate function
