@@ -153,12 +153,14 @@ c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is n
       endif
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL COUNTERS_START_COUNTER( 15, 1 ) ! test15
       CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
       FBRIDGE_CBYF1SUM2 = 0
       FBRIDGE_CBYF1MAX = -1D100
       FBRIDGE_CBYF1MIN = 1D100
+      CALL COUNTERS_STOP_COUNTER( 15 ) ! test15
 #endif
 c
 c     Read process number
@@ -276,6 +278,7 @@ c         itmin = itmin + 1
       CALL COUNTERS_START_COUNTER( 20, 1 ) ! sample_full=20
       call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs,VECSIZE_USED)
       CALL COUNTERS_STOP_COUNTER( 20 ) ! sample_full=20
+      CALL COUNTERS_START_COUNTER( 12, 1 ) ! test12
 
 c
 c     Now write out events to permanent file
@@ -318,6 +321,7 @@ c    &    SQRT( FBRIDGE_CBYF1SUM2 / FBRIDGE_NCBYF1 ) ! ~standard deviation
      &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1, ' +- ',
      &    SQRT( FBRIDGE_CBYF1SUM2 ) / FBRIDGE_NCBYF1 ! ~standard error
       ENDIF
+      CALL COUNTERS_STOP_COUNTER( 12 ) ! test12
 #endif
       CALL COUNTERS_FINALISE()
       end
