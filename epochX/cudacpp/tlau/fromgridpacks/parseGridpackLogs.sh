@@ -30,6 +30,7 @@ msgs="${msgs} OVERALL_NON-MEs"
 msgs="${msgs} OVERALL_MEs"
 
 teefile=$procdir/summary.txt
+\rm -f $teefile
 touch $teefile
 for backend in fortran cppnone cppsse4 cppavx2 cpp512y cpp512z cuda hip; do
   outfile=$procdir/${backend}/output.txt
