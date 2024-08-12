@@ -130,6 +130,7 @@ C     Continue only if IMODE is 0, 4 or 5
       IF(IMODE.NE.0.AND.IMODE.NE.4.AND.IMODE.NE.5) RETURN
 
 
+      CALL COUNTERS_START_COUNTER( 4, 1 ) ! FortranPDFs=4
       IF (ABS(LPP(IB(1))).GE.1) THEN
           !LP=SIGN(1,LPP(IB(1)))
         IF (DSQRT(Q2FACT(IB(1))).EQ.0D0) THEN
@@ -152,6 +153,7 @@ C     Continue only if IMODE is 0, 4 or 5
         CX2=PDG2PDF(LPP(IB(2)),-4, IB(2),XBK(IB(2)), QSCALE)
         UX2=PDG2PDF(LPP(IB(2)),-2, IB(2),XBK(IB(2)), QSCALE)
       ENDIF
+      CALL COUNTERS_STOP_COUNTER( 4 ) ! FortranPDFs=2
       PD(0) = 0D0
       IPROC = 0
       IPROC=IPROC+1  ! g u~ > ta+ ta- d u~ d~
@@ -205,7 +207,9 @@ C     Select a flavor combination (need to do here for right sign)
         R=R-DABS(PD(IPSEL))/PD(0)
       ENDDO
 
+      CALL COUNTERS_START_COUNTER( 6, 1 ) ! FortranReweight=6
       DSIGUU=DSIGUU*REWGT(PP,1)
+      CALL COUNTERS_STOP_COUNTER( 6 ) ! FortranReweight=6
 
 C     Apply the bias weight specified in the run card (default is 1.0)
       DSIGUU=DSIGUU*CUSTOM_BIAS(PP,DSIGUU,1,1)
@@ -369,6 +373,7 @@ C     Continue only if IMODE is 0, 4 or 5
       IF(IMODE.NE.0.AND.IMODE.NE.4.AND.IMODE.NE.5) RETURN
 
 
+      CALL COUNTERS_START_COUNTER( 4, VECSIZE_USED ) ! FortranPDFs=2
       DO IVEC=1,VECSIZE_USED
         IF (ABS(LPP(IB(1))).GE.1) THEN
             !LP=SIGN(1,LPP(IB(1)))
@@ -383,6 +388,7 @@ C     Continue only if IMODE is 0, 4 or 5
      $     ,DSQRT(ALL_Q2FACT(IB(2), IVEC)))
         ENDIF
       ENDDO
+      CALL COUNTERS_STOP_COUNTER( 4 ) ! FortranPDFs=2
       ALL_PD(0,:) = 0D0
       IPROC = 0
       IPROC=IPROC+1  ! g u~ > ta+ ta- d u~ d~
@@ -444,7 +450,9 @@ C       Select a flavor combination (need to do here for right sign)
         CHANNEL = SUBDIAG(1)
 
 
+        CALL COUNTERS_START_COUNTER( 6, 1 ) ! FortranReweight=6
         ALL_RWGT(IVEC) = REWGT(ALL_PP(0,1,IVEC), IVEC)
+        CALL COUNTERS_STOP_COUNTER( 6 ) ! FortranReweight=6
 
         IF(FRAME_ID.NE.6)THEN
           CALL BOOST_TO_FRAME(ALL_PP(0,1,IVEC), FRAME_ID, P_MULTI(0,1
@@ -499,11 +507,13 @@ C         Set sign of dsig based on sign of PDF and matrix element
           ALL_OUT(IVEC)=0D0
         ENDIF
 C       Generate events only if IMODE is 0.
+        CALL COUNTERS_START_COUNTER( 7, 1 ) ! FortranUnweight=7
         IF(IMODE.EQ.0.AND.DABS(ALL_OUT(IVEC)).GT.0D0)THEN
 C         Call UNWGT to unweight and store events
           CALL UNWGT(ALL_PP(0,1,IVEC), ALL_OUT(IVEC)*ALL_WGT(IVEC),1,
      $      SELECTED_HEL(IVEC), SELECTED_COL(IVEC), IVEC)
         ENDIF
+        CALL COUNTERS_STOP_COUNTER( 7 ) ! FortranUnweight=7
       ENDDO
 
       END
@@ -574,7 +584,7 @@ C
       
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
-        call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortranMEs=-1
+        CALL COUNTERS_START_COUNTER( 9, VECSIZE_USED ) ! FortranMEs=9
 !$OMP PARALLEL
 !$OMP DO
         DO IVEC=1, VECSIZE_USED
@@ -590,7 +600,7 @@ C
         ENDDO
 !$OMP END DO
 !$OMP END PARALLEL
-        call counters_smatrix1multi_stop( -1 ) ! fortranMEs=-1
+        CALL COUNTERS_STOP_COUNTER( 9 ) ! FortranMEs=9
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
 
@@ -600,11 +610,10 @@ C
           STOP
         ENDIF
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          call counters_smatrix1multi_start( 1, VECSIZE_USED ) ! cudacppHEL=1
+          CALL COUNTERS_START_COUNTER( 11, 0 ) ! 11=CudaCpp-Initialise (counter set to 1 on bridge creation, do not increment it further)
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .TRUE.) ! quit after computing helicities
-          FIRST = .FALSE.
 c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
           IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
             CALL RESET_CUMULATIVE_VARIABLE() ! mimic 'avoid bias of the initialization' within SMATRIX1
@@ -617,9 +626,9 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
           ENDIF
           WRITE (6,*) 'NGOODHEL =', NGOODHEL
           WRITE (6,*) 'NCOMB =', NCOMB
-          call counters_smatrix1multi_stop( 1 ) ! cudacppHEL=1
+          CALL COUNTERS_STOP_COUNTER( 11 ) ! 11=CudaCpp-Initialise
         ENDIF
-        call counters_smatrix1multi_start( 0, VECSIZE_USED ) ! cudacppMEs=0
+        CALL COUNTERS_START_COUNTER( 19, VECSIZE_USED ) ! CudaCppMEs=19
         IF ( .NOT. MULTI_CHANNEL ) THEN
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
@@ -633,7 +642,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
      &      HEL_RAND, COL_RAND, CHANNEL, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .FALSE.) ! do not quit after computing helicities
         ENDIF
-        call counters_smatrix1multi_stop( 0 ) ! cudacppMEs=0
+        CALL COUNTERS_STOP_COUNTER( 19 ) ! CudaCppMEs=19
       ENDIF
 
       IF( FBRIDGE_MODE .LT. 0 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
@@ -666,6 +675,8 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
           SELECTED_COL(IVEC) = SELECTED_COL2(IVEC) ! use the cudacpp color instead of the fortran color!
         END DO
       ENDIF
+
+      FIRST = .FALSE.
 #endif
 
       IF ( FIRST_CHID ) THEN
