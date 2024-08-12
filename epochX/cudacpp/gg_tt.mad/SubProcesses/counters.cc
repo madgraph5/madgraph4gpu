@@ -153,9 +153,9 @@ extern "C"
     // Dump individual counters
     for( int icounter=0; icounter<NCOUNTERSMAX+3; icounter++ )
     {
-      if( array_tags[icounter] != "" && array_counters[icounter] >= 1 )
+      if( array_tags[icounter] != "" )
       {
-        if( ends_with( array_tags[icounter], "MEs" ) && ! ends_with( array_tags[icounter], "NON-MEs" ) ) // MEs counters
+        if( array_counters[icounter] > 1 ) // event counters
         {
           printf( " [COUNTERS] %-30s ( %2d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
                   array_tags[icounter].c_str(),
@@ -164,7 +164,7 @@ extern "C"
                   array_counters[icounter],
                   array_totaltimes[icounter] / array_counters[icounter] );
         }
-        else // non-MEs counters
+        else if( array_counters[icounter] == 1 ) // one-off counters for initialisation tasks (e.g. helicity filtering)
         {
           printf( " [COUNTERS] %-30s ( %2d ) : %9.4fs\n",
                   array_tags[icounter].c_str(),
