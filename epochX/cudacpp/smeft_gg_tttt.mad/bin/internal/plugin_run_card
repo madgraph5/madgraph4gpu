@@ -1,2 +1,1 @@
-{'name':'cudacpp_backend', 'value':'cpp', 'include':False, 'hidden':False}
-{'name':'cudacpp_fptype', 'value':'m', 'include':False, 'hidden':False}
+{'name':'cudacpp_backend', 'value':'CPP', 'include':False, 'hidden':False}

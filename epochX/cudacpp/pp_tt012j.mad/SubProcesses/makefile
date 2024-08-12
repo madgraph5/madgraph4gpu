@@ -2,9 +2,6 @@ SHELL := /bin/bash
 
 include ../../Source/make_opts
 
-# Export the relevant settings from make_opts to builds using the cudacpp makefile
-export FPTYPE
-
 # Determine CUDACPP_BUILDDIR based on the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD and USEBUILDDIR (#829)
 # Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing
 include ../../src/cudacpp_config.mk
@@ -162,29 +159,27 @@ madevent_fortran_link: $(PROG)_fortran
 	rm -f $(PROG)
 	ln -s $(PROG)_fortran $(PROG)
 
-madevent_cudacpp_link: all
-	rm -f $(PROG)
-ifeq ($(BACKEND),cuda)
-	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
-else ifeq ($(BACKEND),hip)
-	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_hip $(PROG)
-else
-	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
-endif
-
 madevent_cuda_link:
-	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=cuda madevent_cudacpp_link
+	$(MAKE) USEGTEST=0 BACKEND=cuda $(CUDACPP_BUILDDIR)/$(PROG)_cuda
+	rm -f $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
 
 madevent_hip_link:
-	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=hip madevent_cudacpp_link
+	$(MAKE) USEGTEST=0 BACKEND=hip $(CUDACPP_BUILDDIR)/$(PROG)_hip
+	rm -f $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_hip $(PROG)
 
 madevent_cpp_link:
-	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=cppauto madevent_cudacpp_link
+	$(MAKE) USEGTEST=0 BACKEND=cppauto $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+	rm -f $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
 override SUPPORTED_AVXS = cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
 madevent_%_link:
-	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then echo "ERROR! Invalid target '$@' (supported madevent_cpp*_link targets are: $(foreach avx,$(SUPPORTED_AVXS),'madevent_$(avx)_link'))"; exit 1; fi
-	$(MAKE) USEGTEST=0 USEBUILDDIR=1 BACKEND=$* madevent_cudacpp_link
+	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then echo "ERROR! Invalid target '$@' (supported madevent_cpp*_link targets are: $(foreach avx,$(SUPPORTED_AVXS),'madevent_cpp$(avx)_link'))"; exit 1; fi
+	$(MAKE) USEGTEST=0 BACKEND=$* $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+	rm -f $(PROG)
+	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
 # Building $(PROG)_cpp no longer builds $(PROG)_cuda if CUDACPP_BACKENDLIB for cuda exists (this was the case in the past to allow cpp-only builds #503)
 $(CUDACPP_BUILDDIR)/$(PROG)_cpp: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs

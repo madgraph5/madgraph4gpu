@@ -33,9 +33,8 @@
 
 #include <algorithm>
 #include <array>
-#include <cfenv>   // for feenableexcept, fegetexcept and FE_XXX
-#include <cfloat>  // for FLT_MIN
-#include <cstdlib> // for getenv
+#include <cfenv>  // for feenableexcept, fegetexcept and FE_XXX
+#include <cfloat> // for FLT_MIN
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -64,8 +63,7 @@ fpeEnable()
   //std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
   //std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
   //std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
-  //constexpr bool enableFPE = true; // this is hardcoded and no longer controlled by getenv( "CUDACPP_RUNTIME_ENABLEFPE" )
-  static const bool enableFPE = !getenv( "CUDACPP_RUNTIME_DISABLEFPE" ); // TEMPORARY? allow bypassing FPEs in CMS DY #942
+  constexpr bool enableFPE = true; // this is hardcoded and no longer controlled by getenv( "CUDACPP_RUNTIME_ENABLEFPE" )
   if( enableFPE )
   {
     std::cout << "INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW" << std::endl;
@@ -80,7 +78,7 @@ fpeEnable()
   }
   else
   {
-    std::cout << "INFO: Do not enable SIGFPE traps for Floating Point Exceptions (CUDACPP_RUNTIME_DISABLEFPE is non-empty)" << std::endl;
+    //std::cout << "INFO: Do not enable SIGFPE traps for Floating Point Exceptions" << std::endl;
   }
 #else
   //std::cout << "INFO: Keep default SIGFPE settings because feenableexcept is not available on MacOS" << std::endl;
