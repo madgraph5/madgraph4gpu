@@ -99,9 +99,10 @@ c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is n
       CALL COUNTERS_REGISTER_COUNTER( 2, 'Fortran PDF'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran final_I/O'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 4, 'Fortran MEs'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 5, 'CudaCpp HEL'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 5, 'CudaCpp initialise'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 6, 'CudaCpp MEs'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 7, 'Fortran initial_I/O'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 8, 'CudaCpp finalise'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 12, 'Fortran TEST12'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 13, 'Fortran scale'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 14, 'Fortran rewgt'//char(0) )
@@ -153,14 +154,14 @@ c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is n
       endif
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL COUNTERS_START_COUNTER( 15, 1 ) ! test15
+      CALL COUNTERS_START_COUNTER( 5, 1 ) ! 5=CudaCpp-initialise
       CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
       FBRIDGE_CBYF1SUM2 = 0
       FBRIDGE_CBYF1MAX = -1D100
       FBRIDGE_CBYF1MIN = 1D100
-      CALL COUNTERS_STOP_COUNTER( 15 ) ! test15
+      CALL COUNTERS_STOP_COUNTER( 5 ) ! 5=CudaCpp-initialise
 #endif
 c
 c     Read process number
@@ -278,7 +279,6 @@ c         itmin = itmin + 1
       CALL COUNTERS_START_COUNTER( 20, 1 ) ! sample_full=20
       call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs,VECSIZE_USED)
       CALL COUNTERS_STOP_COUNTER( 20 ) ! sample_full=20
-      CALL COUNTERS_START_COUNTER( 12, 1 ) ! test12
 
 c
 c     Now write out events to permanent file
@@ -299,6 +299,7 @@ c      write(*,*) 'Final xsec: ',xsec
       close(lun)
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL COUNTERS_START_COUNTER( 8, 1 ) ! 8=CudaCpp-finalise
       CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
       IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         WRITE(*,'(a,f10.8,a,e8.2)')
@@ -321,7 +322,7 @@ c    &    SQRT( FBRIDGE_CBYF1SUM2 / FBRIDGE_NCBYF1 ) ! ~standard deviation
      &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1, ' +- ',
      &    SQRT( FBRIDGE_CBYF1SUM2 ) / FBRIDGE_NCBYF1 ! ~standard error
       ENDIF
-      CALL COUNTERS_STOP_COUNTER( 12 ) ! test12
+      CALL COUNTERS_STOP_COUNTER( 8 ) ! 8=CudaCpp-finalise
 #endif
       CALL COUNTERS_FINALISE()
       end

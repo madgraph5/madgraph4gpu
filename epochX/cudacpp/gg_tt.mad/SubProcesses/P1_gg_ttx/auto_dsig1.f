@@ -552,7 +552,7 @@ C
           STOP
         ENDIF
         IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
-          CALL COUNTERS_START_COUNTER( 5, 1 ) ! CudaCppHEL=5 (second argument is 1: one-off counter)
+          CALL COUNTERS_START_COUNTER( 5, 0 ) ! 5=CudaCpp-initialise (counter set to 1 on bridge creation, do not increment it further)
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .TRUE.) ! quit after computing helicities
@@ -568,7 +568,7 @@ c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_
           ENDIF
           WRITE (6,*) 'NGOODHEL =', NGOODHEL
           WRITE (6,*) 'NCOMB =', NCOMB
-          CALL COUNTERS_STOP_COUNTER( 5 ) ! CudaCppHEL=5
+          CALL COUNTERS_STOP_COUNTER( 5 ) ! 5=CudaCpp-initialise
         ENDIF
         CALL COUNTERS_START_COUNTER( 6, VECSIZE_USED ) ! CudaCppMEs=6
         IF ( .NOT. MULTI_CHANNEL ) THEN
