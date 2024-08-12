@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring> // for strlen
 #include <sstream>
 #include <string_view>
@@ -25,6 +26,7 @@ extern "C"
   namespace counters
   {
     constexpr int NCOUNTERSMAX = 20;
+    static bool disablecounters = false;
     // Overall program timer
     static mgOnGpu::Timer<TIMERTYPE> program_timer;
     static float program_totaltime = 0;
@@ -38,6 +40,7 @@ extern "C"
   void counters_initialise_()
   {
     using namespace counters;
+    if( getenv( "CUDACPP_RUNTIME_DISABLECOUNTERS" ) ) disablecounters=true;
     for( int icounter=1; icounter<NCOUNTERSMAX+1; icounter++ )
       array_tags[icounter] = ""; // ensure that this is initialized to ""
     program_timer.Start();
@@ -78,6 +81,7 @@ extern "C"
   void counters_start_counter_( const int* picounter, const int* pnevt )
   {
     using namespace counters;
+    if( disablecounters ) return;
     int icounter = *picounter;
     if( array_tags[icounter] == "" )
     {
@@ -93,6 +97,7 @@ extern "C"
   void counters_stop_counter_( const int* picounter )
   {
     using namespace counters;
+    if( disablecounters ) return;
     int icounter = *picounter;
     if( array_tags[icounter] == "" )
     {
@@ -120,6 +125,7 @@ extern "C"
     // Dump program counters
     program_totaltime += program_timer.GetDuration();
     printf( " [COUNTERS] PROGRAM TOTAL                         : %9.4fs\n", program_totaltime );
+    if( disablecounters ) return;
     // Create counter[0] "Fortran Other"
     array_tags[0] = "Fortran Other";
     array_counters[0] = 1;
