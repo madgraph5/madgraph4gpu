@@ -101,13 +101,14 @@ C-----
       CALL COUNTERS_REGISTER_COUNTER( 5, 'CudaCpp HEL'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
       CALL COUNTERS_REGISTER_COUNTER( 6, 'CudaCpp MEs'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
       CALL COUNTERS_REGISTER_COUNTER( 7, 'Fortran initial_I/O'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
-      CALL COUNTERS_REGISTER_COUNTER( 11, 'PROGRAM sample_full'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
       CALL COUNTERS_REGISTER_COUNTER( 12, 'Fortran TEST'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
       CALL COUNTERS_REGISTER_COUNTER( 13, 'Fortran TEST2'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
       CALL COUNTERS_REGISTER_COUNTER( 14, 'Fortran TEST3'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
       CALL COUNTERS_REGISTER_COUNTER( 15, 'Fortran TEST4'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
       CALL COUNTERS_REGISTER_COUNTER( 16, 'Fortran TEST5'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
       CALL COUNTERS_REGISTER_COUNTER( 17, 'Fortran TEST6'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+      CALL COUNTERS_REGISTER_COUNTER( 19, 'PROGRAM initial_I/O'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
+      CALL COUNTERS_REGISTER_COUNTER( 20, 'PROGRAM sample_full'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
 #else
@@ -162,6 +163,7 @@ c
 c     Read process number
 c
       CALL COUNTERS_START_COUNTER( 7, 1 ) ! initial_I/O=7
+      CALL COUNTERS_START_COUNTER( 19, 1 ) ! initial_I/O=7
       call open_file(lun+1, 'dname.mg', fopened)
       if (.not.fopened)then
          goto 11
@@ -233,6 +235,7 @@ c   If CKKW-type matching, read IS Sudakov grid
         endif
       endif
       CALL COUNTERS_STOP_COUNTER( 7 ) ! initial_I/O=7
+      CALL COUNTERS_STOP_COUNTER( 19 ) ! initial_I/O=19
 
 c     
 c     Get user input
@@ -269,9 +272,9 @@ c         itmin = itmin + 1
       endif
 
       write(*,*) "about to integrate ", ndim,ncall,itmax,itmin,ninvar,nconfigs
-      CALL COUNTERS_START_COUNTER( 11, 1 ) ! sample_full=11
+      CALL COUNTERS_START_COUNTER( 20, 1 ) ! sample_full=20
       call sample_full(ndim,ncall,itmax,itmin,dsig,ninvar,nconfigs,VECSIZE_USED)
-      CALL COUNTERS_STOP_COUNTER( 11 ) ! sample_full=11
+      CALL COUNTERS_STOP_COUNTER( 20 ) ! sample_full=20
 
 c
 c     Now write out events to permanent file
