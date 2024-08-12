@@ -62,7 +62,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0055387020111083984 [0m
+[1;32mDEBUG: model prefixing  takes 0.0056836605072021484 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -177,7 +177,7 @@ INFO: Generating Helas calls for process: e+ e- > mu+ mu- WEIGHTED<=4 @1
 INFO: Processing color information for process: e+ e- > mu+ mu- @1 
 INFO: Creating files in directory P1_epem_mupmum 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1152][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f76c03da4c0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f1f657ae490> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -198,18 +198,18 @@ INFO: Finding symmetric diagrams for subprocess group epem_mupmum
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1544][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1545][0m [0m
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
-Wrote files for 8 helas calls in 0.113 s
+Wrote files for 8 helas calls in 0.115 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
-ALOHA: aloha creates 3 routines in  0.203 s
+ALOHA: aloha creates 3 routines in  0.201 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 7 routines in  0.258 s
+ALOHA: aloha creates 7 routines in  0.255 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -234,12 +234,21 @@ INFO: Use c++ compiler g++
 INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
+patching file Source/dsample.f
 patching file Source/genps.inc
 patching file Source/makefile
 patching file SubProcesses/makefile
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu/SubProcesses/P1_epem_mupmum; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
 patching file auto_dsig1.f
-Hunk #1 succeeded at 496 (offset 12 lines).
+Hunk #1 succeeded at 128 (offset 3 lines).
+Hunk #2 succeeded at 154 with fuzz 2 (offset 7 lines).
+Hunk #3 succeeded at 195 (offset 9 lines).
+Hunk #4 succeeded at 359 (offset 12 lines).
+Hunk #5 succeeded at 372 with fuzz 1 (offset 12 lines).
+Hunk #6 succeeded at 404 (offset 12 lines).
+Hunk #7 succeeded at 461 (offset 12 lines).
+Hunk #8 succeeded at 506 (offset 12 lines).
 patching file driver.f
 patching file matrix1.f
 Hunk #2 succeeded at 229 (offset 9 lines).
@@ -250,10 +259,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.085s
-user	0m1.839s
-sys	0m0.242s
-Code generation completed in 3 seconds
+real	0m2.074s
+user	0m1.811s
+sys	0m0.260s
+Code generation completed in 2 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
