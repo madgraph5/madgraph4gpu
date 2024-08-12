@@ -186,7 +186,9 @@ C     Select a flavor combination (need to do here for right sign)
         R=R-DABS(PD(IPSEL))/PD(0)
       ENDDO
 
+      CALL COUNTERS_START_COUNTER( 14, 1 ) ! rewgt=14
       DSIGUU=DSIGUU*REWGT(PP,1)
+      CALL COUNTERS_STOP_COUNTER( 14 ) ! rewgt=14
 
 C     Apply the bias weight specified in the run card (default is 1.0)
       DSIGUU=DSIGUU*CUSTOM_BIAS(PP,DSIGUU,1,1)
@@ -390,7 +392,9 @@ C       Select a flavor combination (need to do here for right sign)
         CHANNEL = SUBDIAG(1)
 
 
+        CALL COUNTERS_START_COUNTER( 14, 1 ) ! rewgt=14
         ALL_RWGT(IVEC) = REWGT(ALL_PP(0,1,IVEC), IVEC)
+        CALL COUNTERS_STOP_COUNTER( 14 ) ! rewgt=14
 
         IF(FRAME_ID.NE.6)THEN
           CALL BOOST_TO_FRAME(ALL_PP(0,1,IVEC), FRAME_ID, P_MULTI(0,1
