@@ -108,7 +108,7 @@ extern "C"
     using namespace counters;
     // Dump program counters
     program_totaltime += program_timer.GetDuration();
-    printf( " [COUNTERS] PROGRAM TOTAL               : %9.4fs\n", program_totaltime );
+    printf( " [COUNTERS] PROGRAM TOTAL                         : %9.4fs\n", program_totaltime );
     // Create counter[0] "Fortran Other"
     float fortranother_totaltime = program_totaltime;
     for( int icounter=1; icounter<NCOUNTERSMAX+1; icounter++ )
@@ -126,7 +126,7 @@ extern "C"
       {
         if( array_counters[icounter] > 1 ) // event counters
         {
-          printf( " [COUNTERS] %-20s ( %2d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
+          printf( " [COUNTERS] %-30s ( %2d ) : %9.4fs for %8d events => throughput is %8.2E events/s\n",
                   array_tags[icounter].c_str(),
                   icounter,
                   array_totaltimes[icounter],
@@ -135,7 +135,7 @@ extern "C"
         }
         else if( array_counters[icounter] == 1 ) // one-off counters for initialisation tasks (e.g. helicity filtering)
         {
-          printf( " [COUNTERS] %-20s ( %2d ) : %9.4fs\n",
+          printf( " [COUNTERS] %-30s ( %2d ) : %9.4fs\n",
                   array_tags[icounter].c_str(),
                   icounter,
                   array_totaltimes[icounter] );
