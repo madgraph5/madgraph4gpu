@@ -31,17 +31,17 @@ extern "C"
     static mgOnGpu::Timer<TIMERTYPE> program_timer;
     static float program_totaltime = 0;
     // Individual timers
-    static std::string array_tags[NCOUNTERSMAX+3];
-    static mgOnGpu::Timer<TIMERTYPE> array_timers[NCOUNTERSMAX+3];
-    static float array_totaltimes[NCOUNTERSMAX+3] = { 0 };
-    static int array_counters[NCOUNTERSMAX+3] = { 0 };
+    static std::string array_tags[NCOUNTERSMAX + 3];
+    static mgOnGpu::Timer<TIMERTYPE> array_timers[NCOUNTERSMAX + 3];
+    static float array_totaltimes[NCOUNTERSMAX + 3] = { 0 };
+    static int array_counters[NCOUNTERSMAX + 3] = { 0 };
   }
-  
+
   void counters_initialise_()
   {
     using namespace counters;
-    if( getenv( "CUDACPP_RUNTIME_DISABLECOUNTERS" ) ) disablecounters=true;
-    for( int icounter=1; icounter<NCOUNTERSMAX+1; icounter++ )
+    if( getenv( "CUDACPP_RUNTIME_DISABLECOUNTERS" ) ) disablecounters = true;
+    for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
       array_tags[icounter] = ""; // ensure that this is initialized to ""
     program_timer.Start();
     return;
@@ -51,9 +51,9 @@ extern "C"
   {
     using namespace counters;
     int icounter = *picounter;
-    std::cout << "INFO: register counter #" << icounter << " with tag '" << ctag << "' (tag strlen=" << strlen(ctag) << ")" << std::endl;
-    const std::string tag(ctag);
-    if( icounter < 1 || icounter >= NCOUNTERSMAX+1 )
+    std::cout << "INFO: register counter #" << icounter << " with tag '" << ctag << "' (tag strlen=" << strlen( ctag ) << ")" << std::endl;
+    const std::string tag( ctag );
+    if( icounter < 1 || icounter >= NCOUNTERSMAX + 1 )
     {
       std::ostringstream sstr;
       sstr << "ERROR! Invalid counter# '" << icounter << "' (valid values are 1 to " << NCOUNTERSMAX << ")";
@@ -72,7 +72,7 @@ extern "C"
     else
     {
       std::ostringstream sstr;
-      sstr << "ERROR! counter #" << icounter << " already exists with tag '" << array_tags[ icounter ] << "'";
+      sstr << "ERROR! counter #" << icounter << " already exists with tag '" << array_tags[icounter] << "'";
       throw std::runtime_error( sstr.str() );
     }
     return;
@@ -130,28 +130,28 @@ extern "C"
     array_tags[0] = "Fortran Other";
     array_counters[0] = 1;
     array_totaltimes[0] = program_totaltime;
-    for( int icounter=1; icounter<NCOUNTERSMAX+1; icounter++ )
+    for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
     {
-      if( ! starts_with( array_tags[icounter], "PROGRAM" ) ) // skip counters whose tags start with "PROGRAM"
+      if( !starts_with( array_tags[icounter], "PROGRAM" ) ) // skip counters whose tags start with "PROGRAM"
         array_totaltimes[0] -= array_totaltimes[icounter];
     }
     // Create counters[NCOUNTERSMAX+2] "OVERALL MEs" and counters[NCOUNTERSMAX+1] "OVERALL NON-MEs"
-    array_tags[NCOUNTERSMAX+2] = "OVERALL MEs";
-    array_counters[NCOUNTERSMAX+2] = 0;
-    array_totaltimes[NCOUNTERSMAX+2] = 0;
-    for( int icounter=1; icounter<NCOUNTERSMAX+1; icounter++ )
+    array_tags[NCOUNTERSMAX + 2] = "OVERALL MEs";
+    array_counters[NCOUNTERSMAX + 2] = 0;
+    array_totaltimes[NCOUNTERSMAX + 2] = 0;
+    for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
     {
       if( ends_with( array_tags[icounter], "MEs" ) ) // include counters whose tags end with "MEs"
       {
-        array_counters[NCOUNTERSMAX+2] += array_counters[icounter];
-        array_totaltimes[NCOUNTERSMAX+2] += array_totaltimes[icounter];
+        array_counters[NCOUNTERSMAX + 2] += array_counters[icounter];
+        array_totaltimes[NCOUNTERSMAX + 2] += array_totaltimes[icounter];
       }
     }
-    array_tags[NCOUNTERSMAX+1] = "OVERALL NON-MEs";
-    array_counters[NCOUNTERSMAX+1] = 1;
-    array_totaltimes[NCOUNTERSMAX+1] = program_totaltime - array_totaltimes[NCOUNTERSMAX+2];
+    array_tags[NCOUNTERSMAX + 1] = "OVERALL NON-MEs";
+    array_counters[NCOUNTERSMAX + 1] = 1;
+    array_totaltimes[NCOUNTERSMAX + 1] = program_totaltime - array_totaltimes[NCOUNTERSMAX + 2];
     // Dump individual counters
-    for( int icounter=0; icounter<NCOUNTERSMAX+3; icounter++ )
+    for( int icounter = 0; icounter < NCOUNTERSMAX + 3; icounter++ )
     {
       if( array_tags[icounter] != "" )
       {
