@@ -196,6 +196,7 @@ c-----
       common/ raset1 / ranu(97),ranc,rancd,rancm
       common/ raset2 / iranmr,jranmr
       save /raset1/,/raset2/
+      CALL COUNTERS_START_COUNTER( 12, 1 ) ! ranmar=12
       uni = ranu(iranmr) - ranu(jranmr)
       if(uni .lt. 0d0) uni = uni + 1d0
       ranu(iranmr) = uni
@@ -208,6 +209,7 @@ c-----
       uni = uni - ranc
       if(uni .lt. 0d0) uni = uni + 1d0
       rvec = uni
+      CALL COUNTERS_STOP_COUNTER( 12 ) ! ranmar=12
       end
  
       subroutine rmarin(ij,kl)

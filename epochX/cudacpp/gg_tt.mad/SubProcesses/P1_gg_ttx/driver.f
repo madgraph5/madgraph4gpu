@@ -102,7 +102,7 @@ c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is n
       CALL COUNTERS_REGISTER_COUNTER( 5, 'CudaCpp HEL'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 6, 'CudaCpp MEs'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 7, 'Fortran initial_I/O'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 12, 'Fortran TEST12'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 12, 'Fortran ranmar'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 13, 'Fortran scale'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 14, 'Fortran rewgt'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 15, 'Fortran TEST15'//char(0) )
