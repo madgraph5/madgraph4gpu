@@ -167,7 +167,6 @@
       common /nnpdf/nfl,nx,nq2,mem,rep,hasphoton,alphas,xgrid,logxgrid,
      1     q2grid,logq2grid,pdfgrid
       
-      CALL COUNTERS_START_COUNTER( 2, 1 ) ! FortranPDF=2
 
       Q2 = Q*Q
 *     check bounds
@@ -270,7 +269,7 @@ c$$$         write(6,*) "Q2 = ",Q2, " GeV2", q2grid(1)
          call lh_polin2(x1a,x2a,ya,m,n,x1,x2,y,dy)
          XPDF(IPDF) = y
       enddo                 
-      CALL COUNTERS_STOP_COUNTER( 2 ) ! FortranPDF=2
+
       end subroutine
 
       subroutine lh_polin2(x1a,x2a,ya,m,n,x1,x2,y,dy) 

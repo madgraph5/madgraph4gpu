@@ -125,6 +125,7 @@ C     Continue only if IMODE is 0, 4 or 5
       IF(IMODE.NE.0.AND.IMODE.NE.4.AND.IMODE.NE.5) RETURN
 
 
+      CALL COUNTERS_START_COUNTER( 2, 1 ) ! FortranPDF=2
       IF (ABS(LPP(IB(1))).GE.1) THEN
           !LP=SIGN(1,LPP(IB(1)))
         IF (DSQRT(Q2FACT(IB(1))).EQ.0D0) THEN
@@ -146,6 +147,7 @@ C     Continue only if IMODE is 0, 4 or 5
         ENDIF
         G2=PDG2PDF(LPP(IB(2)),0, IB(2),XBK(IB(2)), QSCALE)
       ENDIF
+      CALL COUNTERS_STOP_COUNTER( 2 ) ! FortranPDF=2
       PD(0) = 0D0
       IPROC = 0
       IPROC=IPROC+1  ! g g > t t~
@@ -343,6 +345,7 @@ C     Continue only if IMODE is 0, 4 or 5
       IF(IMODE.NE.0.AND.IMODE.NE.4.AND.IMODE.NE.5) RETURN
 
 
+      CALL COUNTERS_START_COUNTER( 2, VECSIZE_USED ) ! FortranPDF=2
       DO IVEC=1,VECSIZE_USED
         IF (ABS(LPP(IB(1))).GE.1) THEN
             !LP=SIGN(1,LPP(IB(1)))
@@ -355,6 +358,7 @@ C     Continue only if IMODE is 0, 4 or 5
      $     ,DSQRT(ALL_Q2FACT(IB(2), IVEC)))
         ENDIF
       ENDDO
+      CALL COUNTERS_STOP_COUNTER( 2 ) ! FortranPDF=2
       ALL_PD(0,:) = 0D0
       IPROC = 0
       IPROC=IPROC+1  ! g g > t t~
