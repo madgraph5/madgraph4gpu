@@ -516,12 +516,6 @@ C
       SAVE FIRST
       DATA FIRST/.TRUE./
       
-      IF ( FIRST ) THEN
-        CALL COUNTERS_REGISTER_COUNTER( 4, 'Fortran MEs'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
-        CALL COUNTERS_REGISTER_COUNTER( 5, 'CudaCpp HEL'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
-        CALL COUNTERS_REGISTER_COUNTER( 6, 'CudaCpp MEs'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
-      ENDIF
-
       IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
         CALL COUNTERS_START_COUNTER( 4, VECSIZE_USED ) ! FortranMEs=-4

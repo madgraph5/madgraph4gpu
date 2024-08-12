@@ -166,14 +166,7 @@
       logical hasphoton
       common /nnpdf/nfl,nx,nq2,mem,rep,hasphoton,alphas,xgrid,logxgrid,
      1     q2grid,logq2grid,pdfgrid
-      LOGICAL FIRST
-      SAVE FIRST
-      DATA FIRST/.TRUE./
       
-      IF ( FIRST ) THEN
-        CALL COUNTERS_REGISTER_COUNTER( 2, 'Fortran PDF'//char(0) ) ! null-terminated C-string (maybe not needed but it does not harm)
-        FIRST=.FALSE.
-      ENDIF
       CALL COUNTERS_START_COUNTER( 2, 1 ) ! FortranPDF=2
 
       Q2 = Q*Q
