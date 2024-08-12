@@ -29,19 +29,23 @@ msgs="${msgs} CudaCpp_MEs"
 msgs="${msgs} OVERALL_NON-MEs"
 msgs="${msgs} OVERALL_MEs"
 
+teefile=$procdir/summary.txt
+touch $teefile
 for backend in fortran cppnone cppsse4 cppavx2 cpp512y cpp512z cuda hip; do
   outfile=$procdir/${backend}/output.txt
-  echo $outfile
+  echo $outfile | tee -a $teefile
   if [ ! -f $outfile ]; then
-    echo "File not found: SKIP backend ${backend}"
+    echo "File not found: SKIP backend ${backend}" | tee -a $teefile
   else
     cat $outfile | grep "__CUDACPP_DEBUG: GridPackCmd.launch finished" \
-      | sed 's/__CUDACPP_DEBUG: GridPackCmd.launch finished in/[GridPackCmd.launch] GRIDPCK TOTAL   /'
+      | sed 's/__CUDACPP_DEBUG: GridPackCmd.launch finished in/[GridPackCmd.launch] GRIDPCK TOTAL/' \
+      | tee -a $teefile
     for msg0 in ${msgs}; do
       msg=${msg0/_/ }
       cat $outfile | grep "\[COUNTERS\]" | grep "${msg}" | sed 's/s for.*//' | sed 's/s$//' \
-        | awk -vmsg="${msg}" -vttot=0 '{jtot=$NF; ttot += jtot}; END{if ( ttot!=0 ) print "[madevent COUNTERS] ", msg, ttot}'
+        | awk -vmsg="${msg}" -vttot=0 '{jtot=$NF; ttot += jtot}; END{if ( ttot!=0 ) print "[madevent COUNTERS] ", msg, ttot}' \
+	| tee -a $teefile
     done
   fi
-  echo "--------------------------------------------------------------------------------"
+  echo "--------------------------------------------------------------------------------" | tee -a $teefile
 done
