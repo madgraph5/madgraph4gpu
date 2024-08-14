@@ -107,6 +107,8 @@ c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is n
       CALL COUNTERS_REGISTER_COUNTER( 12, 'CudaCpp Finalise'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 13, 'TEST13'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 14, 'TEST14'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 15, 'TEST15'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 16, 'TEST16'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 19, 'CudaCpp MEs'//char(0) )
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
