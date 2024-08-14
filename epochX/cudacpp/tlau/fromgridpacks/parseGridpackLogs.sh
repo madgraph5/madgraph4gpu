@@ -46,10 +46,14 @@ for backend in fortran cppnone cppsse4 cppavx2 cpp512y cpp512z cuda hip; do
       msg=${msg0/_/ }
       cat $outfile | grep "\[COUNTERS\]" \
         | sed -r 's/ (PROGRAM|Fortran|CudaCpp|OVERALL) / \1_/' \
-        | grep "${msg0}" | sed 's/s for.*//' | sed 's/s$//' \
-        | awk -vmsg="${msg}" -vttot=0 '{jtot=$NF; ttot += jtot}; END{if ( ttot!=0 ) printf "[madevent COUNTERS]  %-30s %10.4f\n", msg, ttot}' \
+        | grep "${msg0}" | sed -r 's/(\( *[0-9]* *\))//' \
+        | sed 's/s for/ for/' | sed 's/s$//' \
+        | awk -vmsg="${msg}" -vstot=0 -vetot=0 \
+              '{jstot=$4; jetot=$6; stot += jstot; etot += jetot}; \
+               END{if ( stot!=0 ) { printf "[madevent COUNTERS]  %-30s %10.4fs", msg, stot;\
+                   if ( etot!=0 ) printf " for %10d events\n", etot; else printf "\n" } }' \
 	| tee -a $teefile
     done
   fi
-  echo "--------------------------------------------------------------------------------" | tee -a $teefile
+  echo "------------------------------------------------------------------------------------------" | tee -a $teefile
 done
