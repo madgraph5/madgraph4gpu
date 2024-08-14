@@ -57,12 +57,16 @@ c
 c-----
 c  Begin Code
 c-----
+      CALL COUNTERS_START_COUNTER( 13, 1 )
       call gen_mom(iconfig,mincfig,maxcfig,invar,wgt,x,p)
+      CALL COUNTERS_STOP_COUNTER( 13 )
 C     Pick the helicity configuration from the DiscreteSampler if user
 C     decided to perform MC over helicity configurations.
+      CALL COUNTERS_START_COUNTER( 14, 1 )
       if(ISUM_HEL.ne.0) then
         call sample_get_discrete_x(wgt,hel_picked,iconfig,'Helicity')
       endif
+      CALL COUNTERS_STOP_COUNTER( 14 )
       end
 
       subroutine gen_mom(iconfig,mincfig,maxcfig,invar,wgt,x,p1)
