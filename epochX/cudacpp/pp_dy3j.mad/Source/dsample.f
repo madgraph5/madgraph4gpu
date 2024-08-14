@@ -1289,6 +1289,7 @@ c
 c-----
 c  Begin Code
 c-----
+      CALL COUNTERS_START_COUNTER( 10, 1 ) ! 10=PROGRAM-SampleGetX
       if (it_warned .ne. cur_it) then
          icount=0
          it_warned = cur_it
@@ -1406,6 +1407,7 @@ c     &        int(xbin_max),xmin,x,xmax-xmin
 
       wgt = wgt * xo * dble(xbin_max-xbin_min)
 c      print*,'Returning x',ij,ipole,j,x
+      CALL COUNTERS_STOP_COUNTER( 10 ) ! 10=PROGRAM-SampleGetX
       end
 
       subroutine sample_get_wgt(wgt, x, j, ipole, xmin, xmax)
