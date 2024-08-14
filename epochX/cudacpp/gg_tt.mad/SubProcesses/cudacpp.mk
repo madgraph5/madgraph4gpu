@@ -133,8 +133,9 @@ ifeq ($(wildcard $(CUDA_HOME)/include/nvtx3/nvToolsExt.h),)
   # $(CUDA_HOME)/include/ exists but NVTX headers do not exist?
   override USE_NVTX=
 else
-  # $(CUDA_HOME)/include/nvtx.h exists: use NVTX unless 'USE_NVTX=' has been defined
-  USE_NVTX ?=-DUSE_NVTX
+  # $(CUDA_HOME)/include/nvtx.h exists: use NVTX
+  # (NB: the option to disable NVTX if 'USE_NVTX=' is defined has been removed)
+  override USE_NVTX=-DUSE_NVTX
 endif
 $(info USE_NVTX=$(USE_NVTX))
 
