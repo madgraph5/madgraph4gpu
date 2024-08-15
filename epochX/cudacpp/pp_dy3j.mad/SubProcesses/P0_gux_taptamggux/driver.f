@@ -103,10 +103,9 @@ c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is n
       CALL COUNTERS_REGISTER_COUNTER( 7, 'Fortran Unweight(LHE-I/O)'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 8, 'Fortran SamplePutPoint'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 9, 'Fortran MEs'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 10, 'PROGRAM SampleGetX'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 11, 'CudaCpp Initialise'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 12, 'CudaCpp Finalise'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 15, 'PROGRAM SampleGetX'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 16, 'PROGRAM RanmarNtuple'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 19, 'CudaCpp MEs'//char(0) )
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       fbridge_mode = 1 ! CppOnly=1, default for CUDACPP

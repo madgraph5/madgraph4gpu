@@ -31,7 +31,6 @@ c
 c-----
 c  Begin Code
 c-----
-      CALL COUNTERS_START_COUNTER( 16, 1 ) ! 16=PROGRAM-RanmarNtuple
       if (init .eq. 1) then
          init = 0
          call get_offset(ioffset)
@@ -73,7 +72,6 @@ c
          call ranmar(x)
       enddo
       x = a+x*(b-a)
-      CALL COUNTERS_STOP_COUNTER( 16 ) ! 16=PROGRAM-RanmarNtuple
       end
 
       subroutine get_base(iseed)
