@@ -35,6 +35,17 @@ c
       double precision xbin_min, xbin_max, ddum, xo
       data ddum/0d0/
 
+      integer xbinarraydim
+      parameter (xbinarraydim=maxdim*lmaxconfigs)
+      double precision xbin_min0_array(maxdim, lmaxconfigs)
+      double precision xbin_max1_array(maxdim, lmaxconfigs)
+      logical xbin_min0_saved(maxdim, lmaxconfigs)
+      logical xbin_max1_saved(maxdim, lmaxconfigs)
+      save xbin_min0_array, xbin_max1_array
+      save xbin_min0_saved, xbin_max1_saved
+      data xbin_min0_saved/xbinarraydim*.false./
+      data xbin_max1_saved/xbinarraydim*.false./
+      
       integer icall
       save icall
       data icall/0/
@@ -101,11 +112,29 @@ c
 c Proceed with the simplified new implementation
 c (NB: ituple=1 and nzoom<=0 are expected from now on)
 c
-      xbin_min = xbin(xmin, minvar(j,ipole))
-      xbin_max = xbin(xmax, minvar(j,ipole))
-      if (xbin_min .gt. xbin_max-1) then
-        xbin_min = min(xbin_min, xbin_max)
+      if(xmax.ne.1 .or. .not.xbin_max1_saved(j,ipole)) then
+        xbin_max = xbin(xmax, minvar(j,ipole))
+        if(xmax.eq.1) then
+          xbin_max1_array(j,ipole) = xbin_max
+          xbin_max1_saved(j,ipole) = .true.
+        endif
+      else
+        xbin_max = xbin_max1_array(j,ipole)
       endif
+
+      if(xmin.ne.0 .or. .not.xbin_min0_saved(j,ipole)) then
+        xbin_min = xbin(xmin, minvar(j,ipole))
+        if (xbin_min .gt. xbin_max-1) then
+          xbin_min = min(xbin_min, xbin_max)
+        endif
+        if(xmin.eq.0) then
+          xbin_min0_array(j,ipole) = xbin_min
+          xbin_min0_saved(j,ipole) = .true.
+        endif
+      else
+        xbin_min = xbin_min0_array(j,ipole)
+      endif
+
       call ntuple_new(ddum)
       ddum = xbin_min + ddum * (xbin_max - xbin_min)
       tx(1,j) = xbin_min
