@@ -32,7 +32,7 @@ c
 c     Local
 c
       integer im, ip, ij
-      double precision xbin_min, xbin_max, ddum, xo, y
+      double precision xbin_min, xbin_max, ddum, xo
       data ddum/0d0/
 
       integer icall
