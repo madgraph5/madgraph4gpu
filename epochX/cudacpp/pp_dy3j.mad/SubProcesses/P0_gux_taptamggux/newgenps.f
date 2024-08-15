@@ -91,12 +91,6 @@ c
         tx(1,j) = xbin_min
         tx(2,j) = ddum(j)
         tx(3,j) = xbin_max
-      elseif (ituple .eq. 2) then
-        if (ipole .gt. 1) then
-          print*,'Sorry Sobel not configured for multi-pole.'
-          stop
-        endif
-        ddum(j)=ddum(j)*dble(ng)
       else
         print*,'Error unknown random number generator.',ituple
         stop
