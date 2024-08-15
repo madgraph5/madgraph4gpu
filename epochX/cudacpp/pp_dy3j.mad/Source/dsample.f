@@ -1307,8 +1307,7 @@ c         write(*,*) 'Getting variable',ipole,j,minvar(j,ipole)
 c            write(*,'(a,4e15.4)') 'Bad limits',xbin_min,xbin_max,
 c     &           xmin,xmax
 c            xbin_max=xbin_min+1d-10
-            xbin_max = xbin(xmax,minvar(j,ipole))
-            xbin_min = min(xbin(xmin,minvar(j,ipole)), xbin_max)
+            xbin_min = min(xbin_min, xbin_max)
          endif
 c
 c     Line which allows us to keep choosing same x
