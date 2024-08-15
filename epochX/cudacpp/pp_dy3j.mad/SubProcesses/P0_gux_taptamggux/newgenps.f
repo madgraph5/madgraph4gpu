@@ -55,8 +55,8 @@ c
       common/to_xpoints/tx, nzoom
 
       data ddum/maxdim*0d0/
-      data icount/0/
-      data it_warned/0/
+c     data icount/0/
+c     data it_warned/0/
 
       integer            lastbin(maxdim)
       common /to_lastbin/lastbin
@@ -64,10 +64,10 @@ c
 c-----
 c  Begin Code
 c-----
-      if (it_warned .ne. cur_it) then
-        icount=0
-        it_warned = cur_it
-      endif
+c     if (it_warned .ne. cur_it) then
+c       icount=0
+c       it_warned = cur_it
+c     endif
       if (ituple .eq. 2) then   !Sobel generator
         print*,'Sorry Sobel generator disabled'
         stop
@@ -139,17 +139,17 @@ c     to the fact that the grids are required to be separated by 1e-14. Since
 c     double precision is about 18 digits, we expect things to agree to
 c     3 digit accuracy.
 c
-      if (abs(ddum(j)-xbin(x,ij))/(ddum(j)+1d-22) .gt. 1e-3) then
-        if (icount .lt. 5) then
-          write(*,'(a,i4,2e14.6,1e12.4)')
-     &      'Warning xbin not returning correct x', ij,
-     &      ddum(j),xbin(x,ij),xo
-        elseif (icount .eq. 5) then
-          write(*,'(a,a)')'Warning xbin still not working well. ',
-     &      'Last message this iteration.'
-        endif
-        icount=icount+1
-      endif
+c     if (abs(ddum(j)-xbin(x,ij))/(ddum(j)+1d-22) .gt. 1e-3) then
+c       if (icount .lt. 5) then
+c         write(*,'(a,i4,2e14.6,1e12.4)')
+c    &      'Warning xbin not returning correct x', ij,
+c    &      ddum(j),xbin(x,ij),xo
+c       elseif (icount .eq. 5) then
+c         write(*,'(a,a)')'Warning xbin still not working well. ',
+c    &      'Last message this iteration.'
+c       endif
+c       icount=icount+1
+c     endif
       wgt = wgt * xo * dble(xbin_max-xbin_min)
       end
 
