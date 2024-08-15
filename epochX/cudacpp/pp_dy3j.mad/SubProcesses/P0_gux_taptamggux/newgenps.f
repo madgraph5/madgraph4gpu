@@ -10,12 +10,19 @@ c************************************************************************
 c     INPUT  arguments: wgt, j, ipole, xmin, xmax
 c     OUTPUT arguments: wgt, x
 c************************************************************************
+c     INPUT  common: ituple (only ituple=1 is supported)
+c     INPUT  common: minvar
+c     INPUT  common: grid
+c     INPUT  common: tx, nzoom
+c     INPUT  common: swidth, spole
+c     OUTPUT common: lastbin
+c************************************************************************
       implicit none
 c
 c     Constants
 c
-      include 'genps.inc'
-      include 'maxconfigs.inc'
+      include 'genps.inc' ! relevant parameters: ng, maxdim, maxinvar
+      include 'maxconfigs.inc' ! relevant parameters: lmaxconfigs
 c
 c     Arguments
 c
@@ -24,8 +31,9 @@ c
 c
 c     Local
 c
-      integer  im, ip,ij,icount,it_warned
-      double precision xbin_min,xbin_max,ddum(maxdim),xo,y
+c     integer icount, it_warned
+      integer im, ip, ij
+      double precision xbin_min, xbin_max, ddum(maxdim), xo, y
 c
 c     External
 c
@@ -34,10 +42,10 @@ c
 c
 c     Global
 c
-      double precision tmean, trmean, tsigma
-      integer             dim, events, itm, kn, cur_it, invar, configs
-      common /sample_common/
-     .  tmean, trmean, tsigma, dim, events, itm, kn, cur_it, invar, configs
+c     double precision tmean, trmean, tsigma
+c     integer             dim, events, itm, kn, cur_it, invar, configs
+c     common /sample_common/
+c    .  tmean, trmean, tsigma, dim, events, itm, kn, cur_it, invar, configs
 
       double precision    grid(2, ng, 0:maxinvar)
       common /data_grid/ grid
