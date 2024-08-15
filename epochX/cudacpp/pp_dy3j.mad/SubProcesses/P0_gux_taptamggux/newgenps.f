@@ -81,6 +81,7 @@ c Fall back to the default old implementation under some circumstances
 c - first call  => take care of ranmar initialization in the old ntuple
 c - swidth > 0  => take care of calling transpole
 c - ituple != 1 => take care of error message      
+c - nzoom > 0   => take care of updating tx
 c
       if (icall.eq.1) then ! first call
         call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
@@ -94,9 +95,13 @@ c
         call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
         goto 999
       endif
+      if (nzoom.gt.0) then
+        call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
+        return
+      endif
 c
 c Proceed with the simplified new implementation
-c (NB: ituple=1 is expected from now on)
+c (NB: ituple=1 and nzoom<=0 are expected from now on)
 c
       xbin_min = xbin(xmin,minvar(j,ipole))
       xbin_max = xbin(xmax,minvar(j,ipole))
@@ -104,19 +109,10 @@ c
         xbin_max = xbin(xmax,minvar(j,ipole))
         xbin_min = min(xbin(xmin,minvar(j,ipole)), xbin_max)
       endif
-c
-c     Line which allows us to keep choosing same x
-c
-      if (nzoom .le. 0) then
-        call ntuple_new(ddum, xbin_min, xbin_max)
-      else
-        call ntuple_new(ddum, max(xbin_min, dble(int(tx(2,j)))),
-     $    min(xbin_max,dble(int(tx(2,j))+1)))
-      endif
+      call ntuple_new(ddum, xbin_min, xbin_max)
       tx(1,j) = xbin_min
       tx(2,j) = ddum
       tx(3,j) = xbin_max
-
       im = ddum
       if (im.ge.ng)then
         im = ng -1
@@ -132,13 +128,12 @@ c
 c     New method of choosing x from bins
 c
       if (ip .eq. 1) then       !This is in the first bin
-        xo = grid(2, ip, ij)-xgmin
+        xo = grid(2, ip, ij) - xgmin
         x = grid(2, ip, ij) - xo * (dble(ip) - ddum)
       else           
-        xo = grid(2, ip, ij)-grid(2,im,ij)
+        xo = grid(2, ip, ij) - grid(2,im,ij)
         x = grid(2, ip, ij) - xo * (dble(ip) - ddum)
       endif
-c
       wgt = wgt * xo * dble(xbin_max-xbin_min)
  999  CALL COUNTERS_STOP_COUNTER( 10 ) ! 10=PROGRAM-SampleGetX
       end
