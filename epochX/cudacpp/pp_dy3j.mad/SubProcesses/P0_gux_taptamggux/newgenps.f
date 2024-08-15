@@ -106,8 +106,7 @@ c
       xbin_min = xbin(xmin,minvar(j,ipole))
       xbin_max = xbin(xmax,minvar(j,ipole))
       if (xbin_min .gt. xbin_max-1) then
-        xbin_max = xbin(xmax,minvar(j,ipole))
-        xbin_min = min(xbin(xmin,minvar(j,ipole)), xbin_max)
+        xbin_min = min(xbin_min, xbin_max)
       endif
       call ntuple_new(ddum, xbin_min, xbin_max)
       tx(1,j) = xbin_min
@@ -127,7 +126,7 @@ c------
 c
 c     New method of choosing x from bins
 c
-      if (ip .eq. 1) then       !This is in the first bin
+      if (ip .eq. 1) then ! first bin
         xo = grid(2, ip, ij) - xgmin
         x = grid(2, ip, ij) - xo * (dble(ip) - ddum)
       else           
