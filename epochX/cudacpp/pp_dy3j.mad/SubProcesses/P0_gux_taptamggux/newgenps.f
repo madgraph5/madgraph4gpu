@@ -49,6 +49,7 @@ c    .  tmean, trmean, tsigma, dim, events, itm, kn, cur_it, invar, configs
 
       double precision    grid(2, ng, 0:maxinvar)
       common /data_grid/ grid
+
       integer           Minvar(maxdim,lmaxconfigs)
       common /to_invar/ Minvar
 
@@ -72,37 +73,40 @@ c     data it_warned/0/
 c-----
 c  Begin Code
 c-----
-c     if (it_warned .ne. cur_it) then
-c       icount=0
-c       it_warned = cur_it
-c     endif
-      if (ituple .eq. 2) then   !Sobel generator
-        print*,'Sorry Sobel generator disabled'
-        stop
+      ij = Minvar(j,ipole)
+c
+c Fall back to the default old implementation under some circumstances
+c
+      if (ij.gt.0 .and. swidth(ij).gt.0d0) then
+        call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
+        return
       endif
-      if (ituple .eq. 1) then
-        xbin_min = xbin(xmin,minvar(j,ipole))
+      if (ituple.ne.1) then
+        call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
+        return
+      endif
+c
+c Proceed with the simplified new implementation
+c (NB: ituple=1 is expected from now on)
+c
+      xbin_min = xbin(xmin,minvar(j,ipole))
+      xbin_max = xbin(xmax,minvar(j,ipole))
+      if (xbin_min .gt. xbin_max-1) then
         xbin_max = xbin(xmax,minvar(j,ipole))
-        if (xbin_min .gt. xbin_max-1) then
-          xbin_max = xbin(xmax,minvar(j,ipole))
-          xbin_min = min(xbin(xmin,minvar(j,ipole)), xbin_max)
-        endif
+        xbin_min = min(xbin(xmin,minvar(j,ipole)), xbin_max)
+      endif
 c
 c     Line which allows us to keep choosing same x
 c
-        if (nzoom .le. 0) then
-          call ntuple(ddum(j), xbin_min,xbin_max, j, ipole)
-        else
-          call ntuple(ddum(j),max(xbin_min,dble(int(tx(2,j)))),
-     $      min(xbin_max,dble(int(tx(2,j))+1)),j,ipole)
-        endif
-        tx(1,j) = xbin_min
-        tx(2,j) = ddum(j)
-        tx(3,j) = xbin_max
+      if (nzoom .le. 0) then
+        call ntuple(ddum(j), xbin_min,xbin_max, j, ipole)
       else
-        print*,'Error unknown random number generator.',ituple
-        stop
+        call ntuple(ddum(j),max(xbin_min,dble(int(tx(2,j)))),
+     $    min(xbin_max,dble(int(tx(2,j))+1)),j,ipole)
       endif
+      tx(1,j) = xbin_min
+      tx(2,j) = ddum(j)
+      tx(3,j) = xbin_max
 
       im = ddum(j)
       if (im.ge.ng)then
@@ -111,7 +115,6 @@ c
       endif
       if (im.lt.0) im = 0
       ip = im + 1
-      ij = Minvar(j,ipole)
 c------
 c     tjs 3/5/2011  save bin used to avoid looking up when storing wgt
 c------
@@ -127,20 +130,15 @@ c
         x = grid(2, ip, ij) - xo * (dble(ip) - ddum(j))
       endif
 c
-c     Now we transform x if there is a B.W., S, or T  pole
-c
-      if (ij .gt. 0) then
-        if (swidth(ij) .gt. 0d0) then
-          y = x                 !Takes uniform y and returns
-          call transpole(spole(ij),swidth(ij),y,x,wgt) !x on BW pole or 1/x 
-        endif
-      endif
-c
 c     Simple checks to see if we got the right point note 1e-3 corresponds
 c     to the fact that the grids are required to be separated by 1e-14. Since
 c     double precision is about 18 digits, we expect things to agree to
 c     3 digit accuracy.
 c
+c     if (it_warned .ne. cur_it) then
+c       icount=0
+c       it_warned = cur_it
+c     endif
 c     if (abs(ddum(j)-xbin(x,ij))/(ddum(j)+1d-22) .gt. 1e-3) then
 c       if (icount .lt. 5) then
 c         write(*,'(a,i4,2e14.6,1e12.4)')

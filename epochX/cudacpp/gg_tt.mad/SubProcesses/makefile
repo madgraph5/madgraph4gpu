@@ -90,7 +90,7 @@ ifeq ($(strip $(MATRIX_HEL)),)
 endif
 
 
-PROCESS= myamp.o genps.o unwgt.o setcuts.o get_color.o \
+PROCESS= myamp.o genps.o newgenps.o unwgt.o setcuts.o get_color.o \
          cuts.o cluster.o reweight.o initcluster.o addmothers.o setscales.o \
 	 idenparts.o dummy_fct.o
 
