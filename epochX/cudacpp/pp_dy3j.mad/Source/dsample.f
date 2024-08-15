@@ -1301,14 +1301,11 @@ c         write(*,'(7f11.5)')(ddum(j)*real(ng),j=1,dim)
       endif
       if (ituple .eq. 1) then
 c         write(*,*) 'Getting variable',ipole,j,minvar(j,ipole)
-         xbin_min = xbin(xmin,minvar(j,ipole))
-         xbin_max = xbin(xmax,minvar(j,ipole))
-         if (xbin_min .gt. xbin_max-1) then
-c            write(*,'(a,4e15.4)') 'Bad limits',xbin_min,xbin_max,
-c     &           xmin,xmax
-c            xbin_max=xbin_min+1d-10
-            xbin_min = min(xbin_min, xbin_max)
-         endif
+        xbin_min = xbin(xmin,minvar(j,ipole))
+        xbin_max = xbin(xmax,minvar(j,ipole))
+        if (xbin_min .gt. xbin_max-1) then
+          xbin_min = min(xbin_min, xbin_max)
+        endif
 c
 c     Line which allows us to keep choosing same x
 c
