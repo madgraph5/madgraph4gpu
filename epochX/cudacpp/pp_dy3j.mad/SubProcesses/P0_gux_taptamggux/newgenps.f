@@ -63,14 +63,26 @@ c
       integer            lastbin(maxdim)
       common /to_lastbin/lastbin
 
+      integer icall
+      save icall
+      data icall/0/
+
 c-----
 c  Begin Code
 c-----
       CALL COUNTERS_START_COUNTER( 10, 1 ) ! 10=PROGRAM-SampleGetX
+      icall = icall + 1
       ij = Minvar(j,ipole)
 c
 c Fall back to the default old implementation under some circumstances
+c - first call  => take care of ranmar initialization in the old ntuple
+c - swidth > 0  => take care of calling transpole
+c - ituple != 1 => take care of error message      
 c
+      if (icall.eq.1) then ! first call
+        call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
+        return
+      endif
       if (ij.gt.0 .and. swidth(ij).gt.0d0) then
         call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
         goto 999
@@ -93,10 +105,10 @@ c
 c     Line which allows us to keep choosing same x
 c
       if (nzoom .le. 0) then
-        call ntuple(ddum, xbin_min, xbin_max, j, ipole)
+        call ntuple_new(ddum, xbin_min, xbin_max)
       else
-        call ntuple(ddum, max(xbin_min, dble(int(tx(2,j)))),
-     $    min(xbin_max,dble(int(tx(2,j))+1)), j, ipole)
+        call ntuple_new(ddum, max(xbin_min, dble(int(tx(2,j)))),
+     $    min(xbin_max,dble(int(tx(2,j))+1)))
       endif
       tx(1,j) = xbin_min
       tx(2,j) = ddum
