@@ -33,39 +33,37 @@ c     Local
 c
       integer im, ip, ij
       double precision xbin_min, xbin_max, ddum, xo, y
-c
-c     External
-c
-      double precision xbin
-      external         xbin
-c
-c     Global
-c
-
-      double precision    grid(2, ng, 0:maxinvar)
-      common /data_grid/ grid
-
-      integer           Minvar(maxdim,lmaxconfigs)
-      common /to_invar/ Minvar
-
-      integer           ituple
-      common /to_random/ituple
-
-      double precision      spole(maxinvar),swidth(maxinvar),bwjac
-      common/to_brietwigner/spole        ,swidth        ,bwjac
-
-      integer nzoom
-      double precision  tx(1:3,maxinvar)
-      common/to_xpoints/tx, nzoom
-
       data ddum/0d0/
-
-      integer            lastbin(maxdim)
-      common /to_lastbin/lastbin
 
       integer icall
       save icall
       data icall/0/
+c
+c     External
+c
+      double precision xbin
+      external xbin
+c
+c     Global
+c
+      double precision grid(2, ng, 0:maxinvar)
+      common /data_grid/ grid
+
+      integer Minvar(maxdim,lmaxconfigs)
+      common /to_invar/ Minvar
+
+      integer ituple
+      common /to_random/ituple
+
+      double precision spole(maxinvar), swidth(maxinvar), bwjac
+      common/to_brietwigner/spole, swidth, bwjac
+
+      integer nzoom
+      double precision tx(1:3, maxinvar)
+      common/to_xpoints/tx, nzoom
+
+      integer lastbin(maxdim)
+      common /to_lastbin/lastbin
 
 c-----
 c  Begin Code
@@ -75,7 +73,7 @@ c-----
 c     if (icall.le.100) then
 c       write(6,*) 'sample_get_x', wgt, x, j, ipole, xmin, xmax
 c     endif
-      ij = Minvar(j,ipole)
+      ij = Minvar(j, ipole)
 c
 c Fall back to the default old implementation under some circumstances
 c - first call  => take care of ranmar initialization in the old ntuple
@@ -103,8 +101,8 @@ c
 c Proceed with the simplified new implementation
 c (NB: ituple=1 and nzoom<=0 are expected from now on)
 c
-      xbin_min = xbin(xmin,minvar(j,ipole))
-      xbin_max = xbin(xmax,minvar(j,ipole))
+      xbin_min = xbin(xmin, minvar(j,ipole))
+      xbin_max = xbin(xmax, minvar(j,ipole))
       if (xbin_min .gt. xbin_max-1) then
         xbin_min = min(xbin_min, xbin_max)
       endif
@@ -128,13 +126,13 @@ c
 c     New method of choosing x from bins
 c
       if (ip .eq. 1) then ! first bin
-        xo = grid(2, ip, ij) - xgmin
-        x = grid(2, ip, ij) - xo * (dble(ip) - ddum)
+        xo = grid(2,ip,ij) - xgmin
+        x = grid(2,ip,ij) - xo * (dble(ip) - ddum)
       else           
-        xo = grid(2, ip, ij) - grid(2,im,ij)
-        x = grid(2, ip, ij) - xo * (dble(ip) - ddum)
+        xo = grid(2,ip,ij) - grid(2,im,ij)
+        x = grid(2,ip,ij) - xo * (dble(ip) - ddum)
       endif
-      wgt = wgt * xo * dble(xbin_max-xbin_min)
+      wgt = wgt * xo * dble(xbin_max - xbin_min)
  999  CALL COUNTERS_STOP_COUNTER( 10 ) ! 10=PROGRAM-SampleGetX
       end
 
