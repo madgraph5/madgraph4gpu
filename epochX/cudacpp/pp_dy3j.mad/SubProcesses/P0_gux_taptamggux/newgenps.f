@@ -31,7 +31,6 @@ c
 c
 c     Local
 c
-c     integer icount, it_warned
       integer im, ip, ij
       double precision xbin_min, xbin_max, ddum, xo, y
 c
@@ -42,10 +41,6 @@ c
 c
 c     Global
 c
-c     double precision tmean, trmean, tsigma
-c     integer             dim, events, itm, kn, cur_it, invar, configs
-c     common /sample_common/
-c    .  tmean, trmean, tsigma, dim, events, itm, kn, cur_it, invar, configs
 
       double precision    grid(2, ng, 0:maxinvar)
       common /data_grid/ grid
@@ -64,8 +59,6 @@ c    .  tmean, trmean, tsigma, dim, events, itm, kn, cur_it, invar, configs
       common/to_xpoints/tx, nzoom
 
       data ddum/0d0/
-c     data icount/0/
-c     data it_warned/0/
 
       integer            lastbin(maxdim)
       common /to_lastbin/lastbin
@@ -131,26 +124,6 @@ c
         x = grid(2, ip, ij) - xo * (dble(ip) - ddum)
       endif
 c
-c     Simple checks to see if we got the right point note 1e-3 corresponds
-c     to the fact that the grids are required to be separated by 1e-14. Since
-c     double precision is about 18 digits, we expect things to agree to
-c     3 digit accuracy.
-c
-c     if (it_warned .ne. cur_it) then
-c       icount=0
-c       it_warned = cur_it
-c     endif
-c     if (abs(ddum-xbin(x,ij))/(ddum+1d-22) .gt. 1e-3) then
-c       if (icount .lt. 5) then
-c         write(*,'(a,i4,2e14.6,1e12.4)')
-c    &      'Warning xbin not returning correct x', ij,
-c    &      ddum,xbin(x,ij),xo
-c       elseif (icount .eq. 5) then
-c         write(*,'(a,a)')'Warning xbin still not working well. ',
-c    &      'Last message this iteration.'
-c       endif
-c       icount=icount+1
-c     endif
       wgt = wgt * xo * dble(xbin_max-xbin_min)
  999  CALL COUNTERS_STOP_COUNTER( 10 ) ! 10=PROGRAM-SampleGetX
       end
