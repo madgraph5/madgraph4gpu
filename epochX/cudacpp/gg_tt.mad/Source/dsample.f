@@ -1228,7 +1228,7 @@ c     taken care of at the level of matrix<i> already.
       
       end subroutine sample_get_discrete_x
 
-      subroutine sample_get_x_old(wgt, x, j, ipole, xmin, xmax)
+      subroutine sample_get_x(wgt, x, j, ipole, xmin, xmax)
 c************************************************************************
 c     Returns maxdim random numbers between 0 and 1, and the wgt
 c     associated with this set of points, and the iteration number
