@@ -72,6 +72,9 @@ c  Begin Code
 c-----
       CALL COUNTERS_START_COUNTER( 10, 1 ) ! 10=PROGRAM-SampleGetX
       icall = icall + 1
+c     if (icall.le.100) then
+c       write(6,*) 'sample_get_x', wgt, x, j, ipole, xmin, xmax
+c     endif
       ij = Minvar(j,ipole)
 c
 c Fall back to the default old implementation under some circumstances
