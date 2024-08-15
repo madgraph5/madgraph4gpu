@@ -1,4 +1,4 @@
-      subroutine ntuple_new(x,a,b)
+      subroutine ntuple_new(x)
 c-------------------------------------------------------
 c     Front to ranmar, assuming seeds have already been set
 c------------------------------------------------------
@@ -6,7 +6,7 @@ c------------------------------------------------------
 c
 c     Arguments
 c
-      double precision x,a,b
+      double precision x
 c-----
 c  Begin Code
 c-----
@@ -14,5 +14,4 @@ c-----
       do while (x .lt. 1d-16)
          call ranmar(x)
       enddo
-      x = a+x*(b-a)
       end

@@ -108,7 +108,8 @@ c
       if (xbin_min .gt. xbin_max-1) then
         xbin_min = min(xbin_min, xbin_max)
       endif
-      call ntuple_new(ddum, xbin_min, xbin_max)
+      call ntuple_new(ddum)
+      ddum = xbin_min + ddum * (xbin_max - xbin_min)
       tx(1,j) = xbin_min
       tx(2,j) = ddum
       tx(3,j) = xbin_max
