@@ -33,7 +33,7 @@ c     Local
 c
 c     integer icount, it_warned
       integer im, ip, ij
-      double precision xbin_min, xbin_max, ddum(maxdim), xo, y
+      double precision xbin_min, xbin_max, ddum, xo, y
 c
 c     External
 c
@@ -63,7 +63,7 @@ c    .  tmean, trmean, tsigma, dim, events, itm, kn, cur_it, invar, configs
       double precision  tx(1:3,maxinvar)
       common/to_xpoints/tx, nzoom
 
-      data ddum/maxdim*0d0/
+      data ddum/0d0/
 c     data icount/0/
 c     data it_warned/0/
 
@@ -100,19 +100,19 @@ c
 c     Line which allows us to keep choosing same x
 c
       if (nzoom .le. 0) then
-        call ntuple(ddum(j), xbin_min,xbin_max, j, ipole)
+        call ntuple(ddum, xbin_min, xbin_max, j, ipole)
       else
-        call ntuple(ddum(j),max(xbin_min,dble(int(tx(2,j)))),
-     $    min(xbin_max,dble(int(tx(2,j))+1)),j,ipole)
+        call ntuple(ddum, max(xbin_min, dble(int(tx(2,j)))),
+     $    min(xbin_max,dble(int(tx(2,j))+1)), j, ipole)
       endif
       tx(1,j) = xbin_min
-      tx(2,j) = ddum(j)
+      tx(2,j) = ddum
       tx(3,j) = xbin_max
 
-      im = ddum(j)
+      im = ddum
       if (im.ge.ng)then
         im = ng -1
-        ddum(j) = ng
+        ddum = ng
       endif
       if (im.lt.0) im = 0
       ip = im + 1
@@ -125,10 +125,10 @@ c     New method of choosing x from bins
 c
       if (ip .eq. 1) then       !This is in the first bin
         xo = grid(2, ip, ij)-xgmin
-        x = grid(2, ip, ij) - xo * (dble(ip) - ddum(j))
+        x = grid(2, ip, ij) - xo * (dble(ip) - ddum)
       else           
         xo = grid(2, ip, ij)-grid(2,im,ij)
-        x = grid(2, ip, ij) - xo * (dble(ip) - ddum(j))
+        x = grid(2, ip, ij) - xo * (dble(ip) - ddum)
       endif
 c
 c     Simple checks to see if we got the right point note 1e-3 corresponds
@@ -140,11 +140,11 @@ c     if (it_warned .ne. cur_it) then
 c       icount=0
 c       it_warned = cur_it
 c     endif
-c     if (abs(ddum(j)-xbin(x,ij))/(ddum(j)+1d-22) .gt. 1e-3) then
+c     if (abs(ddum-xbin(x,ij))/(ddum+1d-22) .gt. 1e-3) then
 c       if (icount .lt. 5) then
 c         write(*,'(a,i4,2e14.6,1e12.4)')
 c    &      'Warning xbin not returning correct x', ij,
-c    &      ddum(j),xbin(x,ij),xo
+c    &      ddum,xbin(x,ij),xo
 c       elseif (icount .eq. 5) then
 c         write(*,'(a,a)')'Warning xbin still not working well. ',
 c    &      'Last message this iteration.'
