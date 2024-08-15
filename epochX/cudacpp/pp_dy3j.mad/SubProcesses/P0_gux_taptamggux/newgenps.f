@@ -73,17 +73,18 @@ c     data it_warned/0/
 c-----
 c  Begin Code
 c-----
+      CALL COUNTERS_START_COUNTER( 10, 1 ) ! 10=PROGRAM-SampleGetX
       ij = Minvar(j,ipole)
 c
 c Fall back to the default old implementation under some circumstances
 c
       if (ij.gt.0 .and. swidth(ij).gt.0d0) then
         call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
-        return
+        goto 999
       endif
       if (ituple.ne.1) then
         call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
-        return
+        goto 999
       endif
 c
 c Proceed with the simplified new implementation
@@ -151,6 +152,7 @@ c       endif
 c       icount=icount+1
 c     endif
       wgt = wgt * xo * dble(xbin_max-xbin_min)
+ 999  CALL COUNTERS_STOP_COUNTER( 10 ) ! 10=PROGRAM-SampleGetX
       end
 
 c-------------------------------------------------------------------------------
