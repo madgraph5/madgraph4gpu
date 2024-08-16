@@ -94,7 +94,7 @@ c - nzoom > 0   => take care of updating tx
 c
       if (icall.eq.1) then ! first call
         call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
-        return
+        goto 999
       endif
       if (ij.gt.0 .and. swidth(ij).gt.0d0) then
         call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
@@ -106,7 +106,7 @@ c
       endif
       if (nzoom.gt.0) then
         call sample_get_x_old( wgt, x, j, ipole, xmin, xmax )
-        return
+        goto 999
       endif
 c
 c Proceed with the simplified new implementation
