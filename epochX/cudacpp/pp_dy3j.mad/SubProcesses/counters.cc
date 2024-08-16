@@ -132,6 +132,8 @@ extern "C"
     if( usechronotimers ) program_chronotimer.stop();
     else program_rdtsctimer.stop();
     float program_totaltime = ( usechronotimers ? program_chronotimer.getDurationSeconds() : program_rdtsctimer.getDurationSeconds() );
+    if( usechronotimers ) printf( " [COUNTERS] *** USING STD::CHRONO TIMERS ***\n" );
+    else printf( " [COUNTERS] *** USING RDTSC-BASED TIMERS ***\n" );
     printf( " [COUNTERS] PROGRAM TOTAL                         : %9.4fs\n", program_totaltime );
     if( disablecounters ) return;
     // Extract time duration from all timers
