@@ -79,7 +79,7 @@ c
 c-----
 c  Begin Code
 c-----
-      CALL COUNTERS_START_COUNTER( 10, 1 ) ! 10=PROGRAM-SampleGetX
+c     CALL COUNTERS_START_COUNTER( 10, 1 ) ! 10=PROGRAM-SampleGetX
       icall = icall + 1
 c     if (icall.le.100) then
 c       write(6,*) 'sample_get_x', wgt, x, j, ipole, xmin, xmax
@@ -162,7 +162,8 @@ c
         x = grid(2,ip,ij) - xo * (dble(ip) - ddum)
       endif
       wgt = wgt * xo * dble(xbin_max - xbin_min)
- 999  CALL COUNTERS_STOP_COUNTER( 10 ) ! 10=PROGRAM-SampleGetX
+ 999  CONTINUE
+c     CALL COUNTERS_STOP_COUNTER( 10 ) ! 10=PROGRAM-SampleGetX
       end
 
 c-------------------------------------------------------------------------------
