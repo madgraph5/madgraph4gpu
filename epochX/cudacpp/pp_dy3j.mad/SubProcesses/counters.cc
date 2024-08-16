@@ -28,13 +28,14 @@ extern "C"
   {
     constexpr int NCOUNTERSMAX = 20;
     static bool disablecounters = false;
+    static bool usechronotimers = false;
     // Overall program timer
-    //static mgOnGpu::ChronoTimer<TIMERTYPE> program_timer;
-    static mgOnGpu::RdtscTimer program_timer;
+    static mgOnGpu::ChronoTimer<TIMERTYPE> program_chronotimer;
+    static mgOnGpu::RdtscTimer program_rdtsctimer;
     // Individual timers
     static std::string array_tags[NCOUNTERSMAX + 3];
-    //static mgOnGpu::ChronoTimer<TIMERTYPE> array_timers[NCOUNTERSMAX + 3];
-    static mgOnGpu::RdtscTimer array_timers[NCOUNTERSMAX + 3];
+    static mgOnGpu::ChronoTimer<TIMERTYPE> array_chronotimers[NCOUNTERSMAX + 3];
+    static mgOnGpu::RdtscTimer array_rdtsctimers[NCOUNTERSMAX + 3];
     static int array_counters[NCOUNTERSMAX + 3] = { 0 };
   }
 
@@ -42,9 +43,11 @@ extern "C"
   {
     using namespace counters;
     if( getenv( "CUDACPP_RUNTIME_DISABLECOUNTERS" ) ) disablecounters = true;
+    if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) usechronotimers = true;
     for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
       array_tags[icounter] = ""; // ensure that this is initialized to ""
-    program_timer.start();
+    if( usechronotimers ) program_chronotimer.start();
+    else program_rdtsctimer.start();
     return;
   }
 
@@ -91,7 +94,8 @@ extern "C"
       throw std::runtime_error( sstr.str() );
     }
     array_counters[icounter] += *pnevt;
-    array_timers[icounter].start();
+    if( usechronotimers ) array_chronotimers[icounter].start();
+    else array_rdtsctimers[icounter].start();
     return;
   }
 
@@ -106,7 +110,8 @@ extern "C"
       sstr << "ERROR! counter #" << icounter << " does not exist";
       throw std::runtime_error( sstr.str() );
     }
-    array_timers[icounter].stop();
+    if( usechronotimers ) array_chronotimers[icounter].stop();
+    else array_rdtsctimers[icounter].stop();
     return;
   }
 
@@ -124,15 +129,19 @@ extern "C"
   {
     using namespace counters;
     // Dump program counters
-    program_timer.stop();
-    float program_totaltime = program_timer.getDurationSeconds();
+    if( usechronotimers ) program_chronotimer.stop();
+    else program_rdtsctimer.stop();
+    float program_totaltime = ( usechronotimers ? program_chronotimer.getDurationSeconds() : program_rdtsctimer.getDurationSeconds() );
     printf( " [COUNTERS] PROGRAM TOTAL                         : %9.4fs\n", program_totaltime );
     if( disablecounters ) return;
     // Extract time duration from all timers
     float array_totaltimes[NCOUNTERSMAX + 3] = { 0 };
     for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
     {
-      array_totaltimes[icounter] = array_timers[icounter].getDurationSeconds();
+      if( usechronotimers )
+        array_totaltimes[icounter] = array_chronotimers[icounter].getDurationSeconds();
+      else
+        array_totaltimes[icounter] = array_rdtsctimers[icounter].getDurationSeconds();
     }
     // Create counter[0] "Fortran Other"
     array_tags[0] = "Fortran Other";
