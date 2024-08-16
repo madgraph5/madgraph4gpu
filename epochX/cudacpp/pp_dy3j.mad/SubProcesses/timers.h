@@ -75,6 +75,79 @@ namespace mgOnGpu
   }
 
   // ---------------------------------------------------------------------------
+  
+  // Faster ("new") *EXPERIMENTAL* timers based on rdtsc
+  // Derived from the TSCNS class (https://github.com/MengRao/tscns)
+  // The conversion of rdtsc counts to seconds is calibrated on the average frequency during the timer lifetime
+  // See https://stackoverflow.com/q/76063685 and the Intel 64 and IA-32 Architectures Software Developer’s Manual
+  // (https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html, June 2024):
+  // "To determine average processor clock frequency, Intel recommends the use of performance monitoring
+  // logic to count processor core clocks over the period of time for which the average is required."
+  class RdtscTimer
+  {
+  public:
+    RdtscTimer();
+    virtual ~RdtscTimer() {}
+    void start();
+    void stop();
+    float getDurationSeconds();
+    static uint64_t rdtsc();
+  private:
+    uint64_t m_duration;
+    bool m_started;
+    uint64_t m_startCount;
+    ChronoTimer<std::chrono::high_resolution_clock> m_ctorTimer;
+    uint64_t m_ctorCount;
+  };
+
+  uint64_t
+  RdtscTimer::rdtsc()
+  {
+#if defined( __x86_64__ )
+    return __builtin_ia32_rdtsc();
+#else
+#error "rdtsc is not defined for this platform yet"
+#endif
+  }
+
+  void
+  RdtscTimer::start()
+  {
+    assert( !m_started );
+    m_started = true;
+    m_startCount = rdtsc();
+  }
+
+  RdtscTimer::RdtscTimer()
+    : m_duration( 0 )
+    , m_started( false )
+    , m_startCount( 0 )
+    , m_ctorTimer()
+    , m_ctorCount( 0 )
+  {
+    m_ctorTimer.start();
+    m_ctorCount = rdtsc();
+  }
+
+  void
+  RdtscTimer::stop()
+  {
+    assert( m_started );
+    m_started = false;
+    m_duration += rdtsc() - m_startCount;
+  }
+
+  float
+  RdtscTimer::getDurationSeconds()
+  {
+    assert( !m_started );
+    m_ctorTimer.stop();
+    float secPerCount = m_ctorTimer.getDurationSeconds() / ( rdtsc() - m_ctorCount );
+    m_ctorTimer.start(); // just in case getDurationSeconds() is called again...
+    return m_duration * secPerCount;
+  }
+
+  // ---------------------------------------------------------------------------
 
 }
 #endif // MGONGPUTIMERS_H

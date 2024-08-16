@@ -29,10 +29,12 @@ extern "C"
     constexpr int NCOUNTERSMAX = 20;
     static bool disablecounters = false;
     // Overall program timer
-    static mgOnGpu::ChronoTimer<TIMERTYPE> program_timer;
+    //static mgOnGpu::ChronoTimer<TIMERTYPE> program_timer;
+    static mgOnGpu::RdtscTimer program_timer;
     // Individual timers
     static std::string array_tags[NCOUNTERSMAX + 3];
-    static mgOnGpu::ChronoTimer<TIMERTYPE> array_timers[NCOUNTERSMAX + 3];
+    //static mgOnGpu::ChronoTimer<TIMERTYPE> array_timers[NCOUNTERSMAX + 3];
+    static mgOnGpu::RdtscTimer array_timers[NCOUNTERSMAX + 3];
     static int array_counters[NCOUNTERSMAX + 3] = { 0 };
   }
 
