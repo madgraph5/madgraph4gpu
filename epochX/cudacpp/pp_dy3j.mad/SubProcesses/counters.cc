@@ -3,13 +3,14 @@
 // Created by: A. Valassi (Dec 2022) for the MG5aMC CUDACPP plugin.
 // Further modified by: S. Hageboeck, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
-#include "timer.h"
+#include "timers.h"
 #define TIMERTYPE std::chrono::high_resolution_clock
 
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring> // for strlen
+#include <iostream>
 #include <sstream>
 #include <string_view>
 
@@ -28,12 +29,10 @@ extern "C"
     constexpr int NCOUNTERSMAX = 20;
     static bool disablecounters = false;
     // Overall program timer
-    static mgOnGpu::Timer<TIMERTYPE> program_timer;
-    static float program_totaltime = 0;
+    static mgOnGpu::ChronoTimer<TIMERTYPE> program_timer;
     // Individual timers
     static std::string array_tags[NCOUNTERSMAX + 3];
-    static mgOnGpu::Timer<TIMERTYPE> array_timers[NCOUNTERSMAX + 3];
-    static float array_totaltimes[NCOUNTERSMAX + 3] = { 0 };
+    static mgOnGpu::ChronoTimer<TIMERTYPE> array_timers[NCOUNTERSMAX + 3];
     static int array_counters[NCOUNTERSMAX + 3] = { 0 };
   }
 
@@ -43,7 +42,7 @@ extern "C"
     if( getenv( "CUDACPP_RUNTIME_DISABLECOUNTERS" ) ) disablecounters = true;
     for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
       array_tags[icounter] = ""; // ensure that this is initialized to ""
-    program_timer.Start();
+    program_timer.start();
     return;
   }
 
@@ -90,7 +89,7 @@ extern "C"
       throw std::runtime_error( sstr.str() );
     }
     array_counters[icounter] += *pnevt;
-    array_timers[icounter].Start();
+    array_timers[icounter].start();
     return;
   }
 
@@ -105,7 +104,7 @@ extern "C"
       sstr << "ERROR! counter #" << icounter << " does not exist";
       throw std::runtime_error( sstr.str() );
     }
-    array_totaltimes[icounter] += array_timers[icounter].GetDuration();
+    array_timers[icounter].stop();
     return;
   }
 
@@ -123,9 +122,16 @@ extern "C"
   {
     using namespace counters;
     // Dump program counters
-    program_totaltime += program_timer.GetDuration();
+    program_timer.stop();
+    float program_totaltime = program_timer.getDurationSeconds();
     printf( " [COUNTERS] PROGRAM TOTAL                         : %9.4fs\n", program_totaltime );
     if( disablecounters ) return;
+    // Extract time duration from all timers
+    float array_totaltimes[NCOUNTERSMAX + 3] = { 0 };
+    for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
+    {
+      array_totaltimes[icounter] = array_timers[icounter].getDurationSeconds();
+    }
     // Create counter[0] "Fortran Other"
     array_tags[0] = "Fortran Other";
     array_counters[0] = 1;
