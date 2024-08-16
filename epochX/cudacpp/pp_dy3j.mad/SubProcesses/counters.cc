@@ -4,8 +4,7 @@
 // Further modified by: S. Hageboeck, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 #include "timer.h"
-//#define TIMERTYPE std::chrono::high_resolution_clock
-#define TIMERTYPE std::chrono::steady_clock
+#define TIMERTYPE std::chrono::high_resolution_clock
 
 #include <cassert>
 #include <cstdio>
