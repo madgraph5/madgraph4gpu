@@ -79,7 +79,7 @@ c
 c-----
 c  Begin Code
 c-----
-      CALL COUNTERS_START_COUNTER( 21, 1 ) ! 21=TEST-SampleGetX
+c     CALL COUNTERS_START_COUNTER( 21, 1 ) ! 21=TEST-SampleGetX
       icall = icall + 1
 c     if (icall.le.100) then
 c       write(6,*) 'sample_get_x', wgt, x, j, ipole, xmin, xmax
@@ -163,7 +163,7 @@ c
       endif
       wgt = wgt * xo * dble(xbin_max - xbin_min)
  999  CONTINUE
-      CALL COUNTERS_STOP_COUNTER( 21 ) ! 21=TEST-SampleGetX
+c     CALL COUNTERS_STOP_COUNTER( 21 ) ! 21=TEST-SampleGetX
       end
 
 c-------------------------------------------------------------------------------
