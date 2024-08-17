@@ -102,7 +102,7 @@ namespace mgOnGpu
     virtual ~RdtscTimer() {}
     void start();
     void stop();
-    float getDurationSeconds();
+    float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
     static uint64_t rdtsc();
   private:
     uint64_t m_duration;
@@ -155,13 +155,16 @@ namespace mgOnGpu
 
   inline
   float
-  RdtscTimer::getDurationSeconds()
+  RdtscTimer::getDurationSeconds( bool allowRunning )
   {
+    if( allowRunning ) stop(); // (old timer behaviour) compute m_duration and allow next start() call
     assert( !m_started );
     m_ctorTimer.stop();
     float secPerCount = m_ctorTimer.getDurationSeconds() / ( rdtsc() - m_ctorCount );
-    m_ctorTimer.start(); // just in case getDurationSeconds() is called again...
-    return m_duration * secPerCount;
+    m_ctorTimer.start(); // just in case getDurationSeconds() is called again... (e.g. if allowRunning is true)
+    auto count = m_duration;
+    if( allowRunning ) m_duration = 0; // (old timer behaviour) reset m_duration
+    return count * secPerCount;
   }
 
   // ---------------------------------------------------------------------------
