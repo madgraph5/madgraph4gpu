@@ -611,6 +611,12 @@ function runNcuReq() {
   set +x
 }
 
+if [ "$CUDACPP_RUNTIME_USECHRONOTIMERS" == "" ]; then
+  echo -e "*** USING RDTSC-BASED TIMERS ***\n"
+else
+  echo -e "*** USING STD::CHRONO TIMERS ***\n"
+fi
+
 if nvidia-smi -L > /dev/null 2>&1; then
   gpuTxt="$(nvidia-smi -L | wc -l)x $(nvidia-smi -L | awk '{print $3,$4}' | sort -u)"
 elif rocm-smi -i > /dev/null 2>&1; then
