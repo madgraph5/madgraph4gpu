@@ -198,7 +198,7 @@ $(CUDACPP_BUILDDIR)/$(PROG)_cuda: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS)
 $(CUDACPP_BUILDDIR)/$(PROG)_hip: $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o $(CUDACPP_BUILDDIR)/.cudacpplibs
 	$(FC) -o $@ $(PROCESS) $(DSIG_cudacpp) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o -L$(LIBDIR)/$(CUDACPP_BUILDDIR) -l$(CUDACPP_COMMONLIB) -l$(CUDACPP_BACKENDLIB) $(LIBFLAGSRPATH) $(LDFLAGS)
 
-counters.o: counters.cc timers.h
+counters.o: counters.cc timer.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 ompnumthreads.o: ompnumthreads.cc ompnumthreads.h

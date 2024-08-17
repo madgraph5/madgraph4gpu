@@ -1,10 +1,15 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
-// Created by: A. Valassi (Aug 2024) for the MG5aMC CUDACPP plugin.
+//==========================================================================
+// Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin [old API, chrono timer].
+// Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+//==========================================================================
+// Created by: A. Valassi (Aug 2024) for the MG5aMC CUDACPP plugin [new API, add rdtsc timer].
 // Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
+//==========================================================================
 
-#ifndef MGONGPUTIMERS_H
-#define MGONGPUTIMERS_H 1
+#ifndef MGONGPUTIMER_H
+#define MGONGPUTIMER_H 1
 
 #include <cassert>
 #include <chrono>
@@ -16,8 +21,8 @@ namespace mgOnGpu
 
   // ---------------------------------------------------------------------------
   
-  // Default ("old") timers based on std::chrono clocks
-  // Based on the previous timer.h header by S. Roiser, O. Mattelaer and A. Valassi
+  // ChronoTimer: default ("old") timers based on std::chrono clocks
+  // With respect to the original Timer class, this uses a new API with explicit start/stop
   // Template argument T can be any of high_resolution_clock, steady_clock, system_clock
   // See https://www.modernescpp.com/index.php/the-three-clocks
   // See https://codereview.stackexchange.com/questions/196245/extremely-simple-timer-class-in-c  
@@ -83,8 +88,8 @@ namespace mgOnGpu
 
   // ---------------------------------------------------------------------------
   
-  // Faster ("new") *EXPERIMENTAL* timers based on rdtsc
-  // Derived from the TSCNS class (https://github.com/MengRao/tscns)
+  // RdtscTimer: faster ("new") *EXPERIMENTAL* timers based on rdtsc
+  // The rdtsc() call is derived from the TSCNS class (https://github.com/MengRao/tscns)
   // The conversion of rdtsc counts to seconds is calibrated on the average frequency during the timer lifetime
   // See https://stackoverflow.com/q/76063685 and the Intel 64 and IA-32 Architectures Software Developer’s Manual
   // (https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html, June 2024):
@@ -162,4 +167,4 @@ namespace mgOnGpu
   // ---------------------------------------------------------------------------
 
 }
-#endif // MGONGPUTIMERS_H
+#endif // MGONGPUTIMER_H

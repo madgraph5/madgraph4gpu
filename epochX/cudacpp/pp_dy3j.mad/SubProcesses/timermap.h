@@ -17,7 +17,7 @@
 #include "nvtx.h"
 #pragma GCC diagnostic pop
 
-#include "timers.h"
+#include "timer.h"
 #define TIMERTYPE std::chrono::high_resolution_clock
 
 namespace mgOnGpu
