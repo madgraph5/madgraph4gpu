@@ -26,7 +26,7 @@ extern "C"
 {
   namespace counters
   {
-    constexpr int NCOUNTERSMAX = 20;
+    constexpr int NCOUNTERSMAX = 30;
     static bool disablecounters = false;
     static bool usechronotimers = false;
     // Overall program timer
@@ -151,7 +151,8 @@ extern "C"
     array_totaltimes[0] = program_totaltime;
     for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
     {
-      if( !starts_with( array_tags[icounter], "PROGRAM" ) ) // skip counters whose tags start with "PROGRAM"
+      if( !starts_with( array_tags[icounter], "PROGRAM" ) &&
+          !starts_with( array_tags[icounter], "TEST" ) ) // skip counters whose tags start with "PROGRAM" or "TEST"
         array_totaltimes[0] -= array_totaltimes[icounter];
     }
     // Create counters[NCOUNTERSMAX+2] "OVERALL MEs" and counters[NCOUNTERSMAX+1] "OVERALL NON-MEs"
