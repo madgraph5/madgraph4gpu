@@ -96,7 +96,7 @@ C-----
       CALL COUNTERS_INITIALISE()
 c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is not needed, but it does not harm)
       CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran Initialise(I/O)'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran Random2Momenta'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran PhaseSpaceSampling'//char(0) ) ! uniform [0,1] + vegas to [0,1] + map to momenta
       CALL COUNTERS_REGISTER_COUNTER( 4, 'Fortran PDFs'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 5, 'Fortran UpdateScaleCouplings'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 6, 'Fortran Reweight'//char(0) )
