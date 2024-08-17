@@ -7,6 +7,7 @@
 #define MGONGPUTIMERMAP_H 1
 
 #include <cassert>
+#include <cstdlib>
 #include <fstream>
 #include <iomanip>
 #include <map>
@@ -28,7 +29,11 @@ namespace mgOnGpu
   public:
 
     TimerMap()
-      : m_timer(), m_active( "" ), m_partitionTotalTimes(), m_partitionIds() {}
+      : m_chronotimer(), m_rdtsctimer(), m_active( "" ), m_partitionTotalTimes(), m_partitionIds(), m_usechronotimers( false )
+    {
+      if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) m_usechronotimers = true;
+    }
+
     virtual ~TimerMap() {}
 
     // Start the timer for a specific partition (key must be a non-empty string)
@@ -39,7 +44,8 @@ namespace mgOnGpu
       // Close the previously active partition
       float last = stop();
       // Switch to a new partition
-      m_timer.start();
+      if( m_usechronotimers ) m_chronotimer.start();
+      else m_rdtsctimer.start();
       m_active = key;
       if( m_partitionTotalTimes.find( key ) == m_partitionTotalTimes.end() )
       {
@@ -60,7 +66,8 @@ namespace mgOnGpu
       if( m_active != "" )
       {
         const bool allowRunning = true; // skip assert that the timer is not running
-        last = m_timer.getDurationSeconds( allowRunning );
+        if( m_usechronotimers ) last = m_chronotimer.getDurationSeconds( allowRunning );
+        else last = m_rdtsctimer.getDurationSeconds( allowRunning );
         m_partitionTotalTimes[m_active] += last;
       }
       m_active = "";
@@ -151,10 +158,12 @@ namespace mgOnGpu
 
   private:
 
-    ChronoTimer<TIMERTYPE> m_timer;
+    ChronoTimer<TIMERTYPE> m_chronotimer;
+    RdtscTimer m_rdtsctimer;
     std::string m_active;
     std::map<std::string, float> m_partitionTotalTimes;
     std::map<std::string, uint32_t> m_partitionIds;
+    bool m_usechronotimers;
   };
 
 }
