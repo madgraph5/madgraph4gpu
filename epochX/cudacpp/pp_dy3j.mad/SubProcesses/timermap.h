@@ -17,7 +17,7 @@
 #include "nvtx.h"
 #pragma GCC diagnostic pop
 
-#include "timer.h"
+#include "timers.h"
 #define TIMERTYPE std::chrono::high_resolution_clock
 
 namespace mgOnGpu
@@ -28,7 +28,7 @@ namespace mgOnGpu
   public:
 
     TimerMap()
-      : m_timer(), m_active( "" ), m_partitionTimers(), m_partitionIds() {}
+      : m_timer(), m_active( "" ), m_partitionTotalTimes(), m_partitionIds() {}
     virtual ~TimerMap() {}
 
     // Start the timer for a specific partition (key must be a non-empty string)
@@ -39,12 +39,12 @@ namespace mgOnGpu
       // Close the previously active partition
       float last = stop();
       // Switch to a new partition
-      m_timer.Start();
+      m_timer.start();
       m_active = key;
-      if( m_partitionTimers.find( key ) == m_partitionTimers.end() )
+      if( m_partitionTotalTimes.find( key ) == m_partitionTotalTimes.end() )
       {
-        m_partitionIds[key] = m_partitionTimers.size();
-        m_partitionTimers[key] = 0;
+        m_partitionIds[key] = m_partitionTotalTimes.size();
+        m_partitionTotalTimes[key] = 0;
       }
       // Open a new Cuda NVTX range
       NVTX_PUSH( key.c_str(), m_partitionIds[key] );
@@ -59,8 +59,9 @@ namespace mgOnGpu
       float last = 0;
       if( m_active != "" )
       {
-        last = m_timer.GetDuration();
-        m_partitionTimers[m_active] += last;
+        const bool allowRunning = true; // skip assert that the timer is not running
+        last = m_timer.getDurationSeconds( allowRunning );
+        m_partitionTotalTimes[m_active] += last;
       }
       m_active = "";
       // Close the current Cuda NVTX range
@@ -82,7 +83,7 @@ namespace mgOnGpu
       const std::string total3Key = "TOTAL   (3)";
       const std::string total3aKey = "TOTAL  (3a)";
       size_t maxsize = 0;
-      for( auto ip: m_partitionTimers )
+      for( auto ip: m_partitionTotalTimes )
         maxsize = std::max( maxsize, ip.first.size() );
       maxsize = std::max( maxsize, totalKey.size() );
       // Compute the overall total
@@ -95,10 +96,10 @@ namespace mgOnGpu
       float total2 = 0;
       float total3 = 0;
       float total3a = 0;
-      for( auto ip: m_partitionTimers )
+      for( auto ip: m_partitionTotalTimes )
       {
         total += ip.second;
-        //if ( ipart != 0 && ipart+1 != m_partitionTimers.size() ) totalBut2 += ip.second;
+        //if ( ipart != 0 && ipart+1 != m_partitionTotalTimes.size() ) totalBut2 += ip.second;
         if( ip.first[0] == '1' || ip.first[0] == '2' || ip.first[0] == '3' ) total123 += ip.second;
         if( ip.first[0] == '2' || ip.first[0] == '3' ) total23 += ip.second;
         if( ip.first[0] == '1' ) total1 += ip.second;
@@ -113,7 +114,7 @@ namespace mgOnGpu
         std::string s1 = "\"", s2 = "\" : \"", s3 = " sec\",";
         ostr << std::setprecision( 6 ); // set precision (default=6): affects all floats
         ostr << std::fixed;             // fixed format: affects all floats
-        for( auto ip: m_partitionTimers )
+        for( auto ip: m_partitionTotalTimes )
           ostr << s1 << ip.first << s2 << ip.second << s3 << std::endl;
         ostr << s1 << totalKey << s2 << total << s3 << std::endl
              << s1 << total123Key << s2 << total123 << s3 << std::endl
@@ -127,7 +128,7 @@ namespace mgOnGpu
         // NB: 'setw' affects only the next field (of any type)
         ostr << std::setprecision( 6 ); // set precision (default=6): affects all floats
         ostr << std::fixed;             // fixed format: affects all floats
-        for( auto ip: m_partitionTimers )
+        for( auto ip: m_partitionTotalTimes )
           ostr << std::setw( maxsize ) << ip.first << " : "
                << std::setw( 12 ) << ip.second << " sec" << std::endl;
         ostr << std::setw( maxsize ) << totalKey << " : "
@@ -150,9 +151,9 @@ namespace mgOnGpu
 
   private:
 
-    Timer<TIMERTYPE> m_timer;
+    ChronoTimer<TIMERTYPE> m_timer;
     std::string m_active;
-    std::map<std::string, float> m_partitionTimers;
+    std::map<std::string, float> m_partitionTotalTimes;
     std::map<std::string, uint32_t> m_partitionIds;
   };
 

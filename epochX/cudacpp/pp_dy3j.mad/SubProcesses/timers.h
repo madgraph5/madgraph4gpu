@@ -17,7 +17,7 @@ namespace mgOnGpu
   // ---------------------------------------------------------------------------
   
   // Default ("old") timers based on std::chrono clocks
-  // Based on the previous timer.h header by S.Roiser, O. Mattelaer and A. Valassi
+  // Based on the previous timer.h header by S. Roiser, O. Mattelaer and A. Valassi
   // Template argument T can be any of high_resolution_clock, steady_clock, system_clock
   // See https://www.modernescpp.com/index.php/the-three-clocks
   // See https://codereview.stackexchange.com/questions/196245/extremely-simple-timer-class-in-c  
@@ -29,7 +29,7 @@ namespace mgOnGpu
     virtual ~ChronoTimer() {}
     void start();
     void stop();
-    float getDurationSeconds();
+    float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
   private:
     std::chrono::duration<float> m_duration;
     bool m_started;
@@ -38,8 +38,9 @@ namespace mgOnGpu
   };
 
   template<typename T>
+  inline
   ChronoTimer<T>::ChronoTimer()
-    : m_duration( 0 )
+    : m_duration()
     , m_started( false )
     , m_startTime()
   {
@@ -49,6 +50,7 @@ namespace mgOnGpu
   }
 
   template<typename T>
+  inline
   void
   ChronoTimer<T>::start()
   {
@@ -58,6 +60,7 @@ namespace mgOnGpu
   }
 
   template<typename T>
+  inline
   void
   ChronoTimer<T>::stop()
   {
@@ -67,11 +70,15 @@ namespace mgOnGpu
   }
 
   template<typename T>
+  inline
   float
-  ChronoTimer<T>::getDurationSeconds()
+  ChronoTimer<T>::getDurationSeconds( bool allowRunning )
   {
+    if( allowRunning ) stop(); // (old timer behaviour) compute m_duration and allow next start() call
     assert( !m_started );
-    return m_duration.count();
+    auto count = m_duration.count();
+    if( allowRunning ) m_duration = std::chrono::duration<float>::zero(); // (old timer behaviour) reset m_duration
+    return count;
   }
 
   // ---------------------------------------------------------------------------
@@ -100,6 +107,7 @@ namespace mgOnGpu
     uint64_t m_ctorCount;
   };
 
+  inline
   uint64_t
   RdtscTimer::rdtsc()
   {
@@ -110,6 +118,7 @@ namespace mgOnGpu
 #endif
   }
 
+  inline
   void
   RdtscTimer::start()
   {
@@ -118,6 +127,7 @@ namespace mgOnGpu
     m_startCount = rdtsc();
   }
 
+  inline
   RdtscTimer::RdtscTimer()
     : m_duration( 0 )
     , m_started( false )
@@ -129,6 +139,7 @@ namespace mgOnGpu
     m_ctorCount = rdtsc();
   }
 
+  inline
   void
   RdtscTimer::stop()
   {
@@ -137,6 +148,7 @@ namespace mgOnGpu
     m_duration += rdtsc() - m_startCount;
   }
 
+  inline
   float
   RdtscTimer::getDurationSeconds()
   {
