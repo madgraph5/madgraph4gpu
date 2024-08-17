@@ -27,25 +27,41 @@ extern "C"
   namespace counters
   {
     constexpr int NCOUNTERSMAX = 30;
-    static bool disablecounters = false;
+    static bool disablecalltimers = false;
+    static bool disabletesttimers = false;
     static bool usechronotimers = false;
     // Overall program timer
     static mgOnGpu::ChronoTimer<TIMERTYPE> program_chronotimer;
     static mgOnGpu::RdtscTimer program_rdtsctimer;
     // Individual timers
     static std::string array_tags[NCOUNTERSMAX + 3];
+    static bool array_istesttimer[NCOUNTERSMAX + 3];
     static mgOnGpu::ChronoTimer<TIMERTYPE> array_chronotimers[NCOUNTERSMAX + 3];
     static mgOnGpu::RdtscTimer array_rdtsctimers[NCOUNTERSMAX + 3];
     static int array_counters[NCOUNTERSMAX + 3] = { 0 };
   }
 
+  inline bool starts_with( std::string_view str, std::string_view prefix ) // https://stackoverflow.com/a/42844629
+  {
+    return str.size() >= prefix.size() && str.compare( 0, prefix.size(), prefix ) == 0;
+  }
+
+  inline bool ends_with( std::string_view str, std::string_view suffix ) // https://stackoverflow.com/a/42844629
+  {
+    return str.size() >= suffix.size() && str.compare( str.size() - suffix.size(), suffix.size(), suffix ) == 0;
+  }
+
   void counters_initialise_()
   {
     using namespace counters;
-    if( getenv( "CUDACPP_RUNTIME_DISABLECOUNTERS" ) ) disablecounters = true;
+    if( getenv( "CUDACPP_RUNTIME_DISABLECALLTIMERS" ) ) disablecalltimers = true;
+    if( getenv( "CUDACPP_RUNTIME_DISABLETESTTIMERS" ) ) disabletesttimers = true;
     if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) usechronotimers = true;
-    for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
+    for( int icounter = 0; icounter < NCOUNTERSMAX + 3; icounter++ )
+    {
       array_tags[icounter] = ""; // ensure that this is initialized to ""
+      array_istesttimer[icounter] = false; // ensure that this is initialized to false
+    }
     if( usechronotimers ) program_chronotimer.start();
     else program_rdtsctimer.start();
     return;
@@ -72,6 +88,7 @@ extern "C"
     if( array_tags[icounter] == "" )
     {
       array_tags[icounter] = tag;
+      if( starts_with( array_tags[icounter], "TEST" ) ) array_istesttimer[icounter] = true;
     }
     else
     {
@@ -85,8 +102,9 @@ extern "C"
   void counters_start_counter_( const int* picounter, const int* pnevt )
   {
     using namespace counters;
-    if( disablecounters ) return;
+    if( disablecalltimers ) return;
     int icounter = *picounter;
+    if( disabletesttimers && array_istesttimer[icounter] ) return;
     if( array_tags[icounter] == "" )
     {
       std::ostringstream sstr;
@@ -102,8 +120,9 @@ extern "C"
   void counters_stop_counter_( const int* picounter )
   {
     using namespace counters;
-    if( disablecounters ) return;
+    if( disablecalltimers ) return;
     int icounter = *picounter;
+    if( disabletesttimers && array_istesttimer[icounter] ) return;
     if( array_tags[icounter] == "" )
     {
       std::ostringstream sstr;
@@ -113,16 +132,6 @@ extern "C"
     if( usechronotimers ) array_chronotimers[icounter].stop();
     else array_rdtsctimers[icounter].stop();
     return;
-  }
-
-  inline bool starts_with( std::string_view str, std::string_view prefix ) // https://stackoverflow.com/a/42844629
-  {
-    return str.size() >= prefix.size() && str.compare( 0, prefix.size(), prefix ) == 0;
-  }
-
-  inline bool ends_with( std::string_view str, std::string_view suffix ) // https://stackoverflow.com/a/42844629
-  {
-    return str.size() >= suffix.size() && str.compare( str.size() - suffix.size(), suffix.size(), suffix ) == 0;
   }
 
   void counters_finalise_()
@@ -135,7 +144,7 @@ extern "C"
     if( usechronotimers ) printf( " [COUNTERS] *** USING STD::CHRONO TIMERS ***\n" );
     else printf( " [COUNTERS] *** USING RDTSC-BASED TIMERS ***\n" );
     printf( " [COUNTERS] PROGRAM TOTAL                         : %9.4fs\n", program_totaltime );
-    if( disablecounters ) return;
+    if( disablecalltimers ) return;
     // Extract time duration from all timers
     float array_totaltimes[NCOUNTERSMAX + 3] = { 0 };
     for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
