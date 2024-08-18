@@ -36,11 +36,13 @@ namespace mgOnGpu
     virtual ~ChronoTimer() {}
     void start();
     void stop();
+    uint64_t getCountsSinceStart() const;
     float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
-  private:
     typedef std::nano RATIO;
     typedef std::chrono::duration<uint64_t, RATIO> DURATION;
     typedef std::chrono::time_point<T, DURATION> TIMEPOINT;
+  private:
+    DURATION getDurationSinceStart() const;
     DURATION m_duration;
     bool m_started;
     TIMEPOINT m_startTime;
@@ -75,9 +77,25 @@ namespace mgOnGpu
   {
     assert( m_started );
     m_started = false;
-    m_duration += T::now() - m_startTime;
+    m_duration += getDurationSinceStart();
   }
 
+  template<typename T>
+  inline
+  uint64_t
+  ChronoTimer<T>::getCountsSinceStart() const
+  {
+    return getDurationSinceStart().count();
+  }
+  
+  template<typename T>
+  inline
+  typename ChronoTimer<T>::DURATION
+  ChronoTimer<T>::getDurationSinceStart() const
+  {
+    return T::now() - m_startTime;
+  }
+  
   template<typename T>
   inline
   float
@@ -106,9 +124,10 @@ namespace mgOnGpu
     virtual ~RdtscTimer() {}
     void start();
     void stop();
+    uint64_t getCountsSinceStart() const;
     float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
-    static uint64_t rdtsc();
   private:
+    static uint64_t rdtsc();
     uint64_t m_duration;
     bool m_started;
     uint64_t m_startCount;
@@ -128,15 +147,6 @@ namespace mgOnGpu
   }
 
   inline
-  void
-  RdtscTimer::start()
-  {
-    assert( !m_started );
-    m_started = true;
-    m_startCount = rdtsc();
-  }
-
-  inline
   RdtscTimer::RdtscTimer()
     : m_duration( 0 )
     , m_started( false )
@@ -150,11 +160,27 @@ namespace mgOnGpu
 
   inline
   void
+  RdtscTimer::start()
+  {
+    assert( !m_started );
+    m_started = true;
+    m_startCount = rdtsc();
+  }
+
+  inline
+  void
   RdtscTimer::stop()
   {
     assert( m_started );
     m_started = false;
-    m_duration += rdtsc() - m_startCount;
+    m_duration += getCountsSinceStart();
+  }
+
+  inline
+  uint64_t
+  RdtscTimer::getCountsSinceStart() const
+  {
+    return rdtsc() - m_startCount;
   }
 
   inline
