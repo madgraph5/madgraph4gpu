@@ -1,10 +1,10 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 //==========================================================================
-// Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin [old API, chrono timer].
+// Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin [old chrono timer, old API].
 // Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
-// Created by: A. Valassi (Aug 2024) for the MG5aMC CUDACPP plugin [new API, add rdtsc timer].
+// Created by: A. Valassi (Aug 2024) for the MG5aMC CUDACPP plugin [new chrono timer, new API, add rdtsc timer].
 // Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 
@@ -14,6 +14,7 @@
 #include <cassert>
 #include <chrono>
 #include <iostream>
+#include <ratio>
 #include <type_traits>
 
 namespace mgOnGpu
@@ -22,7 +23,8 @@ namespace mgOnGpu
   // ---------------------------------------------------------------------------
   
   // ChronoTimer: default ("old") timers based on std::chrono clocks
-  // With respect to the original Timer class, this uses a new API with explicit start/stop
+  // With respect to the original Timer class, this uses a new implementation with nanosecond counts
+  // With respect to the original Timer class, this also uses a new API with explicit start/stop
   // Template argument T can be any of high_resolution_clock, steady_clock, system_clock
   // See https://www.modernescpp.com/index.php/the-three-clocks
   // See https://codereview.stackexchange.com/questions/196245/extremely-simple-timer-class-in-c  
@@ -36,10 +38,12 @@ namespace mgOnGpu
     void stop();
     float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
   private:
-    std::chrono::duration<float> m_duration;
+    typedef std::nano RATIO;
+    typedef std::chrono::duration<uint64_t, RATIO> DURATION;
+    typedef std::chrono::time_point<T, DURATION> TIMEPOINT;
+    DURATION m_duration;
     bool m_started;
-    typedef typename T::time_point TTP;
-    TTP m_startTime;
+    TIMEPOINT m_startTime;
   };
 
   template<typename T>
@@ -82,8 +86,8 @@ namespace mgOnGpu
     if( allowRunning ) stop(); // (old timer behaviour) compute m_duration and allow next start() call
     assert( !m_started );
     auto count = m_duration.count();
-    if( allowRunning ) m_duration = std::chrono::duration<float>::zero(); // (old timer behaviour) reset m_duration
-    return count;
+    if( allowRunning ) m_duration = DURATION::zero(); // (old timer behaviour) reset m_duration
+    return count * (float)RATIO::num / RATIO::den;
   }
 
   // ---------------------------------------------------------------------------
@@ -102,7 +106,7 @@ namespace mgOnGpu
     virtual ~RdtscTimer() {}
     void start();
     void stop();
-    float getDurationSeconds();
+    float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
     static uint64_t rdtsc();
   private:
     uint64_t m_duration;
@@ -155,13 +159,16 @@ namespace mgOnGpu
 
   inline
   float
-  RdtscTimer::getDurationSeconds()
+  RdtscTimer::getDurationSeconds( bool allowRunning )
   {
+    if( allowRunning ) stop(); // (old timer behaviour) compute m_duration and allow next start() call
     assert( !m_started );
     m_ctorTimer.stop();
     float secPerCount = m_ctorTimer.getDurationSeconds() / ( rdtsc() - m_ctorCount );
-    m_ctorTimer.start(); // just in case getDurationSeconds() is called again...
-    return m_duration * secPerCount;
+    m_ctorTimer.start(); // just in case getDurationSeconds() is called again... (e.g. if allowRunning is true)
+    auto count = m_duration;
+    if( allowRunning ) m_duration = 0; // (old timer behaviour) reset m_duration
+    return count * secPerCount;
   }
 
   // ---------------------------------------------------------------------------
