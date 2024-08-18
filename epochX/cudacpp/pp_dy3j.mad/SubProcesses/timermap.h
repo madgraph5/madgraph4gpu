@@ -29,9 +29,9 @@ namespace mgOnGpu
   public:
 
     TimerMap()
-      : m_chronotimer(), m_rdtsctimer(), m_active( "" ), m_partitionTotalTimes(), m_partitionIds(), m_usechronotimers( false )
+      : m_chronoTimer(), m_rdtscTimer(), m_active( "" ), m_partitionTotalTimes(), m_partitionIds(), m_useChronoTimers( false )
     {
-      if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) m_usechronotimers = true;
+      if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) m_useChronoTimers = true;
     }
 
     virtual ~TimerMap() {}
@@ -44,8 +44,8 @@ namespace mgOnGpu
       // Close the previously active partition
       float last = stop();
       // Switch to a new partition
-      if( m_usechronotimers ) m_chronotimer.start();
-      else m_rdtsctimer.start();
+      if( m_useChronoTimers ) m_chronoTimer.start();
+      else m_rdtscTimer.start();
       m_active = key;
       if( m_partitionTotalTimes.find( key ) == m_partitionTotalTimes.end() )
       {
@@ -66,8 +66,8 @@ namespace mgOnGpu
       if( m_active != "" )
       {
         const bool allowRunning = true; // skip assert that the timer is not running
-        if( m_usechronotimers ) last = m_chronotimer.getDurationSeconds( allowRunning );
-        else last = m_rdtsctimer.getDurationSeconds( allowRunning );
+        if( m_useChronoTimers ) last = m_chronoTimer.getDurationSeconds( allowRunning );
+        else last = m_rdtscTimer.getDurationSeconds( allowRunning );
         m_partitionTotalTimes[m_active] += last;
       }
       m_active = "";
@@ -158,12 +158,12 @@ namespace mgOnGpu
 
   private:
 
-    ChronoTimer<TIMERTYPE> m_chronotimer;
-    RdtscTimer m_rdtsctimer;
+    ChronoTimer<TIMERTYPE> m_chronoTimer;
+    RdtscTimer m_rdtscTimer;
     std::string m_active;
     std::map<std::string, float> m_partitionTotalTimes;
     std::map<std::string, uint32_t> m_partitionIds;
-    bool m_usechronotimers;
+    bool m_useChronoTimers;
   };
 
 }
