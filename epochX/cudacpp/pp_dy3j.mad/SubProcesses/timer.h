@@ -38,7 +38,7 @@ namespace mgOnGpu
     void stop();
     uint64_t getCountsSinceStart() const;
     float secondsPerCount() const; // constant throughout time
-    float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
+    float getDurationSeconds();
     typedef std::nano RATIO;
     typedef std::chrono::duration<uint64_t, RATIO> DURATION;
     typedef std::chrono::time_point<T, DURATION> TIMEPOINT;
@@ -108,12 +108,10 @@ namespace mgOnGpu
   template<typename T>
   inline
   float
-  ChronoTimer<T>::getDurationSeconds( bool allowRunning )
+  ChronoTimer<T>::getDurationSeconds()
   {
-    if( allowRunning ) stop(); // (old timer behaviour) compute m_duration and allow next start() call
     assert( !m_started );
     auto count = m_duration.count();
-    if( allowRunning ) m_duration = DURATION::zero(); // (old timer behaviour) reset m_duration
     return count * secondsPerCount();
   }
 
@@ -135,7 +133,7 @@ namespace mgOnGpu
     void stop();
     uint64_t getCountsSinceStart() const;
     float secondsPerCount(); // calibrated at this point in time
-    float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
+    float getDurationSeconds();
   private:
     static uint64_t rdtsc();
     uint64_t m_duration;
@@ -205,12 +203,10 @@ namespace mgOnGpu
 
   inline
   float
-  RdtscTimer::getDurationSeconds( bool allowRunning )
+  RdtscTimer::getDurationSeconds()
   {
-    if( allowRunning ) stop(); // (old timer behaviour) compute m_duration and allow next start() call
     assert( !m_started );
     auto count = m_duration;
-    if( allowRunning ) m_duration = 0; // (old timer behaviour) reset m_duration
     return count * secondsPerCount();
   }
 
