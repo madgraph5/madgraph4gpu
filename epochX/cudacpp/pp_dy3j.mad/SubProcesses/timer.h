@@ -37,6 +37,7 @@ namespace mgOnGpu
     void start();
     void stop();
     uint64_t getCountsSinceStart() const;
+    float secondsPerCount() const; // constant throughout time
     float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
     typedef std::nano RATIO;
     typedef std::chrono::duration<uint64_t, RATIO> DURATION;
@@ -99,13 +100,21 @@ namespace mgOnGpu
   template<typename T>
   inline
   float
+  ChronoTimer<T>::secondsPerCount() const
+  {
+    return (float)RATIO::num / RATIO::den;
+  }
+  
+  template<typename T>
+  inline
+  float
   ChronoTimer<T>::getDurationSeconds( bool allowRunning )
   {
     if( allowRunning ) stop(); // (old timer behaviour) compute m_duration and allow next start() call
     assert( !m_started );
     auto count = m_duration.count();
     if( allowRunning ) m_duration = DURATION::zero(); // (old timer behaviour) reset m_duration
-    return count * (float)RATIO::num / RATIO::den;
+    return count * secondsPerCount();
   }
 
   // ---------------------------------------------------------------------------
@@ -125,6 +134,7 @@ namespace mgOnGpu
     void start();
     void stop();
     uint64_t getCountsSinceStart() const;
+    float secondsPerCount(); // calibrated at this point in time
     float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
   private:
     static uint64_t rdtsc();
@@ -185,16 +195,23 @@ namespace mgOnGpu
 
   inline
   float
+  RdtscTimer::secondsPerCount()
+  {
+    m_ctorTimer.stop();
+    float secPerCount = m_ctorTimer.getDurationSeconds() / ( rdtsc() - m_ctorCount );
+    m_ctorTimer.start(); // allow secondsPerCount() to be called again...
+    return secPerCount;
+  }
+
+  inline
+  float
   RdtscTimer::getDurationSeconds( bool allowRunning )
   {
     if( allowRunning ) stop(); // (old timer behaviour) compute m_duration and allow next start() call
     assert( !m_started );
-    m_ctorTimer.stop();
-    float secPerCount = m_ctorTimer.getDurationSeconds() / ( rdtsc() - m_ctorCount );
-    m_ctorTimer.start(); // just in case getDurationSeconds() is called again... (e.g. if allowRunning is true)
     auto count = m_duration;
     if( allowRunning ) m_duration = 0; // (old timer behaviour) reset m_duration
-    return count * secPerCount;
+    return count * secondsPerCount();
   }
 
   // ---------------------------------------------------------------------------
