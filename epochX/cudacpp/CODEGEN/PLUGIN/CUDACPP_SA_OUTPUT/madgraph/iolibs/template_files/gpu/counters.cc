@@ -59,11 +59,13 @@ extern "C"
     if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) usechronotimers = true;
     for( int icounter = 0; icounter < NCOUNTERSMAX + 3; icounter++ )
     {
-      array_tags[icounter] = ""; // ensure that this is initialized to ""
+      array_tags[icounter] = "";           // ensure that this is initialized to ""
       array_istesttimer[icounter] = false; // ensure that this is initialized to false
     }
-    if( usechronotimers ) program_chronotimer.start();
-    else program_rdtsctimer.start();
+    if( usechronotimers )
+      program_chronotimer.start();
+    else
+      program_rdtsctimer.start();
     return;
   }
 
@@ -112,8 +114,10 @@ extern "C"
       throw std::runtime_error( sstr.str() );
     }
     array_counters[icounter] += *pnevt;
-    if( usechronotimers ) array_chronotimers[icounter].start();
-    else array_rdtsctimers[icounter].start();
+    if( usechronotimers )
+      array_chronotimers[icounter].start();
+    else
+      array_rdtsctimers[icounter].start();
     return;
   }
 
@@ -129,8 +133,10 @@ extern "C"
       sstr << "ERROR! counter #" << icounter << " does not exist";
       throw std::runtime_error( sstr.str() );
     }
-    if( usechronotimers ) array_chronotimers[icounter].stop();
-    else array_rdtsctimers[icounter].stop();
+    if( usechronotimers )
+      array_chronotimers[icounter].stop();
+    else
+      array_rdtsctimers[icounter].stop();
     return;
   }
 
@@ -138,11 +144,15 @@ extern "C"
   {
     using namespace counters;
     // Dump program counters
-    if( usechronotimers ) program_chronotimer.stop();
-    else program_rdtsctimer.stop();
+    if( usechronotimers )
+      program_chronotimer.stop();
+    else
+      program_rdtsctimer.stop();
     float program_totaltime = ( usechronotimers ? program_chronotimer.getTotalDurationSeconds() : program_rdtsctimer.getTotalDurationSeconds() );
-    if( usechronotimers ) printf( " [COUNTERS] *** USING STD::CHRONO TIMERS ***\n" );
-    else printf( " [COUNTERS] *** USING RDTSC-BASED TIMERS ***\n" );
+    if( usechronotimers )
+      printf( " [COUNTERS] *** USING STD::CHRONO TIMERS ***\n" );
+    else
+      printf( " [COUNTERS] *** USING RDTSC-BASED TIMERS ***\n" );
     printf( " [COUNTERS] PROGRAM TOTAL                         : %9.4fs\n", program_totaltime );
     if( disablecalltimers ) return;
     // Extract time duration from all timers
