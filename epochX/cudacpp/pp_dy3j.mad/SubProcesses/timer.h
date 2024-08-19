@@ -38,13 +38,13 @@ namespace mgOnGpu
     void stop();
     uint64_t getCountsSinceStart() const;
     float secondsPerCount() const; // constant throughout time
-    float getDurationSeconds();
+    float getTotalDurationSeconds();
     typedef std::nano RATIO;
     typedef std::chrono::duration<uint64_t, RATIO> DURATION;
     typedef std::chrono::time_point<T, DURATION> TIMEPOINT;
   private:
     DURATION getDurationSinceStart() const;
-    DURATION m_duration;
+    DURATION m_totalDuration;
     bool m_started;
     TIMEPOINT m_startTime;
   };
@@ -52,7 +52,7 @@ namespace mgOnGpu
   template<typename T>
   inline
   ChronoTimer<T>::ChronoTimer()
-    : m_duration()
+    : m_totalDuration()
     , m_started( false )
     , m_startTime()
   {
@@ -78,7 +78,7 @@ namespace mgOnGpu
   {
     assert( m_started );
     m_started = false;
-    m_duration += getDurationSinceStart();
+    m_totalDuration += getDurationSinceStart();
   }
 
   template<typename T>
@@ -108,10 +108,10 @@ namespace mgOnGpu
   template<typename T>
   inline
   float
-  ChronoTimer<T>::getDurationSeconds()
+  ChronoTimer<T>::getTotalDurationSeconds()
   {
     assert( !m_started );
-    auto count = m_duration.count();
+    auto count = m_totalDuration.count();
     return count * secondsPerCount();
   }
 
@@ -133,10 +133,10 @@ namespace mgOnGpu
     void stop();
     uint64_t getCountsSinceStart() const;
     float secondsPerCount(); // calibrated at this point in time
-    float getDurationSeconds();
+    float getTotalDurationSeconds();
   private:
     static uint64_t rdtsc();
-    uint64_t m_duration;
+    uint64_t m_totalDuration;
     bool m_started;
     uint64_t m_startCount;
     ChronoTimer<std::chrono::high_resolution_clock> m_ctorTimer;
@@ -156,7 +156,7 @@ namespace mgOnGpu
 
   inline
   RdtscTimer::RdtscTimer()
-    : m_duration( 0 )
+    : m_totalDuration( 0 )
     , m_started( false )
     , m_startCount( 0 )
     , m_ctorTimer()
@@ -181,7 +181,7 @@ namespace mgOnGpu
   {
     assert( m_started );
     m_started = false;
-    m_duration += getCountsSinceStart();
+    m_totalDuration += getCountsSinceStart();
   }
 
   inline
@@ -196,17 +196,17 @@ namespace mgOnGpu
   RdtscTimer::secondsPerCount()
   {
     m_ctorTimer.stop();
-    float secPerCount = m_ctorTimer.getDurationSeconds() / ( rdtsc() - m_ctorCount );
+    float secPerCount = m_ctorTimer.getTotalDurationSeconds() / ( rdtsc() - m_ctorCount );
     m_ctorTimer.start(); // allow secondsPerCount() to be called again...
     return secPerCount;
   }
 
   inline
   float
-  RdtscTimer::getDurationSeconds()
+  RdtscTimer::getTotalDurationSeconds()
   {
     assert( !m_started );
-    auto count = m_duration;
+    auto count = m_totalDuration;
     return count * secondsPerCount();
   }
 

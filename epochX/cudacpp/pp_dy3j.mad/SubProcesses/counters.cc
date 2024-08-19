@@ -140,7 +140,7 @@ extern "C"
     // Dump program counters
     if( usechronotimers ) program_chronotimer.stop();
     else program_rdtsctimer.stop();
-    float program_totaltime = ( usechronotimers ? program_chronotimer.getDurationSeconds() : program_rdtsctimer.getDurationSeconds() );
+    float program_totaltime = ( usechronotimers ? program_chronotimer.getTotalDurationSeconds() : program_rdtsctimer.getTotalDurationSeconds() );
     if( usechronotimers ) printf( " [COUNTERS] *** USING STD::CHRONO TIMERS ***\n" );
     else printf( " [COUNTERS] *** USING RDTSC-BASED TIMERS ***\n" );
     printf( " [COUNTERS] PROGRAM TOTAL                         : %9.4fs\n", program_totaltime );
@@ -150,9 +150,9 @@ extern "C"
     for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
     {
       if( usechronotimers )
-        array_totaltimes[icounter] = array_chronotimers[icounter].getDurationSeconds();
+        array_totaltimes[icounter] = array_chronotimers[icounter].getTotalDurationSeconds();
       else
-        array_totaltimes[icounter] = array_rdtsctimers[icounter].getDurationSeconds();
+        array_totaltimes[icounter] = array_rdtsctimers[icounter].getTotalDurationSeconds();
     }
     // Create counter[0] "Fortran Other"
     array_tags[0] = "Fortran Other";
