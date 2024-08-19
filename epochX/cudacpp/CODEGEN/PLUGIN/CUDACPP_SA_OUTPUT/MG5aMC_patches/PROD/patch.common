@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/dsample.f a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-index e18ba7c03..a5e066edc 100644
+index e18ba7c03..af7859b51 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 +++ a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 @@ -169,7 +169,9 @@ c
@@ -58,6 +58,94 @@ index e18ba7c03..a5e066edc 100644
              else
                 nzoom = nzoom -1
                 ievent=ievent-1
+@@ -1240,7 +1250,20 @@ c
+ c     Local
+ c
+       integer  im, ip,ij,icount,it_warned
+-      double precision xbin_min,xbin_max,ddum(maxdim),xo,y
++      double precision xbin_min,xbin_max,ddum(maxdim),xo,y 
++c
++c     Local (performance optimization #969)
++c
++      integer xbinarraydim
++      parameter (xbinarraydim=maxdim*lmaxconfigs)
++      double precision xbin_min0_array(maxdim, lmaxconfigs)
++      double precision xbin_max1_array(maxdim, lmaxconfigs)
++      logical xbin_min0_saved(maxdim, lmaxconfigs)
++      logical xbin_max1_saved(maxdim, lmaxconfigs)
++      save xbin_min0_array, xbin_max1_array
++      save xbin_min0_saved, xbin_max1_saved
++      data xbin_min0_saved/xbinarraydim*.false./
++      data xbin_max1_saved/xbinarraydim*.false./
+ c
+ c     External
+ c
+@@ -1291,15 +1314,29 @@ c         write(*,'(7f11.5)')(ddum(j)*real(ng),j=1,dim)
+       endif
+       if (ituple .eq. 1) then
+ c         write(*,*) 'Getting variable',ipole,j,minvar(j,ipole)
+-         xbin_min = xbin(xmin,minvar(j,ipole))
+-         xbin_max = xbin(xmax,minvar(j,ipole))
+-         if (xbin_min .gt. xbin_max-1) then
+-c            write(*,'(a,4e15.4)') 'Bad limits',xbin_min,xbin_max,
+-c     &           xmin,xmax
+-c            xbin_max=xbin_min+1d-10
+-            xbin_max = xbin(xmax,minvar(j,ipole))
+-            xbin_min = min(xbin(xmin,minvar(j,ipole)), xbin_max)
+-         endif
++
++        if(xmax.ne.1 .or. .not.xbin_max1_saved(j,ipole)) then
++          xbin_max = xbin(xmax, minvar(j,ipole))
++          if(xmax.eq.1) then
++            xbin_max1_array(j,ipole) = xbin_max
++            xbin_max1_saved(j,ipole) = .true.
++          endif
++        else
++          xbin_max = xbin_max1_array(j,ipole)
++        endif
++
++        if(xmin.ne.0 .or. .not.xbin_min0_saved(j,ipole)) then
++          xbin_min = xbin(xmin, minvar(j,ipole))
++          if (xbin_min .gt. xbin_max-1) then
++            xbin_min = min(xbin_min, xbin_max)
++          endif
++          if(xmin.eq.0) then
++            xbin_min0_array(j,ipole) = xbin_min
++            xbin_min0_saved(j,ipole) = .true.
++          endif
++        else
++          xbin_min = xbin_min0_array(j,ipole)
++        endif
+ c
+ c     Line which allows us to keep choosing same x
+ c
+@@ -1312,10 +1349,10 @@ c            write(*,*) 'Reusing num',j,nzoom,tx(2,j)
+             call ntuple(ddum(j),max(xbin_min,dble(int(tx(2,j)))),
+      $           min(xbin_max,dble(int(tx(2,j))+1)),j,ipole)
+ 
+-            if(max(xbin_min,dble(int(tx(2,j)))).gt.
+-     $           min(xbin_max,dble(int(tx(2,j))+1))) then
++c           if(max(xbin_min,dble(int(tx(2,j)))).gt.
++c    $           min(xbin_max,dble(int(tx(2,j))+1))) then
+ c               write(*,*) 'not good'
+-            endif
++c           endif
+ 
+ c            write(*,'(2i6,4e15.5)') nzoom,j,ddum(j),tx(2,j),
+ c     $           max(xbin_min,dble(int(tx(2,j)))),
+@@ -1389,10 +1426,10 @@ c
+          endif
+          icount=icount+1
+       endif
+-      if (x .lt. xmin .or. x .gt. xmax) then
++c     if (x .lt. xmin .or. x .gt. xmax) then
+ c         write(*,'(a,4i4,2f24.16,1e10.2)') 'Bad x',ij,int(xbin_min),ip,
+ c     &        int(xbin_max),xmin,x,xmax-xmin
+-      endif
++c     endif
+ 
+       wgt = wgt * xo * dble(xbin_max-xbin_min)
+ c      print*,'Returning x',ij,ipole,j,x
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/genps.inc a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
 index a59181c70..af7e0efbc 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/genps.inc
