@@ -57,16 +57,12 @@ c
 c-----
 c  Begin Code
 c-----
-      CALL COUNTERS_START_COUNTER( 13, 1 )
       call gen_mom(iconfig,mincfig,maxcfig,invar,wgt,x,p)
-      CALL COUNTERS_STOP_COUNTER( 13 )
 C     Pick the helicity configuration from the DiscreteSampler if user
 C     decided to perform MC over helicity configurations.
-      CALL COUNTERS_START_COUNTER( 14, 1 )
       if(ISUM_HEL.ne.0) then
         call sample_get_discrete_x(wgt,hel_picked,iconfig,'Helicity')
       endif
-      CALL COUNTERS_STOP_COUNTER( 14 )
       end
 
       subroutine gen_mom(iconfig,mincfig,maxcfig,invar,wgt,x,p1)
@@ -221,7 +217,6 @@ c
 c-----
 c  Begin Code
 c----
-      CALL COUNTERS_START_COUNTER( 15, 1 )
       this_config = iconfig             !Pass iconfig to amplitude routine
 c      write(*,*) 'using iconfig',iconfig
       if (firsttime) then
@@ -400,12 +395,10 @@ c      write(*,*) "shat=",sqrt(s(-nbranch))
       p(1,-nbranch)= 0d0
       p(2,-nbranch)= 0d0
       p(3,-nbranch)= 0d0
-      CALL COUNTERS_STOP_COUNTER( 15 )
 
 c
 c     First Generate Momentum for initial state particles
 c
-      CALL COUNTERS_START_COUNTER( 16, 1 )
       if (lpp(1).eq.9.or.lpp(2).eq.9)then
          if (dummy_boostframe())then
             call mom2cx(m(-nbranch),m(1),m(2),1d0,0d0,p(0,1),p(0,2))
@@ -531,7 +524,6 @@ c               write(*,'(A,5e14.4)') 'Finl',jac,pswgt,wgt,jac*pswgt*wgt
          endif
          if (jac .lt. 0) then
             p1(0,1) = -999
-            CALL COUNTERS_STOP_COUNTER( 16 )
             return
          endif
 c
@@ -599,7 +591,6 @@ c
 c     comment out everything funny here
 c
       endif
-      CALL COUNTERS_STOP_COUNTER( 16 )
       end
 
 
