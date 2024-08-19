@@ -221,6 +221,10 @@ function codeGenAndDiff()
       define nubar = ve~ vm~ vt~
       generate p p > ell+ ell- j j j @0"
       ;;
+    gux_taptamggux) # subset of pp_dy3j from Jin #942
+      cmd="import model sm-no_b_mass
+      generate g u~ > ta+ ta- g g u~"
+      ;;
     atlas)
       cmd="import model sm-no_b_mass
       define p = g u c d s b u~ c~ d~ s~ b~
