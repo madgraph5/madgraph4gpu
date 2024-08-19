@@ -223,7 +223,8 @@ function codeGenAndDiff()
       ;;
     gux_taptamggux) # subset of pp_dy3j from Jin #942
       cmd="import model sm-no_b_mass
-      generate g u~ > ta+ ta- g g u~"
+      define q~ = u~ c~
+      generate g q~ > ta+ ta- g g q~"
       ;;
     atlas)
       cmd="import model sm-no_b_mass
