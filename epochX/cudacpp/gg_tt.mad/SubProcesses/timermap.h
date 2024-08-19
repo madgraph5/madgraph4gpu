@@ -52,8 +52,10 @@ namespace mgOnGpu
       // Switch to a new partition
       if( !m_started )
       {
-        if( m_useChronoTimers ) m_chronoTimer.start();
-        else m_rdtscTimer.start();
+        if( m_useChronoTimers )
+          m_chronoTimer.start();
+        else
+          m_rdtscTimer.start();
         m_started = true;
       }
       m_active = key;
@@ -75,11 +77,15 @@ namespace mgOnGpu
       uint64_t last = 0;
       if( m_active != "" )
       {
-        if( m_useChronoTimers ) last = m_chronoTimer.getCountsSinceStart();
-        else last = m_rdtscTimer.getCountsSinceStart();
+        if( m_useChronoTimers )
+          last = m_chronoTimer.getCountsSinceStart();
+        else
+          last = m_rdtscTimer.getCountsSinceStart();
         m_partitionTotalCounts[m_active] += last;
-        if( m_useChronoTimers ) m_chronoTimer.stop();
-        else m_rdtscTimer.stop();
+        if( m_useChronoTimers )
+          m_chronoTimer.stop();
+        else
+          m_rdtscTimer.stop();
         m_started = false;
       }
       m_active = "";
@@ -92,9 +98,11 @@ namespace mgOnGpu
     // Return timer calibration (at this point in time for rdtsc, constant in time for chrono)
     float secondsPerCount()
     {
-      if( m_useChronoTimers ) return m_chronoTimer.secondsPerCount();
-      else return m_rdtscTimer.secondsPerCount();
-    }    
+      if( m_useChronoTimers )
+        return m_chronoTimer.secondsPerCount();
+      else
+        return m_rdtscTimer.secondsPerCount();
+    }
 
     // Dump the overall results
     void dump( std::ostream& ostr = std::cout, bool json = false )
@@ -189,7 +197,6 @@ namespace mgOnGpu
     std::map<std::string, uint32_t> m_partitionIds;
     bool m_useChronoTimers;
     bool m_started; // when the timer is stopped, it must be explicitly restarted
-
   };
 
 }
