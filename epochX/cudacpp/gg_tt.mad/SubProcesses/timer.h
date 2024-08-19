@@ -1,10 +1,10 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 //==========================================================================
-// Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin [old API, chrono timer].
+// Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin [old chrono timer, old API].
 // Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
-// Created by: A. Valassi (Aug 2024) for the MG5aMC CUDACPP plugin [new API, add rdtsc timer].
+// Created by: A. Valassi (Aug 2024) for the MG5aMC CUDACPP plugin [new chrono timer, new API, add rdtsc timer].
 // Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 
@@ -14,6 +14,7 @@
 #include <cassert>
 #include <chrono>
 #include <iostream>
+#include <ratio>
 #include <type_traits>
 
 namespace mgOnGpu
@@ -22,7 +23,8 @@ namespace mgOnGpu
   // ---------------------------------------------------------------------------
   
   // ChronoTimer: default ("old") timers based on std::chrono clocks
-  // With respect to the original Timer class, this uses a new API with explicit start/stop
+  // With respect to the original Timer class, this uses a new implementation with nanosecond counts
+  // With respect to the original Timer class, this also uses a new API with explicit start/stop
   // Template argument T can be any of high_resolution_clock, steady_clock, system_clock
   // See https://www.modernescpp.com/index.php/the-three-clocks
   // See https://codereview.stackexchange.com/questions/196245/extremely-simple-timer-class-in-c  
@@ -34,18 +36,23 @@ namespace mgOnGpu
     virtual ~ChronoTimer() {}
     void start();
     void stop();
-    float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
+    uint64_t getCountsSinceStart() const;
+    float secondsPerCount() const; // constant throughout time
+    float getTotalDurationSeconds();
+    typedef std::nano RATIO;
+    typedef std::chrono::duration<uint64_t, RATIO> DURATION;
+    typedef std::chrono::time_point<T, DURATION> TIMEPOINT;
   private:
-    std::chrono::duration<float> m_duration;
+    DURATION getDurationSinceStart() const;
+    DURATION m_totalDuration;
     bool m_started;
-    typedef typename T::time_point TTP;
-    TTP m_startTime;
+    TIMEPOINT m_startTime;
   };
 
   template<typename T>
   inline
   ChronoTimer<T>::ChronoTimer()
-    : m_duration()
+    : m_totalDuration()
     , m_started( false )
     , m_startTime()
   {
@@ -71,19 +78,41 @@ namespace mgOnGpu
   {
     assert( m_started );
     m_started = false;
-    m_duration += T::now() - m_startTime;
+    m_totalDuration += getDurationSinceStart();
   }
 
   template<typename T>
   inline
-  float
-  ChronoTimer<T>::getDurationSeconds( bool allowRunning )
+  uint64_t
+  ChronoTimer<T>::getCountsSinceStart() const
   {
-    if( allowRunning ) stop(); // (old timer behaviour) compute m_duration and allow next start() call
+    return getDurationSinceStart().count();
+  }
+  
+  template<typename T>
+  inline
+  typename ChronoTimer<T>::DURATION
+  ChronoTimer<T>::getDurationSinceStart() const
+  {
+    return T::now() - m_startTime;
+  }
+  
+  template<typename T>
+  inline
+  float
+  ChronoTimer<T>::secondsPerCount() const
+  {
+    return (float)RATIO::num / RATIO::den;
+  }
+  
+  template<typename T>
+  inline
+  float
+  ChronoTimer<T>::getTotalDurationSeconds()
+  {
     assert( !m_started );
-    auto count = m_duration.count();
-    if( allowRunning ) m_duration = std::chrono::duration<float>::zero(); // (old timer behaviour) reset m_duration
-    return count;
+    auto count = m_totalDuration.count();
+    return count * secondsPerCount();
   }
 
   // ---------------------------------------------------------------------------
@@ -102,10 +131,12 @@ namespace mgOnGpu
     virtual ~RdtscTimer() {}
     void start();
     void stop();
-    float getDurationSeconds( bool allowRunning = false ); // by default, assert that the timer is not running
-    static uint64_t rdtsc();
+    uint64_t getCountsSinceStart() const;
+    float secondsPerCount(); // calibrated at this point in time
+    float getTotalDurationSeconds();
   private:
-    uint64_t m_duration;
+    static uint64_t rdtsc();
+    uint64_t m_totalDuration;
     bool m_started;
     uint64_t m_startCount;
     ChronoTimer<std::chrono::high_resolution_clock> m_ctorTimer;
@@ -124,17 +155,8 @@ namespace mgOnGpu
   }
 
   inline
-  void
-  RdtscTimer::start()
-  {
-    assert( !m_started );
-    m_started = true;
-    m_startCount = rdtsc();
-  }
-
-  inline
   RdtscTimer::RdtscTimer()
-    : m_duration( 0 )
+    : m_totalDuration( 0 )
     , m_started( false )
     , m_startCount( 0 )
     , m_ctorTimer()
@@ -146,25 +168,46 @@ namespace mgOnGpu
 
   inline
   void
+  RdtscTimer::start()
+  {
+    assert( !m_started );
+    m_started = true;
+    m_startCount = rdtsc();
+  }
+
+  inline
+  void
   RdtscTimer::stop()
   {
     assert( m_started );
     m_started = false;
-    m_duration += rdtsc() - m_startCount;
+    m_totalDuration += getCountsSinceStart();
+  }
+
+  inline
+  uint64_t
+  RdtscTimer::getCountsSinceStart() const
+  {
+    return rdtsc() - m_startCount;
   }
 
   inline
   float
-  RdtscTimer::getDurationSeconds( bool allowRunning )
+  RdtscTimer::secondsPerCount()
   {
-    if( allowRunning ) stop(); // (old timer behaviour) compute m_duration and allow next start() call
-    assert( !m_started );
     m_ctorTimer.stop();
-    float secPerCount = m_ctorTimer.getDurationSeconds() / ( rdtsc() - m_ctorCount );
-    m_ctorTimer.start(); // just in case getDurationSeconds() is called again... (e.g. if allowRunning is true)
-    auto count = m_duration;
-    if( allowRunning ) m_duration = 0; // (old timer behaviour) reset m_duration
-    return count * secPerCount;
+    float secPerCount = m_ctorTimer.getTotalDurationSeconds() / ( rdtsc() - m_ctorCount );
+    m_ctorTimer.start(); // allow secondsPerCount() to be called again...
+    return secPerCount;
+  }
+
+  inline
+  float
+  RdtscTimer::getTotalDurationSeconds()
+  {
+    assert( !m_started );
+    auto count = m_totalDuration;
+    return count * secondsPerCount();
   }
 
   // ---------------------------------------------------------------------------
