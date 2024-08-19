@@ -652,7 +652,7 @@ main( int argc, char** argv )
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3acount += timermap.stop(); // calc only
-    wavecount += wv3acount;        // calc plus copy
+    wavecount += wv3acount;       // calc plus copy
 
 #ifdef MGONGPUCPP_GPUIMPL
     if( !bridge )
@@ -736,7 +736,7 @@ main( int argc, char** argv )
     wavetimes[iiter] = wavecounts[iiter] * secPerCount;
     wv3atimes[iiter] = wv3acounts[iiter] * secPerCount;
   }
-    
+
   // === STEP 8 ANALYSIS
   // --- 8a Analysis: compute stats after the loop
   const std::string statKey = "8a CompStat";
