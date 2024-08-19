@@ -96,7 +96,7 @@ C-----
       CALL COUNTERS_INITIALISE()
 c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is not needed, but it does not harm)
       CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran Initialise(I/O)'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran Random2Momenta'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran PhaseSpaceSampling'//char(0) ) ! uniform [0,1] + vegas to [0,1] + map to momenta
       CALL COUNTERS_REGISTER_COUNTER( 4, 'Fortran PDFs'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 5, 'Fortran UpdateScaleCouplings'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 6, 'Fortran Reweight'//char(0) )
@@ -106,6 +106,7 @@ c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is n
       CALL COUNTERS_REGISTER_COUNTER( 11, 'CudaCpp Initialise'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 12, 'CudaCpp Finalise'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 19, 'CudaCpp MEs'//char(0) )
+c     CALL COUNTERS_REGISTER_COUNTER( 21, 'TEST    SampleGetX'//char(0) )
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
 #else
