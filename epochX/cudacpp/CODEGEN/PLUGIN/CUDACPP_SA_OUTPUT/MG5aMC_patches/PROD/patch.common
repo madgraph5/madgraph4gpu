@@ -58,6 +58,15 @@ index e18ba7c03..af7859b51 100644
              else
                 nzoom = nzoom -1
                 ievent=ievent-1
+@@ -727,7 +737,7 @@ c
+       common/read_grid_file/read_grid_file
+ 
+       data use_cut/2/            !Grid: 0=fixed , 1=standard, 2=non-zero
+-      data ituple/1/             !1=htuple, 2=sobel 
++      data ituple/1/             !1=ntuple(ranmar or htuple), 2=sobel 
+       data Minvar(1,1)/-1/       !No special variable mapping
+ 
+ c-----
 @@ -1240,7 +1250,20 @@ c
  c     Local
  c
