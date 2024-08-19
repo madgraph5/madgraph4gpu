@@ -21,13 +21,13 @@ namespace mgOnGpu
 {
 
   // ---------------------------------------------------------------------------
-  
+
   // ChronoTimer: default ("old") timers based on std::chrono clocks
   // With respect to the original Timer class, this uses a new implementation with nanosecond counts
   // With respect to the original Timer class, this also uses a new API with explicit start/stop
   // Template argument T can be any of high_resolution_clock, steady_clock, system_clock
   // See https://www.modernescpp.com/index.php/the-three-clocks
-  // See https://codereview.stackexchange.com/questions/196245/extremely-simple-timer-class-in-c  
+  // See https://codereview.stackexchange.com/questions/196245/extremely-simple-timer-class-in-c
   template<typename T>
   class ChronoTimer
   {
@@ -50,8 +50,7 @@ namespace mgOnGpu
   };
 
   template<typename T>
-  inline
-  ChronoTimer<T>::ChronoTimer()
+  inline ChronoTimer<T>::ChronoTimer()
     : m_totalDuration()
     , m_started( false )
     , m_startTime()
@@ -62,8 +61,7 @@ namespace mgOnGpu
   }
 
   template<typename T>
-  inline
-  void
+  inline void
   ChronoTimer<T>::start()
   {
     assert( !m_started );
@@ -72,8 +70,7 @@ namespace mgOnGpu
   }
 
   template<typename T>
-  inline
-  void
+  inline void
   ChronoTimer<T>::stop()
   {
     assert( m_started );
@@ -82,32 +79,29 @@ namespace mgOnGpu
   }
 
   template<typename T>
-  inline
-  uint64_t
+  inline uint64_t
   ChronoTimer<T>::getCountsSinceStart() const
   {
     return getDurationSinceStart().count();
   }
-  
+
   template<typename T>
   inline
-  typename ChronoTimer<T>::DURATION
-  ChronoTimer<T>::getDurationSinceStart() const
+    typename ChronoTimer<T>::DURATION
+    ChronoTimer<T>::getDurationSinceStart() const
   {
     return T::now() - m_startTime;
   }
-  
+
   template<typename T>
-  inline
-  float
+  inline float
   ChronoTimer<T>::secondsPerCount() const
   {
     return (float)RATIO::num / RATIO::den;
   }
-  
+
   template<typename T>
-  inline
-  float
+  inline float
   ChronoTimer<T>::getTotalDurationSeconds()
   {
     assert( !m_started );
@@ -116,7 +110,7 @@ namespace mgOnGpu
   }
 
   // ---------------------------------------------------------------------------
-  
+
   // RdtscTimer: faster ("new") *EXPERIMENTAL* timers based on rdtsc
   // The rdtsc() call is derived from the TSCNS class (https://github.com/MengRao/tscns)
   // The conversion of rdtsc counts to seconds is calibrated on the average frequency during the timer lifetime
@@ -143,8 +137,7 @@ namespace mgOnGpu
     uint64_t m_ctorCount;
   };
 
-  inline
-  uint64_t
+  inline uint64_t
   RdtscTimer::rdtsc()
   {
 #if defined( __x86_64__ )
@@ -154,8 +147,7 @@ namespace mgOnGpu
 #endif
   }
 
-  inline
-  RdtscTimer::RdtscTimer()
+  inline RdtscTimer::RdtscTimer()
     : m_totalDuration( 0 )
     , m_started( false )
     , m_startCount( 0 )
@@ -166,8 +158,7 @@ namespace mgOnGpu
     m_ctorCount = rdtsc();
   }
 
-  inline
-  void
+  inline void
   RdtscTimer::start()
   {
     assert( !m_started );
@@ -175,8 +166,7 @@ namespace mgOnGpu
     m_startCount = rdtsc();
   }
 
-  inline
-  void
+  inline void
   RdtscTimer::stop()
   {
     assert( m_started );
@@ -184,15 +174,13 @@ namespace mgOnGpu
     m_totalDuration += getCountsSinceStart();
   }
 
-  inline
-  uint64_t
+  inline uint64_t
   RdtscTimer::getCountsSinceStart() const
   {
     return rdtsc() - m_startCount;
   }
 
-  inline
-  float
+  inline float
   RdtscTimer::secondsPerCount()
   {
     m_ctorTimer.stop();
@@ -201,8 +189,7 @@ namespace mgOnGpu
     return secPerCount;
   }
 
-  inline
-  float
+  inline float
   RdtscTimer::getTotalDurationSeconds()
   {
     assert( !m_started );
