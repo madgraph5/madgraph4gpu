@@ -241,10 +241,10 @@ index 4fbb8e6ba..77aff307b 100644
        END
  
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 1124a9164..447c4168e 100644
+index 1124a9164..f205ce6fd 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-@@ -74,16 +74,94 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+@@ -74,16 +74,95 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
  
        include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
        INTEGER VECSIZE_USED
@@ -271,7 +271,7 @@ index 1124a9164..447c4168e 100644
 +      CALL COUNTERS_INITIALISE()
 +c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is not needed, but it does not harm)
 +      CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran Initialise(I/O)'//char(0) )
-+      CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran Random2Momenta'//char(0) )
++      CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran PhaseSpaceSampling'//char(0) ) ! uniform [0,1] + vegas to [0,1] + map to momenta
 +      CALL COUNTERS_REGISTER_COUNTER( 4, 'Fortran PDFs'//char(0) )
 +      CALL COUNTERS_REGISTER_COUNTER( 5, 'Fortran UpdateScaleCouplings'//char(0) )
 +      CALL COUNTERS_REGISTER_COUNTER( 6, 'Fortran Reweight'//char(0) )
@@ -281,6 +281,7 @@ index 1124a9164..447c4168e 100644
 +      CALL COUNTERS_REGISTER_COUNTER( 11, 'CudaCpp Initialise'//char(0) )
 +      CALL COUNTERS_REGISTER_COUNTER( 12, 'CudaCpp Finalise'//char(0) )
 +      CALL COUNTERS_REGISTER_COUNTER( 19, 'CudaCpp MEs'//char(0) )
++c     CALL COUNTERS_REGISTER_COUNTER( 21, 'TEST    SampleGetX'//char(0) )
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
 +#else
@@ -340,7 +341,7 @@ index 1124a9164..447c4168e 100644
        call open_file(lun+1, 'dname.mg', fopened)
        if (.not.fopened)then
           goto 11
-@@ -154,6 +232,7 @@ c   If CKKW-type matching, read IS Sudakov grid
+@@ -154,6 +233,7 @@ c   If CKKW-type matching, read IS Sudakov grid
            print *,'Running CKKW as lower mult sample'
          endif
        endif
@@ -348,7 +349,7 @@ index 1124a9164..447c4168e 100644
  
  c     
  c     Get user input
-@@ -208,8 +287,35 @@ c      call sample_result(xsec,xerr)
+@@ -208,8 +288,35 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -385,7 +386,7 @@ index 1124a9164..447c4168e 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -387,7 +493,7 @@ c
+@@ -387,7 +494,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
