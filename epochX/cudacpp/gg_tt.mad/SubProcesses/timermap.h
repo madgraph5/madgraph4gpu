@@ -29,7 +29,13 @@ namespace mgOnGpu
   public:
 
     TimerMap()
-      : m_chronoTimer(), m_rdtscTimer(), m_active( "" ), m_partitionTotalCounts(), m_partitionIds(), m_useChronoTimers( false ), m_started( false )
+      : m_chronoTimer()
+      , m_rdtscTimer()
+      , m_active( "" )
+      , m_partitionTotalCounts()
+      , m_partitionIds()
+      , m_useChronoTimers( false )
+      , m_started( false )
     {
       if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) m_useChronoTimers = true;
     }
@@ -38,11 +44,11 @@ namespace mgOnGpu
 
     // Start the timer for a specific partition (key must be a non-empty string)
     // Stop the timer for the current partition if there is one active
-    float start( const std::string& key )
+    uint64_t start( const std::string& key )
     {
       assert( key != "" );
       // Close the previously active partition
-      float last = stop();
+      uint64_t last = stop();
       // Switch to a new partition
       if( !m_started )
       {
@@ -63,7 +69,7 @@ namespace mgOnGpu
     }
 
     // Stop the timer for the current partition if there is one active
-    float stop()
+    uint64_t stop()
     {
       // Close the previously active partition
       uint64_t last = 0;
@@ -83,6 +89,13 @@ namespace mgOnGpu
       return last;
     }
 
+    // Return timer calibration (at this point in time for rdtsc, constant in time for chrono)
+    float secondsPerCount()
+    {
+      if( m_useChronoTimers ) return m_chronoTimer.secondsPerCount();
+      else return m_rdtscTimer.secondsPerCount();
+    }    
+
     // Dump the overall results
     void dump( std::ostream& ostr = std::cout, bool json = false )
     {
@@ -101,7 +114,7 @@ namespace mgOnGpu
       maxsize = std::max( maxsize, totalKey.size() );
       // Compute individual partition total times from partition total counts
       std::map<std::string, float> partitionTotalTimes;
-      float secPerCount = ( m_useChronoTimers ? m_chronoTimer.secondsPerCount() : m_rdtscTimer.secondsPerCount() );
+      float secPerCount = secondsPerCount();
       for( auto ip: m_partitionTotalCounts )
         partitionTotalTimes[ip.first] = m_partitionTotalCounts[ip.first] * secPerCount;
       // Compute the overall total
