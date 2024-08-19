@@ -29,9 +29,9 @@ namespace mgOnGpu
   public:
 
     TimerMap()
-      : m_chronotimer(), m_rdtsctimer(), m_active( "" ), m_partitionTotalTimes(), m_partitionIds(), m_usechronotimers( false )
+      : m_chronoTimer(), m_rdtscTimer(), m_active( "" ), m_partitionTotalCounts(), m_partitionIds(), m_useChronoTimers( false ), m_started( false )
     {
-      if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) m_usechronotimers = true;
+      if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) m_useChronoTimers = true;
     }
 
     virtual ~TimerMap() {}
@@ -44,13 +44,17 @@ namespace mgOnGpu
       // Close the previously active partition
       float last = stop();
       // Switch to a new partition
-      if( m_usechronotimers ) m_chronotimer.start();
-      else m_rdtsctimer.start();
-      m_active = key;
-      if( m_partitionTotalTimes.find( key ) == m_partitionTotalTimes.end() )
+      if( !m_started )
       {
-        m_partitionIds[key] = m_partitionTotalTimes.size();
-        m_partitionTotalTimes[key] = 0;
+        if( m_useChronoTimers ) m_chronoTimer.start();
+        else m_rdtscTimer.start();
+        m_started = true;
+      }
+      m_active = key;
+      if( m_partitionTotalCounts.find( key ) == m_partitionTotalCounts.end() )
+      {
+        m_partitionIds[key] = m_partitionTotalCounts.size();
+        m_partitionTotalCounts[key] = 0;
       }
       // Open a new Cuda NVTX range
       NVTX_PUSH( key.c_str(), m_partitionIds[key] );
@@ -62,13 +66,15 @@ namespace mgOnGpu
     float stop()
     {
       // Close the previously active partition
-      float last = 0;
+      uint64_t last = 0;
       if( m_active != "" )
       {
-        const bool allowRunning = true; // skip assert that the timer is not running
-        if( m_usechronotimers ) last = m_chronotimer.getDurationSeconds( allowRunning );
-        else last = m_rdtsctimer.getDurationSeconds( allowRunning );
-        m_partitionTotalTimes[m_active] += last;
+        if( m_useChronoTimers ) last = m_chronoTimer.getCountsSinceStart();
+        else last = m_rdtscTimer.getCountsSinceStart();
+        m_partitionTotalCounts[m_active] += last;
+        if( m_useChronoTimers ) m_chronoTimer.stop();
+        else m_rdtscTimer.stop();
+        m_started = false;
       }
       m_active = "";
       // Close the current Cuda NVTX range
@@ -90,9 +96,14 @@ namespace mgOnGpu
       const std::string total3Key = "TOTAL   (3)";
       const std::string total3aKey = "TOTAL  (3a)";
       size_t maxsize = 0;
-      for( auto ip: m_partitionTotalTimes )
+      for( auto ip: m_partitionTotalCounts )
         maxsize = std::max( maxsize, ip.first.size() );
       maxsize = std::max( maxsize, totalKey.size() );
+      // Compute individual partition total times from partition total counts
+      std::map<std::string, float> partitionTotalTimes;
+      float secPerCount = ( m_useChronoTimers ? m_chronoTimer.secondsPerCount() : m_rdtscTimer.secondsPerCount() );
+      for( auto ip: m_partitionTotalCounts )
+        partitionTotalTimes[ip.first] = m_partitionTotalCounts[ip.first] * secPerCount;
       // Compute the overall total
       //size_t ipart = 0;
       float total = 0;
@@ -103,10 +114,10 @@ namespace mgOnGpu
       float total2 = 0;
       float total3 = 0;
       float total3a = 0;
-      for( auto ip: m_partitionTotalTimes )
+      for( auto ip: partitionTotalTimes )
       {
         total += ip.second;
-        //if ( ipart != 0 && ipart+1 != m_partitionTotalTimes.size() ) totalBut2 += ip.second;
+        //if ( ipart != 0 && ipart+1 != partitionTotalTimes.size() ) totalBut2 += ip.second;
         if( ip.first[0] == '1' || ip.first[0] == '2' || ip.first[0] == '3' ) total123 += ip.second;
         if( ip.first[0] == '2' || ip.first[0] == '3' ) total23 += ip.second;
         if( ip.first[0] == '1' ) total1 += ip.second;
@@ -121,7 +132,7 @@ namespace mgOnGpu
         std::string s1 = "\"", s2 = "\" : \"", s3 = " sec\",";
         ostr << std::setprecision( 6 ); // set precision (default=6): affects all floats
         ostr << std::fixed;             // fixed format: affects all floats
-        for( auto ip: m_partitionTotalTimes )
+        for( auto ip: partitionTotalTimes )
           ostr << s1 << ip.first << s2 << ip.second << s3 << std::endl;
         ostr << s1 << totalKey << s2 << total << s3 << std::endl
              << s1 << total123Key << s2 << total123 << s3 << std::endl
@@ -135,7 +146,7 @@ namespace mgOnGpu
         // NB: 'setw' affects only the next field (of any type)
         ostr << std::setprecision( 6 ); // set precision (default=6): affects all floats
         ostr << std::fixed;             // fixed format: affects all floats
-        for( auto ip: m_partitionTotalTimes )
+        for( auto ip: partitionTotalTimes )
           ostr << std::setw( maxsize ) << ip.first << " : "
                << std::setw( 12 ) << ip.second << " sec" << std::endl;
         ostr << std::setw( maxsize ) << totalKey << " : "
@@ -158,12 +169,14 @@ namespace mgOnGpu
 
   private:
 
-    ChronoTimer<TIMERTYPE> m_chronotimer;
-    RdtscTimer m_rdtsctimer;
+    ChronoTimer<TIMERTYPE> m_chronoTimer;
+    RdtscTimer m_rdtscTimer;
     std::string m_active;
-    std::map<std::string, float> m_partitionTotalTimes;
+    std::map<std::string, uint64_t> m_partitionTotalCounts;
     std::map<std::string, uint32_t> m_partitionIds;
-    bool m_usechronotimers;
+    bool m_useChronoTimers;
+    bool m_started; // when the timer is stopped, it must be explicitly restarted
+
   };
 
 }
