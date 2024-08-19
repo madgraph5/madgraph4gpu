@@ -737,7 +737,7 @@ c
       common/read_grid_file/read_grid_file
 
       data use_cut/2/            !Grid: 0=fixed , 1=standard, 2=non-zero
-      data ituple/1/             !1=htuple, 2=sobel 
+      data ituple/1/             !1=ntuple(ranmar or htuple), 2=sobel 
       data Minvar(1,1)/-1/       !No special variable mapping
 
 c-----
@@ -1264,12 +1264,6 @@ c
       save xbin_min0_saved, xbin_max1_saved
       data xbin_min0_saved/xbinarraydim*.false./
       data xbin_max1_saved/xbinarraydim*.false./
-
-      character*255 env_name, env_value
-      integer env_length, env_status
-      logical first, skipxbinchecks
-      data first, skipxbinchecks/.true., .false./
-      save first, skipxbinchecks
 c
 c     External
 c
@@ -1421,19 +1415,7 @@ c     to the fact that the grids are required to be separated by 1e-14. Since
 c     double precision is about 18 digits, we expect things to agree to
 c     3 digit accuracy.
 c
-      if (first) then
-        env_name = 'CUDACPP_RUNTIME_SKIPXBINCHECKS'
-        call get_environment_variable(env_name, env_value, env_length, env_status)
-        if( env_status.eq.0 ) then
-          skipxbinchecks = .true.
-        endif
-      endif
-
-      if (skipxbinchecks) then
-        if (first) then
-          write(6,*) 'WARNING: skipping xbin checks (CUDACPP_RUNTIME_SKIPXBINCHECKS is set)'
-        endif
-      else if (abs(ddum(j)-xbin(x,ij))/(ddum(j)+1d-22) .gt. 1e-3) then
+      if (abs(ddum(j)-xbin(x,ij))/(ddum(j)+1d-22) .gt. 1e-3) then
          if (icount .lt. 5) then
             write(*,'(a,i4,2e14.6,1e12.4)')
      &           'Warning xbin not returning correct x', ij,
@@ -1444,7 +1426,6 @@ c
          endif
          icount=icount+1
       endif
-      first = .false.
 c     if (x .lt. xmin .or. x .gt. xmax) then
 c         write(*,'(a,4i4,2f24.16,1e10.2)') 'Bad x',ij,int(xbin_min),ip,
 c     &        int(xbin_max),xmin,x,xmax-xmin
