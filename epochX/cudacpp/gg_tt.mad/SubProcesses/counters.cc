@@ -162,7 +162,7 @@ extern "C"
                   icounter,
                   array_totaltimes[icounter],
                   array_counters[icounter],
-                  array_totaltimes[icounter] / array_counters[icounter] );
+                  array_counters[icounter] / array_totaltimes[icounter] );
         }
         else if( array_counters[icounter] == 1 ) // one-off counters for initialisation tasks (e.g. helicity filtering)
         {
