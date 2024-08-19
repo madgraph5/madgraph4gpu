@@ -1349,10 +1349,10 @@ c            write(*,*) 'Reusing num',j,nzoom,tx(2,j)
             call ntuple(ddum(j),max(xbin_min,dble(int(tx(2,j)))),
      $           min(xbin_max,dble(int(tx(2,j))+1)),j,ipole)
 
-            if(max(xbin_min,dble(int(tx(2,j)))).gt.
-     $           min(xbin_max,dble(int(tx(2,j))+1))) then
+c           if(max(xbin_min,dble(int(tx(2,j)))).gt.
+c    $           min(xbin_max,dble(int(tx(2,j))+1))) then
 c               write(*,*) 'not good'
-            endif
+c           endif
 
 c            write(*,'(2i6,4e15.5)') nzoom,j,ddum(j),tx(2,j),
 c     $           max(xbin_min,dble(int(tx(2,j)))),
@@ -1426,10 +1426,10 @@ c
          endif
          icount=icount+1
       endif
-      if (x .lt. xmin .or. x .gt. xmax) then
+c     if (x .lt. xmin .or. x .gt. xmax) then
 c         write(*,'(a,4i4,2f24.16,1e10.2)') 'Bad x',ij,int(xbin_min),ip,
 c     &        int(xbin_max),xmin,x,xmax-xmin
-      endif
+c     endif
 
       wgt = wgt * xo * dble(xbin_max-xbin_min)
 c      print*,'Returning x',ij,ipole,j,x
