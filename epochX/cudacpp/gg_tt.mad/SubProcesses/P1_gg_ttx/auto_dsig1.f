@@ -550,7 +550,7 @@ c         Compute helicities only for the first IMIRROR in cudacpp (see #872) - 
           IF( FIRST(1) .AND. FIRST(2) ) THEN
             CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
      &        P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
-     &        SELECTED_HEL2, SELECTED_COL2 )
+     &        SELECTED_HEL2, SELECTED_COL2, .TRUE.) ! quit after computing helicities
           ENDIF
           FIRST(IMIRROR) = .FALSE.
 c         ... But do call reset_cumulative_variable also for the second IMIRROR in cudacpp (FIX #872)
