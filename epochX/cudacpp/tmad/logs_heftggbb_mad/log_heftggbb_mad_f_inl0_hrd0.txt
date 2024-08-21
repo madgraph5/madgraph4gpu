@@ -1,21 +1,21 @@
 Working directory (build): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx
 
+
 make USEBUILDDIR=1 BACKEND=cuda
 
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make USEBUILDDIR=1 BACKEND=cppnone
 
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make USEBUILDDIR=1 BACKEND=cppsse4
-
 make USEBUILDDIR=1 BACKEND=cppavx2
 
 make USEBUILDDIR=1 BACKEND=cpp512y
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 
 make USEBUILDDIR=1 BACKEND=cpp512z
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
@@ -32,7 +32,7 @@ make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/
 
 OMP_NUM_THREADS=
 
-DATE: 2024-07-31_17:10:26
+DATE: 2024-08-09_00:49:04
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx
@@ -58,9 +58,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_heftggbb_x1_fortran > /tmp/
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2.016 [2.0162955499256161] fbridge_mode=0
  [UNWEIGHT] Wrote 3321 events (found 6423 events)
- [COUNTERS] PROGRAM TOTAL          :    0.9696s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.9200s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0496s for     8192 events => throughput is 1.65E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.9394s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8922s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0473s for     8192 events => throughput is 1.73E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
@@ -83,9 +83,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_heftggbb_x1_fortran > /tmp/
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2.016 [2.0162955499256161] fbridge_mode=0
  [UNWEIGHT] Wrote 1617 events (found 1622 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4652s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4151s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0501s for     8192 events => throughput is 1.64E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.4203s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3728s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0475s for     8192 events => throughput is 1.72E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x10 (create events.lhe) ***
 --------------------
@@ -108,9 +108,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_heftggbb_x10_fortran > /tmp
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2.043 [2.0434895240377569] fbridge_mode=0
  [UNWEIGHT] Wrote 1818 events (found 1823 events)
- [COUNTERS] PROGRAM TOTAL          :    1.9448s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.4020s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.5428s for    90112 events => throughput is 1.66E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.7988s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.2854s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.5133s for    90112 events => throughput is 1.76E+05 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -133,9 +133,10 @@ Executing ' ./build.none_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_heftggbb
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2.016 [2.0162897355760356] fbridge_mode=1
  [UNWEIGHT] Wrote 1620 events (found 1625 events)
- [COUNTERS] PROGRAM TOTAL          :    0.5031s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4549s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0482s for     8192 events => throughput is 1.70E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.4180s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.3713s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0463s for     8192 events => throughput is 1.77E+05 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0004s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
