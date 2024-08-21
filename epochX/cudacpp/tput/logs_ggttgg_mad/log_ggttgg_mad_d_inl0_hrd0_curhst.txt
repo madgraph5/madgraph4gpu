@@ -40,7 +40,7 @@ make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-DATE: 2024-08-08_20:26:59
+DATE: 2024-08-21_21:08:33
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
@@ -49,15 +49,15 @@ INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: 
 Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBDEV+MESDEV/none+NAVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 3.458961e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 3.485253e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 3.488049e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 3.333790e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 3.358955e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.360927e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 4.063123e+00 +- 2.368970e+00 )  GeV^-4
-TOTAL       :     0.514464 sec
+TOTAL       :     0.513514 sec
 INFO: No Floating Point Exceptions have been reported
-     2,130,639,833      cycles                           #    2.860 GHz                    
-     3,343,542,179      instructions                     #    1.57  insn per cycle         
-       0.805221680 seconds time elapsed
+     2,194,197,168      cycles                           #    2.952 GHz                    
+     3,480,180,048      instructions                     #    1.59  insn per cycle         
+       0.805006030 seconds time elapsed
 runNcu /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.cuda_d_inl0_hrd0/check_cuda.exe -p 64 256 1 --curhst
 ==PROF== Profiling "sigmaKin": launch__registers_per_thread 255
 ==PROF== Profiling "sigmaKin": sm__sass_average_branch_targets_threads_uniform.pct 100%
@@ -67,19 +67,22 @@ INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: 
 Process                     = SIGMA_SM_GG_TTXGG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:DBL+THX:CURHST+RMBDEV+MESDEV/none+NAVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 4.127051e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 4.156110e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 4.157363e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 4.140294e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 4.174368e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.175819e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 6.665112e+00 +- 5.002651e+00 )  GeV^-4
-TOTAL       :     3.075386 sec
+TOTAL       :     3.082408 sec
 INFO: No Floating Point Exceptions have been reported
-     9,595,195,883      cycles                           #    2.879 GHz                    
-    21,169,008,885      instructions                     #    2.21  insn per cycle         
-       3.388723748 seconds time elapsed
+    10,021,737,987      cycles                           #    3.001 GHz                    
+    23,162,253,928      instructions                     #    2.31  insn per cycle         
+       3.398640785 seconds time elapsed
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.cuda_d_inl0_hrd0/runTest_cuda.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  PASSED  ] 3 tests.
+[  PASSED  ] 4 tests.
+DEBUG: MEK (no multichannel) processed 512 events across 123 channels { no-multichannel : 512 }
+INFO: No Floating Point Exceptions have been reported
+DEBUG: MEK (channelid array) processed 512 events across 123 channels { 2 : 32, 3 : 32, 4 : 32, 5 : 32, 6 : 32, 7 : 32, 8 : 32, 9 : 32, 10 : 32, 11 : 32, 12 : 32, 13 : 32, 14 : 32, 15 : 32, 16 : 32, 17 : 32 }
 INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.cuda_d_inl0_hrd0/check_cuda.exe --common -p 2 64 2
@@ -97,20 +100,23 @@ Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.3.1] [inlineHel=0] [
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 1.853624e+03                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.854505e+03                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.854505e+03                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 1.935856e+03                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.936779e+03                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.936779e+03                 )  sec^-1
 MeanMatrixElemValue         = ( 4.063123e+00 +- 2.368970e+00 )  GeV^-4
-TOTAL       :     8.854273 sec
+TOTAL       :     8.478080 sec
 INFO: No Floating Point Exceptions have been reported
-    25,673,092,183      cycles                           #    2.899 GHz                    
-    78,956,489,516      instructions                     #    3.08  insn per cycle         
-       8.858619563 seconds time elapsed
-=Symbols in CPPProcess_cpp.o= (~sse4: 4843) (avx2:    0) (512y:    0) (512z:    0)
+    25,703,692,788      cycles                           #    3.031 GHz                    
+    78,960,037,006      instructions                     #    3.07  insn per cycle         
+       8.482151487 seconds time elapsed
+=Symbols in CPPProcess_cpp.o= (~sse4: 4842) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.none_d_inl0_hrd0/runTest_cpp.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  PASSED  ] 3 tests.
+[  PASSED  ] 4 tests.
+DEBUG: MEK (no multichannel) processed 512 events across 123 channels { no-multichannel : 512 }
+INFO: No Floating Point Exceptions have been reported
+DEBUG: MEK (channelid array) processed 512 events across 123 channels { 2 : 32, 3 : 32, 4 : 32, 5 : 32, 6 : 32, 7 : 32, 8 : 32, 9 : 32, 10 : 32, 11 : 32, 12 : 32, 13 : 32, 14 : 32, 15 : 32, 16 : 32, 17 : 32 }
 INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.none_d_inl0_hrd0/check_cpp.exe --common -p 2 64 2
@@ -126,20 +132,23 @@ Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.3.1] [inlineHel=0] [
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[2] ('sse4': SSE4.2, 128bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 3.555877e+03                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 3.559175e+03                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 3.559175e+03                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 3.587567e+03                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 3.590928e+03                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.590928e+03                 )  sec^-1
 MeanMatrixElemValue         = ( 4.063123e+00 +- 2.368970e+00 )  GeV^-4
-TOTAL       :     4.618236 sec
+TOTAL       :     4.577183 sec
 INFO: No Floating Point Exceptions have been reported
-    13,105,607,424      cycles                           #    2.836 GHz                    
-    39,562,262,758      instructions                     #    3.02  insn per cycle         
-       4.622614183 seconds time elapsed
-=Symbols in CPPProcess_cpp.o= (~sse4:13199) (avx2:    0) (512y:    0) (512z:    0)
+    13,059,126,979      cycles                           #    2.851 GHz                    
+    39,559,001,932      instructions                     #    3.03  insn per cycle         
+       4.581320195 seconds time elapsed
+=Symbols in CPPProcess_cpp.o= (~sse4:13192) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.sse4_d_inl0_hrd0/runTest_cpp.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  PASSED  ] 3 tests.
+[  PASSED  ] 4 tests.
+DEBUG: MEK (no multichannel) processed 512 events across 123 channels { no-multichannel : 512 }
+INFO: No Floating Point Exceptions have been reported
+DEBUG: MEK (channelid array) processed 512 events across 123 channels { 2 : 32, 3 : 32, 4 : 32, 5 : 32, 6 : 32, 7 : 32, 8 : 32, 9 : 32, 10 : 32, 11 : 32, 12 : 32, 13 : 32, 14 : 32, 15 : 32, 16 : 32, 17 : 32 }
 INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.sse4_d_inl0_hrd0/check_cpp.exe --common -p 2 64 2
@@ -155,20 +164,23 @@ Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.3.1] [inlineHel=0] [
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[4] ('avx2': AVX2, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 8.117944e+03                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 8.134423e+03                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 8.134423e+03                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 8.269057e+03                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 8.285333e+03                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.285333e+03                 )  sec^-1
 MeanMatrixElemValue         = ( 4.063123e+00 +- 2.368970e+00 )  GeV^-4
-TOTAL       :     2.026386 sec
+TOTAL       :     1.989526 sec
 INFO: No Floating Point Exceptions have been reported
-     5,589,116,983      cycles                           #    2.754 GHz                    
-    13,823,429,494      instructions                     #    2.47  insn per cycle         
-       2.030436364 seconds time elapsed
-=Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2:11530) (512y:    0) (512z:    0)
+     5,606,073,512      cycles                           #    2.813 GHz                    
+    13,823,651,565      instructions                     #    2.47  insn per cycle         
+       1.993976816 seconds time elapsed
+=Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2:11520) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.avx2_d_inl0_hrd0/runTest_cpp.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  PASSED  ] 3 tests.
+[  PASSED  ] 4 tests.
+DEBUG: MEK (no multichannel) processed 512 events across 123 channels { no-multichannel : 512 }
+INFO: No Floating Point Exceptions have been reported
+DEBUG: MEK (channelid array) processed 512 events across 123 channels { 2 : 32, 3 : 32, 4 : 32, 5 : 32, 6 : 32, 7 : 32, 8 : 32, 9 : 32, 10 : 32, 11 : 32, 12 : 32, 13 : 32, 14 : 32, 15 : 32, 16 : 32, 17 : 32 }
 INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.avx2_d_inl0_hrd0/check_cpp.exe --common -p 2 64 2
@@ -184,20 +196,23 @@ Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.3.1] [inlineHel=0] [
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[4] ('512y': AVX512, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 9.385930e+03                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 9.407557e+03                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 9.407557e+03                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 9.300004e+03                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 9.320934e+03                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.320934e+03                 )  sec^-1
 MeanMatrixElemValue         = ( 4.063123e+00 +- 2.368970e+00 )  GeV^-4
-TOTAL       :     1.753538 sec
+TOTAL       :     1.769561 sec
 INFO: No Floating Point Exceptions have been reported
-     4,940,731,112      cycles                           #    2.812 GHz                    
-    12,505,003,217      instructions                     #    2.53  insn per cycle         
-       1.757654269 seconds time elapsed
-=Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2:10449) (512y:   88) (512z:    0)
+     4,921,791,918      cycles                           #    2.776 GHz                    
+    12,505,106,644      instructions                     #    2.54  insn per cycle         
+       1.773853630 seconds time elapsed
+=Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2:10439) (512y:   88) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512y_d_inl0_hrd0/runTest_cpp.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  PASSED  ] 3 tests.
+[  PASSED  ] 4 tests.
+DEBUG: MEK (no multichannel) processed 512 events across 123 channels { no-multichannel : 512 }
+INFO: No Floating Point Exceptions have been reported
+DEBUG: MEK (channelid array) processed 512 events across 123 channels { 2 : 32, 3 : 32, 4 : 32, 5 : 32, 6 : 32, 7 : 32, 8 : 32, 9 : 32, 10 : 32, 11 : 32, 12 : 32, 13 : 32, 14 : 32, 15 : 32, 16 : 32, 17 : 32 }
 INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512y_d_inl0_hrd0/check_cpp.exe --common -p 2 64 2
@@ -213,20 +228,23 @@ Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 11.3.1] [inlineHel=0] [
 Workflow summary            = CPP:DBL+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
 FP precision                = DOUBLE (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[8] ('512z': AVX512, 512bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 7.329600e+03                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 7.342625e+03                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 7.342625e+03                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 7.286910e+03                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 7.300187e+03                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.300187e+03                 )  sec^-1
 MeanMatrixElemValue         = ( 4.063123e+00 +- 2.368970e+00 )  GeV^-4
-TOTAL       :     2.243900 sec
+TOTAL       :     2.257244 sec
 INFO: No Floating Point Exceptions have been reported
-     4,145,687,524      cycles                           #    1.845 GHz                    
-     6,390,893,367      instructions                     #    1.54  insn per cycle         
-       2.248144727 seconds time elapsed
-=Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2: 1974) (512y:  102) (512z: 9391)
+     4,138,209,185      cycles                           #    1.831 GHz                    
+     6,391,046,041      instructions                     #    1.54  insn per cycle         
+       2.261436554 seconds time elapsed
+=Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2: 1975) (512y:  102) (512z: 9386)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512z_d_inl0_hrd0/runTest_cpp.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  PASSED  ] 3 tests.
+[  PASSED  ] 4 tests.
+DEBUG: MEK (no multichannel) processed 512 events across 123 channels { no-multichannel : 512 }
+INFO: No Floating Point Exceptions have been reported
+DEBUG: MEK (channelid array) processed 512 events across 123 channels { 2 : 32, 3 : 32, 4 : 32, 5 : 32, 6 : 32, 7 : 32, 8 : 32, 9 : 32, 10 : 32, 11 : 32, 12 : 32, 13 : 32, 14 : 32, 15 : 32, 16 : 32, 17 : 32 }
 INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512z_d_inl0_hrd0/check_cpp.exe --common -p 2 64 2
