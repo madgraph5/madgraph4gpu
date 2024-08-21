@@ -10,7 +10,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-qqtt][-pptt][-pptt012j][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -22,6 +22,9 @@ ggttgg=
 ggttggg=
 gguu=
 gqttq=
+qqtt=
+pptt=
+pptt012j=
 heftggbb=
 susyggtt=
 susyggt1t1=
@@ -68,6 +71,15 @@ for arg in $*; do
   elif [ "$arg" == "-gqttq" ]; then
     if [ "$gqttq" == "" ]; then procs+=${procs:+ }${arg}; fi
     gqttq=$arg
+  elif [ "$arg" == "-pptt012j" ]; then
+    if [ "$pptt012j" == "" ]; then procs+=${procs:+ }${arg}; fi
+    pptt012j=$arg
+  elif [ "$arg" == "-qqtt" ]; then
+    if [ "$qqtt" == "" ]; then procs+=${procs:+ }${arg}; fi
+    qqtt=$arg
+  elif [ "$arg" == "-pptt" ]; then
+    if [ "$pptt" == "" ]; then procs+=${procs:+ }${arg}; fi
+    pptt=$arg
   elif [ "$arg" == "-heftggbb" ]; then
     if [ "$heftggbb" == "" ]; then procs+=${procs:+ }${arg}; fi
     heftggbb=$arg

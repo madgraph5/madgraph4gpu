@@ -50,6 +50,17 @@ function codeGenAndDiff()
     gq_ttllq)
       cmd="define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
       ;;
+    gu_ttgu) # debug #872 in pp_tt012j
+      cmd="generate g u > t t~ g u"
+      ;;
+    gq_ttgq) # debug #872 in pp_tt012j
+      ###cmd="define q = u c d s u~ c~ d~ s~; generate g q > t t~ g q"
+      cmd="define q = u c d s; generate g q > t t~ g q"
+      ;;
+    pp_ttjj)
+      cmd="define j = p;
+      generate p p > t t~ j j"
+      ;;
     pp_tt)
       cmd="generate p p > t t~"
       ;;
@@ -83,6 +94,9 @@ function codeGenAndDiff()
       ;;
     uu_ttg)
       cmd="generate u u~ > t t~ g"
+      ;;
+    qq_tt)
+      cmd="define q = u c d s; define q~ = u~ c~ d~ s~; generate q q~ > t t~"
       ;;
     bb_tt)
       cmd="generate b b~ > t t~"
