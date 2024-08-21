@@ -77,6 +77,9 @@ namespace
           referenceData[batchNo].ChanIds.resize( evtNo + 1 );
         std::string dummy;
         lineStr >> dummy >> referenceData[batchNo].ChanIds[evtNo];
+#ifndef MGONGPU_SUPPORTS_MULTICHANNEL
+        referenceData[batchNo].ChanIds[evtNo] = 0; // disable ChanId comparison if multichannel is not supported #976
+#endif
       }
       else if( line.find( "SelHel" ) != std::string::npos )
       {

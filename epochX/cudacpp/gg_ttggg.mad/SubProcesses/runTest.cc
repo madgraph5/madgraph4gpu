@@ -41,9 +41,9 @@ struct CUDA_CPU_TestBase : public TestDriverBase
   virtual bool useChannelIds() const = 0;
   // Set channelId array (in the same way for CUDA and CPU tests)
   static constexpr unsigned int warpSize = 32; // FIXME: add a sanity check in madevent that this is the minimum? (would need to expose this from cudacpp to madevent)
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   static void setChannelIds( BufferChannelIds& hstChannelIds, std::size_t iiter )
   {
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     static const char* debugC = getenv( "CUDACPP_RUNTEST_DEBUG" );
     static const bool debug = ( debugC != 0 ) && ( std::string( debugC ) != "" );
     // Fill channelIds for multi-channel tests #896
@@ -75,11 +75,14 @@ struct CUDA_CPU_TestBase : public TestDriverBase
       for( unsigned int i = 0; i < warpSize; ++i )
         hstChannelIds[iWarp * warpSize + i] = channelId;
     }
-#else
-    // No-multichannel tests (set a DUMMY channelId=0 for all events, but this is in any case NOT USED!)
-    for( unsigned int i = 0; i < nevt; ++i ) hstChannelIds[i] = 0;
-#endif
   }
+#else
+  static void setChannelIds( BufferChannelIds& hstChannelIds, std::size_t /*iiter*/ )
+  {
+    // No-multichannel tests (set a DUMMY channelId=0 for all events: this is not used for ME comparison, but it does enter the comparison to reference results #976)
+    for( unsigned int i = 0; i < nevt; ++i ) hstChannelIds[i] = 0;
+  }
+#endif
 };
 
 #ifndef MGONGPUCPP_GPUIMPL
