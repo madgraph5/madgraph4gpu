@@ -27,7 +27,7 @@ exclude2='(Entering|Leaving|Building|HASCURAND|BACKEND|USEBUILDDIR|Nothing to be
 # Lines (interesting) which may change on different software versions
 exclude3='(Symbols|Avg|Relative|MeanMatrixElemValue)'
 # Lines (uninteresting) which change when missing some tests (no avx512, cuda, hip...)
-exclude4='(runExe|cmpExe|runNcu|SIGMA|Workflow|FP|Internal|OMP|Symbols|PASSED|INFO|WARNING|PROF|\+OK|\-OK|CPU:|===|\.\.\.|\-$|\+$)'
+exclude4='(runTest|runExe|cmpExe|runNcu|SIGMA|Workflow|FP|Internal|OMP|Symbols|PASSED|INFO|WARNING|PROF|\+OK|\-OK|CPU:|===|\.\.\.|\-$|\+$)'
 # Lines (interesting) which show that some tests are missing (no avx512, cuda, hip...)
 exclude5='(Not found|no avx512vl)'
 

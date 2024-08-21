@@ -83,6 +83,7 @@ extern "C"
    * @param mes the pointer to the output matrix elements
    * @param selhel the pointer to the output selected helicities
    * @param selcol the pointer to the output selected colors
+   * @param goodHelOnly quit after computing good helicities?
    */
   void fbridgesequence_( CppObjectInFortran** ppbridge,
                          const FORTRANFPTYPE* momenta,
@@ -92,18 +93,20 @@ extern "C"
                          const unsigned int* channelIds,
                          FORTRANFPTYPE* mes,
                          int* selhel,
-                         int* selcol )
+                         int* selcol,
+                         const bool* pgoodHelOnly )
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
+    //printf("fbridgesequence_ goodHelOnly=%d\n", ( *pgoodHelOnly ? 1 : 0 ) );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgesequence_: invalid Bridge address" );
 #ifdef MGONGPUCPP_GPUIMPL
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, channelIds, mes, selhel, selcol );
+    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, channelIds, mes, selhel, selcol, *pgoodHelOnly );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, channelIds, mes, selhel, selcol );
+    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, channelIds, mes, selhel, selcol, *pgoodHelOnly );
 #endif
   }
 
@@ -119,6 +122,7 @@ extern "C"
    * @param mes the pointer to the output matrix elements
    * @param selhel the pointer to the output selected helicities
    * @param selcol the pointer to the output selected colors
+   * @param goodHelOnly quit after computing good helicities?
    */
   void fbridgesequence_nomultichannel_( CppObjectInFortran** ppbridge,
                                         const FORTRANFPTYPE* momenta,
@@ -127,9 +131,11 @@ extern "C"
                                         const FORTRANFPTYPE* rndcol,
                                         FORTRANFPTYPE* mes,
                                         int* selhel,
-                                        int* selcol )
+                                        int* selcol,
+                                        const bool* pgoodHelOnly )
   {
-    fbridgesequence_( ppbridge, momenta, gs, rndhel, rndcol, nullptr, mes, selhel, selcol );
+    //printf("fbridgesequence_nomultichannel_ goodHelOnly=%d\n", ( *pgoodHelOnly ? 1 : 0 ) );
+    fbridgesequence_( ppbridge, momenta, gs, rndhel, rndcol, nullptr, mes, selhel, selcol, pgoodHelOnly );
   }
 
   /**

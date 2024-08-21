@@ -337,6 +337,7 @@ function codeGenAndDiff()
             | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/ModDate\\().*(\\)>>endobj$)","\\1"date"\\2","g")}' \
             | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/CreationDate\\().*(\\)$)","\\1"date"\\2","g")}' \
             | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("(^/ID \\[<).*><.*(>\\]$)","\\1"id"><"id"\\2","g")}' \
+            | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("(^/ID \\[\\().*\\)\\(.*(\\)\\]$)","\\1"id")("id"\\2","g")}' \
             | awk -vdate="2024-03-01T00:00:00+01:00" '{print gensub("(<xmp:ModifyDate>).*(</xmp:ModifyDate>)","\\1"date"\\2","g")}' \
             | awk -vdate="2024-03-01T00:00:00+01:00" '{print gensub("(<xmp:CreateDate>).*(</xmp:CreateDate>)","\\1"date"\\2","g")}' \
             | awk -vuuid="'uuid=01234567-89ab-cdef-0123-456789abcdef'" '{print gensub("(xapMM:DocumentID=).*(/>$)","\\1"uuid"\\2","g")}' \
