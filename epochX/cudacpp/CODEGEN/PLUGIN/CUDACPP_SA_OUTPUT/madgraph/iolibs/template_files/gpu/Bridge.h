@@ -334,7 +334,7 @@ namespace mg5amcCpu
     }
     const bool useChannelIds = ( channelIds != nullptr ) && ( !goodHelOnly );
     if( useChannelIds ) memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
-    else {} // m_hstChannel is allocated with gpuMallocHost and NOT initialized in PinnedHostBufferBase, but m_hstChannel is not used later on anyway
+    //else ... // no need to initialize m_hstChannel: it is allocated with gpuMallocHost and NOT initialized in PinnedHostBufferBase, but it is NOT used later on
     copyDeviceFromHost( m_devGs, m_hstGs );
     copyDeviceFromHost( m_devRndHel, m_hstRndHel );
     copyDeviceFromHost( m_devRndCol, m_hstRndCol );
@@ -392,7 +392,7 @@ namespace mg5amcCpu
     }
     const bool useChannelIds = ( channelIds != nullptr ) && ( !goodHelOnly );
     if( useChannelIds ) memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
-    else {} // m_hstChannel is allocated and default initialized in HostBufferBase, but m_hstChannel is not used later on anyway
+    //else ... // no need to initialize m_hstChannel: it is allocated and default initialized in HostBufferBase (and it is not used later on anyway)
     if( m_nGoodHel < 0 )
     {
       m_nGoodHel = m_pmek->computeGoodHelicities();
