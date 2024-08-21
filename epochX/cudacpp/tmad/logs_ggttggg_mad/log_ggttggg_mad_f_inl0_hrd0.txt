@@ -1,11 +1,11 @@
 Working directory (build): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg
 
-
 make USEBUILDDIR=1 BACKEND=cuda
 
-make USEBUILDDIR=1 BACKEND=cppnone
-make USEBUILDDIR=1 BACKEND=cppsse4
 
+make USEBUILDDIR=1 BACKEND=cppnone
+
+make USEBUILDDIR=1 BACKEND=cppsse4
 make USEBUILDDIR=1 BACKEND=cppavx2
 
 make USEBUILDDIR=1 BACKEND=cpp512y
@@ -13,9 +13,9 @@ make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
 
 make USEBUILDDIR=1 BACKEND=cpp512z
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
 make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg'
@@ -32,7 +32,7 @@ make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/
 
 OMP_NUM_THREADS=
 
-DATE: 2024-07-23_00:20:24
+DATE: 2024-08-08_22:23:03
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg
@@ -56,11 +56,11 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_ggttggg_x1_fortran > /tmp/a
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.201e-06 [1.2009575548148470E-006] fbridge_mode=0
- [UNWEIGHT] Wrote 1 events (found 285 events)
- [COUNTERS] PROGRAM TOTAL          :   98.1014s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4770s
- [COUNTERS] Fortran MEs      ( 1 ) :   97.6244s for     8192 events => throughput is 8.39E+01 events/s
+ [XSECTION] Cross section = 1.24e-06 [1.2403985227939174E-006] fbridge_mode=0
+ [UNWEIGHT] Wrote 1 events (found 407 events)
+ [COUNTERS] PROGRAM TOTAL          :  101.3873s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5075s
+ [COUNTERS] Fortran MEs      ( 1 ) :  100.8798s for     8192 events => throughput is 8.12E+01 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
@@ -81,11 +81,11 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_ggttggg_x1_fortran > /tmp/a
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.201e-06 [1.2009575548148470E-006] fbridge_mode=0
- [UNWEIGHT] Wrote 18 events (found 285 events)
- [COUNTERS] PROGRAM TOTAL          :   97.4079s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4768s
- [COUNTERS] Fortran MEs      ( 1 ) :   96.9310s for     8192 events => throughput is 8.45E+01 events/s
+ [XSECTION] Cross section = 1.24e-06 [1.2403985227939174E-006] fbridge_mode=0
+ [UNWEIGHT] Wrote 70 events (found 407 events)
+ [COUNTERS] PROGRAM TOTAL          :  102.2416s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5135s
+ [COUNTERS] Fortran MEs      ( 1 ) :  101.7281s for     8192 events => throughput is 8.05E+01 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x10 (create events.lhe) ***
 --------------------
@@ -106,11 +106,11 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_ggttggg_x10_fortran > /tmp/
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.264e-07 [2.2641741825130175E-007] fbridge_mode=0
- [UNWEIGHT] Wrote 418 events (found 1570 events)
- [COUNTERS] PROGRAM TOTAL          : 1073.6338s
- [COUNTERS] Fortran Overhead ( 0 ) :    4.3534s
- [COUNTERS] Fortran MEs      ( 1 ) : 1069.2804s for    90112 events => throughput is 8.43E+01 events/s
+ [XSECTION] Cross section = 2.332e-07 [2.3322993086655967E-007] fbridge_mode=0
+ [UNWEIGHT] Wrote 303 events (found 1531 events)
+ [COUNTERS] PROGRAM TOTAL          : 1114.7300s
+ [COUNTERS] Fortran Overhead ( 0 ) :    4.3428s
+ [COUNTERS] Fortran MEs      ( 1 ) : 1110.3872s for    90112 events => throughput is 8.12E+01 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -126,22 +126,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
 Executing ' ./build.none_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttggg_x1_cudacpp > /tmp/avalassi/output_ggttggg_x1_cudacpp'
 INFO: The following Floating Point Exceptions have been reported: FE_UNDERFLOW
-DEBUG: MEK processed 16384 events across 1240 channels { no-multichannel : 8192, 1 : 8192 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.201e-06 [1.2011250641073541E-006] fbridge_mode=1
- [UNWEIGHT] Wrote 18 events (found 285 events)
- [COUNTERS] PROGRAM TOTAL          :  203.9170s
- [COUNTERS] Fortran Overhead ( 0 ) :   94.1937s
- [COUNTERS] CudaCpp MEs      ( 2 ) :  109.7233s for     8192 events => throughput is 7.47E+01 events/s
+ [XSECTION] Cross section = 1.241e-06 [1.2405719945779552E-006] fbridge_mode=1
+ [UNWEIGHT] Wrote 70 events (found 407 events)
+ [COUNTERS] PROGRAM TOTAL          :  111.0089s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5100s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :  110.3187s for     8192 events => throughput is 7.43E+01 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.1802s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (1.2009575548148470E-006) and cpp (1.2011250641073541E-006) differ by less than 4E-4 (0.000139479777478968)
+OK! xsec from fortran (1.2403985227939174E-006) and cpp (1.2405719945779552E-006) differ by less than 4E-4 (0.00013985165319851944)
 
 *** (2-none) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -161,22 +161,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
 Executing ' ./build.none_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
 INFO: The following Floating Point Exceptions have been reported: FE_UNDERFLOW
-DEBUG: MEK processed 98304 events across 1240 channels { no-multichannel : 8192, 1 : 90112 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.264e-07 [2.2644964998437398E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 418 events (found 1570 events)
- [COUNTERS] PROGRAM TOTAL          : 1303.4938s
- [COUNTERS] Fortran Overhead ( 0 ) :   97.6241s
- [COUNTERS] CudaCpp MEs      ( 2 ) : 1205.8696s for    90112 events => throughput is 7.47E+01 events/s
+ [XSECTION] Cross section = 2.333e-07 [2.3326290777570335E-007] fbridge_mode=1
+ [UNWEIGHT] Wrote 303 events (found 1531 events)
+ [COUNTERS] PROGRAM TOTAL          : 1216.8479s
+ [COUNTERS] Fortran Overhead ( 0 ) :    4.4035s
+ [COUNTERS] CudaCpp MEs      ( 2 ) : 1212.2644s for    90112 events => throughput is 7.43E+01 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.1800s
 
 *** (2-none) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (2.2641741825130175E-007) and cpp (2.2644964998437398E-007) differ by less than 4E-4 (0.0001423553599417815)
+OK! xsec from fortran (2.3322993086655967E-007) and cpp (2.3326290777570335E-007) differ by less than 4E-4 (0.00014139226908471692)
 
 *** (2-none) Compare MADEVENT_CPP x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -185,12 +185,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 8.790314e+01                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.795452e+01                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 8.771156e+01                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.783118e+01                 )  sec^-1
 
 *** (2-sse4) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -206,22 +206,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
 Executing ' ./build.sse4_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttggg_x1_cudacpp > /tmp/avalassi/output_ggttggg_x1_cudacpp'
 INFO: The following Floating Point Exceptions have been reported: FE_UNDERFLOW
-DEBUG: MEK processed 16384 events across 1240 channels { no-multichannel : 8192, 1 : 8192 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.201e-06 [1.2011248466338516E-006] fbridge_mode=1
- [UNWEIGHT] Wrote 18 events (found 285 events)
- [COUNTERS] PROGRAM TOTAL          :   50.4909s
- [COUNTERS] Fortran Overhead ( 0 ) :   23.8408s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   26.6500s for     8192 events => throughput is 3.07E+02 events/s
+ [XSECTION] Cross section = 1.241e-06 [1.2405716994349971E-006] fbridge_mode=1
+ [UNWEIGHT] Wrote 70 events (found 407 events)
+ [COUNTERS] PROGRAM TOTAL          :   27.4750s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5164s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :   26.9120s for     8192 events => throughput is 3.04E+02 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0465s
 
 *** (2-sse4) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (1.2009575548148470E-006) and cpp (1.2011248466338516E-006) differ by less than 4E-4 (0.00013929869405782114)
+OK! xsec from fortran (1.2403985227939174E-006) and cpp (1.2405716994349971E-006) differ by less than 4E-4 (0.00013961371115600585)
 
 *** (2-sse4) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -241,22 +241,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
 Executing ' ./build.sse4_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
 INFO: The following Floating Point Exceptions have been reported: FE_UNDERFLOW
-DEBUG: MEK processed 98304 events across 1240 channels { no-multichannel : 8192, 1 : 90112 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.264e-07 [2.2644960006557758E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 418 events (found 1570 events)
- [COUNTERS] PROGRAM TOTAL          :  319.8870s
- [COUNTERS] Fortran Overhead ( 0 ) :   27.5871s
- [COUNTERS] CudaCpp MEs      ( 2 ) :  292.2999s for    90112 events => throughput is 3.08E+02 events/s
+ [XSECTION] Cross section = 2.333e-07 [2.3326284885505778E-007] fbridge_mode=1
+ [UNWEIGHT] Wrote 303 events (found 1531 events)
+ [COUNTERS] PROGRAM TOTAL          :  300.8248s
+ [COUNTERS] Fortran Overhead ( 0 ) :    4.4082s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :  296.3700s for    90112 events => throughput is 3.04E+02 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0466s
 
 *** (2-sse4) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (2.2641741825130175E-007) and cpp (2.2644960006557758E-007) differ by less than 4E-4 (0.00014213488752057302)
+OK! xsec from fortran (2.3322993086655967E-007) and cpp (2.3326284885505778E-007) differ by less than 4E-4 (0.0001411396400787801)
 
 *** (2-sse4) Compare MADEVENT_CPP x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -265,12 +265,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.526186e+02                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.485944e+02                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.526483e+02                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.470723e+02                 )  sec^-1
 
 *** (2-avx2) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -286,22 +286,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
 Executing ' ./build.avx2_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttggg_x1_cudacpp > /tmp/avalassi/output_ggttggg_x1_cudacpp'
 INFO: The following Floating Point Exceptions have been reported: FE_UNDERFLOW
-DEBUG: MEK processed 16384 events across 1240 channels { no-multichannel : 8192, 1 : 8192 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.201e-06 [1.2011248461798598E-006] fbridge_mode=1
- [UNWEIGHT] Wrote 18 events (found 285 events)
- [COUNTERS] PROGRAM TOTAL          :   26.0838s
- [COUNTERS] Fortran Overhead ( 0 ) :   12.2562s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   13.8275s for     8192 events => throughput is 5.92E+02 events/s
+ [XSECTION] Cross section = 1.241e-06 [1.2405716646933743E-006] fbridge_mode=1
+ [UNWEIGHT] Wrote 70 events (found 407 events)
+ [COUNTERS] PROGRAM TOTAL          :   14.5936s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5183s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :   14.0522s for     8192 events => throughput is 5.83E+02 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0231s
 
 *** (2-avx2) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (1.2009575548148470E-006) and cpp (1.2011248461798598E-006) differ by less than 4E-4 (0.0001392983160330985)
+OK! xsec from fortran (1.2403985227939174E-006) and cpp (1.2405716646933743E-006) differ by less than 4E-4 (0.00013958570271999093)
 
 *** (2-avx2) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -321,22 +321,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
 Executing ' ./build.avx2_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
 INFO: The following Floating Point Exceptions have been reported: FE_UNDERFLOW
-DEBUG: MEK processed 98304 events across 1240 channels { no-multichannel : 8192, 1 : 90112 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.264e-07 [2.2644951222621394E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 418 events (found 1570 events)
- [COUNTERS] PROGRAM TOTAL          :  167.7500s
- [COUNTERS] Fortran Overhead ( 0 ) :   15.9563s
- [COUNTERS] CudaCpp MEs      ( 2 ) :  151.7937s for    90112 events => throughput is 5.94E+02 events/s
+ [XSECTION] Cross section = 2.333e-07 [2.3326277033163402E-007] fbridge_mode=1
+ [UNWEIGHT] Wrote 303 events (found 1531 events)
+ [COUNTERS] PROGRAM TOTAL          :  158.5014s
+ [COUNTERS] Fortran Overhead ( 0 ) :    4.4348s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :  154.0430s for    90112 events => throughput is 5.85E+02 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0236s
 
 *** (2-avx2) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (2.2641741825130175E-007) and cpp (2.2644951222621394E-007) differ by less than 4E-4 (0.000141746934313014)
+OK! xsec from fortran (2.3322993086655967E-007) and cpp (2.3326277033163402E-007) differ by less than 4E-4 (0.00014080296191987252)
 
 *** (2-avx2) Compare MADEVENT_CPP x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -345,12 +345,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.999026e+02                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.991558e+02                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.015678e+02                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.952358e+02                 )  sec^-1
 
 *** (2-512y) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -366,22 +366,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
 Executing ' ./build.512y_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttggg_x1_cudacpp > /tmp/avalassi/output_ggttggg_x1_cudacpp'
 INFO: The following Floating Point Exceptions have been reported: FE_UNDERFLOW
-DEBUG: MEK processed 16384 events across 1240 channels { no-multichannel : 8192, 1 : 8192 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.201e-06 [1.2011248461798598E-006] fbridge_mode=1
- [UNWEIGHT] Wrote 18 events (found 285 events)
- [COUNTERS] PROGRAM TOTAL          :   23.0678s
- [COUNTERS] Fortran Overhead ( 0 ) :   10.5674s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   12.5004s for     8192 events => throughput is 6.55E+02 events/s
+ [XSECTION] Cross section = 1.241e-06 [1.2405716646933743E-006] fbridge_mode=1
+ [UNWEIGHT] Wrote 70 events (found 407 events)
+ [COUNTERS] PROGRAM TOTAL          :   12.8606s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5199s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :   12.3203s for     8192 events => throughput is 6.65E+02 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0204s
 
 *** (2-512y) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (1.2009575548148470E-006) and cpp (1.2011248461798598E-006) differ by less than 4E-4 (0.0001392983160330985)
+OK! xsec from fortran (1.2403985227939174E-006) and cpp (1.2405716646933743E-006) differ by less than 4E-4 (0.00013958570271999093)
 
 *** (2-512y) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -401,22 +401,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
 Executing ' ./build.512y_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
 INFO: The following Floating Point Exceptions have been reported: FE_UNDERFLOW
-DEBUG: MEK processed 98304 events across 1240 channels { no-multichannel : 8192, 1 : 90112 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.264e-07 [2.2644951222621394E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 418 events (found 1570 events)
- [COUNTERS] PROGRAM TOTAL          :  153.3118s
- [COUNTERS] Fortran Overhead ( 0 ) :   14.4271s
- [COUNTERS] CudaCpp MEs      ( 2 ) :  138.8847s for    90112 events => throughput is 6.49E+02 events/s
+ [XSECTION] Cross section = 2.333e-07 [2.3326277033163402E-007] fbridge_mode=1
+ [UNWEIGHT] Wrote 303 events (found 1531 events)
+ [COUNTERS] PROGRAM TOTAL          :  139.5398s
+ [COUNTERS] Fortran Overhead ( 0 ) :    4.3981s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :  135.1212s for    90112 events => throughput is 6.67E+02 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0205s
 
 *** (2-512y) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (2.2641741825130175E-007) and cpp (2.2644951222621394E-007) differ by less than 4E-4 (0.000141746934313014)
+OK! xsec from fortran (2.3322993086655967E-007) and cpp (2.3326277033163402E-007) differ by less than 4E-4 (0.00014080296191987252)
 
 *** (2-512y) Compare MADEVENT_CPP x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -425,12 +425,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 8.107809e+02                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.890802e+02                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 8.157466e+02                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.069181e+02                 )  sec^-1
 
 *** (2-512z) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -446,22 +446,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
 Executing ' ./build.512z_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttggg_x1_cudacpp > /tmp/avalassi/output_ggttggg_x1_cudacpp'
 INFO: The following Floating Point Exceptions have been reported: FE_UNDERFLOW
-DEBUG: MEK processed 16384 events across 1240 channels { no-multichannel : 8192, 1 : 8192 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.201e-06 [1.2011251360912330E-006] fbridge_mode=1
- [UNWEIGHT] Wrote 18 events (found 285 events)
- [COUNTERS] PROGRAM TOTAL          :   23.7319s
- [COUNTERS] Fortran Overhead ( 0 ) :   11.6498s
- [COUNTERS] CudaCpp MEs      ( 2 ) :   12.0821s for     8192 events => throughput is 6.78E+02 events/s
+ [XSECTION] Cross section = 1.241e-06 [1.2405719257109645E-006] fbridge_mode=1
+ [UNWEIGHT] Wrote 70 events (found 407 events)
+ [COUNTERS] PROGRAM TOTAL          :   12.8130s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5166s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :   12.2739s for     8192 events => throughput is 6.67E+02 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0225s
 
 *** (2-512z) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (1.2009575548148470E-006) and cpp (1.2011251360912330E-006) differ by less than 4E-4 (0.00013953971621583072)
+OK! xsec from fortran (1.2403985227939174E-006) and cpp (1.2405719257109645E-006) differ by less than 4E-4 (0.00013979613314640815)
 
 *** (2-512z) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -481,22 +481,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 --------------------
 Executing ' ./build.512z_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
 INFO: The following Floating Point Exceptions have been reported: FE_UNDERFLOW
-DEBUG: MEK processed 98304 events across 1240 channels { no-multichannel : 8192, 1 : 90112 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.264e-07 [2.2644957106171463E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 418 events (found 1570 events)
- [COUNTERS] PROGRAM TOTAL          :  146.7797s
- [COUNTERS] Fortran Overhead ( 0 ) :   15.4258s
- [COUNTERS] CudaCpp MEs      ( 2 ) :  131.3539s for    90112 events => throughput is 6.86E+02 events/s
+ [XSECTION] Cross section = 2.333e-07 [2.3326283665697276E-007] fbridge_mode=1
+ [UNWEIGHT] Wrote 303 events (found 1531 events)
+ [COUNTERS] PROGRAM TOTAL          :  139.5916s
+ [COUNTERS] Fortran Overhead ( 0 ) :    4.4260s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :  135.1428s for    90112 events => throughput is 6.67E+02 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0228s
 
 *** (2-512z) Compare MADEVENT_CPP x10 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (2.2641741825130175E-007) and cpp (2.2644957106171463E-007) differ by less than 4E-4 (0.00014200678844056291)
+OK! xsec from fortran (2.3322993086655967E-007) and cpp (2.3326283665697276E-007) differ by less than 4E-4 (0.00014108733939433016)
 
 *** (2-512z) Compare MADEVENT_CPP x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -505,12 +505,12 @@ OK! events.lhe.cpp.10 and events.lhe.ref.10 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.372979e+02                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.223008e+02                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTXGGG_CPP [gcc 11.3.1] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.360267e+02                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.135239e+02                 )  sec^-1
 
 *** (3-cuda) EXECUTE MADEVENT_CUDA x1 (create events.lhe) ***
 --------------------
@@ -525,22 +525,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.cuda_f_inl0_hrd0/madevent_cuda < /tmp/avalassi/input_ggttggg_x1_cudacpp > /tmp/avalassi/output_ggttggg_x1_cudacpp'
-DEBUG: MEK processed 16384 events across 1240 channels { no-multichannel : 8192, 1 : 8192 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 1.201e-06 [1.2011257191623754E-006] fbridge_mode=1
- [UNWEIGHT] Wrote 18 events (found 285 events)
- [COUNTERS] PROGRAM TOTAL          :    2.5879s
- [COUNTERS] Fortran Overhead ( 0 ) :    2.0659s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.5219s for     8192 events => throughput is 1.57E+04 events/s
+ [XSECTION] Cross section = 1.241e-06 [1.2405721007137020E-006] fbridge_mode=1
+ [UNWEIGHT] Wrote 70 events (found 407 events)
+ [COUNTERS] PROGRAM TOTAL          :    2.1089s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.0215s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.5332s for     8192 events => throughput is 1.54E+04 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.5542s
 
 *** (3-cuda) Compare MADEVENT_CUDA x1 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (1.2009575548148470E-006) and cuda (1.2011257191623754E-006) differ by less than 4E-4 (0.00014002522141964846)
+OK! xsec from fortran (1.2403985227939174E-006) and cuda (1.2405721007137020E-006) differ by less than 4E-4 (0.00013993721904270728)
 
 *** (3-cuda) Compare MADEVENT_CUDA x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -559,22 +559,22 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
 Executing ' ./build.cuda_f_inl0_hrd0/madevent_cuda < /tmp/avalassi/input_ggttggg_x10_cudacpp > /tmp/avalassi/output_ggttggg_x10_cudacpp'
-DEBUG: MEK processed 98304 events across 1240 channels { no-multichannel : 8192, 1 : 90112 }
  [OPENMPTH] omp_get_max_threads/nproc = 1/4
  [NGOODHEL] ngoodhel/ncomb = 128/128
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.264e-07 [2.2644969729873264E-007] fbridge_mode=1
- [UNWEIGHT] Wrote 418 events (found 1570 events)
- [COUNTERS] PROGRAM TOTAL          :   11.7604s
- [COUNTERS] Fortran Overhead ( 0 ) :    5.8973s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    5.8631s for    90112 events => throughput is 1.54E+04 events/s
+ [XSECTION] Cross section = 2.333e-07 [2.3326295421688232E-007] fbridge_mode=1
+ [UNWEIGHT] Wrote 303 events (found 1531 events)
+ [COUNTERS] PROGRAM TOTAL          :   11.2844s
+ [COUNTERS] Fortran Overhead ( 0 ) :    4.8851s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    5.8421s for    90112 events => throughput is 1.54E+04 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.5572s
 
 *** (3-cuda) Compare MADEVENT_CUDA x10 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (2.2641741825130175E-007) and cuda (2.2644969729873264E-007) differ by less than 4E-4 (0.0001425643295476231)
+OK! xsec from fortran (2.3322993086655967E-007) and cuda (2.3326295421688232E-007) differ by less than 4E-4 (0.00014159139095037965)
 
 *** (3-cuda) Compare MADEVENT_CUDA x10 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -583,42 +583,42 @@ OK! events.lhe.cuda.10 and events.lhe.ref.10 are identical
 *** EXECUTE GCHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.559889e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.533878e+04                 )  sec^-1
 
 *** EXECUTE GCHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.541424e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.547825e+04                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX) -p 512 32 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.137807e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.147653e+04                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX) -p 512 32 1 ***
 Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.205810e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.124611e+04                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX128THR) -p 128 128 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.120255e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.134315e+04                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX128THR) -p 128 128 1 ***
 Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.174862e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.131039e+04                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX8THR) -p 2048 8 1 --bridge ***
 Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.127026e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.139642e+04                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX8THR) -p 2048 8 1 ***
 Process                     = SIGMA_SM_GG_TTXGGG_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.011764e+03                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.021489e+03                 )  sec^-1
 
 *** (3-hip) WARNING! SKIP MADEVENT_HIP (hip is not supported on this node) ***
 
