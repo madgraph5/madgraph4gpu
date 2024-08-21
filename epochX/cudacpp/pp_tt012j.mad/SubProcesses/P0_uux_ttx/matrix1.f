@@ -146,7 +146,6 @@ C     ----------
 C     BEGIN CODE
 C     ----------
 
-      call counters_smatrix1_start()
       NTRY(IMIRROR)=NTRY(IMIRROR)+1
       THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
       DO I=1,NEXTERNAL
@@ -232,27 +231,8 @@ C           Print the number of good helicities
                   NGOODHEL(IMIRROR)=NGOODHEL(IMIRROR)+1
                 ENDIF
               END DO
-              WRITE (6,*) 'IMIRROR =', IMIRROR
-              WRITE (6,*) 'NGOODHEL =', NGOODHEL(IMIRROR)
+              WRITE (6,*) 'NGOODHEL =', NGOODHEL(IMIRROR) ! no need to print imirror?
               WRITE (6,*) 'NCOMB =', NCOMB
-C           SANITY CHECK: check that the two lists of good helicities are identical
-C           (see madgraph4gpu #872, #935, #941)
-              IF (NGOODHEL(1).NE.-1 .AND. NGOODHEL(2).NE.-1) THEN
-                IF (NGOODHEL(1) .NE. NGOODHEL(2)) THEN
-                  WRITE (6,*) 'ERROR! IMIRROR=1,2 mismatch for NGOODHEL',
-     $              NGOODHEL(1), NGOODHEL(2)
-                  STOP
-                ENDIF
-                DO I=1,NCOMB
-                  IF (GOODHEL(I,1) .NEQV. GOODHEL(I,2)) THEN
-                    WRITE (6,*) 'ERROR! IMIRROR=1,2 mismatch for GOODHEL',
-     $                I, GOODHEL(I,1), GOODHEL(I,2)
-                    STOP
-                  ENDIF
-                END DO
-                WRITE (6,*) 'Helicity lists from IMIRROR=1,2 match',
-     $            NGOODHEL(1), NGOODHEL(2)
-              ENDIF
             ENDIF
           ENDIF
         ENDIF
@@ -271,7 +251,6 @@ C       Include the Jacobian from helicity sampling
         IHEL = HEL_PICKED
       ELSE
         ANS = 1D0
-        call counters_smatrix1_stop()
         RETURN
       ENDIF
       IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
@@ -316,8 +295,9 @@ C           Set right sign for ANS, based on sign of chosen helicity
         ENDIF
       ENDIF
       ANS=ANS/DBLE(IDEN)
+
       CALL SELECT_COLOR(RCOL, JAMP2, ICONFIG,1,  ICOL)
-      call counters_smatrix1_stop()
+
       END
 
 
