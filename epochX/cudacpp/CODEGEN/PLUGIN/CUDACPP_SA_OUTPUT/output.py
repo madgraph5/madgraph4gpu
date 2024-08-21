@@ -358,7 +358,7 @@ class FortranExporterBridge(export_v4.ProcessExporterFortranMEGroup):
         replace_dict['OMP_LIB'] = ''
         replace_dict['OMP_PREFIX'] = """IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
-call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1"""
+CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1"""
         replace_dict["OMP_POSTFIX"] = open(pjoin(PLUGINDIR,'madgraph','iolibs','template_files','gpu','smatrix_multi.f')).read().split('\n',4)[4] # AV skip 4 copyright lines
         _file_path = export_v4._file_path
         if writer:
