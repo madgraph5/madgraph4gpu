@@ -63,7 +63,7 @@ C
           GS(IEVT) = 1.2177157847767195 ! fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
         END DO
         CALL FBRIDGESEQUENCE_NOMULTICHANNEL(BRIDGE, MOMENTA, GS, ! TEMPORARY? disable multi-channel in fcheck.exe and fgcheck.exe #466
-     &    RNDHEL, RNDCOL, MES, SELHEL, SELCOL)
+     &    RNDHEL, RNDCOL, MES, SELHEL, SELCOL, .FALSE.) ! do not quit after computing helicities
         DO IEVT = 1, NEVT
 c         DO IEXTERNAL = 1, NEXTERNAL
 c           WRITE(6,*) 'MOMENTA', IEVT, IEXTERNAL,

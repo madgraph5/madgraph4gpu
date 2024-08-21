@@ -11,7 +11,7 @@
 #undef MGONGPU_SUPPORTS_MULTICHANNEL
 
 // Is this a GPU (CUDA, HIP) or CPU implementation?
-#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#ifdef __CUDACC__
 #define MGONGPUCPP_GPUIMPL cuda
 #elif defined __HIPCC__
 #define MGONGPUCPP_GPUIMPL hip
@@ -34,7 +34,7 @@
 #if defined __HIPCC__
 #define MGONGPU_HAS_NO_CURAND 1
 #else
-//#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+//#ifdef __CUDACC__
 //#undef MGONGPU_HAS_NO_CURAND // default
 ////#define MGONGPU_HAS_NO_CURAND 1
 //#else
@@ -47,7 +47,7 @@
 // For CUDA, by default, do not allow hiprand to be used (curand or common random numbers will be used instead)
 // For both HIP and C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_HIPRAND
 // (there may exist HIP installations which do not include hiprand?)
-#if defined __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#if defined __CUDACC__
 #define MGONGPU_HAS_NO_HIPRAND 1
 #else
 //#ifdef __HIPCC__
@@ -74,6 +74,7 @@
 #define MGONGPU_FPTYPE2_DOUBLE 1 // default
 //#define MGONGPU_FPTYPE2_FLOAT 1 // 2x faster
 #endif
+
 // Choose whether to inline all HelAmps functions
 // This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
 // By default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
@@ -88,10 +89,9 @@
 //#undef MGONGPU_HARDCODE_PARAM // default
 ////#define MGONGPU_HARDCODE_PARAM 1
 
-/* clang-format off */
 // Complex type in CUDA: thrust or cucomplex or cxsmpl (CHOOSE ONLY ONE)
 // (NB THIS IS MGONGPU_*CU*CXTYPE_xxx)
-#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#ifdef __CUDACC__
 #define MGONGPU_CUCXTYPE_THRUST 1 // default (~1.15E9/double, ~3.2E9/float)
 //#define MGONGPU_CUCXTYPE_CUCOMPLEX 1 // ~10 percent slower (1.03E9/double, ~2.8E9/float)
 //#define MGONGPU_CUCXTYPE_CXSMPL 1 // ~10 percent slower (1.00E9/double, ~2.9E9/float)
@@ -109,20 +109,11 @@
 #endif
 
 // CUDA nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
-#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#ifdef __CUDACC__
 #undef MGONGPU_NSIGHT_DEBUG // default in CUDA
 //#define MGONGPU_NSIGHT_DEBUG 1
 #else
 #undef MGONGPU_NSIGHT_DEBUG // only option in HIP or C++
-#endif /* clang-format on */
-
-// Choose whether to enable or disable channelid debug printouts
-#ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-#undef MGONGPU_CHANNELID_DEBUG // multichannel is not enabled
-#else
-// By default, do not hardcode, but allow this macro to be set from outside with e.g. -DMGONGPU_CHANNELID_DEBUG
-//#undef MGONGPU_CHANNELID_DEBUG // default
-////#define MGONGPU_CHANNELID_DEBUG 1
 #endif
 
 // SANITY CHECKS (floating point precision for everything but color algebra #537)
@@ -139,7 +130,7 @@
 #endif
 
 // SANITY CHECKS (CUDA complex number implementation)
-#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#ifdef __CUDACC__
 #if defined MGONGPU_CUCXTYPE_THRUST and defined MGONGPU_CUCXTYPE_CUCOMPLEX
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CUCXTYPE_THRUST or MGONGPU_CUCXTYPE_CUCOMPLEX for CUDA
 #elif defined MGONGPU_CUCXTYPE_THRUST and defined MGONGPU_CUCXTYPE_CXSMPL
@@ -231,10 +222,9 @@ using mgOnGpu::fptype2;
 #undef MGONGPU_CPPSIMD
 #endif
 
-/* clang-format off */
 // CUDA nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
-#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#if defined __CUDA__ && defined MGONGPU_NSIGHT_DEBUG /* clang-format off */
 #define mgDebugDeclare() __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
 #define mgDebugInitialise() { mgDebugCounter[threadIdx.x] = 0; }
 #define mgDebug( code, text ) { mgDebugCounter[threadIdx.x] += 1; }

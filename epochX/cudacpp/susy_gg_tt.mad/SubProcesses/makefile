@@ -116,8 +116,6 @@ else
 all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 endif
 
-# Disable OpenMP by default: enable OpenMP only if USEOPENMP=1 (#758)
-ifeq ($(USEOPENMP),1)
 ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 override OMPFLAGS = -fopenmp
 LINKLIBS += -liomp5 # see #578
@@ -129,7 +127,6 @@ else ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
 override OMPFLAGS = # OMP is not supported yet by cudacpp for Apple clang
 else
 override OMPFLAGS = -fopenmp
-endif
 endif
 
 $(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o

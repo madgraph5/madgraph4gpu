@@ -10,7 +10,7 @@
 
 //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#ifdef __CUDACC__
 
 #define gpuError_t cudaError_t
 #define gpuPeekAtLastError cudaPeekAtLastError

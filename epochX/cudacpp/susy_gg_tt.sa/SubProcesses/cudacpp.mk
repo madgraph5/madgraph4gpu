@@ -116,15 +116,31 @@ override CUDA_HOME = $(patsubst %/bin/nvcc,%,$(shell which nvcc 2>/dev/null))
 # Set HIP_HOME from the path to hipcc, if it exists
 override HIP_HOME = $(patsubst %/bin/hipcc,%,$(shell which hipcc 2>/dev/null))
 
-# Configure CUDA_INC (for CURAND and NVTX) and NVTX if a CUDA installation exists
-# (FIXME? Is there any equivalent of NVTX FOR HIP? What should be configured if both CUDA and HIP are installed?)
-ifneq ($(CUDA_HOME),)
-  USE_NVTX ?=-DUSE_NVTX
-  CUDA_INC = -I$(CUDA_HOME)/include/
-else
-  override USE_NVTX=
+# Configure CUDA_INC (for CURAND and NVTX) and NVTX if a CUDA installation exists (see #965)
+ifeq ($(CUDA_HOME),)
+  # CUDA_HOME is empty (nvcc not found)
   override CUDA_INC=
+else ifeq ($(wildcard $(CUDA_HOME)/include/),)
+  # CUDA_HOME is defined (nvcc was found) but $(CUDA_HOME)/include/ does not exist?
+  override CUDA_INC=
+else
+  CUDA_INC = -I$(CUDA_HOME)/include/
 endif
+###$(info CUDA_INC=$(CUDA_INC))
+
+# Configure NVTX if a CUDA include directory exists and NVTX headers exist (see #965)
+ifeq ($(CUDA_INC),)
+  # $(CUDA_HOME)/include/ does not exist
+  override USE_NVTX=
+else ifeq ($(wildcard $(CUDA_HOME)/include/nvtx3/nvToolsExt.h),)
+  # $(CUDA_HOME)/include/ exists but NVTX headers do not exist?
+  override USE_NVTX=
+else
+  # $(CUDA_HOME)/include/nvtx.h exists: use NVTX
+  # (NB: the option to disable NVTX if 'USE_NVTX=' is defined has been removed)
+  override USE_NVTX=-DUSE_NVTX
+endif
+###$(info USE_NVTX=$(USE_NVTX))
 
 # NB: NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV Feb-Mar 2024)
 # - In the old implementation, by default the C++ targets for one specific AVX were always built together with either CUDA or HIP.
@@ -186,7 +202,6 @@ ifeq ($(BACKEND),cuda)
   GPUFLAGS += -use_fast_math
 
   # Extra build warnings
-  GPUFLAGS += $(XCOMPILERFLAG) -Wunused-parameter
   ###GPUFLAGS += $(XCOMPILERFLAG) -Wall $(XCOMPILERFLAG) -Wextra $(XCOMPILERFLAG) -Wshadow
 
   # CUDA includes and NVTX
@@ -425,13 +440,18 @@ endif
 # (NB: allow HASCURAND=hasCurand even if $(GPUCC) does not point to nvcc: assume CUDA_HOME was defined correctly...)
 ifeq ($(HASCURAND),)
   ifeq ($(GPUCC),) # CPU-only build
-    ifneq ($(CUDA_HOME),)
+    ifeq ($(CUDA_INC),)
+      # $(CUDA_HOME)/include/ does not exist (see #965)
+      override HASCURAND = hasNoCurand
+    else ifeq ($(wildcard $(CUDA_HOME)/include/curand.h),)
+      # $(CUDA_HOME)/include/ exists but CURAND headers do not exist? (see #965)
+      override HASCURAND = hasNoCurand
+    else
       # By default, assume that curand is installed if a CUDA installation exists
       override HASCURAND = hasCurand
-    else
-      override HASCURAND = hasNoCurand
     endif
   else ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
+    # By default, assume that curand is installed if a CUDA build is requested
     override HASCURAND = hasCurand
   else # non-Nvidia GPU build
     override HASCURAND = hasNoCurand
@@ -577,14 +597,6 @@ endif
 #=== Configure Position-Independent Code
 CXXFLAGS += -fPIC
 GPUFLAGS += $(XCOMPILERFLAG) -fPIC
-
-#-------------------------------------------------------------------------------
-
-#=== Configure channelid debugging
-ifneq ($(MG5AMC_CHANNELID_DEBUG),)
-  CXXFLAGS += -DMGONGPU_CHANNELID_DEBUG
-  GPUFLAGS += -DMGONGPU_CHANNELID_DEBUG
-endif
 
 #-------------------------------------------------------------------------------
 

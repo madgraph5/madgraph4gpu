@@ -162,7 +162,6 @@ C     ----------
 C     BEGIN CODE
 C     ----------
 
-      call counters_smatrix1_start()
       NTRY(IMIRROR)=NTRY(IMIRROR)+1
       THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
       DO I=1,NEXTERNAL
@@ -183,10 +182,8 @@ C     ----------
         TS(I)=0D0
       ENDDO
 
-C     If the helicity grid status is 0, this means that it is not yet
-C      initialized.
-C     If HEL_PICKED==-1, this means that calls to other matrix<i>
-C      where in initialization mode as well for the helicity.
+        !   If the helicity grid status is 0, this means that it is not yet initialized.
+        !   If HEL_PICKED==-1, this means that calls to other matrix<i> where in initialization mode as well for the helicity.
       IF ((ISHEL(IMIRROR).EQ.0.AND.ISUM_HEL.EQ.0)
      $ .OR.(DS_GET_DIM_STATUS('Helicity').EQ.0).OR.(HEL_PICKED.EQ.-1))
      $  THEN
@@ -215,27 +212,16 @@ C      where in initialization mode as well for the helicity.
           CALL RESET_CUMULATIVE_VARIABLE()  ! avoid biais of the initialization
         ENDIF
         IF (ISUM_HEL.NE.0) THEN
-C         We set HEL_PICKED to -1 here so that later on, the call to
-C          DS_add_point in dsample.f does not add anything to the grid
-C          since it was already done here.
+            !         We set HEL_PICKED to -1 here so that later on, the call to DS_add_point in dsample.f does not add anything to the grid since it was already done here.
           HEL_PICKED = -1
-C         For safety, hardset the helicity sampling jacobian to 0.0d0
-C          to make sure it is not .
+            !         For safety, hardset the helicity sampling jacobian to 0.0d0 to make sure it is not .
           HEL_JACOBIAN   = 1.0D0
-C         We don't want to re-update the helicity grid if it was
-C          already updated by another matrix<i>, so we make sure that
-C          the reference grid is empty.
+            !         We don't want to re-update the helicity grid if it was already updated by another matrix<i>, so we make sure that the reference grid is empty.
           REF_HELICITY_GRID = DS_GET_DIMENSION(REF_GRID,'Helicity')
           IF((DS_GET_DIM_STATUS('Helicity').EQ.1)
      $     .AND.(REF_HELICITY_GRID%N_TOT_ENTRIES.EQ.0)) THEN
-C           If we finished the initialization we can update the grid
-C            so as to start sampling over it.
-C           However the grid will now be filled by dsample with
-C            different kind of weights (including pdf, flux, etc...)
-C            so by setting the grid_mode of the reference grid to
-C            'initialization' we make sure it will be overwritten (as
-C            opposed to 'combined') by the running grid at the next
-C            update.
+              !           If we finished the initialization we can update the grid so as to start sampling over it.
+              !           However the grid will now be filled by dsample with different kind of weights (including pdf, flux, etc...) so by setting the grid_mode of the reference grid to 'initialization' we make sure it will be overwritten (as opposed to 'combined') by the running grid at the next update.
             CALL DS_UPDATE_GRID('Helicity')
             CALL DS_SET_GRID_MODE('Helicity','init')
           ENDIF
@@ -294,7 +280,6 @@ C       Include the Jacobian from helicity sampling
         IHEL = HEL_PICKED
       ELSE
         ANS = 1D0
-        call counters_smatrix1_stop()
         RETURN
       ENDIF
       IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
@@ -339,8 +324,9 @@ C           Set right sign for ANS, based on sign of chosen helicity
         ENDIF
       ENDIF
       ANS=ANS/DBLE(IDEN)
+
       CALL SELECT_COLOR(RCOL, JAMP2, ICONFIG,1,  ICOL)
-      call counters_smatrix1_stop()
+
       END
 
 

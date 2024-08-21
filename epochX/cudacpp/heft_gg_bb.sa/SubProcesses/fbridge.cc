@@ -79,31 +79,34 @@ extern "C"
    * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
    * @param rndhel the pointer to the input random numbers for helicity selection
    * @param rndcol the pointer to the input random numbers for color selection
-   * @param channelIds the pointer to the input channels i.e. Feynman diagrams to enhance (1 to n: 0 is an invalid value!)
+   * @param channelId the pointer to the input Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
    * @param mes the pointer to the output matrix elements
    * @param selhel the pointer to the output selected helicities
    * @param selcol the pointer to the output selected colors
+   * @param goodHelOnly quit after computing good helicities?
    */
   void fbridgesequence_( CppObjectInFortran** ppbridge,
                          const FORTRANFPTYPE* momenta,
                          const FORTRANFPTYPE* gs,
                          const FORTRANFPTYPE* rndhel,
                          const FORTRANFPTYPE* rndcol,
-                         const unsigned int* channelIds,
+                         const unsigned int* pchannelId,
                          FORTRANFPTYPE* mes,
                          int* selhel,
-                         int* selcol )
+                         int* selcol,
+                         const bool* pgoodHelOnly )
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
+    //printf("fbridgesequence_ goodHelOnly=%d\n", ( *pgoodHelOnly ? 1 : 0 ) );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgesequence_: invalid Bridge address" );
 #ifdef MGONGPUCPP_GPUIMPL
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, channelIds, mes, selhel, selcol );
+    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, ( pchannelId ? *pchannelId : 0 ), mes, selhel, selcol, *pgoodHelOnly );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, channelIds, mes, selhel, selcol );
+    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, ( pchannelId ? *pchannelId : 0 ), mes, selhel, selcol, *pgoodHelOnly );
 #endif
   }
 
@@ -119,6 +122,7 @@ extern "C"
    * @param mes the pointer to the output matrix elements
    * @param selhel the pointer to the output selected helicities
    * @param selcol the pointer to the output selected colors
+   * @param goodHelOnly quit after computing good helicities?
    */
   void fbridgesequence_nomultichannel_( CppObjectInFortran** ppbridge,
                                         const FORTRANFPTYPE* momenta,
@@ -127,9 +131,11 @@ extern "C"
                                         const FORTRANFPTYPE* rndcol,
                                         FORTRANFPTYPE* mes,
                                         int* selhel,
-                                        int* selcol )
+                                        int* selcol,
+                                        const bool* pgoodHelOnly )
   {
-    fbridgesequence_( ppbridge, momenta, gs, rndhel, rndcol, nullptr, mes, selhel, selcol );
+    //printf("fbridgesequence_nomultichannel_ goodHelOnly=%d\n", ( *pgoodHelOnly ? 1 : 0 ) );
+    fbridgesequence_( ppbridge, momenta, gs, rndhel, rndcol, nullptr, mes, selhel, selcol, pgoodHelOnly );
   }
 
   /**

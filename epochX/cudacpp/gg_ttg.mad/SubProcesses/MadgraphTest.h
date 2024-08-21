@@ -34,13 +34,11 @@ using mg5amcCpu::CPPProcess;
 
 namespace
 {
+
   struct ReferenceData
   {
     std::vector<std::vector<std::array<fptype, CPPProcess::np4>>> momenta;
     std::vector<fptype> MEs;
-    std::vector<int> ChanIds;
-    std::vector<int> SelHels;
-    std::vector<int> SelCols;
   };
 
   /// Read batches of reference data from a file and store them in a map.
@@ -68,32 +66,9 @@ namespace
       {
         if( evtNo <= referenceData[batchNo].MEs.size() )
           referenceData[batchNo].MEs.resize( evtNo + 1 );
+
         std::string dummy;
         lineStr >> dummy >> referenceData[batchNo].MEs[evtNo];
-      }
-      else if( line.find( "ChanId" ) != std::string::npos )
-      {
-        if( evtNo <= referenceData[batchNo].ChanIds.size() )
-          referenceData[batchNo].ChanIds.resize( evtNo + 1 );
-        std::string dummy;
-        lineStr >> dummy >> referenceData[batchNo].ChanIds[evtNo];
-#ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-        referenceData[batchNo].ChanIds[evtNo] = 0; // disable ChanId comparison if multichannel is not supported #976
-#endif
-      }
-      else if( line.find( "SelHel" ) != std::string::npos )
-      {
-        if( evtNo <= referenceData[batchNo].SelHels.size() )
-          referenceData[batchNo].SelHels.resize( evtNo + 1 );
-        std::string dummy;
-        lineStr >> dummy >> referenceData[batchNo].SelHels[evtNo];
-      }
-      else if( line.find( "SelCol" ) != std::string::npos )
-      {
-        if( evtNo <= referenceData[batchNo].SelCols.size() )
-          referenceData[batchNo].SelCols.resize( evtNo + 1 );
-        std::string dummy;
-        lineStr >> dummy >> referenceData[batchNo].SelCols[evtNo];
       }
       else
       {
@@ -147,9 +122,6 @@ public:
   // ------------------------------------------------
   virtual fptype getMomentum( std::size_t evtNo, unsigned int particleNo, unsigned int component ) const = 0;
   virtual fptype getMatrixElement( std::size_t evtNo ) const = 0;
-  virtual int getChannelId( std::size_t ievt ) const = 0;
-  virtual int getSelectedHelicity( std::size_t ievt ) const = 0;
-  virtual int getSelectedColor( std::size_t ievt ) const = 0;
 
   // ------------------------------------------------
   // Interface for steering madgraph run
@@ -256,13 +228,8 @@ MadgraphTest::CompareMomentaAndME( testing::Test& googleTest ) const
         // Dump matrix element
         dumpFile << std::setw( 4 ) << "ME" << std::scientific << std::setw( 15 + 8 )
                  << testDriver->getMatrixElement( ievt ) << "\n"
+                 << std::endl
                  << std::defaultfloat;
-        // Dump channelId
-        dumpFile << "ChanId" << std::setw( 8 ) << testDriver->getChannelId( ievt ) << "\n";
-        // Dump selected helicity and color
-        dumpFile << "SelHel" << std::setw( 8 ) << testDriver->getSelectedHelicity( ievt ) << "\n";
-        dumpFile << "SelCol" << std::setw( 8 ) << testDriver->getSelectedColor( ievt ) << "\n"
-                 << std::endl; // leave one line between events
         continue;
       }
       // Check that we have the required reference data
@@ -270,12 +237,6 @@ MadgraphTest::CompareMomentaAndME( testing::Test& googleTest ) const
         << "Don't have enough reference data for iteration " << iiter << ". Ref file:" << refFileName;
       ASSERT_GT( referenceData[iiter].MEs.size(), ievt )
         << "Don't have enough reference MEs for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
-      ASSERT_GT( referenceData[iiter].ChanIds.size(), ievt )
-        << "Don't have enough reference ChanIds for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
-      ASSERT_GT( referenceData[iiter].SelHels.size(), ievt )
-        << "Don't have enough reference SelHels for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
-      ASSERT_GT( referenceData[iiter].SelCols.size(), ievt )
-        << "Don't have enough reference SelCols for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
       ASSERT_GT( referenceData[iiter].momenta.size(), ievt )
         << "Don't have enough reference momenta for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
       ASSERT_GE( referenceData[iiter].momenta[ievt].size(), testDriver->nparticle )
@@ -290,12 +251,6 @@ MadgraphTest::CompareMomentaAndME( testing::Test& googleTest ) const
                  << std::setw( 4 ) << "r.ME" << std::scientific << std::setw( 15 + 8 )
                  << referenceData[iiter].MEs[ievt] << std::endl
                  << std::defaultfloat;
-      eventTrace << std::setw( 8 ) << "ChanId" << std::setw( 8 ) << testDriver->getChannelId( ievt ) << "\n"
-                 << std::setw( 8 ) << "r.ChanId" << std::setw( 8 ) << referenceData[iiter].ChanIds[ievt] << std::endl;
-      eventTrace << std::setw( 8 ) << "SelHel" << std::setw( 8 ) << testDriver->getSelectedHelicity( ievt ) << "\n"
-                 << std::setw( 8 ) << "r.SelHel" << std::setw( 8 ) << referenceData[iiter].SelHels[ievt] << std::endl;
-      eventTrace << std::setw( 8 ) << "SelCol" << std::setw( 8 ) << testDriver->getSelectedColor( ievt ) << "\n"
-                 << std::setw( 8 ) << "r.SelCol" << std::setw( 8 ) << referenceData[iiter].SelCols[ievt] << std::endl;
       SCOPED_TRACE( eventTrace.str() );
       // Compare Momenta
       for( unsigned int ipar = 0; ipar < testDriver->nparticle; ++ipar )
@@ -321,14 +276,6 @@ MadgraphTest::CompareMomentaAndME( testing::Test& googleTest ) const
       EXPECT_NEAR( testDriver->getMatrixElement( ievt ),
                    referenceData[iiter].MEs[ievt],
                    toleranceMEs * referenceData[iiter].MEs[ievt] );
-      // Compare channelId
-      EXPECT_EQ( testDriver->getChannelId( ievt ),
-                 referenceData[iiter].ChanIds[ievt] );
-      // Compare selected helicity and color
-      EXPECT_EQ( testDriver->getSelectedHelicity( ievt ),
-                 referenceData[iiter].SelHels[ievt] );
-      EXPECT_EQ( testDriver->getSelectedColor( ievt ),
-                 referenceData[iiter].SelCols[ievt] );
     }
   }
   if( dumpEvents )
