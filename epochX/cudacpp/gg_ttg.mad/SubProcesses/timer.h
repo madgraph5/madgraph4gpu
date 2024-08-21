@@ -141,9 +141,13 @@ namespace mgOnGpu
   RdtscTimer::rdtsc()
   {
 #if defined( __x86_64__ )
+#define MGONGPU_HASRDTSC 1
     return __builtin_ia32_rdtsc();
 #else
-#error "rdtsc is not defined for this platform yet"
+#undef MGONGPU_HASRDTSC
+    // RdtscTimer is only defined on Intel __x86_64__ for the moment (#977)
+    // On all other platforms, the class is defined but it is not meant to be used
+    throw std::runtime_error( "rdtsc is not defined for this platform yet" );
 #endif
   }
 
@@ -155,7 +159,9 @@ namespace mgOnGpu
     , m_ctorCount( 0 )
   {
     m_ctorTimer.start();
+#ifdef MGONGPU_HASRDTSC
     m_ctorCount = rdtsc();
+#endif
   }
 
   inline void

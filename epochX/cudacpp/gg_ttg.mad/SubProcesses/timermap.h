@@ -37,7 +37,11 @@ namespace mgOnGpu
       , m_useChronoTimers( false )
       , m_started( false )
     {
+#ifdef MGONGPU_HASRDTSC
       if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) m_useChronoTimers = true;
+#else
+      m_useChronoTimers = true;
+#endif
     }
 
     virtual ~TimerMap() {}
