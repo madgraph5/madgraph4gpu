@@ -146,7 +146,6 @@ C     ----------
 C     BEGIN CODE
 C     ----------
 
-      call counters_smatrix1_start()
       NTRY(IMIRROR)=NTRY(IMIRROR)+1
       THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
       DO I=1,NEXTERNAL
@@ -271,7 +270,6 @@ C       Include the Jacobian from helicity sampling
         IHEL = HEL_PICKED
       ELSE
         ANS = 1D0
-        call counters_smatrix1_stop()
         RETURN
       ENDIF
       IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
@@ -316,8 +314,9 @@ C           Set right sign for ANS, based on sign of chosen helicity
         ENDIF
       ENDIF
       ANS=ANS/DBLE(IDEN)
+
       CALL SELECT_COLOR(RCOL, JAMP2, ICONFIG,1,  ICOL)
-      call counters_smatrix1_stop()
+
       END
 
 
