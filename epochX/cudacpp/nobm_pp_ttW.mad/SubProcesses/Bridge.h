@@ -109,9 +109,9 @@ namespace mg5amcCpu
      * @param rndcol the pointer to the input random numbers for color selection
      * @param channelIds the Feynman diagram to enhance in multi-channel mode if 1 to n
      * @param mes the pointer to the output matrix elements
-     * @param goodHelOnly quit after computing good helicities?
      * @param selhel the pointer to the output selected helicities
      * @param selcol the pointer to the output selected colors
+     * @param goodHelOnly quit after computing good helicities?
      */
     void gpu_sequence( const FORTRANFPTYPE* momenta,
                        const FORTRANFPTYPE* gs,
@@ -246,9 +246,6 @@ namespace mg5amcCpu
     if( nparF != CPPProcess::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
     if( np4F != CPPProcess::np4 ) throw std::runtime_error( "Bridge constructor: np4 mismatch" );
 #ifdef MGONGPUCPP_GPUIMPL
-    // this memory is allocated with cuda/hipMallocHost. The documentation does not guarantuee
-    // that its properly default initialized but we rely on this later on in sigmaKin
-    std::fill_n( m_hstChannelIds.data(), m_nevt, 0 );
     if( ( m_nevt < s_gputhreadsmin ) || ( m_nevt % s_gputhreadsmin != 0 ) )
       throw std::runtime_error( "Bridge constructor: nevt should be a multiple of " + std::to_string( s_gputhreadsmin ) );
     while( m_nevt != m_gpublocks * m_gputhreads )
@@ -337,6 +334,7 @@ namespace mg5amcCpu
     }
     const bool useChannelIds = ( channelIds != nullptr ) && ( !goodHelOnly );
     if( useChannelIds ) memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
+    //else ... // no need to initialize m_hstChannel: it is allocated with gpuMallocHost and NOT initialized in PinnedHostBufferBase, but it is NOT used later on
     copyDeviceFromHost( m_devGs, m_hstGs );
     copyDeviceFromHost( m_devRndHel, m_hstRndHel );
     copyDeviceFromHost( m_devRndCol, m_hstRndCol );
@@ -394,6 +392,7 @@ namespace mg5amcCpu
     }
     const bool useChannelIds = ( channelIds != nullptr ) && ( !goodHelOnly );
     if( useChannelIds ) memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
+    //else ... // no need to initialize m_hstChannel: it is allocated and default initialized in HostBufferBase (and it is not used later on anyway)
     if( m_nGoodHel < 0 )
     {
       m_nGoodHel = m_pmek->computeGoodHelicities();
