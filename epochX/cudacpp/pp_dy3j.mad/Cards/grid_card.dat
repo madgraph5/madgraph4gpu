@@ -22,7 +22,7 @@
 #  cluster, automatically set to true after warm-up and the gridpack *
 #  is ready. The user should not change this.                        *
 #*********************************************************************
-  .false.  =  GridRun   !True = Runs in the grid mode
+  .false.   = GridRun   !True = Runs in the grid mode
 #*********************************************************************
 # Number of events and rnd seed                                      *
 #*********************************************************************

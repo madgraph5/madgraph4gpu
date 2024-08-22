@@ -1,6 +1,6 @@
-      GRIDPACK = .TRUE.
+      GRIDPACK = .FALSE.
 
-      NEVENTS = 100
+      NEVENTS = 10000
 
       ISEED = 0
 
