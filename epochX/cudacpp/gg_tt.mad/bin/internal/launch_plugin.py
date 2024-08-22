@@ -37,7 +37,7 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
             misc.sprint('FPTYPE checked')
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
-            if self.run_card['cudacpp_bldall'] == 'True': # pre-build all backends #945
+            if self.run_card['cudacpp_bldall'] == True: # pre-build all backends #945
                 logger.info("Pre-building madevent in madevent_interface.py with ALL matrix elements")
                 args[0][0] = 'bldall'
                 misc.compile(nb_core=self.options['nb_core'], *args, **opts)
@@ -104,11 +104,10 @@ class CPPRunCard(banner_mod.RunCardLO):
                        fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this forces a 'make cleanavx' if FPTYPE changes?
                        allowed=['m','d','f']
                        )
-        self.add_param('cudacpp_bldall', 'False',
+        self.add_param('cudacpp_bldall', False,
                        include=False, # AV: no need to add this parameter to run_card.inc
                        hidden=False, # AV: add cudacpp_bldall to runcard template and keep 'hidden='False'
                        fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this will raise an exception if cudacpp_bldall changes?
-                       allowed=['False','True']
                        )
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'
