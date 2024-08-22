@@ -1,102 +1,102 @@
 pp_dy3j.mad//fortran/output.txt
-[GridPackCmd.launch] GRIDPCK TOTAL                    430.7072
-[madevent COUNTERS]  PROGRAM TOTAL                    426.4763s
-[madevent COUNTERS]  Fortran Other                      5.3367s
-[madevent COUNTERS]  Fortran Initialise(I/O)            4.4869s
-[madevent COUNTERS]  Fortran PhaseSpaceSampling        77.8146s for   44652395 events
-[madevent COUNTERS]  Fortran PDFs                       8.2083s for    7241728 events
-[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3071s for    1769472 events
-[madevent COUNTERS]  Fortran Reweight                   3.6858s for    1769472 events
-[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8467s for    1769472 events
-[madevent COUNTERS]  Fortran SamplePutPoint             7.9206s for   44652395 events
-[madevent COUNTERS]  Fortran MEs                      306.8689s for    1769472 events
-[madevent COUNTERS]  OVERALL NON-MEs                  119.6066s
-[madevent COUNTERS]  OVERALL MEs                      306.8689s for    1769472 events
+[GridPackCmd.launch] GRIDPCK TOTAL                    405.9324
+[madevent COUNTERS]  PROGRAM TOTAL                    401.6825s
+[madevent COUNTERS]  Fortran Other                      5.3029s
+[madevent COUNTERS]  Fortran Initialise(I/O)            4.4785s
+[madevent COUNTERS]  Fortran PhaseSpaceSampling        53.0983s for   44652395 events
+[madevent COUNTERS]  Fortran PDFs                       8.1987s for    7241728 events
+[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3067s for    1769472 events
+[madevent COUNTERS]  Fortran Reweight                   3.6890s for    1769472 events
+[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8446s for    1769472 events
+[madevent COUNTERS]  Fortran SamplePutPoint             7.9073s for   44652395 events
+[madevent COUNTERS]  Fortran MEs                      306.8570s for    1769472 events
+[madevent COUNTERS]  OVERALL NON-MEs                   94.8264s
+[madevent COUNTERS]  OVERALL MEs                      306.8570s for    1769472 events
 ------------------------------------------------------------------------------------------
 pp_dy3j.mad//cppnone/output.txt
-[GridPackCmd.launch] GRIDPCK TOTAL                    431.5723
-[madevent COUNTERS]  PROGRAM TOTAL                    427.3050s
-[madevent COUNTERS]  Fortran Other                      5.4021s
-[madevent COUNTERS]  Fortran Initialise(I/O)            4.4886s
-[madevent COUNTERS]  Fortran PhaseSpaceSampling        78.2054s for   44652395 events
-[madevent COUNTERS]  Fortran PDFs                       8.2213s for    7241728 events
-[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3397s for    1769472 events
-[madevent COUNTERS]  Fortran Reweight                   3.6706s for    1769472 events
-[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8481s for    1769472 events
-[madevent COUNTERS]  Fortran SamplePutPoint             7.8786s for   44652395 events
-[madevent COUNTERS]  CudaCpp Initialise                 1.1904s
-[madevent COUNTERS]  CudaCpp Finalise                   0.0206s
-[madevent COUNTERS]  CudaCpp MEs                      306.0429s for    1769472 events
-[madevent COUNTERS]  OVERALL NON-MEs                  121.2620s
-[madevent COUNTERS]  OVERALL MEs                      306.0429s for    1769472 events
+[GridPackCmd.launch] GRIDPCK TOTAL                    406.4365
+[madevent COUNTERS]  PROGRAM TOTAL                    402.1640s
+[madevent COUNTERS]  Fortran Other                      5.3697s
+[madevent COUNTERS]  Fortran Initialise(I/O)            4.4994s
+[madevent COUNTERS]  Fortran PhaseSpaceSampling        53.1447s for   44652395 events
+[madevent COUNTERS]  Fortran PDFs                       8.2219s for    7241728 events
+[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3401s for    1769472 events
+[madevent COUNTERS]  Fortran Reweight                   3.6715s for    1769472 events
+[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8482s for    1769472 events
+[madevent COUNTERS]  Fortran SamplePutPoint             7.8688s for   44652395 events
+[madevent COUNTERS]  CudaCpp Initialise                 1.1898s
+[madevent COUNTERS]  CudaCpp Finalise                   0.0213s
+[madevent COUNTERS]  CudaCpp MEs                      305.9916s for    1769472 events
+[madevent COUNTERS]  OVERALL NON-MEs                   96.1716s
+[madevent COUNTERS]  OVERALL MEs                      305.9916s for    1769472 events
 ------------------------------------------------------------------------------------------
 pp_dy3j.mad//cppsse4/output.txt
-[GridPackCmd.launch] GRIDPCK TOTAL                    278.6871
-[madevent COUNTERS]  PROGRAM TOTAL                    274.4148s
-[madevent COUNTERS]  Fortran Other                      5.4255s
-[madevent COUNTERS]  Fortran Initialise(I/O)            4.4990s
-[madevent COUNTERS]  Fortran PhaseSpaceSampling        78.0278s for   44652395 events
-[madevent COUNTERS]  Fortran PDFs                       8.2250s for    7241728 events
-[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3433s for    1769472 events
-[madevent COUNTERS]  Fortran Reweight                   3.6720s for    1769472 events
-[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8453s for    1769472 events
-[madevent COUNTERS]  Fortran SamplePutPoint             7.8728s for   44652395 events
-[madevent COUNTERS]  CudaCpp Initialise                 0.7256s
-[madevent COUNTERS]  CudaCpp Finalise                   0.0212s
-[madevent COUNTERS]  CudaCpp MEs                      153.7595s for    1769472 events
-[madevent COUNTERS]  OVERALL NON-MEs                  120.6537s
-[madevent COUNTERS]  OVERALL MEs                      153.7595s for    1769472 events
+[GridPackCmd.launch] GRIDPCK TOTAL                    253.6539
+[madevent COUNTERS]  PROGRAM TOTAL                    249.3792s
+[madevent COUNTERS]  Fortran Other                      5.3936s
+[madevent COUNTERS]  Fortran Initialise(I/O)            4.4964s
+[madevent COUNTERS]  Fortran PhaseSpaceSampling        52.9926s for   44652395 events
+[madevent COUNTERS]  Fortran PDFs                       8.2183s for    7241728 events
+[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3436s for    1769472 events
+[madevent COUNTERS]  Fortran Reweight                   3.6698s for    1769472 events
+[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8456s for    1769472 events
+[madevent COUNTERS]  Fortran SamplePutPoint             7.8548s for   44652395 events
+[madevent COUNTERS]  CudaCpp Initialise                 0.7218s
+[madevent COUNTERS]  CudaCpp Finalise                   0.0218s
+[madevent COUNTERS]  CudaCpp MEs                      153.8237s for    1769472 events
+[madevent COUNTERS]  OVERALL NON-MEs                   95.5549s
+[madevent COUNTERS]  OVERALL MEs                      153.8237s for    1769472 events
 ------------------------------------------------------------------------------------------
 pp_dy3j.mad//cppavx2/output.txt
-[GridPackCmd.launch] GRIDPCK TOTAL                    187.9709
-[madevent COUNTERS]  PROGRAM TOTAL                    183.7214s
-[madevent COUNTERS]  Fortran Other                      5.4283s
-[madevent COUNTERS]  Fortran Initialise(I/O)            4.4889s
-[madevent COUNTERS]  Fortran PhaseSpaceSampling        78.0721s for   44652395 events
-[madevent COUNTERS]  Fortran PDFs                       8.2183s for    7241728 events
-[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3581s for    1769472 events
-[madevent COUNTERS]  Fortran Reweight                   3.6678s for    1769472 events
-[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8513s for    1769472 events
-[madevent COUNTERS]  Fortran SamplePutPoint             7.8709s for   44652395 events
-[madevent COUNTERS]  CudaCpp Initialise                 0.4463s
-[madevent COUNTERS]  CudaCpp Finalise                   0.0227s
-[madevent COUNTERS]  CudaCpp MEs                       63.2979s for    1769472 events
-[madevent COUNTERS]  OVERALL NON-MEs                  120.4227s
-[madevent COUNTERS]  OVERALL MEs                       63.2979s for    1769472 events
+[GridPackCmd.launch] GRIDPCK TOTAL                    163.0136
+[madevent COUNTERS]  PROGRAM TOTAL                    158.7421s
+[madevent COUNTERS]  Fortran Other                      5.5944s
+[madevent COUNTERS]  Fortran Initialise(I/O)            4.4916s
+[madevent COUNTERS]  Fortran PhaseSpaceSampling        53.0371s for   44652395 events
+[madevent COUNTERS]  Fortran PDFs                       8.2175s for    7241728 events
+[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3302s for    1769472 events
+[madevent COUNTERS]  Fortran Reweight                   3.6698s for    1769472 events
+[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8511s for    1769472 events
+[madevent COUNTERS]  Fortran SamplePutPoint             7.8613s for   44652395 events
+[madevent COUNTERS]  CudaCpp Initialise                 0.4462s
+[madevent COUNTERS]  CudaCpp Finalise                   0.0212s
+[madevent COUNTERS]  CudaCpp MEs                       63.2247s for    1769472 events
+[madevent COUNTERS]  OVERALL NON-MEs                   95.5172s
+[madevent COUNTERS]  OVERALL MEs                       63.2247s for    1769472 events
 ------------------------------------------------------------------------------------------
 pp_dy3j.mad//cpp512y/output.txt
-[GridPackCmd.launch] GRIDPCK TOTAL                    184.0201
-[madevent COUNTERS]  PROGRAM TOTAL                    179.7283s
-[madevent COUNTERS]  Fortran Other                      5.4548s
-[madevent COUNTERS]  Fortran Initialise(I/O)            4.4511s
-[madevent COUNTERS]  Fortran PhaseSpaceSampling        78.0105s for   44652395 events
-[madevent COUNTERS]  Fortran PDFs                       8.2245s for    7241728 events
-[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3409s for    1769472 events
-[madevent COUNTERS]  Fortran Reweight                   3.6716s for    1769472 events
-[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8545s for    1769472 events
-[madevent COUNTERS]  Fortran SamplePutPoint             7.8659s for   44652395 events
-[madevent COUNTERS]  CudaCpp Initialise                 0.4288s
-[madevent COUNTERS]  CudaCpp Finalise                   0.0210s
-[madevent COUNTERS]  CudaCpp MEs                       59.4076s for    1769472 events
-[madevent COUNTERS]  OVERALL NON-MEs                  120.3209s
-[madevent COUNTERS]  OVERALL MEs                       59.4076s for    1769472 events
+[GridPackCmd.launch] GRIDPCK TOTAL                    159.0310
+[madevent COUNTERS]  PROGRAM TOTAL                    154.7871s
+[madevent COUNTERS]  Fortran Other                      5.3651s
+[madevent COUNTERS]  Fortran Initialise(I/O)            4.4788s
+[madevent COUNTERS]  Fortran PhaseSpaceSampling        53.1046s for   44652395 events
+[madevent COUNTERS]  Fortran PDFs                       8.2185s for    7241728 events
+[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3509s for    1769472 events
+[madevent COUNTERS]  Fortran Reweight                   3.6710s for    1769472 events
+[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8458s for    1769472 events
+[madevent COUNTERS]  Fortran SamplePutPoint             7.8502s for   44652395 events
+[madevent COUNTERS]  CudaCpp Initialise                 0.4299s
+[madevent COUNTERS]  CudaCpp Finalise                   0.0196s
+[madevent COUNTERS]  CudaCpp MEs                       59.4565s for    1769472 events
+[madevent COUNTERS]  OVERALL NON-MEs                   95.3308s
+[madevent COUNTERS]  OVERALL MEs                       59.4565s for    1769472 events
 ------------------------------------------------------------------------------------------
 pp_dy3j.mad//cpp512z/output.txt
-[GridPackCmd.launch] GRIDPCK TOTAL                    160.1718
-[madevent COUNTERS]  PROGRAM TOTAL                    155.8605s
-[madevent COUNTERS]  Fortran Other                      5.4610s
-[madevent COUNTERS]  Fortran Initialise(I/O)            4.5093s
-[madevent COUNTERS]  Fortran PhaseSpaceSampling        78.1023s for   44652395 events
-[madevent COUNTERS]  Fortran PDFs                       8.2194s for    7241728 events
-[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3413s for    1769472 events
-[madevent COUNTERS]  Fortran Reweight                   3.6712s for    1769472 events
-[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8617s for    1769472 events
-[madevent COUNTERS]  Fortran SamplePutPoint             7.8785s for   44652395 events
-[madevent COUNTERS]  CudaCpp Initialise                 0.3638s
+[GridPackCmd.launch] GRIDPCK TOTAL                    135.1144
+[madevent COUNTERS]  PROGRAM TOTAL                    130.8140s
+[madevent COUNTERS]  Fortran Other                      5.4771s
+[madevent COUNTERS]  Fortran Initialise(I/O)            4.4894s
+[madevent COUNTERS]  Fortran PhaseSpaceSampling        53.0338s for   44652395 events
+[madevent COUNTERS]  Fortran PDFs                       8.2244s for    7241728 events
+[madevent COUNTERS]  Fortran UpdateScaleCouplings       7.3305s for    1769472 events
+[madevent COUNTERS]  Fortran Reweight                   3.6662s for    1769472 events
+[madevent COUNTERS]  Fortran Unweight(LHE-I/O)          4.8570s for    1769472 events
+[madevent COUNTERS]  Fortran SamplePutPoint             7.8620s for   44652395 events
+[madevent COUNTERS]  CudaCpp Initialise                 0.3631s
 [madevent COUNTERS]  CudaCpp Finalise                   0.0224s
-[madevent COUNTERS]  CudaCpp MEs                       35.4320s for    1769472 events
-[madevent COUNTERS]  OVERALL NON-MEs                  120.4290s
-[madevent COUNTERS]  OVERALL MEs                       35.4320s for    1769472 events
+[madevent COUNTERS]  CudaCpp MEs                       35.4908s for    1769472 events
+[madevent COUNTERS]  OVERALL NON-MEs                   95.3232s
+[madevent COUNTERS]  OVERALL MEs                       35.4908s for    1769472 events
 ------------------------------------------------------------------------------------------
 pp_dy3j.mad//cuda/output.txt
 File not found: SKIP backend cuda
