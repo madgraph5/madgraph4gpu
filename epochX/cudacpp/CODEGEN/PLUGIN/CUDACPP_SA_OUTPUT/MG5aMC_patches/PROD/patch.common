@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/dsample.f a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-index e18ba7c03..35e52cf44 100644
+index e18ba7c03d..899021c378 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 +++ a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 @@ -169,7 +169,9 @@ c
@@ -67,7 +67,7 @@ index e18ba7c03..35e52cf44 100644
        data Minvar(1,1)/-1/       !No special variable mapping
  
  c-----
-@@ -1240,7 +1250,20 @@ c
+@@ -1240,7 +1250,26 @@ c
  c     Local
  c
        integer  im, ip,ij,icount,it_warned
@@ -86,10 +86,16 @@ index e18ba7c03..35e52cf44 100644
 +      save xbin_min0_saved, xbin_max1_saved
 +      data xbin_min0_saved/xbinarraydim*.false./
 +      data xbin_max1_saved/xbinarraydim*.false./
++
++      character*255 env_name, env_value
++      integer env_length, env_status
++      logical first, skipxbinchecks
++      data first, skipxbinchecks/.true., .false./
++      save first, skipxbinchecks
  c
  c     External
  c
-@@ -1291,15 +1314,29 @@ c         write(*,'(7f11.5)')(ddum(j)*real(ng),j=1,dim)
+@@ -1291,15 +1320,29 @@ c         write(*,'(7f11.5)')(ddum(j)*real(ng),j=1,dim)
        endif
        if (ituple .eq. 1) then
  c         write(*,*) 'Getting variable',ipole,j,minvar(j,ipole)
@@ -128,7 +134,7 @@ index e18ba7c03..35e52cf44 100644
  c
  c     Line which allows us to keep choosing same x
  c
-@@ -1312,10 +1349,10 @@ c            write(*,*) 'Reusing num',j,nzoom,tx(2,j)
+@@ -1312,10 +1355,10 @@ c            write(*,*) 'Reusing num',j,nzoom,tx(2,j)
              call ntuple(ddum(j),max(xbin_min,dble(int(tx(2,j)))),
       $           min(xbin_max,dble(int(tx(2,j))+1)),j,ipole)
  
@@ -142,11 +148,33 @@ index e18ba7c03..35e52cf44 100644
  
  c            write(*,'(2i6,4e15.5)') nzoom,j,ddum(j),tx(2,j),
  c     $           max(xbin_min,dble(int(tx(2,j)))),
-@@ -1389,10 +1426,10 @@ c
+@@ -1378,7 +1421,19 @@ c     to the fact that the grids are required to be separated by 1e-14. Since
+ c     double precision is about 18 digits, we expect things to agree to
+ c     3 digit accuracy.
+ c
+-      if (abs(ddum(j)-xbin(x,ij))/(ddum(j)+1d-22) .gt. 1e-3) then
++      if (first) then
++        env_name = 'CUDACPP_RUNTIME_SKIPXBINCHECKS'
++        call get_environment_variable(env_name, env_value, env_length, env_status)
++        if( env_status.eq.0 ) then
++          skipxbinchecks = .true.
++        endif
++      endif
++
++      if (skipxbinchecks) then
++        if (first) then
++          write(6,*) 'WARNING: skipping xbin checks (CUDACPP_RUNTIME_SKIPXBINCHECKS is set)'
++        endif
++      else if (abs(ddum(j)-xbin(x,ij))/(ddum(j)+1d-22) .gt. 1e-3) then
+          if (icount .lt. 5) then
+             write(*,'(a,i4,2e14.6,1e12.4)')
+      &           'Warning xbin not returning correct x', ij,
+@@ -1389,10 +1444,11 @@ c
           endif
           icount=icount+1
        endif
 -      if (x .lt. xmin .or. x .gt. xmax) then
++      first = .false.
 +c     if (x .lt. xmin .or. x .gt. xmax) then
  c         write(*,'(a,4i4,2f24.16,1e10.2)') 'Bad x',ij,int(xbin_min),ip,
  c     &        int(xbin_max),xmin,x,xmax-xmin
@@ -156,7 +184,7 @@ index e18ba7c03..35e52cf44 100644
        wgt = wgt * xo * dble(xbin_max-xbin_min)
  c      print*,'Returning x',ij,ipole,j,x
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/genps.inc a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
-index a59181c70..af7e0efbc 100644
+index a59181c708..af7e0efbce 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/genps.inc
 +++ a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
 @@ -30,7 +30,8 @@ c*************************************************************************
@@ -170,7 +198,7 @@ index a59181c70..af7e0efbc 100644
        PARAMETER(MAXTRIES=25)
  C     To pass the helicity configuration chosen by the DiscreteSampler to 
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/makefile a/epochX/cudacpp/gg_tt.mad/Source/makefile
-index 617f10b93..00c73099a 100644
+index 617f10b93e..00c73099a0 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/Source/makefile
 @@ -120,7 +120,7 @@ $(LIBDIR)libiregi.a: $(IREGIDIR)
@@ -195,7 +223,7 @@ index 617f10b93..00c73099a 100644
 +cleanall: cleanSource # THIS IS THE ONE
 +	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..504e41ea5 100644
+index 348c283be7..504e41ea52 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,40 @@
