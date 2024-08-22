@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/dsample.f a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-index e18ba7c03..7f37cd083 100644
+index e18ba7c03..d038f9159 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 +++ a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 @@ -169,7 +169,9 @@ c
@@ -67,6 +67,15 @@ index e18ba7c03..7f37cd083 100644
        data Minvar(1,1)/-1/       !No special variable mapping
  
  c-----
+@@ -1218,7 +1228,7 @@ c     taken care of at the level of matrix<i> already.
+       
+       end subroutine sample_get_discrete_x
+ 
+-      subroutine sample_get_x(wgt, x, j, ipole, xmin, xmax)
++      subroutine sample_get_x_old(wgt, x, j, ipole, xmin, xmax)
+ c************************************************************************
+ c     Returns maxdim random numbers between 0 and 1, and the wgt
+ c     associated with this set of points, and the iteration number
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/genps.inc a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
 index a59181c70..af7e0efbc 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/genps.inc
@@ -82,9 +91,18 @@ index a59181c70..af7e0efbc 100644
        PARAMETER(MAXTRIES=25)
  C     To pass the helicity configuration chosen by the DiscreteSampler to 
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/makefile a/epochX/cudacpp/gg_tt.mad/Source/makefile
-index 617f10b93..00c73099a 100644
+index 617f10b93..4bb7b6961 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/Source/makefile
+@@ -11,7 +11,7 @@ include make_opts
+ # Source files
+ 
+ PROCESS= hfill.o matrix.o myamp.o 
+-DSAMPLE = dsample.o ranmar.o DiscreteSampler.o StringCast.o 
++DSAMPLE = dsample.o ranmar.o newranmar.o DiscreteSampler.o StringCast.o 
+ HBOOK = hfill.o hcurve.o hbook1.o hbook2.o
+ GENERIC = $(alfas_functions).o transpole.o invarients.o hfill.o pawgraphs.o ran1.o \
+           rw_events.o rw_routines.o kin_functions.o open_file.o basecode.o setrun.o \
 @@ -120,7 +120,7 @@ $(LIBDIR)libiregi.a: $(IREGIDIR)
  	cd $(IREGIDIR); make
  	ln -sf ../Source/$(IREGIDIR)libiregi.a $(LIBDIR)libiregi.a
@@ -107,7 +125,7 @@ index 617f10b93..00c73099a 100644
 +cleanall: cleanSource # THIS IS THE ONE
 +	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..504e41ea5 100644
+index 348c283be..f6ed99bae 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,40 @@
@@ -178,7 +196,7 @@ index 348c283be..504e41ea5 100644
  
  
 -PROCESS= driver.o myamp.o genps.o unwgt.o setcuts.o get_color.o \
-+PROCESS= myamp.o genps.o unwgt.o setcuts.o get_color.o \
++PROCESS= myamp.o genps.o newgenps.o unwgt.o setcuts.o get_color.o \
           cuts.o cluster.o reweight.o initcluster.o addmothers.o setscales.o \
 -	 idenparts.o dummy_fct.o \
 -         $(patsubst %.f,%.o,$(wildcard auto_dsig*.f)) \
