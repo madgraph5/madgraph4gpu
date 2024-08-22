@@ -1,5 +1,5 @@
-START: Wed Aug  7 04:43:14 PM CEST 2024
-On itgold91.cern.ch [CPU: Intel(R) Xeon(R) Gold 6326 CPU (nproc=32)] [GPU: none]:
+START: Thu Aug 22 11:14:59 AM CEST 2024
+On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU (nproc=4)] [GPU: 1x Tesla V100S-PCIE-32GB]:
 CUDACPP_RUNTIME_DISABLEFPE is not set
 ************************************************************
 *                                                          *
@@ -21,10 +21,10 @@ CUDACPP_RUNTIME_DISABLEFPE is not set
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/Cards/me5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/Cards/me5_configuration.txt  
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
-No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 generate_events -f
 Generating gridpack with run name run_01
@@ -41,10 +41,10 @@ Building madevent in madevent_interface.py with 'fortran' matrix elements
 INFO:     P1_gux_ttxux  
 Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'fortran' matrix elements
-INFO:  Idle: 1,  Running: 1,  Completed: 2 [ current time: 16h43 ] 
-INFO:  Idle: 0,  Running: 2,  Completed: 2 [ current time: 16h43 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 4 [  1.6s  ] 
-sum of cpu time of last step: 7 seconds
+INFO:  Idle: 1,  Running: 1,  Completed: 2 [ current time: 11h15 ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 2 [ current time: 11h15 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 4 [  2.4s  ] 
+sum of cpu time of last step: 10 seconds
   === Results Summary for run: run_01 tag: tag_1 ===
 
      Cross-section :   134.6 +- 1.83 pb
@@ -53,7 +53,7 @@ sum of cpu time of last step: 7 seconds
 INFO: End survey 
 combine_events
 INFO: Combining Events 
-combination of events done in 0.0036368370056152344 s 
+combination of events done in 0.006200313568115234 s 
 store_events
 INFO: Storing parton level results 
 INFO: End Parton 
@@ -68,7 +68,7 @@ quit
 INFO: storing files of previous run 
 INFO: Done 
 INFO:  
-159.69user 14.32system 0:17.58elapsed 989%CPU (0avgtext+0avgdata 268488maxresident)k
-680inputs+578192outputs (482major+6011875minor)pagefaults 0swaps
-END: Wed Aug  7 04:43:32 PM CEST 2024
-ELAPSED: 18 seconds
+48.54user 11.18system 0:26.19elapsed 227%CPU (0avgtext+0avgdata 95792maxresident)k
+0inputs+733968outputs (48major+2190245minor)pagefaults 0swaps
+END: Thu Aug 22 11:15:27 AM CEST 2024
+ELAPSED: 28 seconds
