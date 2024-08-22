@@ -296,6 +296,7 @@ START=$(date +%s)
 echo "START: $(date)" |& tee ${resultsdir}/${outfile}
 showcpugpu |& tee -a ${resultsdir}/${outfile}
 if [ -v CUDACPP_RUNTIME_DISABLEFPE ]; then echo CUDACPP_RUNTIME_DISABLEFPE is set |& tee -a ${resultsdir}/${outfile}; else echo CUDACPP_RUNTIME_DISABLEFPE is not set |& tee -a ${resultsdir}/${outfile}; fi # temporary? (debug FPEs in CMS DY #942)
+if [ -v CUDACPP_RUNTIME_SKIPXBINCHECKS ]; then echo CUDACPP_RUNTIME_SKIPXBINCHECKS is set |& tee -a ${resultsdir}/${outfile}; else echo CUDACPP_RUNTIME_SKIPXBINCHECKS is not set |& tee -a ${resultsdir}/${outfile}; fi
 MG5AMC_CARD_PATH=$(pwd)/Cards time ./bin/generate_events -f |& tee -a ${resultsdir}/${outfile}
 echo "END: $(date)" |& tee -a ${resultsdir}/${outfile}
 END=$(date +%s)
