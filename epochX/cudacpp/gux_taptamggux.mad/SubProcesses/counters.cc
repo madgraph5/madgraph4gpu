@@ -173,8 +173,7 @@ extern "C"
         if( removetimeroverhead ) remove = array_rdtsctimers[icounter].getTotalOverheadSeconds();
       }
       array_totaltimes[icounter] -= remove;
-      if( !starts_with( array_tags[icounter], "PROGRAM" ) &&
-          !starts_with( array_tags[icounter], "TEST" ) ) // skip counters whose tags start with "PROGRAM" or "TEST"
+      if( !array_istesttimer[icounter] ) // skip TEST counters
         program_totaltime -= remove;
     }
     // Dump program counters (after removing overhead if required)
@@ -189,8 +188,7 @@ extern "C"
     array_totaltimes[0] = program_totaltime;
     for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
     {
-      if( !starts_with( array_tags[icounter], "PROGRAM" ) &&
-          !starts_with( array_tags[icounter], "TEST" ) ) // skip counters whose tags start with "PROGRAM" or "TEST"
+      if( !array_istesttimer[icounter] ) // skip TEST counters
         array_totaltimes[0] -= array_totaltimes[icounter];
     }
     // Create counters[NCOUNTERSMAX+2] "OVERALL MEs" and counters[NCOUNTERSMAX+1] "OVERALL NON-MEs"
