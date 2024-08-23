@@ -171,13 +171,11 @@ extern "C"
   void counters_initialise_()
   {
     using namespace counters;
-    if( getenv( "CUDACPP_RUNTIME_DISABLECALLTIMERS" ) ) disablecalltimers = true;
-    if( getenv( "CUDACPP_RUNTIME_DISABLETESTTIMERS" ) ) disabletesttimers = true;
 #ifdef MGONGPU_HASRDTSC
     if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) usechronotimers = true;
 #endif
     if( getenv( "CUDACPP_RUNTIME_REMOVECOUNTEROVERHEAD" ) ) removetimeroverhead = true;
-    for( int icounter = 0; icounter < NCOUNTERSMAX + 3; icounter++ )
+    for( int icounter = 0; icounter < NCOUNTERSMAX + 4; icounter++ ) // include icalibcounter = NCOUNTERSMAX+3
     {
       array_tags[icounter] = "";           // ensure that this is initialized to ""
       array_istesttimer[icounter] = false; // ensure that this is initialized to false
@@ -193,7 +191,7 @@ extern "C"
       counters_register_counter_( &icalibcounter, "OVERHEAD CALIBRATION" );
       mgOnGpu::ChronoTimer<std::chrono::high_resolution_clock> calibtimer;
       calibtimer.start();
-      constexpr size_t ncall = 1000000;
+      constexpr size_t ncall = 10000000; // 10M calls are expected to take slightly less than ~1s (this will be in counter overhead)
       for( size_t icall = 0; icall < ncall; icall++ )
       {
         counters_start_counter_( &icalibcounter, &nevtdummy );
@@ -202,6 +200,8 @@ extern "C"
       calibtimer.stop();
       overheadpercallseconds = calibtimer.getTotalDurationSeconds() / ncall;
     }
+    if( getenv( "CUDACPP_RUNTIME_DISABLECALLTIMERS" ) ) disablecalltimers = true;
+    if( getenv( "CUDACPP_RUNTIME_DISABLETESTTIMERS" ) ) disabletesttimers = true;
     return;
   }
 
@@ -216,10 +216,12 @@ extern "C"
     float program_totaltime = ( usechronotimers ? program_chronotimer.getTotalDurationSeconds() : program_rdtsctimer.getTotalDurationSeconds() );
     float program_overhead = 0;
     // Extract time duration from all timers
-    float array_totaltimes[NCOUNTERSMAX + 3] = { 0 };
-    float array_overheads[NCOUNTERSMAX + 3] = { 0 };
-    for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
+    float array_totaltimes[NCOUNTERSMAX + 4] = { 0 };
+    float array_overheads[NCOUNTERSMAX + 4] = { 0 };
+    for( int icounter = 1; icounter < NCOUNTERSMAX + 4; icounter++ ) // include icalibcounter = NCOUNTERSMAX+3
     {
+      if( icounter == NCOUNTERSMAX + 1 ) continue;
+      if( icounter == NCOUNTERSMAX + 2 ) continue;
       if( usechronotimers )
         array_totaltimes[icounter] = array_chronotimers[icounter].getTotalDurationSeconds();
       else
@@ -235,7 +237,7 @@ extern "C"
     // Remove overheads of included timers if any
     if( removetimeroverhead )
     {
-      for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
+      for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ ) // no need to include icalibcounter = NCOUNTERSMAX+3
       {
         for( int icounterIn : array_included[icounter] )
           array_totaltimes[icounter] -= array_overheads[icounterIn];
@@ -259,7 +261,7 @@ extern "C"
     array_tags[0] = "Fortran Other";
     array_counters[0] = 1;
     array_totaltimes[0] = program_totaltime;
-    for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
+    for( int icounter = 1; icounter < NCOUNTERSMAX + 4; icounter++ ) // include icalibcounter = NCOUNTERSMAX+3
     {
       if( !array_istesttimer[icounter] ) // skip TEST counters
         array_totaltimes[0] -= array_totaltimes[icounter];
@@ -280,7 +282,7 @@ extern "C"
     array_counters[NCOUNTERSMAX + 1] = 1;
     array_totaltimes[NCOUNTERSMAX + 1] = program_totaltime - array_totaltimes[NCOUNTERSMAX + 2];
     // Dump individual counters
-    for( int icounter = 0; icounter < NCOUNTERSMAX + 3; icounter++ )
+    for( int icounter = 0; icounter < NCOUNTERSMAX + 3; icounter++ ) // exclude icalibcounter = NCOUNTERSMAX+3 (would print a negative value here!)
     {
       if( array_tags[icounter] != "" )
       {
