@@ -39,15 +39,12 @@ namespace mgOnGpu
     uint64_t getCountsSinceStart() const;
     float secondsPerCount() const; // constant throughout time
     float getTotalDurationSeconds();
-    float getTotalOverheadSeconds();
-    static float overheadPerStopCallSeconds();
     typedef std::nano RATIO;
     typedef std::chrono::duration<uint64_t, RATIO> DURATION;
     typedef std::chrono::time_point<T, DURATION> TIMEPOINT;
   private:
     DURATION getDurationSinceStart() const;
     DURATION m_totalDuration;
-    uint64_t m_totalStopCalls;
     bool m_started;
     TIMEPOINT m_startTime;
   };
@@ -55,7 +52,6 @@ namespace mgOnGpu
   template<typename T>
   inline ChronoTimer<T>::ChronoTimer()
     : m_totalDuration()
-    , m_totalStopCalls( 0 )
     , m_started( false )
     , m_startTime()
   {
@@ -78,7 +74,6 @@ namespace mgOnGpu
   ChronoTimer<T>::stop()
   {
     assert( m_started );
-    m_totalStopCalls++;
     m_started = false;
     m_totalDuration += getDurationSinceStart();
   }
@@ -114,36 +109,6 @@ namespace mgOnGpu
     return count * secondsPerCount();
   }
 
-  template<typename T>
-  inline float
-  ChronoTimer<T>::getTotalOverheadSeconds()
-  {
-    return m_totalStopCalls * overheadPerStopCallSeconds();
-  }
-
-  template<typename T>
-  inline float
-  ChronoTimer<T>::overheadPerStopCallSeconds()
-  {
-    static float opcs = 0; // overhead per call (seconds)
-    if( opcs == 0 )
-    {
-      ChronoTimer<T> calibTimer;
-      calibTimer.start();
-      ChronoTimer<T> testTimer;
-      constexpr size_t ncall = 1000000;
-      for( size_t icall = 0; icall < ncall; icall++ )
-      {
-        testTimer.start();
-        testTimer.stop();
-      }
-      calibTimer.stop();
-      opcs = calibTimer.getTotalDurationSeconds() / ncall;
-      printf( "INFO: ChronoTimer overhead : %9.4fs for 1M start/stop cycles\n", opcs * 1E6 );
-    }
-    return opcs;
-  }
-
   // ---------------------------------------------------------------------------
 
   // RdtscTimer: faster ("new") *EXPERIMENTAL* timers based on rdtsc
@@ -163,12 +128,9 @@ namespace mgOnGpu
     uint64_t getCountsSinceStart() const;
     float secondsPerCount(); // calibrated at this point in time
     float getTotalDurationSeconds();
-    float getTotalOverheadSeconds();
-    static float overheadPerStopCallSeconds();
   private:
     static uint64_t rdtsc();
     uint64_t m_totalDuration;
-    uint64_t m_totalStopCalls;
     bool m_started;
     uint64_t m_startCount;
     ChronoTimer<std::chrono::high_resolution_clock> m_ctorTimer;
@@ -191,7 +153,6 @@ namespace mgOnGpu
 
   inline RdtscTimer::RdtscTimer()
     : m_totalDuration( 0 )
-    , m_totalStopCalls( 0 )
     , m_started( false )
     , m_startCount( 0 )
     , m_ctorTimer()
@@ -215,7 +176,6 @@ namespace mgOnGpu
   RdtscTimer::stop()
   {
     assert( m_started );
-    m_totalStopCalls++;
     m_started = false;
     m_totalDuration += getCountsSinceStart();
   }
@@ -241,34 +201,6 @@ namespace mgOnGpu
     assert( !m_started );
     auto count = m_totalDuration;
     return count * secondsPerCount();
-  }
-
-  inline float
-  RdtscTimer::getTotalOverheadSeconds()
-  {
-    return m_totalStopCalls * overheadPerStopCallSeconds();
-  }
-
-  inline float
-  RdtscTimer::overheadPerStopCallSeconds()
-  {
-    static float opcs = 0; // overhead per call (seconds)
-    if( opcs == 0 )
-    {
-      ChronoTimer<std::chrono::high_resolution_clock> calibTimer;
-      calibTimer.start();
-      RdtscTimer testTimer;
-      constexpr size_t ncall = 1000000;
-      for( size_t icall = 0; icall < ncall; icall++ )
-      {
-        testTimer.start();
-        testTimer.stop();
-      }
-      calibTimer.stop();
-      opcs = calibTimer.getTotalDurationSeconds() / ncall;
-      printf( "INFO: RdtscTimer overhead : %9.4fs for 1M start/stop cycles\n", opcs * 1E6 );
-    }
-    return opcs;
   }
 
   // ---------------------------------------------------------------------------
