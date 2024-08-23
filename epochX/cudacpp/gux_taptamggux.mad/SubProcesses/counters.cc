@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <cstring> // for strlen
 #include <iostream>
+#include <set>
 #include <sstream>
 #include <string_view>
 
@@ -44,6 +45,7 @@ extern "C"
     static mgOnGpu::ChronoTimer<TIMERTYPE> array_chronotimers[NCOUNTERSMAX + 3];
     static mgOnGpu::RdtscTimer array_rdtsctimers[NCOUNTERSMAX + 3];
     static int array_counters[NCOUNTERSMAX + 3] = { 0 };
+    static std::set<int> array_included[NCOUNTERSMAX + 3];
   }
 
   inline bool starts_with( std::string_view str, std::string_view prefix ) // https://stackoverflow.com/a/42844629
@@ -86,7 +88,7 @@ extern "C"
     if( icounter < 1 || icounter >= NCOUNTERSMAX + 1 )
     {
       std::ostringstream sstr;
-      sstr << "ERROR! Invalid counter# '" << icounter << "' (valid values are 1 to " << NCOUNTERSMAX << ")";
+      sstr << "ERROR! Invalid counter # '" << icounter << "' (valid values are 1 to " << NCOUNTERSMAX << ")";
       throw std::runtime_error( sstr.str() );
     }
     if( tag == "" )
@@ -106,6 +108,42 @@ extern "C"
       sstr << "ERROR! counter #" << icounter << " already exists with tag '" << array_tags[icounter] << "'";
       throw std::runtime_error( sstr.str() );
     }
+    return;
+  }
+
+  void counters_include_counter1_within_counter2_( const int* picounter1, const int* picounter2 )
+  {
+    using namespace counters;
+    int icounter1 = *picounter1;
+    int icounter2 = *picounter2;
+    std::cout << "INFO: declare that counter #" << icounter1 << " is included within counter #" << icounter2 << std::endl;
+    if( array_tags[icounter1] == "" )
+    {
+      std::ostringstream sstr;
+      sstr << "ERROR! Counter # '" << icounter1 << " does not exist";
+      throw std::runtime_error( sstr.str() );
+    }
+    if( array_tags[icounter2] == "" )
+    {
+      std::ostringstream sstr;
+      sstr << "ERROR! Counter # '" << icounter2 << " does not exist";
+      throw std::runtime_error( sstr.str() );
+    }
+    // For the moment only the inclusion of a TEST timer into a non-TEST timer is allowed
+    // (the only aim of this mechanism is the removal of overheads, which otherwise would be too complex)
+    if( !array_istesttimer[icounter1] )
+    {
+      std::ostringstream sstr;
+      sstr << "ERROR! Counter # '" << icounter1 << " is not a TEST timer";
+      throw std::runtime_error( sstr.str() );
+    }
+    if( array_istesttimer[icounter2] )
+    {
+      std::ostringstream sstr;
+      sstr << "ERROR! Counter # '" << icounter2 << " is a TEST timer";
+      throw std::runtime_error( sstr.str() );
+    }
+    array_included[icounter2].insert( icounter1 );
     return;
   }
 
@@ -159,22 +197,34 @@ extern "C"
     float program_totaltime = ( usechronotimers ? program_chronotimer.getTotalDurationSeconds() : program_rdtsctimer.getTotalDurationSeconds() );
     // Extract time duration from all timers
     float array_totaltimes[NCOUNTERSMAX + 3] = { 0 };
+    float array_overheads[NCOUNTERSMAX + 3] = { 0 };
     for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
     {
-      float remove = 0;
       if( usechronotimers )
       {
         array_totaltimes[icounter] = array_chronotimers[icounter].getTotalDurationSeconds();
-        if( removetimeroverhead ) remove = array_chronotimers[icounter].getTotalOverheadSeconds();
+        if( removetimeroverhead ) array_overheads[icounter] = array_chronotimers[icounter].getTotalOverheadSeconds();
       }
       else
       {
         array_totaltimes[icounter] = array_rdtsctimers[icounter].getTotalDurationSeconds();
-        if( removetimeroverhead ) remove = array_rdtsctimers[icounter].getTotalOverheadSeconds();
+        if( removetimeroverhead ) array_overheads[icounter] = array_rdtsctimers[icounter].getTotalOverheadSeconds();
       }
-      array_totaltimes[icounter] -= remove;
-      if( !array_istesttimer[icounter] ) // skip TEST counters
-        program_totaltime -= remove;
+      // Remove own overheads if required
+      if( removetimeroverhead )
+      {
+        array_totaltimes[icounter] -= array_overheads[icounter];
+        program_totaltime -= array_overheads[icounter]; // remove overheads of all timers including TEST timers
+      }
+    }
+    // Remove overheads of included timers if any
+    if( removetimeroverhead )
+    {
+      for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
+      {
+        for( int icounterIn : array_included[icounter] )
+          array_totaltimes[icounter] -= array_overheads[icounterIn];
+      }
     }
     // Dump program counters (after removing overhead if required)
     std::string timertypemsg = ( usechronotimers ? "STD::CHRONO" : "RDTSC-BASED" );
