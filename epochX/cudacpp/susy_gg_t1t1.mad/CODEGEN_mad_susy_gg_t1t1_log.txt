@@ -577,7 +577,7 @@ INFO: Generating Helas calls for process: g g > t1 t1~ WEIGHTED<=2 @1
 INFO: Processing color information for process: g g > t1 t1~ @1 
 INFO: Creating files in directory P1_gg_t1t1x 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1152][0m [0m
-[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f1d637412e0> [1;30m[export_v4.py at line 6261][0m [0m
+[1;32mDEBUG:  process_exporter_cpp = [0m <PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_OneProcessExporter object at 0x7f163f4531c0> [1;30m[export_v4.py at line 6261][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
@@ -602,12 +602,12 @@ ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 3 routines in  0.182 s
+ALOHA: aloha creates 3 routines in  0.181 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 6 routines in  0.183 s
+ALOHA: aloha creates 6 routines in  0.178 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
@@ -629,11 +629,15 @@ INFO: Use c++ compiler g++
 INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
+patching file Source/dsample.f
 patching file Source/genps.inc
 patching file Source/makefile
 patching file SubProcesses/makefile
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/SubProcesses/P1_gg_t1t1x; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
 patching file auto_dsig1.f
+Hunk #2 succeeded at 147 with fuzz 1.
+Hunk #5 succeeded at 360 with fuzz 1.
 patching file driver.f
 patching file matrix1.f
 Hunk #2 succeeded at 208 (offset -12 lines).
@@ -644,9 +648,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.983s
-user	0m2.670s
-sys	0m0.312s
+real	0m3.016s
+user	0m2.668s
+sys	0m0.313s
 Code generation completed in 3 seconds
 ************************************************************
 *                                                          *
