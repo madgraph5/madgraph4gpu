@@ -195,6 +195,7 @@ extern "C"
     else
       program_rdtsctimer.stop();
     float program_totaltime = ( usechronotimers ? program_chronotimer.getTotalDurationSeconds() : program_rdtsctimer.getTotalDurationSeconds() );
+    float program_overhead = 0;
     // Extract time duration from all timers
     float array_totaltimes[NCOUNTERSMAX + 3] = { 0 };
     float array_overheads[NCOUNTERSMAX + 3] = { 0 };
@@ -214,7 +215,7 @@ extern "C"
       if( removetimeroverhead )
       {
         array_totaltimes[icounter] -= array_overheads[icounter];
-        program_totaltime -= array_overheads[icounter]; // remove overheads of all timers including TEST timers
+        program_overhead += array_overheads[icounter]; // remove overheads of all timers including TEST timers
       }
     }
     // Remove overheads of included timers if any
@@ -227,8 +228,15 @@ extern "C"
       }
     }
     // Dump program counters (after removing overhead if required)
+    program_totaltime -= program_overhead;
     std::string timertypemsg = ( usechronotimers ? "STD::CHRONO" : "RDTSC-BASED" );
     std::string overheadmsg = ( removetimeroverhead ? "(remove timer overhead)" : "(do not remove timer overhead)" );
+    if( removetimeroverhead )
+    {
+      printf( " [COUNTERS] PROGRAM TOTAL+COUNTEROVERHEAD         : %9.4fs\n", program_totaltime + program_overhead );
+      printf( " [COUNTERS] PROGRAM COUNTEROVERHEAD               : %9.4fs\n", program_overhead );
+      printf( " -------------------------------------------------------------\n" );
+    }    
     printf( " [COUNTERS] *** USING %s TIMERS %s ***\n", timertypemsg.c_str(), overheadmsg.c_str() );
     printf( " [COUNTERS] PROGRAM TOTAL                         : %9.4fs\n", program_totaltime );
     if( disablecalltimers ) return;
