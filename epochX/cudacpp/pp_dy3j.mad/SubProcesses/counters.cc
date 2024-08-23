@@ -29,7 +29,11 @@ extern "C"
     constexpr int NCOUNTERSMAX = 30;
     static bool disablecalltimers = false;
     static bool disabletesttimers = false;
+#ifdef MGONGPU_HASRDTSC
     static bool usechronotimers = false;
+#else
+    constexpr bool usechronotimers = true;
+#endif
     // Overall program timer
     static mgOnGpu::ChronoTimer<TIMERTYPE> program_chronotimer;
     static mgOnGpu::RdtscTimer program_rdtsctimer;
@@ -56,7 +60,9 @@ extern "C"
     using namespace counters;
     if( getenv( "CUDACPP_RUNTIME_DISABLECALLTIMERS" ) ) disablecalltimers = true;
     if( getenv( "CUDACPP_RUNTIME_DISABLETESTTIMERS" ) ) disabletesttimers = true;
+#ifdef MGONGPU_HASRDTSC
     if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) usechronotimers = true;
+#endif
     for( int icounter = 0; icounter < NCOUNTERSMAX + 3; icounter++ )
     {
       array_tags[icounter] = "";           // ensure that this is initialized to ""
