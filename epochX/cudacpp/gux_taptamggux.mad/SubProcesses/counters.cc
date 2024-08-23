@@ -40,12 +40,14 @@ extern "C"
     static mgOnGpu::ChronoTimer<TIMERTYPE> program_chronotimer;
     static mgOnGpu::RdtscTimer program_rdtsctimer;
     // Individual timers
-    static std::string array_tags[NCOUNTERSMAX + 3];
-    static bool array_istesttimer[NCOUNTERSMAX + 3];
-    static mgOnGpu::ChronoTimer<TIMERTYPE> array_chronotimers[NCOUNTERSMAX + 3];
-    static mgOnGpu::RdtscTimer array_rdtsctimers[NCOUNTERSMAX + 3];
-    static int array_counters[NCOUNTERSMAX + 3] = { 0 };
-    static std::set<int> array_included[NCOUNTERSMAX + 3];
+    static std::string array_tags[NCOUNTERSMAX + 4];
+    static bool array_istesttimer[NCOUNTERSMAX + 4];
+    static mgOnGpu::ChronoTimer<TIMERTYPE> array_chronotimers[NCOUNTERSMAX + 4];
+    static mgOnGpu::RdtscTimer array_rdtsctimers[NCOUNTERSMAX + 4];
+    static int array_counters[NCOUNTERSMAX + 4] = { 0 };
+    static std::set<int> array_included[NCOUNTERSMAX + 4];
+    static int array_stopcalls[NCOUNTERSMAX + 4] = { 0 };
+    static float overheadpercallseconds = 0;
   }
 
   inline bool starts_with( std::string_view str, std::string_view prefix ) // https://stackoverflow.com/a/42844629
@@ -58,34 +60,13 @@ extern "C"
     return str.size() >= suffix.size() && str.compare( str.size() - suffix.size(), suffix.size(), suffix ) == 0;
   }
 
-  void counters_initialise_()
-  {
-    using namespace counters;
-    if( getenv( "CUDACPP_RUNTIME_DISABLECALLTIMERS" ) ) disablecalltimers = true;
-    if( getenv( "CUDACPP_RUNTIME_DISABLETESTTIMERS" ) ) disabletesttimers = true;
-#ifdef MGONGPU_HASRDTSC
-    if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) usechronotimers = true;
-#endif
-    if( getenv( "CUDACPP_RUNTIME_REMOVETIMEROVERHEAD" ) ) removetimeroverhead = true;
-    for( int icounter = 0; icounter < NCOUNTERSMAX + 3; icounter++ )
-    {
-      array_tags[icounter] = "";           // ensure that this is initialized to ""
-      array_istesttimer[icounter] = false; // ensure that this is initialized to false
-    }
-    if( usechronotimers )
-      program_chronotimer.start();
-    else
-      program_rdtsctimer.start();
-    return;
-  }
-
   void counters_register_counter_( const int* picounter, const char* ctag )
   {
     using namespace counters;
     int icounter = *picounter;
     std::cout << "INFO: register counter #" << icounter << " with tag '" << ctag << "' (tag strlen=" << strlen( ctag ) << ")" << std::endl;
     const std::string tag( ctag );
-    if( icounter < 1 || icounter >= NCOUNTERSMAX + 1 )
+    if ( icounter < 1 || icounter == NCOUNTERSMAX + 1 || icounter == NCOUNTERSMAX + 2 || icounter >= NCOUNTERSMAX + 4 ) // allow icalibcounter = NCOUNTERSMAX+3
     {
       std::ostringstream sstr;
       sstr << "ERROR! Invalid counter # '" << icounter << "' (valid values are 1 to " << NCOUNTERSMAX << ")";
@@ -183,6 +164,44 @@ extern "C"
       array_chronotimers[icounter].stop();
     else
       array_rdtsctimers[icounter].stop();
+    array_stopcalls[icounter]++;
+    return;
+  }
+
+  void counters_initialise_()
+  {
+    using namespace counters;
+    if( getenv( "CUDACPP_RUNTIME_DISABLECALLTIMERS" ) ) disablecalltimers = true;
+    if( getenv( "CUDACPP_RUNTIME_DISABLETESTTIMERS" ) ) disabletesttimers = true;
+#ifdef MGONGPU_HASRDTSC
+    if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) usechronotimers = true;
+#endif
+    if( getenv( "CUDACPP_RUNTIME_REMOVECOUNTEROVERHEAD" ) ) removetimeroverhead = true;
+    for( int icounter = 0; icounter < NCOUNTERSMAX + 3; icounter++ )
+    {
+      array_tags[icounter] = "";           // ensure that this is initialized to ""
+      array_istesttimer[icounter] = false; // ensure that this is initialized to false
+    }
+    if( usechronotimers )
+      program_chronotimer.start();
+    else
+      program_rdtsctimer.start();
+    if( removetimeroverhead )
+    {
+      const int icalibcounter = NCOUNTERSMAX + 3;
+      const int nevtdummy = 1;
+      counters_register_counter_( &icalibcounter, "OVERHEAD CALIBRATION" );
+      mgOnGpu::ChronoTimer<std::chrono::high_resolution_clock> calibtimer;
+      calibtimer.start();
+      constexpr size_t ncall = 1000000;
+      for( size_t icall = 0; icall < ncall; icall++ )
+      {
+        counters_start_counter_( &icalibcounter, &nevtdummy );
+        counters_stop_counter_( &icalibcounter );
+      }
+      calibtimer.stop();
+      overheadpercallseconds = calibtimer.getTotalDurationSeconds() / ncall;
+    }
     return;
   }
 
@@ -202,18 +221,13 @@ extern "C"
     for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
     {
       if( usechronotimers )
-      {
         array_totaltimes[icounter] = array_chronotimers[icounter].getTotalDurationSeconds();
-        if( removetimeroverhead ) array_overheads[icounter] = array_chronotimers[icounter].getTotalOverheadSeconds();
-      }
       else
-      {
         array_totaltimes[icounter] = array_rdtsctimers[icounter].getTotalDurationSeconds();
-        if( removetimeroverhead ) array_overheads[icounter] = array_rdtsctimers[icounter].getTotalOverheadSeconds();
-      }
       // Remove own overheads if required
       if( removetimeroverhead )
       {
+        array_overheads[icounter] = array_stopcalls[icounter] * overheadpercallseconds;
         array_totaltimes[icounter] -= array_overheads[icounter];
         program_overhead += array_overheads[icounter]; // remove overheads of all timers including TEST timers
       }
@@ -226,6 +240,7 @@ extern "C"
         for( int icounterIn : array_included[icounter] )
           array_totaltimes[icounter] -= array_overheads[icounterIn];
       }
+      printf( " INFO: COUNTERS overhead : %9.4fs for 1M start/stop cycles\n", overheadpercallseconds * 1E6 );
     }
     // Dump program counters (after removing overhead if required)
     program_totaltime -= program_overhead;
