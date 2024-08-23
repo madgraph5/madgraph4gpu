@@ -241,7 +241,7 @@ index 4fbb8e6ba7..77aff307b8 100644
        END
  
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 1124a9164a..f205ce6fd9 100644
+index 1124a9164..f205ce6fd 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 @@ -74,16 +74,95 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
