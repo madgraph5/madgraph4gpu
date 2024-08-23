@@ -420,10 +420,10 @@ main( int argc, char** argv )
   DeviceBufferSelectedColor devSelCol( nevt );
 #endif
 
-  std::unique_ptr<double[]> genrtimes( new double[niter] );
-  std::unique_ptr<double[]> rambtimes( new double[niter] );
-  std::unique_ptr<double[]> wavetimes( new double[niter] );
-  std::unique_ptr<double[]> wv3atimes( new double[niter] );
+  std::unique_ptr<uint64_t[]> genrcounts( new uint64_t[niter] );
+  std::unique_ptr<uint64_t[]> rambcounts( new uint64_t[niter] );
+  std::unique_ptr<uint64_t[]> wavecounts( new uint64_t[niter] );
+  std::unique_ptr<uint64_t[]> wv3acounts( new uint64_t[niter] );
 
   // --- 0c. Create curand, hiprand or common generator
   const std::string cgenKey = "0c GenCreat";
@@ -527,7 +527,7 @@ main( int argc, char** argv )
     // === STEP 1 OF 3
 
     // *** START THE OLD-STYLE TIMER FOR RANDOM GEN ***
-    double genrtime = 0;
+    uint64_t genrcount = 0;
 
     // --- 1a. Seed rnd generator (to get same results on host and device in curand/hiprand)
     // [NB This should not be necessary using the host API: "Generation functions
@@ -538,7 +538,7 @@ main( int argc, char** argv )
     const std::string sgenKey = "1a GenSeed ";
     timermap.start( sgenKey );
     prnk->seedGenerator( seed + iiter );
-    genrtime += timermap.stop();
+    genrcount += timermap.stop();
 
     // --- 1b. Generate all relevant numbers to build nevt events (i.e. nevt phase space points) on the host
     const std::string rngnKey = "1b GenRnGen";
@@ -553,19 +553,19 @@ main( int argc, char** argv )
     {
       // --- 1c. Copy rndmom from host to device
       const std::string htodKey = "1c CpHTDrnd";
-      genrtime += timermap.start( htodKey );
+      genrcount += timermap.start( htodKey );
       copyDeviceFromHost( devRndmom, hstRndmom );
     }
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RANDOM GEN ***
-    genrtime += timermap.stop();
+    genrcount += timermap.stop();
 
     // === STEP 2 OF 3
     // Fill in particle momenta for each of nevt events on the device
 
     // *** START THE OLD-STYLE TIMER FOR RAMBO ***
-    double rambtime = 0;
+    uint64_t rambcount = 0;
 
     // --- 2a. Fill in momenta of initial state particles on the device
     const std::string riniKey = "2a RamboIni";
@@ -576,7 +576,7 @@ main( int argc, char** argv )
     // --- 2b. Fill in momenta of final state particles using the RAMBO algorithm on the device
     // (i.e. map random numbers to final-state particle momenta for each of nevt events)
     const std::string rfinKey = "2b RamboFin";
-    rambtime += timermap.start( rfinKey );
+    rambcount += timermap.start( rfinKey );
     prsk->getMomentaFinal();
     //std::cout << "Got final momenta" << std::endl;
 
@@ -585,30 +585,30 @@ main( int argc, char** argv )
     {
       // --- 2c. CopyDToH Weights
       const std::string cwgtKey = "2c CpDTHwgt";
-      rambtime += timermap.start( cwgtKey );
+      rambcount += timermap.start( cwgtKey );
       copyHostFromDevice( hstWeights, devWeights );
 
       // --- 2d. CopyDToH Momenta
       const std::string cmomKey = "2d CpDTHmom";
-      rambtime += timermap.start( cmomKey );
+      rambcount += timermap.start( cmomKey );
       copyHostFromDevice( hstMomenta, devMomenta );
     }
     else // only if ( ! bridge ) ???
     {
       // --- 2c. CopyHToD Weights
       const std::string cwgtKey = "2c CpHTDwgt";
-      rambtime += timermap.start( cwgtKey );
+      rambcount += timermap.start( cwgtKey );
       copyDeviceFromHost( devWeights, hstWeights );
 
       // --- 2d. CopyHToD Momenta
       const std::string cmomKey = "2d CpHTDmom";
-      rambtime += timermap.start( cmomKey );
+      rambcount += timermap.start( cmomKey );
       copyDeviceFromHost( devMomenta, hstMomenta );
     }
 #endif
 
     // *** STOP THE OLD-STYLE TIMER FOR RAMBO ***
-    rambtime += timermap.stop();
+    rambcount += timermap.stop();
 
     // === STEP 3 OF 3
     // Evaluate matrix elements for all nevt events
@@ -628,7 +628,7 @@ main( int argc, char** argv )
 #ifdef MGONGPUCPP_GPUIMPL
     // --- 2d. CopyHToD Momenta
     const std::string gKey = "0.. CpHTDg";
-    rambtime += timermap.start( gKey ); // FIXME! NOT A RAMBO TIMER!
+    rambcount += timermap.start( gKey ); // FIXME! NOT A RAMBO TIMER!
     copyDeviceFromHost( devGs, hstGs );
 #endif
 
@@ -641,8 +641,8 @@ main( int argc, char** argv )
     }
 
     // *** START THE OLD-STYLE TIMERS FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
-    double wavetime = 0; // calc plus copy
-    double wv3atime = 0; // calc only
+    uint64_t wavecount = 0; // calc plus copy
+    uint64_t wv3acount = 0; // calc only
 
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
@@ -651,8 +651,8 @@ main( int argc, char** argv )
     pmek->computeMatrixElements( channelId );
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
-    wv3atime += timermap.stop(); // calc only
-    wavetime += wv3atime;        // calc plus copy
+    wv3acount += timermap.stop(); // calc only
+    wavecount += wv3acount;       // calc plus copy
 
 #ifdef MGONGPUCPP_GPUIMPL
     if( !bridge )
@@ -662,7 +662,7 @@ main( int argc, char** argv )
       timermap.start( cmesKey );
       copyHostFromDevice( hstMatrixElements, devMatrixElements );
       // *** STOP THE OLD OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
-      wavetime += timermap.stop(); // calc plus copy
+      wavecount += timermap.stop(); // calc plus copy
     }
 #endif
 
@@ -675,16 +675,16 @@ main( int argc, char** argv )
     // --- 4a Dump within the loop
     const std::string loopKey = "4a DumpLoop";
     timermap.start( loopKey );
-    genrtimes[iiter] = genrtime;
-    rambtimes[iiter] = rambtime;
-    wavetimes[iiter] = wavetime;
-    wv3atimes[iiter] = wv3atime;
+    genrcounts[iiter] = genrcount;
+    rambcounts[iiter] = rambcount;
+    wavecounts[iiter] = wavecount;
+    wv3acounts[iiter] = wv3acount;
 
     if( verbose )
     {
       std::cout << std::string( SEP79, '*' ) << std::endl
                 << "Iteration #" << iiter + 1 << " of " << niter << std::endl;
-      if( perf ) std::cout << "Wave function time: " << wavetime << std::endl;
+      if( perf ) std::cout << "Wave function time: " << wavecount * timermap.secondsPerCount() << std::endl;
     }
 
     for( unsigned int ievt = 0; ievt < nevt; ++ievt ) // Loop over all events in this iteration
@@ -722,6 +722,20 @@ main( int argc, char** argv )
   // **************************************
   // *** END MAIN LOOP ON #ITERATIONS ***
   // **************************************
+
+  // Calibrate seconds per count
+  float secPerCount = timermap.secondsPerCount();
+  std::unique_ptr<double[]> genrtimes( new double[niter] );
+  std::unique_ptr<double[]> rambtimes( new double[niter] );
+  std::unique_ptr<double[]> wavetimes( new double[niter] );
+  std::unique_ptr<double[]> wv3atimes( new double[niter] );
+  for( unsigned int iiter = 0; iiter < niter; ++iiter )
+  {
+    genrtimes[iiter] = genrcounts[iiter] * secPerCount;
+    rambtimes[iiter] = rambcounts[iiter] * secPerCount;
+    wavetimes[iiter] = wavecounts[iiter] * secPerCount;
+    wv3atimes[iiter] = wv3acounts[iiter] * secPerCount;
+  }
 
   // === STEP 8 ANALYSIS
   // --- 8a Analysis: compute stats after the loop
