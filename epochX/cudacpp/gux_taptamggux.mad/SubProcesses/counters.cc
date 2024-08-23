@@ -34,6 +34,7 @@ extern "C"
 #else
     constexpr bool usechronotimers = true;
 #endif
+    static bool removetimeroverhead = false;
     // Overall program timer
     static mgOnGpu::ChronoTimer<TIMERTYPE> program_chronotimer;
     static mgOnGpu::RdtscTimer program_rdtsctimer;
@@ -63,6 +64,7 @@ extern "C"
 #ifdef MGONGPU_HASRDTSC
     if( getenv( "CUDACPP_RUNTIME_USECHRONOTIMERS" ) ) usechronotimers = true;
 #endif
+    if( getenv( "CUDACPP_RUNTIME_REMOVETIMEROVERHEAD" ) ) removetimeroverhead = true;
     for( int icounter = 0; icounter < NCOUNTERSMAX + 3; icounter++ )
     {
       array_tags[icounter] = "";           // ensure that this is initialized to ""
@@ -149,27 +151,38 @@ extern "C"
   void counters_finalise_()
   {
     using namespace counters;
-    // Dump program counters
+    // Compute program counters
     if( usechronotimers )
       program_chronotimer.stop();
     else
       program_rdtsctimer.stop();
     float program_totaltime = ( usechronotimers ? program_chronotimer.getTotalDurationSeconds() : program_rdtsctimer.getTotalDurationSeconds() );
-    if( usechronotimers )
-      printf( " [COUNTERS] *** USING STD::CHRONO TIMERS ***\n" );
-    else
-      printf( " [COUNTERS] *** USING RDTSC-BASED TIMERS ***\n" );
-    printf( " [COUNTERS] PROGRAM TOTAL                         : %9.4fs\n", program_totaltime );
-    if( disablecalltimers ) return;
     // Extract time duration from all timers
     float array_totaltimes[NCOUNTERSMAX + 3] = { 0 };
     for( int icounter = 1; icounter < NCOUNTERSMAX + 1; icounter++ )
     {
+      float remove = 0;
       if( usechronotimers )
+      {
         array_totaltimes[icounter] = array_chronotimers[icounter].getTotalDurationSeconds();
+        if( removetimeroverhead ) remove = array_chronotimers[icounter].getTotalOverheadSeconds();
+      }
       else
+      {
         array_totaltimes[icounter] = array_rdtsctimers[icounter].getTotalDurationSeconds();
+        if( removetimeroverhead ) remove = array_rdtsctimers[icounter].getTotalOverheadSeconds();
+      }
+      array_totaltimes[icounter] -= remove;
+      if( !starts_with( array_tags[icounter], "PROGRAM" ) &&
+          !starts_with( array_tags[icounter], "TEST" ) ) // skip counters whose tags start with "PROGRAM" or "TEST"
+        program_totaltime -= remove;
     }
+    // Dump program counters (after removing overhead if required)
+    std::string timertypemsg = ( usechronotimers ? "STD::CHRONO" : "RDTSC-BASED" );
+    std::string overheadmsg = ( removetimeroverhead ? "(remove timer overhead)" : "(do not remove timer overhead)" );
+    printf( " [COUNTERS] *** USING %s TIMERS %s ***\n", timertypemsg.c_str(), overheadmsg.c_str() );
+    printf( " [COUNTERS] PROGRAM TOTAL                         : %9.4fs\n", program_totaltime );
+    if( disablecalltimers ) return;
     // Create counter[0] "Fortran Other"
     array_tags[0] = "Fortran Other";
     array_counters[0] = 1;
