@@ -177,6 +177,91 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#ifdef MGONGPUCPP_GPUIMPL
+  namespace mg5amcGpu
+#else
+  namespace mg5amcCpu
+#endif
+  {
+#ifdef MGONGPUCPP_GPUIMPL
+    using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
+    using E_ACCESS = DeviceAccessMatrixElements;  // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
+    using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
+#endif
+#else
+    using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
+    using E_ACCESS = HostAccessMatrixElements;  // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
+    using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
+#endif
+#endif /* clang-format on */
+    
+    // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6]
+    __device__ void
+    helas_VVV1P0_1( const fptype allV2[],
+                    const fptype allV3[],
+                    const fptype allCOUP[],
+                    const double Ccoeff,
+                    const fptype M1,
+                    const fptype W1,
+                    fptype allV1[] )
+    {
+      return VVV1P0_1<W_ACCESS, CD_ACCESS>( allV2, allV3, allCOUP, Ccoeff, M1, W1, allV1 );
+    }
+
+    // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
+    __device__ void
+    helas_FFV1_0( const fptype allF1[],
+                  const fptype allF2[],
+                  const fptype allV3[],
+                  const fptype allCOUP[],
+                  const double Ccoeff,
+                  fptype allvertexes[] )
+    {
+      return FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( allF1, allF2, allV3, allCOUP, Ccoeff, allvertexes );
+    }
+
+    // Compute the output wavefunction 'F1[6]' from the input wavefunctions F2[6], V3[6]
+    __device__ void
+    helas_FFV1_1( const fptype allF2[],
+                  const fptype allV3[],
+                  const fptype allCOUP[],
+                  const double Ccoeff,
+                  const fptype M1,
+                  const fptype W1,
+                  fptype allF1[] )
+    {
+      return FFV1_1<W_ACCESS, CD_ACCESS>( allF2, allV3, allCOUP, Ccoeff, M1, W1, allF1 );
+    }
+
+    // Compute the output wavefunction 'F2[6]' from the input wavefunctions F1[6], V3[6]
+    __device__ void
+    helas_FFV1_2( const fptype allF1[],
+                  const fptype allV3[],
+                  const fptype allCOUP[],
+                  const double Ccoeff,
+                  const fptype M2,
+                  const fptype W2,
+                  fptype allF2[] )
+    {
+      return FFV1_2<W_ACCESS, CD_ACCESS>( allF1, allV3, allCOUP, Ccoeff, M2, W2, allF2 );
+    }
+    
+  }
+  
+  //--------------------------------------------------------------------------
+
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
@@ -204,7 +289,7 @@ namespace mg5amcCpu
     using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
     using E_ACCESS = DeviceAccessMatrixElements;  // non-trivial access: buffer includes all events
     using W_ACCESS = DeviceAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
-    using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    //using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -216,7 +301,7 @@ namespace mg5amcCpu
     using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
     using E_ACCESS = HostAccessMatrixElements;  // non-trivial access: buffer includes all events
     using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
-    using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    //using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -328,10 +413,12 @@ namespace mg5amcCpu
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[4] );
+      //VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[4] );
+      helas_VVV1P0_1( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      //FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_FFV1_0( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -342,10 +429,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 2 OF 3 ***
 
       // Wavefunction(s) for diagram number 2
-      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[4] );
+      //FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[4] );
+      helas_FFV1_1( w_fp[2], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      //FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_FFV1_0( w_fp[3], w_fp[4], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -355,10 +444,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 3 OF 3 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[4] );
+      //FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[4] );
+      helas_FFV1_2( w_fp[3], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 3
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      //FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_FFV1_0( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
