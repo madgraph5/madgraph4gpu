@@ -37,7 +37,6 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL
@@ -48,8 +47,8 @@ namespace mg5amcCpu
   using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
   using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-  using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
-  using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
+  using NUM_ACCESS = DeviceAccessNumerators;   // non-trivial access: buffer includes all events
+  using DEN_ACCESS = DeviceAccessDenominators; // non-trivial access: buffer includes all events
 #endif
 #else
   using namespace ::mg5amcCpu;
@@ -119,7 +118,6 @@ namespace mg5amcCpu
   }
 
   //--------------------------------------------------------------------------
-
 }
 
 #endif
