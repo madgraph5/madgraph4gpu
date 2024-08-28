@@ -165,6 +165,9 @@ for step in $steps; do
         for helinl in $helinls; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           for hrdcod in $hrdcods; do
+            logfile=logs_${proc#-}_${sufflog}/log_${proc#-}_${sufflog}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
+            if [ "${rndgen}" != "" ]; then logfile=${logfile%.txt}_${rndgen#-}.txt; fi
+            if [ "${rmbsmp}" != "" ]; then logfile=${logfile%.txt}_${rmbsmp#-}.txt; fi
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
             args="${proc}${sa}${flt}${inl}${hrd} ${dlp}"
             args="${args} ${alpaka}" # optionally disable alpaka tests
@@ -181,16 +184,19 @@ for step in $steps; do
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./throughputX.sh -makeonly ${makej} $args"
               printf "\n%80s\n" |tr " " "*"
+              SECONDS=0 # bash built-in
               if ! ./throughputX.sh -makeonly ${makej} $args; then exit 1; fi
+              BUILDTIME=$(date -d@$SECONDS -u "+$(($SECONDS/86400))d %Hh %Mm %Ss")
+              echo "" | tee $logfile 
+              echo "------------------------------------------------" | tee -a $logfile 
+              echo "Preliminary build completed in $BUILDTIME" | tee -a $logfile 
+              echo "------------------------------------------------" | tee -a $logfile 
             else
-              logfile=logs_${proc#-}_${sufflog}/log_${proc#-}_${sufflog}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
-              if [ "${rndgen}" != "" ]; then logfile=${logfile%.txt}_${rndgen#-}.txt; fi
-              if [ "${rmbsmp}" != "" ]; then logfile=${logfile%.txt}_${rmbsmp#-}.txt; fi
               printf "\n%80s\n" |tr " " "*"
-              printf "*** ./throughputX.sh $args | tee $logfile"
+              printf "*** ./throughputX.sh $args | tee -a $logfile"
               printf "\n%80s\n" |tr " " "*"
               mkdir -p $(dirname $logfile)
-              ./throughputX.sh $args -gtest | tee $logfile 
+              ./throughputX.sh $args -gtest | tee -a $logfile 
               if [ ${PIPESTATUS[0]} -ne "0" ]; then status=2; fi
             fi
           done
