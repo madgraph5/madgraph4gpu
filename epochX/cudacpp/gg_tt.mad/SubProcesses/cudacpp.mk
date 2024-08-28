@@ -650,7 +650,6 @@ override RUNTIME =
 #=== Makefile TARGETS and build rules below
 #===============================================================================
 
-
 ifeq ($(GPUCC),)
   cxx_checkmain=$(BUILDDIR)/check_cpp.exe
   cxx_fcheckmain=$(BUILDDIR)/fcheck_cpp.exe
@@ -779,10 +778,13 @@ gpu_objects_lib=$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o $(BUILDDIR)/MatrixElementK
 gpu_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/RamboSamplingKernels_$(GPUSUFFIX).o
 endif
 
+# Add object files and special build flags only for the HELINL=L mode
+ifeq ($(HELINL),L)
 cxx_objects_lib+=$(BUILDDIR)/HelAmps_cpp.o
 gpu_objects_lib+=$(BUILDDIR)/HelAmps_$(GPUSUFFIX).o
 $(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o: GPUFLAGS += -rdc true # compilation fails if this is not added (ptxas fatal: Unresolved extern function)
 $(BUILDDIR)/HelAmps_$(GPUSUFFIX).o: GPUFLAGS += -rdc true # runtime fails if this is not added ('invalid device symbol' in CPPProcess.cc cHel to tHel copy)
+endif
 
 # Target (and build rules): C++ and CUDA/HIP shared libraries
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge_cpp.o
