@@ -776,6 +776,9 @@ gpu_objects_lib=$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o $(BUILDDIR)/MatrixElementK
 gpu_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/RamboSamplingKernels_$(GPUSUFFIX).o
 endif
 
+cxx_objects_lib+=$(BUILDDIR)/HelAmps_cpp.o
+gpu_objects_lib+=$(BUILDDIR)/HelAmps_$(GPUSUFFIX).o
+
 # Target (and build rules): C++ and CUDA/HIP shared libraries
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge_cpp.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge_cpp.o
