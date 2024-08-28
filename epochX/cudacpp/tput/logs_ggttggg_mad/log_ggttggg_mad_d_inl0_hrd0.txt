@@ -1,6 +1,6 @@
 
 ------------------------------------------------
-Preliminary build completed in 0d 00h 00m 55s
+Preliminary build completed in 0d 00h 13m 11s
 ------------------------------------------------
 
 Building in /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg
