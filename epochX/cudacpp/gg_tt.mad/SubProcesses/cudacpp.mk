@@ -778,6 +778,8 @@ endif
 
 cxx_objects_lib+=$(BUILDDIR)/HelAmps_cpp.o
 gpu_objects_lib+=$(BUILDDIR)/HelAmps_$(GPUSUFFIX).o
+$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o: GPUFLAGS += -rdc true # compilation fails if this is not added (ptxas fatal: Unresolved extern function)
+$(BUILDDIR)/HelAmps_$(GPUSUFFIX).o: GPUFLAGS += -rdc true # runtime fails if this is not added ('invalid device symbol' in CPPProcess.cc cHel to tHel copy)
 
 # Target (and build rules): C++ and CUDA/HIP shared libraries
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge_cpp.o
