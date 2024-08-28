@@ -121,6 +121,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     ###nodeclare = False # old behaviour (separate declaration with no initialization)
     nodeclare = True # new behaviour (delayed declaration with initialisation)
 
+    # AV - modify aloha_writers.WriteALOHA method (add a debug printout)
+    def write(self, **opt):
+        ###misc.sprint('Entering PLUGIN_ALOHAWriter.write')
+        out = super().write(**opt)
+        return out
+
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def change_number_format(self, number):
         """Formatting the number"""
@@ -164,7 +170,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # [NB: this exists in ALOHAWriterForGPU but essentially falls back to ALOHAWriterForCPP]
     # [NB: no, actually this exists twice(!) in ForGPU and the 2nd version is not trivial! but I keep the ForCPP version]
     # This affects HelAmps_sm.h and HelAmps_sm.cc
-    def get_header_txt(self, name=None, couplings=None,mode=''):
+    def get_header_txt(self, name=None, couplings=None, mode=''):
         """Define the Header of the fortran file. This include
             - function tag
             - definition of variable
@@ -175,7 +181,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             mode = self.mode
         out = StringIO()
         # define the type of function and argument
-        if not 'no_include' in mode:
+        if not 'no_include' in mode and not 'linker' in mode:
             out.write('#include \"%s.h\"\n\n' % self.name)
         args = []
         comment_inputs = [] # AV
@@ -207,7 +213,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             output = '%(doublec)s allvertexes[]' % {
                 'doublec': self.type2def['double']}
             comment_output = 'amplitude \'vertex\''
-            template = 'template<class W_ACCESS, class A_ACCESS, class C_ACCESS>'
+            template = '  template<class W_ACCESS, class A_ACCESS, class C_ACCESS>\n'
+            template_define1 = '<W_ACCESS, A_ACCESS, CD_ACCESS>'
         else:
             output = '%(doublec)s all%(spin)s%(id)d[]' % {
                      'doublec': self.type2def['double'],
@@ -215,22 +222,30 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
-            template = 'template<class W_ACCESS, class C_ACCESS>'
+            template = '  template<class W_ACCESS, class C_ACCESS>\n'
+            template_define1 = '<W_ACCESS, CD_ACCESS>'
+        if 'linker' in mode: template = ''
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
+        if 'linker_decl' in mode : name = 'linker_' + name
         indent = ' ' * len( '  %s( ' % name )
-        out.write('  %(comment)s\n  %(template)s\n  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
-                  {'comment': comment, # AV - add comment
-                   'template': template, # AV - add template
-                   'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ), # AV - add INLINE
-                   'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ), # AV - add ALWAYS_INLINE
-                   'indent':indent, 'output':output, 'name': name,
-                   'args': (',\n' + indent + 'const ').join(args)}) # AV - add const, add indent
-        if 'is_h' in mode:
-            out.write(';\n')
-            out.write('\n  //--------------------------------------------------------------------------\n') # AV add footer
+        if not 'linker_define' in mode :
+            out.write('  %(comment)s\n%(template)s  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
+                      {'comment': comment, # AV - add comment
+                       'template': template, # AV - add template
+                       'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ), # AV - add INLINE
+                       'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ), # AV - add ALWAYS_INLINE
+                       'indent':indent, 'output':output, 'name': name,
+                       'args': (',\n' + indent + 'const ').join(args)}) # AV - add const, add indent
+            if 'is_h' in mode or 'linker_decl' in mode:
+                out.write(';\n')
+                out.write('\n  //--------------------------------------------------------------------------\n') # AV add footer
+            else:
+                ###out.write('\n{\n')
+                out.write('\n  {\n') # AV
+        elif 'linker_define1' in mode :
+            out.write('#define helas_%s %s%s'%(name,name,template_define1))
         else:
-            ###out.write('\n{\n')
-            out.write('\n  {\n') # AV
+            out.write('#define helas_%s linker_%s'%(name,name))
         return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
@@ -1064,6 +1079,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # Read in the template .h and .cc files, stripped of compiler commands and namespaces
         template_h_files = self.read_aloha_template_files(ext = 'h')
         template_cc_files = self.read_aloha_template_files(ext = 'cc')
+        template_h2a_files = ['']
+        template_h2b_files = ['']
+        template_h2c_files = ['']
         aloha_model = create_aloha.AbstractALOHAModel(self.model.get('name'), explicit_combine=True)
         aloha_model.add_Lorentz_object(self.model.get('lorentz'))
         if self.wanted_lorentz:
@@ -1072,14 +1090,22 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             aloha_model.compute_all(save=False, custom_propa=True)
         for abstracthelas in dict(aloha_model).values():
             print(type(abstracthelas), abstracthelas.name) # AV this is the loop on FFV functions
-            h_rout, cc_rout = abstracthelas.write(output_dir=None, language=self.aloha_writer, mode='no_include')
+            h_rout, cc_rout = abstracthelas.write(output_dir=None, language=self.aloha_writer, mode='no_include') # AV this eventually calls PLUGIN_ALOHAWriter.write
             template_h_files.append(h_rout)
             template_cc_files.append(cc_rout)
+            writer2 = aloha_writers.WriterFactory(abstracthelas, self.aloha_writer, None, abstracthelas.tag) # AV as in create_aloha.AbstractRoutine,write
+            h2a_rout = writer2.get_header_txt(mode='linker_define1')
+            h2b_rout = writer2.get_header_txt(mode='linker_define2')
+            h2c_rout = writer2.get_header_txt(mode='linker_decl')
+            template_h2a_files.append(h2a_rout)
+            template_h2b_files.append(h2b_rout)
+            template_h2c_files.append(h2c_rout)
         replace_dict['function_declarations'] = '\n'.join(template_h_files)
         replace_dict['function_definitions'] = '\n'.join(template_cc_files)
         file_h = self.read_template_file(self.aloha_template_h) % replace_dict
         file_cc = self.read_template_file(self.aloha_template_cc) % replace_dict
         file_cc = '\n'.join( file_cc.split('\n')[9:] ) # skip first 9 lines in cpp_hel_amps_cc.inc (copyright including ALOHA)
+        file_cc = file_cc[:-1] # skip the trailing empty line
         # Write the HelAmps_sm.h and HelAmps_sm.cc files
         ###PLUGIN_writers.CPPWriter(model_h_file).writelines(file_h)
         ###PLUGIN_writers.CPPWriter(model_cc_file).writelines(file_cc)
@@ -1091,9 +1117,21 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###             os.path.split(model_cc_file)[0]))
         # Write only the HelAmps_sm.h file
         file_h_lines = file_h.split('\n')
-        file_h = '\n'.join( file_h_lines[:-3]) # skip the trailing '//---'
+        file_cc_lines = file_cc.split('\n')
+        file_h = ''
+        file_h += '\n'.join( file_h_lines[:-3]) # skip the trailing '//---'
+        file_cc = '\n'.join( file_cc_lines[:-5]) # skip the footer
+        file_cc_footer = '\n'.join( file_cc_lines[-3:]) # keep the footer (excluding one //--- separator) for later
         file_h += file_cc # append the contents of HelAmps_sm.cc directly to HelAmps_sm.h!
-        file_h = file_h[:-1] # skip the trailing empty line
+        file_h += '\n  //==========================================================================\n'
+        file_h += '\n#ifndef MGONGPU_LINKER_HELAMPS\n'
+        file_h += '\n'.join(template_h2a_files)
+        file_h += '\n\n#else\n'
+        file_h += '\n'.join(template_h2b_files)
+        file_h += '\n\n  //--------------------------------------------------------------------------\n'
+        file_h += '\n'.join(template_h2c_files)
+        file_h += '\n#endif\n\n  //==========================================================================\n\n'
+        file_h = file_h + file_cc_footer # add the footer
         PLUGIN_writers.CPPWriter(model_h_file).writelines(file_h)
         logger.info('Created file %s in directory %s' \
                     % (os.path.split(model_h_file)[-1], os.path.split(model_h_file)[0] ) )
