@@ -551,8 +551,11 @@ $(info HELINL='$(HELINL)')
 ifeq ($(HELINL),1)
   CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
   GPUFLAGS += -DMGONGPU_INLINE_HELAMPS
+else ifeq ($(HELINL),L)
+  CXXFLAGS += -DMGONGPU_LINKER_HELAMPS
+  GPUFLAGS += -DMGONGPU_LINKER_HELAMPS
 else ifneq ($(HELINL),0)
-  $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
+  $(error Unknown HELINL='$(HELINL)': only 'L,', '0' and '1' are supported)
 endif
 
 # Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")

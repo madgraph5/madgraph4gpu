@@ -1034,51 +1034,59 @@ namespace mg5amcCpu
 
   //==========================================================================
 
+#ifdef MGONGPU_LINKER_HELAMPS
+
+  //--------------------------------------------------------------------------
+
   // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6]
   __device__ void
-  helas_VVV1P0_1( const fptype allV2[],
-                  const fptype allV3[],
-                  const fptype allCOUP[],
-                  const double Ccoeff,
-                  const fptype M1,
-                  const fptype W1,
-                  fptype allV1[] );
+  linker_VVV1P0_1( const fptype allV2[],
+                   const fptype allV3[],
+                   const fptype allCOUP[],
+                   const double Ccoeff,
+                   const fptype M1,
+                   const fptype W1,
+                   fptype allV1[] );
 
   //--------------------------------------------------------------------------
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
   __device__ void
-  helas_FFV1_0( const fptype allF1[],
-                const fptype allF2[],
-                const fptype allV3[],
-                const fptype allCOUP[],
-                const double Ccoeff,
-                fptype allvertexes[] );
+  linker_FFV1_0( const fptype allF1[],
+                 const fptype allF2[],
+                 const fptype allV3[],
+                 const fptype allCOUP[],
+                 const double Ccoeff,
+                 fptype allvertexes[] );
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F1[6]' from the input wavefunctions F2[6], V3[6]
   __device__ void
-  helas_FFV1_1( const fptype allF2[],
-                const fptype allV3[],
-                const fptype allCOUP[],
-                const double Ccoeff,
-                const fptype M1,
-                const fptype W1,
-                fptype allF1[] );
+  linker_FFV1_1( const fptype allF2[],
+                 const fptype allV3[],
+                 const fptype allCOUP[],
+                 const double Ccoeff,
+                 const fptype M1,
+                 const fptype W1,
+                 fptype allF1[] );
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F2[6]' from the input wavefunctions F1[6], V3[6]
   __device__ void
-  helas_FFV1_2( const fptype allF1[],
-                const fptype allV3[],
-                const fptype allCOUP[],
-                const double Ccoeff,
-                const fptype M2,
-                const fptype W2,
-                fptype allF2[] );
+  linker_FFV1_2( const fptype allF1[],
+                 const fptype allV3[],
+                 const fptype allCOUP[],
+                 const double Ccoeff,
+                 const fptype M2,
+                 const fptype W2,
+                 fptype allF2[] );
 
+  //--------------------------------------------------------------------------
+
+#endif
+  
   //==========================================================================
 
 } // end namespace
