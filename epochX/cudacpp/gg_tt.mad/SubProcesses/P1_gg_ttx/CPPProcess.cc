@@ -332,18 +332,6 @@ namespace mg5amcCpu
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-#ifdef MGONGPU_LINKER_HELAMPS
-#define helas_VVV1P0_1 linker_VVV1P0_1
-#define helas_FFV1_0 linker_FFV1_0
-#define helas_FFV1_1 linker_FFV1_1
-#define helas_FFV1_2 linker_FFV1_2
-#else
-#define helas_VVV1P0_1 VVV1P0_1<W_ACCESS, CD_ACCESS>
-#define helas_FFV1_0 FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>
-#define helas_FFV1_1 FFV1_1<W_ACCESS, CD_ACCESS>
-#define helas_FFV1_2 FFV1_2<W_ACCESS, CD_ACCESS>
-#endif
-
       helas_VVV1P0_1( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1

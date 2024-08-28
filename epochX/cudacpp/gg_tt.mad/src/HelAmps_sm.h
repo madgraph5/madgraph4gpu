@@ -1034,7 +1034,19 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-#ifdef MGONGPU_LINKER_HELAMPS
+#ifndef MGONGPU_LINKER_HELAMPS
+
+#define helas_VVV1P0_1 VVV1P0_1<W_ACCESS, CD_ACCESS>
+#define helas_FFV1_0 FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>
+#define helas_FFV1_1 FFV1_1<W_ACCESS, CD_ACCESS>
+#define helas_FFV1_2 FFV1_2<W_ACCESS, CD_ACCESS>
+
+#else
+
+#define helas_VVV1P0_1 linker_VVV1P0_1
+#define helas_FFV1_0 linker_FFV1_0
+#define helas_FFV1_1 linker_FFV1_1
+#define helas_FFV1_2 linker_FFV1_2
 
   //--------------------------------------------------------------------------
 
