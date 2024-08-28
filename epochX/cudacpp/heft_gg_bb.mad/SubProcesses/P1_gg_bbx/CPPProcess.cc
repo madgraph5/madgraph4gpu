@@ -204,7 +204,9 @@ namespace mg5amcCpu
     using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
     using E_ACCESS = DeviceAccessMatrixElements;  // non-trivial access: buffer includes all events
     using W_ACCESS = DeviceAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+#ifndef MGONGPU_LINKER_HELAMPS
     using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+#endif
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -216,7 +218,9 @@ namespace mg5amcCpu
     using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
     using E_ACCESS = HostAccessMatrixElements;  // non-trivial access: buffer includes all events
     using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+#ifndef MGONGPU_LINKER_HELAMPS
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+#endif
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -328,10 +332,10 @@ namespace mg5amcCpu
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      VVS3_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 1.0, cIPD[1], cIPD[2], w_fp[4] );
+      helas_VVS3_3( w_fp[0], w_fp[1], COUPs[0], 1.0, cIPD[1], cIPD[2], w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      FFS2_0<W_ACCESS, A_ACCESS, CI_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[ndcoup + 0], 1.0, &amp_fp[0] );
+      helas_FFS2_0( w_fp[3], w_fp[2], w_fp[4], COUPs[ndcoup + 0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -341,10 +345,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 2 OF 4 ***
 
       // Wavefunction(s) for diagram number 2
-      VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[1], 1.0, 0., 0., w_fp[4] );
+      helas_VVV1P0_1( w_fp[0], w_fp[1], COUPs[1], 1.0, 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_FFV1_0( w_fp[3], w_fp[2], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -355,10 +359,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 3 OF 4 ***
 
       // Wavefunction(s) for diagram number 3
-      FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[0], COUPs[2], 1.0, cIPD[0], 0., w_fp[4] );
+      helas_FFV1_1( w_fp[2], w_fp[0], COUPs[2], 1.0, cIPD[0], 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 3
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[2], 1.0, &amp_fp[0] );
+      helas_FFV1_0( w_fp[3], w_fp[4], w_fp[1], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -368,10 +372,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 4 OF 4 ***
 
       // Wavefunction(s) for diagram number 4
-      FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[0], COUPs[2], 1.0, cIPD[0], 0., w_fp[4] );
+      helas_FFV1_2( w_fp[3], w_fp[0], COUPs[2], 1.0, cIPD[0], 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 4
-      FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[2], 1.0, &amp_fp[0] );
+      helas_FFV1_0( w_fp[4], w_fp[2], w_fp[1], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 4 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );

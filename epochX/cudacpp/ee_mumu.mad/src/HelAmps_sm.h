@@ -1207,7 +1207,127 @@ namespace mg5amcCpu
     return;
   }
 
+  //==========================================================================
+
+#ifndef MGONGPU_LINKER_HELAMPS
+
+#define helas_FFV1_0 FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>
+#define helas_FFV1P0_3 FFV1P0_3<W_ACCESS, CD_ACCESS>
+#define helas_FFV2_0 FFV2_0<W_ACCESS, A_ACCESS, CD_ACCESS>
+#define helas_FFV2_3 FFV2_3<W_ACCESS, CD_ACCESS>
+#define helas_FFV4_0 FFV4_0<W_ACCESS, A_ACCESS, CD_ACCESS>
+#define helas_FFV4_3 FFV4_3<W_ACCESS, CD_ACCESS>
+#define helas_FFV2_4_0 FFV2_4_0<W_ACCESS, A_ACCESS, CD_ACCESS>
+#define helas_FFV2_4_3 FFV2_4_3<W_ACCESS, CD_ACCESS>
+
+#else
+
+#define helas_FFV1_0 linker_FFV1_0
+#define helas_FFV1P0_3 linker_FFV1P0_3
+#define helas_FFV2_0 linker_FFV2_0
+#define helas_FFV2_3 linker_FFV2_3
+#define helas_FFV4_0 linker_FFV4_0
+#define helas_FFV4_3 linker_FFV4_3
+#define helas_FFV2_4_0 linker_FFV2_4_0
+#define helas_FFV2_4_3 linker_FFV2_4_3
+
   //--------------------------------------------------------------------------
+
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
+  __device__ void
+  linker_FFV1_0( const fptype allF1[],
+                 const fptype allF2[],
+                 const fptype allV3[],
+                 const fptype allCOUP[],
+                 const double Ccoeff,
+                 fptype allvertexes[] );
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
+  __device__ void
+  linker_FFV1P0_3( const fptype allF1[],
+                   const fptype allF2[],
+                   const fptype allCOUP[],
+                   const double Ccoeff,
+                   const fptype M3,
+                   const fptype W3,
+                   fptype allV3[] );
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
+  __device__ void
+  linker_FFV2_0( const fptype allF1[],
+                 const fptype allF2[],
+                 const fptype allV3[],
+                 const fptype allCOUP[],
+                 const double Ccoeff,
+                 fptype allvertexes[] );
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
+  __device__ void
+  linker_FFV2_3( const fptype allF1[],
+                 const fptype allF2[],
+                 const fptype allCOUP[],
+                 const double Ccoeff,
+                 const fptype M3,
+                 const fptype W3,
+                 fptype allV3[] );
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
+  __device__ void
+  linker_FFV4_0( const fptype allF1[],
+                 const fptype allF2[],
+                 const fptype allV3[],
+                 const fptype allCOUP[],
+                 const double Ccoeff,
+                 fptype allvertexes[] );
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
+  __device__ void
+  linker_FFV4_3( const fptype allF1[],
+                 const fptype allF2[],
+                 const fptype allCOUP[],
+                 const double Ccoeff,
+                 const fptype M3,
+                 const fptype W3,
+                 fptype allV3[] );
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
+  __device__ void
+  linker_FFV2_4_0( const fptype allF1[],
+                   const fptype allF2[],
+                   const fptype allV3[],
+                   const fptype allCOUP[],
+                   const double Ccoeff,
+                   fptype allvertexes[] );
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
+  __device__ void
+  linker_FFV2_4_3( const fptype allF1[],
+                   const fptype allF2[],
+                   const fptype allCOUP[],
+                   const double Ccoeff,
+                   const fptype M3,
+                   const fptype W3,
+                   fptype allV3[] );
+
+  //--------------------------------------------------------------------------
+
+#endif
+
+  //==========================================================================
 
 } // end namespace
 
