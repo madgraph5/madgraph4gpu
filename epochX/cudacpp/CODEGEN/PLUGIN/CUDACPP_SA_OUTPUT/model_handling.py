@@ -222,7 +222,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             outputname = 'allvertexes'
             comment_output = 'amplitude \'vertex\''
             template = '  template<class W_ACCESS, class A_ACCESS, class C_ACCESS>\n'
-            template_define1 = '<W_ACCESS, A_ACCESS, CD_ACCESS>'
+            template_defineCD = '<W_ACCESS, A_ACCESS, CD_ACCESS>'
+            template_defineCI = '<W_ACCESS, A_ACCESS, CI_ACCESS>'
         else:
             output = '%(doublec)s all%(spin)s%(id)d[]' % {
                      'doublec': self.type2def['double'],
@@ -234,38 +235,46 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
             template = '  template<class W_ACCESS, class C_ACCESS>\n'
-            template_define1 = '<W_ACCESS, CD_ACCESS>'
+            template_defineCD = '<W_ACCESS, CD_ACCESS>'
+            template_defineCI = '<W_ACCESS, CI_ACCESS>'
         if 'linker' in mode: template = ''
-        comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
-        if 'linker_decl' in mode or 'linker_impl' in mode : name2 = 'linker_' + name
-        else: name2 = name
-        indent = ' ' * len( '  %s( ' % name2 )
-        if not 'linker_define' in mode :
-            out.write('  %(comment)s\n%(template)s  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
-                      {'comment': comment, # AV - add comment
-                       'template': template, # AV - add template
-                       'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ), # AV - add INLINE
-                       'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ), # AV - add ALWAYS_INLINE
-                       'indent':indent, 'output':output, 'name': name2,
-                       'args': (',\n' + indent + 'const ').join(args)}) # AV - add const, add indent
-            if 'is_h' in mode or 'linker_decl' in mode:
-                out.write(';\n')
-                out.write('\n  //--------------------------------------------------------------------------\n') # AV add footer
-            elif 'linker_impl' in mode:
-                out.write('\n  {\n')
-                out.write('    return %(name)s%(template)s( %(args)s, %(output)s );' %
-                          {'name': name,
-                           'template': template_define1,
-                           'output': outputname, 
-                           'args': ', '.join(argnames)})
-                out.write('\n  }\n')
-                out.write('\n  //--------------------------------------------------------------------------\n') # AV add footer
-            else:
-                out.write('\n  {\n') # AV
-        elif 'linker_define1' in mode :
-            out.write('#define helas_%s %s%s'%(name,name,template_define1))
+        comment = '  // Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) )
+        if 'linker_define1' in mode :
+            out.write('#define helas_CD_%s %s%s\n'%(name,name,template_defineCD))
+            out.write('#define helas_CI_%s %s%s'%(name,name,template_defineCI))
+        elif 'linker_define2' in mode :
+            out.write('#define helas_CD_%s linker_CD_%s\n'%(name,name))
+            out.write('#define helas_CI_%s linker_CI_%s'%(name,name))
         else:
-            out.write('#define helas_%s linker_%s'%(name,name))
+            if 'linker_decl' in mode or 'linker_impl' in mode :
+                names2 = ( 'linker_CD_' + name, 'linker_CI_' + name )
+                comments2 = ( comment + ' (dependent couplings)', '\n' + comment + ' (independent couplings)' )
+            else:
+                names2 = ( name, )
+                comments2 = ( comment, )
+            indent = ' ' * len( '  %s( ' % names2[0] )
+            for i, name2 in enumerate(names2):
+                out.write('%(comment)s\n%(template)s  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
+                          {'comment': comments2[i],
+                           'template': template,
+                           'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ),
+                           'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ),
+                           'indent':indent, 'output':output, 'name': name2,
+                           'args': (',\n' + indent + 'const ').join(args)})
+                if 'is_h' in mode or 'linker_decl' in mode:
+                    out.write(';\n')
+                    out.write('\n  //--------------------------------------------------------------------------\n')
+                elif 'linker_impl' in mode:
+                    out.write('\n  {\n')
+                    out.write('    return %(name)s%(template)s( %(args)s, %(output)s );' %
+                              {'name': name,
+                               'template': template_defineCD if i == 0 else template_defineCI,
+                               'output': outputname, 
+                               'args': ', '.join(argnames)})
+                    out.write('\n  }\n')
+                    out.write('\n  //--------------------------------------------------------------------------\n')
+                else:
+                    out.write('\n  {\n')
         return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
@@ -2210,12 +2219,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                             if usesdepcoupl is None: usesdepcoupl = False
                             elif usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
             # AV FOR PR #434: CI_ACCESS for independent couplings and CD_ACCESS for dependent couplings
-            if usesdepcoupl is None: raise Exception('PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?')
-            elif usesdepcoupl: caccess = 'CD_ACCESS'
-            else: caccess = 'CI_ACCESS'
+            ###if usesdepcoupl is None: raise Exception('PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?')
+            ###elif usesdepcoupl: caccess = 'CD_ACCESS'
+            ###else: caccess = 'CI_ACCESS'
             ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s>'%caccess
             ###else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess
-            arg['routine_name'] = 'helas_' + arg['routine_name']
+            if usesdepcoupl is None: raise Exception('PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?')
+            elif usesdepcoupl: caccess = 'CD_'
+            else: caccess = 'CI_'
+            arg['routine_name'] = 'helas_' + caccess + arg['routine_name']
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
                 arg['out'] = 'w_fp[%(out)d]'
