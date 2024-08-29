@@ -10,7 +10,7 @@
 
 #include "MemoryAccessHelpers.h"
 #include "MemoryAccessVectors.h"
-#include "MemoryBuffers.h" // for HostBufferMatrixElements::isaligned
+#include "MemoryBuffers.h" // for HostBufferGs::isaligned
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
 #ifdef MGONGPUCPP_GPUIMPL

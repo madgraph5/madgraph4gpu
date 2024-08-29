@@ -17,7 +17,7 @@ export OMPFLAGS=
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall][-cudaonly][-hiponly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-ggttgggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall][-cudaonly][-hiponly][-noneonly][-sse4only][-avx2only][-512yonly][-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly|-inlL|-inlLonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -31,6 +31,7 @@ ggtt=0
 ggttg=0
 ggttgg=0
 ggttggg=0
+ggttgggg=0
 gqttq=0
 heftggbb=0
 susyggtt=0
@@ -44,7 +45,7 @@ bblds=
 alpaka=1
 
 fptypes="d"
-helinls="0"
+helinls="" # set default later
 hrdcods="0"
 rndgen=""
 rmbsam=""
@@ -92,6 +93,9 @@ while [ "$1" != "" ]; do
     if [ "$ggttggg" == "0" ]; then procs+=${procs:+ }$1; fi
     ggttggg=1
     shift
+  elif [ "$1" == "-ggttgggg" ]; then
+    if [ "$ggttgggg" == "0" ]; then procs+=${procs:+ }$1; fi
+    ggttgggg=1
   elif [ "$1" == "-gqttq" ]; then
     if [ "$gqttq" == "0" ]; then procs+=${procs:+ }$1; fi
     gqttq=1
@@ -170,12 +174,20 @@ while [ "$1" != "" ]; do
     fptypes="m"
     shift
   elif [ "$1" == "-inl" ]; then
-    if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
     helinls="0 1"
     shift
   elif [ "$1" == "-inlonly" ]; then
-    if [ "${helinls}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
     helinls="1"
+    shift
+  elif [ "$1" == "-inlL" ]; then
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
+    helinls="0 1 L"
+    shift
+  elif [ "$1" == "-inlLonly" ]; then
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
+    helinls="L"
     shift
   elif [ "$1" == "-hrd" ]; then
     if [ "${hrdcods}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
@@ -244,6 +256,9 @@ done
 ###echo procs=$procs
 ###exit 1
 
+# Set defaults a posteriori
+if [ "${helinls}" == "" ]; then helinls="0"; fi
+
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
 if [ "${dlp}" != "" ]; then
   echo "export DYLD_LIBRARY_PATH=$dlp"
@@ -261,7 +276,7 @@ fi
 ###fi
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${ggttgggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
 
 # Define the default bblds if none are defined (use ${bbldsall} which is translated back to 'make -bldall')
 ###if [ "${bblds}" == "" ]; then bblds="cuda avx2"; fi # this fails if cuda is not installed
@@ -312,6 +327,8 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_gg_ttxgg
     elif [ "${proc}" == "-ggttggg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_gg_ttxggg
+    elif [ "${proc}" == "-ggttgggg" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttgggg${suff}SubProcesses/P1_gg_ttxgggg
     elif [ "${proc}" == "-gqttq" ]; then 
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gu_ttxu
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_gux_ttxux # only 1 out of 2 for now
@@ -335,6 +352,8 @@ function showdir()
       dir=$topdir/epochX/${bckend}/gg_ttgg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgg
     elif [ "${proc}" == "-ggttggg" ]; then 
       dir=$topdir/epochX/${bckend}/gg_ttggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxggg
+    elif [ "${proc}" == "-ggttgggg" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttgggg${suff}SubProcesses/P1_Sigma_sm_gg_ttxgggg
     elif [ "${proc}" == "-gqttq" ]; then 
       ###dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gu_ttxu
       dir=$topdir/epochX/${bckend}/gq_ttq${suff}SubProcesses/P1_Sigma_sm_gux_ttxux # only 1 out of 2 for now
@@ -683,6 +702,12 @@ for exe in $exes; do
     ncuArgs="-p 64 256 1"
     # For gqttq, use the same settings as for ggttg
     exeArgs2="-p 2048 256 1"
+  elif [ "${exe%%/gg_ttgggg*}" != "${exe}" ]; then 
+    # For ggttgggg: initially try the same settings as ggttggg
+    exeArgs="-p 1 256 2"
+    ncuArgs="-p 1 256 1"
+    # For ggttgggg: initially try the same settings as ggttggg
+    exeArgs2="-p 64 256 1"
   elif [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
     # For ggttggg: this is far too little for GPU (4.8E2), but it keeps the CPU to a manageble level (1sec with 512y)
     ###exeArgs="-p 1 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056

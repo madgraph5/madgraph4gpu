@@ -32,7 +32,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-fltonly|-mixonly] [-inlonly|-inlLonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -56,6 +56,8 @@ susyggt1t1=0
 smeftggtttt=0
 
 fptype="d"
+
+helinl="0"
 
 maketype=
 ###makej=
@@ -119,6 +121,18 @@ while [ "$1" != "" ]; do
     fi
     fptype="m"
     shift
+  elif [ "$1" == "-inlonly" ]; then
+    if [ "${helinl}" != "0" ] && [ "${fptype}" != "$1" ]; then
+      echo "ERROR! Options -inlonly and -inlLonly are incompatible"; usage
+    fi
+    helinl="1"
+    shift
+  elif [ "$1" == "-inlLonly" ]; then
+    if [ "${helinl}" != "0" ] && [ "${fptype}" != "$1" ]; then
+      echo "ERROR! Options -inlonly and -inlLonly are incompatible"; usage
+    fi
+    helinl="L"
+    shift
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
       echo "ERROR! Options -makeonly, -makeclean and -makecleanonly are incompatible"; usage
@@ -163,6 +177,9 @@ else
   ###xsecthr="2E-14" # fails when updating gpucpp in PR #811
   xsecthr="3E-14"
 fi
+
+# Switch between helinl builds
+export HELINL=$helinl
 
 # Determine the working directory below topdir based on suff, bckend and <process>
 function showdir()
@@ -335,7 +352,7 @@ function runcheck()
   if [ "${cmd/gcheckmax128thr}" != "$cmd" ]; then
     txt="GCHECK(MAX128THR)"
     cmd=${cmd/gcheckmax128thr/check_${backend}} # hack: run cuda/hip check with tput fastest settings
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl${helinl}_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -lt 128 ]; do (( nthr = nthr * 2 )); (( nblk = nblk / 2 )); done
@@ -343,7 +360,7 @@ function runcheck()
   elif [ "${cmd/gcheckmax8thr}" != "$cmd" ]; then
     txt="GCHECK(MAX8THR)"
     cmd=${cmd/gcheckmax8thr/check_${backend}} # hack: run cuda/hip check with tput fastest settings
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl${helinl}_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -gt 8 ]; do (( nthr = nthr / 2 )); (( nblk = nblk * 2 )); done
@@ -351,14 +368,14 @@ function runcheck()
   elif [ "${cmd/gcheckmax}" != "$cmd" ]; then
     txt="GCHECK(MAX)"
     cmd=${cmd/gcheckmax/check_${backend}} # hack: run cuda/hip check with tput fastest settings
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl${helinl}_hrd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheck}" != "$cmd" ]; then
     txt="GCHECK($NLOOP)"
     cmd=${cmd/gcheck/check_${backend}}
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl${helinl}_hrd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
     (( nloop2 = nblk*nthr )) || true
@@ -367,7 +384,7 @@ function runcheck()
   elif [ "${cmd/check}" != "$cmd" ]; then
     txt="CHECK($NLOOP)"
     cmd=${cmd/check/check_cpp}
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl${helinl}_hrd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
     (( nloop2 = nblk*nthr )) || true
@@ -395,12 +412,12 @@ function runmadevent()
   cmd=$1
   if [ "${cmd/madevent_cpp}" != "$cmd" ]; then
     tmpin=$(getinputfile -cpp)
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl${helinl}_hrd0\/}
   elif [ "${cmd/madevent_cuda}" != "$cmd" ]; then
-    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl${helinl}_hrd0\/}
     tmpin=$(getinputfile -cuda)
   elif [ "${cmd/madevent_hip}" != "$cmd" ]; then
-    cmd=${cmd/.\//.\/build.hip_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.hip_${fptype}_inl${helinl}_hrd0\/}
     tmpin=$(getinputfile -hip)
   else # assume this is madevent_fortran (do not check)
     tmpin=$(getinputfile -fortran)

@@ -40,7 +40,7 @@ ifneq ($(words $(filter $(FPTYPE), $(SUPPORTED_FPTYPES))),1)
   $(error Invalid fptype FPTYPE='$(FPTYPE)': supported fptypes are $(foreach fptype,$(SUPPORTED_FPTYPES),'$(fptype)'))
 endif
 
-override SUPPORTED_HELINLS = 0 1
+override SUPPORTED_HELINLS = L 0 1
 ifneq ($(words $(filter $(HELINL), $(SUPPORTED_HELINLS))),1)
   $(error Invalid helinl HELINL='$(HELINL)': supported helinls are $(foreach helinl,$(SUPPORTED_HELINLS),'$(helinl)'))
 endif
