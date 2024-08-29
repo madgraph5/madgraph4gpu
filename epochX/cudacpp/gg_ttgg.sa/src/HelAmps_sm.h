@@ -2,13 +2,13 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Sep 2010) for the MG5aMC backend.
 //==========================================================================
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.5.2_lo_vect, 2023-11-08
+// MadGraph5_aMC@NLO v. 3.5.3_lo_vect, 2023-12-23
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -28,7 +28,7 @@
 //#include <iomanip>
 //#include <iostream>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -1042,7 +1042,7 @@ namespace mg5amcCpu
     const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
     const cxtype_sv TMP7 = ( V1[2] * P2[0] - V1[3] * P2[1] - V1[4] * P2[2] - V1[5] * P2[3] );
     const cxtype_sv TMP8 = ( V1[2] * P3[0] - V1[3] * P3[1] - V1[4] * P3[2] - V1[5] * P3[3] );
-    ( *vertex ) = COUP * ( TMP1 * ( -cI * TMP0 + cI * TMP2 ) + ( TMP3 * ( +cI * TMP4 - cI * TMP5 ) + TMP6 * ( -cI * TMP7 + cI * TMP8 ) ) );
+    ( *vertex ) = Ccoeff * COUP * ( TMP1 * ( -cI * TMP0 + cI * TMP2 ) + ( TMP3 * ( +cI * TMP4 - cI * TMP5 ) + TMP6 * ( -cI * TMP7 + cI * TMP8 ) ) );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1076,7 +1076,7 @@ namespace mg5amcCpu
     const cxtype_sv TMP4 = ( P1[0] * V2[2] - P1[1] * V2[3] - P1[2] * V2[4] - P1[3] * V2[5] );
     const cxtype_sv TMP5 = ( V2[2] * P3[0] - V2[3] * P3[1] - V2[4] * P3[2] - V2[5] * P3[3] );
     const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
-    const cxtype_sv denom = COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    const cxtype_sv denom = Ccoeff * COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
     V1[2] = denom * ( TMP6 * ( -cI * P2[0] + cI * P3[0] ) + ( V2[2] * ( -cI * TMP0 + cI * TMP2 ) + V3[2] * ( +cI * TMP4 - cI * TMP5 ) ) );
     V1[3] = denom * ( TMP6 * ( -cI * P2[1] + cI * P3[1] ) + ( V2[3] * ( -cI * TMP0 + cI * TMP2 ) + V3[3] * ( +cI * TMP4 - cI * TMP5 ) ) );
     V1[4] = denom * ( TMP6 * ( -cI * P2[2] + cI * P3[2] ) + ( V2[4] * ( -cI * TMP0 + cI * TMP2 ) + V3[4] * ( +cI * TMP4 - cI * TMP5 ) ) );
@@ -1105,7 +1105,7 @@ namespace mg5amcCpu
     cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP9 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * V3[4] ) ) + ( F1[3] * ( F2[4] * ( V3[3] - cI * V3[4] ) + F2[5] * ( V3[2] - V3[5] ) ) + ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * V3[4] ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * V3[4] ) + F2[3] * ( V3[2] + V3[5] ) ) ) ) );
-    ( *vertex ) = COUP * -cI * TMP9;
+    ( *vertex ) = Ccoeff * COUP * -cI * TMP9;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1133,7 +1133,7 @@ namespace mg5amcCpu
     F1[1] = +F2[1] + V3[1];
     const fptype_sv P1[4] = { -cxreal( F1[0] ), -cxreal( F1[1] ), -cximag( F1[1] ), -cximag( F1[0] ) };
     constexpr fptype one( 1. );
-    const cxtype_sv denom = COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    const cxtype_sv denom = Ccoeff * COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
     F1[2] = denom * cI * ( F2[2] * ( P1[0] * ( -V3[2] + V3[5] ) + ( P1[1] * ( V3[3] - cI * V3[4] ) + ( P1[2] * ( +cI * V3[3] + V3[4] ) + P1[3] * ( -V3[2] + V3[5] ) ) ) ) + ( F2[3] * ( P1[0] * ( V3[3] + cI * V3[4] ) + ( P1[1] * ( -one ) * ( V3[2] + V3[5] ) + ( P1[2] * ( -one ) * ( +cI * ( V3[2] + V3[5] ) ) + P1[3] * ( V3[3] + cI * V3[4] ) ) ) ) + M1 * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * V3[4] ) ) ) );
     F1[3] = denom * ( -cI ) * ( F2[2] * ( P1[0] * ( -V3[3] + cI * V3[4] ) + ( P1[1] * ( V3[2] - V3[5] ) + ( P1[2] * ( -cI * V3[2] + cI * V3[5] ) + P1[3] * ( V3[3] - cI * V3[4] ) ) ) ) + ( F2[3] * ( P1[0] * ( V3[2] + V3[5] ) + ( P1[1] * ( -one ) * ( V3[3] + cI * V3[4] ) + ( P1[2] * ( +cI * V3[3] - V3[4] ) - P1[3] * ( V3[2] + V3[5] ) ) ) ) + M1 * ( F2[4] * ( -V3[3] + cI * V3[4] ) + F2[5] * ( -V3[2] + V3[5] ) ) ) );
     F1[4] = denom * ( -cI ) * ( F2[4] * ( P1[0] * ( V3[2] + V3[5] ) + ( P1[1] * ( -V3[3] + cI * V3[4] ) + ( P1[2] * ( -one ) * ( +cI * V3[3] + V3[4] ) - P1[3] * ( V3[2] + V3[5] ) ) ) ) + ( F2[5] * ( P1[0] * ( V3[3] + cI * V3[4] ) + ( P1[1] * ( -V3[2] + V3[5] ) + ( P1[2] * ( -cI * V3[2] + cI * V3[5] ) - P1[3] * ( V3[3] + cI * V3[4] ) ) ) ) + M1 * ( F2[2] * ( -V3[2] + V3[5] ) + F2[3] * ( V3[3] + cI * V3[4] ) ) ) );
@@ -1165,7 +1165,7 @@ namespace mg5amcCpu
     F2[1] = +F1[1] + V3[1];
     const fptype_sv P2[4] = { -cxreal( F2[0] ), -cxreal( F2[1] ), -cximag( F2[1] ), -cximag( F2[0] ) };
     constexpr fptype one( 1. );
-    const cxtype_sv denom = COUP / ( ( P2[0] * P2[0] ) - ( P2[1] * P2[1] ) - ( P2[2] * P2[2] ) - ( P2[3] * P2[3] ) - M2 * ( M2 - cI * W2 ) );
+    const cxtype_sv denom = Ccoeff * COUP / ( ( P2[0] * P2[0] ) - ( P2[1] * P2[1] ) - ( P2[2] * P2[2] ) - ( P2[3] * P2[3] ) - M2 * ( M2 - cI * W2 ) );
     F2[2] = denom * cI * ( F1[2] * ( P2[0] * ( V3[2] + V3[5] ) + ( P2[1] * ( -one ) * ( V3[3] + cI * V3[4] ) + ( P2[2] * ( +cI * V3[3] - V3[4] ) - P2[3] * ( V3[2] + V3[5] ) ) ) ) + ( F1[3] * ( P2[0] * ( V3[3] - cI * V3[4] ) + ( P2[1] * ( -V3[2] + V3[5] ) + ( P2[2] * ( +cI * V3[2] - cI * V3[5] ) + P2[3] * ( -V3[3] + cI * V3[4] ) ) ) ) + M2 * ( F1[4] * ( V3[2] - V3[5] ) + F1[5] * ( -V3[3] + cI * V3[4] ) ) ) );
     F2[3] = denom * ( -cI ) * ( F1[2] * ( P2[0] * ( -one ) * ( V3[3] + cI * V3[4] ) + ( P2[1] * ( V3[2] + V3[5] ) + ( P2[2] * ( +cI * ( V3[2] + V3[5] ) ) - P2[3] * ( V3[3] + cI * V3[4] ) ) ) ) + ( F1[3] * ( P2[0] * ( -V3[2] + V3[5] ) + ( P2[1] * ( V3[3] - cI * V3[4] ) + ( P2[2] * ( +cI * V3[3] + V3[4] ) + P2[3] * ( -V3[2] + V3[5] ) ) ) ) + M2 * ( F1[4] * ( V3[3] + cI * V3[4] ) - F1[5] * ( V3[2] + V3[5] ) ) ) );
     F2[4] = denom * ( -cI ) * ( F1[4] * ( P2[0] * ( -V3[2] + V3[5] ) + ( P2[1] * ( V3[3] + cI * V3[4] ) + ( P2[2] * ( -cI * V3[3] + V3[4] ) + P2[3] * ( -V3[2] + V3[5] ) ) ) ) + ( F1[5] * ( P2[0] * ( V3[3] - cI * V3[4] ) + ( P2[1] * ( -one ) * ( V3[2] + V3[5] ) + ( P2[2] * ( +cI * ( V3[2] + V3[5] ) ) + P2[3] * ( V3[3] - cI * V3[4] ) ) ) ) + M2 * ( F1[2] * ( -one ) * ( V3[2] + V3[5] ) + F1[3] * ( -V3[3] + cI * V3[4] ) ) ) );
@@ -1196,7 +1196,7 @@ namespace mg5amcCpu
     V3[0] = +F1[0] + F2[0];
     V3[1] = +F1[1] + F2[1];
     const fptype_sv P3[4] = { -cxreal( V3[0] ), -cxreal( V3[1] ), -cximag( V3[1] ), -cximag( V3[0] ) };
-    const cxtype_sv denom = COUP / ( ( P3[0] * P3[0] ) - ( P3[1] * P3[1] ) - ( P3[2] * P3[2] ) - ( P3[3] * P3[3] ) - M3 * ( M3 - cI * W3 ) );
+    const cxtype_sv denom = Ccoeff * COUP / ( ( P3[0] * P3[0] ) - ( P3[1] * P3[1] ) - ( P3[2] * P3[2] ) - ( P3[3] * P3[3] ) - M3 * ( M3 - cI * W3 ) );
     V3[2] = denom * ( -cI ) * ( F1[2] * F2[4] + F1[3] * F2[5] + F1[4] * F2[2] + F1[5] * F2[3] );
     V3[3] = denom * ( -cI ) * ( -F1[2] * F2[5] - F1[3] * F2[4] + F1[4] * F2[3] + F1[5] * F2[2] );
     V3[4] = denom * ( -cI ) * ( -cI * ( F1[2] * F2[5] + F1[5] * F2[2] ) + cI * ( F1[3] * F2[4] + F1[4] * F2[3] ) );
@@ -1230,7 +1230,7 @@ namespace mg5amcCpu
     const cxtype_sv TMP11 = ( V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5] );
     const cxtype_sv TMP3 = ( V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5] );
     const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
-    ( *vertex ) = COUP * ( -cI * ( TMP6 * TMP10 ) + cI * ( TMP3 * TMP11 ) );
+    ( *vertex ) = Ccoeff * COUP * ( -cI * ( TMP6 * TMP10 ) + cI * ( TMP3 * TMP11 ) );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1261,7 +1261,7 @@ namespace mg5amcCpu
     const fptype_sv P1[4] = { -cxreal( V1[0] ), -cxreal( V1[1] ), -cximag( V1[1] ), -cximag( V1[0] ) };
     const cxtype_sv TMP11 = ( V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5] );
     const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
-    const cxtype_sv denom = COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    const cxtype_sv denom = Ccoeff * COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
     V1[2] = denom * ( -cI * ( TMP6 * V4[2] ) + cI * ( V3[2] * TMP11 ) );
     V1[3] = denom * ( -cI * ( TMP6 * V4[3] ) + cI * ( V3[3] * TMP11 ) );
     V1[4] = denom * ( -cI * ( TMP6 * V4[4] ) + cI * ( V3[4] * TMP11 ) );
@@ -1295,7 +1295,7 @@ namespace mg5amcCpu
     const cxtype_sv TMP10 = ( V1[2] * V4[2] - V1[3] * V4[3] - V1[4] * V4[4] - V1[5] * V4[5] );
     const cxtype_sv TMP12 = ( V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5] );
     const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
-    ( *vertex ) = COUP * ( -cI * ( TMP6 * TMP10 ) + cI * ( TMP1 * TMP12 ) );
+    ( *vertex ) = Ccoeff * COUP * ( -cI * ( TMP6 * TMP10 ) + cI * ( TMP1 * TMP12 ) );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1326,7 +1326,7 @@ namespace mg5amcCpu
     const fptype_sv P1[4] = { -cxreal( V1[0] ), -cxreal( V1[1] ), -cximag( V1[1] ), -cximag( V1[0] ) };
     const cxtype_sv TMP12 = ( V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5] );
     const cxtype_sv TMP6 = ( V3[2] * V2[2] - V3[3] * V2[3] - V3[4] * V2[4] - V3[5] * V2[5] );
-    const cxtype_sv denom = COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    const cxtype_sv denom = Ccoeff * COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
     V1[2] = denom * ( -cI * ( TMP6 * V4[2] ) + cI * ( V2[2] * TMP12 ) );
     V1[3] = denom * ( -cI * ( TMP6 * V4[3] ) + cI * ( V2[3] * TMP12 ) );
     V1[4] = denom * ( -cI * ( TMP6 * V4[4] ) + cI * ( V2[4] * TMP12 ) );
@@ -1360,7 +1360,7 @@ namespace mg5amcCpu
     const cxtype_sv TMP11 = ( V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5] );
     const cxtype_sv TMP12 = ( V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5] );
     const cxtype_sv TMP3 = ( V3[2] * V1[2] - V3[3] * V1[3] - V3[4] * V1[4] - V3[5] * V1[5] );
-    ( *vertex ) = COUP * ( -cI * ( TMP3 * TMP11 ) + cI * ( TMP1 * TMP12 ) );
+    ( *vertex ) = Ccoeff * COUP * ( -cI * ( TMP3 * TMP11 ) + cI * ( TMP1 * TMP12 ) );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -1391,7 +1391,7 @@ namespace mg5amcCpu
     const fptype_sv P1[4] = { -cxreal( V1[0] ), -cxreal( V1[1] ), -cximag( V1[1] ), -cximag( V1[0] ) };
     const cxtype_sv TMP11 = ( V2[2] * V4[2] - V2[3] * V4[3] - V2[4] * V4[4] - V2[5] * V4[5] );
     const cxtype_sv TMP12 = ( V3[2] * V4[2] - V3[3] * V4[3] - V3[4] * V4[4] - V3[5] * V4[5] );
-    const cxtype_sv denom = COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
+    const cxtype_sv denom = Ccoeff * COUP / ( ( P1[0] * P1[0] ) - ( P1[1] * P1[1] ) - ( P1[2] * P1[2] ) - ( P1[3] * P1[3] ) - M1 * ( M1 - cI * W1 ) );
     V1[2] = denom * ( -cI * ( V3[2] * TMP11 ) + cI * ( V2[2] * TMP12 ) );
     V1[3] = denom * ( -cI * ( V3[3] * TMP11 ) + cI * ( V2[3] * TMP12 ) );
     V1[4] = denom * ( -cI * ( V3[4] * TMP11 ) + cI * ( V2[4] * TMP12 ) );

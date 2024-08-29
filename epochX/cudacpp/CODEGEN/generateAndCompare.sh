@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 set -e # fail on error
 
@@ -87,8 +87,12 @@ function codeGenAndDiff()
     bb_tt)
       cmd="generate b b~ > t t~"
       ;;
+    nobm_gg_tt)
+      cmd="import model sm-no_b_mass
+      generate g g > t t~"
+      ;;
     nobm_pp_ttW)
-      cmd="import model loop_sm-no_b_mass
+      cmd="import model sm-no_b_mass
       define p = p b b~
       define j = p
       define w = w+ w- # W case only
@@ -96,6 +100,50 @@ function codeGenAndDiff()
       add process p p > t t~ w j @1"
       ;;
     nobm_pp_ttZ)
+      cmd="import model sm-no_b_mass
+      define p = p b b~
+      define j = p
+      generate p p > t t~ z @0
+      add process p p > t t~ z j @1"
+      ;;
+    nobm_gu_ttxwpd)
+      cmd="import model sm-no_b_mass
+      generate g u > t t~ w+ d"
+      ;;
+    nobm_pp_eejjj)
+      cmd="import model sm-no_b_mass
+      define p = p b b~
+      define j = p
+      generate p p > e+ e- j j j @3"
+      ;;
+    nobm_pp_eejjjj)
+      cmd="import model sm-no_b_mass
+      define p = p b b~
+      define j = p
+      generate p p > e+ e- j j j j @4"
+      ;;
+    gg_eegguu)
+      cmd="generate g g > e+ e- g g u u~"
+      ;;
+    #nobm_gg_eegguu) # essentially the same code as gg_eegguu
+    #  cmd="import model sm-no_b_mass
+    #  define p = p b b~
+    #  define j = p
+    #  generate g g > e+ e- g g u u~"
+    #  ;;
+    loop_nobm_gg_tt)
+      cmd="import model loop_sm-no_b_mass
+      generate g g > t t~"
+      ;;
+    loop_nobm_pp_ttW)
+      cmd="import model loop_sm-no_b_mass
+      define p = p b b~
+      define j = p
+      define w = w+ w- # W case only
+      generate p p > t t~ w @0
+      add process p p > t t~ w j @1"
+      ;;
+    loop_nobm_pp_ttZ)
       cmd="import model loop_sm-no_b_mass
       define p = p b b~
       define j = p
@@ -105,11 +153,51 @@ function codeGenAndDiff()
     heft_gg_h)
       cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
+    gg_bb)
+      cmd="generate g g > b b~" # for comparison: 3 SM diagrams
+      ;;
+    heft_gg_bb)
+      ###cmd="set auto_convert_model T; import model heft; generate g g > b b~" # 3 SM diagrams (as in SM gg_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > b b~ HIW<=1" # 4 diagrams (3 SM plus 1 HEFT): fix #828
+      ;;
+    heft_gg_h_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > h > b b~" # 1 HEFT diagram
+      ;;
     smeft_gg_tttt)
       cmd="set auto_convert_model T; import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t; generate g g > t t~ t t~"
       ;;
     susy_gg_tt)
       cmd="import model MSSM_SLHA2; generate g g > t t~"
+      ;;
+    susy_gg_tttt)
+      cmd="import model MSSM_SLHA2; generate g g > t t~ t t~"
+      ;;
+    susy_gq_ttq)
+      cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ q"
+      ;;
+    susy_gq_ttllq)
+      cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
+      ;;
+    ###susy_gu_ttllu)
+    ###  cmd="import model MSSM_SLHA2; generate g u > t t~ l- l+ u"
+    ###  ;;
+    ###susy_gux_ttllux)
+    ###  cmd="import model MSSM_SLHA2; generate g u~ > t t~ l- l+ u~"
+    ###  ;;
+    ###susy_gd_ttlld)
+    ###  cmd="import model MSSM_SLHA2; generate g d > t t~ l- l+ d"
+    ###  ;;
+    ###susy_gdx_ttlldx)
+    ###  cmd="import model MSSM_SLHA2; generate g d~ > t t~ l- l+ d~"
+    ###  ;;
+    susy_gg_gogo)
+      cmd="import model MSSM_SLHA2; generate g g > go go"
+      ;;
+    susy_gg_t1t1)
+      cmd="import model MSSM_SLHA2; generate g g > t1 t1~"
+      ;;
+    susy_gg_ulul)
+      cmd="import model MSSM_SLHA2; generate g g > ul ul~"
       ;;
     atlas)
       cmd="import model sm-no_b_mass
@@ -188,9 +276,9 @@ function codeGenAndDiff()
     elif [ "${OUTBCK}" == "madonly" ]; then # $SCRBCK=cudacpp and $OUTBCK=madonly
       echo "output madevent ${outproc} ${helrecopt} --vector_size=${vecsize}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "mad" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=${vecsize} --me_exporter=standalone_cudacpp" >> ${outproc}.mg
+      echo "output madevent_simd ${outproc} ${helrecopt} --vector_size=${vecsize} " >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madcpp" ]; then # $SCRBCK=cudacpp and $OUTBCK=madcpp
-      echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_cpp" >> ${outproc}.mg
+      echo "output madevent_simd ${outproc} ${helrecopt} --vector_size=32" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madgpu" ]; then # $SCRBCK=cudacpp and $OUTBCK=madgpu
       echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_gpu" >> ${outproc}.mg
     else # $SCRBCK=cudacpp and $OUTBCK=cudacpp, cpp or gpu
@@ -200,14 +288,17 @@ function codeGenAndDiff()
     cat ${outproc}.mg
     echo -e "--------------------------------------------------\n"
     ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
-    { time python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
+    { time python3 ./bin/mg5_aMC ${outproc}.mg || true ; } >& ${outproc}_log.txt
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
+  echo "Code generation completed in $SECONDS seconds" >> ${outproc}_log.txt
   # Check the code generation log for errors 
   if [ -d ${outproc} ] && ! grep -q "Please report this bug" ${outproc}_log.txt; then
     ###cat ${outproc}_log.txt; exit 0 # FOR DEBUGGING
     cat ${MG5AMC_HOME}/${outproc}_log.txt | { egrep 'INFO: (Try|Creat|Organiz|Process)' || true; }
+    echo ""
+    cat ${MG5AMC_HOME}/${outproc}_log.txt | grep 'Code generation'
   else
     echo "*** ERROR! Code generation failed"
     cat ${MG5AMC_HOME}/${outproc}_log.txt
@@ -227,6 +318,32 @@ function codeGenAndDiff()
     # Note: treatcards run also regenerates vector.inc if vector_size has changed in the runcard
     ${outproc}/bin/madevent treatcards run >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
     ${outproc}/bin/madevent treatcards param >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
+    # Generate matrix*.pdf files using ps2pdf and remove the original matrix*.ps (NB: this only works if ghostscript is installed)
+    if which ps2pdf > /dev/null 2>&1; then
+      for matrixps in ${outproc}/SubProcesses/P*/matrix*.ps; do
+        matrixpdf=$(dirname $matrixps)/$(basename $matrixps .ps).pdf
+        if ps2pdf $matrixps $matrixpdf; then
+          ###\rm -f $matrixps # keep also the .ps file as suggested by Olivier #854
+          # Strip PDF metadata from ps2pdf to make the file reproducible (use binary 'grep -a' for tests)
+          # Alternatively I tried pdftk (https://stackoverflow.com/questions/60738960) but this did not remove PdfID0/PdfID1 or XMP metadata
+          # Use pdftk <file.pdf> dump_data to inspect the PDF metadata (but this does not include XMP metadata!)
+          cat $matrixpdf \
+            | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/ModDate\\().*(\\)>>endobj$)","\\1"date"\\2","g")}' \
+            | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/CreationDate\\().*(\\)$)","\\1"date"\\2","g")}' \
+            | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("(^/ID \\[<).*><.*(>\\]$)","\\1"id"><"id"\\2","g")}' \
+            | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("(^/ID \\[\\().*\\)\\(.*(\\)\\]$)","\\1"id")("id"\\2","g")}' \
+            | awk -vdate="2024-03-01T00:00:00+01:00" '{print gensub("(<xmp:ModifyDate>).*(</xmp:ModifyDate>)","\\1"date"\\2","g")}' \
+            | awk -vdate="2024-03-01T00:00:00+01:00" '{print gensub("(<xmp:CreateDate>).*(</xmp:CreateDate>)","\\1"date"\\2","g")}' \
+            | awk -vuuid="'uuid=01234567-89ab-cdef-0123-456789abcdef'" '{print gensub("(xapMM:DocumentID=).*(/>$)","\\1"uuid"\\2","g")}' \
+            > ${matrixpdf}.new
+          \mv ${matrixpdf}.new $matrixpdf
+        fi
+      done
+    fi
+    # Remove card.jpg, diagrams.html and matrix*.jpg files (NB: these are only created if ghostscript is installed)
+    \rm -f ${outproc}/SubProcesses/P*/card.jpg
+    \rm -f ${outproc}/SubProcesses/P*/diagrams.html
+    \rm -f ${outproc}/SubProcesses/P*/matrix*jpg
     # Cleanup
     \rm -f ${outproc}/crossx.html
     \rm -f ${outproc}/index.html
@@ -605,6 +722,7 @@ fi
 ###fi
 
 # Generate the chosen process (this will always replace the existing code directory and create a .BKP)
+SECONDS=0 # bash built-in
 export CUDACPP_CODEGEN_PATCHLEVEL=${PATCHLEVEL}
 codeGenAndDiff $proc "$cmd"
 
@@ -629,4 +747,6 @@ fi
 
 echo
 echo "********************************************************************************"
+echo
+echo "Code generation and additional checks completed in $SECONDS seconds"
 echo

@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MemoryAccessMatrixElements_H
 #define MemoryAccessMatrixElements_H 1
@@ -13,7 +13,7 @@
 #include "MemoryBuffers.h" // for HostBufferMatrixElements::isaligned
 
 // NB: namespaces mg5amcGpu and mg5amcCpu includes types which are defined in different ways for CPU and GPU builds (see #318 and #725)
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu

@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 set -e # immediate exit on error
 
@@ -46,7 +46,7 @@ if [ "${patchlevel}" == "0" ]; then exit $status; fi
 # Patch the default Fortran code to provide the integration with the cudacpp plugin
 # (1) Process-independent patches
 touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copies it from Template/LO/Events/.keep) 
-\cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
+#\cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/fbridge_common.inc ${dir}/SubProcesses # new file
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
@@ -57,13 +57,9 @@ if [ "${patchlevel}" == "2" ]; then
 fi
 for p1dir in ${dir}/SubProcesses/P*; do
   cd $p1dir
-  ln -sf ../fbridge_common.inc . # new file
-  cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc . # new file
-  cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
-  ###cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc ${dir}/SubProcesses/ # new file (SH)
-  ###cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc ${dir}/SubProcesses/ # new file (SH)
-  ###ln -sf ../counters.cc . # new file (SH)
-  ###ln -sf ../ompnumthreads.cc . # new file (SH)
+  #ln -sf ../fbridge_common.inc . # new file
+  #cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/counters.cc . # new file
+  #cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
   if [ "${patchlevel}" == "2" ]; then
     echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1"
     if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi      

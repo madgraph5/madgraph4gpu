@@ -391,20 +391,8 @@ class gensym(object):
                         done = True
                 if not done:
                     raise Exception('Parsing error in gensym: %s' % stdout)
-
-            cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
-            logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
-            if cudacpp_backend == 'FORTRAN':
-                self.cmd.compile(['madevent_fortran_link'], cwd=Pdir)
-            elif cudacpp_backend == 'CPP':
-                self.cmd.compile(['madevent_cpp_link'], cwd=Pdir)
-            elif cudacpp_backend == 'CUDA':
-                self.cmd.compile(['madevent_cuda_link'], cwd=Pdir)
-            else:
-                raise Exception("Invalid cudacpp_backend='%s': only 'FORTRAN', 'CPP', 'CUDA' are supported")
-                ###logger.info("Building madevent with ALL(FORTRAN/CPP/CUDA) matrix elements (cudacpp_backend=%s)"%cudacpp_backend)
-                ###self.cmd.compile(['all'], cwd=Pdir)
-
+                     
+            self.cmd.compile(['madevent'], cwd=Pdir)
             if to_submit:
                 self.submit_to_cluster(job_list)
                 job_list = {}
@@ -1311,7 +1299,7 @@ class gen_ximprove_v4(gen_ximprove):
                     'script_name': 'unknown',
                     'directory': C.name,    # need to be change for splitted job
                     'P_dir': C.parent_name, 
-                    'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
+                    #'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
                     'offset': 1,            # need to be change for splitted job
                     'nevents': nevents,
                     'maxiter': self.max_iter,
@@ -1468,7 +1456,7 @@ class gen_ximprove_v4(gen_ximprove):
                     'script_name': 'unknown',
                     'directory': C.name,    # need to be change for splitted job
                     'P_dir': C.parent_name, 
-                    'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
+                    #'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
                     'offset': 1,            # need to be change for splitted job
                     'nevents': nevents,
                     'maxiter': self.max_iter,
@@ -1928,7 +1916,7 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
                     'directory': C.name,    # need to be change for splitted job
                     'P_dir': os.path.basename(C.parent_name), 
                     'offset': 1,            # need to be change for splitted job
-                    'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
+                    #'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
                     'nevents': nevents, #int(nevents*self.gen_events_security)+1,
                     'maxiter': self.max_iter,
                     'miniter': self.min_iter,

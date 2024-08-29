@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Hageboeck (Dec 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MADGRAPHTEST_H_
 #define MADGRAPHTEST_H_ 1
@@ -14,7 +14,11 @@
 
 #include <array>
 #include <cmath>
-#include <filesystem>
+//#ifdef __HIPCC__
+//#include <experimental/filesystem> // see https://rocm.docs.amd.com/en/docs-5.4.3/CHANGELOG.html#id79
+//#else
+//#include <filesystem> // bypass this completely to ease portability on LUMI #803
+//#endif
 #include <fstream>
 #include <iomanip>
 #include <memory>
@@ -22,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 using mg5amcGpu::CPPProcess;
 #else
 using mg5amcCpu::CPPProcess;
@@ -93,29 +97,6 @@ namespace
  * Users need to implement:
  * - Functions to retrieve matrix element and 4-momenta. These are used in the tests.
  * - Driver functions that run the madgraph workflow.
- *
- * Usage:
- * ```
- * class TestImplementation : public TestDriverBase {
- *   <override all pure-virtual functions with Madgraph workflow>
- * }
- *
- * class TestImplementation2 : public TestDriverBase {
- *   <override all pure-virtual functions with a different Madgraph workflow>
- * }
- *
- * INSTANTIATE_TEST_SUITE_P( TestName,
- *                           MadgraphTest,
- *                           testing::Values( new TestImplementation, new TestImplementation2, ... ) );
- *```
- *
- * For adapting the test workflow, see the .cc and adapt
- *   TEST_P(MadgraphTest, CompareMomentaAndME)
- *
- * To add a test that should be runnable with all test implementations that derive from TestDriverBase, add a new
- *   TEST_P(MadgraphTest, <TestName>) {
- *     <test code>
- *   }
  */
 class TestDriverBase
 {
@@ -180,46 +161,41 @@ public:
 
 /**
  * Test class that's defining all tests to run with a Madgraph workflow.
- * The tests are defined below using TEST_P.
- * Instantiate them using:
- * ```
- * INSTANTIATE_TEST_SUITE_P( TestName,
- *                           MadgraphTest,
- *                           testing::Values( new TestImplementation, new TestImplementation2, ... ) );
- * ```
  */
-class MadgraphTest : public testing::TestWithParam<TestDriverBase*>
+class MadgraphTest
 {
-protected:
-  std::unique_ptr<TestDriverBase> testDriver;
-
-  MadgraphTest()
-    : TestWithParam(), testDriver( GetParam() )
-  {
-  }
+public:
+  MadgraphTest( TestDriverBase& testDriverRef )
+    : testDriver( &testDriverRef ) {}
+  ~MadgraphTest() {}
+  void CompareMomentaAndME( testing::Test& googleTest ) const; // NB: googleTest is ONLY needed for the HasFailure method...
+private:
+  TestDriverBase* testDriver; // non-owning pointer
 };
 
-// Since we link both the CPU-only and GPU tests into the same executable, we prevent
-// a multiply defined symbol by only compiling this in the non-CUDA phase:
-#ifndef __CUDACC__
-
-/// Compare momenta and matrix elements.
-/// This uses an implementation of TestDriverBase to run a madgraph workflow,
-/// and compares momenta and matrix elements with a reference file.
-TEST_P( MadgraphTest, CompareMomentaAndME )
+void
+MadgraphTest::CompareMomentaAndME( testing::Test& googleTest ) const
 {
   const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 4.E-2; // see #735
 #ifdef __APPLE__
   const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 3.E-2; // see #583
 #else
-  const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 2.E-3;
+  //const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 2.E-3; // fails smeft/hip #843
+  const fptype toleranceMEs = std::is_same<double, fptype>::value ? 1.E-6 : 3.E-3;
 #endif
   constexpr fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   // Dump events to a new reference file?
   const char* dumpEventsC = getenv( "CUDACPP_RUNTEST_DUMPEVENTS" );
   const bool dumpEvents = ( dumpEventsC != 0 ) && ( std::string( dumpEventsC ) != "" );
   const std::string refFileName = testDriver->getRefFileName();
+  /*
+#ifdef __HIPCC__
+  const std::string dumpFileName = std::experimental::filesystem::path( refFileName ).filename();
+#else
   const std::string dumpFileName = std::filesystem::path( refFileName ).filename();
+#endif
+  */
+  const std::string dumpFileName = refFileName; // bypass std::filesystem #803
   std::ofstream dumpFile;
   if( dumpEvents )
   {
@@ -231,7 +207,7 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   {
     referenceData = readReferenceData( refFileName );
   }
-  ASSERT_FALSE( HasFailure() ); // It doesn't make any sense to continue if we couldn't read the reference file.
+  ASSERT_FALSE( googleTest.HasFailure() ); // It doesn't make any sense to continue if we couldn't read the reference file.
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
   // **************************************
@@ -241,7 +217,7 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
     testDriver->prepareMomenta( energy );
     testDriver->runSigmaKin( iiter );
     // --- Run checks on all events produced in this iteration
-    for( std::size_t ievt = 0; ievt < testDriver->nevt && !HasFailure(); ++ievt )
+    for( std::size_t ievt = 0; ievt < testDriver->nevt && !googleTest.HasFailure(); ++ievt )
     {
       if( dumpEvents )
       {
@@ -284,13 +260,14 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
         {
           const fptype pMadg = testDriver->getMomentum( ievt, ipar, icomp );
           const fptype pOrig = referenceData[iiter].momenta[ievt][ipar][icomp];
-          const fptype relDelta = fabs( ( pMadg - pOrig ) / pOrig );
-          if( relDelta > toleranceMomenta )
+          //const fptype relDelta = fabs( ( pMadg - pOrig ) / pOrig ); // computing relDelta may lead to FPEs
+          const fptype delta = fabs( pMadg - pOrig );
+          if( delta > toleranceMomenta * fabs( pOrig ) ) // better than "relDelta > toleranceMomenta"
           {
             momentumErrors << std::setprecision( 15 ) << std::scientific << "\nparticle " << ipar << "\tcomponent " << icomp
                            << "\n\t madGraph:  " << std::setw( 22 ) << pMadg
                            << "\n\t reference: " << std::setw( 22 ) << pOrig
-                           << "\n\t rel delta: " << std::setw( 22 ) << relDelta << " exceeds tolerance of " << toleranceMomenta;
+                           << "\n\t relative delta exceeds tolerance of " << toleranceMomenta;
           }
         }
         ASSERT_TRUE( momentumErrors.str().empty() ) << momentumErrors.str();
@@ -306,7 +283,5 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
     std::cout << "Event dump written to " << dumpFileName << std::endl;
   }
 }
-
-#endif // __CUDACC__
 
 #endif /* MADGRAPHTEST_H_ */

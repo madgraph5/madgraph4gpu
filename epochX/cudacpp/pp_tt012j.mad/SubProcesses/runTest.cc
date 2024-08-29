@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Hageboeck (Nov 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
 //----------------------------------------------------------------------------
 // Use ./runTest.exe --gtest_filter=*xxx to run only testxxx.cc tests
 //----------------------------------------------------------------------------
@@ -18,7 +18,7 @@
 #include "RandomNumberKernels.h"
 #include "epoch_process_id.h"
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 using namespace mg5amcGpu;
 #else
 using namespace mg5amcCpu;
@@ -35,7 +35,7 @@ struct CUDA_CPU_TestBase : public TestDriverBase
     : TestDriverBase( npar, refFileName ) {}
 };
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 struct CPUTest : public CUDA_CPU_TestBase
 {
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
@@ -51,6 +51,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   HostBufferSelectedHelicity hstSelHel;
   HostBufferSelectedColor hstSelCol;
   HostBufferHelicityMask hstIsGoodHel;
+  std::unique_ptr<MatrixElementKernelBase> pmek;
 
   // Create a process object
   // Read param_card and set parameters
@@ -70,6 +71,7 @@ struct CPUTest : public CUDA_CPU_TestBase
     , hstSelHel( nevt )
     , hstSelCol( nevt )
     , hstIsGoodHel( CPPProcess::ncomb )
+    , pmek( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) )
   {
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton?
@@ -99,10 +101,9 @@ struct CPUTest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    MatrixElementKernelHost mek( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt );
-    if( iiter == 0 ) mek.computeGoodHelicities();
+    if( iiter == 0 ) pmek->computeGoodHelicities();
     constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
-    mek.computeMatrixElements( channelId );
+    pmek->computeMatrixElements( channelId );
   }
 
   fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
@@ -119,19 +120,9 @@ struct CPUTest : public CUDA_CPU_TestBase
 };
 #endif
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 struct CUDATest : public CUDA_CPU_TestBase
 {
-  // Reset the device when our test goes out of scope. Note that this should happen after
-  // the frees, i.e. be declared before the pointers to device memory.
-  struct DeviceReset
-  {
-    ~DeviceReset()
-    {
-      checkCuda( cudaDeviceReset() ); // this is needed by cuda-memcheck --leak-check full
-    }
-  } deviceResetter;
-
   // Struct data members (process, and memory structures for random numbers, momenta, matrix elements and weights on host and device)
   // [NB the hst/dev memory arrays must be initialised in the constructor, see issue #290]
   CPPProcess process;
@@ -155,6 +146,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   DeviceBufferSelectedHelicity devSelHel;
   DeviceBufferSelectedColor devSelCol;
   DeviceBufferHelicityMask devIsGoodHel;
+  std::unique_ptr<MatrixElementKernelBase> pmek;
 
   // Create a process object
   // Read param_card and set parameters
@@ -184,6 +176,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     , devSelHel( nevt )
     , devSelCol( nevt )
     , devIsGoodHel( CPPProcess::ncomb )
+    , pmek( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) )
   {
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton?
@@ -219,10 +212,9 @@ struct CUDATest : public CUDA_CPU_TestBase
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
-    MatrixElementKernelDevice mek( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads );
-    if( iiter == 0 ) mek.computeGoodHelicities();
+    if( iiter == 0 ) pmek->computeGoodHelicities();
     constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
-    mek.computeMatrixElements( channelId );
+    pmek->computeMatrixElements( channelId );
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
@@ -238,26 +230,41 @@ struct CUDATest : public CUDA_CPU_TestBase
     return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 };
-#endif
+#endif /* clang-format off */
 
-// Use two levels of macros to force stringification at the right level
-// (see https://gcc.gnu.org/onlinedocs/gcc-3.0.1/cpp_3.html#SEC17 and https://stackoverflow.com/a/3419392)
-// Google macro is in https://github.com/google/googletest/blob/master/googletest/include/gtest/gtest-param-test.h
-#define TESTID_CPU( s ) s##_CPU
-#define XTESTID_CPU( s ) TESTID_CPU( s )
-#define MG_INSTANTIATE_TEST_SUITE_CPU( prefix, test_suite_name ) \
-INSTANTIATE_TEST_SUITE_P( prefix, \
-                          test_suite_name, \
-                          testing::Values( new CPUTest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
-#define TESTID_GPU( s ) s##_GPU
-#define XTESTID_GPU( s ) TESTID_GPU( s )
-#define MG_INSTANTIATE_TEST_SUITE_GPU( prefix, test_suite_name ) \
-INSTANTIATE_TEST_SUITE_P( prefix, \
-                          test_suite_name, \
-                          testing::Values( new CUDATest( MG_EPOCH_REFERENCE_FILE_NAME ) ) );
-
-#ifdef __CUDACC__
-MG_INSTANTIATE_TEST_SUITE_GPU( XTESTID_GPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
+// AV July 2024 much simpler class structure without the presently-unnecessary googletest templates
+// This is meant as a workaround to prevent not-understood segfault #907 when adding a second test
+#ifdef MGONGPUCPP_GPUIMPL
+// CUDA test 1
+CUDATest cudaDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
+MadgraphTest mgTest1( cudaDriver1 );
+#define TESTID1( s ) s##_GPU_MADGRAPH1
+#define XTESTID1( s ) TESTID1( s )
+// CUDA test 2
+//CUDATest cudaDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
+//MadgraphTest mgTest2( cudaDriver2 );
+//#define TESTID2( s ) s##_GPU_MADGRAPH2
+//#define XTESTID2( s ) TESTID2( s )
 #else
-MG_INSTANTIATE_TEST_SUITE_CPU( XTESTID_CPU( MG_EPOCH_PROCESS_ID ), MadgraphTest );
+// CPU test 1
+CPUTest cppDriver1( MG_EPOCH_REFERENCE_FILE_NAME );
+MadgraphTest mgTest1( cppDriver1 );
+#define TESTID1( s ) s##_CPU_MADGRAPH1
+#define XTESTID1( s ) TESTID1( s )
+// CPU test 2
+//CPUTest cppDriver2( MG_EPOCH_REFERENCE_FILE_NAME );
+//MadgraphTest mgTest2( cppDriver2 );
+//#define TESTID2( s ) s##_CPU_MADGRAPH2
+//#define XTESTID2( s ) TESTID2( s )
 #endif
+// Instantiate Google test 1
+TEST( XTESTID1( MG_EPOCH_PROCESS_ID ), compareMomAndME )
+{
+  mgTest1.CompareMomentaAndME( *this );
+}
+// Instantiate Google test 2
+//TEST( XTESTID2( MG_EPOCH_PROCESS_ID ), compareMomAndME )
+//{
+//  mgTest2.CompareMomentaAndME( *this );
+//}
+/* clang-format on */

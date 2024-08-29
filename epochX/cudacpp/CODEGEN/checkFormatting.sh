@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 #--------------------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ function checkProcdir()
   cd $TOPDIR
   if [ ! -d $procdir ]; then echo "ERROR! Directory not found $TOPDIR/$procdir"; exit 1; fi
   # Define the list of files to be checked
-  files=$(\ls $procdir/src/*.cc $procdir/src/*.h $procdir/SubProcesses/*.cc $procdir/SubProcesses/*.h $procdir/SubProcesses/P*/check_sa.cc $procdir/SubProcesses/P*/CPPProcess.cc $procdir/SubProcesses/P*/CPPProcess.h $procdir/SubProcesses/P*/epoch_process_id.h)
+  files=$(\ls $procdir/src/*.cc $procdir/src/*.h $procdir/SubProcesses/*.cc $procdir/SubProcesses/*.h $procdir/SubProcesses/P*/check_sa.cc $procdir/SubProcesses/P*/CPPProcess.cc $procdir/SubProcesses/P*/CPPProcess.h $procdir/SubProcesses/P*/epoch_process_id.h $procdir/SubProcesses/P*/coloramps.h)
   if [ "$files" == "" ]; then echo "ERROR! No files to check found in directory $TOPDIR/$procdir"; exit 1; fi
   # Check each file
   status=0

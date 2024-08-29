@@ -1,13 +1,13 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.5.2_lo_vect, 2023-11-08
+// MadGraph5_aMC@NLO v. 3.5.3_lo_vect, 2023-12-23
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -17,7 +17,7 @@
 #include <iomanip>
 #include <iostream>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 using namespace mg5amcGpu;
 #else
 using namespace mg5amcCpu;
@@ -40,9 +40,9 @@ Parameters_sm::getInstance()
 void
 Parameters_sm::setIndependentParameters( SLHAReader& slha )
 {
-  zero = 0; // define "zero"
-  ZERO = 0; // define "zero"
-  //std::vector<int> indices(2, 0); // prepare a vector for indices
+  zero = 0;                         // define "zero"
+  ZERO = 0;                         // define "zero"
+  std::vector<int> indices( 2, 0 ); // prepare a vector for indices
   mdl_WH = slha.get_block_entry( "decay", 25, 6.382339e-03 );
   mdl_WW = slha.get_block_entry( "decay", 24, 2.047600e+00 );
   mdl_WZ = slha.get_block_entry( "decay", 23, 2.441404e+00 );
@@ -91,6 +91,8 @@ Parameters_sm::setIndependentParameters( SLHAReader& slha )
   mdl_ee__exp__2 = ( ( mdl_ee ) * ( mdl_ee ) );
   mdl_sw__exp__2 = ( ( mdl_sw ) * ( mdl_sw ) );
   mdl_cw__exp__2 = ( ( mdl_cw ) * ( mdl_cw ) );
+  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;
+  // (none)
 }
 
 void

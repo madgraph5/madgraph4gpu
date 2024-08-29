@@ -1,3 +1,15 @@
+! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
+! Created by: J. Alwall (Jul 2010) for the MG5aMC CPP backend.
+!==========================================================================
+! Copyright (C) 2020-2023 CERN and UCLouvain.
+! Licensed under the GNU Lesser General Public License (version 3 or later).
+! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
+! Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+!==========================================================================
+! Copyright (C) 2021-2023 Argonne National Laboratory.
+! Licensed under the GNU Lesser General Public License (version 3 or later).
+! Modified by: N. Nichols (2021-2023) for the MG5aMC SYCL plugin.
+!==========================================================================
       // PART 0 - INITIALISATION (before calculate_wavefunctions)
       // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
       // FIXME: assume process.nprocesses == 1 for the moment (eventually: need a loop over processes here?)
@@ -16,13 +28,13 @@
           jamp2_sv[icolC] = FPZERO_SV;
       }
 
-      fptype_sv MEs_ighel[ncomb]; // sum of MEs for all good helicities up to ighel (for this event)
+      fptype_sv MEs_ighel[CPPPROCESS_NCOMB]; // sum of MEs for all good helicities up to ighel (for this event)
       for (size_t ighel = 0; ighel < cNGoodHel[0]; ighel++) {
           const size_t ihel = cGoodHel[ighel];
           #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
+              allMEs += calculate_wavefunctions( allmomenta, &allNumerators, &allDenominators, channelId, cHel + ihel*CPPPROCESS_NPAR, COUPs, cIPD, jamp2_sv );
           #else
-              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*npar, COUPs, cIPD, jamp2_sv );
+              allMEs += calculate_wavefunctions( allmomenta, cHel + ihel*CPPPROCESS_NPAR, COUPs, cIPD, jamp2_sv );
           #endif
           MEs_ighel[ighel] = allMEs;
       }
@@ -41,30 +53,32 @@
       }
 
       #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-          auto l_icolamp = mgOnGpu::icolamp<bool>;
+          if (channelId > 0) {
+              auto l_icolamp = mgOnGpu::icolamp<bool>;
 
-          // Event-by-event random choice of color #402
-          const size_t channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
-          fptype_sv targetamp[ncolor];
-          for (size_t icolC = 0; icolC < ncolor; icolC++) {
-              if (icolC == 0) {
-                  targetamp[icolC] = FPZERO_SV;
+              // Event-by-event random choice of color #402
+              const size_t channelIdC = channelId - 1; // coloramps.h uses the C array indexing starting at 0
+              fptype_sv targetamp[ncolor];
+              for (size_t icolC = 0; icolC < ncolor; icolC++) {
+                  if (icolC == 0) {
+                      targetamp[icolC] = FPZERO_SV;
+                  }
+                  else {
+                      targetamp[icolC] = targetamp[icolC - 1];
+                  }
+                  if (l_icolamp[ncolor*channelIdC + icolC]) { targetamp[icolC] += jamp2_sv[icolC]; }
               }
-              else {
-                  targetamp[icolC] = targetamp[icolC - 1];
-              }
-              if (l_icolamp[ncolor*channelIdC + icolC]) { targetamp[icolC] += jamp2_sv[icolC]; }
-          }
 
-          bool_sv selcol_unset = bool_sv(-1);
-          for (size_t icolC = 0; icolC < ncolor; icolC++) {
-              if (FPANY_SV(selcol_unset)) {
-                  bool_sv selcol_flip = selcol_unset & (rndcol[0] < (targetamp[icolC]/targetamp[ncolor - 1]));
-                  selcol[0] = FPCONDITIONAL_SV(selcol[0], int_sv(icolC + 1), selcol_flip);
-                  selcol_unset = selcol_unset & !(selcol_flip);
-              }
-              else {
-                  break;
+              bool_sv selcol_unset = bool_sv(-1);
+              for (size_t icolC = 0; icolC < ncolor; icolC++) {
+                  if (FPANY_SV(selcol_unset)) {
+                      bool_sv selcol_flip = selcol_unset & (rndcol[0] < (targetamp[icolC]/targetamp[ncolor - 1]));
+                      selcol[0] = FPCONDITIONAL_SV(selcol[0], int_sv(icolC + 1), selcol_flip);
+                      selcol_unset = selcol_unset & !(selcol_flip);
+                  }
+                  else {
+                      break;
+                  }
               }
           }
       #endif
