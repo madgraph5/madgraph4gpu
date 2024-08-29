@@ -62,76 +62,150 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6]
+  // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6] (dependent couplings)
   __device__ void
-  linker_VVV1P0_1( const fptype allV2[],
-                   const fptype allV3[],
-                   const fptype allCOUP[],
-                   const double Ccoeff,
-                   const fptype M1,
-                   const fptype W1,
-                   fptype allV1[] )
+  linker_CD_VVV1P0_1( const fptype allV2[],
+                      const fptype allV3[],
+                      const fptype allCOUP[],
+                      const double Ccoeff,
+                      const fptype M1,
+                      const fptype W1,
+                      fptype allV1[] )
   {
     return VVV1P0_1<W_ACCESS, CD_ACCESS>( allV2, allV3, allCOUP, Ccoeff, M1, W1, allV1 );
   }
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], S2[6], S3[6]
+  // Compute the output wavefunction 'V1[6]' from the input wavefunctions V2[6], V3[6] (independent couplings)
   __device__ void
-  linker_VSS1_0( const fptype allV1[],
-                 const fptype allS2[],
-                 const fptype allS3[],
-                 const fptype allCOUP[],
-                 const double Ccoeff,
-                 fptype allvertexes[] )
+  linker_CI_VVV1P0_1( const fptype allV2[],
+                      const fptype allV3[],
+                      const fptype allCOUP[],
+                      const double Ccoeff,
+                      const fptype M1,
+                      const fptype W1,
+                      fptype allV1[] )
+  {
+    return VVV1P0_1<W_ACCESS, CI_ACCESS>( allV2, allV3, allCOUP, Ccoeff, M1, W1, allV1 );
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], S2[6], S3[6] (dependent couplings)
+  __device__ void
+  linker_CD_VSS1_0( const fptype allV1[],
+                    const fptype allS2[],
+                    const fptype allS3[],
+                    const fptype allCOUP[],
+                    const double Ccoeff,
+                    fptype allvertexes[] )
   {
     return VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( allV1, allS2, allS3, allCOUP, Ccoeff, allvertexes );
   }
 
   //--------------------------------------------------------------------------
 
-  // Compute the output wavefunction 'S2[6]' from the input wavefunctions V1[6], S3[6]
+  // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], S2[6], S3[6] (independent couplings)
   __device__ void
-  linker_VSS1_2( const fptype allV1[],
-                 const fptype allS3[],
-                 const fptype allCOUP[],
-                 const double Ccoeff,
-                 const fptype M2,
-                 const fptype W2,
-                 fptype allS2[] )
+  linker_CI_VSS1_0( const fptype allV1[],
+                    const fptype allS2[],
+                    const fptype allS3[],
+                    const fptype allCOUP[],
+                    const double Ccoeff,
+                    fptype allvertexes[] )
+  {
+    return VSS1_0<W_ACCESS, A_ACCESS, CI_ACCESS>( allV1, allS2, allS3, allCOUP, Ccoeff, allvertexes );
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output wavefunction 'S2[6]' from the input wavefunctions V1[6], S3[6] (dependent couplings)
+  __device__ void
+  linker_CD_VSS1_2( const fptype allV1[],
+                    const fptype allS3[],
+                    const fptype allCOUP[],
+                    const double Ccoeff,
+                    const fptype M2,
+                    const fptype W2,
+                    fptype allS2[] )
   {
     return VSS1_2<W_ACCESS, CD_ACCESS>( allV1, allS3, allCOUP, Ccoeff, M2, W2, allS2 );
   }
 
   //--------------------------------------------------------------------------
 
-  // Compute the output wavefunction 'S3[6]' from the input wavefunctions V1[6], S2[6]
+  // Compute the output wavefunction 'S2[6]' from the input wavefunctions V1[6], S3[6] (independent couplings)
   __device__ void
-  linker_VSS1_3( const fptype allV1[],
-                 const fptype allS2[],
-                 const fptype allCOUP[],
-                 const double Ccoeff,
-                 const fptype M3,
-                 const fptype W3,
-                 fptype allS3[] )
+  linker_CI_VSS1_2( const fptype allV1[],
+                    const fptype allS3[],
+                    const fptype allCOUP[],
+                    const double Ccoeff,
+                    const fptype M2,
+                    const fptype W2,
+                    fptype allS2[] )
+  {
+    return VSS1_2<W_ACCESS, CI_ACCESS>( allV1, allS3, allCOUP, Ccoeff, M2, W2, allS2 );
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output wavefunction 'S3[6]' from the input wavefunctions V1[6], S2[6] (dependent couplings)
+  __device__ void
+  linker_CD_VSS1_3( const fptype allV1[],
+                    const fptype allS2[],
+                    const fptype allCOUP[],
+                    const double Ccoeff,
+                    const fptype M3,
+                    const fptype W3,
+                    fptype allS3[] )
   {
     return VSS1_3<W_ACCESS, CD_ACCESS>( allV1, allS2, allCOUP, Ccoeff, M3, W3, allS3 );
   }
 
   //--------------------------------------------------------------------------
 
-  // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], S3[6], S4[6]
+  // Compute the output wavefunction 'S3[6]' from the input wavefunctions V1[6], S2[6] (independent couplings)
   __device__ void
-  linker_VVSS1_0( const fptype allV1[],
-                  const fptype allV2[],
-                  const fptype allS3[],
-                  const fptype allS4[],
-                  const fptype allCOUP[],
-                  const double Ccoeff,
-                  fptype allvertexes[] )
+  linker_CI_VSS1_3( const fptype allV1[],
+                    const fptype allS2[],
+                    const fptype allCOUP[],
+                    const double Ccoeff,
+                    const fptype M3,
+                    const fptype W3,
+                    fptype allS3[] )
+  {
+    return VSS1_3<W_ACCESS, CI_ACCESS>( allV1, allS2, allCOUP, Ccoeff, M3, W3, allS3 );
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], S3[6], S4[6] (dependent couplings)
+  __device__ void
+  linker_CD_VVSS1_0( const fptype allV1[],
+                     const fptype allV2[],
+                     const fptype allS3[],
+                     const fptype allS4[],
+                     const fptype allCOUP[],
+                     const double Ccoeff,
+                     fptype allvertexes[] )
   {
     return VVSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( allV1, allV2, allS3, allS4, allCOUP, Ccoeff, allvertexes );
+  }
+
+  //--------------------------------------------------------------------------
+
+  // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], S3[6], S4[6] (independent couplings)
+  __device__ void
+  linker_CI_VVSS1_0( const fptype allV1[],
+                     const fptype allV2[],
+                     const fptype allS3[],
+                     const fptype allS4[],
+                     const fptype allCOUP[],
+                     const double Ccoeff,
+                     fptype allvertexes[] )
+  {
+    return VVSS1_0<W_ACCESS, A_ACCESS, CI_ACCESS>( allV1, allV2, allS3, allS4, allCOUP, Ccoeff, allvertexes );
   }
 
   //--------------------------------------------------------------------------

@@ -332,10 +332,10 @@ namespace mg5amcCpu
 
       oxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][3], +1, w_fp[3], 3 );
 
-      helas_FFV1P0_3( w_fp[1], w_fp[0], COUPs[ndcoup + 0], 1.0, 0., 0., w_fp[4] );
+      helas_CI_FFV1P0_3( w_fp[1], w_fp[0], COUPs[ndcoup + 0], 1.0, 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      helas_FFV1_0( w_fp[2], w_fp[3], w_fp[4], COUPs[ndcoup + 0], 1.0, &amp_fp[0] );
+      helas_CI_FFV1_0( w_fp[2], w_fp[3], w_fp[4], COUPs[ndcoup + 0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -344,10 +344,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 2 OF 2 ***
 
       // Wavefunction(s) for diagram number 2
-      helas_FFV2_4_3( w_fp[1], w_fp[0], COUPs[ndcoup + 1], 1.0, COUPs[ndcoup + 2], 1.0, cIPD[0], cIPD[1], w_fp[4] );
+      helas_CI_FFV2_4_3( w_fp[1], w_fp[0], COUPs[ndcoup + 1], 1.0, COUPs[ndcoup + 2], 1.0, cIPD[0], cIPD[1], w_fp[4] );
 
       // Amplitude(s) for diagram number 2
-      helas_FFV2_4_0( w_fp[2], w_fp[3], w_fp[4], COUPs[ndcoup + 1], 1.0, COUPs[ndcoup + 2], 1.0, &amp_fp[0] );
+      helas_CI_FFV2_4_0( w_fp[2], w_fp[3], w_fp[4], COUPs[ndcoup + 1], 1.0, COUPs[ndcoup + 2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif

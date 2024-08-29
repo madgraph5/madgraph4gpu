@@ -338,13 +338,13 @@ namespace mg5amcCpu
 
       vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][6], +1, w_fp[6], 6 );
 
-      helas_VVV1P0_1( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[7] );
-      helas_FFV1P0_3( w_fp[3], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[8] );
-      helas_VVV1P0_1( w_fp[7], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[9] );
-      helas_VVV1P0_1( w_fp[8], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[10] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[7] );
+      helas_CD_FFV1P0_3( w_fp[3], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[8] );
+      helas_CD_VVV1P0_1( w_fp[7], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[9] );
+      helas_CD_VVV1P0_1( w_fp[8], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[10] );
 
       // Amplitude(s) for diagram number 1
-      helas_VVV1_0( w_fp[9], w_fp[10], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[9], w_fp[10], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -369,10 +369,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 2 OF 1240 ***
 
       // Wavefunction(s) for diagram number 2
-      helas_VVV1P0_1( w_fp[8], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[11] );
+      helas_CD_VVV1P0_1( w_fp[8], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[11] );
 
       // Amplitude(s) for diagram number 2
-      helas_VVV1_0( w_fp[9], w_fp[11], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[9], w_fp[11], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -400,7 +400,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 3
-      helas_VVVV1_0( w_fp[8], w_fp[5], w_fp[6], w_fp[9], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[8], w_fp[5], w_fp[6], w_fp[9], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -417,7 +417,7 @@ namespace mg5amcCpu
       jamp_sv[102] -= amp_sv[0];
       jamp_sv[108] -= amp_sv[0];
       jamp_sv[110] += amp_sv[0];
-      helas_VVVV3_0( w_fp[8], w_fp[5], w_fp[6], w_fp[9], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[8], w_fp[5], w_fp[6], w_fp[9], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -434,7 +434,7 @@ namespace mg5amcCpu
       jamp_sv[116] += amp_sv[0];
       jamp_sv[118] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[8], w_fp[5], w_fp[6], w_fp[9], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[8], w_fp[5], w_fp[6], w_fp[9], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[1] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -455,11 +455,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 4 OF 1240 ***
 
       // Wavefunction(s) for diagram number 4
-      helas_VVV1P0_1( w_fp[7], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[12] );
-      helas_VVV1P0_1( w_fp[8], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[13] );
+      helas_CD_VVV1P0_1( w_fp[7], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[12] );
+      helas_CD_VVV1P0_1( w_fp[8], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[13] );
 
       // Amplitude(s) for diagram number 4
-      helas_VVV1_0( w_fp[12], w_fp[13], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[12], w_fp[13], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 4 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -487,7 +487,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 5
-      helas_VVV1_0( w_fp[12], w_fp[11], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[12], w_fp[11], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 5 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -515,7 +515,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 6
-      helas_VVVV1_0( w_fp[8], w_fp[4], w_fp[6], w_fp[12], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[8], w_fp[4], w_fp[6], w_fp[12], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -532,7 +532,7 @@ namespace mg5amcCpu
       jamp_sv[103] -= amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
-      helas_VVVV3_0( w_fp[8], w_fp[4], w_fp[6], w_fp[12], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[8], w_fp[4], w_fp[6], w_fp[12], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -549,7 +549,7 @@ namespace mg5amcCpu
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
-      helas_VVVV4_0( w_fp[8], w_fp[4], w_fp[6], w_fp[12], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[8], w_fp[4], w_fp[6], w_fp[12], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[3] += amp_sv[0];
       jamp_sv[26] += amp_sv[0];
@@ -570,10 +570,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 7 OF 1240 ***
 
       // Wavefunction(s) for diagram number 7
-      helas_VVV1P0_1( w_fp[7], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[14] );
+      helas_CD_VVV1P0_1( w_fp[7], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[14] );
 
       // Amplitude(s) for diagram number 7
-      helas_VVV1_0( w_fp[14], w_fp[13], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[14], w_fp[13], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 7 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -601,7 +601,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 8
-      helas_VVV1_0( w_fp[14], w_fp[10], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[14], w_fp[10], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 8 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -629,7 +629,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 9
-      helas_VVVV1_0( w_fp[8], w_fp[4], w_fp[5], w_fp[14], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[8], w_fp[4], w_fp[5], w_fp[14], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -646,7 +646,7 @@ namespace mg5amcCpu
       jamp_sv[92] += amp_sv[0];
       jamp_sv[97] += amp_sv[0];
       jamp_sv[103] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[8], w_fp[4], w_fp[5], w_fp[14], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[8], w_fp[4], w_fp[5], w_fp[14], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -663,7 +663,7 @@ namespace mg5amcCpu
       jamp_sv[92] += amp_sv[0];
       jamp_sv[96] += amp_sv[0];
       jamp_sv[102] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[8], w_fp[4], w_fp[5], w_fp[14], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[8], w_fp[4], w_fp[5], w_fp[14], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[5] += amp_sv[0];
       jamp_sv[28] += amp_sv[0];
@@ -684,12 +684,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 10 OF 1240 ***
 
       // Wavefunction(s) for diagram number 10
-      helas_VVVV1P0_1( w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[15] );
-      helas_VVVV3P0_1( w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[16] );
-      helas_VVVV4P0_1( w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[17] );
+      helas_CD_VVVV1P0_1( w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[15] );
+      helas_CD_VVVV3P0_1( w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[16] );
+      helas_CD_VVVV4P0_1( w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[17] );
 
       // Amplitude(s) for diagram number 10
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[15], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[15], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
@@ -706,7 +706,7 @@ namespace mg5amcCpu
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -723,7 +723,7 @@ namespace mg5amcCpu
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -744,12 +744,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 11 OF 1240 ***
 
       // Wavefunction(s) for diagram number 11
-      helas_VVVV1P0_1( w_fp[7], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[18] );
-      helas_VVVV3P0_1( w_fp[7], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[19] );
-      helas_VVVV4P0_1( w_fp[7], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[20] );
+      helas_CD_VVVV1P0_1( w_fp[7], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[18] );
+      helas_CD_VVVV3P0_1( w_fp[7], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[19] );
+      helas_CD_VVVV4P0_1( w_fp[7], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[20] );
 
       // Amplitude(s) for diagram number 11
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[18], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[18], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[25] -= amp_sv[0];
@@ -766,7 +766,7 @@ namespace mg5amcCpu
       jamp_sv[95] += amp_sv[0];
       jamp_sv[108] += amp_sv[0];
       jamp_sv[110] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -783,7 +783,7 @@ namespace mg5amcCpu
       jamp_sv[92] += amp_sv[0];
       jamp_sv[96] += amp_sv[0];
       jamp_sv[102] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -804,12 +804,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 12 OF 1240 ***
 
       // Wavefunction(s) for diagram number 12
-      helas_VVVV1P0_1( w_fp[7], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[21] );
-      helas_VVVV3P0_1( w_fp[7], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[22] );
-      helas_VVVV4P0_1( w_fp[7], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[23] );
+      helas_CD_VVVV1P0_1( w_fp[7], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVVV3P0_1( w_fp[7], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[22] );
+      helas_CD_VVVV4P0_1( w_fp[7], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[23] );
 
       // Amplitude(s) for diagram number 12
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
@@ -826,7 +826,7 @@ namespace mg5amcCpu
       jamp_sv[92] += amp_sv[0];
       jamp_sv[114] += amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -843,7 +843,7 @@ namespace mg5amcCpu
       jamp_sv[92] += amp_sv[0];
       jamp_sv[97] += amp_sv[0];
       jamp_sv[103] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -864,10 +864,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 13 OF 1240 ***
 
       // Wavefunction(s) for diagram number 13
-      helas_VVV1P0_1( w_fp[4], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[24] );
+      helas_CD_VVV1P0_1( w_fp[4], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[24] );
 
       // Amplitude(s) for diagram number 13
-      helas_VVVV1_0( w_fp[7], w_fp[8], w_fp[24], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[7], w_fp[8], w_fp[24], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
@@ -884,7 +884,7 @@ namespace mg5amcCpu
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV3_0( w_fp[7], w_fp[8], w_fp[24], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[7], w_fp[8], w_fp[24], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
@@ -901,7 +901,7 @@ namespace mg5amcCpu
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV4_0( w_fp[7], w_fp[8], w_fp[24], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[7], w_fp[8], w_fp[24], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[28] -= amp_sv[0];
@@ -922,10 +922,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 14 OF 1240 ***
 
       // Wavefunction(s) for diagram number 14
-      helas_VVV1P0_1( w_fp[7], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[25] );
+      helas_CD_VVV1P0_1( w_fp[7], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[25] );
 
       // Amplitude(s) for diagram number 14
-      helas_VVV1_0( w_fp[24], w_fp[6], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[24], w_fp[6], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 14 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -950,10 +950,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 15 OF 1240 ***
 
       // Wavefunction(s) for diagram number 15
-      helas_VVV1P0_1( w_fp[7], w_fp[24], COUPs[0], 1.0, 0., 0., w_fp[26] );
+      helas_CD_VVV1P0_1( w_fp[7], w_fp[24], COUPs[0], 1.0, 0., 0., w_fp[26] );
 
       // Amplitude(s) for diagram number 15
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[26], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[26], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 15 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -981,7 +981,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 16
-      helas_VVV1_0( w_fp[8], w_fp[24], w_fp[14], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[24], w_fp[14], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 16 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1006,10 +1006,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 17 OF 1240 ***
 
       // Wavefunction(s) for diagram number 17
-      helas_VVV1P0_1( w_fp[4], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[27] );
+      helas_CD_VVV1P0_1( w_fp[4], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[27] );
 
       // Amplitude(s) for diagram number 17
-      helas_VVVV1_0( w_fp[7], w_fp[8], w_fp[27], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[7], w_fp[8], w_fp[27], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[3] += amp_sv[0];
@@ -1026,7 +1026,7 @@ namespace mg5amcCpu
       jamp_sv[95] += amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[7], w_fp[8], w_fp[27], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[7], w_fp[8], w_fp[27], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[25] -= amp_sv[0];
@@ -1043,7 +1043,7 @@ namespace mg5amcCpu
       jamp_sv[95] += amp_sv[0];
       jamp_sv[108] += amp_sv[0];
       jamp_sv[110] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[7], w_fp[8], w_fp[27], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[7], w_fp[8], w_fp[27], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[26] -= amp_sv[0];
@@ -1067,7 +1067,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 18
-      helas_VVV1_0( w_fp[27], w_fp[5], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[27], w_fp[5], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 18 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1092,10 +1092,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 19 OF 1240 ***
 
       // Wavefunction(s) for diagram number 19
-      helas_VVV1P0_1( w_fp[7], w_fp[27], COUPs[0], 1.0, 0., 0., w_fp[28] );
+      helas_CD_VVV1P0_1( w_fp[7], w_fp[27], COUPs[0], 1.0, 0., 0., w_fp[28] );
 
       // Amplitude(s) for diagram number 19
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[28], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[28], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 19 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1123,7 +1123,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 20
-      helas_VVV1_0( w_fp[8], w_fp[27], w_fp[12], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[27], w_fp[12], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 20 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1148,10 +1148,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 21 OF 1240 ***
 
       // Wavefunction(s) for diagram number 21
-      helas_VVV1P0_1( w_fp[5], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[29] );
+      helas_CD_VVV1P0_1( w_fp[5], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[29] );
 
       // Amplitude(s) for diagram number 21
-      helas_VVVV1_0( w_fp[7], w_fp[8], w_fp[4], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[7], w_fp[8], w_fp[4], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -1168,7 +1168,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV3_0( w_fp[7], w_fp[8], w_fp[4], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[7], w_fp[8], w_fp[4], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
@@ -1185,7 +1185,7 @@ namespace mg5amcCpu
       jamp_sv[116] -= amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV4_0( w_fp[7], w_fp[8], w_fp[4], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[7], w_fp[8], w_fp[4], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
@@ -1209,7 +1209,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 22
-      helas_VVV1_0( w_fp[4], w_fp[29], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[4], w_fp[29], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 22 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1237,7 +1237,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 23
-      helas_VVV1_0( w_fp[8], w_fp[29], w_fp[9], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[29], w_fp[9], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 23 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1262,10 +1262,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 24 OF 1240 ***
 
       // Wavefunction(s) for diagram number 24
-      helas_VVV1P0_1( w_fp[7], w_fp[29], COUPs[0], 1.0, 0., 0., w_fp[25] );
+      helas_CD_VVV1P0_1( w_fp[7], w_fp[29], COUPs[0], 1.0, 0., 0., w_fp[25] );
 
       // Amplitude(s) for diagram number 24
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 24 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1290,12 +1290,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 25 OF 1240 ***
 
       // Wavefunction(s) for diagram number 25
-      helas_VVVV1P0_1( w_fp[4], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[30] );
-      helas_VVVV3P0_1( w_fp[4], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[31] );
-      helas_VVVV4P0_1( w_fp[4], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[32] );
+      helas_CD_VVVV1P0_1( w_fp[4], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[30] );
+      helas_CD_VVVV3P0_1( w_fp[4], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[31] );
+      helas_CD_VVVV4P0_1( w_fp[4], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[32] );
 
       // Amplitude(s) for diagram number 25
-      helas_VVV1_0( w_fp[7], w_fp[8], w_fp[30], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[7], w_fp[8], w_fp[30], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -1312,7 +1312,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVV1_0( w_fp[7], w_fp[8], w_fp[31], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[7], w_fp[8], w_fp[31], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -1329,7 +1329,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_VVV1_0( w_fp[7], w_fp[8], w_fp[32], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[7], w_fp[8], w_fp[32], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[4] += amp_sv[0];
@@ -1350,12 +1350,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 26 OF 1240 ***
 
       // Wavefunction(s) for diagram number 26
-      helas_FFV1_1( w_fp[2], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[33] );
-      helas_FFV1_2( w_fp[3], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[34] );
-      helas_FFV1_1( w_fp[33], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[35] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[33] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[34] );
+      helas_CD_FFV1_1( w_fp[33], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[35] );
 
       // Amplitude(s) for diagram number 26
-      helas_FFV1_0( w_fp[34], w_fp[35], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[35], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 26 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1366,10 +1366,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 27 OF 1240 ***
 
       // Wavefunction(s) for diagram number 27
-      helas_FFV1_1( w_fp[33], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[36] );
+      helas_CD_FFV1_1( w_fp[33], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[36] );
 
       // Amplitude(s) for diagram number 27
-      helas_FFV1_0( w_fp[34], w_fp[36], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[36], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 27 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1380,10 +1380,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 28 OF 1240 ***
 
       // Wavefunction(s) for diagram number 28
-      helas_FFV1P0_3( w_fp[3], w_fp[33], COUPs[1], 1.0, 0., 0., w_fp[37] );
+      helas_CD_FFV1P0_3( w_fp[3], w_fp[33], COUPs[1], 1.0, 0., 0., w_fp[37] );
 
       // Amplitude(s) for diagram number 28
-      helas_VVV1_0( w_fp[12], w_fp[37], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[12], w_fp[37], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 28 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1403,7 +1403,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 29
-      helas_FFV1_0( w_fp[3], w_fp[36], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[36], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 29 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1419,7 +1419,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 30
-      helas_VVV1_0( w_fp[14], w_fp[37], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[14], w_fp[37], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 30 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1439,7 +1439,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 31
-      helas_FFV1_0( w_fp[3], w_fp[35], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[35], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 31 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1455,7 +1455,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 32
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[49] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[54] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1464,7 +1464,7 @@ namespace mg5amcCpu
       jamp_sv[65] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[70] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[71] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[49] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[55] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[60] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1473,7 +1473,7 @@ namespace mg5amcCpu
       jamp_sv[65] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[66] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[68] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[54] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[60] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1486,11 +1486,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 33 OF 1240 ***
 
       // Wavefunction(s) for diagram number 33
-      helas_FFV1_2( w_fp[3], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[38] );
-      helas_FFV1_1( w_fp[33], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[39] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[38] );
+      helas_CD_FFV1_1( w_fp[33], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[39] );
 
       // Amplitude(s) for diagram number 33
-      helas_FFV1_0( w_fp[38], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 33 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1501,10 +1501,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 34 OF 1240 ***
 
       // Wavefunction(s) for diagram number 34
-      helas_FFV1_2( w_fp[38], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[40] );
+      helas_CD_FFV1_2( w_fp[38], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[40] );
 
       // Amplitude(s) for diagram number 34
-      helas_FFV1_0( w_fp[40], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 34 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1518,7 +1518,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 35
-      helas_FFV1_0( w_fp[38], w_fp[33], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[33], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 35 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1531,10 +1531,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 36 OF 1240 ***
 
       // Wavefunction(s) for diagram number 36
-      helas_FFV1_2( w_fp[3], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[41] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[41] );
 
       // Amplitude(s) for diagram number 36
-      helas_FFV1_0( w_fp[41], w_fp[39], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[39], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 36 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1545,10 +1545,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 37 OF 1240 ***
 
       // Wavefunction(s) for diagram number 37
-      helas_FFV1_2( w_fp[41], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[42] );
+      helas_CD_FFV1_2( w_fp[41], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[42] );
 
       // Amplitude(s) for diagram number 37
-      helas_FFV1_0( w_fp[42], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[42], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 37 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1562,7 +1562,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 38
-      helas_FFV1_0( w_fp[41], w_fp[33], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[33], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 38 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1578,7 +1578,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 39
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 39 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1594,7 +1594,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 40
-      helas_FFV1_0( w_fp[34], w_fp[33], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[33], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 40 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1610,7 +1610,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 41
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[25], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[25], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 41 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1627,11 +1627,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 42 OF 1240 ***
 
       // Wavefunction(s) for diagram number 42
-      helas_FFV1_1( w_fp[2], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[39] );
-      helas_FFV1_1( w_fp[39], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[43] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[39] );
+      helas_CD_FFV1_1( w_fp[39], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[43] );
 
       // Amplitude(s) for diagram number 42
-      helas_FFV1_0( w_fp[34], w_fp[43], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[43], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 42 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1642,10 +1642,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 43 OF 1240 ***
 
       // Wavefunction(s) for diagram number 43
-      helas_FFV1_1( w_fp[39], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[44] );
+      helas_CD_FFV1_1( w_fp[39], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[44] );
 
       // Amplitude(s) for diagram number 43
-      helas_FFV1_0( w_fp[34], w_fp[44], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[44], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 43 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1656,10 +1656,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 44 OF 1240 ***
 
       // Wavefunction(s) for diagram number 44
-      helas_FFV1P0_3( w_fp[3], w_fp[39], COUPs[1], 1.0, 0., 0., w_fp[45] );
+      helas_CD_FFV1P0_3( w_fp[3], w_fp[39], COUPs[1], 1.0, 0., 0., w_fp[45] );
 
       // Amplitude(s) for diagram number 44
-      helas_VVV1_0( w_fp[9], w_fp[45], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[9], w_fp[45], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 44 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1679,7 +1679,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 45
-      helas_FFV1_0( w_fp[3], w_fp[44], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[44], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 45 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1695,7 +1695,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 46
-      helas_VVV1_0( w_fp[14], w_fp[45], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[14], w_fp[45], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 46 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1715,7 +1715,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 47
-      helas_FFV1_0( w_fp[3], w_fp[43], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[43], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 47 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1731,7 +1731,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 48
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[73] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1740,7 +1740,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[94] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[95] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[73] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[79] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[84] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1749,7 +1749,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[90] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[92] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[84] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1762,11 +1762,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 49 OF 1240 ***
 
       // Wavefunction(s) for diagram number 49
-      helas_FFV1_2( w_fp[3], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[46] );
-      helas_FFV1_1( w_fp[39], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[47] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[46] );
+      helas_CD_FFV1_1( w_fp[39], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[47] );
 
       // Amplitude(s) for diagram number 49
-      helas_FFV1_0( w_fp[46], w_fp[47], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[47], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 49 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1777,10 +1777,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 50 OF 1240 ***
 
       // Wavefunction(s) for diagram number 50
-      helas_FFV1_2( w_fp[46], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[48] );
+      helas_CD_FFV1_2( w_fp[46], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[48] );
 
       // Amplitude(s) for diagram number 50
-      helas_FFV1_0( w_fp[48], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 50 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1794,7 +1794,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 51
-      helas_FFV1_0( w_fp[46], w_fp[39], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[39], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 51 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1810,7 +1810,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 52
-      helas_FFV1_0( w_fp[41], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 52 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1824,7 +1824,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 53
-      helas_FFV1_0( w_fp[42], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[42], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 53 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1838,7 +1838,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 54
-      helas_FFV1_0( w_fp[41], w_fp[39], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[39], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 54 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1854,7 +1854,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 55
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 55 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1870,7 +1870,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 56
-      helas_FFV1_0( w_fp[34], w_fp[39], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[39], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 56 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1886,7 +1886,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 57
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[28], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[28], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 57 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1903,11 +1903,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 58 OF 1240 ***
 
       // Wavefunction(s) for diagram number 58
-      helas_FFV1_1( w_fp[2], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[47] );
-      helas_FFV1_1( w_fp[47], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[49] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[47] );
+      helas_CD_FFV1_1( w_fp[47], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[49] );
 
       // Amplitude(s) for diagram number 58
-      helas_FFV1_0( w_fp[34], w_fp[49], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[49], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 58 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1918,10 +1918,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 59 OF 1240 ***
 
       // Wavefunction(s) for diagram number 59
-      helas_FFV1_1( w_fp[47], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[50] );
+      helas_CD_FFV1_1( w_fp[47], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[50] );
 
       // Amplitude(s) for diagram number 59
-      helas_FFV1_0( w_fp[34], w_fp[50], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[50], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 59 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1932,10 +1932,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 60 OF 1240 ***
 
       // Wavefunction(s) for diagram number 60
-      helas_FFV1P0_3( w_fp[3], w_fp[47], COUPs[1], 1.0, 0., 0., w_fp[51] );
+      helas_CD_FFV1P0_3( w_fp[3], w_fp[47], COUPs[1], 1.0, 0., 0., w_fp[51] );
 
       // Amplitude(s) for diagram number 60
-      helas_VVV1_0( w_fp[9], w_fp[51], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[9], w_fp[51], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 60 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1955,7 +1955,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 61
-      helas_FFV1_0( w_fp[3], w_fp[50], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[50], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 61 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1971,7 +1971,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 62
-      helas_VVV1_0( w_fp[12], w_fp[51], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[12], w_fp[51], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 62 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -1991,7 +1991,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 63
-      helas_FFV1_0( w_fp[3], w_fp[49], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[49], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 63 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2007,7 +2007,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 64
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[15], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[15], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[97] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] += cxtype( 0, 1 ) * amp_sv[0];
@@ -2016,7 +2016,7 @@ namespace mg5amcCpu
       jamp_sv[113] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[97] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[103] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[108] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2025,7 +2025,7 @@ namespace mg5amcCpu
       jamp_sv[113] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[114] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[116] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[108] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2038,10 +2038,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 65 OF 1240 ***
 
       // Wavefunction(s) for diagram number 65
-      helas_FFV1_1( w_fp[47], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[52] );
+      helas_CD_FFV1_1( w_fp[47], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[52] );
 
       // Amplitude(s) for diagram number 65
-      helas_FFV1_0( w_fp[46], w_fp[52], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[52], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 65 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2055,7 +2055,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 66
-      helas_FFV1_0( w_fp[48], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 66 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2069,7 +2069,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 67
-      helas_FFV1_0( w_fp[46], w_fp[47], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[47], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 67 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2085,7 +2085,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 68
-      helas_FFV1_0( w_fp[38], w_fp[52], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[52], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 68 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2099,7 +2099,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 69
-      helas_FFV1_0( w_fp[40], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 69 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2113,7 +2113,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 70
-      helas_FFV1_0( w_fp[38], w_fp[47], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[47], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 70 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2129,7 +2129,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 71
-      helas_FFV1_0( w_fp[3], w_fp[52], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[52], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 71 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2145,7 +2145,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 72
-      helas_FFV1_0( w_fp[34], w_fp[47], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[47], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 72 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2161,7 +2161,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 73
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[26], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[26], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 73 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2178,11 +2178,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 74 OF 1240 ***
 
       // Wavefunction(s) for diagram number 74
-      helas_FFV1_1( w_fp[2], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[52] );
-      helas_FFV1_2( w_fp[46], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[7] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[52] );
+      helas_CD_FFV1_2( w_fp[46], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[7] );
 
       // Amplitude(s) for diagram number 74
-      helas_FFV1_0( w_fp[7], w_fp[52], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[52], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 74 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2193,10 +2193,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 75 OF 1240 ***
 
       // Wavefunction(s) for diagram number 75
-      helas_FFV1_2( w_fp[46], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[53] );
+      helas_CD_FFV1_2( w_fp[46], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[53] );
 
       // Amplitude(s) for diagram number 75
-      helas_FFV1_0( w_fp[53], w_fp[52], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[52], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 75 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2207,10 +2207,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 76 OF 1240 ***
 
       // Wavefunction(s) for diagram number 76
-      helas_FFV1P0_3( w_fp[46], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[54] );
+      helas_CD_FFV1P0_3( w_fp[46], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[54] );
 
       // Amplitude(s) for diagram number 76
-      helas_VVV1_0( w_fp[12], w_fp[54], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[12], w_fp[54], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 76 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2230,7 +2230,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 77
-      helas_FFV1_0( w_fp[53], w_fp[2], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[2], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 77 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2246,7 +2246,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 78
-      helas_VVV1_0( w_fp[14], w_fp[54], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[14], w_fp[54], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 78 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2266,7 +2266,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 79
-      helas_FFV1_0( w_fp[7], w_fp[2], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[2], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 79 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2282,7 +2282,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 80
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] += cxtype( 0, 1 ) * amp_sv[0];
@@ -2291,7 +2291,7 @@ namespace mg5amcCpu
       jamp_sv[92] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[114] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[116] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[29] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[73] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2300,7 +2300,7 @@ namespace mg5amcCpu
       jamp_sv[92] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[97] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[103] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[73] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2316,7 +2316,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 81
-      helas_FFV1_0( w_fp[46], w_fp[52], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[52], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 81 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2332,7 +2332,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 82
-      helas_FFV1_0( w_fp[48], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 82 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2348,7 +2348,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 83
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[25], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[25], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 83 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2365,10 +2365,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 84 OF 1240 ***
 
       // Wavefunction(s) for diagram number 84
-      helas_FFV1_2( w_fp[38], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[25] );
+      helas_CD_FFV1_2( w_fp[38], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[25] );
 
       // Amplitude(s) for diagram number 84
-      helas_FFV1_0( w_fp[25], w_fp[52], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[52], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 84 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2379,10 +2379,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 85 OF 1240 ***
 
       // Wavefunction(s) for diagram number 85
-      helas_FFV1_2( w_fp[38], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[48] );
+      helas_CD_FFV1_2( w_fp[38], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[48] );
 
       // Amplitude(s) for diagram number 85
-      helas_FFV1_0( w_fp[48], w_fp[52], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[52], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 85 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2393,10 +2393,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 86 OF 1240 ***
 
       // Wavefunction(s) for diagram number 86
-      helas_FFV1P0_3( w_fp[38], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[23] );
+      helas_CD_FFV1P0_3( w_fp[38], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[23] );
 
       // Amplitude(s) for diagram number 86
-      helas_VVV1_0( w_fp[9], w_fp[23], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[9], w_fp[23], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 86 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2416,7 +2416,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 87
-      helas_FFV1_0( w_fp[48], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 87 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2432,7 +2432,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 88
-      helas_VVV1_0( w_fp[14], w_fp[23], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[14], w_fp[23], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 88 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2452,7 +2452,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 89
-      helas_FFV1_0( w_fp[25], w_fp[2], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[2], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 89 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2468,7 +2468,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 90
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] += cxtype( 0, 1 ) * amp_sv[0];
@@ -2477,7 +2477,7 @@ namespace mg5amcCpu
       jamp_sv[68] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[108] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[110] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[49] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2486,7 +2486,7 @@ namespace mg5amcCpu
       jamp_sv[68] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[96] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[49] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2502,7 +2502,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 91
-      helas_FFV1_0( w_fp[38], w_fp[52], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[52], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 91 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2518,7 +2518,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 92
-      helas_FFV1_0( w_fp[40], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 92 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2534,7 +2534,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 93
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[28], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[28], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 93 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2551,10 +2551,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 94 OF 1240 ***
 
       // Wavefunction(s) for diagram number 94
-      helas_FFV1_2( w_fp[41], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[28] );
+      helas_CD_FFV1_2( w_fp[41], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[28] );
 
       // Amplitude(s) for diagram number 94
-      helas_FFV1_0( w_fp[28], w_fp[52], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[52], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 94 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2565,10 +2565,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 95 OF 1240 ***
 
       // Wavefunction(s) for diagram number 95
-      helas_FFV1_2( w_fp[41], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[40] );
+      helas_CD_FFV1_2( w_fp[41], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[40] );
 
       // Amplitude(s) for diagram number 95
-      helas_FFV1_0( w_fp[40], w_fp[52], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[52], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 95 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2579,10 +2579,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 96 OF 1240 ***
 
       // Wavefunction(s) for diagram number 96
-      helas_FFV1P0_3( w_fp[41], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[20] );
+      helas_CD_FFV1P0_3( w_fp[41], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[20] );
 
       // Amplitude(s) for diagram number 96
-      helas_VVV1_0( w_fp[9], w_fp[20], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[9], w_fp[20], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 96 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2602,7 +2602,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 97
-      helas_FFV1_0( w_fp[40], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 97 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2618,7 +2618,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 98
-      helas_VVV1_0( w_fp[12], w_fp[20], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[12], w_fp[20], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 98 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2638,7 +2638,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 99
-      helas_FFV1_0( w_fp[28], w_fp[2], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[2], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 99 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2654,7 +2654,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 100
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[15], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[15], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] += cxtype( 0, 1 ) * amp_sv[0];
@@ -2663,7 +2663,7 @@ namespace mg5amcCpu
       jamp_sv[62] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[84] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[86] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[48] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2672,7 +2672,7 @@ namespace mg5amcCpu
       jamp_sv[62] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[72] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[48] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2688,7 +2688,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 101
-      helas_FFV1_0( w_fp[41], w_fp[52], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[52], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 101 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2704,7 +2704,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 102
-      helas_FFV1_0( w_fp[42], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[42], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 102 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2720,7 +2720,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 103
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[26], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[26], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 103 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2737,10 +2737,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 104 OF 1240 ***
 
       // Wavefunction(s) for diagram number 104
-      helas_FFV1_2( w_fp[3], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[26] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[26] );
 
       // Amplitude(s) for diagram number 104
-      helas_FFV1_0( w_fp[26], w_fp[52], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[52], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 104 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2753,10 +2753,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 105 OF 1240 ***
 
       // Wavefunction(s) for diagram number 105
-      helas_VVV1P0_1( w_fp[24], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[42] );
+      helas_CD_VVV1P0_1( w_fp[24], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[42] );
 
       // Amplitude(s) for diagram number 105
-      helas_FFV1_0( w_fp[3], w_fp[52], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[52], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 105 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2773,10 +2773,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 106 OF 1240 ***
 
       // Wavefunction(s) for diagram number 106
-      helas_FFV1_1( w_fp[2], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[17] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[17] );
 
       // Amplitude(s) for diagram number 106
-      helas_FFV1_0( w_fp[34], w_fp[17], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[17], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 106 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2792,7 +2792,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 107
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 107 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2812,7 +2812,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 108
-      helas_FFV1_0( w_fp[3], w_fp[17], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[17], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 108 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2832,7 +2832,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 109
-      helas_FFV1_0( w_fp[26], w_fp[2], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[2], w_fp[14], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 109 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2849,10 +2849,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 110 OF 1240 ***
 
       // Wavefunction(s) for diagram number 110
-      helas_FFV1_2( w_fp[3], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[14] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[14] );
 
       // Amplitude(s) for diagram number 110
-      helas_FFV1_0( w_fp[14], w_fp[52], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[52], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 110 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2865,10 +2865,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 111 OF 1240 ***
 
       // Wavefunction(s) for diagram number 111
-      helas_VVV1P0_1( w_fp[27], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[16] );
+      helas_CD_VVV1P0_1( w_fp[27], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[16] );
 
       // Amplitude(s) for diagram number 111
-      helas_FFV1_0( w_fp[3], w_fp[52], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[52], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 111 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2885,10 +2885,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 112 OF 1240 ***
 
       // Wavefunction(s) for diagram number 112
-      helas_FFV1_1( w_fp[2], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[15] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[15] );
 
       // Amplitude(s) for diagram number 112
-      helas_FFV1_0( w_fp[34], w_fp[15], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[15], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 112 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2904,7 +2904,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 113
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 113 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2924,7 +2924,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 114
-      helas_FFV1_0( w_fp[3], w_fp[15], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[15], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 114 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2944,7 +2944,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 115
-      helas_FFV1_0( w_fp[14], w_fp[2], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[2], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 115 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2961,10 +2961,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 116 OF 1240 ***
 
       // Wavefunction(s) for diagram number 116
-      helas_FFV1_2( w_fp[3], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[12] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[12] );
 
       // Amplitude(s) for diagram number 116
-      helas_FFV1_0( w_fp[12], w_fp[52], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[52], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 116 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2977,10 +2977,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 117 OF 1240 ***
 
       // Wavefunction(s) for diagram number 117
-      helas_VVV1P0_1( w_fp[4], w_fp[29], COUPs[0], 1.0, 0., 0., w_fp[19] );
+      helas_CD_VVV1P0_1( w_fp[4], w_fp[29], COUPs[0], 1.0, 0., 0., w_fp[19] );
 
       // Amplitude(s) for diagram number 117
-      helas_FFV1_0( w_fp[3], w_fp[52], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[52], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 117 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -2997,10 +2997,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 118 OF 1240 ***
 
       // Wavefunction(s) for diagram number 118
-      helas_FFV1_1( w_fp[2], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[18] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[18] );
 
       // Amplitude(s) for diagram number 118
-      helas_FFV1_0( w_fp[34], w_fp[18], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[18], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 118 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3016,7 +3016,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 119
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 119 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3036,7 +3036,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 120
-      helas_FFV1_0( w_fp[3], w_fp[18], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[18], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 120 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3056,7 +3056,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 121
-      helas_FFV1_0( w_fp[12], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 121 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3076,7 +3076,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 122
-      helas_FFV1_0( w_fp[3], w_fp[52], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[52], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
@@ -3085,7 +3085,7 @@ namespace mg5amcCpu
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[29] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[52], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[52], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
@@ -3094,7 +3094,7 @@ namespace mg5amcCpu
       jamp_sv[26] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[52], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[52], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -3110,7 +3110,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 123
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[64] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[65] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[70] += cxtype( 0, 1 ) * amp_sv[0];
@@ -3119,7 +3119,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[70] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[71] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[88] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -3128,7 +3128,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[64] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[65] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[88] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -3141,13 +3141,13 @@ namespace mg5amcCpu
       // *** DIAGRAM 124 OF 1240 ***
 
       // Wavefunction(s) for diagram number 124
-      helas_FFV1_1( w_fp[2], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[34] );
-      helas_FFV1_2( w_fp[3], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[52] );
-      helas_FFV1_1( w_fp[34], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[9] );
-      helas_FFV1_2( w_fp[52], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[22] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[34] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[52] );
+      helas_CD_FFV1_1( w_fp[34], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[9] );
+      helas_CD_FFV1_2( w_fp[52], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[22] );
 
       // Amplitude(s) for diagram number 124
-      helas_FFV1_0( w_fp[22], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 124 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3157,10 +3157,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 125 OF 1240 ***
 
       // Wavefunction(s) for diagram number 125
-      helas_FFV1_2( w_fp[52], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
+      helas_CD_FFV1_2( w_fp[52], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
 
       // Amplitude(s) for diagram number 125
-      helas_FFV1_0( w_fp[21], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 125 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3170,11 +3170,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 126 OF 1240 ***
 
       // Wavefunction(s) for diagram number 126
-      helas_FFV1_1( w_fp[34], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[55] );
-      helas_FFV1_2( w_fp[52], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[56] );
+      helas_CD_FFV1_1( w_fp[34], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[55] );
+      helas_CD_FFV1_2( w_fp[52], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[56] );
 
       // Amplitude(s) for diagram number 126
-      helas_FFV1_0( w_fp[56], w_fp[55], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[55], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 126 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3187,7 +3187,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 127
-      helas_FFV1_0( w_fp[21], w_fp[55], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[55], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 127 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3197,10 +3197,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 128 OF 1240 ***
 
       // Wavefunction(s) for diagram number 128
-      helas_FFV1_1( w_fp[34], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[57] );
+      helas_CD_FFV1_1( w_fp[34], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[57] );
 
       // Amplitude(s) for diagram number 128
-      helas_FFV1_0( w_fp[56], w_fp[57], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[57], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 128 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3213,7 +3213,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 129
-      helas_FFV1_0( w_fp[22], w_fp[57], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[57], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 129 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3223,10 +3223,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 130 OF 1240 ***
 
       // Wavefunction(s) for diagram number 130
-      helas_FFV1P0_3( w_fp[52], w_fp[34], COUPs[1], 1.0, 0., 0., w_fp[58] );
+      helas_CD_FFV1P0_3( w_fp[52], w_fp[34], COUPs[1], 1.0, 0., 0., w_fp[58] );
 
       // Amplitude(s) for diagram number 130
-      helas_VVV1_0( w_fp[24], w_fp[6], w_fp[58], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[24], w_fp[6], w_fp[58], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 130 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3239,10 +3239,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 131 OF 1240 ***
 
       // Wavefunction(s) for diagram number 131
-      helas_FFV1_1( w_fp[34], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[59] );
+      helas_CD_FFV1_1( w_fp[34], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[59] );
 
       // Amplitude(s) for diagram number 131
-      helas_FFV1_0( w_fp[52], w_fp[59], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[59], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 131 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3256,7 +3256,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 132
-      helas_FFV1_0( w_fp[52], w_fp[57], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[57], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 132 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3270,7 +3270,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 133
-      helas_VVV1_0( w_fp[27], w_fp[5], w_fp[58], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[27], w_fp[5], w_fp[58], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 133 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3283,10 +3283,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 134 OF 1240 ***
 
       // Wavefunction(s) for diagram number 134
-      helas_FFV1_1( w_fp[34], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[60] );
+      helas_CD_FFV1_1( w_fp[34], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[60] );
 
       // Amplitude(s) for diagram number 134
-      helas_FFV1_0( w_fp[52], w_fp[60], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[60], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 134 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3300,7 +3300,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 135
-      helas_FFV1_0( w_fp[52], w_fp[55], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[55], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 135 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3314,7 +3314,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 136
-      helas_VVV1_0( w_fp[4], w_fp[29], w_fp[58], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[4], w_fp[29], w_fp[58], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 136 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3330,7 +3330,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 137
-      helas_FFV1_0( w_fp[52], w_fp[9], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[9], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 137 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3341,10 +3341,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 138 OF 1240 ***
 
       // Wavefunction(s) for diagram number 138
-      helas_FFV1_1( w_fp[34], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[58] );
+      helas_CD_FFV1_1( w_fp[34], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[58] );
 
       // Amplitude(s) for diagram number 138
-      helas_FFV1_0( w_fp[52], w_fp[58], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[58], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 138 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3358,17 +3358,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 139
-      helas_FFV1_0( w_fp[52], w_fp[34], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[34], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[34], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[34], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[21] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[34], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[34], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
       jamp_sv[21] += amp_sv[0];
@@ -3377,12 +3377,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 140 OF 1240 ***
 
       // Wavefunction(s) for diagram number 140
-      helas_VVV1P0_1( w_fp[1], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[61] );
-      helas_FFV1P0_3( w_fp[3], w_fp[34], COUPs[1], 1.0, 0., 0., w_fp[62] );
-      helas_VVV1P0_1( w_fp[61], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[63] );
+      helas_CD_VVV1P0_1( w_fp[1], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[61] );
+      helas_CD_FFV1P0_3( w_fp[3], w_fp[34], COUPs[1], 1.0, 0., 0., w_fp[62] );
+      helas_CD_VVV1P0_1( w_fp[61], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[63] );
 
       // Amplitude(s) for diagram number 140
-      helas_VVV1_0( w_fp[62], w_fp[63], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[63], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 140 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3399,10 +3399,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 141 OF 1240 ***
 
       // Wavefunction(s) for diagram number 141
-      helas_VVV1P0_1( w_fp[61], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[64] );
+      helas_CD_VVV1P0_1( w_fp[61], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[64] );
 
       // Amplitude(s) for diagram number 141
-      helas_VVV1_0( w_fp[62], w_fp[64], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[64], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 141 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3422,7 +3422,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 142
-      helas_VVVV1_0( w_fp[61], w_fp[5], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[61], w_fp[5], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
@@ -3431,7 +3431,7 @@ namespace mg5amcCpu
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[61], w_fp[5], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[61], w_fp[5], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
@@ -3440,7 +3440,7 @@ namespace mg5amcCpu
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[61], w_fp[5], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[61], w_fp[5], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -3453,10 +3453,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 143 OF 1240 ***
 
       // Wavefunction(s) for diagram number 143
-      helas_FFV1_2( w_fp[3], w_fp[61], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[65] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[61], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[65] );
 
       // Amplitude(s) for diagram number 143
-      helas_FFV1_0( w_fp[65], w_fp[55], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[55], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 143 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3470,7 +3470,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 144
-      helas_FFV1_0( w_fp[3], w_fp[55], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[55], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 144 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3486,7 +3486,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 145
-      helas_FFV1_0( w_fp[65], w_fp[57], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[57], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 145 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3500,7 +3500,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 146
-      helas_FFV1_0( w_fp[3], w_fp[57], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[57], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 146 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3513,10 +3513,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 147 OF 1240 ***
 
       // Wavefunction(s) for diagram number 147
-      helas_FFV1_1( w_fp[34], w_fp[61], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[66] );
+      helas_CD_FFV1_1( w_fp[34], w_fp[61], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[66] );
 
       // Amplitude(s) for diagram number 147
-      helas_FFV1_0( w_fp[38], w_fp[66], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[66], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 147 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3527,10 +3527,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 148 OF 1240 ***
 
       // Wavefunction(s) for diagram number 148
-      helas_FFV1P0_3( w_fp[38], w_fp[34], COUPs[1], 1.0, 0., 0., w_fp[67] );
+      helas_CD_FFV1P0_3( w_fp[38], w_fp[34], COUPs[1], 1.0, 0., 0., w_fp[67] );
 
       // Amplitude(s) for diagram number 148
-      helas_VVV1_0( w_fp[61], w_fp[6], w_fp[67], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[6], w_fp[67], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 148 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3546,7 +3546,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 149
-      helas_FFV1_0( w_fp[38], w_fp[57], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[57], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 149 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3560,7 +3560,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 150
-      helas_FFV1_0( w_fp[41], w_fp[66], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[66], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 150 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3571,10 +3571,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 151 OF 1240 ***
 
       // Wavefunction(s) for diagram number 151
-      helas_FFV1P0_3( w_fp[41], w_fp[34], COUPs[1], 1.0, 0., 0., w_fp[68] );
+      helas_CD_FFV1P0_3( w_fp[41], w_fp[34], COUPs[1], 1.0, 0., 0., w_fp[68] );
 
       // Amplitude(s) for diagram number 151
-      helas_VVV1_0( w_fp[61], w_fp[5], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[5], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 151 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3590,7 +3590,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 152
-      helas_FFV1_0( w_fp[41], w_fp[55], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[55], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 152 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3604,7 +3604,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 153
-      helas_FFV1_0( w_fp[3], w_fp[66], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[66], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 153 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3620,7 +3620,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 154
-      helas_VVV1_0( w_fp[61], w_fp[29], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[29], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 154 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3640,7 +3640,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 155
-      helas_FFV1_0( w_fp[3], w_fp[58], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[58], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 155 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3653,11 +3653,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 156 OF 1240 ***
 
       // Wavefunction(s) for diagram number 156
-      helas_VVV1P0_1( w_fp[1], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[66] );
-      helas_VVV1P0_1( w_fp[66], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[69] );
+      helas_CD_VVV1P0_1( w_fp[1], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[66] );
+      helas_CD_VVV1P0_1( w_fp[66], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[69] );
 
       // Amplitude(s) for diagram number 156
-      helas_VVV1_0( w_fp[62], w_fp[69], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[69], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 156 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3674,10 +3674,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 157 OF 1240 ***
 
       // Wavefunction(s) for diagram number 157
-      helas_VVV1P0_1( w_fp[66], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[70] );
+      helas_CD_VVV1P0_1( w_fp[66], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[70] );
 
       // Amplitude(s) for diagram number 157
-      helas_VVV1_0( w_fp[62], w_fp[70], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[70], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 157 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3697,7 +3697,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 158
-      helas_VVVV1_0( w_fp[66], w_fp[4], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[66], w_fp[4], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -3706,7 +3706,7 @@ namespace mg5amcCpu
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[66], w_fp[4], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[66], w_fp[4], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -3715,7 +3715,7 @@ namespace mg5amcCpu
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[66], w_fp[4], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[66], w_fp[4], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -3728,10 +3728,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 159 OF 1240 ***
 
       // Wavefunction(s) for diagram number 159
-      helas_FFV1_2( w_fp[3], w_fp[66], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[71] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[66], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[71] );
 
       // Amplitude(s) for diagram number 159
-      helas_FFV1_0( w_fp[71], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 159 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3745,7 +3745,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 160
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 160 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3761,7 +3761,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 161
-      helas_FFV1_0( w_fp[71], w_fp[57], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[57], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 161 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3775,7 +3775,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 162
-      helas_FFV1_0( w_fp[3], w_fp[57], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[57], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 162 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3788,10 +3788,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 163 OF 1240 ***
 
       // Wavefunction(s) for diagram number 163
-      helas_FFV1_1( w_fp[34], w_fp[66], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[72] );
+      helas_CD_FFV1_1( w_fp[34], w_fp[66], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[72] );
 
       // Amplitude(s) for diagram number 163
-      helas_FFV1_0( w_fp[46], w_fp[72], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[72], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 163 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3802,10 +3802,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 164 OF 1240 ***
 
       // Wavefunction(s) for diagram number 164
-      helas_FFV1P0_3( w_fp[46], w_fp[34], COUPs[1], 1.0, 0., 0., w_fp[73] );
+      helas_CD_FFV1P0_3( w_fp[46], w_fp[34], COUPs[1], 1.0, 0., 0., w_fp[73] );
 
       // Amplitude(s) for diagram number 164
-      helas_VVV1_0( w_fp[66], w_fp[6], w_fp[73], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[6], w_fp[73], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 164 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3821,7 +3821,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 165
-      helas_FFV1_0( w_fp[46], w_fp[57], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[57], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 165 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3835,7 +3835,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 166
-      helas_FFV1_0( w_fp[41], w_fp[72], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[72], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 166 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3849,7 +3849,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 167
-      helas_VVV1_0( w_fp[66], w_fp[4], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[4], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 167 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3865,7 +3865,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 168
-      helas_FFV1_0( w_fp[41], w_fp[9], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[9], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 168 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3879,7 +3879,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 169
-      helas_FFV1_0( w_fp[3], w_fp[72], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[72], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 169 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3895,7 +3895,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 170
-      helas_VVV1_0( w_fp[66], w_fp[27], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[27], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 170 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3915,7 +3915,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 171
-      helas_FFV1_0( w_fp[3], w_fp[60], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[60], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 171 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3928,11 +3928,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 172 OF 1240 ***
 
       // Wavefunction(s) for diagram number 172
-      helas_VVV1P0_1( w_fp[1], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[72] );
-      helas_VVV1P0_1( w_fp[72], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[74] );
+      helas_CD_VVV1P0_1( w_fp[1], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[72] );
+      helas_CD_VVV1P0_1( w_fp[72], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[74] );
 
       // Amplitude(s) for diagram number 172
-      helas_VVV1_0( w_fp[62], w_fp[74], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[74], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 172 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3949,10 +3949,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 173 OF 1240 ***
 
       // Wavefunction(s) for diagram number 173
-      helas_VVV1P0_1( w_fp[72], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[75] );
+      helas_CD_VVV1P0_1( w_fp[72], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[75] );
 
       // Amplitude(s) for diagram number 173
-      helas_VVV1_0( w_fp[62], w_fp[75], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[75], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 173 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -3972,7 +3972,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 174
-      helas_VVVV1_0( w_fp[72], w_fp[4], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[72], w_fp[4], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -3981,7 +3981,7 @@ namespace mg5amcCpu
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[72], w_fp[4], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[72], w_fp[4], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -3990,7 +3990,7 @@ namespace mg5amcCpu
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[72], w_fp[4], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[72], w_fp[4], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -4003,10 +4003,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 175 OF 1240 ***
 
       // Wavefunction(s) for diagram number 175
-      helas_FFV1_2( w_fp[3], w_fp[72], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[76] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[72], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[76] );
 
       // Amplitude(s) for diagram number 175
-      helas_FFV1_0( w_fp[76], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 175 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4020,7 +4020,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 176
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 176 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4036,7 +4036,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 177
-      helas_FFV1_0( w_fp[76], w_fp[55], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[55], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 177 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4050,7 +4050,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 178
-      helas_FFV1_0( w_fp[3], w_fp[55], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[55], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 178 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4063,10 +4063,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 179 OF 1240 ***
 
       // Wavefunction(s) for diagram number 179
-      helas_FFV1_1( w_fp[34], w_fp[72], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[77] );
+      helas_CD_FFV1_1( w_fp[34], w_fp[72], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[77] );
 
       // Amplitude(s) for diagram number 179
-      helas_FFV1_0( w_fp[46], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 179 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4080,7 +4080,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 180
-      helas_VVV1_0( w_fp[72], w_fp[5], w_fp[73], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[5], w_fp[73], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 180 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4096,7 +4096,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 181
-      helas_FFV1_0( w_fp[46], w_fp[55], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[55], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 181 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4110,7 +4110,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 182
-      helas_FFV1_0( w_fp[38], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 182 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4124,7 +4124,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 183
-      helas_VVV1_0( w_fp[72], w_fp[4], w_fp[67], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[4], w_fp[67], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 183 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4140,7 +4140,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 184
-      helas_FFV1_0( w_fp[38], w_fp[9], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[9], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 184 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4154,7 +4154,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 185
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 185 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4170,7 +4170,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 186
-      helas_VVV1_0( w_fp[72], w_fp[24], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[24], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 186 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4190,7 +4190,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 187
-      helas_FFV1_0( w_fp[3], w_fp[59], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[59], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 187 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4203,10 +4203,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 188 OF 1240 ***
 
       // Wavefunction(s) for diagram number 188
-      helas_FFV1_1( w_fp[34], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[77] );
+      helas_CD_FFV1_1( w_fp[34], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[77] );
 
       // Amplitude(s) for diagram number 188
-      helas_FFV1_0( w_fp[7], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 188 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4219,7 +4219,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 189
-      helas_FFV1_0( w_fp[53], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 189 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4229,10 +4229,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 190 OF 1240 ***
 
       // Wavefunction(s) for diagram number 190
-      helas_FFV1_2( w_fp[46], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[78] );
+      helas_CD_FFV1_2( w_fp[46], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[78] );
 
       // Amplitude(s) for diagram number 190
-      helas_FFV1_0( w_fp[78], w_fp[55], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[55], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 190 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4245,7 +4245,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 191
-      helas_FFV1_0( w_fp[53], w_fp[55], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[55], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 191 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4258,7 +4258,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 192
-      helas_FFV1_0( w_fp[78], w_fp[57], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[57], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 192 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4271,7 +4271,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 193
-      helas_FFV1_0( w_fp[7], w_fp[57], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[57], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 193 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4284,7 +4284,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 194
-      helas_FFV1_0( w_fp[46], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 194 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4298,7 +4298,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 195
-      helas_VVV1_0( w_fp[1], w_fp[29], w_fp[73], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[29], w_fp[73], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 195 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4314,7 +4314,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 196
-      helas_FFV1_0( w_fp[46], w_fp[58], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[58], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 196 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4328,7 +4328,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 197
-      helas_FFV1_0( w_fp[25], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 197 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4341,7 +4341,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 198
-      helas_FFV1_0( w_fp[48], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 198 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4351,10 +4351,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 199 OF 1240 ***
 
       // Wavefunction(s) for diagram number 199
-      helas_FFV1_2( w_fp[38], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[58] );
+      helas_CD_FFV1_2( w_fp[38], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[58] );
 
       // Amplitude(s) for diagram number 199
-      helas_FFV1_0( w_fp[58], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 199 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4367,7 +4367,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 200
-      helas_FFV1_0( w_fp[48], w_fp[9], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[9], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 200 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4380,7 +4380,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 201
-      helas_FFV1_0( w_fp[58], w_fp[57], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[57], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 201 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4393,7 +4393,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 202
-      helas_FFV1_0( w_fp[25], w_fp[57], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[57], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 202 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4406,7 +4406,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 203
-      helas_FFV1_0( w_fp[38], w_fp[77], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[77], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 203 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4420,7 +4420,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 204
-      helas_VVV1_0( w_fp[1], w_fp[27], w_fp[67], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[27], w_fp[67], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 204 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4436,7 +4436,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 205
-      helas_FFV1_0( w_fp[38], w_fp[60], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[60], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 205 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4450,7 +4450,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 206
-      helas_FFV1_0( w_fp[28], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 206 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4463,7 +4463,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 207
-      helas_FFV1_0( w_fp[40], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 207 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4473,10 +4473,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 208 OF 1240 ***
 
       // Wavefunction(s) for diagram number 208
-      helas_FFV1_2( w_fp[41], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[60] );
+      helas_CD_FFV1_2( w_fp[41], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[60] );
 
       // Amplitude(s) for diagram number 208
-      helas_FFV1_0( w_fp[60], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 208 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4489,7 +4489,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 209
-      helas_FFV1_0( w_fp[40], w_fp[9], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[9], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 209 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4502,7 +4502,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 210
-      helas_FFV1_0( w_fp[60], w_fp[55], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[55], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 210 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4515,7 +4515,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 211
-      helas_FFV1_0( w_fp[28], w_fp[55], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[55], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 211 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4528,7 +4528,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 212
-      helas_FFV1_0( w_fp[41], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 212 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4542,7 +4542,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 213
-      helas_VVV1_0( w_fp[1], w_fp[24], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[24], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 213 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4558,7 +4558,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 214
-      helas_FFV1_0( w_fp[41], w_fp[59], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[59], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 214 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4572,7 +4572,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 215
-      helas_FFV1_0( w_fp[26], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 215 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4586,7 +4586,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 216
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 216 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4599,10 +4599,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 217 OF 1240 ***
 
       // Wavefunction(s) for diagram number 217
-      helas_VVV1P0_1( w_fp[1], w_fp[24], COUPs[0], 1.0, 0., 0., w_fp[59] );
+      helas_CD_VVV1P0_1( w_fp[1], w_fp[24], COUPs[0], 1.0, 0., 0., w_fp[59] );
 
       // Amplitude(s) for diagram number 217
-      helas_VVV1_0( w_fp[62], w_fp[59], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[59], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 217 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4622,7 +4622,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 218
-      helas_VVV1_0( w_fp[62], w_fp[1], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[1], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 218 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4642,7 +4642,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 219
-      helas_VVVV1_0( w_fp[1], w_fp[24], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[24], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -4651,7 +4651,7 @@ namespace mg5amcCpu
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[24], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[24], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -4660,7 +4660,7 @@ namespace mg5amcCpu
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[24], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[24], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -4676,7 +4676,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 220
-      helas_FFV1_0( w_fp[3], w_fp[57], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[57], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 220 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4692,7 +4692,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 221
-      helas_FFV1_0( w_fp[26], w_fp[57], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[57], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 221 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4706,7 +4706,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 222
-      helas_FFV1_0( w_fp[14], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 222 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4720,7 +4720,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 223
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 223 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4733,10 +4733,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 224 OF 1240 ***
 
       // Wavefunction(s) for diagram number 224
-      helas_VVV1P0_1( w_fp[1], w_fp[27], COUPs[0], 1.0, 0., 0., w_fp[68] );
+      helas_CD_VVV1P0_1( w_fp[1], w_fp[27], COUPs[0], 1.0, 0., 0., w_fp[68] );
 
       // Amplitude(s) for diagram number 224
-      helas_VVV1_0( w_fp[62], w_fp[68], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[68], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 224 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4756,7 +4756,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 225
-      helas_VVV1_0( w_fp[62], w_fp[1], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[1], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 225 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4776,7 +4776,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 226
-      helas_VVVV1_0( w_fp[1], w_fp[27], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[27], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
@@ -4785,7 +4785,7 @@ namespace mg5amcCpu
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[27], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[27], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
@@ -4794,7 +4794,7 @@ namespace mg5amcCpu
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[27], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[27], w_fp[5], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
@@ -4810,7 +4810,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 227
-      helas_FFV1_0( w_fp[3], w_fp[55], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[55], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 227 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4826,7 +4826,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 228
-      helas_FFV1_0( w_fp[14], w_fp[55], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[55], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 228 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4840,7 +4840,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 229
-      helas_FFV1_0( w_fp[12], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 229 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4854,7 +4854,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 230
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 230 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4867,10 +4867,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 231 OF 1240 ***
 
       // Wavefunction(s) for diagram number 231
-      helas_VVV1P0_1( w_fp[1], w_fp[29], COUPs[0], 1.0, 0., 0., w_fp[67] );
+      helas_CD_VVV1P0_1( w_fp[1], w_fp[29], COUPs[0], 1.0, 0., 0., w_fp[67] );
 
       // Amplitude(s) for diagram number 231
-      helas_VVV1_0( w_fp[62], w_fp[67], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[67], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 231 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4890,7 +4890,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 232
-      helas_VVV1_0( w_fp[62], w_fp[1], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[1], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 232 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4910,7 +4910,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 233
-      helas_VVVV1_0( w_fp[1], w_fp[4], w_fp[29], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[4], w_fp[29], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
@@ -4919,7 +4919,7 @@ namespace mg5amcCpu
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[4], w_fp[29], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[4], w_fp[29], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
@@ -4928,7 +4928,7 @@ namespace mg5amcCpu
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[4], w_fp[29], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[4], w_fp[29], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -4944,7 +4944,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 234
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 234 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4960,7 +4960,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 235
-      helas_FFV1_0( w_fp[12], w_fp[9], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[9], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 235 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -4971,12 +4971,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 236 OF 1240 ***
 
       // Wavefunction(s) for diagram number 236
-      helas_VVVV1P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[73] );
-      helas_VVVV3P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[79] );
-      helas_VVVV4P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[80] );
+      helas_CD_VVVV1P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[73] );
+      helas_CD_VVVV3P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[79] );
+      helas_CD_VVVV4P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[80] );
 
       // Amplitude(s) for diagram number 236
-      helas_VVV1_0( w_fp[73], w_fp[6], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[73], w_fp[6], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -4985,7 +4985,7 @@ namespace mg5amcCpu
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[79], w_fp[6], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[79], w_fp[6], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -4994,7 +4994,7 @@ namespace mg5amcCpu
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[80], w_fp[6], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[80], w_fp[6], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -5010,17 +5010,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 237
-      helas_FFV1_0( w_fp[3], w_fp[57], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[57], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[18] += amp_sv[0];
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[57], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[57], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[22] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[57], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[57], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
       jamp_sv[22] += amp_sv[0];
@@ -5032,17 +5032,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 238
-      helas_FFV1_0( w_fp[41], w_fp[34], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[34], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[34], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[34], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[12] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[34], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[34], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[12] += amp_sv[0];
@@ -5051,12 +5051,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 239 OF 1240 ***
 
       // Wavefunction(s) for diagram number 239
-      helas_VVVV1P0_1( w_fp[1], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[57] );
-      helas_VVVV3P0_1( w_fp[1], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[81] );
-      helas_VVVV4P0_1( w_fp[1], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[82] );
+      helas_CD_VVVV1P0_1( w_fp[1], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[57] );
+      helas_CD_VVVV3P0_1( w_fp[1], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[81] );
+      helas_CD_VVVV4P0_1( w_fp[1], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[82] );
 
       // Amplitude(s) for diagram number 239
-      helas_VVV1_0( w_fp[57], w_fp[5], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[57], w_fp[5], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
@@ -5065,7 +5065,7 @@ namespace mg5amcCpu
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[81], w_fp[5], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[81], w_fp[5], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
@@ -5074,7 +5074,7 @@ namespace mg5amcCpu
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[82], w_fp[5], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[82], w_fp[5], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -5090,17 +5090,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 240
-      helas_FFV1_0( w_fp[3], w_fp[55], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[55], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[12] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[55], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[55], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[16] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[55], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[55], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
       jamp_sv[16] += amp_sv[0];
@@ -5112,17 +5112,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 241
-      helas_FFV1_0( w_fp[38], w_fp[34], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[34], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[34], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[34], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[18] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[34], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[34], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[18] += amp_sv[0];
@@ -5131,12 +5131,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 242 OF 1240 ***
 
       // Wavefunction(s) for diagram number 242
-      helas_VVVV1P0_1( w_fp[1], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[55] );
-      helas_VVVV3P0_1( w_fp[1], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[83] );
-      helas_VVVV4P0_1( w_fp[1], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[84] );
+      helas_CD_VVVV1P0_1( w_fp[1], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[55] );
+      helas_CD_VVVV3P0_1( w_fp[1], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[83] );
+      helas_CD_VVVV4P0_1( w_fp[1], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[84] );
 
       // Amplitude(s) for diagram number 242
-      helas_VVV1_0( w_fp[55], w_fp[4], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[55], w_fp[4], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
@@ -5145,7 +5145,7 @@ namespace mg5amcCpu
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[83], w_fp[4], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[83], w_fp[4], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -5154,7 +5154,7 @@ namespace mg5amcCpu
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[84], w_fp[4], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[84], w_fp[4], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -5170,17 +5170,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 243
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[6] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[10] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
       jamp_sv[10] += amp_sv[0];
@@ -5192,17 +5192,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 244
-      helas_FFV1_0( w_fp[46], w_fp[34], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[34], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[22] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[34], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[34], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[19] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[34], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[34], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[19] += amp_sv[0];
@@ -5214,17 +5214,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 245
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[5] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[4] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[4] += amp_sv[0];
@@ -5236,7 +5236,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 246
-      helas_VVV1_0( w_fp[1], w_fp[30], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[30], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
@@ -5245,7 +5245,7 @@ namespace mg5amcCpu
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[31], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[31], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
@@ -5254,7 +5254,7 @@ namespace mg5amcCpu
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[32], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[32], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -5267,13 +5267,13 @@ namespace mg5amcCpu
       // *** DIAGRAM 247 OF 1240 ***
 
       // Wavefunction(s) for diagram number 247
-      helas_FFV1_2( w_fp[3], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[62] );
-      helas_FFV1_1( w_fp[2], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[77] );
-      helas_FFV1_2( w_fp[62], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[34] );
-      helas_FFV1_1( w_fp[77], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[9] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[62] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[77] );
+      helas_CD_FFV1_2( w_fp[62], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[34] );
+      helas_CD_FFV1_1( w_fp[77], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[9] );
 
       // Amplitude(s) for diagram number 247
-      helas_FFV1_0( w_fp[34], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 247 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5283,10 +5283,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 248 OF 1240 ***
 
       // Wavefunction(s) for diagram number 248
-      helas_FFV1_1( w_fp[77], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[85] );
+      helas_CD_FFV1_1( w_fp[77], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[85] );
 
       // Amplitude(s) for diagram number 248
-      helas_FFV1_0( w_fp[34], w_fp[85], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[85], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 248 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5296,11 +5296,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 249 OF 1240 ***
 
       // Wavefunction(s) for diagram number 249
-      helas_FFV1_2( w_fp[62], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[86] );
-      helas_FFV1_1( w_fp[77], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[87] );
+      helas_CD_FFV1_2( w_fp[62], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[86] );
+      helas_CD_FFV1_1( w_fp[77], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[87] );
 
       // Amplitude(s) for diagram number 249
-      helas_FFV1_0( w_fp[86], w_fp[87], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[87], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 249 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5313,7 +5313,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 250
-      helas_FFV1_0( w_fp[86], w_fp[85], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[85], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 250 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5323,10 +5323,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 251 OF 1240 ***
 
       // Wavefunction(s) for diagram number 251
-      helas_FFV1_2( w_fp[62], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[88] );
+      helas_CD_FFV1_2( w_fp[62], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[88] );
 
       // Amplitude(s) for diagram number 251
-      helas_FFV1_0( w_fp[88], w_fp[87], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[87], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 251 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5339,7 +5339,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 252
-      helas_FFV1_0( w_fp[88], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 252 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5349,10 +5349,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 253 OF 1240 ***
 
       // Wavefunction(s) for diagram number 253
-      helas_FFV1P0_3( w_fp[62], w_fp[77], COUPs[1], 1.0, 0., 0., w_fp[89] );
+      helas_CD_FFV1P0_3( w_fp[62], w_fp[77], COUPs[1], 1.0, 0., 0., w_fp[89] );
 
       // Amplitude(s) for diagram number 253
-      helas_VVV1_0( w_fp[24], w_fp[6], w_fp[89], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[24], w_fp[6], w_fp[89], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 253 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5365,10 +5365,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 254 OF 1240 ***
 
       // Wavefunction(s) for diagram number 254
-      helas_FFV1_2( w_fp[62], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[90] );
+      helas_CD_FFV1_2( w_fp[62], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[90] );
 
       // Amplitude(s) for diagram number 254
-      helas_FFV1_0( w_fp[90], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 254 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5382,7 +5382,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 255
-      helas_FFV1_0( w_fp[88], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 255 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5396,7 +5396,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 256
-      helas_VVV1_0( w_fp[27], w_fp[5], w_fp[89], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[27], w_fp[5], w_fp[89], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 256 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5409,10 +5409,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 257 OF 1240 ***
 
       // Wavefunction(s) for diagram number 257
-      helas_FFV1_2( w_fp[62], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[91] );
+      helas_CD_FFV1_2( w_fp[62], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[91] );
 
       // Amplitude(s) for diagram number 257
-      helas_FFV1_0( w_fp[91], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[91], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 257 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5426,7 +5426,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 258
-      helas_FFV1_0( w_fp[86], w_fp[77], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[77], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 258 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5440,7 +5440,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 259
-      helas_VVV1_0( w_fp[4], w_fp[29], w_fp[89], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[4], w_fp[29], w_fp[89], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 259 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5456,7 +5456,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 260
-      helas_FFV1_0( w_fp[34], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 260 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5467,10 +5467,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 261 OF 1240 ***
 
       // Wavefunction(s) for diagram number 261
-      helas_FFV1_2( w_fp[62], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[89] );
+      helas_CD_FFV1_2( w_fp[62], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[89] );
 
       // Amplitude(s) for diagram number 261
-      helas_FFV1_0( w_fp[89], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[89], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 261 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5484,17 +5484,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 262
-      helas_FFV1_0( w_fp[62], w_fp[77], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[77], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[33] += amp_sv[0];
       jamp_sv[35] -= amp_sv[0];
       jamp_sv[41] -= amp_sv[0];
       jamp_sv[47] += amp_sv[0];
-      helas_FFV1_0( w_fp[62], w_fp[77], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[77], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[35] -= amp_sv[0];
       jamp_sv[39] += amp_sv[0];
       jamp_sv[41] -= amp_sv[0];
       jamp_sv[45] += amp_sv[0];
-      helas_FFV1_0( w_fp[62], w_fp[77], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[77], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[33] -= amp_sv[0];
       jamp_sv[39] += amp_sv[0];
       jamp_sv[45] += amp_sv[0];
@@ -5503,10 +5503,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 263 OF 1240 ***
 
       // Wavefunction(s) for diagram number 263
-      helas_FFV1P0_3( w_fp[62], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[92] );
+      helas_CD_FFV1P0_3( w_fp[62], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[92] );
 
       // Amplitude(s) for diagram number 263
-      helas_VVV1_0( w_fp[92], w_fp[63], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[63], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 263 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5526,7 +5526,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 264
-      helas_VVV1_0( w_fp[92], w_fp[64], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[64], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 264 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5546,7 +5546,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 265
-      helas_VVVV1_0( w_fp[61], w_fp[5], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[61], w_fp[5], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[33] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[81] += cxtype( 0, 1 ) * amp_sv[0];
@@ -5555,7 +5555,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[61], w_fp[5], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[61], w_fp[5], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[35] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[59] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[81] += cxtype( 0, 1 ) * amp_sv[0];
@@ -5564,7 +5564,7 @@ namespace mg5amcCpu
       jamp_sv[95] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[105] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[61], w_fp[5], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[61], w_fp[5], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[33] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[35] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -5577,10 +5577,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 266 OF 1240 ***
 
       // Wavefunction(s) for diagram number 266
-      helas_FFV1_1( w_fp[2], w_fp[61], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[93] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[61], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[93] );
 
       // Amplitude(s) for diagram number 266
-      helas_FFV1_0( w_fp[86], w_fp[93], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[93], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 266 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5594,7 +5594,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 267
-      helas_FFV1_0( w_fp[86], w_fp[2], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[2], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 267 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5610,7 +5610,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 268
-      helas_FFV1_0( w_fp[88], w_fp[93], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[93], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 268 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5624,7 +5624,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 269
-      helas_FFV1_0( w_fp[88], w_fp[2], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[2], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 269 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5637,10 +5637,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 270 OF 1240 ***
 
       // Wavefunction(s) for diagram number 270
-      helas_FFV1_2( w_fp[62], w_fp[61], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[94] );
+      helas_CD_FFV1_2( w_fp[62], w_fp[61], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[94] );
 
       // Amplitude(s) for diagram number 270
-      helas_FFV1_0( w_fp[94], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[94], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 270 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5651,10 +5651,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 271 OF 1240 ***
 
       // Wavefunction(s) for diagram number 271
-      helas_FFV1P0_3( w_fp[62], w_fp[39], COUPs[1], 1.0, 0., 0., w_fp[95] );
+      helas_CD_FFV1P0_3( w_fp[62], w_fp[39], COUPs[1], 1.0, 0., 0., w_fp[95] );
 
       // Amplitude(s) for diagram number 271
-      helas_VVV1_0( w_fp[61], w_fp[6], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[6], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 271 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5670,7 +5670,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 272
-      helas_FFV1_0( w_fp[88], w_fp[39], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[39], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 272 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5684,7 +5684,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 273
-      helas_FFV1_0( w_fp[94], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[94], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 273 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5695,10 +5695,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 274 OF 1240 ***
 
       // Wavefunction(s) for diagram number 274
-      helas_FFV1P0_3( w_fp[62], w_fp[47], COUPs[1], 1.0, 0., 0., w_fp[96] );
+      helas_CD_FFV1P0_3( w_fp[62], w_fp[47], COUPs[1], 1.0, 0., 0., w_fp[96] );
 
       // Amplitude(s) for diagram number 274
-      helas_VVV1_0( w_fp[61], w_fp[5], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[5], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 274 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5714,7 +5714,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 275
-      helas_FFV1_0( w_fp[86], w_fp[47], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[47], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 275 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5728,7 +5728,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 276
-      helas_FFV1_0( w_fp[94], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[94], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 276 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5744,7 +5744,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 277
-      helas_VVV1_0( w_fp[61], w_fp[29], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[29], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 277 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5764,7 +5764,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 278
-      helas_FFV1_0( w_fp[89], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[89], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 278 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5780,7 +5780,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 279
-      helas_VVV1_0( w_fp[92], w_fp[69], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[69], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 279 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5800,7 +5800,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 280
-      helas_VVV1_0( w_fp[92], w_fp[70], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[70], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 280 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5820,7 +5820,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 281
-      helas_VVVV1_0( w_fp[66], w_fp[4], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[66], w_fp[4], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -5829,7 +5829,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[66], w_fp[4], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[66], w_fp[4], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[41] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -5838,7 +5838,7 @@ namespace mg5amcCpu
       jamp_sv[83] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[107] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[66], w_fp[4], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[66], w_fp[4], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[39] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -5851,10 +5851,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 282 OF 1240 ***
 
       // Wavefunction(s) for diagram number 282
-      helas_FFV1_1( w_fp[2], w_fp[66], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[94] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[66], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[94] );
 
       // Amplitude(s) for diagram number 282
-      helas_FFV1_0( w_fp[34], w_fp[94], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[94], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 282 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5868,7 +5868,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 283
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 283 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5884,7 +5884,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 284
-      helas_FFV1_0( w_fp[88], w_fp[94], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[94], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 284 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5898,7 +5898,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 285
-      helas_FFV1_0( w_fp[88], w_fp[2], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[2], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 285 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5911,10 +5911,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 286 OF 1240 ***
 
       // Wavefunction(s) for diagram number 286
-      helas_FFV1_2( w_fp[62], w_fp[66], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[97] );
+      helas_CD_FFV1_2( w_fp[62], w_fp[66], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[97] );
 
       // Amplitude(s) for diagram number 286
-      helas_FFV1_0( w_fp[97], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[97], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 286 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5925,10 +5925,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 287 OF 1240 ***
 
       // Wavefunction(s) for diagram number 287
-      helas_FFV1P0_3( w_fp[62], w_fp[33], COUPs[1], 1.0, 0., 0., w_fp[98] );
+      helas_CD_FFV1P0_3( w_fp[62], w_fp[33], COUPs[1], 1.0, 0., 0., w_fp[98] );
 
       // Amplitude(s) for diagram number 287
-      helas_VVV1_0( w_fp[66], w_fp[6], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[6], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 287 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5944,7 +5944,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 288
-      helas_FFV1_0( w_fp[88], w_fp[33], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[33], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 288 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5958,7 +5958,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 289
-      helas_FFV1_0( w_fp[97], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[97], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 289 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5972,7 +5972,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 290
-      helas_VVV1_0( w_fp[66], w_fp[4], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[4], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 290 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -5988,7 +5988,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 291
-      helas_FFV1_0( w_fp[34], w_fp[47], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[47], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 291 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6002,7 +6002,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 292
-      helas_FFV1_0( w_fp[97], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[97], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 292 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6018,7 +6018,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 293
-      helas_VVV1_0( w_fp[66], w_fp[27], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[27], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 293 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6038,7 +6038,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 294
-      helas_FFV1_0( w_fp[91], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[91], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 294 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6054,7 +6054,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 295
-      helas_VVV1_0( w_fp[92], w_fp[74], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[74], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 295 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6074,7 +6074,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 296
-      helas_VVV1_0( w_fp[92], w_fp[75], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[75], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 296 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6094,7 +6094,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 297
-      helas_VVVV1_0( w_fp[72], w_fp[4], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[72], w_fp[4], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[45] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[59] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -6103,7 +6103,7 @@ namespace mg5amcCpu
       jamp_sv[89] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[105] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[72], w_fp[4], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[72], w_fp[4], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[47] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[59] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -6112,7 +6112,7 @@ namespace mg5amcCpu
       jamp_sv[83] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[107] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[72], w_fp[4], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[72], w_fp[4], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[45] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[47] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -6125,10 +6125,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 298 OF 1240 ***
 
       // Wavefunction(s) for diagram number 298
-      helas_FFV1_1( w_fp[2], w_fp[72], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[97] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[72], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[97] );
 
       // Amplitude(s) for diagram number 298
-      helas_FFV1_0( w_fp[34], w_fp[97], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[97], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 298 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6142,7 +6142,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 299
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 299 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6158,7 +6158,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 300
-      helas_FFV1_0( w_fp[86], w_fp[97], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[97], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 300 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6172,7 +6172,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 301
-      helas_FFV1_0( w_fp[86], w_fp[2], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[2], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 301 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6185,10 +6185,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 302 OF 1240 ***
 
       // Wavefunction(s) for diagram number 302
-      helas_FFV1_2( w_fp[62], w_fp[72], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
+      helas_CD_FFV1_2( w_fp[62], w_fp[72], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
 
       // Amplitude(s) for diagram number 302
-      helas_FFV1_0( w_fp[99], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 302 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6202,7 +6202,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 303
-      helas_VVV1_0( w_fp[72], w_fp[5], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[5], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 303 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6218,7 +6218,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 304
-      helas_FFV1_0( w_fp[86], w_fp[33], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[33], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 304 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6232,7 +6232,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 305
-      helas_FFV1_0( w_fp[99], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 305 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6246,7 +6246,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 306
-      helas_VVV1_0( w_fp[72], w_fp[4], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[4], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 306 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6262,7 +6262,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 307
-      helas_FFV1_0( w_fp[34], w_fp[39], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[39], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 307 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6276,7 +6276,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 308
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 308 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6292,7 +6292,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 309
-      helas_VVV1_0( w_fp[72], w_fp[24], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[24], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 309 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6312,7 +6312,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 310
-      helas_FFV1_0( w_fp[90], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 310 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6325,10 +6325,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 311 OF 1240 ***
 
       // Wavefunction(s) for diagram number 311
-      helas_FFV1_2( w_fp[62], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
+      helas_CD_FFV1_2( w_fp[62], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
 
       // Amplitude(s) for diagram number 311
-      helas_FFV1_0( w_fp[99], w_fp[35], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[35], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 311 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6341,7 +6341,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 312
-      helas_FFV1_0( w_fp[99], w_fp[36], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[36], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 312 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6351,10 +6351,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 313 OF 1240 ***
 
       // Wavefunction(s) for diagram number 313
-      helas_FFV1_1( w_fp[33], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[100] );
+      helas_CD_FFV1_1( w_fp[33], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[100] );
 
       // Amplitude(s) for diagram number 313
-      helas_FFV1_0( w_fp[86], w_fp[100], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[100], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 313 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6367,7 +6367,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 314
-      helas_FFV1_0( w_fp[86], w_fp[36], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[36], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 314 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6380,7 +6380,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 315
-      helas_FFV1_0( w_fp[88], w_fp[100], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[100], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 315 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6393,7 +6393,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 316
-      helas_FFV1_0( w_fp[88], w_fp[35], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[35], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 316 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6406,7 +6406,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 317
-      helas_FFV1_0( w_fp[99], w_fp[33], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[33], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 317 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6420,7 +6420,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 318
-      helas_VVV1_0( w_fp[1], w_fp[29], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[29], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 318 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6436,7 +6436,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 319
-      helas_FFV1_0( w_fp[89], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[89], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 319 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6450,7 +6450,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 320
-      helas_FFV1_0( w_fp[99], w_fp[43], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[43], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 320 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6463,7 +6463,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 321
-      helas_FFV1_0( w_fp[99], w_fp[44], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[44], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 321 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6473,10 +6473,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 322 OF 1240 ***
 
       // Wavefunction(s) for diagram number 322
-      helas_FFV1_1( w_fp[39], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[89] );
+      helas_CD_FFV1_1( w_fp[39], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[89] );
 
       // Amplitude(s) for diagram number 322
-      helas_FFV1_0( w_fp[34], w_fp[89], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[89], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 322 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6489,7 +6489,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 323
-      helas_FFV1_0( w_fp[34], w_fp[44], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[44], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 323 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6502,7 +6502,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 324
-      helas_FFV1_0( w_fp[88], w_fp[89], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[89], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 324 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6515,7 +6515,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 325
-      helas_FFV1_0( w_fp[88], w_fp[43], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[43], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 325 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6528,7 +6528,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 326
-      helas_FFV1_0( w_fp[99], w_fp[39], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[39], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 326 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6542,7 +6542,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 327
-      helas_VVV1_0( w_fp[1], w_fp[27], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[27], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 327 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6558,7 +6558,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 328
-      helas_FFV1_0( w_fp[91], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[91], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 328 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6572,7 +6572,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 329
-      helas_FFV1_0( w_fp[99], w_fp[49], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[49], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 329 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6585,7 +6585,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 330
-      helas_FFV1_0( w_fp[99], w_fp[50], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[50], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 330 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6595,10 +6595,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 331 OF 1240 ***
 
       // Wavefunction(s) for diagram number 331
-      helas_FFV1_1( w_fp[47], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[91] );
+      helas_CD_FFV1_1( w_fp[47], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[91] );
 
       // Amplitude(s) for diagram number 331
-      helas_FFV1_0( w_fp[34], w_fp[91], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[91], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 331 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6611,7 +6611,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 332
-      helas_FFV1_0( w_fp[34], w_fp[50], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[50], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 332 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6624,7 +6624,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 333
-      helas_FFV1_0( w_fp[86], w_fp[91], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[91], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 333 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6637,7 +6637,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 334
-      helas_FFV1_0( w_fp[86], w_fp[49], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[49], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 334 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6650,7 +6650,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 335
-      helas_FFV1_0( w_fp[99], w_fp[47], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[47], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 335 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6664,7 +6664,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 336
-      helas_VVV1_0( w_fp[1], w_fp[24], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[24], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 336 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6680,7 +6680,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 337
-      helas_FFV1_0( w_fp[90], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 337 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6694,7 +6694,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 338
-      helas_FFV1_0( w_fp[99], w_fp[17], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[17], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 338 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6708,7 +6708,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 339
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 339 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6724,7 +6724,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 340
-      helas_VVV1_0( w_fp[92], w_fp[59], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[59], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 340 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6744,7 +6744,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 341
-      helas_VVV1_0( w_fp[92], w_fp[1], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[1], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 341 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6764,7 +6764,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 342
-      helas_VVVV1_0( w_fp[1], w_fp[24], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[24], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[33] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[39] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] += cxtype( 0, 1 ) * amp_sv[0];
@@ -6773,7 +6773,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[24], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[24], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[45] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[47] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] += cxtype( 0, 1 ) * amp_sv[0];
@@ -6782,7 +6782,7 @@ namespace mg5amcCpu
       jamp_sv[89] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[105] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[107] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[24], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[24], w_fp[6], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[33] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -6798,7 +6798,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 343
-      helas_FFV1_0( w_fp[88], w_fp[2], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[2], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 343 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6814,7 +6814,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 344
-      helas_FFV1_0( w_fp[88], w_fp[17], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[17], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 344 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6828,7 +6828,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 345
-      helas_FFV1_0( w_fp[99], w_fp[15], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[15], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 345 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6842,7 +6842,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 346
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 346 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6858,7 +6858,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 347
-      helas_VVV1_0( w_fp[92], w_fp[68], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[68], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 347 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6878,7 +6878,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 348
-      helas_VVV1_0( w_fp[92], w_fp[1], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[1], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 348 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6898,7 +6898,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 349
-      helas_VVVV1_0( w_fp[1], w_fp[27], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[27], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[35] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] += cxtype( 0, 1 ) * amp_sv[0];
@@ -6907,7 +6907,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[95] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[27], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[27], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] += cxtype( 0, 1 ) * amp_sv[0];
@@ -6916,7 +6916,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[27], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[27], w_fp[5], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[35] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] += cxtype( 0, 1 ) * amp_sv[0];
@@ -6932,7 +6932,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 350
-      helas_FFV1_0( w_fp[86], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 350 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6948,7 +6948,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 351
-      helas_FFV1_0( w_fp[86], w_fp[15], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[15], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 351 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6962,7 +6962,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 352
-      helas_FFV1_0( w_fp[99], w_fp[18], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[18], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 352 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6976,7 +6976,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 353
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 353 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -6992,7 +6992,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 354
-      helas_VVV1_0( w_fp[92], w_fp[67], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[67], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 354 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7012,7 +7012,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 355
-      helas_VVV1_0( w_fp[92], w_fp[1], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[1], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 355 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7032,7 +7032,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 356
-      helas_VVVV1_0( w_fp[1], w_fp[4], w_fp[29], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[4], w_fp[29], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[33] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[35] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7041,7 +7041,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[4], w_fp[29], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[4], w_fp[29], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[41] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[47] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7050,7 +7050,7 @@ namespace mg5amcCpu
       jamp_sv[71] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[4], w_fp[29], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[4], w_fp[29], w_fp[92], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[33] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[35] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -7066,7 +7066,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 357
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 357 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7082,7 +7082,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 358
-      helas_FFV1_0( w_fp[34], w_fp[18], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[18], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 358 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7096,7 +7096,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 359
-      helas_VVV1_0( w_fp[73], w_fp[6], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[73], w_fp[6], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[33] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[39] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7105,7 +7105,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[79], w_fp[6], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[79], w_fp[6], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[39] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7114,7 +7114,7 @@ namespace mg5amcCpu
       jamp_sv[111] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[80], w_fp[6], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[80], w_fp[6], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[33] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[81] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -7130,17 +7130,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 360
-      helas_FFV1_0( w_fp[88], w_fp[2], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[2], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[33] += amp_sv[0];
       jamp_sv[39] -= amp_sv[0];
       jamp_sv[63] -= amp_sv[0];
       jamp_sv[87] += amp_sv[0];
-      helas_FFV1_0( w_fp[88], w_fp[2], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[2], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[39] -= amp_sv[0];
       jamp_sv[57] += amp_sv[0];
       jamp_sv[63] -= amp_sv[0];
       jamp_sv[81] += amp_sv[0];
-      helas_FFV1_0( w_fp[88], w_fp[2], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[2], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[33] -= amp_sv[0];
       jamp_sv[57] += amp_sv[0];
       jamp_sv[81] += amp_sv[0];
@@ -7152,17 +7152,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 361
-      helas_FFV1_0( w_fp[62], w_fp[47], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[47], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[105] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_FFV1_0( w_fp[62], w_fp[47], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[47], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[107] -= amp_sv[0];
       jamp_sv[111] += amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_FFV1_0( w_fp[62], w_fp[47], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[47], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[105] -= amp_sv[0];
       jamp_sv[111] += amp_sv[0];
       jamp_sv[117] += amp_sv[0];
@@ -7174,7 +7174,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 362
-      helas_VVV1_0( w_fp[57], w_fp[5], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[57], w_fp[5], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[35] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7183,7 +7183,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[95] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[81], w_fp[5], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[81], w_fp[5], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[45] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[59] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7192,7 +7192,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[105] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[82], w_fp[5], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[82], w_fp[5], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[35] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[59] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[81] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -7208,17 +7208,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 363
-      helas_FFV1_0( w_fp[86], w_fp[2], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[2], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[35] += amp_sv[0];
       jamp_sv[45] -= amp_sv[0];
       jamp_sv[69] -= amp_sv[0];
       jamp_sv[111] += amp_sv[0];
-      helas_FFV1_0( w_fp[86], w_fp[2], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[2], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[45] -= amp_sv[0];
       jamp_sv[59] += amp_sv[0];
       jamp_sv[69] -= amp_sv[0];
       jamp_sv[105] += amp_sv[0];
-      helas_FFV1_0( w_fp[86], w_fp[2], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[2], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[35] -= amp_sv[0];
       jamp_sv[59] += amp_sv[0];
       jamp_sv[105] += amp_sv[0];
@@ -7230,17 +7230,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 364
-      helas_FFV1_0( w_fp[62], w_fp[39], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[39], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[81] += amp_sv[0];
       jamp_sv[83] -= amp_sv[0];
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[95] += amp_sv[0];
-      helas_FFV1_0( w_fp[62], w_fp[39], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[39], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[83] -= amp_sv[0];
       jamp_sv[87] += amp_sv[0];
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[93] += amp_sv[0];
-      helas_FFV1_0( w_fp[62], w_fp[39], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[39], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[81] -= amp_sv[0];
       jamp_sv[87] += amp_sv[0];
       jamp_sv[93] += amp_sv[0];
@@ -7252,7 +7252,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 365
-      helas_VVV1_0( w_fp[55], w_fp[4], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[55], w_fp[4], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[41] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[47] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7261,7 +7261,7 @@ namespace mg5amcCpu
       jamp_sv[71] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[83], w_fp[4], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[83], w_fp[4], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[47] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[59] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7270,7 +7270,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[107] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[84], w_fp[4], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[84], w_fp[4], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[41] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7286,17 +7286,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 366
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[41] += amp_sv[0];
       jamp_sv[47] -= amp_sv[0];
       jamp_sv[93] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[47] -= amp_sv[0];
       jamp_sv[83] += amp_sv[0];
       jamp_sv[93] -= amp_sv[0];
       jamp_sv[107] += amp_sv[0];
-      helas_FFV1_0( w_fp[34], w_fp[2], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[34], w_fp[2], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[41] -= amp_sv[0];
       jamp_sv[83] += amp_sv[0];
       jamp_sv[107] += amp_sv[0];
@@ -7308,17 +7308,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 367
-      helas_FFV1_0( w_fp[62], w_fp[33], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[33], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[57] += amp_sv[0];
       jamp_sv[59] -= amp_sv[0];
       jamp_sv[65] -= amp_sv[0];
       jamp_sv[71] += amp_sv[0];
-      helas_FFV1_0( w_fp[62], w_fp[33], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[33], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[59] -= amp_sv[0];
       jamp_sv[63] += amp_sv[0];
       jamp_sv[65] -= amp_sv[0];
       jamp_sv[69] += amp_sv[0];
-      helas_FFV1_0( w_fp[62], w_fp[33], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[33], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[57] -= amp_sv[0];
       jamp_sv[63] += amp_sv[0];
       jamp_sv[69] += amp_sv[0];
@@ -7330,17 +7330,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 368
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[65] += amp_sv[0];
       jamp_sv[71] -= amp_sv[0];
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[71] -= amp_sv[0];
       jamp_sv[89] += amp_sv[0];
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[65] -= amp_sv[0];
       jamp_sv[89] += amp_sv[0];
       jamp_sv[113] += amp_sv[0];
@@ -7352,7 +7352,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 369
-      helas_VVV1_0( w_fp[1], w_fp[30], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[30], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[33] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[35] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7361,7 +7361,7 @@ namespace mg5amcCpu
       jamp_sv[71] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[95] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[31], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[31], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[35] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7370,7 +7370,7 @@ namespace mg5amcCpu
       jamp_sv[89] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[95] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[32], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[32], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[33] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -7383,11 +7383,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 370 OF 1240 ***
 
       // Wavefunction(s) for diagram number 370
-      helas_VVV1P0_1( w_fp[0], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[92] );
-      helas_FFV1_2( w_fp[3], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[92] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
 
       // Amplitude(s) for diagram number 370
-      helas_FFV1_0( w_fp[99], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 370 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7401,7 +7401,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 371
-      helas_FFV1_0( w_fp[99], w_fp[85], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[85], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 371 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7412,11 +7412,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 372 OF 1240 ***
 
       // Wavefunction(s) for diagram number 372
-      helas_VVV1P0_1( w_fp[92], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[62] );
-      helas_FFV1P0_3( w_fp[3], w_fp[77], COUPs[1], 1.0, 0., 0., w_fp[34] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[62] );
+      helas_CD_FFV1P0_3( w_fp[3], w_fp[77], COUPs[1], 1.0, 0., 0., w_fp[34] );
 
       // Amplitude(s) for diagram number 372
-      helas_VVV1_0( w_fp[62], w_fp[34], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[34], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 372 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7436,7 +7436,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 373
-      helas_FFV1_0( w_fp[3], w_fp[85], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[85], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 373 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7449,10 +7449,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 374 OF 1240 ***
 
       // Wavefunction(s) for diagram number 374
-      helas_VVV1P0_1( w_fp[92], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[86] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[86] );
 
       // Amplitude(s) for diagram number 374
-      helas_VVV1_0( w_fp[86], w_fp[34], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[34], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 374 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7472,7 +7472,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 375
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 375 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7485,12 +7485,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 376 OF 1240 ***
 
       // Wavefunction(s) for diagram number 376
-      helas_VVVV1P0_1( w_fp[92], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[88] );
-      helas_VVVV3P0_1( w_fp[92], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[90] );
-      helas_VVVV4P0_1( w_fp[92], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[96] );
+      helas_CD_VVVV1P0_1( w_fp[92], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[88] );
+      helas_CD_VVVV3P0_1( w_fp[92], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[90] );
+      helas_CD_VVVV4P0_1( w_fp[92], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[96] );
 
       // Amplitude(s) for diagram number 376
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7499,7 +7499,7 @@ namespace mg5amcCpu
       jamp_sv[41] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[46] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[47] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[25] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[36] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -7508,7 +7508,7 @@ namespace mg5amcCpu
       jamp_sv[41] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[42] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[44] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[36] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -7521,10 +7521,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 377 OF 1240 ***
 
       // Wavefunction(s) for diagram number 377
-      helas_FFV1_1( w_fp[77], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[95] );
+      helas_CD_FFV1_1( w_fp[77], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[95] );
 
       // Amplitude(s) for diagram number 377
-      helas_FFV1_0( w_fp[38], w_fp[95], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[95], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 377 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7535,10 +7535,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 378 OF 1240 ***
 
       // Wavefunction(s) for diagram number 378
-      helas_FFV1_2( w_fp[38], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[98] );
+      helas_CD_FFV1_2( w_fp[38], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[98] );
 
       // Amplitude(s) for diagram number 378
-      helas_FFV1_0( w_fp[98], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[98], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 378 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7552,7 +7552,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 379
-      helas_FFV1_0( w_fp[38], w_fp[77], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[77], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 379 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7568,7 +7568,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 380
-      helas_FFV1_0( w_fp[41], w_fp[95], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[95], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 380 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7579,10 +7579,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 381 OF 1240 ***
 
       // Wavefunction(s) for diagram number 381
-      helas_FFV1_2( w_fp[41], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[101] );
+      helas_CD_FFV1_2( w_fp[41], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[101] );
 
       // Amplitude(s) for diagram number 381
-      helas_FFV1_0( w_fp[101], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[101], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 381 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7596,7 +7596,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 382
-      helas_FFV1_0( w_fp[41], w_fp[77], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[77], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 382 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7612,7 +7612,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 383
-      helas_FFV1_0( w_fp[3], w_fp[95], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[95], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 383 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7628,7 +7628,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 384
-      helas_FFV1_0( w_fp[99], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 384 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7641,10 +7641,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 385 OF 1240 ***
 
       // Wavefunction(s) for diagram number 385
-      helas_VVV1P0_1( w_fp[92], w_fp[29], COUPs[0], 1.0, 0., 0., w_fp[95] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[29], COUPs[0], 1.0, 0., 0., w_fp[95] );
 
       // Amplitude(s) for diagram number 385
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 385 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7661,10 +7661,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 386 OF 1240 ***
 
       // Wavefunction(s) for diagram number 386
-      helas_FFV1_1( w_fp[2], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[102] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[102] );
 
       // Amplitude(s) for diagram number 386
-      helas_FFV1_0( w_fp[22], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 386 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7678,7 +7678,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 387
-      helas_FFV1_0( w_fp[21], w_fp[102], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[102], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 387 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7689,10 +7689,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 388 OF 1240 ***
 
       // Wavefunction(s) for diagram number 388
-      helas_FFV1P0_3( w_fp[52], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[103] );
+      helas_CD_FFV1P0_3( w_fp[52], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[103] );
 
       // Amplitude(s) for diagram number 388
-      helas_VVV1_0( w_fp[62], w_fp[103], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[103], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 388 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7712,7 +7712,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 389
-      helas_FFV1_0( w_fp[21], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 389 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7728,7 +7728,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 390
-      helas_VVV1_0( w_fp[86], w_fp[103], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[103], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 390 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7748,7 +7748,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 391
-      helas_FFV1_0( w_fp[22], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 391 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7764,7 +7764,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 392
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] += cxtype( 0, 1 ) * amp_sv[0];
@@ -7773,7 +7773,7 @@ namespace mg5amcCpu
       jamp_sv[94] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[115] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[53] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -7782,7 +7782,7 @@ namespace mg5amcCpu
       jamp_sv[94] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[109] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -7795,10 +7795,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 393 OF 1240 ***
 
       // Wavefunction(s) for diagram number 393
-      helas_FFV1_2( w_fp[52], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[104] );
+      helas_CD_FFV1_2( w_fp[52], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[104] );
 
       // Amplitude(s) for diagram number 393
-      helas_FFV1_0( w_fp[104], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 393 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7809,10 +7809,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 394 OF 1240 ***
 
       // Wavefunction(s) for diagram number 394
-      helas_FFV1_1( w_fp[39], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[105] );
+      helas_CD_FFV1_1( w_fp[39], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[105] );
 
       // Amplitude(s) for diagram number 394
-      helas_FFV1_0( w_fp[52], w_fp[105], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[105], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 394 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7826,7 +7826,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 395
-      helas_FFV1_0( w_fp[52], w_fp[39], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[39], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 395 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7842,7 +7842,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 396
-      helas_FFV1_0( w_fp[104], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 396 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7853,10 +7853,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 397 OF 1240 ***
 
       // Wavefunction(s) for diagram number 397
-      helas_FFV1_1( w_fp[47], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[106] );
+      helas_CD_FFV1_1( w_fp[47], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[106] );
 
       // Amplitude(s) for diagram number 397
-      helas_FFV1_0( w_fp[52], w_fp[106], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[106], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 397 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7870,7 +7870,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 398
-      helas_FFV1_0( w_fp[52], w_fp[47], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[47], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 398 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7886,7 +7886,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 399
-      helas_FFV1_0( w_fp[104], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 399 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7902,7 +7902,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 400
-      helas_FFV1_0( w_fp[52], w_fp[102], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[102], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 400 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7918,7 +7918,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 401
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 401 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7938,7 +7938,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 402
-      helas_FFV1_0( w_fp[71], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 402 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7954,7 +7954,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 403
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 403 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7974,7 +7974,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 404
-      helas_FFV1_0( w_fp[99], w_fp[94], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[94], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 404 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -7990,7 +7990,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 405
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 405 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8010,7 +8010,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 406
-      helas_FFV1_0( w_fp[3], w_fp[94], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[94], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 406 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8030,7 +8030,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 407
-      helas_FFV1_0( w_fp[71], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 407 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8050,7 +8050,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 408
-      helas_VVVV1_0( w_fp[92], w_fp[66], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[92], w_fp[66], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[36] -= amp_sv[0];
@@ -8067,7 +8067,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_VVVV3_0( w_fp[92], w_fp[66], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[92], w_fp[66], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -8084,7 +8084,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_VVVV4_0( w_fp[92], w_fp[66], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[92], w_fp[66], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       jamp_sv[36] += amp_sv[0];
@@ -8105,10 +8105,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 409 OF 1240 ***
 
       // Wavefunction(s) for diagram number 409
-      helas_VVV1P0_1( w_fp[92], w_fp[66], COUPs[0], 1.0, 0., 0., w_fp[104] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[66], COUPs[0], 1.0, 0., 0., w_fp[104] );
 
       // Amplitude(s) for diagram number 409
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 409 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8133,10 +8133,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 410 OF 1240 ***
 
       // Wavefunction(s) for diagram number 410
-      helas_VVV1P0_1( w_fp[92], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[107] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[107] );
 
       // Amplitude(s) for diagram number 410
-      helas_VVV1_0( w_fp[66], w_fp[6], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[6], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 410 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8164,7 +8164,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 411
-      helas_VVV1_0( w_fp[66], w_fp[8], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[8], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 411 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8192,7 +8192,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 412
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 412 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8212,7 +8212,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 413
-      helas_FFV1_0( w_fp[3], w_fp[106], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[106], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 413 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8228,7 +8228,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 414
-      helas_FFV1_0( w_fp[99], w_fp[47], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[47], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 414 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8244,7 +8244,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 415
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 415 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8264,7 +8264,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 416
-      helas_FFV1_0( w_fp[41], w_fp[102], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[102], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 416 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8280,7 +8280,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 417
-      helas_FFV1_0( w_fp[101], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[101], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 417 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8296,7 +8296,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 418
-      helas_FFV1_0( w_fp[76], w_fp[102], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[102], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 418 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8312,7 +8312,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 419
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 419 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8332,7 +8332,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 420
-      helas_FFV1_0( w_fp[99], w_fp[97], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[97], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 420 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8348,7 +8348,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 421
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 421 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8368,7 +8368,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 422
-      helas_FFV1_0( w_fp[3], w_fp[97], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[97], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 422 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8388,7 +8388,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 423
-      helas_FFV1_0( w_fp[76], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 423 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8408,7 +8408,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 424
-      helas_VVVV1_0( w_fp[92], w_fp[72], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[92], w_fp[72], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[7] += amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[42] -= amp_sv[0];
@@ -8425,7 +8425,7 @@ namespace mg5amcCpu
       jamp_sv[93] += amp_sv[0];
       jamp_sv[102] += amp_sv[0];
       jamp_sv[104] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[92], w_fp[72], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[92], w_fp[72], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[7] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[9] += amp_sv[0];
@@ -8442,7 +8442,7 @@ namespace mg5amcCpu
       jamp_sv[93] += amp_sv[0];
       jamp_sv[106] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[92], w_fp[72], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[92], w_fp[72], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[9] += amp_sv[0];
       jamp_sv[42] += amp_sv[0];
@@ -8463,10 +8463,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 425 OF 1240 ***
 
       // Wavefunction(s) for diagram number 425
-      helas_VVV1P0_1( w_fp[92], w_fp[72], COUPs[0], 1.0, 0., 0., w_fp[104] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[72], COUPs[0], 1.0, 0., 0., w_fp[104] );
 
       // Amplitude(s) for diagram number 425
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 425 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8494,7 +8494,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 426
-      helas_VVV1_0( w_fp[72], w_fp[5], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[5], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 426 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8522,7 +8522,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 427
-      helas_VVV1_0( w_fp[72], w_fp[8], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[8], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 427 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8550,7 +8550,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 428
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 428 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8570,7 +8570,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 429
-      helas_FFV1_0( w_fp[3], w_fp[105], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[105], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 429 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8586,7 +8586,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 430
-      helas_FFV1_0( w_fp[99], w_fp[39], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[39], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 430 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8602,7 +8602,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 431
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 431 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8622,7 +8622,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 432
-      helas_FFV1_0( w_fp[38], w_fp[102], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[102], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 432 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8638,7 +8638,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 433
-      helas_FFV1_0( w_fp[98], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[98], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 433 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8651,10 +8651,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 434 OF 1240 ***
 
       // Wavefunction(s) for diagram number 434
-      helas_VVV1P0_1( w_fp[92], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[104] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[104] );
 
       // Amplitude(s) for diagram number 434
-      helas_VVV1_0( w_fp[104], w_fp[10], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[10], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 434 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8682,7 +8682,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 435
-      helas_VVV1_0( w_fp[104], w_fp[11], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[11], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 435 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8710,7 +8710,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 436
-      helas_VVVV1_0( w_fp[8], w_fp[5], w_fp[6], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[8], w_fp[5], w_fp[6], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -8727,7 +8727,7 @@ namespace mg5amcCpu
       jamp_sv[102] -= amp_sv[0];
       jamp_sv[104] += amp_sv[0];
       jamp_sv[108] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[8], w_fp[5], w_fp[6], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[8], w_fp[5], w_fp[6], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -8744,7 +8744,7 @@ namespace mg5amcCpu
       jamp_sv[116] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVVV4_0( w_fp[8], w_fp[5], w_fp[6], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[8], w_fp[5], w_fp[6], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -8765,10 +8765,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 437 OF 1240 ***
 
       // Wavefunction(s) for diagram number 437
-      helas_VVV1P0_1( w_fp[1], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[108] );
+      helas_CD_VVV1P0_1( w_fp[1], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[108] );
 
       // Amplitude(s) for diagram number 437
-      helas_VVV1_0( w_fp[62], w_fp[108], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[108], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 437 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8796,7 +8796,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 438
-      helas_VVV1_0( w_fp[62], w_fp[1], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[1], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 438 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8824,7 +8824,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 439
-      helas_VVVV1_0( w_fp[1], w_fp[8], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[8], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -8841,7 +8841,7 @@ namespace mg5amcCpu
       jamp_sv[109] += amp_sv[0];
       jamp_sv[115] += amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[8], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[8], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[9] += amp_sv[0];
       jamp_sv[42] += amp_sv[0];
@@ -8858,7 +8858,7 @@ namespace mg5amcCpu
       jamp_sv[104] += amp_sv[0];
       jamp_sv[106] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[8], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[8], w_fp[6], w_fp[62], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -8882,7 +8882,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 440
-      helas_VVV1_0( w_fp[86], w_fp[108], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[108], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 440 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8910,7 +8910,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 441
-      helas_VVV1_0( w_fp[86], w_fp[1], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[1], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 441 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -8938,7 +8938,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 442
-      helas_VVVV1_0( w_fp[1], w_fp[8], w_fp[5], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[8], w_fp[5], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[11] += amp_sv[0];
       jamp_sv[25] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -8955,7 +8955,7 @@ namespace mg5amcCpu
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[109] += amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[8], w_fp[5], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[8], w_fp[5], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       jamp_sv[36] += amp_sv[0];
@@ -8972,7 +8972,7 @@ namespace mg5amcCpu
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[108] -= amp_sv[0];
       jamp_sv[109] += amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[8], w_fp[5], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[8], w_fp[5], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -8993,12 +8993,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 443 OF 1240 ***
 
       // Wavefunction(s) for diagram number 443
-      helas_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[109] );
-      helas_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[110] );
-      helas_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[111] );
+      helas_CD_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[109] );
+      helas_CD_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[110] );
+      helas_CD_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[111] );
 
       // Amplitude(s) for diagram number 443
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[109], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[109], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[36] -= amp_sv[0];
@@ -9015,7 +9015,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[110], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[110], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -9032,7 +9032,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -9053,12 +9053,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 444 OF 1240 ***
 
       // Wavefunction(s) for diagram number 444
-      helas_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[112] );
-      helas_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[113] );
-      helas_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[114] );
+      helas_CD_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[112] );
+      helas_CD_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[113] );
+      helas_CD_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[114] );
 
       // Amplitude(s) for diagram number 444
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[112], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[112], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[7] += amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[42] -= amp_sv[0];
@@ -9075,7 +9075,7 @@ namespace mg5amcCpu
       jamp_sv[93] += amp_sv[0];
       jamp_sv[102] += amp_sv[0];
       jamp_sv[104] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[113], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[113], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -9092,7 +9092,7 @@ namespace mg5amcCpu
       jamp_sv[94] += amp_sv[0];
       jamp_sv[98] += amp_sv[0];
       jamp_sv[108] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[114], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[114], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -9116,7 +9116,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 445
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[88], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[88], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -9133,7 +9133,7 @@ namespace mg5amcCpu
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[90], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[90], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[11] += amp_sv[0];
       jamp_sv[25] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -9150,7 +9150,7 @@ namespace mg5amcCpu
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[109] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -9174,7 +9174,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 446
-      helas_VVVV1_0( w_fp[92], w_fp[1], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[92], w_fp[1], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[6] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
@@ -9191,7 +9191,7 @@ namespace mg5amcCpu
       jamp_sv[116] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[92], w_fp[1], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[92], w_fp[1], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[6] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
@@ -9208,7 +9208,7 @@ namespace mg5amcCpu
       jamp_sv[93] -= amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_VVVV4_0( w_fp[92], w_fp[1], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[92], w_fp[1], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -9232,7 +9232,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 447
-      helas_VVV1_0( w_fp[8], w_fp[29], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[29], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 447 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9260,7 +9260,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 448
-      helas_VVV1_0( w_fp[1], w_fp[29], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[29], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 448 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9288,7 +9288,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 449
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 449 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9316,7 +9316,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 450
-      helas_VVV1_0( w_fp[104], w_fp[45], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[45], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 450 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9336,7 +9336,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 451
-      helas_FFV1_0( w_fp[3], w_fp[44], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[44], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 451 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9352,7 +9352,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 452
-      helas_FFV1_0( w_fp[99], w_fp[89], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[89], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 452 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9366,7 +9366,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 453
-      helas_FFV1_0( w_fp[99], w_fp[44], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[44], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 453 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9380,7 +9380,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 454
-      helas_FFV1_0( w_fp[3], w_fp[89], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[89], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 454 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9396,7 +9396,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 455
-      helas_VVV1_0( w_fp[86], w_fp[1], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[1], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 455 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9416,7 +9416,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 456
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[74] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[82] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9425,7 +9425,7 @@ namespace mg5amcCpu
       jamp_sv[85] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[92] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[113], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[113], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[75] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9434,7 +9434,7 @@ namespace mg5amcCpu
       jamp_sv[85] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[91] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[94] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[114], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[114], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[74] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9450,7 +9450,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 457
-      helas_FFV1_0( w_fp[41], w_fp[39], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[39], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 457 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9466,7 +9466,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 458
-      helas_FFV1_0( w_fp[41], w_fp[105], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[105], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 458 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9480,7 +9480,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 459
-      helas_FFV1_0( w_fp[101], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[101], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 459 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9494,7 +9494,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 460
-      helas_VVV1_0( w_fp[104], w_fp[51], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[51], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 460 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9514,7 +9514,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 461
-      helas_FFV1_0( w_fp[3], w_fp[50], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[50], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 461 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9530,7 +9530,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 462
-      helas_FFV1_0( w_fp[99], w_fp[91], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[91], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 462 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9544,7 +9544,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 463
-      helas_FFV1_0( w_fp[99], w_fp[50], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[50], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 463 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9558,7 +9558,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 464
-      helas_FFV1_0( w_fp[3], w_fp[91], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[91], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 464 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9574,7 +9574,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 465
-      helas_VVV1_0( w_fp[62], w_fp[1], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[1], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 465 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9594,7 +9594,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 466
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[98] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9603,7 +9603,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[116] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[99] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9612,7 +9612,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[115] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[98] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9628,7 +9628,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 467
-      helas_FFV1_0( w_fp[38], w_fp[47], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[47], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 467 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9644,7 +9644,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 468
-      helas_FFV1_0( w_fp[38], w_fp[106], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[106], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 468 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9658,7 +9658,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 469
-      helas_FFV1_0( w_fp[98], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[98], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 469 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9672,7 +9672,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 470
-      helas_VVV1_0( w_fp[104], w_fp[23], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[23], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 470 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9692,7 +9692,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 471
-      helas_FFV1_0( w_fp[48], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 471 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9708,7 +9708,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 472
-      helas_FFV1_0( w_fp[58], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 472 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9722,7 +9722,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 473
-      helas_FFV1_0( w_fp[48], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 473 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9736,7 +9736,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 474
-      helas_FFV1_0( w_fp[58], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 474 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9752,7 +9752,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 475
-      helas_VVV1_0( w_fp[86], w_fp[1], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[1], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 475 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9772,7 +9772,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 476
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[42] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9781,7 +9781,7 @@ namespace mg5amcCpu
       jamp_sv[52] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[113], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[113], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9790,7 +9790,7 @@ namespace mg5amcCpu
       jamp_sv[52] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[108] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[114], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[114], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9806,7 +9806,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 477
-      helas_VVV1_0( w_fp[104], w_fp[20], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[20], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 477 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9826,7 +9826,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 478
-      helas_FFV1_0( w_fp[40], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 478 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9842,7 +9842,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 479
-      helas_FFV1_0( w_fp[60], w_fp[102], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[102], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 479 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9856,7 +9856,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 480
-      helas_FFV1_0( w_fp[40], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 480 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9870,7 +9870,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 481
-      helas_FFV1_0( w_fp[60], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 481 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9886,7 +9886,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 482
-      helas_VVV1_0( w_fp[62], w_fp[1], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[62], w_fp[1], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 482 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9906,7 +9906,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 483
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[36] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9915,7 +9915,7 @@ namespace mg5amcCpu
       jamp_sv[50] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9924,7 +9924,7 @@ namespace mg5amcCpu
       jamp_sv[50] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[84] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] += cxtype( 0, 1 ) * amp_sv[0];
@@ -9940,7 +9940,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 484
-      helas_FFV1_0( w_fp[3], w_fp[18], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[18], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 484 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9960,7 +9960,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 485
-      helas_FFV1_0( w_fp[12], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 485 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -9980,7 +9980,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 486
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 486 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10000,7 +10000,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 487
-      helas_FFV1_0( w_fp[12], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 487 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10016,7 +10016,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 488
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 488 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10036,7 +10036,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 489
-      helas_FFV1_0( w_fp[99], w_fp[18], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[18], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 489 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10052,7 +10052,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 490
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
@@ -10061,7 +10061,7 @@ namespace mg5amcCpu
       jamp_sv[49] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[53] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
@@ -10070,7 +10070,7 @@ namespace mg5amcCpu
       jamp_sv[50] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[52] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -10086,7 +10086,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 491
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[40] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[46] += cxtype( 0, 1 ) * amp_sv[0];
@@ -10095,7 +10095,7 @@ namespace mg5amcCpu
       jamp_sv[93] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[116] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[46] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[47] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[82] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -10104,7 +10104,7 @@ namespace mg5amcCpu
       jamp_sv[93] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[107] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[40] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[82] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -10120,7 +10120,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 492
-      helas_VVV1_0( w_fp[92], w_fp[55], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[55], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[9] += amp_sv[0];
@@ -10137,7 +10137,7 @@ namespace mg5amcCpu
       jamp_sv[93] += amp_sv[0];
       jamp_sv[116] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
-      helas_VVV1_0( w_fp[92], w_fp[83], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[83], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[7] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[9] += amp_sv[0];
@@ -10154,7 +10154,7 @@ namespace mg5amcCpu
       jamp_sv[93] += amp_sv[0];
       jamp_sv[106] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
-      helas_VVV1_0( w_fp[92], w_fp[84], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[84], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -10175,11 +10175,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 493 OF 1240 ***
 
       // Wavefunction(s) for diagram number 493
-      helas_VVV1P0_1( w_fp[0], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[92] );
-      helas_FFV1_2( w_fp[3], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[92] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
 
       // Amplitude(s) for diagram number 493
-      helas_FFV1_0( w_fp[99], w_fp[87], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[87], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 493 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10193,7 +10193,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 494
-      helas_FFV1_0( w_fp[99], w_fp[85], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[85], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 494 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10204,10 +10204,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 495 OF 1240 ***
 
       // Wavefunction(s) for diagram number 495
-      helas_VVV1P0_1( w_fp[92], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[102] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[102] );
 
       // Amplitude(s) for diagram number 495
-      helas_VVV1_0( w_fp[102], w_fp[34], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[102], w_fp[34], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 495 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10227,7 +10227,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 496
-      helas_FFV1_0( w_fp[3], w_fp[85], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[85], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 496 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10240,10 +10240,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 497 OF 1240 ***
 
       // Wavefunction(s) for diagram number 497
-      helas_VVV1P0_1( w_fp[92], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[104] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[104] );
 
       // Amplitude(s) for diagram number 497
-      helas_VVV1_0( w_fp[104], w_fp[34], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[34], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 497 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10263,7 +10263,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 498
-      helas_FFV1_0( w_fp[3], w_fp[87], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[87], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 498 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10276,12 +10276,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 499 OF 1240 ***
 
       // Wavefunction(s) for diagram number 499
-      helas_VVVV1P0_1( w_fp[92], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[111] );
-      helas_VVVV3P0_1( w_fp[92], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[110] );
-      helas_VVVV4P0_1( w_fp[92], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[109] );
+      helas_CD_VVVV1P0_1( w_fp[92], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[111] );
+      helas_CD_VVVV3P0_1( w_fp[92], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[110] );
+      helas_CD_VVVV4P0_1( w_fp[92], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[109] );
 
       // Amplitude(s) for diagram number 499
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[34] += cxtype( 0, 1 ) * amp_sv[0];
@@ -10290,7 +10290,7 @@ namespace mg5amcCpu
       jamp_sv[37] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[44] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[27] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] += cxtype( 0, 1 ) * amp_sv[0];
@@ -10299,7 +10299,7 @@ namespace mg5amcCpu
       jamp_sv[37] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[46] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[26] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] += cxtype( 0, 1 ) * amp_sv[0];
@@ -10312,10 +10312,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 500 OF 1240 ***
 
       // Wavefunction(s) for diagram number 500
-      helas_FFV1_1( w_fp[77], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[62] );
+      helas_CD_FFV1_1( w_fp[77], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[62] );
 
       // Amplitude(s) for diagram number 500
-      helas_FFV1_0( w_fp[46], w_fp[62], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[62], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 500 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10326,10 +10326,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 501 OF 1240 ***
 
       // Wavefunction(s) for diagram number 501
-      helas_FFV1_2( w_fp[46], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[114] );
+      helas_CD_FFV1_2( w_fp[46], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[114] );
 
       // Amplitude(s) for diagram number 501
-      helas_FFV1_0( w_fp[114], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[114], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 501 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10343,7 +10343,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 502
-      helas_FFV1_0( w_fp[46], w_fp[77], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[77], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 502 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10359,7 +10359,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 503
-      helas_FFV1_0( w_fp[41], w_fp[62], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[62], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 503 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10370,10 +10370,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 504 OF 1240 ***
 
       // Wavefunction(s) for diagram number 504
-      helas_FFV1_2( w_fp[41], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[113] );
+      helas_CD_FFV1_2( w_fp[41], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[113] );
 
       // Amplitude(s) for diagram number 504
-      helas_FFV1_0( w_fp[113], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[113], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 504 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10387,7 +10387,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 505
-      helas_FFV1_0( w_fp[41], w_fp[77], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[77], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 505 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10403,7 +10403,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 506
-      helas_FFV1_0( w_fp[3], w_fp[62], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[62], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 506 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10419,7 +10419,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 507
-      helas_FFV1_0( w_fp[99], w_fp[77], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[77], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 507 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10432,10 +10432,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 508 OF 1240 ***
 
       // Wavefunction(s) for diagram number 508
-      helas_VVV1P0_1( w_fp[92], w_fp[27], COUPs[0], 1.0, 0., 0., w_fp[62] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[27], COUPs[0], 1.0, 0., 0., w_fp[62] );
 
       // Amplitude(s) for diagram number 508
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 508 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10452,10 +10452,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 509 OF 1240 ***
 
       // Wavefunction(s) for diagram number 509
-      helas_FFV1_1( w_fp[2], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[112] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[112] );
 
       // Amplitude(s) for diagram number 509
-      helas_FFV1_0( w_fp[56], w_fp[112], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[112], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 509 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10469,7 +10469,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 510
-      helas_FFV1_0( w_fp[21], w_fp[112], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[112], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 510 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10483,7 +10483,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 511
-      helas_VVV1_0( w_fp[102], w_fp[103], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[102], w_fp[103], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 511 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10503,7 +10503,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 512
-      helas_FFV1_0( w_fp[21], w_fp[2], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[2], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 512 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10519,7 +10519,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 513
-      helas_VVV1_0( w_fp[104], w_fp[103], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[103], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 513 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10539,7 +10539,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 514
-      helas_FFV1_0( w_fp[56], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 514 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10555,7 +10555,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 515
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] += cxtype( 0, 1 ) * amp_sv[0];
@@ -10564,7 +10564,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[109] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[61] += cxtype( 0, 1 ) * amp_sv[0];
@@ -10573,7 +10573,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[101] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[115] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[61] += cxtype( 0, 1 ) * amp_sv[0];
@@ -10586,10 +10586,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 516 OF 1240 ***
 
       // Wavefunction(s) for diagram number 516
-      helas_FFV1_2( w_fp[52], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[86] );
+      helas_CD_FFV1_2( w_fp[52], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[86] );
 
       // Amplitude(s) for diagram number 516
-      helas_FFV1_0( w_fp[86], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 516 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10600,10 +10600,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 517 OF 1240 ***
 
       // Wavefunction(s) for diagram number 517
-      helas_FFV1_1( w_fp[33], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[98] );
+      helas_CD_FFV1_1( w_fp[33], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[98] );
 
       // Amplitude(s) for diagram number 517
-      helas_FFV1_0( w_fp[52], w_fp[98], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[98], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 517 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10617,7 +10617,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 518
-      helas_FFV1_0( w_fp[52], w_fp[33], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[33], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 518 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10633,7 +10633,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 519
-      helas_FFV1_0( w_fp[86], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 519 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10644,10 +10644,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 520 OF 1240 ***
 
       // Wavefunction(s) for diagram number 520
-      helas_FFV1_1( w_fp[47], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[106] );
+      helas_CD_FFV1_1( w_fp[47], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[106] );
 
       // Amplitude(s) for diagram number 520
-      helas_FFV1_0( w_fp[52], w_fp[106], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[106], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 520 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10661,7 +10661,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 521
-      helas_FFV1_0( w_fp[52], w_fp[47], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[47], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 521 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10677,7 +10677,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 522
-      helas_FFV1_0( w_fp[86], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[86], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 522 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10693,7 +10693,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 523
-      helas_FFV1_0( w_fp[52], w_fp[112], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[112], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 523 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10709,7 +10709,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 524
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 524 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10729,7 +10729,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 525
-      helas_FFV1_0( w_fp[65], w_fp[112], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[112], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 525 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10745,7 +10745,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 526
-      helas_FFV1_0( w_fp[3], w_fp[112], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[112], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 526 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10765,7 +10765,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 527
-      helas_FFV1_0( w_fp[99], w_fp[93], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[93], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 527 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10781,7 +10781,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 528
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 528 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10801,7 +10801,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 529
-      helas_FFV1_0( w_fp[3], w_fp[93], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[93], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 529 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10821,7 +10821,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 530
-      helas_FFV1_0( w_fp[65], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 530 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10841,7 +10841,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 531
-      helas_VVVV1_0( w_fp[92], w_fp[61], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[92], w_fp[61], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[12] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -10858,7 +10858,7 @@ namespace mg5amcCpu
       jamp_sv[111] += amp_sv[0];
       jamp_sv[114] += amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[92], w_fp[61], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[92], w_fp[61], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[12] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
@@ -10875,7 +10875,7 @@ namespace mg5amcCpu
       jamp_sv[105] -= amp_sv[0];
       jamp_sv[110] -= amp_sv[0];
       jamp_sv[111] += amp_sv[0];
-      helas_VVVV4_0( w_fp[92], w_fp[61], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[92], w_fp[61], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -10896,10 +10896,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 532 OF 1240 ***
 
       // Wavefunction(s) for diagram number 532
-      helas_VVV1P0_1( w_fp[92], w_fp[61], COUPs[0], 1.0, 0., 0., w_fp[86] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[61], COUPs[0], 1.0, 0., 0., w_fp[86] );
 
       // Amplitude(s) for diagram number 532
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 532 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10924,10 +10924,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 533 OF 1240 ***
 
       // Wavefunction(s) for diagram number 533
-      helas_VVV1P0_1( w_fp[92], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[101] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[101] );
 
       // Amplitude(s) for diagram number 533
-      helas_VVV1_0( w_fp[61], w_fp[6], w_fp[101], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[6], w_fp[101], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 533 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10955,7 +10955,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 534
-      helas_VVV1_0( w_fp[61], w_fp[8], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[8], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 534 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -10983,7 +10983,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 535
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 535 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11003,7 +11003,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 536
-      helas_FFV1_0( w_fp[3], w_fp[106], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[106], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 536 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11019,7 +11019,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 537
-      helas_FFV1_0( w_fp[99], w_fp[47], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[47], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 537 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11035,7 +11035,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 538
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 538 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11055,7 +11055,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 539
-      helas_FFV1_0( w_fp[41], w_fp[112], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[112], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 539 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11071,7 +11071,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 540
-      helas_FFV1_0( w_fp[113], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[113], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 540 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11087,7 +11087,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 541
-      helas_FFV1_0( w_fp[76], w_fp[112], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[112], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 541 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11103,7 +11103,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 542
-      helas_FFV1_0( w_fp[3], w_fp[112], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[112], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 542 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11123,7 +11123,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 543
-      helas_FFV1_0( w_fp[99], w_fp[97], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[97], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 543 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11139,7 +11139,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 544
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 544 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11159,7 +11159,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 545
-      helas_FFV1_0( w_fp[3], w_fp[97], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[97], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 545 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11179,7 +11179,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 546
-      helas_FFV1_0( w_fp[76], w_fp[2], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[2], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 546 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11199,7 +11199,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 547
-      helas_VVVV1_0( w_fp[92], w_fp[72], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[92], w_fp[72], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[13] += amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
@@ -11216,7 +11216,7 @@ namespace mg5amcCpu
       jamp_sv[76] += amp_sv[0];
       jamp_sv[103] += amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[92], w_fp[72], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[92], w_fp[72], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[13] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
@@ -11233,7 +11233,7 @@ namespace mg5amcCpu
       jamp_sv[76] += amp_sv[0];
       jamp_sv[104] += amp_sv[0];
       jamp_sv[105] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[92], w_fp[72], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[92], w_fp[72], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
       jamp_sv[43] += amp_sv[0];
@@ -11254,10 +11254,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 548 OF 1240 ***
 
       // Wavefunction(s) for diagram number 548
-      helas_VVV1P0_1( w_fp[92], w_fp[72], COUPs[0], 1.0, 0., 0., w_fp[86] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[72], COUPs[0], 1.0, 0., 0., w_fp[86] );
 
       // Amplitude(s) for diagram number 548
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 548 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11285,7 +11285,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 549
-      helas_VVV1_0( w_fp[72], w_fp[4], w_fp[101], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[4], w_fp[101], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 549 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11313,7 +11313,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 550
-      helas_VVV1_0( w_fp[72], w_fp[8], w_fp[102], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[8], w_fp[102], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 550 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11341,7 +11341,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 551
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 551 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11361,7 +11361,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 552
-      helas_FFV1_0( w_fp[3], w_fp[98], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[98], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 552 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11377,7 +11377,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 553
-      helas_FFV1_0( w_fp[99], w_fp[33], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[33], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 553 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11393,7 +11393,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 554
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 554 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11413,7 +11413,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 555
-      helas_FFV1_0( w_fp[46], w_fp[112], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[112], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 555 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11429,7 +11429,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 556
-      helas_FFV1_0( w_fp[114], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[114], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 556 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11442,10 +11442,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 557 OF 1240 ***
 
       // Wavefunction(s) for diagram number 557
-      helas_VVV1P0_1( w_fp[92], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[86] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[86] );
 
       // Amplitude(s) for diagram number 557
-      helas_VVV1_0( w_fp[86], w_fp[13], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[13], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 557 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11473,7 +11473,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 558
-      helas_VVV1_0( w_fp[86], w_fp[11], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[11], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 558 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11501,7 +11501,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 559
-      helas_VVVV1_0( w_fp[8], w_fp[4], w_fp[6], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[8], w_fp[4], w_fp[6], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -11518,7 +11518,7 @@ namespace mg5amcCpu
       jamp_sv[103] -= amp_sv[0];
       jamp_sv[106] += amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[8], w_fp[4], w_fp[6], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[8], w_fp[4], w_fp[6], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[36] -= amp_sv[0];
@@ -11535,7 +11535,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[8], w_fp[4], w_fp[6], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[8], w_fp[4], w_fp[6], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[26] += amp_sv[0];
@@ -11559,7 +11559,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 560
-      helas_VVV1_0( w_fp[102], w_fp[108], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[102], w_fp[108], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 560 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11587,7 +11587,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 561
-      helas_VVV1_0( w_fp[102], w_fp[1], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[102], w_fp[1], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 561 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11615,7 +11615,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 562
-      helas_VVVV1_0( w_fp[1], w_fp[8], w_fp[6], w_fp[102], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[8], w_fp[6], w_fp[102], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[15] += amp_sv[0];
       jamp_sv[26] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -11632,7 +11632,7 @@ namespace mg5amcCpu
       jamp_sv[109] += amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[8], w_fp[6], w_fp[102], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[8], w_fp[6], w_fp[102], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
       jamp_sv[43] += amp_sv[0];
@@ -11649,7 +11649,7 @@ namespace mg5amcCpu
       jamp_sv[104] += amp_sv[0];
       jamp_sv[105] -= amp_sv[0];
       jamp_sv[106] += amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[8], w_fp[6], w_fp[102], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[8], w_fp[6], w_fp[102], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -11673,7 +11673,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 563
-      helas_VVV1_0( w_fp[104], w_fp[108], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[108], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 563 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11701,7 +11701,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 564
-      helas_VVV1_0( w_fp[104], w_fp[1], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[1], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 564 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -11729,7 +11729,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 565
-      helas_VVVV1_0( w_fp[1], w_fp[8], w_fp[4], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[8], w_fp[4], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[17] += amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -11746,7 +11746,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[8], w_fp[4], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[8], w_fp[4], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -11763,7 +11763,7 @@ namespace mg5amcCpu
       jamp_sv[101] -= amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[8], w_fp[4], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[8], w_fp[4], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -11784,12 +11784,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 566 OF 1240 ***
 
       // Wavefunction(s) for diagram number 566
-      helas_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[105] );
-      helas_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[95] );
-      helas_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[107] );
+      helas_CD_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[105] );
+      helas_CD_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[95] );
+      helas_CD_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[107] );
 
       // Amplitude(s) for diagram number 566
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[12] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -11806,7 +11806,7 @@ namespace mg5amcCpu
       jamp_sv[111] += amp_sv[0];
       jamp_sv[114] += amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -11823,7 +11823,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[36] -= amp_sv[0];
@@ -11844,12 +11844,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 567 OF 1240 ***
 
       // Wavefunction(s) for diagram number 567
-      helas_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[96] );
-      helas_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[90] );
-      helas_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[88] );
+      helas_CD_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[96] );
+      helas_CD_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[90] );
+      helas_CD_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[88] );
 
       // Amplitude(s) for diagram number 567
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[13] += amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
@@ -11866,7 +11866,7 @@ namespace mg5amcCpu
       jamp_sv[76] += amp_sv[0];
       jamp_sv[103] += amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[90], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[90], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -11883,7 +11883,7 @@ namespace mg5amcCpu
       jamp_sv[76] += amp_sv[0];
       jamp_sv[100] += amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[88], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[88], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -11907,7 +11907,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 568
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
       jamp_sv[26] += amp_sv[0];
@@ -11924,7 +11924,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= amp_sv[0];
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[110], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[110], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[17] += amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -11941,7 +11941,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[109], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[109], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[15] += amp_sv[0];
       jamp_sv[26] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -11965,7 +11965,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 569
-      helas_VVVV1_0( w_fp[92], w_fp[1], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[92], w_fp[1], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[12] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[26] -= amp_sv[0];
@@ -11982,7 +11982,7 @@ namespace mg5amcCpu
       jamp_sv[110] -= amp_sv[0];
       jamp_sv[111] += amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[92], w_fp[1], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[92], w_fp[1], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[12] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
@@ -11999,7 +11999,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= amp_sv[0];
       jamp_sv[110] -= amp_sv[0];
       jamp_sv[111] += amp_sv[0];
-      helas_VVVV4_0( w_fp[92], w_fp[1], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[92], w_fp[1], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
       jamp_sv[26] += amp_sv[0];
@@ -12023,7 +12023,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 570
-      helas_VVV1_0( w_fp[8], w_fp[27], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[27], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 570 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12051,7 +12051,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 571
-      helas_VVV1_0( w_fp[1], w_fp[27], w_fp[101], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[27], w_fp[101], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 571 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12079,7 +12079,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 572
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 572 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12107,7 +12107,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 573
-      helas_VVV1_0( w_fp[86], w_fp[37], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[37], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 573 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12127,7 +12127,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 574
-      helas_FFV1_0( w_fp[3], w_fp[36], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[36], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 574 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12143,7 +12143,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 575
-      helas_FFV1_0( w_fp[99], w_fp[100], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[100], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 575 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12157,7 +12157,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 576
-      helas_FFV1_0( w_fp[99], w_fp[36], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[36], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 576 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12171,7 +12171,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 577
-      helas_FFV1_0( w_fp[3], w_fp[100], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[100], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 577 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12187,7 +12187,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 578
-      helas_VVV1_0( w_fp[104], w_fp[1], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[1], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 578 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12207,7 +12207,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 579
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[50] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[58] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12216,7 +12216,7 @@ namespace mg5amcCpu
       jamp_sv[61] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[68] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[51] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[54] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12225,7 +12225,7 @@ namespace mg5amcCpu
       jamp_sv[61] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[70] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[50] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[54] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12241,7 +12241,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 580
-      helas_FFV1_0( w_fp[41], w_fp[33], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[33], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 580 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12257,7 +12257,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 581
-      helas_FFV1_0( w_fp[41], w_fp[98], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[98], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 581 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12271,7 +12271,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 582
-      helas_FFV1_0( w_fp[113], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[113], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 582 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12285,7 +12285,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 583
-      helas_VVV1_0( w_fp[86], w_fp[51], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[51], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 583 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12305,7 +12305,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 584
-      helas_FFV1_0( w_fp[3], w_fp[49], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[49], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 584 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12321,7 +12321,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 585
-      helas_FFV1_0( w_fp[99], w_fp[91], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[91], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 585 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12335,7 +12335,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 586
-      helas_FFV1_0( w_fp[99], w_fp[49], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[49], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 586 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12349,7 +12349,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 587
-      helas_FFV1_0( w_fp[3], w_fp[91], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[91], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 587 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12365,7 +12365,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 588
-      helas_VVV1_0( w_fp[102], w_fp[1], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[102], w_fp[1], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 588 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12385,7 +12385,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 589
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[100] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[101] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12394,7 +12394,7 @@ namespace mg5amcCpu
       jamp_sv[111] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[114] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[115] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[101] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[103] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12403,7 +12403,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[115] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[100] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[103] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12419,7 +12419,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 590
-      helas_FFV1_0( w_fp[46], w_fp[47], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[47], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 590 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12435,7 +12435,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 591
-      helas_FFV1_0( w_fp[46], w_fp[106], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[106], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 591 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12449,7 +12449,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 592
-      helas_FFV1_0( w_fp[114], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[114], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 592 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12463,7 +12463,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 593
-      helas_VVV1_0( w_fp[86], w_fp[54], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[54], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 593 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12483,7 +12483,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 594
-      helas_FFV1_0( w_fp[53], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 594 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12499,7 +12499,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 595
-      helas_FFV1_0( w_fp[78], w_fp[112], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[112], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 595 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12513,7 +12513,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 596
-      helas_FFV1_0( w_fp[53], w_fp[112], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[112], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 596 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12527,7 +12527,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 597
-      helas_FFV1_0( w_fp[78], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 597 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12543,7 +12543,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 598
-      helas_VVV1_0( w_fp[104], w_fp[1], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[1], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 598 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12563,7 +12563,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 599
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12572,7 +12572,7 @@ namespace mg5amcCpu
       jamp_sv[76] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[103] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[37] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12581,7 +12581,7 @@ namespace mg5amcCpu
       jamp_sv[76] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[100] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[114] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[37] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12597,7 +12597,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 600
-      helas_VVV1_0( w_fp[86], w_fp[20], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[20], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 600 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12617,7 +12617,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 601
-      helas_FFV1_0( w_fp[28], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 601 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12633,7 +12633,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 602
-      helas_FFV1_0( w_fp[60], w_fp[112], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[112], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 602 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12647,7 +12647,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 603
-      helas_FFV1_0( w_fp[28], w_fp[112], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[112], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 603 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12661,7 +12661,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 604
-      helas_FFV1_0( w_fp[60], w_fp[2], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[2], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 604 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12677,7 +12677,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 605
-      helas_VVV1_0( w_fp[102], w_fp[1], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[102], w_fp[1], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 605 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12697,7 +12697,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 606
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12706,7 +12706,7 @@ namespace mg5amcCpu
       jamp_sv[56] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[72] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12715,7 +12715,7 @@ namespace mg5amcCpu
       jamp_sv[50] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[60] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[36] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12731,7 +12731,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 607
-      helas_FFV1_0( w_fp[3], w_fp[15], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[15], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 607 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12751,7 +12751,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 608
-      helas_FFV1_0( w_fp[14], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 608 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12771,7 +12771,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 609
-      helas_FFV1_0( w_fp[3], w_fp[112], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[112], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 609 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12791,7 +12791,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 610
-      helas_FFV1_0( w_fp[14], w_fp[112], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[112], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 610 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12807,7 +12807,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 611
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 611 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12827,7 +12827,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 612
-      helas_FFV1_0( w_fp[99], w_fp[15], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[15], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 612 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12843,7 +12843,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 613
-      helas_FFV1_0( w_fp[3], w_fp[112], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[112], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12852,7 +12852,7 @@ namespace mg5amcCpu
       jamp_sv[73] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[77] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[112], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[112], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12861,7 +12861,7 @@ namespace mg5amcCpu
       jamp_sv[74] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[76] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[112], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[112], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -12877,7 +12877,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 614
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[34] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[35] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[44] += cxtype( 0, 1 ) * amp_sv[0];
@@ -12886,7 +12886,7 @@ namespace mg5amcCpu
       jamp_sv[69] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[110] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[111] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[44] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[58] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -12895,7 +12895,7 @@ namespace mg5amcCpu
       jamp_sv[69] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[105] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[34] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[35] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[58] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -12911,7 +12911,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 615
-      helas_VVV1_0( w_fp[92], w_fp[57], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[57], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[15] += amp_sv[0];
@@ -12928,7 +12928,7 @@ namespace mg5amcCpu
       jamp_sv[77] += amp_sv[0];
       jamp_sv[110] += amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
-      helas_VVV1_0( w_fp[92], w_fp[81], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[81], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[13] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
@@ -12945,7 +12945,7 @@ namespace mg5amcCpu
       jamp_sv[76] += amp_sv[0];
       jamp_sv[104] += amp_sv[0];
       jamp_sv[105] -= amp_sv[0];
-      helas_VVV1_0( w_fp[92], w_fp[82], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[82], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[12] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
@@ -12966,11 +12966,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 616 OF 1240 ***
 
       // Wavefunction(s) for diagram number 616
-      helas_VVV1P0_1( w_fp[0], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[92] );
-      helas_FFV1_2( w_fp[3], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[92] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
 
       // Amplitude(s) for diagram number 616
-      helas_FFV1_0( w_fp[99], w_fp[87], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[87], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 616 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12984,7 +12984,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 617
-      helas_FFV1_0( w_fp[99], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 617 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -12995,10 +12995,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 618 OF 1240 ***
 
       // Wavefunction(s) for diagram number 618
-      helas_VVV1P0_1( w_fp[92], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[112] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[112] );
 
       // Amplitude(s) for diagram number 618
-      helas_VVV1_0( w_fp[112], w_fp[34], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[112], w_fp[34], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 618 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13018,7 +13018,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 619
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 619 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13031,10 +13031,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 620 OF 1240 ***
 
       // Wavefunction(s) for diagram number 620
-      helas_VVV1P0_1( w_fp[92], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[86] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[86] );
 
       // Amplitude(s) for diagram number 620
-      helas_VVV1_0( w_fp[86], w_fp[34], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[34], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 620 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13054,7 +13054,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 621
-      helas_FFV1_0( w_fp[3], w_fp[87], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[87], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 621 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13067,12 +13067,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 622 OF 1240 ***
 
       // Wavefunction(s) for diagram number 622
-      helas_VVVV1P0_1( w_fp[92], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[107] );
-      helas_VVVV3P0_1( w_fp[92], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[95] );
-      helas_VVVV4P0_1( w_fp[92], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[105] );
+      helas_CD_VVVV1P0_1( w_fp[92], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[107] );
+      helas_CD_VVVV3P0_1( w_fp[92], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[95] );
+      helas_CD_VVVV4P0_1( w_fp[92], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[105] );
 
       // Amplitude(s) for diagram number 622
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[28] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[29] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] += cxtype( 0, 1 ) * amp_sv[0];
@@ -13081,7 +13081,7 @@ namespace mg5amcCpu
       jamp_sv[39] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[42] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[29] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] += cxtype( 0, 1 ) * amp_sv[0];
@@ -13090,7 +13090,7 @@ namespace mg5amcCpu
       jamp_sv[37] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[40] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[28] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[34] += cxtype( 0, 1 ) * amp_sv[0];
@@ -13103,10 +13103,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 623 OF 1240 ***
 
       // Wavefunction(s) for diagram number 623
-      helas_FFV1_1( w_fp[77], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[102] );
+      helas_CD_FFV1_1( w_fp[77], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[102] );
 
       // Amplitude(s) for diagram number 623
-      helas_FFV1_0( w_fp[46], w_fp[102], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[102], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 623 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13117,10 +13117,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 624 OF 1240 ***
 
       // Wavefunction(s) for diagram number 624
-      helas_FFV1_2( w_fp[46], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[88] );
+      helas_CD_FFV1_2( w_fp[46], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[88] );
 
       // Amplitude(s) for diagram number 624
-      helas_FFV1_0( w_fp[88], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 624 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13134,7 +13134,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 625
-      helas_FFV1_0( w_fp[46], w_fp[77], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[77], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 625 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13150,7 +13150,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 626
-      helas_FFV1_0( w_fp[38], w_fp[102], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[102], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 626 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13161,10 +13161,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 627 OF 1240 ***
 
       // Wavefunction(s) for diagram number 627
-      helas_FFV1_2( w_fp[38], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[90] );
+      helas_CD_FFV1_2( w_fp[38], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[90] );
 
       // Amplitude(s) for diagram number 627
-      helas_FFV1_0( w_fp[90], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 627 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13178,7 +13178,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 628
-      helas_FFV1_0( w_fp[38], w_fp[77], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[77], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 628 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13194,7 +13194,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 629
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 629 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13210,7 +13210,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 630
-      helas_FFV1_0( w_fp[99], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 630 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13223,10 +13223,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 631 OF 1240 ***
 
       // Wavefunction(s) for diagram number 631
-      helas_VVV1P0_1( w_fp[92], w_fp[24], COUPs[0], 1.0, 0., 0., w_fp[102] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[24], COUPs[0], 1.0, 0., 0., w_fp[102] );
 
       // Amplitude(s) for diagram number 631
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 631 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13243,10 +13243,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 632 OF 1240 ***
 
       // Wavefunction(s) for diagram number 632
-      helas_FFV1_1( w_fp[2], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[96] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[96] );
 
       // Amplitude(s) for diagram number 632
-      helas_FFV1_0( w_fp[56], w_fp[96], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[96], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 632 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13260,7 +13260,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 633
-      helas_FFV1_0( w_fp[22], w_fp[96], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[96], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 633 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13274,7 +13274,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 634
-      helas_VVV1_0( w_fp[112], w_fp[103], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[112], w_fp[103], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 634 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13294,7 +13294,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 635
-      helas_FFV1_0( w_fp[22], w_fp[2], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[2], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 635 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13310,7 +13310,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 636
-      helas_VVV1_0( w_fp[86], w_fp[103], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[103], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 636 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13330,7 +13330,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 637
-      helas_FFV1_0( w_fp[56], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 637 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13346,7 +13346,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 638
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[61] += cxtype( 0, 1 ) * amp_sv[0];
@@ -13355,7 +13355,7 @@ namespace mg5amcCpu
       jamp_sv[88] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[101] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[53] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[61] += cxtype( 0, 1 ) * amp_sv[0];
@@ -13364,7 +13364,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[91] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[101] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[53] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] += cxtype( 0, 1 ) * amp_sv[0];
@@ -13377,10 +13377,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 639 OF 1240 ***
 
       // Wavefunction(s) for diagram number 639
-      helas_FFV1_2( w_fp[52], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[104] );
+      helas_CD_FFV1_2( w_fp[52], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[104] );
 
       // Amplitude(s) for diagram number 639
-      helas_FFV1_0( w_fp[104], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 639 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13391,10 +13391,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 640 OF 1240 ***
 
       // Wavefunction(s) for diagram number 640
-      helas_FFV1_1( w_fp[33], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[114] );
+      helas_CD_FFV1_1( w_fp[33], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[114] );
 
       // Amplitude(s) for diagram number 640
-      helas_FFV1_0( w_fp[52], w_fp[114], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[114], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 640 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13408,7 +13408,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 641
-      helas_FFV1_0( w_fp[52], w_fp[33], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[33], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 641 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13424,7 +13424,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 642
-      helas_FFV1_0( w_fp[104], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 642 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13435,10 +13435,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 643 OF 1240 ***
 
       // Wavefunction(s) for diagram number 643
-      helas_FFV1_1( w_fp[39], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[106] );
+      helas_CD_FFV1_1( w_fp[39], w_fp[92], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[106] );
 
       // Amplitude(s) for diagram number 643
-      helas_FFV1_0( w_fp[52], w_fp[106], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[106], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 643 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13452,7 +13452,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 644
-      helas_FFV1_0( w_fp[52], w_fp[39], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[39], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 644 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13468,7 +13468,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 645
-      helas_FFV1_0( w_fp[104], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 645 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13484,7 +13484,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 646
-      helas_FFV1_0( w_fp[52], w_fp[96], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[96], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 646 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13500,7 +13500,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 647
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[102], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 647 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13520,7 +13520,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 648
-      helas_FFV1_0( w_fp[65], w_fp[96], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[96], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 648 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13536,7 +13536,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 649
-      helas_FFV1_0( w_fp[3], w_fp[96], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[96], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 649 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13556,7 +13556,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 650
-      helas_FFV1_0( w_fp[99], w_fp[93], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[93], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 650 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13572,7 +13572,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 651
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 651 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13592,7 +13592,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 652
-      helas_FFV1_0( w_fp[3], w_fp[93], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[93], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 652 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13612,7 +13612,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 653
-      helas_FFV1_0( w_fp[65], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 653 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13632,7 +13632,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 654
-      helas_VVVV1_0( w_fp[92], w_fp[61], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[92], w_fp[61], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[18] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -13649,7 +13649,7 @@ namespace mg5amcCpu
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[96] -= amp_sv[0];
       jamp_sv[98] += amp_sv[0];
-      helas_VVVV3_0( w_fp[92], w_fp[61], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[92], w_fp[61], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[18] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[22] -= amp_sv[0];
@@ -13666,7 +13666,7 @@ namespace mg5amcCpu
       jamp_sv[98] += amp_sv[0];
       jamp_sv[100] += amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[92], w_fp[61], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[92], w_fp[61], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -13687,10 +13687,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 655 OF 1240 ***
 
       // Wavefunction(s) for diagram number 655
-      helas_VVV1P0_1( w_fp[92], w_fp[61], COUPs[0], 1.0, 0., 0., w_fp[104] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[61], COUPs[0], 1.0, 0., 0., w_fp[104] );
 
       // Amplitude(s) for diagram number 655
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 655 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13715,10 +13715,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 656 OF 1240 ***
 
       // Wavefunction(s) for diagram number 656
-      helas_VVV1P0_1( w_fp[92], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[113] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[113] );
 
       // Amplitude(s) for diagram number 656
-      helas_VVV1_0( w_fp[61], w_fp[5], w_fp[113], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[5], w_fp[113], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 656 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13746,7 +13746,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 657
-      helas_VVV1_0( w_fp[61], w_fp[8], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[8], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 657 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13774,7 +13774,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 658
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 658 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13794,7 +13794,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 659
-      helas_FFV1_0( w_fp[3], w_fp[106], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[106], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 659 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13810,7 +13810,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 660
-      helas_FFV1_0( w_fp[99], w_fp[39], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[39], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 660 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13826,7 +13826,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 661
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 661 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13846,7 +13846,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 662
-      helas_FFV1_0( w_fp[38], w_fp[96], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[96], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 662 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13862,7 +13862,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 663
-      helas_FFV1_0( w_fp[90], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 663 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13878,7 +13878,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 664
-      helas_FFV1_0( w_fp[71], w_fp[96], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[96], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 664 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13894,7 +13894,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 665
-      helas_FFV1_0( w_fp[3], w_fp[96], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[96], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 665 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13914,7 +13914,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 666
-      helas_FFV1_0( w_fp[99], w_fp[94], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[94], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 666 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13930,7 +13930,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 667
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 667 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13950,7 +13950,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 668
-      helas_FFV1_0( w_fp[3], w_fp[94], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[94], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 668 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13970,7 +13970,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 669
-      helas_FFV1_0( w_fp[71], w_fp[2], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[2], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 669 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -13990,7 +13990,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 670
-      helas_VVVV1_0( w_fp[92], w_fp[66], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[92], w_fp[66], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[19] += amp_sv[0];
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -14007,7 +14007,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= amp_sv[0];
       jamp_sv[97] -= amp_sv[0];
       jamp_sv[100] += amp_sv[0];
-      helas_VVVV3_0( w_fp[92], w_fp[66], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[92], w_fp[66], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[19] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += amp_sv[0];
@@ -14024,7 +14024,7 @@ namespace mg5amcCpu
       jamp_sv[98] += amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[100] += amp_sv[0];
-      helas_VVVV4_0( w_fp[92], w_fp[66], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[92], w_fp[66], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += amp_sv[0];
       jamp_sv[37] += amp_sv[0];
@@ -14045,10 +14045,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 671 OF 1240 ***
 
       // Wavefunction(s) for diagram number 671
-      helas_VVV1P0_1( w_fp[92], w_fp[66], COUPs[0], 1.0, 0., 0., w_fp[104] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[66], COUPs[0], 1.0, 0., 0., w_fp[104] );
 
       // Amplitude(s) for diagram number 671
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 671 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14076,7 +14076,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 672
-      helas_VVV1_0( w_fp[66], w_fp[4], w_fp[113], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[4], w_fp[113], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 672 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14104,7 +14104,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 673
-      helas_VVV1_0( w_fp[66], w_fp[8], w_fp[112], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[8], w_fp[112], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 673 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14132,7 +14132,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 674
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 674 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14152,7 +14152,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 675
-      helas_FFV1_0( w_fp[3], w_fp[114], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[114], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 675 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14168,7 +14168,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 676
-      helas_FFV1_0( w_fp[99], w_fp[33], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[33], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 676 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14184,7 +14184,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 677
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 677 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14204,7 +14204,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 678
-      helas_FFV1_0( w_fp[46], w_fp[96], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[96], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 678 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14220,7 +14220,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 679
-      helas_FFV1_0( w_fp[88], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 679 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14233,10 +14233,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 680 OF 1240 ***
 
       // Wavefunction(s) for diagram number 680
-      helas_VVV1P0_1( w_fp[92], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[104] );
+      helas_CD_VVV1P0_1( w_fp[92], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[104] );
 
       // Amplitude(s) for diagram number 680
-      helas_VVV1_0( w_fp[104], w_fp[13], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[13], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 680 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14264,7 +14264,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 681
-      helas_VVV1_0( w_fp[104], w_fp[10], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[10], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 681 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14292,7 +14292,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 682
-      helas_VVVV1_0( w_fp[8], w_fp[4], w_fp[5], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[8], w_fp[4], w_fp[5], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
@@ -14309,7 +14309,7 @@ namespace mg5amcCpu
       jamp_sv[82] += amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[97] += amp_sv[0];
-      helas_VVVV3_0( w_fp[8], w_fp[4], w_fp[5], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[8], w_fp[4], w_fp[5], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[42] -= amp_sv[0];
@@ -14326,7 +14326,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[96] += amp_sv[0];
-      helas_VVVV4_0( w_fp[8], w_fp[4], w_fp[5], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[8], w_fp[4], w_fp[5], w_fp[104], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[19] += amp_sv[0];
       jamp_sv[28] += amp_sv[0];
@@ -14350,7 +14350,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 683
-      helas_VVV1_0( w_fp[112], w_fp[108], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[112], w_fp[108], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 683 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14378,7 +14378,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 684
-      helas_VVV1_0( w_fp[112], w_fp[1], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[112], w_fp[1], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 684 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14406,7 +14406,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 685
-      helas_VVVV1_0( w_fp[1], w_fp[8], w_fp[5], w_fp[112], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[8], w_fp[5], w_fp[112], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[21] += amp_sv[0];
       jamp_sv[28] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -14423,7 +14423,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[91] += amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[8], w_fp[5], w_fp[112], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[8], w_fp[5], w_fp[112], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += amp_sv[0];
       jamp_sv[37] += amp_sv[0];
@@ -14440,7 +14440,7 @@ namespace mg5amcCpu
       jamp_sv[82] += amp_sv[0];
       jamp_sv[98] += amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[8], w_fp[5], w_fp[112], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[8], w_fp[5], w_fp[112], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -14464,7 +14464,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 686
-      helas_VVV1_0( w_fp[86], w_fp[108], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[108], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 686 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14492,7 +14492,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 687
-      helas_VVV1_0( w_fp[86], w_fp[1], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[1], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 687 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14520,7 +14520,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 688
-      helas_VVVV1_0( w_fp[1], w_fp[8], w_fp[4], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[8], w_fp[4], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[23] += amp_sv[0];
       jamp_sv[29] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -14537,7 +14537,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= amp_sv[0];
       jamp_sv[91] += amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[8], w_fp[4], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[8], w_fp[4], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -14554,7 +14554,7 @@ namespace mg5amcCpu
       jamp_sv[91] += amp_sv[0];
       jamp_sv[100] += amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[8], w_fp[4], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[8], w_fp[4], w_fp[86], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -14575,12 +14575,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 689 OF 1240 ***
 
       // Wavefunction(s) for diagram number 689
-      helas_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[98] );
-      helas_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[62] );
-      helas_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[101] );
+      helas_CD_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[98] );
+      helas_CD_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[62] );
+      helas_CD_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[101] );
 
       // Amplitude(s) for diagram number 689
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[18] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -14597,7 +14597,7 @@ namespace mg5amcCpu
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[96] -= amp_sv[0];
       jamp_sv[98] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -14614,7 +14614,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[98] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[101], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[101], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[42] -= amp_sv[0];
@@ -14635,12 +14635,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 690 OF 1240 ***
 
       // Wavefunction(s) for diagram number 690
-      helas_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[109] );
-      helas_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[110] );
-      helas_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[111] );
+      helas_CD_VVVV1P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[109] );
+      helas_CD_VVVV3P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[110] );
+      helas_CD_VVVV4P0_1( w_fp[92], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[111] );
 
       // Amplitude(s) for diagram number 690
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[109], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[109], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[19] += amp_sv[0];
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -14657,7 +14657,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= amp_sv[0];
       jamp_sv[97] -= amp_sv[0];
       jamp_sv[100] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[110], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[110], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -14674,7 +14674,7 @@ namespace mg5amcCpu
       jamp_sv[76] += amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[100] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
@@ -14698,7 +14698,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 691
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
       jamp_sv[28] += amp_sv[0];
@@ -14715,7 +14715,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[99] += amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[23] += amp_sv[0];
       jamp_sv[29] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -14732,7 +14732,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= amp_sv[0];
       jamp_sv[91] += amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[21] += amp_sv[0];
       jamp_sv[28] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -14756,7 +14756,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 692
-      helas_VVVV1_0( w_fp[92], w_fp[1], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[92], w_fp[1], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[18] += amp_sv[0];
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[28] -= amp_sv[0];
@@ -14773,7 +14773,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[96] -= amp_sv[0];
       jamp_sv[97] += amp_sv[0];
-      helas_VVVV3_0( w_fp[92], w_fp[1], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[92], w_fp[1], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[18] += amp_sv[0];
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
@@ -14790,7 +14790,7 @@ namespace mg5amcCpu
       jamp_sv[97] += amp_sv[0];
       jamp_sv[99] += amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[92], w_fp[1], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[92], w_fp[1], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
       jamp_sv[28] += amp_sv[0];
@@ -14814,7 +14814,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 693
-      helas_VVV1_0( w_fp[8], w_fp[24], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[24], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 693 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14842,7 +14842,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 694
-      helas_VVV1_0( w_fp[1], w_fp[24], w_fp[113], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[24], w_fp[113], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 694 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14870,7 +14870,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 695
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[102], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[102], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 695 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14898,7 +14898,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 696
-      helas_VVV1_0( w_fp[104], w_fp[37], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[37], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 696 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14918,7 +14918,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 697
-      helas_FFV1_0( w_fp[3], w_fp[35], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[35], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 697 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14934,7 +14934,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 698
-      helas_FFV1_0( w_fp[99], w_fp[100], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[100], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 698 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14948,7 +14948,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 699
-      helas_FFV1_0( w_fp[99], w_fp[35], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[35], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 699 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14962,7 +14962,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 700
-      helas_FFV1_0( w_fp[3], w_fp[100], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[100], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 700 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14978,7 +14978,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 701
-      helas_VVV1_0( w_fp[86], w_fp[1], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[1], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 701 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -14998,7 +14998,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 702
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[52] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[53] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15007,7 +15007,7 @@ namespace mg5amcCpu
       jamp_sv[63] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[66] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[53] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[55] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15016,7 +15016,7 @@ namespace mg5amcCpu
       jamp_sv[61] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[64] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[52] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[55] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[58] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15032,7 +15032,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 703
-      helas_FFV1_0( w_fp[38], w_fp[33], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[33], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 703 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15048,7 +15048,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 704
-      helas_FFV1_0( w_fp[38], w_fp[114], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[114], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 704 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15062,7 +15062,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 705
-      helas_FFV1_0( w_fp[90], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 705 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15076,7 +15076,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 706
-      helas_VVV1_0( w_fp[104], w_fp[45], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[45], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 706 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15096,7 +15096,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 707
-      helas_FFV1_0( w_fp[3], w_fp[43], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[43], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 707 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15112,7 +15112,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 708
-      helas_FFV1_0( w_fp[99], w_fp[89], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[89], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 708 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15126,7 +15126,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 709
-      helas_FFV1_0( w_fp[99], w_fp[43], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[43], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 709 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15140,7 +15140,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 710
-      helas_FFV1_0( w_fp[3], w_fp[89], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[89], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 710 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15156,7 +15156,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 711
-      helas_VVV1_0( w_fp[112], w_fp[1], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[112], w_fp[1], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 711 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15176,7 +15176,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 712
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[76] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[77] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15185,7 +15185,7 @@ namespace mg5amcCpu
       jamp_sv[87] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[90] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[91] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[77] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[79] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15194,7 +15194,7 @@ namespace mg5amcCpu
       jamp_sv[85] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[88] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[91] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[76] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[79] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[82] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15210,7 +15210,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 713
-      helas_FFV1_0( w_fp[46], w_fp[39], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[39], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 713 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15226,7 +15226,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 714
-      helas_FFV1_0( w_fp[46], w_fp[106], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[106], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 714 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15240,7 +15240,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 715
-      helas_FFV1_0( w_fp[88], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[88], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 715 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15254,7 +15254,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 716
-      helas_VVV1_0( w_fp[104], w_fp[54], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[54], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 716 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15274,7 +15274,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 717
-      helas_FFV1_0( w_fp[7], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 717 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15290,7 +15290,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 718
-      helas_FFV1_0( w_fp[78], w_fp[96], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[96], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 718 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15304,7 +15304,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 719
-      helas_FFV1_0( w_fp[7], w_fp[96], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[96], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 719 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15318,7 +15318,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 720
-      helas_FFV1_0( w_fp[78], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 720 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15334,7 +15334,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 721
-      helas_VVV1_0( w_fp[86], w_fp[1], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[86], w_fp[1], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 721 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15354,7 +15354,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 722
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[37] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15363,7 +15363,7 @@ namespace mg5amcCpu
       jamp_sv[82] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[97] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[100] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[29] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[37] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15372,7 +15372,7 @@ namespace mg5amcCpu
       jamp_sv[76] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[90] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[100] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[29] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15388,7 +15388,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 723
-      helas_VVV1_0( w_fp[104], w_fp[23], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[104], w_fp[23], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 723 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15408,7 +15408,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 724
-      helas_FFV1_0( w_fp[25], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 724 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15424,7 +15424,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 725
-      helas_FFV1_0( w_fp[58], w_fp[96], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[96], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 725 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15438,7 +15438,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 726
-      helas_FFV1_0( w_fp[25], w_fp[96], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[96], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 726 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15452,7 +15452,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 727
-      helas_FFV1_0( w_fp[58], w_fp[2], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[2], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 727 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15468,7 +15468,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 728
-      helas_VVV1_0( w_fp[112], w_fp[1], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[112], w_fp[1], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 728 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15488,7 +15488,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 729
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15497,7 +15497,7 @@ namespace mg5amcCpu
       jamp_sv[58] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[96] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15506,7 +15506,7 @@ namespace mg5amcCpu
       jamp_sv[52] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[66] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[42] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15522,7 +15522,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 730
-      helas_FFV1_0( w_fp[3], w_fp[17], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[17], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 730 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15542,7 +15542,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 731
-      helas_FFV1_0( w_fp[26], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 731 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15562,7 +15562,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 732
-      helas_FFV1_0( w_fp[3], w_fp[96], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[96], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 732 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15582,7 +15582,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 733
-      helas_FFV1_0( w_fp[26], w_fp[96], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[96], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 733 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15598,7 +15598,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 734
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 734 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15618,7 +15618,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 735
-      helas_FFV1_0( w_fp[99], w_fp[17], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[17], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 735 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15634,7 +15634,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 736
-      helas_FFV1_0( w_fp[3], w_fp[96], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[96], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15643,7 +15643,7 @@ namespace mg5amcCpu
       jamp_sv[97] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[101] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[96], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[96], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15652,7 +15652,7 @@ namespace mg5amcCpu
       jamp_sv[98] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[100] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[96], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[96], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -15668,7 +15668,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 737
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[32] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[33] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[38] += cxtype( 0, 1 ) * amp_sv[0];
@@ -15677,7 +15677,7 @@ namespace mg5amcCpu
       jamp_sv[63] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[86] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[87] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[38] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -15686,7 +15686,7 @@ namespace mg5amcCpu
       jamp_sv[63] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[81] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[32] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[33] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -15702,7 +15702,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 738
-      helas_VVV1_0( w_fp[92], w_fp[73], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[73], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[19] += amp_sv[0];
       jamp_sv[21] += amp_sv[0];
@@ -15719,7 +15719,7 @@ namespace mg5amcCpu
       jamp_sv[97] -= amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[101] += amp_sv[0];
-      helas_VVV1_0( w_fp[92], w_fp[79], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[79], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[19] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += amp_sv[0];
@@ -15736,7 +15736,7 @@ namespace mg5amcCpu
       jamp_sv[98] += amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[100] += amp_sv[0];
-      helas_VVV1_0( w_fp[92], w_fp[80], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[92], w_fp[80], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[18] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[22] -= amp_sv[0];
@@ -15757,10 +15757,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 739 OF 1240 ***
 
       // Wavefunction(s) for diagram number 739
-      helas_FFV1_1( w_fp[77], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[92] );
+      helas_CD_FFV1_1( w_fp[77], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[92] );
 
       // Amplitude(s) for diagram number 739
-      helas_FFV1_0( w_fp[7], w_fp[92], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[92], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 739 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15773,7 +15773,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 740
-      helas_FFV1_0( w_fp[53], w_fp[92], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[92], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 740 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15783,10 +15783,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 741 OF 1240 ***
 
       // Wavefunction(s) for diagram number 741
-      helas_FFV1_2( w_fp[46], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
+      helas_CD_FFV1_2( w_fp[46], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[99] );
 
       // Amplitude(s) for diagram number 741
-      helas_FFV1_0( w_fp[99], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 741 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15799,7 +15799,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 742
-      helas_FFV1_0( w_fp[99], w_fp[85], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[85], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 742 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15812,7 +15812,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 743
-      helas_FFV1_0( w_fp[53], w_fp[9], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[9], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 743 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15825,7 +15825,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 744
-      helas_FFV1_0( w_fp[7], w_fp[85], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[85], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 744 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15838,7 +15838,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 745
-      helas_FFV1_0( w_fp[46], w_fp[92], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[92], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 745 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15852,7 +15852,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 746
-      helas_FFV1_0( w_fp[99], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 746 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15863,10 +15863,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 747 OF 1240 ***
 
       // Wavefunction(s) for diagram number 747
-      helas_VVV1P0_1( w_fp[0], w_fp[29], COUPs[0], 1.0, 0., 0., w_fp[96] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[29], COUPs[0], 1.0, 0., 0., w_fp[96] );
 
       // Amplitude(s) for diagram number 747
-      helas_FFV1_0( w_fp[46], w_fp[77], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[77], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 747 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15882,7 +15882,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 748
-      helas_FFV1_0( w_fp[25], w_fp[92], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[92], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 748 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15895,7 +15895,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 749
-      helas_FFV1_0( w_fp[48], w_fp[92], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[92], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 749 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15905,10 +15905,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 750 OF 1240 ***
 
       // Wavefunction(s) for diagram number 750
-      helas_FFV1_2( w_fp[38], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[104] );
+      helas_CD_FFV1_2( w_fp[38], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[104] );
 
       // Amplitude(s) for diagram number 750
-      helas_FFV1_0( w_fp[104], w_fp[87], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[87], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 750 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15921,7 +15921,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 751
-      helas_FFV1_0( w_fp[104], w_fp[85], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[85], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 751 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15934,7 +15934,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 752
-      helas_FFV1_0( w_fp[48], w_fp[87], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[87], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 752 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15947,7 +15947,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 753
-      helas_FFV1_0( w_fp[25], w_fp[85], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[85], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 753 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15960,7 +15960,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 754
-      helas_FFV1_0( w_fp[38], w_fp[92], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[92], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 754 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15974,7 +15974,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 755
-      helas_FFV1_0( w_fp[104], w_fp[77], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[77], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 755 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -15985,10 +15985,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 756 OF 1240 ***
 
       // Wavefunction(s) for diagram number 756
-      helas_VVV1P0_1( w_fp[0], w_fp[27], COUPs[0], 1.0, 0., 0., w_fp[101] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[27], COUPs[0], 1.0, 0., 0., w_fp[101] );
 
       // Amplitude(s) for diagram number 756
-      helas_FFV1_0( w_fp[38], w_fp[77], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[77], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 756 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16004,7 +16004,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 757
-      helas_FFV1_0( w_fp[28], w_fp[92], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[92], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 757 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16017,7 +16017,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 758
-      helas_FFV1_0( w_fp[40], w_fp[92], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[92], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 758 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16027,10 +16027,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 759 OF 1240 ***
 
       // Wavefunction(s) for diagram number 759
-      helas_FFV1_2( w_fp[41], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[62] );
+      helas_CD_FFV1_2( w_fp[41], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[62] );
 
       // Amplitude(s) for diagram number 759
-      helas_FFV1_0( w_fp[62], w_fp[87], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[87], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 759 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16043,7 +16043,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 760
-      helas_FFV1_0( w_fp[62], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 760 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16056,7 +16056,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 761
-      helas_FFV1_0( w_fp[40], w_fp[87], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[87], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 761 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16069,7 +16069,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 762
-      helas_FFV1_0( w_fp[28], w_fp[9], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[9], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 762 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16082,7 +16082,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 763
-      helas_FFV1_0( w_fp[41], w_fp[92], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[92], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 763 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16096,7 +16096,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 764
-      helas_FFV1_0( w_fp[62], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 764 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16107,10 +16107,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 765 OF 1240 ***
 
       // Wavefunction(s) for diagram number 765
-      helas_VVV1P0_1( w_fp[0], w_fp[24], COUPs[0], 1.0, 0., 0., w_fp[98] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[24], COUPs[0], 1.0, 0., 0., w_fp[98] );
 
       // Amplitude(s) for diagram number 765
-      helas_FFV1_0( w_fp[41], w_fp[77], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[77], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 765 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16126,7 +16126,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 766
-      helas_FFV1_0( w_fp[26], w_fp[92], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[92], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 766 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16140,7 +16140,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 767
-      helas_FFV1_0( w_fp[3], w_fp[92], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[92], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 767 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16156,7 +16156,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 768
-      helas_VVV1_0( w_fp[98], w_fp[34], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[98], w_fp[34], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 768 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16176,7 +16176,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 769
-      helas_FFV1_0( w_fp[3], w_fp[85], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[85], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 769 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16192,7 +16192,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 770
-      helas_VVV1_0( w_fp[0], w_fp[34], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[34], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 770 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16212,7 +16212,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 771
-      helas_FFV1_0( w_fp[26], w_fp[85], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[85], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 771 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16223,12 +16223,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 772 OF 1240 ***
 
       // Wavefunction(s) for diagram number 772
-      helas_VVVV1P0_1( w_fp[0], w_fp[24], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[85] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[24], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[112] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[24], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[111] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[24], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[85] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[24], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[112] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[24], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[111] );
 
       // Amplitude(s) for diagram number 772
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[85], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[85], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] += cxtype( 0, 1 ) * amp_sv[0];
@@ -16237,7 +16237,7 @@ namespace mg5amcCpu
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[47] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[28] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[29] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -16246,7 +16246,7 @@ namespace mg5amcCpu
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[42] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -16262,7 +16262,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 773
-      helas_FFV1_0( w_fp[14], w_fp[92], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[92], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 773 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16276,7 +16276,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 774
-      helas_FFV1_0( w_fp[3], w_fp[92], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[92], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 774 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16292,7 +16292,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 775
-      helas_VVV1_0( w_fp[101], w_fp[34], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[101], w_fp[34], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 775 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16312,7 +16312,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 776
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 776 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16328,7 +16328,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 777
-      helas_VVV1_0( w_fp[0], w_fp[34], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[34], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 777 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16348,7 +16348,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 778
-      helas_FFV1_0( w_fp[14], w_fp[9], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[9], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 778 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16359,12 +16359,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 779 OF 1240 ***
 
       // Wavefunction(s) for diagram number 779
-      helas_VVVV1P0_1( w_fp[0], w_fp[27], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[9] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[27], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[110] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[27], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[109] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[27], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[9] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[27], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[110] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[27], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[109] );
 
       // Amplitude(s) for diagram number 779
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -16373,7 +16373,7 @@ namespace mg5amcCpu
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[26] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[34] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -16382,7 +16382,7 @@ namespace mg5amcCpu
       jamp_sv[37] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[44] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[25] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[34] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -16398,7 +16398,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 780
-      helas_FFV1_0( w_fp[12], w_fp[92], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[92], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 780 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16412,7 +16412,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 781
-      helas_FFV1_0( w_fp[3], w_fp[92], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[92], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 781 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16428,7 +16428,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 782
-      helas_VVV1_0( w_fp[96], w_fp[34], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[96], w_fp[34], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 782 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16448,7 +16448,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 783
-      helas_FFV1_0( w_fp[3], w_fp[87], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[87], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 783 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16464,7 +16464,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 784
-      helas_VVV1_0( w_fp[0], w_fp[34], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[34], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 784 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16484,7 +16484,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 785
-      helas_FFV1_0( w_fp[12], w_fp[87], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[87], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 785 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16495,12 +16495,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 786 OF 1240 ***
 
       // Wavefunction(s) for diagram number 786
-      helas_VVVV1P0_1( w_fp[0], w_fp[4], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[87] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[4], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[34] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[4], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[86] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[4], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[87] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[4], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[34] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[4], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[86] );
 
       // Amplitude(s) for diagram number 786
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[87], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[87], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] += cxtype( 0, 1 ) * amp_sv[0];
@@ -16509,7 +16509,7 @@ namespace mg5amcCpu
       jamp_sv[35] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[47] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[34], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[34], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[27] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[29] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -16518,7 +16518,7 @@ namespace mg5amcCpu
       jamp_sv[35] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[40] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[46] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -16534,17 +16534,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 787
-      helas_FFV1_0( w_fp[3], w_fp[92], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[92], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] += amp_sv[0];
       jamp_sv[25] -= amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[92], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[92], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[25] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[92], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[92], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[28] += amp_sv[0];
@@ -16553,12 +16553,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 788 OF 1240 ***
 
       // Wavefunction(s) for diagram number 788
-      helas_VVV1P0_1( w_fp[0], w_fp[30], COUPs[0], 1.0, 0., 0., w_fp[92] );
-      helas_VVV1P0_1( w_fp[0], w_fp[31], COUPs[0], 1.0, 0., 0., w_fp[88] );
-      helas_VVV1P0_1( w_fp[0], w_fp[32], COUPs[0], 1.0, 0., 0., w_fp[106] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[30], COUPs[0], 1.0, 0., 0., w_fp[92] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[31], COUPs[0], 1.0, 0., 0., w_fp[88] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[32], COUPs[0], 1.0, 0., 0., w_fp[106] );
 
       // Amplitude(s) for diagram number 788
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[92], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[92], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] += cxtype( 0, 1 ) * amp_sv[0];
@@ -16567,7 +16567,7 @@ namespace mg5amcCpu
       jamp_sv[35] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[47] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[25] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] += cxtype( 0, 1 ) * amp_sv[0];
@@ -16576,7 +16576,7 @@ namespace mg5amcCpu
       jamp_sv[39] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[106], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[106], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -16589,10 +16589,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 789 OF 1240 ***
 
       // Wavefunction(s) for diagram number 789
-      helas_FFV1_2( w_fp[52], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[90] );
+      helas_CD_FFV1_2( w_fp[52], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[90] );
 
       // Amplitude(s) for diagram number 789
-      helas_FFV1_0( w_fp[90], w_fp[35], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[35], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 789 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16605,7 +16605,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 790
-      helas_FFV1_0( w_fp[90], w_fp[36], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[36], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 790 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16615,10 +16615,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 791 OF 1240 ***
 
       // Wavefunction(s) for diagram number 791
-      helas_FFV1_1( w_fp[33], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[114] );
+      helas_CD_FFV1_1( w_fp[33], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[114] );
 
       // Amplitude(s) for diagram number 791
-      helas_FFV1_0( w_fp[22], w_fp[114], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[114], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 791 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16631,7 +16631,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 792
-      helas_FFV1_0( w_fp[21], w_fp[114], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[114], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 792 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16644,7 +16644,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 793
-      helas_FFV1_0( w_fp[22], w_fp[36], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[36], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 793 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16657,7 +16657,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 794
-      helas_FFV1_0( w_fp[21], w_fp[35], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[35], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 794 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16670,7 +16670,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 795
-      helas_FFV1_0( w_fp[90], w_fp[33], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[33], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 795 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16684,7 +16684,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 796
-      helas_FFV1_0( w_fp[52], w_fp[114], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[114], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 796 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16698,7 +16698,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 797
-      helas_FFV1_0( w_fp[52], w_fp[33], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[33], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 797 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16714,7 +16714,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 798
-      helas_FFV1_0( w_fp[90], w_fp[43], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[43], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 798 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16727,7 +16727,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 799
-      helas_FFV1_0( w_fp[90], w_fp[44], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[44], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 799 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16737,10 +16737,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 800 OF 1240 ***
 
       // Wavefunction(s) for diagram number 800
-      helas_FFV1_1( w_fp[39], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[102] );
+      helas_CD_FFV1_1( w_fp[39], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[102] );
 
       // Amplitude(s) for diagram number 800
-      helas_FFV1_0( w_fp[56], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 800 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16753,7 +16753,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 801
-      helas_FFV1_0( w_fp[21], w_fp[102], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[102], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 801 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16766,7 +16766,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 802
-      helas_FFV1_0( w_fp[56], w_fp[44], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[44], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 802 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16779,7 +16779,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 803
-      helas_FFV1_0( w_fp[21], w_fp[43], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[43], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 803 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16792,7 +16792,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 804
-      helas_FFV1_0( w_fp[90], w_fp[39], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[39], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 804 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16806,7 +16806,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 805
-      helas_FFV1_0( w_fp[52], w_fp[102], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[102], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 805 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16820,7 +16820,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 806
-      helas_FFV1_0( w_fp[52], w_fp[39], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[39], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 806 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16836,7 +16836,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 807
-      helas_FFV1_0( w_fp[90], w_fp[49], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[49], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 807 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16849,7 +16849,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 808
-      helas_FFV1_0( w_fp[90], w_fp[50], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[50], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 808 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16859,10 +16859,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 809 OF 1240 ***
 
       // Wavefunction(s) for diagram number 809
-      helas_FFV1_1( w_fp[47], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[113] );
+      helas_CD_FFV1_1( w_fp[47], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[113] );
 
       // Amplitude(s) for diagram number 809
-      helas_FFV1_0( w_fp[56], w_fp[113], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[113], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 809 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16875,7 +16875,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 810
-      helas_FFV1_0( w_fp[22], w_fp[113], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[113], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 810 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16888,7 +16888,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 811
-      helas_FFV1_0( w_fp[56], w_fp[50], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[50], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 811 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16901,7 +16901,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 812
-      helas_FFV1_0( w_fp[22], w_fp[49], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[49], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 812 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16914,7 +16914,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 813
-      helas_FFV1_0( w_fp[90], w_fp[47], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[47], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 813 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16928,7 +16928,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 814
-      helas_FFV1_0( w_fp[52], w_fp[113], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[113], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 814 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16942,7 +16942,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 815
-      helas_FFV1_0( w_fp[52], w_fp[47], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[47], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 815 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16958,7 +16958,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 816
-      helas_FFV1_0( w_fp[90], w_fp[17], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[17], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 816 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16972,7 +16972,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 817
-      helas_FFV1_0( w_fp[90], w_fp[2], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[2], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 817 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -16988,7 +16988,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 818
-      helas_VVV1_0( w_fp[98], w_fp[103], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[98], w_fp[103], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 818 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17008,7 +17008,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 819
-      helas_FFV1_0( w_fp[21], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 819 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17024,7 +17024,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 820
-      helas_VVV1_0( w_fp[0], w_fp[103], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[103], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 820 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17044,7 +17044,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 821
-      helas_FFV1_0( w_fp[21], w_fp[17], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[17], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 821 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17058,7 +17058,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 822
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[85], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[85], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
@@ -17067,7 +17067,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[112], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[61] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -17076,7 +17076,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[101] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[61] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -17092,7 +17092,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 823
-      helas_FFV1_0( w_fp[90], w_fp[15], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[15], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 823 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17106,7 +17106,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 824
-      helas_FFV1_0( w_fp[90], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 824 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17122,7 +17122,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 825
-      helas_VVV1_0( w_fp[101], w_fp[103], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[101], w_fp[103], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 825 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17142,7 +17142,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 826
-      helas_FFV1_0( w_fp[22], w_fp[2], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[2], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 826 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17158,7 +17158,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 827
-      helas_VVV1_0( w_fp[0], w_fp[103], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[103], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 827 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17178,7 +17178,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 828
-      helas_FFV1_0( w_fp[22], w_fp[15], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[15], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 828 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17192,7 +17192,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 829
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -17201,7 +17201,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[94] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[110], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -17210,7 +17210,7 @@ namespace mg5amcCpu
       jamp_sv[77] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[109] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[109], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -17226,7 +17226,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 830
-      helas_FFV1_0( w_fp[90], w_fp[18], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[18], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 830 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17240,7 +17240,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 831
-      helas_FFV1_0( w_fp[90], w_fp[2], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[2], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 831 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17256,7 +17256,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 832
-      helas_VVV1_0( w_fp[96], w_fp[103], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[96], w_fp[103], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 832 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17276,7 +17276,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 833
-      helas_FFV1_0( w_fp[56], w_fp[2], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[2], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 833 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17292,7 +17292,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 834
-      helas_VVV1_0( w_fp[0], w_fp[103], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[103], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 834 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17312,7 +17312,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 835
-      helas_FFV1_0( w_fp[56], w_fp[18], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[56], w_fp[18], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 835 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17326,7 +17326,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 836
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[87], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[87], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
@@ -17335,7 +17335,7 @@ namespace mg5amcCpu
       jamp_sv[70] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[94] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[34], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[34], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -17344,7 +17344,7 @@ namespace mg5amcCpu
       jamp_sv[70] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[91] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[115] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -17360,17 +17360,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 837
-      helas_FFV1_0( w_fp[90], w_fp[2], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[2], w_fp[30], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[64] += amp_sv[0];
       jamp_sv[70] -= amp_sv[0];
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_FFV1_0( w_fp[90], w_fp[2], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[2], w_fp[31], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[70] -= amp_sv[0];
       jamp_sv[88] += amp_sv[0];
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
-      helas_FFV1_0( w_fp[90], w_fp[2], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[90], w_fp[2], w_fp[32], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[64] -= amp_sv[0];
       jamp_sv[88] += amp_sv[0];
       jamp_sv[112] += amp_sv[0];
@@ -17382,7 +17382,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 838
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[92], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[92], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
@@ -17391,7 +17391,7 @@ namespace mg5amcCpu
       jamp_sv[70] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[94] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[88], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
@@ -17400,7 +17400,7 @@ namespace mg5amcCpu
       jamp_sv[88] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[94] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[106], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[106], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -17413,10 +17413,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 839 OF 1240 ***
 
       // Wavefunction(s) for diagram number 839
-      helas_VVV1P0_1( w_fp[0], w_fp[61], COUPs[0], 1.0, 0., 0., w_fp[90] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[61], COUPs[0], 1.0, 0., 0., w_fp[90] );
 
       // Amplitude(s) for diagram number 839
-      helas_VVV1_0( w_fp[90], w_fp[10], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[90], w_fp[10], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 839 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17444,7 +17444,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 840
-      helas_VVV1_0( w_fp[90], w_fp[11], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[90], w_fp[11], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 840 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17472,7 +17472,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 841
-      helas_VVVV1_0( w_fp[8], w_fp[5], w_fp[6], w_fp[90], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[8], w_fp[5], w_fp[6], w_fp[90], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -17489,7 +17489,7 @@ namespace mg5amcCpu
       jamp_sv[98] -= amp_sv[0];
       jamp_sv[104] -= amp_sv[0];
       jamp_sv[110] += amp_sv[0];
-      helas_VVVV3_0( w_fp[8], w_fp[5], w_fp[6], w_fp[90], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[8], w_fp[5], w_fp[6], w_fp[90], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -17506,7 +17506,7 @@ namespace mg5amcCpu
       jamp_sv[115] += amp_sv[0];
       jamp_sv[117] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[8], w_fp[5], w_fp[6], w_fp[90], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[8], w_fp[5], w_fp[6], w_fp[90], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[1] += amp_sv[0];
       jamp_sv[6] += amp_sv[0];
@@ -17527,10 +17527,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 842 OF 1240 ***
 
       // Wavefunction(s) for diagram number 842
-      helas_VVV1P0_1( w_fp[0], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[56] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[8], COUPs[0], 1.0, 0., 0., w_fp[56] );
 
       // Amplitude(s) for diagram number 842
-      helas_VVV1_0( w_fp[56], w_fp[63], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[63], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 842 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17558,7 +17558,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 843
-      helas_VVV1_0( w_fp[56], w_fp[64], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[64], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 843 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17586,7 +17586,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 844
-      helas_VVVV1_0( w_fp[61], w_fp[5], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[61], w_fp[5], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
@@ -17603,7 +17603,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV3_0( w_fp[61], w_fp[5], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[61], w_fp[5], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
@@ -17620,7 +17620,7 @@ namespace mg5amcCpu
       jamp_sv[95] += amp_sv[0];
       jamp_sv[105] += amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[61], w_fp[5], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[61], w_fp[5], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[1] += amp_sv[0];
       jamp_sv[6] += amp_sv[0];
@@ -17644,7 +17644,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 845
-      helas_VVV1_0( w_fp[0], w_fp[63], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[63], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 845 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17672,7 +17672,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 846
-      helas_VVV1_0( w_fp[0], w_fp[64], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[64], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 846 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -17697,12 +17697,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 847 OF 1240 ***
 
       // Wavefunction(s) for diagram number 847
-      helas_VVVV1P0_1( w_fp[0], w_fp[61], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[103] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[61], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[22] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[61], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[61], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[103] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[61], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[22] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[61], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[21] );
 
       // Amplitude(s) for diagram number 847
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[103], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[103], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
@@ -17719,7 +17719,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -17736,7 +17736,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -17757,12 +17757,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 848 OF 1240 ***
 
       // Wavefunction(s) for diagram number 848
-      helas_VVVV1P0_1( w_fp[0], w_fp[61], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[105] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[61], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[95] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[61], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[107] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[61], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[105] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[61], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[95] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[61], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[107] );
 
       // Amplitude(s) for diagram number 848
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[18] -= amp_sv[0];
@@ -17779,7 +17779,7 @@ namespace mg5amcCpu
       jamp_sv[95] += amp_sv[0];
       jamp_sv[104] += amp_sv[0];
       jamp_sv[110] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -17796,7 +17796,7 @@ namespace mg5amcCpu
       jamp_sv[91] += amp_sv[0];
       jamp_sv[96] += amp_sv[0];
       jamp_sv[98] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -17817,12 +17817,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 849 OF 1240 ***
 
       // Wavefunction(s) for diagram number 849
-      helas_VVVV1P0_1( w_fp[0], w_fp[8], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[115] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[8], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[116] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[8], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[117] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[8], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[115] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[8], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[116] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[8], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[117] );
 
       // Amplitude(s) for diagram number 849
-      helas_VVV1_0( w_fp[61], w_fp[6], w_fp[115], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[6], w_fp[115], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[18] += amp_sv[0];
@@ -17839,7 +17839,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[104] -= amp_sv[0];
       jamp_sv[110] += amp_sv[0];
-      helas_VVV1_0( w_fp[61], w_fp[6], w_fp[116], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[6], w_fp[116], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
       jamp_sv[16] += amp_sv[0];
@@ -17856,7 +17856,7 @@ namespace mg5amcCpu
       jamp_sv[105] += amp_sv[0];
       jamp_sv[110] += amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
-      helas_VVV1_0( w_fp[61], w_fp[6], w_fp[117], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[6], w_fp[117], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
@@ -17877,12 +17877,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 850 OF 1240 ***
 
       // Wavefunction(s) for diagram number 850
-      helas_VVVV1P0_1( w_fp[0], w_fp[8], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[118] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[8], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[119] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[8], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[120] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[8], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[118] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[8], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[119] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[8], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[120] );
 
       // Amplitude(s) for diagram number 850
-      helas_VVV1_0( w_fp[61], w_fp[5], w_fp[118], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[5], w_fp[118], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[12] += amp_sv[0];
@@ -17899,7 +17899,7 @@ namespace mg5amcCpu
       jamp_sv[111] += amp_sv[0];
       jamp_sv[117] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVV1_0( w_fp[61], w_fp[5], w_fp[119], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[5], w_fp[119], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
       jamp_sv[22] += amp_sv[0];
@@ -17916,7 +17916,7 @@ namespace mg5amcCpu
       jamp_sv[98] -= amp_sv[0];
       jamp_sv[100] -= amp_sv[0];
       jamp_sv[101] += amp_sv[0];
-      helas_VVV1_0( w_fp[61], w_fp[5], w_fp[120], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[5], w_fp[120], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
@@ -17940,7 +17940,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 851
-      helas_VVVV1_0( w_fp[0], w_fp[61], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[61], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -17957,7 +17957,7 @@ namespace mg5amcCpu
       jamp_sv[115] -= amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[61], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[61], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -17974,7 +17974,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[61], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[61], w_fp[8], w_fp[29], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
       jamp_sv[22] += amp_sv[0];
@@ -17998,7 +17998,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 852
-      helas_VVV1_0( w_fp[8], w_fp[29], w_fp[90], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[29], w_fp[90], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 852 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18026,7 +18026,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 853
-      helas_VVV1_0( w_fp[61], w_fp[29], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[29], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 853 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18054,7 +18054,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 854
-      helas_VVV1_0( w_fp[61], w_fp[8], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[61], w_fp[8], w_fp[96], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 854 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18082,7 +18082,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 855
-      helas_VVV1_0( w_fp[90], w_fp[45], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[90], w_fp[45], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 855 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18102,7 +18102,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 856
-      helas_FFV1_0( w_fp[3], w_fp[44], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[44], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 856 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18118,7 +18118,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 857
-      helas_FFV1_0( w_fp[65], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 857 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18132,7 +18132,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 858
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 858 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18148,7 +18148,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 859
-      helas_FFV1_0( w_fp[65], w_fp[44], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[44], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 859 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18162,7 +18162,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 860
-      helas_VVV1_0( w_fp[0], w_fp[64], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[64], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 860 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18182,7 +18182,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 861
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[76] += cxtype( 0, 1 ) * amp_sv[0];
@@ -18191,7 +18191,7 @@ namespace mg5amcCpu
       jamp_sv[87] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[95] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[76] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[77] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -18200,7 +18200,7 @@ namespace mg5amcCpu
       jamp_sv[87] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[90] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[91] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -18216,7 +18216,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 862
-      helas_FFV1_0( w_fp[41], w_fp[39], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[39], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 862 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18232,7 +18232,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 863
-      helas_FFV1_0( w_fp[41], w_fp[102], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[102], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 863 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18246,7 +18246,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 864
-      helas_FFV1_0( w_fp[62], w_fp[39], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[39], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 864 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18260,7 +18260,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 865
-      helas_VVV1_0( w_fp[90], w_fp[51], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[90], w_fp[51], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 865 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18280,7 +18280,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 866
-      helas_FFV1_0( w_fp[3], w_fp[50], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[50], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 866 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18296,7 +18296,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 867
-      helas_FFV1_0( w_fp[65], w_fp[113], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[113], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 867 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18310,7 +18310,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 868
-      helas_FFV1_0( w_fp[3], w_fp[113], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[113], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 868 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18326,7 +18326,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 869
-      helas_FFV1_0( w_fp[65], w_fp[50], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[50], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 869 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18340,7 +18340,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 870
-      helas_VVV1_0( w_fp[0], w_fp[63], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[63], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 870 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18360,7 +18360,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 871
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[103], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[103], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[100] += cxtype( 0, 1 ) * amp_sv[0];
@@ -18369,7 +18369,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[100] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[101] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -18378,7 +18378,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[114] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[115] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -18394,7 +18394,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 872
-      helas_FFV1_0( w_fp[38], w_fp[47], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[47], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 872 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18410,7 +18410,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 873
-      helas_FFV1_0( w_fp[38], w_fp[113], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[113], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 873 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18424,7 +18424,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 874
-      helas_FFV1_0( w_fp[104], w_fp[47], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[47], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 874 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18438,7 +18438,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 875
-      helas_VVV1_0( w_fp[90], w_fp[23], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[90], w_fp[23], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 875 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18458,7 +18458,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 876
-      helas_FFV1_0( w_fp[48], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 876 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18474,7 +18474,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 877
-      helas_FFV1_0( w_fp[104], w_fp[93], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[93], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 877 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18488,7 +18488,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 878
-      helas_FFV1_0( w_fp[104], w_fp[2], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[2], w_fp[64], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 878 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18504,7 +18504,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 879
-      helas_FFV1_0( w_fp[48], w_fp[93], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[93], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 879 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18518,7 +18518,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 880
-      helas_VVV1_0( w_fp[0], w_fp[64], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[64], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 880 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18538,7 +18538,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 881
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[105], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
@@ -18547,7 +18547,7 @@ namespace mg5amcCpu
       jamp_sv[58] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[110] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[95], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -18556,7 +18556,7 @@ namespace mg5amcCpu
       jamp_sv[58] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[96] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[107], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -18572,7 +18572,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 882
-      helas_VVV1_0( w_fp[90], w_fp[20], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[90], w_fp[20], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 882 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18592,7 +18592,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 883
-      helas_FFV1_0( w_fp[40], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 883 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18608,7 +18608,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 884
-      helas_FFV1_0( w_fp[62], w_fp[93], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[93], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 884 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18622,7 +18622,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 885
-      helas_FFV1_0( w_fp[62], w_fp[2], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[2], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 885 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18638,7 +18638,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 886
-      helas_FFV1_0( w_fp[40], w_fp[93], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[93], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 886 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18652,7 +18652,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 887
-      helas_VVV1_0( w_fp[0], w_fp[63], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[63], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 887 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18672,7 +18672,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 888
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[103], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[103], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
@@ -18681,7 +18681,7 @@ namespace mg5amcCpu
       jamp_sv[56] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[86] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -18690,7 +18690,7 @@ namespace mg5amcCpu
       jamp_sv[56] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[72] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -18706,7 +18706,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 889
-      helas_FFV1_0( w_fp[3], w_fp[18], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[18], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 889 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18726,7 +18726,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 890
-      helas_FFV1_0( w_fp[12], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 890 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18746,7 +18746,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 891
-      helas_FFV1_0( w_fp[3], w_fp[93], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[93], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 891 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18766,7 +18766,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 892
-      helas_FFV1_0( w_fp[65], w_fp[2], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[2], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 892 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18786,7 +18786,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 893
-      helas_FFV1_0( w_fp[12], w_fp[93], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[93], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 893 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18802,7 +18802,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 894
-      helas_FFV1_0( w_fp[65], w_fp[18], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[65], w_fp[18], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 894 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18815,10 +18815,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 895 OF 1240 ***
 
       // Wavefunction(s) for diagram number 895
-      helas_VVV1P0_1( w_fp[0], w_fp[66], COUPs[0], 1.0, 0., 0., w_fp[65] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[66], COUPs[0], 1.0, 0., 0., w_fp[65] );
 
       // Amplitude(s) for diagram number 895
-      helas_VVV1_0( w_fp[65], w_fp[13], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[65], w_fp[13], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 895 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18846,7 +18846,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 896
-      helas_VVV1_0( w_fp[65], w_fp[11], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[65], w_fp[11], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 896 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18874,7 +18874,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 897
-      helas_VVVV1_0( w_fp[8], w_fp[4], w_fp[6], w_fp[65], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[8], w_fp[4], w_fp[6], w_fp[65], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[37] += amp_sv[0];
@@ -18891,7 +18891,7 @@ namespace mg5amcCpu
       jamp_sv[100] -= amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
-      helas_VVVV3_0( w_fp[8], w_fp[4], w_fp[6], w_fp[65], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[8], w_fp[4], w_fp[6], w_fp[65], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[12] += amp_sv[0];
       jamp_sv[36] += amp_sv[0];
@@ -18908,7 +18908,7 @@ namespace mg5amcCpu
       jamp_sv[111] += amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
-      helas_VVVV4_0( w_fp[8], w_fp[4], w_fp[6], w_fp[65], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[8], w_fp[4], w_fp[6], w_fp[65], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[3] += amp_sv[0];
       jamp_sv[12] += amp_sv[0];
@@ -18932,7 +18932,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 898
-      helas_VVV1_0( w_fp[56], w_fp[69], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[69], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 898 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18960,7 +18960,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 899
-      helas_VVV1_0( w_fp[56], w_fp[70], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[70], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 899 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -18988,7 +18988,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 900
-      helas_VVVV1_0( w_fp[66], w_fp[4], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[66], w_fp[4], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
@@ -19005,7 +19005,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[66], w_fp[4], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[66], w_fp[4], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
@@ -19022,7 +19022,7 @@ namespace mg5amcCpu
       jamp_sv[83] += amp_sv[0];
       jamp_sv[107] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[66], w_fp[4], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[66], w_fp[4], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[3] += amp_sv[0];
       jamp_sv[10] += amp_sv[0];
@@ -19046,7 +19046,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 901
-      helas_VVV1_0( w_fp[0], w_fp[69], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[69], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 901 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19074,7 +19074,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 902
-      helas_VVV1_0( w_fp[0], w_fp[70], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[70], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 902 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19099,12 +19099,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 903 OF 1240 ***
 
       // Wavefunction(s) for diagram number 903
-      helas_VVVV1P0_1( w_fp[0], w_fp[66], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[93] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[66], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[90] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[66], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[66], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[93] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[66], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[90] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[66], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[21] );
 
       // Amplitude(s) for diagram number 903
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[93], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[93], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
@@ -19121,7 +19121,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[90], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[90], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
       jamp_sv[36] += amp_sv[0];
@@ -19138,7 +19138,7 @@ namespace mg5amcCpu
       jamp_sv[109] += amp_sv[0];
       jamp_sv[116] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[12] += amp_sv[0];
       jamp_sv[36] += amp_sv[0];
@@ -19159,12 +19159,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 904 OF 1240 ***
 
       // Wavefunction(s) for diagram number 904
-      helas_VVVV1P0_1( w_fp[0], w_fp[66], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[22] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[66], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[103] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[66], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[63] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[66], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[22] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[66], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[103] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[66], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[63] );
 
       // Amplitude(s) for diagram number 904
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[19] -= amp_sv[0];
@@ -19181,7 +19181,7 @@ namespace mg5amcCpu
       jamp_sv[82] += amp_sv[0];
       jamp_sv[106] += amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[103], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[103], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[22] += amp_sv[0];
       jamp_sv[37] += amp_sv[0];
@@ -19198,7 +19198,7 @@ namespace mg5amcCpu
       jamp_sv[82] += amp_sv[0];
       jamp_sv[97] += amp_sv[0];
       jamp_sv[100] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[63], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[63], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[37] += amp_sv[0];
@@ -19219,12 +19219,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 905 OF 1240 ***
 
       // Wavefunction(s) for diagram number 905
-      helas_VVVV1P0_1( w_fp[0], w_fp[8], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[107] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[8], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[95] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[8], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[105] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[8], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[107] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[8], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[95] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[8], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[105] );
 
       // Amplitude(s) for diagram number 905
-      helas_VVV1_0( w_fp[66], w_fp[6], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[6], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[19] += amp_sv[0];
@@ -19241,7 +19241,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
-      helas_VVV1_0( w_fp[66], w_fp[6], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[6], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
       jamp_sv[10] += amp_sv[0];
@@ -19258,7 +19258,7 @@ namespace mg5amcCpu
       jamp_sv[107] += amp_sv[0];
       jamp_sv[116] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
-      helas_VVV1_0( w_fp[66], w_fp[6], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[6], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
@@ -19282,7 +19282,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 906
-      helas_VVV1_0( w_fp[66], w_fp[4], w_fp[118], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[4], w_fp[118], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -19299,7 +19299,7 @@ namespace mg5amcCpu
       jamp_sv[111] += amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_VVV1_0( w_fp[66], w_fp[4], w_fp[119], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[4], w_fp[119], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
@@ -19316,7 +19316,7 @@ namespace mg5amcCpu
       jamp_sv[98] -= amp_sv[0];
       jamp_sv[99] += amp_sv[0];
       jamp_sv[100] -= amp_sv[0];
-      helas_VVV1_0( w_fp[66], w_fp[4], w_fp[120], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[4], w_fp[120], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
@@ -19340,7 +19340,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 907
-      helas_VVVV1_0( w_fp[0], w_fp[66], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[66], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
@@ -19357,7 +19357,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[66], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[66], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -19374,7 +19374,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[66], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[66], w_fp[8], w_fp[27], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       jamp_sv[20] += amp_sv[0];
@@ -19398,7 +19398,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 908
-      helas_VVV1_0( w_fp[8], w_fp[27], w_fp[65], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[27], w_fp[65], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 908 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19426,7 +19426,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 909
-      helas_VVV1_0( w_fp[66], w_fp[27], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[27], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 909 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19454,7 +19454,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 910
-      helas_VVV1_0( w_fp[66], w_fp[8], w_fp[101], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[66], w_fp[8], w_fp[101], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 910 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19482,7 +19482,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 911
-      helas_VVV1_0( w_fp[65], w_fp[37], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[65], w_fp[37], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 911 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19502,7 +19502,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 912
-      helas_FFV1_0( w_fp[3], w_fp[36], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[36], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 912 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19518,7 +19518,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 913
-      helas_FFV1_0( w_fp[71], w_fp[114], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[114], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 913 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19532,7 +19532,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 914
-      helas_FFV1_0( w_fp[3], w_fp[114], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[114], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 914 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19548,7 +19548,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 915
-      helas_FFV1_0( w_fp[71], w_fp[36], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[36], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 915 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19562,7 +19562,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 916
-      helas_VVV1_0( w_fp[0], w_fp[70], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[70], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 916 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19582,7 +19582,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 917
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[50] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[52] += cxtype( 0, 1 ) * amp_sv[0];
@@ -19591,7 +19591,7 @@ namespace mg5amcCpu
       jamp_sv[63] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[71] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[103], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[103], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[52] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[53] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -19600,7 +19600,7 @@ namespace mg5amcCpu
       jamp_sv[63] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[66] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[50] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -19616,7 +19616,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 918
-      helas_FFV1_0( w_fp[41], w_fp[33], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[33], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 918 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19632,7 +19632,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 919
-      helas_FFV1_0( w_fp[41], w_fp[114], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[114], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 919 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19646,7 +19646,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 920
-      helas_FFV1_0( w_fp[62], w_fp[33], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[33], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 920 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19660,7 +19660,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 921
-      helas_VVV1_0( w_fp[65], w_fp[51], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[65], w_fp[51], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 921 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19680,7 +19680,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 922
-      helas_FFV1_0( w_fp[3], w_fp[49], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[49], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 922 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19696,7 +19696,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 923
-      helas_FFV1_0( w_fp[71], w_fp[113], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[113], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 923 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19710,7 +19710,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 924
-      helas_FFV1_0( w_fp[3], w_fp[113], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[113], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 924 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19726,7 +19726,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 925
-      helas_FFV1_0( w_fp[71], w_fp[49], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[49], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 925 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19740,7 +19740,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 926
-      helas_VVV1_0( w_fp[0], w_fp[69], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[69], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 926 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19760,7 +19760,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 927
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[93], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[93], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[97] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -19769,7 +19769,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[98] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -19778,7 +19778,7 @@ namespace mg5amcCpu
       jamp_sv[109] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[116] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[97] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[100] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -19794,7 +19794,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 928
-      helas_FFV1_0( w_fp[46], w_fp[47], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[47], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 928 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19810,7 +19810,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 929
-      helas_FFV1_0( w_fp[46], w_fp[113], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[113], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 929 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19824,7 +19824,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 930
-      helas_FFV1_0( w_fp[99], w_fp[47], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[47], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 930 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19838,7 +19838,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 931
-      helas_VVV1_0( w_fp[65], w_fp[54], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[65], w_fp[54], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 931 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19858,7 +19858,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 932
-      helas_FFV1_0( w_fp[53], w_fp[2], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[2], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 932 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19874,7 +19874,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 933
-      helas_FFV1_0( w_fp[99], w_fp[94], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[94], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 933 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19888,7 +19888,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 934
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[70], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 934 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19904,7 +19904,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 935
-      helas_FFV1_0( w_fp[53], w_fp[94], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[94], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 935 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19918,7 +19918,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 936
-      helas_VVV1_0( w_fp[0], w_fp[70], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[70], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 936 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19938,7 +19938,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 937
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
@@ -19947,7 +19947,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[116] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[103], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[103], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[37] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -19956,7 +19956,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[97] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[100] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[63], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[37] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -19972,7 +19972,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 938
-      helas_VVV1_0( w_fp[65], w_fp[20], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[65], w_fp[20], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 938 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -19992,7 +19992,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 939
-      helas_FFV1_0( w_fp[28], w_fp[2], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[2], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 939 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20008,7 +20008,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 940
-      helas_FFV1_0( w_fp[62], w_fp[94], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[94], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 940 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20022,7 +20022,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 941
-      helas_FFV1_0( w_fp[62], w_fp[2], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[2], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 941 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20038,7 +20038,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 942
-      helas_FFV1_0( w_fp[28], w_fp[94], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[94], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 942 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20052,7 +20052,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 943
-      helas_VVV1_0( w_fp[0], w_fp[69], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[69], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 943 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20072,7 +20072,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 944
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[93], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[93], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -20081,7 +20081,7 @@ namespace mg5amcCpu
       jamp_sv[56] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[62] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[36] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -20090,7 +20090,7 @@ namespace mg5amcCpu
       jamp_sv[50] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[36] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -20106,7 +20106,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 945
-      helas_FFV1_0( w_fp[3], w_fp[15], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[15], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 945 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20126,7 +20126,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 946
-      helas_FFV1_0( w_fp[14], w_fp[2], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[2], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 946 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20146,7 +20146,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 947
-      helas_FFV1_0( w_fp[3], w_fp[94], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[94], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 947 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20166,7 +20166,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 948
-      helas_FFV1_0( w_fp[71], w_fp[2], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[2], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 948 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20186,7 +20186,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 949
-      helas_FFV1_0( w_fp[14], w_fp[94], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[94], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 949 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20202,7 +20202,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 950
-      helas_FFV1_0( w_fp[71], w_fp[15], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[15], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 950 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20215,10 +20215,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 951 OF 1240 ***
 
       // Wavefunction(s) for diagram number 951
-      helas_VVV1P0_1( w_fp[0], w_fp[72], COUPs[0], 1.0, 0., 0., w_fp[71] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[72], COUPs[0], 1.0, 0., 0., w_fp[71] );
 
       // Amplitude(s) for diagram number 951
-      helas_VVV1_0( w_fp[71], w_fp[13], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[71], w_fp[13], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 951 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20246,7 +20246,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 952
-      helas_VVV1_0( w_fp[71], w_fp[10], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[71], w_fp[10], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 952 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20274,7 +20274,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 953
-      helas_VVVV1_0( w_fp[8], w_fp[4], w_fp[5], w_fp[71], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[8], w_fp[4], w_fp[5], w_fp[71], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[19] += amp_sv[0];
       jamp_sv[43] += amp_sv[0];
@@ -20291,7 +20291,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= amp_sv[0];
       jamp_sv[92] += amp_sv[0];
       jamp_sv[103] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[8], w_fp[4], w_fp[5], w_fp[71], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[8], w_fp[4], w_fp[5], w_fp[71], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[18] += amp_sv[0];
       jamp_sv[42] += amp_sv[0];
@@ -20308,7 +20308,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[92] += amp_sv[0];
       jamp_sv[102] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[8], w_fp[4], w_fp[5], w_fp[71], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[8], w_fp[4], w_fp[5], w_fp[71], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[5] += amp_sv[0];
       jamp_sv[18] += amp_sv[0];
@@ -20332,7 +20332,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 954
-      helas_VVV1_0( w_fp[56], w_fp[74], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[74], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 954 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20360,7 +20360,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 955
-      helas_VVV1_0( w_fp[56], w_fp[75], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[75], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 955 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20388,7 +20388,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 956
-      helas_VVVV1_0( w_fp[72], w_fp[4], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[72], w_fp[4], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[10] += amp_sv[0];
@@ -20405,7 +20405,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[93] -= amp_sv[0];
       jamp_sv[105] += amp_sv[0];
-      helas_VVVV3_0( w_fp[72], w_fp[4], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[72], w_fp[4], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[5] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
@@ -20422,7 +20422,7 @@ namespace mg5amcCpu
       jamp_sv[83] += amp_sv[0];
       jamp_sv[93] -= amp_sv[0];
       jamp_sv[107] += amp_sv[0];
-      helas_VVVV4_0( w_fp[72], w_fp[4], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[72], w_fp[4], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[5] += amp_sv[0];
       jamp_sv[8] += amp_sv[0];
@@ -20446,7 +20446,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 957
-      helas_VVV1_0( w_fp[0], w_fp[74], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[74], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 957 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20474,7 +20474,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 958
-      helas_VVV1_0( w_fp[0], w_fp[75], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[75], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 958 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20499,12 +20499,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 959 OF 1240 ***
 
       // Wavefunction(s) for diagram number 959
-      helas_VVVV1P0_1( w_fp[0], w_fp[72], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[94] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[72], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[65] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[72], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[72], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[94] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[72], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[65] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[72], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[21] );
 
       // Amplitude(s) for diagram number 959
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[94], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[94], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[10] += amp_sv[0];
@@ -20521,7 +20521,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[93] -= amp_sv[0];
       jamp_sv[104] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[65], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[65], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[10] += amp_sv[0];
       jamp_sv[42] += amp_sv[0];
@@ -20538,7 +20538,7 @@ namespace mg5amcCpu
       jamp_sv[93] -= amp_sv[0];
       jamp_sv[102] -= amp_sv[0];
       jamp_sv[104] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[18] += amp_sv[0];
       jamp_sv[42] += amp_sv[0];
@@ -20559,12 +20559,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 960 OF 1240 ***
 
       // Wavefunction(s) for diagram number 960
-      helas_VVVV1P0_1( w_fp[0], w_fp[72], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[90] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[72], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[93] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[72], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[69] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[72], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[90] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[72], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[93] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[72], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[69] );
 
       // Amplitude(s) for diagram number 960
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[90], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[90], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[5] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[16] += amp_sv[0];
@@ -20581,7 +20581,7 @@ namespace mg5amcCpu
       jamp_sv[82] += amp_sv[0];
       jamp_sv[92] -= amp_sv[0];
       jamp_sv[106] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[93], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[93], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[16] += amp_sv[0];
       jamp_sv[43] += amp_sv[0];
@@ -20598,7 +20598,7 @@ namespace mg5amcCpu
       jamp_sv[76] -= amp_sv[0];
       jamp_sv[103] -= amp_sv[0];
       jamp_sv[106] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[69], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[69], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[19] += amp_sv[0];
       jamp_sv[43] += amp_sv[0];
@@ -20622,7 +20622,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 961
-      helas_VVV1_0( w_fp[72], w_fp[5], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[5], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
@@ -20639,7 +20639,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= amp_sv[0];
       jamp_sv[92] += amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
-      helas_VVV1_0( w_fp[72], w_fp[5], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[5], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
@@ -20656,7 +20656,7 @@ namespace mg5amcCpu
       jamp_sv[93] -= amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
       jamp_sv[107] += amp_sv[0];
-      helas_VVV1_0( w_fp[72], w_fp[5], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[5], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[5] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[8] += amp_sv[0];
@@ -20680,7 +20680,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 962
-      helas_VVV1_0( w_fp[72], w_fp[4], w_fp[115], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[4], w_fp[115], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -20697,7 +20697,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[93] += amp_sv[0];
       jamp_sv[104] -= amp_sv[0];
-      helas_VVV1_0( w_fp[72], w_fp[4], w_fp[116], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[4], w_fp[116], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
@@ -20714,7 +20714,7 @@ namespace mg5amcCpu
       jamp_sv[76] -= amp_sv[0];
       jamp_sv[104] -= amp_sv[0];
       jamp_sv[105] += amp_sv[0];
-      helas_VVV1_0( w_fp[72], w_fp[4], w_fp[117], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[4], w_fp[117], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[10] += amp_sv[0];
@@ -20738,7 +20738,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 963
-      helas_VVVV1_0( w_fp[0], w_fp[72], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[72], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[18] -= amp_sv[0];
@@ -20755,7 +20755,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[102] += amp_sv[0];
       jamp_sv[103] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[72], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[72], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -20772,7 +20772,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[105] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[72], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[72], w_fp[8], w_fp[24], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[9] += amp_sv[0];
       jamp_sv[14] += amp_sv[0];
@@ -20796,7 +20796,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 964
-      helas_VVV1_0( w_fp[8], w_fp[24], w_fp[71], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[24], w_fp[71], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 964 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20824,7 +20824,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 965
-      helas_VVV1_0( w_fp[72], w_fp[24], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[24], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 965 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20852,7 +20852,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 966
-      helas_VVV1_0( w_fp[72], w_fp[8], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[72], w_fp[8], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 966 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20880,7 +20880,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 967
-      helas_VVV1_0( w_fp[71], w_fp[37], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[71], w_fp[37], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 967 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20900,7 +20900,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 968
-      helas_FFV1_0( w_fp[3], w_fp[35], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[35], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 968 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20916,7 +20916,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 969
-      helas_FFV1_0( w_fp[76], w_fp[114], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[114], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 969 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20930,7 +20930,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 970
-      helas_FFV1_0( w_fp[3], w_fp[114], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[114], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 970 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20946,7 +20946,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 971
-      helas_FFV1_0( w_fp[76], w_fp[35], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[35], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 971 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20960,7 +20960,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 972
-      helas_VVV1_0( w_fp[0], w_fp[75], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[75], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 972 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -20980,7 +20980,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 973
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[49] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[50] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -20989,7 +20989,7 @@ namespace mg5amcCpu
       jamp_sv[63] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[65] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[93], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[93], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[50] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[58] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -20998,7 +20998,7 @@ namespace mg5amcCpu
       jamp_sv[61] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[68] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[49] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[52] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[58] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -21014,7 +21014,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 974
-      helas_FFV1_0( w_fp[38], w_fp[33], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[33], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 974 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21030,7 +21030,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 975
-      helas_FFV1_0( w_fp[38], w_fp[114], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[114], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 975 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21044,7 +21044,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 976
-      helas_FFV1_0( w_fp[104], w_fp[33], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[33], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 976 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21058,7 +21058,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 977
-      helas_VVV1_0( w_fp[71], w_fp[45], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[71], w_fp[45], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 977 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21078,7 +21078,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 978
-      helas_FFV1_0( w_fp[3], w_fp[43], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[43], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 978 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21094,7 +21094,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 979
-      helas_FFV1_0( w_fp[76], w_fp[102], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[102], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 979 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21108,7 +21108,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 980
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 980 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21124,7 +21124,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 981
-      helas_FFV1_0( w_fp[76], w_fp[43], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[43], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 981 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21138,7 +21138,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 982
-      helas_VVV1_0( w_fp[0], w_fp[74], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[74], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 982 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21158,7 +21158,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 983
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[94], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[94], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[73] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -21167,7 +21167,7 @@ namespace mg5amcCpu
       jamp_sv[87] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[89] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[74] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[82] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -21176,7 +21176,7 @@ namespace mg5amcCpu
       jamp_sv[85] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[92] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[73] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[76] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[82] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -21192,7 +21192,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 984
-      helas_FFV1_0( w_fp[46], w_fp[39], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[39], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 984 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21208,7 +21208,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 985
-      helas_FFV1_0( w_fp[46], w_fp[102], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[102], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 985 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21222,7 +21222,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 986
-      helas_FFV1_0( w_fp[99], w_fp[39], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[39], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 986 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21236,7 +21236,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 987
-      helas_VVV1_0( w_fp[71], w_fp[54], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[71], w_fp[54], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 987 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21256,7 +21256,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 988
-      helas_FFV1_0( w_fp[7], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 988 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21272,7 +21272,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 989
-      helas_FFV1_0( w_fp[99], w_fp[97], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[97], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 989 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21286,7 +21286,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 990
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[75], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 990 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21302,7 +21302,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 991
-      helas_FFV1_0( w_fp[7], w_fp[97], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[97], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 991 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21316,7 +21316,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 992
-      helas_VVV1_0( w_fp[0], w_fp[75], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[75], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 992 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21336,7 +21336,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 993
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[90], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -21345,7 +21345,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[92] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[93], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[93], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -21354,7 +21354,7 @@ namespace mg5amcCpu
       jamp_sv[76] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[103] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[69], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -21370,7 +21370,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 994
-      helas_VVV1_0( w_fp[71], w_fp[23], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[71], w_fp[23], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 994 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21390,7 +21390,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 995
-      helas_FFV1_0( w_fp[25], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 995 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21406,7 +21406,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 996
-      helas_FFV1_0( w_fp[104], w_fp[97], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[97], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 996 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21420,7 +21420,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 997
-      helas_FFV1_0( w_fp[104], w_fp[2], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[2], w_fp[74], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 997 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21436,7 +21436,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 998
-      helas_FFV1_0( w_fp[25], w_fp[97], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[97], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 998 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21450,7 +21450,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 999
-      helas_VVV1_0( w_fp[0], w_fp[74], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[74], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 999 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21470,7 +21470,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1000
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[94], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[94], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -21479,7 +21479,7 @@ namespace mg5amcCpu
       jamp_sv[58] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[68] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[65], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[42] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -21488,7 +21488,7 @@ namespace mg5amcCpu
       jamp_sv[52] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[42] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -21504,7 +21504,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1001
-      helas_FFV1_0( w_fp[3], w_fp[17], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[17], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1001 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21524,7 +21524,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1002
-      helas_FFV1_0( w_fp[26], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1002 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21544,7 +21544,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1003
-      helas_FFV1_0( w_fp[3], w_fp[97], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[97], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1003 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21564,7 +21564,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1004
-      helas_FFV1_0( w_fp[76], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1004 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21584,7 +21584,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1005
-      helas_FFV1_0( w_fp[26], w_fp[97], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[97], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1005 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21600,7 +21600,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1006
-      helas_FFV1_0( w_fp[76], w_fp[17], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[76], w_fp[17], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1006 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21616,7 +21616,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1007
-      helas_VVV1_0( w_fp[56], w_fp[59], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[59], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1007 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21644,7 +21644,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1008
-      helas_VVV1_0( w_fp[56], w_fp[1], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[1], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1008 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21672,7 +21672,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1009
-      helas_VVVV1_0( w_fp[1], w_fp[24], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[24], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -21689,7 +21689,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[24], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[24], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -21706,7 +21706,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[105] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[24], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[24], w_fp[6], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[4] += amp_sv[0];
@@ -21730,7 +21730,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1010
-      helas_VVV1_0( w_fp[98], w_fp[108], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[98], w_fp[108], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1010 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21758,7 +21758,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1011
-      helas_VVV1_0( w_fp[98], w_fp[1], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[98], w_fp[1], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1011 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21786,7 +21786,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1012
-      helas_VVVV1_0( w_fp[1], w_fp[8], w_fp[6], w_fp[98], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[8], w_fp[6], w_fp[98], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
@@ -21803,7 +21803,7 @@ namespace mg5amcCpu
       jamp_sv[101] += amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[8], w_fp[6], w_fp[98], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[8], w_fp[6], w_fp[98], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[9] += amp_sv[0];
       jamp_sv[14] += amp_sv[0];
@@ -21820,7 +21820,7 @@ namespace mg5amcCpu
       jamp_sv[103] += amp_sv[0];
       jamp_sv[105] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[8], w_fp[6], w_fp[98], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[8], w_fp[6], w_fp[98], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -21844,7 +21844,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1013
-      helas_VVV1_0( w_fp[0], w_fp[108], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[108], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1013 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21872,7 +21872,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1014
-      helas_VVV1_0( w_fp[0], w_fp[59], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[59], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1014 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -21897,12 +21897,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1015 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1015
-      helas_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[8], COUPs[2], 1.0, 0., 0., w_fp[11] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[8], COUPs[2], 1.0, 0., 0., w_fp[42] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[8], COUPs[2], 1.0, 0., 0., w_fp[76] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[8], COUPs[2], 1.0, 0., 0., w_fp[11] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[8], COUPs[2], 1.0, 0., 0., w_fp[42] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[8], COUPs[2], 1.0, 0., 0., w_fp[76] );
 
       // Amplitude(s) for diagram number 1015
-      helas_VVV1_0( w_fp[24], w_fp[6], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[24], w_fp[6], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
@@ -21919,7 +21919,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
-      helas_VVV1_0( w_fp[24], w_fp[6], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[24], w_fp[6], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[4] += amp_sv[0];
@@ -21936,7 +21936,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[113] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVV1_0( w_fp[24], w_fp[6], w_fp[76], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[24], w_fp[6], w_fp[76], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[4] += amp_sv[0];
@@ -21957,12 +21957,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1016 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1016
-      helas_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[24], COUPs[2], 1.0, 0., 0., w_fp[97] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[24], COUPs[2], 1.0, 0., 0., w_fp[71] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[24], COUPs[2], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[24], COUPs[2], 1.0, 0., 0., w_fp[97] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[24], COUPs[2], 1.0, 0., 0., w_fp[71] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[24], COUPs[2], 1.0, 0., 0., w_fp[21] );
 
       // Amplitude(s) for diagram number 1016
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[97], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[97], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -21979,7 +21979,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[71], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[71], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -21996,7 +21996,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -22020,7 +22020,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1017
-      helas_VVV1_0( w_fp[1], w_fp[24], w_fp[118], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[24], w_fp[118], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[8] += amp_sv[0];
@@ -22037,7 +22037,7 @@ namespace mg5amcCpu
       jamp_sv[107] += amp_sv[0];
       jamp_sv[113] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[24], w_fp[119], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[24], w_fp[119], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[19] += amp_sv[0];
       jamp_sv[21] += amp_sv[0];
@@ -22054,7 +22054,7 @@ namespace mg5amcCpu
       jamp_sv[97] -= amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[101] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[24], w_fp[120], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[24], w_fp[120], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -22078,7 +22078,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1018
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[85], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[85], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
       jamp_sv[21] += amp_sv[0];
@@ -22095,7 +22095,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[112], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[112], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[21] += amp_sv[0];
       jamp_sv[23] -= amp_sv[0];
       jamp_sv[28] -= amp_sv[0];
@@ -22112,7 +22112,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[101] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
@@ -22136,7 +22136,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1019
-      helas_VVV1_0( w_fp[56], w_fp[68], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[68], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1019 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22164,7 +22164,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1020
-      helas_VVV1_0( w_fp[56], w_fp[1], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[1], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1020 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22192,7 +22192,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1021
-      helas_VVVV1_0( w_fp[1], w_fp[27], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[27], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -22209,7 +22209,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[95] += amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[27], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[27], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -22226,7 +22226,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[27], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[27], w_fp[5], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -22250,7 +22250,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1022
-      helas_VVV1_0( w_fp[101], w_fp[108], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[101], w_fp[108], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1022 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22278,7 +22278,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1023
-      helas_VVV1_0( w_fp[101], w_fp[1], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[101], w_fp[1], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1023 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22306,7 +22306,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1024
-      helas_VVVV1_0( w_fp[1], w_fp[8], w_fp[5], w_fp[101], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[8], w_fp[5], w_fp[101], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[11] += amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[25] -= amp_sv[0];
@@ -22323,7 +22323,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[109] += amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[8], w_fp[5], w_fp[101], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[8], w_fp[5], w_fp[101], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       jamp_sv[20] += amp_sv[0];
@@ -22340,7 +22340,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= amp_sv[0];
       jamp_sv[108] -= amp_sv[0];
       jamp_sv[109] += amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[8], w_fp[5], w_fp[101], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[8], w_fp[5], w_fp[101], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
       jamp_sv[25] += amp_sv[0];
@@ -22364,7 +22364,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1025
-      helas_VVV1_0( w_fp[0], w_fp[108], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[108], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1025 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22392,7 +22392,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1026
-      helas_VVV1_0( w_fp[0], w_fp[68], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[68], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1026 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22420,7 +22420,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1027
-      helas_VVV1_0( w_fp[27], w_fp[5], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[27], w_fp[5], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[11] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
@@ -22437,7 +22437,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
-      helas_VVV1_0( w_fp[27], w_fp[5], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[27], w_fp[5], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -22454,7 +22454,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_VVV1_0( w_fp[27], w_fp[5], w_fp[76], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[27], w_fp[5], w_fp[76], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -22475,12 +22475,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1028 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1028
-      helas_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[27], COUPs[2], 1.0, 0., 0., w_fp[10] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[27], COUPs[2], 1.0, 0., 0., w_fp[16] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[27], COUPs[2], 1.0, 0., 0., w_fp[111] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[27], COUPs[2], 1.0, 0., 0., w_fp[10] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[27], COUPs[2], 1.0, 0., 0., w_fp[16] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[27], COUPs[2], 1.0, 0., 0., w_fp[111] );
 
       // Amplitude(s) for diagram number 1028
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -22497,7 +22497,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[95] += amp_sv[0];
       jamp_sv[110] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
       jamp_sv[25] += amp_sv[0];
@@ -22514,7 +22514,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[94] += amp_sv[0];
       jamp_sv[108] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[4] += amp_sv[0];
       jamp_sv[25] += amp_sv[0];
@@ -22538,7 +22538,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1029
-      helas_VVV1_0( w_fp[1], w_fp[27], w_fp[115], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[27], w_fp[115], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[4] += amp_sv[0];
       jamp_sv[10] += amp_sv[0];
@@ -22555,7 +22555,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[110] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[27], w_fp[116], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[27], w_fp[116], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[15] += amp_sv[0];
@@ -22572,7 +22572,7 @@ namespace mg5amcCpu
       jamp_sv[77] += amp_sv[0];
       jamp_sv[110] += amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[27], w_fp[117], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[27], w_fp[117], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -22596,7 +22596,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1030
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[9], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[9], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
@@ -22613,7 +22613,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[94] += amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[110], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[110], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[15] += amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[26] -= amp_sv[0];
@@ -22630,7 +22630,7 @@ namespace mg5amcCpu
       jamp_sv[77] += amp_sv[0];
       jamp_sv[109] += amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[109], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[109], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[11] += amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[25] -= amp_sv[0];
@@ -22654,7 +22654,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1031
-      helas_VVV1_0( w_fp[56], w_fp[67], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[67], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1031 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22682,7 +22682,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1032
-      helas_VVV1_0( w_fp[56], w_fp[1], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[56], w_fp[1], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1032 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22710,7 +22710,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1033
-      helas_VVVV1_0( w_fp[1], w_fp[4], w_fp[29], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[4], w_fp[29], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -22727,7 +22727,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[4], w_fp[29], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[4], w_fp[29], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -22744,7 +22744,7 @@ namespace mg5amcCpu
       jamp_sv[71] += amp_sv[0];
       jamp_sv[93] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[4], w_fp[29], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[4], w_fp[29], w_fp[56], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[1] += amp_sv[0];
       jamp_sv[3] += amp_sv[0];
@@ -22768,7 +22768,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1034
-      helas_VVV1_0( w_fp[96], w_fp[108], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[96], w_fp[108], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1034 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22796,7 +22796,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1035
-      helas_VVV1_0( w_fp[96], w_fp[1], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[96], w_fp[1], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1035 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22824,7 +22824,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1036
-      helas_VVVV1_0( w_fp[1], w_fp[8], w_fp[4], w_fp[96], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[1], w_fp[8], w_fp[4], w_fp[96], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[17] += amp_sv[0];
       jamp_sv[23] -= amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
@@ -22841,7 +22841,7 @@ namespace mg5amcCpu
       jamp_sv[70] -= amp_sv[0];
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVVV3_0( w_fp[1], w_fp[8], w_fp[4], w_fp[96], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[1], w_fp[8], w_fp[4], w_fp[96], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
       jamp_sv[22] += amp_sv[0];
@@ -22858,7 +22858,7 @@ namespace mg5amcCpu
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVVV4_0( w_fp[1], w_fp[8], w_fp[4], w_fp[96], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[1], w_fp[8], w_fp[4], w_fp[96], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[22] += amp_sv[0];
       jamp_sv[27] += amp_sv[0];
@@ -22882,7 +22882,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1037
-      helas_VVV1_0( w_fp[0], w_fp[108], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[108], w_fp[19], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1037 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22910,7 +22910,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1038
-      helas_VVV1_0( w_fp[0], w_fp[67], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[67], w_fp[13], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1038 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -22938,7 +22938,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1039
-      helas_VVV1_0( w_fp[4], w_fp[29], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[4], w_fp[29], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
@@ -22955,7 +22955,7 @@ namespace mg5amcCpu
       jamp_sv[70] += amp_sv[0];
       jamp_sv[94] += amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
-      helas_VVV1_0( w_fp[4], w_fp[29], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[4], w_fp[29], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[1] += amp_sv[0];
       jamp_sv[3] += amp_sv[0];
@@ -22972,7 +22972,7 @@ namespace mg5amcCpu
       jamp_sv[71] += amp_sv[0];
       jamp_sv[95] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVV1_0( w_fp[4], w_fp[29], w_fp[76], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[4], w_fp[29], w_fp[76], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[1] += amp_sv[0];
       jamp_sv[3] += amp_sv[0];
@@ -22993,12 +22993,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1040 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1040
-      helas_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[76] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[42] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[11] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[76] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[42] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[29], COUPs[2], 1.0, 0., 0., w_fp[11] );
 
       // Amplitude(s) for diagram number 1040
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[76], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[76], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
@@ -23015,7 +23015,7 @@ namespace mg5amcCpu
       jamp_sv[71] += amp_sv[0];
       jamp_sv[92] += amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[42], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[22] += amp_sv[0];
       jamp_sv[27] += amp_sv[0];
@@ -23032,7 +23032,7 @@ namespace mg5amcCpu
       jamp_sv[70] += amp_sv[0];
       jamp_sv[90] += amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[11], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[5] += amp_sv[0];
       jamp_sv[27] += amp_sv[0];
@@ -23056,7 +23056,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1041
-      helas_VVV1_0( w_fp[1], w_fp[29], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[29], w_fp[107], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[5] += amp_sv[0];
       jamp_sv[16] += amp_sv[0];
@@ -23073,7 +23073,7 @@ namespace mg5amcCpu
       jamp_sv[71] -= amp_sv[0];
       jamp_sv[92] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[29], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[29], w_fp[95], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[9] += amp_sv[0];
@@ -23090,7 +23090,7 @@ namespace mg5amcCpu
       jamp_sv[93] += amp_sv[0];
       jamp_sv[116] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[29], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[29], w_fp[105], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -23114,7 +23114,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1042
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[87], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[87], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       jamp_sv[17] += amp_sv[0];
@@ -23131,7 +23131,7 @@ namespace mg5amcCpu
       jamp_sv[70] -= amp_sv[0];
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[34], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[34], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[17] += amp_sv[0];
       jamp_sv[23] -= amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
@@ -23148,7 +23148,7 @@ namespace mg5amcCpu
       jamp_sv[70] -= amp_sv[0];
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
@@ -23172,7 +23172,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1043
-      helas_VVVV1_0( w_fp[0], w_fp[1], w_fp[8], w_fp[30], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[1], w_fp[8], w_fp[30], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -23189,7 +23189,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[1], w_fp[8], w_fp[30], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[1], w_fp[8], w_fp[30], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -23206,7 +23206,7 @@ namespace mg5amcCpu
       jamp_sv[71] -= amp_sv[0];
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[1], w_fp[8], w_fp[30], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[1], w_fp[8], w_fp[30], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       jamp_sv[17] += amp_sv[0];
@@ -23223,7 +23223,7 @@ namespace mg5amcCpu
       jamp_sv[70] -= amp_sv[0];
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVVV1_0( w_fp[0], w_fp[1], w_fp[8], w_fp[31], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[1], w_fp[8], w_fp[31], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -23240,7 +23240,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[1], w_fp[8], w_fp[31], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[1], w_fp[8], w_fp[31], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -23257,7 +23257,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[1], w_fp[8], w_fp[31], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[1], w_fp[8], w_fp[31], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[11] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
@@ -23274,7 +23274,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
-      helas_VVVV1_0( w_fp[0], w_fp[1], w_fp[8], w_fp[32], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[1], w_fp[8], w_fp[32], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[4] += amp_sv[0];
@@ -23291,7 +23291,7 @@ namespace mg5amcCpu
       jamp_sv[113] += amp_sv[0];
       jamp_sv[118] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[1], w_fp[8], w_fp[32], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[1], w_fp[8], w_fp[32], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[4] += amp_sv[0];
@@ -23308,7 +23308,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[113] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[1], w_fp[8], w_fp[32], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[1], w_fp[8], w_fp[32], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
@@ -23332,7 +23332,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1044
-      helas_VVV1_0( w_fp[1], w_fp[30], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[30], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -23349,7 +23349,7 @@ namespace mg5amcCpu
       jamp_sv[71] -= amp_sv[0];
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[31], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[31], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -23366,7 +23366,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[32], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[32], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[2] += amp_sv[0];
       jamp_sv[4] += amp_sv[0];
@@ -23390,7 +23390,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1045
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[92], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       jamp_sv[17] += amp_sv[0];
@@ -23407,7 +23407,7 @@ namespace mg5amcCpu
       jamp_sv[70] -= amp_sv[0];
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[88], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[88], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[11] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
@@ -23424,7 +23424,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[106], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[106], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
@@ -23448,7 +23448,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1046
-      helas_FFV1_0( w_fp[58], w_fp[114], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[114], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1046 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23461,7 +23461,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1047
-      helas_FFV1_0( w_fp[48], w_fp[114], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[114], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1047 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23474,7 +23474,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1048
-      helas_FFV1_0( w_fp[104], w_fp[100], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[100], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1048 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23487,7 +23487,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1049
-      helas_FFV1_0( w_fp[104], w_fp[36], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[36], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1049 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23500,7 +23500,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1050
-      helas_FFV1_0( w_fp[48], w_fp[100], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[48], w_fp[100], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1050 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23513,7 +23513,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1051
-      helas_FFV1_0( w_fp[58], w_fp[36], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[36], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1051 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23526,7 +23526,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1052
-      helas_FFV1_0( w_fp[60], w_fp[114], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[114], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1052 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23539,7 +23539,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1053
-      helas_FFV1_0( w_fp[40], w_fp[114], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[114], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1053 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23552,7 +23552,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1054
-      helas_FFV1_0( w_fp[62], w_fp[100], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[100], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1054 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23565,7 +23565,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1055
-      helas_FFV1_0( w_fp[62], w_fp[35], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[35], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1055 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23578,7 +23578,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1056
-      helas_FFV1_0( w_fp[40], w_fp[100], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[40], w_fp[100], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1056 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23591,7 +23591,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1057
-      helas_FFV1_0( w_fp[60], w_fp[35], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[35], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1057 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23604,7 +23604,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1058
-      helas_FFV1_0( w_fp[3], w_fp[114], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[114], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1058 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23620,7 +23620,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1059
-      helas_FFV1_0( w_fp[12], w_fp[114], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[114], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1059 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23634,7 +23634,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1060
-      helas_FFV1_0( w_fp[3], w_fp[100], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[100], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1060 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23650,7 +23650,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1061
-      helas_VVV1_0( w_fp[96], w_fp[1], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[96], w_fp[1], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1061 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23670,7 +23670,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1062
-      helas_FFV1_0( w_fp[12], w_fp[100], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[100], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1062 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23684,7 +23684,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1063
-      helas_VVV1_0( w_fp[0], w_fp[67], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[67], w_fp[37], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1063 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23704,7 +23704,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1064
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[76], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[76], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[49] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] += cxtype( 0, 1 ) * amp_sv[0];
@@ -23713,7 +23713,7 @@ namespace mg5amcCpu
       jamp_sv[59] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[65] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[71] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[51] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[53] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[54] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -23722,7 +23722,7 @@ namespace mg5amcCpu
       jamp_sv[59] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[64] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[70] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[11], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[11], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[49] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[54] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -23738,7 +23738,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1065
-      helas_FFV1_0( w_fp[78], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[102], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1065 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23751,7 +23751,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1066
-      helas_FFV1_0( w_fp[53], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1066 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23764,7 +23764,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1067
-      helas_FFV1_0( w_fp[99], w_fp[89], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[89], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1067 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23777,7 +23777,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1068
-      helas_FFV1_0( w_fp[99], w_fp[44], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[44], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1068 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23790,7 +23790,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1069
-      helas_FFV1_0( w_fp[53], w_fp[89], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[53], w_fp[89], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1069 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23803,7 +23803,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1070
-      helas_FFV1_0( w_fp[78], w_fp[44], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[44], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1070 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23816,7 +23816,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1071
-      helas_FFV1_0( w_fp[60], w_fp[102], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[102], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1071 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23829,7 +23829,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1072
-      helas_FFV1_0( w_fp[28], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1072 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23842,7 +23842,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1073
-      helas_FFV1_0( w_fp[62], w_fp[89], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[89], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1073 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23855,7 +23855,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1074
-      helas_FFV1_0( w_fp[62], w_fp[43], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[43], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1074 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23868,7 +23868,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1075
-      helas_FFV1_0( w_fp[28], w_fp[89], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[28], w_fp[89], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1075 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23881,7 +23881,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1076
-      helas_FFV1_0( w_fp[60], w_fp[43], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[43], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1076 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23894,7 +23894,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1077
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1077 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23910,7 +23910,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1078
-      helas_FFV1_0( w_fp[14], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[102], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1078 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23924,7 +23924,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1079
-      helas_FFV1_0( w_fp[3], w_fp[89], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[89], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1079 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23940,7 +23940,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1080
-      helas_VVV1_0( w_fp[101], w_fp[1], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[101], w_fp[1], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1080 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23960,7 +23960,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1081
-      helas_FFV1_0( w_fp[14], w_fp[89], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[14], w_fp[89], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1081 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23974,7 +23974,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1082
-      helas_VVV1_0( w_fp[0], w_fp[68], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[68], w_fp[45], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1082 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -23994,7 +23994,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1083
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[73] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] += cxtype( 0, 1 ) * amp_sv[0];
@@ -24003,7 +24003,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[89] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[95] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[75] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[77] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -24012,7 +24012,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[88] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[94] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[73] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -24028,7 +24028,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1084
-      helas_FFV1_0( w_fp[78], w_fp[113], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[113], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1084 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24041,7 +24041,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1085
-      helas_FFV1_0( w_fp[7], w_fp[113], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[113], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1085 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24054,7 +24054,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1086
-      helas_FFV1_0( w_fp[99], w_fp[91], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[91], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1086 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24067,7 +24067,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1087
-      helas_FFV1_0( w_fp[99], w_fp[50], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[50], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1087 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24080,7 +24080,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1088
-      helas_FFV1_0( w_fp[7], w_fp[91], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[7], w_fp[91], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1088 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24093,7 +24093,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1089
-      helas_FFV1_0( w_fp[78], w_fp[50], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[50], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1089 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24106,7 +24106,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1090
-      helas_FFV1_0( w_fp[58], w_fp[113], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[113], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1090 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24119,7 +24119,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1091
-      helas_FFV1_0( w_fp[25], w_fp[113], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[113], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1091 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24132,7 +24132,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1092
-      helas_FFV1_0( w_fp[104], w_fp[91], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[91], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1092 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24145,7 +24145,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1093
-      helas_FFV1_0( w_fp[104], w_fp[49], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[49], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1093 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24158,7 +24158,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1094
-      helas_FFV1_0( w_fp[25], w_fp[91], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[25], w_fp[91], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1094 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24171,7 +24171,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1095
-      helas_FFV1_0( w_fp[58], w_fp[49], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[49], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1095 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24184,7 +24184,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1096
-      helas_FFV1_0( w_fp[3], w_fp[113], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[113], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1096 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24200,7 +24200,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1097
-      helas_FFV1_0( w_fp[26], w_fp[113], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[113], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1097 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24214,7 +24214,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1098
-      helas_FFV1_0( w_fp[3], w_fp[91], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[91], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1098 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24230,7 +24230,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1099
-      helas_VVV1_0( w_fp[98], w_fp[1], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[98], w_fp[1], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1099 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24250,7 +24250,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1100
-      helas_FFV1_0( w_fp[26], w_fp[91], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[26], w_fp[91], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1100 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24264,7 +24264,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1101
-      helas_VVV1_0( w_fp[0], w_fp[59], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[59], w_fp[51], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1101 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24284,7 +24284,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1102
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[97], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[97], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[97] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] += cxtype( 0, 1 ) * amp_sv[0];
@@ -24293,7 +24293,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[99] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[101] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -24302,7 +24302,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[97] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -24318,7 +24318,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1103
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[67], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1103 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24334,7 +24334,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1104
-      helas_FFV1_0( w_fp[99], w_fp[18], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[18], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1104 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24348,7 +24348,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1105
-      helas_FFV1_0( w_fp[78], w_fp[2], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[2], w_fp[96], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1105 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24364,7 +24364,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1106
-      helas_VVV1_0( w_fp[96], w_fp[1], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[96], w_fp[1], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1106 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24384,7 +24384,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1107
-      helas_FFV1_0( w_fp[78], w_fp[18], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[78], w_fp[18], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1107 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24398,7 +24398,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1108
-      helas_VVV1_0( w_fp[0], w_fp[67], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[67], w_fp[54], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1108 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24418,7 +24418,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1109
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[76], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[76], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
@@ -24427,7 +24427,7 @@ namespace mg5amcCpu
       jamp_sv[46] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[92] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[116] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[42], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -24436,7 +24436,7 @@ namespace mg5amcCpu
       jamp_sv[46] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[90] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[114] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[11], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[11], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -24452,7 +24452,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1110
-      helas_FFV1_0( w_fp[104], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1110 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24468,7 +24468,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1111
-      helas_FFV1_0( w_fp[104], w_fp[15], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[15], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1111 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24482,7 +24482,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1112
-      helas_FFV1_0( w_fp[58], w_fp[2], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[2], w_fp[101], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1112 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24498,7 +24498,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1113
-      helas_VVV1_0( w_fp[101], w_fp[1], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[101], w_fp[1], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1113 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24518,7 +24518,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1114
-      helas_FFV1_0( w_fp[58], w_fp[15], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[58], w_fp[15], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1114 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24532,7 +24532,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1115
-      helas_VVV1_0( w_fp[0], w_fp[68], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[68], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1115 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24552,7 +24552,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1116
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
@@ -24561,7 +24561,7 @@ namespace mg5amcCpu
       jamp_sv[44] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[68] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[110] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -24570,7 +24570,7 @@ namespace mg5amcCpu
       jamp_sv[44] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[66] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[108] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -24586,7 +24586,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1117
-      helas_FFV1_0( w_fp[62], w_fp[2], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[2], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1117 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24602,7 +24602,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1118
-      helas_FFV1_0( w_fp[62], w_fp[17], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[17], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1118 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24616,7 +24616,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1119
-      helas_FFV1_0( w_fp[60], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1119 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24632,7 +24632,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1120
-      helas_VVV1_0( w_fp[98], w_fp[1], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[98], w_fp[1], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1120 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24652,7 +24652,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1121
-      helas_FFV1_0( w_fp[60], w_fp[17], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[17], w_fp[0], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1121 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24666,7 +24666,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1122
-      helas_VVV1_0( w_fp[0], w_fp[59], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[59], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1122 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -24686,7 +24686,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1123
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[97], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[97], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -24695,7 +24695,7 @@ namespace mg5amcCpu
       jamp_sv[38] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[62] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[86] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -24704,7 +24704,7 @@ namespace mg5amcCpu
       jamp_sv[38] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[60] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[84] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -24717,12 +24717,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1124 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1124
-      helas_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[21] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[71] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[97] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[71] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[97] );
 
       // Amplitude(s) for diagram number 1124
-      helas_VVVV1_0( w_fp[21], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[21], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -24739,7 +24739,7 @@ namespace mg5amcCpu
       jamp_sv[115] -= amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV3_0( w_fp[21], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[21], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -24756,7 +24756,7 @@ namespace mg5amcCpu
       jamp_sv[115] -= amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV4_0( w_fp[21], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[21], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -24773,7 +24773,7 @@ namespace mg5amcCpu
       jamp_sv[98] += amp_sv[0];
       jamp_sv[104] += amp_sv[0];
       jamp_sv[110] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[71], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[71], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -24790,7 +24790,7 @@ namespace mg5amcCpu
       jamp_sv[116] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVVV3_0( w_fp[71], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[71], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -24807,7 +24807,7 @@ namespace mg5amcCpu
       jamp_sv[116] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVVV4_0( w_fp[71], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[71], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -24824,7 +24824,7 @@ namespace mg5amcCpu
       jamp_sv[102] -= amp_sv[0];
       jamp_sv[104] += amp_sv[0];
       jamp_sv[108] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[97], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[97], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[1] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -24841,7 +24841,7 @@ namespace mg5amcCpu
       jamp_sv[116] += amp_sv[0];
       jamp_sv[118] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[97], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[97], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -24858,7 +24858,7 @@ namespace mg5amcCpu
       jamp_sv[116] += amp_sv[0];
       jamp_sv[118] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[97], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[97], w_fp[8], w_fp[5], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -24879,12 +24879,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1125 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1125
-      helas_VVV1P0_1( w_fp[21], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[59] );
-      helas_VVV1P0_1( w_fp[71], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[20] );
-      helas_VVV1P0_1( w_fp[97], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[60] );
+      helas_CD_VVV1P0_1( w_fp[21], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[59] );
+      helas_CD_VVV1P0_1( w_fp[71], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[20] );
+      helas_CD_VVV1P0_1( w_fp[97], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[60] );
 
       // Amplitude(s) for diagram number 1125
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[59], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[59], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -24901,7 +24901,7 @@ namespace mg5amcCpu
       jamp_sv[115] -= amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -24918,7 +24918,7 @@ namespace mg5amcCpu
       jamp_sv[116] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[60], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[60], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -24939,12 +24939,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1126 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1126
-      helas_VVV1P0_1( w_fp[21], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[17] );
-      helas_VVV1P0_1( w_fp[71], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[98] );
-      helas_VVV1P0_1( w_fp[97], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[111] );
+      helas_CD_VVV1P0_1( w_fp[21], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[17] );
+      helas_CD_VVV1P0_1( w_fp[71], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[98] );
+      helas_CD_VVV1P0_1( w_fp[97], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[111] );
 
       // Amplitude(s) for diagram number 1126
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -24961,7 +24961,7 @@ namespace mg5amcCpu
       jamp_sv[98] += amp_sv[0];
       jamp_sv[104] += amp_sv[0];
       jamp_sv[110] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -24978,7 +24978,7 @@ namespace mg5amcCpu
       jamp_sv[102] -= amp_sv[0];
       jamp_sv[104] += amp_sv[0];
       jamp_sv[108] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[111], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -25002,7 +25002,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1127
-      helas_VVV1_0( w_fp[21], w_fp[8], w_fp[29], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[21], w_fp[8], w_fp[29], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -25019,7 +25019,7 @@ namespace mg5amcCpu
       jamp_sv[115] -= amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVV1_0( w_fp[71], w_fp[8], w_fp[29], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[71], w_fp[8], w_fp[29], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -25036,7 +25036,7 @@ namespace mg5amcCpu
       jamp_sv[116] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVV1_0( w_fp[97], w_fp[8], w_fp[29], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[97], w_fp[8], w_fp[29], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[1] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -25057,22 +25057,22 @@ namespace mg5amcCpu
       // *** DIAGRAM 1128 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1128
-      helas_FFV1_2( w_fp[3], w_fp[21], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
-      helas_FFV1_2( w_fp[3], w_fp[71], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[10] );
-      helas_FFV1_2( w_fp[3], w_fp[97], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[68] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[21], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[71], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[10] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[97], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[68] );
 
       // Amplitude(s) for diagram number 1128
-      helas_FFV1_0( w_fp[16], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[90] += amp_sv[0];
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[93] -= amp_sv[0];
       jamp_sv[95] += amp_sv[0];
-      helas_FFV1_0( w_fp[10], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[10], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[92] += amp_sv[0];
       jamp_sv[93] -= amp_sv[0];
       jamp_sv[94] += amp_sv[0];
-      helas_FFV1_0( w_fp[68], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[68], w_fp[39], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[92] += amp_sv[0];
       jamp_sv[94] += amp_sv[0];
@@ -25084,7 +25084,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1129
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25093,7 +25093,7 @@ namespace mg5amcCpu
       jamp_sv[91] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[95] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[74] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25102,7 +25102,7 @@ namespace mg5amcCpu
       jamp_sv[92] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[94] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[84] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -25118,17 +25118,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1130
-      helas_FFV1_0( w_fp[41], w_fp[39], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[39], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] += amp_sv[0];
       jamp_sv[74] -= amp_sv[0];
       jamp_sv[80] -= amp_sv[0];
       jamp_sv[86] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[39], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[39], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[74] -= amp_sv[0];
       jamp_sv[78] += amp_sv[0];
       jamp_sv[80] -= amp_sv[0];
       jamp_sv[84] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[39], w_fp[97], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[39], w_fp[97], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] -= amp_sv[0];
       jamp_sv[78] += amp_sv[0];
       jamp_sv[84] += amp_sv[0];
@@ -25140,17 +25140,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1131
-      helas_FFV1_0( w_fp[16], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[114] += amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_FFV1_0( w_fp[10], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[10], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[115] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_FFV1_0( w_fp[68], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[68], w_fp[47], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[114] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
       jamp_sv[118] += amp_sv[0];
@@ -25162,7 +25162,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1132
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25171,7 +25171,7 @@ namespace mg5amcCpu
       jamp_sv[115] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[98] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25180,7 +25180,7 @@ namespace mg5amcCpu
       jamp_sv[116] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[108] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -25196,17 +25196,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1133
-      helas_FFV1_0( w_fp[38], w_fp[47], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[47], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] += amp_sv[0];
       jamp_sv[98] -= amp_sv[0];
       jamp_sv[104] -= amp_sv[0];
       jamp_sv[110] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[47], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[47], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[98] -= amp_sv[0];
       jamp_sv[102] += amp_sv[0];
       jamp_sv[104] -= amp_sv[0];
       jamp_sv[108] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[47], w_fp[97], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[47], w_fp[97], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] -= amp_sv[0];
       jamp_sv[102] += amp_sv[0];
       jamp_sv[108] += amp_sv[0];
@@ -25215,22 +25215,22 @@ namespace mg5amcCpu
       // *** DIAGRAM 1134 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1134
-      helas_FFV1_1( w_fp[2], w_fp[21], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
-      helas_FFV1_1( w_fp[2], w_fp[71], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
-      helas_FFV1_1( w_fp[2], w_fp[97], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[71] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[21], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[71], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[97], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[71] );
 
       // Amplitude(s) for diagram number 1134
-      helas_FFV1_0( w_fp[38], w_fp[23], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[23], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
       jamp_sv[55] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[21], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[21], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
       jamp_sv[49] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[71], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[71], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -25242,7 +25242,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1135
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25251,7 +25251,7 @@ namespace mg5amcCpu
       jamp_sv[98] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[110] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25260,7 +25260,7 @@ namespace mg5amcCpu
       jamp_sv[102] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[108] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[49] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -25276,17 +25276,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1136
-      helas_FFV1_0( w_fp[41], w_fp[23], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[23], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
       jamp_sv[54] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[21], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[21], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
       jamp_sv[48] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[71], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[71], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -25298,7 +25298,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1137
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25307,7 +25307,7 @@ namespace mg5amcCpu
       jamp_sv[74] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[86] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25316,7 +25316,7 @@ namespace mg5amcCpu
       jamp_sv[78] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[84] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[48] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -25332,7 +25332,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1138
-      helas_FFV1_0( w_fp[3], w_fp[23], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[23], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25341,7 +25341,7 @@ namespace mg5amcCpu
       jamp_sv[31] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[54] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[55] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[21], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[21], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -25350,7 +25350,7 @@ namespace mg5amcCpu
       jamp_sv[31] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[48] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[49] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[71], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[71], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -25366,7 +25366,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1139
-      helas_FFV1_0( w_fp[16], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[90] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[91] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25375,7 +25375,7 @@ namespace mg5amcCpu
       jamp_sv[115] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[10], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[10], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[91] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[92] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25384,7 +25384,7 @@ namespace mg5amcCpu
       jamp_sv[116] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[68], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[68], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[90] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[92] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[94] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -25397,12 +25397,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1140 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1140
-      helas_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[68] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[29] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[10] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[68] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[29] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[10] );
 
       // Amplitude(s) for diagram number 1140
-      helas_VVVV1_0( w_fp[68], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[68], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
@@ -25419,7 +25419,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_VVVV3_0( w_fp[68], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[68], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[36] -= amp_sv[0];
@@ -25436,7 +25436,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[68], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[68], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -25453,7 +25453,7 @@ namespace mg5amcCpu
       jamp_sv[100] += amp_sv[0];
       jamp_sv[106] += amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[29], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[29], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[26] += amp_sv[0];
@@ -25470,7 +25470,7 @@ namespace mg5amcCpu
       jamp_sv[110] += amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
-      helas_VVVV3_0( w_fp[29], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[29], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[36] -= amp_sv[0];
@@ -25487,7 +25487,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[29], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[29], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -25504,7 +25504,7 @@ namespace mg5amcCpu
       jamp_sv[103] -= amp_sv[0];
       jamp_sv[106] += amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[10], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[10], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[3] += amp_sv[0];
       jamp_sv[26] += amp_sv[0];
@@ -25521,7 +25521,7 @@ namespace mg5amcCpu
       jamp_sv[110] += amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[10], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[10], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -25538,7 +25538,7 @@ namespace mg5amcCpu
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
-      helas_VVVV4_0( w_fp[10], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[10], w_fp[8], w_fp[4], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -25559,12 +25559,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1141 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1141
-      helas_VVV1P0_1( w_fp[68], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[16] );
-      helas_VVV1P0_1( w_fp[29], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[71] );
-      helas_VVV1P0_1( w_fp[10], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVV1P0_1( w_fp[68], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[16] );
+      helas_CD_VVV1P0_1( w_fp[29], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[71] );
+      helas_CD_VVV1P0_1( w_fp[10], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[21] );
 
       // Amplitude(s) for diagram number 1141
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[36] -= amp_sv[0];
@@ -25581,7 +25581,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[71], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[71], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[36] -= amp_sv[0];
@@ -25598,7 +25598,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -25619,12 +25619,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1142 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1142
-      helas_VVV1P0_1( w_fp[68], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[23] );
-      helas_VVV1P0_1( w_fp[29], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[60] );
-      helas_VVV1P0_1( w_fp[10], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[20] );
+      helas_CD_VVV1P0_1( w_fp[68], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[23] );
+      helas_CD_VVV1P0_1( w_fp[29], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[60] );
+      helas_CD_VVV1P0_1( w_fp[10], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[20] );
 
       // Amplitude(s) for diagram number 1142
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -25641,7 +25641,7 @@ namespace mg5amcCpu
       jamp_sv[100] += amp_sv[0];
       jamp_sv[106] += amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[60], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[60], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -25658,7 +25658,7 @@ namespace mg5amcCpu
       jamp_sv[103] -= amp_sv[0];
       jamp_sv[106] += amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[20], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[48] += amp_sv[0];
@@ -25682,7 +25682,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1143
-      helas_VVV1_0( w_fp[68], w_fp[8], w_fp[27], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[68], w_fp[8], w_fp[27], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
@@ -25699,7 +25699,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_VVV1_0( w_fp[29], w_fp[8], w_fp[27], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[29], w_fp[8], w_fp[27], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[26] += amp_sv[0];
@@ -25716,7 +25716,7 @@ namespace mg5amcCpu
       jamp_sv[110] += amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
-      helas_VVV1_0( w_fp[10], w_fp[8], w_fp[27], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[10], w_fp[8], w_fp[27], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[3] += amp_sv[0];
       jamp_sv[26] += amp_sv[0];
@@ -25737,22 +25737,22 @@ namespace mg5amcCpu
       // *** DIAGRAM 1144 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1144
-      helas_FFV1_2( w_fp[3], w_fp[68], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[59] );
-      helas_FFV1_2( w_fp[3], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[111] );
-      helas_FFV1_2( w_fp[3], w_fp[10], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[98] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[68], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[59] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[111] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[10], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[98] );
 
       // Amplitude(s) for diagram number 1144
-      helas_FFV1_0( w_fp[59], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[59], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[66] += amp_sv[0];
       jamp_sv[67] -= amp_sv[0];
       jamp_sv[69] -= amp_sv[0];
       jamp_sv[71] += amp_sv[0];
-      helas_FFV1_0( w_fp[111], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[111], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[67] -= amp_sv[0];
       jamp_sv[68] += amp_sv[0];
       jamp_sv[69] -= amp_sv[0];
       jamp_sv[70] += amp_sv[0];
-      helas_FFV1_0( w_fp[98], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[98], w_fp[33], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[66] -= amp_sv[0];
       jamp_sv[68] += amp_sv[0];
       jamp_sv[70] += amp_sv[0];
@@ -25764,7 +25764,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1145
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[50] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25773,7 +25773,7 @@ namespace mg5amcCpu
       jamp_sv[67] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[71] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[50] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[54] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25782,7 +25782,7 @@ namespace mg5amcCpu
       jamp_sv[68] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[70] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[54] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[60] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -25798,17 +25798,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1146
-      helas_FFV1_0( w_fp[41], w_fp[33], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[33], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] += amp_sv[0];
       jamp_sv[50] -= amp_sv[0];
       jamp_sv[56] -= amp_sv[0];
       jamp_sv[62] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[33], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[33], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[50] -= amp_sv[0];
       jamp_sv[54] += amp_sv[0];
       jamp_sv[56] -= amp_sv[0];
       jamp_sv[60] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[33], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[33], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] -= amp_sv[0];
       jamp_sv[54] += amp_sv[0];
       jamp_sv[60] += amp_sv[0];
@@ -25820,17 +25820,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1147
-      helas_FFV1_0( w_fp[59], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[59], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[108] += amp_sv[0];
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[113] += amp_sv[0];
-      helas_FFV1_0( w_fp[111], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[111], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[110] += amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
-      helas_FFV1_0( w_fp[98], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[98], w_fp[47], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[108] -= amp_sv[0];
       jamp_sv[110] += amp_sv[0];
       jamp_sv[112] += amp_sv[0];
@@ -25842,7 +25842,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1148
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[97] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[100] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25851,7 +25851,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[116] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[100] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[103] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25860,7 +25860,7 @@ namespace mg5amcCpu
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[114] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[97] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[103] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[108] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -25876,17 +25876,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1149
-      helas_FFV1_0( w_fp[46], w_fp[47], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[47], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[97] += amp_sv[0];
       jamp_sv[100] -= amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[47], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[47], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[100] -= amp_sv[0];
       jamp_sv[103] += amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
       jamp_sv[114] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[47], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[47], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[97] -= amp_sv[0];
       jamp_sv[103] += amp_sv[0];
       jamp_sv[114] += amp_sv[0];
@@ -25895,22 +25895,22 @@ namespace mg5amcCpu
       // *** DIAGRAM 1150 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1150
-      helas_FFV1_1( w_fp[2], w_fp[68], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[17] );
-      helas_FFV1_1( w_fp[2], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[68] );
-      helas_FFV1_1( w_fp[2], w_fp[10], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[29] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[68], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[17] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[68] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[10], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[29] );
 
       // Amplitude(s) for diagram number 1150
-      helas_FFV1_0( w_fp[46], w_fp[17], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[17], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
       jamp_sv[79] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[68], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[68], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
       jamp_sv[73] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[29], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[29], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[73] += amp_sv[0];
@@ -25922,7 +25922,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1151
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[37] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25931,7 +25931,7 @@ namespace mg5amcCpu
       jamp_sv[100] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[116] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[37] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25940,7 +25940,7 @@ namespace mg5amcCpu
       jamp_sv[103] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[114] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[73] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -25956,17 +25956,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1152
-      helas_FFV1_0( w_fp[41], w_fp[17], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[17], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[2] += amp_sv[0];
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[36] -= amp_sv[0];
       jamp_sv[78] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[68], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[68], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[36] -= amp_sv[0];
       jamp_sv[72] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[29], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[29], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[72] += amp_sv[0];
@@ -25978,7 +25978,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1153
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[36] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25987,7 +25987,7 @@ namespace mg5amcCpu
       jamp_sv[56] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[62] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[36] += cxtype( 0, 1 ) * amp_sv[0];
@@ -25996,7 +25996,7 @@ namespace mg5amcCpu
       jamp_sv[56] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[60] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[72] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[48] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26012,7 +26012,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1154
-      helas_FFV1_0( w_fp[3], w_fp[17], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[17], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26021,7 +26021,7 @@ namespace mg5amcCpu
       jamp_sv[37] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[79] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[68], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[68], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26030,7 +26030,7 @@ namespace mg5amcCpu
       jamp_sv[37] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[72] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[73] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[29], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[29], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26046,7 +26046,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1155
-      helas_FFV1_0( w_fp[59], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[59], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[66] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26055,7 +26055,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[111], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[111], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[67] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[68] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26064,7 +26064,7 @@ namespace mg5amcCpu
       jamp_sv[110] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[111] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[98], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[98], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[66] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[68] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[70] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26077,12 +26077,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1156 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1156
-      helas_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[98] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[27] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[111] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[98] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[27] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[111] );
 
       // Amplitude(s) for diagram number 1156
-      helas_VVVV1_0( w_fp[98], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[98], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[18] -= amp_sv[0];
@@ -26099,7 +26099,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[102] += amp_sv[0];
       jamp_sv[103] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[98], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[98], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[42] -= amp_sv[0];
@@ -26116,7 +26116,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[92] -= amp_sv[0];
       jamp_sv[102] += amp_sv[0];
-      helas_VVVV4_0( w_fp[98], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[98], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[5] += amp_sv[0];
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
@@ -26133,7 +26133,7 @@ namespace mg5amcCpu
       jamp_sv[82] += amp_sv[0];
       jamp_sv[92] -= amp_sv[0];
       jamp_sv[103] += amp_sv[0];
-      helas_VVVV1_0( w_fp[27], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[27], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[19] += amp_sv[0];
       jamp_sv[28] += amp_sv[0];
@@ -26150,7 +26150,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[96] += amp_sv[0];
       jamp_sv[97] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[27], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[27], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[42] -= amp_sv[0];
@@ -26167,7 +26167,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[96] += amp_sv[0];
-      helas_VVVV4_0( w_fp[27], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[27], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
@@ -26184,7 +26184,7 @@ namespace mg5amcCpu
       jamp_sv[82] += amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[97] += amp_sv[0];
-      helas_VVVV1_0( w_fp[111], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[111], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[5] += amp_sv[0];
       jamp_sv[28] += amp_sv[0];
@@ -26201,7 +26201,7 @@ namespace mg5amcCpu
       jamp_sv[97] -= amp_sv[0];
       jamp_sv[102] -= amp_sv[0];
       jamp_sv[103] += amp_sv[0];
-      helas_VVVV3_0( w_fp[111], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[111], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -26218,7 +26218,7 @@ namespace mg5amcCpu
       jamp_sv[92] += amp_sv[0];
       jamp_sv[96] += amp_sv[0];
       jamp_sv[102] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[111], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[111], w_fp[8], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -26239,12 +26239,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1157 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1157
-      helas_VVV1P0_1( w_fp[98], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[59] );
-      helas_VVV1P0_1( w_fp[27], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[29] );
-      helas_VVV1P0_1( w_fp[111], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[68] );
+      helas_CD_VVV1P0_1( w_fp[98], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[59] );
+      helas_CD_VVV1P0_1( w_fp[27], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[29] );
+      helas_CD_VVV1P0_1( w_fp[111], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[68] );
 
       // Amplitude(s) for diagram number 1157
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[59], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[59], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[42] -= amp_sv[0];
@@ -26261,7 +26261,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[92] -= amp_sv[0];
       jamp_sv[102] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[29], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[29], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[42] -= amp_sv[0];
@@ -26278,7 +26278,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[96] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -26299,12 +26299,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1158 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1158
-      helas_VVV1P0_1( w_fp[98], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[17] );
-      helas_VVV1P0_1( w_fp[27], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[21] );
-      helas_VVV1P0_1( w_fp[111], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[71] );
+      helas_CD_VVV1P0_1( w_fp[98], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[17] );
+      helas_CD_VVV1P0_1( w_fp[27], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVV1P0_1( w_fp[111], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[71] );
 
       // Amplitude(s) for diagram number 1158
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[5] += amp_sv[0];
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
@@ -26321,7 +26321,7 @@ namespace mg5amcCpu
       jamp_sv[82] += amp_sv[0];
       jamp_sv[92] -= amp_sv[0];
       jamp_sv[103] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
@@ -26338,7 +26338,7 @@ namespace mg5amcCpu
       jamp_sv[82] += amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[97] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[71], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[71], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[49] += amp_sv[0];
@@ -26362,7 +26362,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1159
-      helas_VVV1_0( w_fp[98], w_fp[8], w_fp[24], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[98], w_fp[8], w_fp[24], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[18] -= amp_sv[0];
@@ -26379,7 +26379,7 @@ namespace mg5amcCpu
       jamp_sv[89] += amp_sv[0];
       jamp_sv[102] += amp_sv[0];
       jamp_sv[103] -= amp_sv[0];
-      helas_VVV1_0( w_fp[27], w_fp[8], w_fp[24], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[27], w_fp[8], w_fp[24], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[19] += amp_sv[0];
       jamp_sv[28] += amp_sv[0];
@@ -26396,7 +26396,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[96] += amp_sv[0];
       jamp_sv[97] -= amp_sv[0];
-      helas_VVV1_0( w_fp[111], w_fp[8], w_fp[24], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[111], w_fp[8], w_fp[24], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[5] += amp_sv[0];
       jamp_sv[28] += amp_sv[0];
@@ -26417,22 +26417,22 @@ namespace mg5amcCpu
       // *** DIAGRAM 1160 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1160
-      helas_FFV1_2( w_fp[3], w_fp[98], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
-      helas_FFV1_2( w_fp[3], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[20] );
-      helas_FFV1_2( w_fp[3], w_fp[111], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[60] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[98], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[20] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[111], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[60] );
 
       // Amplitude(s) for diagram number 1160
-      helas_FFV1_0( w_fp[16], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[60] += amp_sv[0];
       jamp_sv[61] -= amp_sv[0];
       jamp_sv[63] -= amp_sv[0];
       jamp_sv[65] += amp_sv[0];
-      helas_FFV1_0( w_fp[20], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[20], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[61] -= amp_sv[0];
       jamp_sv[62] += amp_sv[0];
       jamp_sv[63] -= amp_sv[0];
       jamp_sv[64] += amp_sv[0];
-      helas_FFV1_0( w_fp[60], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[33], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[60] -= amp_sv[0];
       jamp_sv[62] += amp_sv[0];
       jamp_sv[64] += amp_sv[0];
@@ -26444,7 +26444,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1161
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[49] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[52] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[58] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26453,7 +26453,7 @@ namespace mg5amcCpu
       jamp_sv[63] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[65] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[68] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[52] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[55] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[58] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26462,7 +26462,7 @@ namespace mg5amcCpu
       jamp_sv[63] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[64] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[66] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[49] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[55] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[60] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26478,17 +26478,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1162
-      helas_FFV1_0( w_fp[38], w_fp[33], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[33], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[49] += amp_sv[0];
       jamp_sv[52] -= amp_sv[0];
       jamp_sv[58] -= amp_sv[0];
       jamp_sv[68] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[33], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[33], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[52] -= amp_sv[0];
       jamp_sv[55] += amp_sv[0];
       jamp_sv[58] -= amp_sv[0];
       jamp_sv[66] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[33], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[33], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[49] -= amp_sv[0];
       jamp_sv[55] += amp_sv[0];
       jamp_sv[66] += amp_sv[0];
@@ -26500,17 +26500,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1163
-      helas_FFV1_0( w_fp[16], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[84] += amp_sv[0];
       jamp_sv[85] -= amp_sv[0];
       jamp_sv[87] -= amp_sv[0];
       jamp_sv[89] += amp_sv[0];
-      helas_FFV1_0( w_fp[20], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[20], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[85] -= amp_sv[0];
       jamp_sv[86] += amp_sv[0];
       jamp_sv[87] -= amp_sv[0];
       jamp_sv[88] += amp_sv[0];
-      helas_FFV1_0( w_fp[60], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[39], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[84] -= amp_sv[0];
       jamp_sv[86] += amp_sv[0];
       jamp_sv[88] += amp_sv[0];
@@ -26522,7 +26522,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1164
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[73] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[76] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[82] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26531,7 +26531,7 @@ namespace mg5amcCpu
       jamp_sv[87] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[89] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[92] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[76] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[79] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[82] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26540,7 +26540,7 @@ namespace mg5amcCpu
       jamp_sv[87] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[88] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[90] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[73] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[79] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[84] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26556,17 +26556,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1165
-      helas_FFV1_0( w_fp[46], w_fp[39], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[39], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[73] += amp_sv[0];
       jamp_sv[76] -= amp_sv[0];
       jamp_sv[82] -= amp_sv[0];
       jamp_sv[92] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[39], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[39], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[76] -= amp_sv[0];
       jamp_sv[79] += amp_sv[0];
       jamp_sv[82] -= amp_sv[0];
       jamp_sv[90] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[39], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[39], w_fp[111], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[73] -= amp_sv[0];
       jamp_sv[79] += amp_sv[0];
       jamp_sv[90] += amp_sv[0];
@@ -26575,22 +26575,22 @@ namespace mg5amcCpu
       // *** DIAGRAM 1166 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1166
-      helas_FFV1_1( w_fp[2], w_fp[98], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
-      helas_FFV1_1( w_fp[2], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[98] );
-      helas_FFV1_1( w_fp[2], w_fp[111], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[27] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[98], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[27], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[98] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[111], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[27] );
 
       // Amplitude(s) for diagram number 1166
-      helas_FFV1_0( w_fp[46], w_fp[23], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[23], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[5] += amp_sv[0];
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
       jamp_sv[103] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[98], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[98], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
       jamp_sv[97] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[27], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[27], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[97] += amp_sv[0];
@@ -26602,7 +26602,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1167
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26611,7 +26611,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[92] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[103] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[29] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26620,7 +26620,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[90] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[97] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[29] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[73] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26636,17 +26636,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1168
-      helas_FFV1_0( w_fp[38], w_fp[23], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[23], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[4] += amp_sv[0];
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[42] -= amp_sv[0];
       jamp_sv[102] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[98], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[98], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[42] -= amp_sv[0];
       jamp_sv[96] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[27], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[27], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[96] += amp_sv[0];
@@ -26658,7 +26658,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1169
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[42] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26667,7 +26667,7 @@ namespace mg5amcCpu
       jamp_sv[58] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[68] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[42] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26676,7 +26676,7 @@ namespace mg5amcCpu
       jamp_sv[58] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[66] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[96] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[49] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26692,7 +26692,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1170
-      helas_FFV1_0( w_fp[3], w_fp[23], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[23], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26701,7 +26701,7 @@ namespace mg5amcCpu
       jamp_sv[43] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[103] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[98], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[98], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26710,7 +26710,7 @@ namespace mg5amcCpu
       jamp_sv[43] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[96] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[97] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[27], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[27], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26726,7 +26726,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1171
-      helas_FFV1_0( w_fp[16], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[60] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[61] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26735,7 +26735,7 @@ namespace mg5amcCpu
       jamp_sv[85] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[87] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[89] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[20], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[20], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[61] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[62] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[63] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26744,7 +26744,7 @@ namespace mg5amcCpu
       jamp_sv[86] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[87] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[88] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[60], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[60] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[62] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[64] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26757,25 +26757,25 @@ namespace mg5amcCpu
       // *** DIAGRAM 1172 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1172
-      helas_VVVV1P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[60] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[24] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[20] );
-      helas_FFV1_2( w_fp[3], w_fp[60], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
-      helas_FFV1_2( w_fp[3], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[27] );
-      helas_FFV1_2( w_fp[3], w_fp[20], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[98] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[60] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[24] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[20] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[60], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[27] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[20], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[98] );
 
       // Amplitude(s) for diagram number 1172
-      helas_FFV1_0( w_fp[16], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[42] += amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
       jamp_sv[45] -= amp_sv[0];
       jamp_sv[47] += amp_sv[0];
-      helas_FFV1_0( w_fp[27], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[27], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[43] -= amp_sv[0];
       jamp_sv[44] += amp_sv[0];
       jamp_sv[45] -= amp_sv[0];
       jamp_sv[46] += amp_sv[0];
-      helas_FFV1_0( w_fp[98], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[98], w_fp[77], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[42] -= amp_sv[0];
       jamp_sv[44] += amp_sv[0];
       jamp_sv[46] += amp_sv[0];
@@ -26784,12 +26784,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1173 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1173
-      helas_VVV1P0_1( w_fp[60], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[23] );
-      helas_VVV1P0_1( w_fp[24], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[68] );
-      helas_VVV1P0_1( w_fp[20], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[29] );
+      helas_CD_VVV1P0_1( w_fp[60], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[23] );
+      helas_CD_VVV1P0_1( w_fp[24], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[68] );
+      helas_CD_VVV1P0_1( w_fp[20], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[29] );
 
       // Amplitude(s) for diagram number 1173
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26798,7 +26798,7 @@ namespace mg5amcCpu
       jamp_sv[43] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[47] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[26] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26807,7 +26807,7 @@ namespace mg5amcCpu
       jamp_sv[44] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[46] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[36] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26823,17 +26823,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1174
-      helas_FFV1_0( w_fp[41], w_fp[77], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[77], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] += amp_sv[0];
       jamp_sv[26] -= amp_sv[0];
       jamp_sv[32] -= amp_sv[0];
       jamp_sv[38] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[26] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
       jamp_sv[32] -= amp_sv[0];
       jamp_sv[36] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[77], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[77], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[24] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
       jamp_sv[36] += amp_sv[0];
@@ -26842,22 +26842,22 @@ namespace mg5amcCpu
       // *** DIAGRAM 1175 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1175
-      helas_FFV1_1( w_fp[2], w_fp[60], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[59] );
-      helas_FFV1_1( w_fp[2], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[71] );
-      helas_FFV1_1( w_fp[2], w_fp[20], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[60], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[59] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[24], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[71] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[20], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
 
       // Amplitude(s) for diagram number 1175
-      helas_FFV1_0( w_fp[52], w_fp[59], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[59], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[61] -= amp_sv[0];
       jamp_sv[85] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[71], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[71], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[51] += amp_sv[0];
       jamp_sv[61] -= amp_sv[0];
       jamp_sv[75] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[21], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[21], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[51] += amp_sv[0];
       jamp_sv[75] += amp_sv[0];
@@ -26869,7 +26869,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1176
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[61] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26878,7 +26878,7 @@ namespace mg5amcCpu
       jamp_sv[101] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[61] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26887,7 +26887,7 @@ namespace mg5amcCpu
       jamp_sv[109] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[115] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26903,17 +26903,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1177
-      helas_FFV1_0( w_fp[52], w_fp[47], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[47], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[99] += amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[47], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[47], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[101] -= amp_sv[0];
       jamp_sv[109] += amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[47], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[47], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[109] += amp_sv[0];
       jamp_sv[115] += amp_sv[0];
@@ -26925,7 +26925,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1178
-      helas_FFV1_0( w_fp[3], w_fp[59], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[59], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26934,7 +26934,7 @@ namespace mg5amcCpu
       jamp_sv[61] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[84] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[85] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[71], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[71], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[50] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26943,7 +26943,7 @@ namespace mg5amcCpu
       jamp_sv[61] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[21], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[21], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[50] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26959,7 +26959,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1179
-      helas_FFV1_0( w_fp[16], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[42] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26968,7 +26968,7 @@ namespace mg5amcCpu
       jamp_sv[103] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[105] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[107] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[27], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[27], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[43] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[44] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[45] += cxtype( 0, 1 ) * amp_sv[0];
@@ -26977,7 +26977,7 @@ namespace mg5amcCpu
       jamp_sv[104] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[105] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[98], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[98], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[42] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[44] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[46] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -26993,7 +26993,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1180
-      helas_VVV1_0( w_fp[60], w_fp[72], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[60], w_fp[72], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[9] += amp_sv[0];
       jamp_sv[14] += amp_sv[0];
@@ -27010,7 +27010,7 @@ namespace mg5amcCpu
       jamp_sv[103] += amp_sv[0];
       jamp_sv[105] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
-      helas_VVV1_0( w_fp[24], w_fp[72], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[24], w_fp[72], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[14] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[43] -= amp_sv[0];
@@ -27027,7 +27027,7 @@ namespace mg5amcCpu
       jamp_sv[104] -= amp_sv[0];
       jamp_sv[105] += amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
-      helas_VVV1_0( w_fp[20], w_fp[72], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[20], w_fp[72], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[8] += amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[42] -= amp_sv[0];
@@ -27051,7 +27051,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1181
-      helas_VVVV1_0( w_fp[60], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[60], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[8] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
@@ -27068,7 +27068,7 @@ namespace mg5amcCpu
       jamp_sv[107] += amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[60], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[60], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[8] += amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
@@ -27085,7 +27085,7 @@ namespace mg5amcCpu
       jamp_sv[103] -= amp_sv[0];
       jamp_sv[105] -= amp_sv[0];
       jamp_sv[107] += amp_sv[0];
-      helas_VVVV4_0( w_fp[60], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[60], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -27102,7 +27102,7 @@ namespace mg5amcCpu
       jamp_sv[101] -= amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVVV1_0( w_fp[24], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[24], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -27119,7 +27119,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[24], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[24], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
       jamp_sv[43] += amp_sv[0];
@@ -27136,7 +27136,7 @@ namespace mg5amcCpu
       jamp_sv[104] += amp_sv[0];
       jamp_sv[105] -= amp_sv[0];
       jamp_sv[106] += amp_sv[0];
-      helas_VVVV4_0( w_fp[24], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[24], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[15] += amp_sv[0];
       jamp_sv[26] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -27153,7 +27153,7 @@ namespace mg5amcCpu
       jamp_sv[109] += amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVVV1_0( w_fp[20], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[20], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -27170,7 +27170,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVVV3_0( w_fp[20], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[20], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[9] += amp_sv[0];
       jamp_sv[42] += amp_sv[0];
@@ -27187,7 +27187,7 @@ namespace mg5amcCpu
       jamp_sv[104] += amp_sv[0];
       jamp_sv[106] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[20], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[20], w_fp[1], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -27208,12 +27208,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1182 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1182
-      helas_VVV1P0_1( w_fp[60], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[72] );
-      helas_VVV1P0_1( w_fp[24], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[60] );
-      helas_VVV1P0_1( w_fp[20], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[24] );
+      helas_CD_VVV1P0_1( w_fp[60], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[72] );
+      helas_CD_VVV1P0_1( w_fp[24], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[60] );
+      helas_CD_VVV1P0_1( w_fp[20], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[24] );
 
       // Amplitude(s) for diagram number 1182
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[72], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[72], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[8] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
@@ -27230,7 +27230,7 @@ namespace mg5amcCpu
       jamp_sv[107] += amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[118] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[60], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[60], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[26] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -27247,7 +27247,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= amp_sv[0];
       jamp_sv[112] += amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[24], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[24], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[24] += amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -27271,7 +27271,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1183
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
       jamp_sv[24] += amp_sv[0];
@@ -27288,7 +27288,7 @@ namespace mg5amcCpu
       jamp_sv[101] -= amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
       jamp_sv[118] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[15] += amp_sv[0];
       jamp_sv[26] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -27305,7 +27305,7 @@ namespace mg5amcCpu
       jamp_sv[109] += amp_sv[0];
       jamp_sv[112] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[29], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[29], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[9] += amp_sv[0];
       jamp_sv[24] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -27329,7 +27329,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1184
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[99] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[101] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27338,7 +27338,7 @@ namespace mg5amcCpu
       jamp_sv[107] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[118] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[101] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[103] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27347,7 +27347,7 @@ namespace mg5amcCpu
       jamp_sv[109] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[112] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[115] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[99] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[102] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27363,17 +27363,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1185
-      helas_FFV1_0( w_fp[16], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[102] += amp_sv[0];
       jamp_sv[103] -= amp_sv[0];
       jamp_sv[105] -= amp_sv[0];
       jamp_sv[107] += amp_sv[0];
-      helas_FFV1_0( w_fp[27], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[27], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[103] -= amp_sv[0];
       jamp_sv[104] += amp_sv[0];
       jamp_sv[105] -= amp_sv[0];
       jamp_sv[106] += amp_sv[0];
-      helas_FFV1_0( w_fp[98], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[98], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[102] -= amp_sv[0];
       jamp_sv[104] += amp_sv[0];
       jamp_sv[106] += amp_sv[0];
@@ -27385,7 +27385,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1186
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27394,7 +27394,7 @@ namespace mg5amcCpu
       jamp_sv[38] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[60] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[84] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[26] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27403,7 +27403,7 @@ namespace mg5amcCpu
       jamp_sv[50] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[60] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[24] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27419,17 +27419,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1187
-      helas_FFV1_0( w_fp[41], w_fp[59], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[59], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[8] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[60] -= amp_sv[0];
       jamp_sv[84] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[71], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[71], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[50] += amp_sv[0];
       jamp_sv[60] -= amp_sv[0];
       jamp_sv[74] += amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[21], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[21], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[50] += amp_sv[0];
       jamp_sv[74] += amp_sv[0];
@@ -27438,25 +27438,25 @@ namespace mg5amcCpu
       // *** DIAGRAM 1188 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1188
-      helas_VVVV1P0_1( w_fp[0], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[21] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[71] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[59] );
-      helas_FFV1_2( w_fp[3], w_fp[21], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[24] );
-      helas_FFV1_2( w_fp[3], w_fp[71], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[60] );
-      helas_FFV1_2( w_fp[3], w_fp[59], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[72] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[71] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[4], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[59] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[21], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[24] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[71], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[60] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[59], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[72] );
 
       // Amplitude(s) for diagram number 1188
-      helas_FFV1_0( w_fp[24], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[24], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[36] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
       jamp_sv[39] -= amp_sv[0];
       jamp_sv[41] += amp_sv[0];
-      helas_FFV1_0( w_fp[60], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[37] -= amp_sv[0];
       jamp_sv[38] += amp_sv[0];
       jamp_sv[39] -= amp_sv[0];
       jamp_sv[40] += amp_sv[0];
-      helas_FFV1_0( w_fp[72], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[72], w_fp[77], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[36] -= amp_sv[0];
       jamp_sv[38] += amp_sv[0];
       jamp_sv[40] += amp_sv[0];
@@ -27465,12 +27465,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1189 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1189
-      helas_VVV1P0_1( w_fp[21], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[98] );
-      helas_VVV1P0_1( w_fp[71], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[27] );
-      helas_VVV1P0_1( w_fp[59], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[16] );
+      helas_CD_VVV1P0_1( w_fp[21], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[98] );
+      helas_CD_VVV1P0_1( w_fp[71], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[27] );
+      helas_CD_VVV1P0_1( w_fp[59], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[16] );
 
       // Amplitude(s) for diagram number 1189
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[34] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27479,7 +27479,7 @@ namespace mg5amcCpu
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[41] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[44] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[28] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[34] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27488,7 +27488,7 @@ namespace mg5amcCpu
       jamp_sv[39] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[40] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[42] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[25] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[36] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -27504,17 +27504,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1190
-      helas_FFV1_0( w_fp[38], w_fp[77], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[77], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[25] += amp_sv[0];
       jamp_sv[28] -= amp_sv[0];
       jamp_sv[34] -= amp_sv[0];
       jamp_sv[44] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[77], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[77], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[28] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
       jamp_sv[34] -= amp_sv[0];
       jamp_sv[42] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[77], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[77], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[25] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
       jamp_sv[42] += amp_sv[0];
@@ -27523,22 +27523,22 @@ namespace mg5amcCpu
       // *** DIAGRAM 1191 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1191
-      helas_FFV1_1( w_fp[2], w_fp[21], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[29] );
-      helas_FFV1_1( w_fp[2], w_fp[71], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[68] );
-      helas_FFV1_1( w_fp[2], w_fp[59], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[21], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[29] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[71], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[68] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[59], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
 
       // Amplitude(s) for diagram number 1191
-      helas_FFV1_0( w_fp[52], w_fp[29], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[29], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[11] += amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[67] -= amp_sv[0];
       jamp_sv[109] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[68], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[68], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[53] += amp_sv[0];
       jamp_sv[67] -= amp_sv[0];
       jamp_sv[99] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[23], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[23], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[53] += amp_sv[0];
       jamp_sv[99] += amp_sv[0];
@@ -27550,7 +27550,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1192
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[98], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27559,7 +27559,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[94] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[109] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[53] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27568,7 +27568,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[91] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[53] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -27584,17 +27584,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1193
-      helas_FFV1_0( w_fp[52], w_fp[39], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[39], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[75] += amp_sv[0];
       jamp_sv[77] -= amp_sv[0];
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[94] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[39], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[39], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[77] -= amp_sv[0];
       jamp_sv[85] += amp_sv[0];
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[91] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[39], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[39], w_fp[59], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[75] -= amp_sv[0];
       jamp_sv[85] += amp_sv[0];
       jamp_sv[91] += amp_sv[0];
@@ -27606,7 +27606,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1194
-      helas_FFV1_0( w_fp[3], w_fp[29], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[29], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27615,7 +27615,7 @@ namespace mg5amcCpu
       jamp_sv[67] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[108] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[109] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[68], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[68], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[52] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -27624,7 +27624,7 @@ namespace mg5amcCpu
       jamp_sv[67] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[23], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[23], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[52] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -27640,7 +27640,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1195
-      helas_FFV1_0( w_fp[24], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[24], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[36] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[37] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[39] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27649,7 +27649,7 @@ namespace mg5amcCpu
       jamp_sv[79] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[81] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[83] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[60], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[37] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[38] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[39] += cxtype( 0, 1 ) * amp_sv[0];
@@ -27658,7 +27658,7 @@ namespace mg5amcCpu
       jamp_sv[80] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[81] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[82] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[72], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[72], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[36] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[38] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[40] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -27674,7 +27674,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1196
-      helas_VVV1_0( w_fp[21], w_fp[66], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[21], w_fp[66], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       jamp_sv[20] += amp_sv[0];
@@ -27691,7 +27691,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= amp_sv[0];
       jamp_sv[108] -= amp_sv[0];
       jamp_sv[109] += amp_sv[0];
-      helas_VVV1_0( w_fp[71], w_fp[66], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[71], w_fp[66], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[20] += amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -27708,7 +27708,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= amp_sv[0];
       jamp_sv[98] -= amp_sv[0];
       jamp_sv[99] += amp_sv[0];
-      helas_VVV1_0( w_fp[59], w_fp[66], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[59], w_fp[66], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[10] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[36] -= amp_sv[0];
@@ -27732,7 +27732,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1197
-      helas_VVVV1_0( w_fp[21], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[21], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[10] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[25] -= amp_sv[0];
@@ -27749,7 +27749,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[108] += amp_sv[0];
-      helas_VVVV3_0( w_fp[21], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[21], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[10] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
@@ -27766,7 +27766,7 @@ namespace mg5amcCpu
       jamp_sv[83] += amp_sv[0];
       jamp_sv[108] += amp_sv[0];
       jamp_sv[109] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[21], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[21], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[21] += amp_sv[0];
       jamp_sv[25] += amp_sv[0];
@@ -27783,7 +27783,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[94] += amp_sv[0];
       jamp_sv[109] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[71], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[71], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -27800,7 +27800,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[98] += amp_sv[0];
-      helas_VVVV3_0( w_fp[71], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[71], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += amp_sv[0];
       jamp_sv[37] += amp_sv[0];
@@ -27817,7 +27817,7 @@ namespace mg5amcCpu
       jamp_sv[82] += amp_sv[0];
       jamp_sv[98] += amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[71], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[71], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[21] += amp_sv[0];
       jamp_sv[28] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -27834,7 +27834,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[91] += amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[59], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[59], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -27851,7 +27851,7 @@ namespace mg5amcCpu
       jamp_sv[94] += amp_sv[0];
       jamp_sv[98] += amp_sv[0];
       jamp_sv[108] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[59], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[59], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
       jamp_sv[36] += amp_sv[0];
@@ -27868,7 +27868,7 @@ namespace mg5amcCpu
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[108] -= amp_sv[0];
       jamp_sv[109] += amp_sv[0];
-      helas_VVVV4_0( w_fp[59], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[59], w_fp[1], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[11] += amp_sv[0];
       jamp_sv[25] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -27889,12 +27889,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1198 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1198
-      helas_VVV1P0_1( w_fp[21], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[66] );
-      helas_VVV1P0_1( w_fp[71], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[21] );
-      helas_VVV1P0_1( w_fp[59], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[71] );
+      helas_CD_VVV1P0_1( w_fp[21], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[66] );
+      helas_CD_VVV1P0_1( w_fp[71], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVV1P0_1( w_fp[59], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[71] );
 
       // Amplitude(s) for diagram number 1198
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[66], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[66], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[10] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[25] -= amp_sv[0];
@@ -27911,7 +27911,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[94] -= amp_sv[0];
       jamp_sv[108] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[28] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -27928,7 +27928,7 @@ namespace mg5amcCpu
       jamp_sv[88] += amp_sv[0];
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[98] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[71], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[71], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[25] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -27952,7 +27952,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1199
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[98], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[21] += amp_sv[0];
       jamp_sv[25] += amp_sv[0];
@@ -27969,7 +27969,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[94] += amp_sv[0];
       jamp_sv[109] -= amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[27], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[27], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[21] += amp_sv[0];
       jamp_sv[28] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -27986,7 +27986,7 @@ namespace mg5amcCpu
       jamp_sv[88] -= amp_sv[0];
       jamp_sv[91] += amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[11] += amp_sv[0];
       jamp_sv[25] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -28010,7 +28010,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1200
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[75] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[77] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28019,7 +28019,7 @@ namespace mg5amcCpu
       jamp_sv[83] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[88] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[94] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[77] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[79] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28028,7 +28028,7 @@ namespace mg5amcCpu
       jamp_sv[85] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[88] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[91] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[75] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[78] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28044,17 +28044,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1201
-      helas_FFV1_0( w_fp[24], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[24], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[78] += amp_sv[0];
       jamp_sv[79] -= amp_sv[0];
       jamp_sv[81] -= amp_sv[0];
       jamp_sv[83] += amp_sv[0];
-      helas_FFV1_0( w_fp[60], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[60], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[79] -= amp_sv[0];
       jamp_sv[80] += amp_sv[0];
       jamp_sv[81] -= amp_sv[0];
       jamp_sv[82] += amp_sv[0];
-      helas_FFV1_0( w_fp[72], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[72], w_fp[39], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[78] -= amp_sv[0];
       jamp_sv[80] += amp_sv[0];
       jamp_sv[82] += amp_sv[0];
@@ -28066,7 +28066,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1202
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28075,7 +28075,7 @@ namespace mg5amcCpu
       jamp_sv[44] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[66] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[108] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[28] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28084,7 +28084,7 @@ namespace mg5amcCpu
       jamp_sv[52] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[66] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[71], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[25] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28100,17 +28100,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1203
-      helas_FFV1_0( w_fp[38], w_fp[29], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[29], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[10] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[66] -= amp_sv[0];
       jamp_sv[108] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[68], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[68], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[52] += amp_sv[0];
       jamp_sv[66] -= amp_sv[0];
       jamp_sv[98] += amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[23], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[23], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[52] += amp_sv[0];
       jamp_sv[98] += amp_sv[0];
@@ -28119,25 +28119,25 @@ namespace mg5amcCpu
       // *** DIAGRAM 1204 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1204
-      helas_VVVV1P0_1( w_fp[0], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[23] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[68] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[29] );
-      helas_FFV1_2( w_fp[3], w_fp[23], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[71] );
-      helas_FFV1_2( w_fp[3], w_fp[68], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
-      helas_FFV1_2( w_fp[3], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[66] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[23] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[68] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[5], w_fp[6], COUPs[2], 1.0, 0., 0., w_fp[29] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[23], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[71] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[68], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[66] );
 
       // Amplitude(s) for diagram number 1204
-      helas_FFV1_0( w_fp[71], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[30] += amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
       jamp_sv[33] -= amp_sv[0];
       jamp_sv[35] += amp_sv[0];
-      helas_FFV1_0( w_fp[21], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[31] -= amp_sv[0];
       jamp_sv[32] += amp_sv[0];
       jamp_sv[33] -= amp_sv[0];
       jamp_sv[34] += amp_sv[0];
-      helas_FFV1_0( w_fp[66], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[66], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[30] -= amp_sv[0];
       jamp_sv[32] += amp_sv[0];
       jamp_sv[34] += amp_sv[0];
@@ -28146,12 +28146,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1205 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1205
-      helas_VVV1P0_1( w_fp[23], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[72] );
-      helas_VVV1P0_1( w_fp[68], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[60] );
-      helas_VVV1P0_1( w_fp[29], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[24] );
+      helas_CD_VVV1P0_1( w_fp[23], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[72] );
+      helas_CD_VVV1P0_1( w_fp[68], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[60] );
+      helas_CD_VVV1P0_1( w_fp[29], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[24] );
 
       // Amplitude(s) for diagram number 1205
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[29] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28160,7 +28160,7 @@ namespace mg5amcCpu
       jamp_sv[35] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[40] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[46] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[29] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28169,7 +28169,7 @@ namespace mg5amcCpu
       jamp_sv[37] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[40] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[43] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[27] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[30] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28185,17 +28185,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1206
-      helas_FFV1_0( w_fp[46], w_fp[77], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[77], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[27] += amp_sv[0];
       jamp_sv[29] -= amp_sv[0];
       jamp_sv[40] -= amp_sv[0];
       jamp_sv[46] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[77], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[77], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[29] -= amp_sv[0];
       jamp_sv[37] += amp_sv[0];
       jamp_sv[40] -= amp_sv[0];
       jamp_sv[43] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[77], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[27] -= amp_sv[0];
       jamp_sv[37] += amp_sv[0];
       jamp_sv[43] += amp_sv[0];
@@ -28204,22 +28204,22 @@ namespace mg5amcCpu
       // *** DIAGRAM 1207 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1207
-      helas_FFV1_1( w_fp[2], w_fp[23], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[77] );
-      helas_FFV1_1( w_fp[2], w_fp[68], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
-      helas_FFV1_1( w_fp[2], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[27] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[23], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[77] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[68], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[29], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[27] );
 
       // Amplitude(s) for diagram number 1207
-      helas_FFV1_0( w_fp[52], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[77], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[17] += amp_sv[0];
       jamp_sv[23] -= amp_sv[0];
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[16], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[16], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[23] -= amp_sv[0];
       jamp_sv[77] += amp_sv[0];
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[101] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[27], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[27], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[77] += amp_sv[0];
       jamp_sv[101] += amp_sv[0];
@@ -28231,7 +28231,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1208
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[72], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28240,7 +28240,7 @@ namespace mg5amcCpu
       jamp_sv[70] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[91] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[115] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[60], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[53] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[61] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28249,7 +28249,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[91] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[101] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[61] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28265,17 +28265,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1209
-      helas_FFV1_0( w_fp[52], w_fp[33], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[33], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[51] += amp_sv[0];
       jamp_sv[53] -= amp_sv[0];
       jamp_sv[64] -= amp_sv[0];
       jamp_sv[70] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[33], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[33], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[53] -= amp_sv[0];
       jamp_sv[61] += amp_sv[0];
       jamp_sv[64] -= amp_sv[0];
       jamp_sv[67] += amp_sv[0];
-      helas_FFV1_0( w_fp[52], w_fp[33], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[52], w_fp[33], w_fp[29], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[51] -= amp_sv[0];
       jamp_sv[61] += amp_sv[0];
       jamp_sv[67] += amp_sv[0];
@@ -28287,7 +28287,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1210
-      helas_FFV1_0( w_fp[3], w_fp[77], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[77], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28296,7 +28296,7 @@ namespace mg5amcCpu
       jamp_sv[91] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[114] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[115] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[16], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[16], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[76] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -28305,7 +28305,7 @@ namespace mg5amcCpu
       jamp_sv[91] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[100] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[101] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[27], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[27], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[76] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -28321,7 +28321,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1211
-      helas_FFV1_0( w_fp[71], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[30] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[31] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[33] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28330,7 +28330,7 @@ namespace mg5amcCpu
       jamp_sv[55] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[59] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[21], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[31] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[33] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28339,7 +28339,7 @@ namespace mg5amcCpu
       jamp_sv[56] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[57] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[58] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[66], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[66], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[30] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[32] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[34] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -28355,7 +28355,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1212
-      helas_VVV1_0( w_fp[23], w_fp[61], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[23], w_fp[61], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
       jamp_sv[22] += amp_sv[0];
@@ -28372,7 +28372,7 @@ namespace mg5amcCpu
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVV1_0( w_fp[68], w_fp[61], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[68], w_fp[61], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[22] += amp_sv[0];
       jamp_sv[23] -= amp_sv[0];
       jamp_sv[31] -= amp_sv[0];
@@ -28389,7 +28389,7 @@ namespace mg5amcCpu
       jamp_sv[91] -= amp_sv[0];
       jamp_sv[100] -= amp_sv[0];
       jamp_sv[101] += amp_sv[0];
-      helas_VVV1_0( w_fp[29], w_fp[61], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[29], w_fp[61], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[16] += amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[30] -= amp_sv[0];
@@ -28413,7 +28413,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1213
-      helas_VVVV1_0( w_fp[23], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[23], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[16] += amp_sv[0];
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
@@ -28430,7 +28430,7 @@ namespace mg5amcCpu
       jamp_sv[70] -= amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[114] += amp_sv[0];
-      helas_VVVV3_0( w_fp[23], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[23], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[16] += amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[22] -= amp_sv[0];
@@ -28447,7 +28447,7 @@ namespace mg5amcCpu
       jamp_sv[91] += amp_sv[0];
       jamp_sv[114] += amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[23], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[23], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
       jamp_sv[27] += amp_sv[0];
@@ -28464,7 +28464,7 @@ namespace mg5amcCpu
       jamp_sv[70] += amp_sv[0];
       jamp_sv[91] += amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[68], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[68], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -28481,7 +28481,7 @@ namespace mg5amcCpu
       jamp_sv[76] += amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[100] += amp_sv[0];
-      helas_VVVV3_0( w_fp[68], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[68], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -28498,7 +28498,7 @@ namespace mg5amcCpu
       jamp_sv[91] += amp_sv[0];
       jamp_sv[100] += amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[68], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[68], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[23] += amp_sv[0];
       jamp_sv[29] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -28515,7 +28515,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= amp_sv[0];
       jamp_sv[91] += amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[29], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[29], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -28532,7 +28532,7 @@ namespace mg5amcCpu
       jamp_sv[76] += amp_sv[0];
       jamp_sv[100] += amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[29], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[29], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -28549,7 +28549,7 @@ namespace mg5amcCpu
       jamp_sv[101] -= amp_sv[0];
       jamp_sv[114] -= amp_sv[0];
       jamp_sv[115] += amp_sv[0];
-      helas_VVVV4_0( w_fp[29], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[29], w_fp[1], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[17] += amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -28570,12 +28570,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1214 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1214
-      helas_VVV1P0_1( w_fp[23], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[61] );
-      helas_VVV1P0_1( w_fp[68], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[23] );
-      helas_VVV1P0_1( w_fp[29], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[68] );
+      helas_CD_VVV1P0_1( w_fp[23], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[61] );
+      helas_CD_VVV1P0_1( w_fp[68], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[23] );
+      helas_CD_VVV1P0_1( w_fp[29], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[68] );
 
       // Amplitude(s) for diagram number 1214
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[61], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[61], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[16] += amp_sv[0];
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
@@ -28592,7 +28592,7 @@ namespace mg5amcCpu
       jamp_sv[70] -= amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[114] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[29] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -28609,7 +28609,7 @@ namespace mg5amcCpu
       jamp_sv[76] += amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[100] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[27] += amp_sv[0];
       jamp_sv[37] -= amp_sv[0];
@@ -28633,7 +28633,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1215
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[72], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[72], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
       jamp_sv[27] += amp_sv[0];
@@ -28650,7 +28650,7 @@ namespace mg5amcCpu
       jamp_sv[70] += amp_sv[0];
       jamp_sv[91] += amp_sv[0];
       jamp_sv[115] -= amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[60], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[60], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[23] += amp_sv[0];
       jamp_sv[29] -= amp_sv[0];
       jamp_sv[31] += amp_sv[0];
@@ -28667,7 +28667,7 @@ namespace mg5amcCpu
       jamp_sv[77] -= amp_sv[0];
       jamp_sv[91] += amp_sv[0];
       jamp_sv[101] -= amp_sv[0];
-      helas_VVV1_0( w_fp[1], w_fp[8], w_fp[24], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[8], w_fp[24], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[17] += amp_sv[0];
       jamp_sv[27] -= amp_sv[0];
       jamp_sv[30] += amp_sv[0];
@@ -28691,7 +28691,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1216
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[51] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[53] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[54] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28700,7 +28700,7 @@ namespace mg5amcCpu
       jamp_sv[59] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[64] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[70] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[53] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[55] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28709,7 +28709,7 @@ namespace mg5amcCpu
       jamp_sv[61] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[64] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[67] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[51] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[54] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[56] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28725,17 +28725,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1217
-      helas_FFV1_0( w_fp[71], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[71], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[54] += amp_sv[0];
       jamp_sv[55] -= amp_sv[0];
       jamp_sv[57] -= amp_sv[0];
       jamp_sv[59] += amp_sv[0];
-      helas_FFV1_0( w_fp[21], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[55] -= amp_sv[0];
       jamp_sv[56] += amp_sv[0];
       jamp_sv[57] -= amp_sv[0];
       jamp_sv[58] += amp_sv[0];
-      helas_FFV1_0( w_fp[66], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[66], w_fp[33], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[54] -= amp_sv[0];
       jamp_sv[56] += amp_sv[0];
       jamp_sv[58] += amp_sv[0];
@@ -28747,7 +28747,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1218
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[61], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28756,7 +28756,7 @@ namespace mg5amcCpu
       jamp_sv[46] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[90] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[114] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[29] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[37] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28765,7 +28765,7 @@ namespace mg5amcCpu
       jamp_sv[76] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[90] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[100] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[27] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[37] += cxtype( 0, 1 ) * amp_sv[0];
@@ -28781,17 +28781,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1219
-      helas_FFV1_0( w_fp[46], w_fp[77], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[77], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[16] += amp_sv[0];
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[114] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[16], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[16], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[22] -= amp_sv[0];
       jamp_sv[76] += amp_sv[0];
       jamp_sv[90] -= amp_sv[0];
       jamp_sv[100] += amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[27], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[27], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[76] += amp_sv[0];
       jamp_sv[100] += amp_sv[0];
@@ -28803,7 +28803,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1220
-      helas_VVVV1_0( w_fp[0], w_fp[73], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[73], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -28820,7 +28820,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[73], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[73], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -28837,7 +28837,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[73], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[73], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[18] -= amp_sv[0];
       jamp_sv[19] += amp_sv[0];
       jamp_sv[21] += amp_sv[0];
@@ -28854,7 +28854,7 @@ namespace mg5amcCpu
       jamp_sv[97] -= amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[101] += amp_sv[0];
-      helas_VVVV1_0( w_fp[0], w_fp[79], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[79], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -28871,7 +28871,7 @@ namespace mg5amcCpu
       jamp_sv[111] += amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[79], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[79], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -28888,7 +28888,7 @@ namespace mg5amcCpu
       jamp_sv[111] += amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[79], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[79], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[19] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[21] += amp_sv[0];
@@ -28905,7 +28905,7 @@ namespace mg5amcCpu
       jamp_sv[98] += amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[100] += amp_sv[0];
-      helas_VVVV1_0( w_fp[0], w_fp[80], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[80], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[12] += amp_sv[0];
@@ -28922,7 +28922,7 @@ namespace mg5amcCpu
       jamp_sv[111] += amp_sv[0];
       jamp_sv[117] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[80], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[80], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[12] += amp_sv[0];
@@ -28939,7 +28939,7 @@ namespace mg5amcCpu
       jamp_sv[111] += amp_sv[0];
       jamp_sv[117] += amp_sv[0];
       jamp_sv[119] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[80], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[80], w_fp[8], w_fp[6], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[18] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
       jamp_sv[22] -= amp_sv[0];
@@ -28960,12 +28960,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1221 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1221
-      helas_VVV1P0_1( w_fp[0], w_fp[73], COUPs[0], 1.0, 0., 0., w_fp[27] );
-      helas_VVV1P0_1( w_fp[0], w_fp[79], COUPs[0], 1.0, 0., 0., w_fp[1] );
-      helas_VVV1P0_1( w_fp[0], w_fp[80], COUPs[0], 1.0, 0., 0., w_fp[16] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[73], COUPs[0], 1.0, 0., 0., w_fp[27] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[79], COUPs[0], 1.0, 0., 0., w_fp[1] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[80], COUPs[0], 1.0, 0., 0., w_fp[16] );
 
       // Amplitude(s) for diagram number 1221
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[27], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[27], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -28982,7 +28982,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[1], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[1], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -28999,7 +28999,7 @@ namespace mg5amcCpu
       jamp_sv[111] += amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[6], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[6], w_fp[16], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[12] += amp_sv[0];
@@ -29023,7 +29023,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1222
-      helas_VVV1_0( w_fp[73], w_fp[6], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[73], w_fp[6], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -29040,7 +29040,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[119] += amp_sv[0];
-      helas_VVV1_0( w_fp[79], w_fp[6], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[79], w_fp[6], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -29057,7 +29057,7 @@ namespace mg5amcCpu
       jamp_sv[111] += amp_sv[0];
       jamp_sv[113] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_VVV1_0( w_fp[80], w_fp[6], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[80], w_fp[6], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[0] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[12] += amp_sv[0];
@@ -29081,7 +29081,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1223
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[97] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29090,7 +29090,7 @@ namespace mg5amcCpu
       jamp_sv[107] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[119] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[97] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[99] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29099,7 +29099,7 @@ namespace mg5amcCpu
       jamp_sv[111] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[113] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[117] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[47], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[47], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[98] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[100] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -29115,17 +29115,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1224
-      helas_FFV1_0( w_fp[3], w_fp[113], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[113], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] += amp_sv[0];
       jamp_sv[97] -= amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[101] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[113], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[113], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[97] -= amp_sv[0];
       jamp_sv[98] += amp_sv[0];
       jamp_sv[99] -= amp_sv[0];
       jamp_sv[100] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[113], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[113], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[96] -= amp_sv[0];
       jamp_sv[98] += amp_sv[0];
       jamp_sv[100] += amp_sv[0];
@@ -29137,7 +29137,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1225
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[27], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29146,7 +29146,7 @@ namespace mg5amcCpu
       jamp_sv[38] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[62] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[86] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29155,7 +29155,7 @@ namespace mg5amcCpu
       jamp_sv[56] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[62] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[80] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[41], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[41], w_fp[2], w_fp[16], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -29171,17 +29171,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1226
-      helas_FFV1_0( w_fp[62], w_fp[2], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[2], w_fp[73], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[32] += amp_sv[0];
       jamp_sv[38] -= amp_sv[0];
       jamp_sv[62] -= amp_sv[0];
       jamp_sv[86] += amp_sv[0];
-      helas_FFV1_0( w_fp[62], w_fp[2], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[2], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[38] -= amp_sv[0];
       jamp_sv[56] += amp_sv[0];
       jamp_sv[62] -= amp_sv[0];
       jamp_sv[80] += amp_sv[0];
-      helas_FFV1_0( w_fp[62], w_fp[2], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[62], w_fp[2], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[32] -= amp_sv[0];
       jamp_sv[56] += amp_sv[0];
       jamp_sv[80] += amp_sv[0];
@@ -29193,7 +29193,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1227
-      helas_VVVV1_0( w_fp[0], w_fp[57], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[57], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -29210,7 +29210,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[95] += amp_sv[0];
       jamp_sv[110] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[57], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[57], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -29227,7 +29227,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[95] += amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[57], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[57], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[12] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[15] += amp_sv[0];
@@ -29244,7 +29244,7 @@ namespace mg5amcCpu
       jamp_sv[77] += amp_sv[0];
       jamp_sv[110] += amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[0], w_fp[81], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[81], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -29261,7 +29261,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[93] += amp_sv[0];
       jamp_sv[104] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[81], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[81], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -29278,7 +29278,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[93] += amp_sv[0];
       jamp_sv[105] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[81], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[81], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[13] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[15] += amp_sv[0];
@@ -29295,7 +29295,7 @@ namespace mg5amcCpu
       jamp_sv[76] += amp_sv[0];
       jamp_sv[104] += amp_sv[0];
       jamp_sv[105] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[0], w_fp[82], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[82], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[18] += amp_sv[0];
@@ -29312,7 +29312,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[104] -= amp_sv[0];
       jamp_sv[110] += amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[82], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[82], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[12] += amp_sv[0];
@@ -29329,7 +29329,7 @@ namespace mg5amcCpu
       jamp_sv[95] -= amp_sv[0];
       jamp_sv[105] -= amp_sv[0];
       jamp_sv[111] += amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[82], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[82], w_fp[8], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[12] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
@@ -29350,12 +29350,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1228 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1228
-      helas_VVV1P0_1( w_fp[0], w_fp[57], COUPs[0], 1.0, 0., 0., w_fp[62] );
-      helas_VVV1P0_1( w_fp[0], w_fp[81], COUPs[0], 1.0, 0., 0., w_fp[80] );
-      helas_VVV1P0_1( w_fp[0], w_fp[82], COUPs[0], 1.0, 0., 0., w_fp[79] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[57], COUPs[0], 1.0, 0., 0., w_fp[62] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[81], COUPs[0], 1.0, 0., 0., w_fp[80] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[82], COUPs[0], 1.0, 0., 0., w_fp[79] );
 
       // Amplitude(s) for diagram number 1228
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[62], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -29372,7 +29372,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[95] += amp_sv[0];
       jamp_sv[110] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[80], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[80], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -29389,7 +29389,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[93] += amp_sv[0];
       jamp_sv[104] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[5], w_fp[79], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[5], w_fp[79], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[18] += amp_sv[0];
@@ -29413,7 +29413,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1229
-      helas_VVV1_0( w_fp[57], w_fp[5], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[57], w_fp[5], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -29430,7 +29430,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[95] += amp_sv[0];
       jamp_sv[111] -= amp_sv[0];
-      helas_VVV1_0( w_fp[81], w_fp[5], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[81], w_fp[5], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -29447,7 +29447,7 @@ namespace mg5amcCpu
       jamp_sv[89] -= amp_sv[0];
       jamp_sv[93] += amp_sv[0];
       jamp_sv[105] -= amp_sv[0];
-      helas_VVV1_0( w_fp[82], w_fp[5], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[82], w_fp[5], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[12] += amp_sv[0];
@@ -29471,7 +29471,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1230
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[73] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29480,7 +29480,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[89] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[95] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[73] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[75] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29489,7 +29489,7 @@ namespace mg5amcCpu
       jamp_sv[87] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[89] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[93] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[39], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[39], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[74] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[76] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -29505,17 +29505,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1231
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] += amp_sv[0];
       jamp_sv[73] -= amp_sv[0];
       jamp_sv[75] -= amp_sv[0];
       jamp_sv[77] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[73] -= amp_sv[0];
       jamp_sv[74] += amp_sv[0];
       jamp_sv[75] -= amp_sv[0];
       jamp_sv[76] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[102], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[102], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[72] -= amp_sv[0];
       jamp_sv[74] += amp_sv[0];
       jamp_sv[76] += amp_sv[0];
@@ -29527,7 +29527,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1232
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[62], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29536,7 +29536,7 @@ namespace mg5amcCpu
       jamp_sv[44] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[68] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[110] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[80], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29545,7 +29545,7 @@ namespace mg5amcCpu
       jamp_sv[58] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[68] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[104] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[38], w_fp[2], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[38], w_fp[2], w_fp[79], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -29561,17 +29561,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1233
-      helas_FFV1_0( w_fp[104], w_fp[2], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[2], w_fp[57], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[34] += amp_sv[0];
       jamp_sv[44] -= amp_sv[0];
       jamp_sv[68] -= amp_sv[0];
       jamp_sv[110] += amp_sv[0];
-      helas_FFV1_0( w_fp[104], w_fp[2], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[2], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[44] -= amp_sv[0];
       jamp_sv[58] += amp_sv[0];
       jamp_sv[68] -= amp_sv[0];
       jamp_sv[104] += amp_sv[0];
-      helas_FFV1_0( w_fp[104], w_fp[2], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[104], w_fp[2], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[34] -= amp_sv[0];
       jamp_sv[58] += amp_sv[0];
       jamp_sv[104] += amp_sv[0];
@@ -29583,7 +29583,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1234
-      helas_VVVV1_0( w_fp[0], w_fp[55], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[55], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
@@ -29600,7 +29600,7 @@ namespace mg5amcCpu
       jamp_sv[71] += amp_sv[0];
       jamp_sv[92] += amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[55], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[55], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -29617,7 +29617,7 @@ namespace mg5amcCpu
       jamp_sv[71] += amp_sv[0];
       jamp_sv[93] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[55], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[55], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[6] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[9] += amp_sv[0];
@@ -29634,7 +29634,7 @@ namespace mg5amcCpu
       jamp_sv[93] += amp_sv[0];
       jamp_sv[116] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[0], w_fp[83], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[83], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
@@ -29651,7 +29651,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= amp_sv[0];
       jamp_sv[92] += amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[83], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[83], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -29668,7 +29668,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= amp_sv[0];
       jamp_sv[93] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[83], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[83], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[7] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[9] += amp_sv[0];
@@ -29685,7 +29685,7 @@ namespace mg5amcCpu
       jamp_sv[93] += amp_sv[0];
       jamp_sv[106] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
-      helas_VVVV1_0( w_fp[0], w_fp[84], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[84], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[19] += amp_sv[0];
@@ -29702,7 +29702,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[84], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[84], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -29719,7 +29719,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
       jamp_sv[117] += amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[84], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[84], w_fp[8], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
@@ -29740,12 +29740,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 1235 OF 1240 ***
 
       // Wavefunction(s) for diagram number 1235
-      helas_VVV1P0_1( w_fp[0], w_fp[55], COUPs[0], 1.0, 0., 0., w_fp[104] );
-      helas_VVV1P0_1( w_fp[0], w_fp[83], COUPs[0], 1.0, 0., 0., w_fp[82] );
-      helas_VVV1P0_1( w_fp[0], w_fp[84], COUPs[0], 1.0, 0., 0., w_fp[81] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[55], COUPs[0], 1.0, 0., 0., w_fp[104] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[83], COUPs[0], 1.0, 0., 0., w_fp[82] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[84], COUPs[0], 1.0, 0., 0., w_fp[81] );
 
       // Amplitude(s) for diagram number 1235
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[104], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
@@ -29762,7 +29762,7 @@ namespace mg5amcCpu
       jamp_sv[71] += amp_sv[0];
       jamp_sv[92] += amp_sv[0];
       jamp_sv[116] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[82], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[82], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
@@ -29779,7 +29779,7 @@ namespace mg5amcCpu
       jamp_sv[82] -= amp_sv[0];
       jamp_sv[92] += amp_sv[0];
       jamp_sv[106] -= amp_sv[0];
-      helas_VVV1_0( w_fp[8], w_fp[4], w_fp[81], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[8], w_fp[4], w_fp[81], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[13] += amp_sv[0];
       jamp_sv[19] += amp_sv[0];
@@ -29803,7 +29803,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1236
-      helas_VVV1_0( w_fp[55], w_fp[4], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[55], w_fp[4], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -29820,7 +29820,7 @@ namespace mg5amcCpu
       jamp_sv[71] += amp_sv[0];
       jamp_sv[93] += amp_sv[0];
       jamp_sv[117] -= amp_sv[0];
-      helas_VVV1_0( w_fp[83], w_fp[4], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[83], w_fp[4], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[7] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -29837,7 +29837,7 @@ namespace mg5amcCpu
       jamp_sv[83] -= amp_sv[0];
       jamp_sv[93] += amp_sv[0];
       jamp_sv[107] -= amp_sv[0];
-      helas_VVV1_0( w_fp[84], w_fp[4], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[84], w_fp[4], w_fp[56], COUPs[0], 1.0, &amp_fp[0] );
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -29861,7 +29861,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1237
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[49] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29870,7 +29870,7 @@ namespace mg5amcCpu
       jamp_sv[59] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[65] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[71] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[49] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[50] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[51] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29879,7 +29879,7 @@ namespace mg5amcCpu
       jamp_sv[63] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[65] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[69] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[33], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[33], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[50] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[52] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -29895,17 +29895,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1238
-      helas_FFV1_0( w_fp[3], w_fp[114], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[114], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] += amp_sv[0];
       jamp_sv[49] -= amp_sv[0];
       jamp_sv[51] -= amp_sv[0];
       jamp_sv[53] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[114], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[114], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[49] -= amp_sv[0];
       jamp_sv[50] += amp_sv[0];
       jamp_sv[51] -= amp_sv[0];
       jamp_sv[52] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[114], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[114], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[48] -= amp_sv[0];
       jamp_sv[50] += amp_sv[0];
       jamp_sv[52] += amp_sv[0];
@@ -29917,7 +29917,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1239
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[104], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29926,7 +29926,7 @@ namespace mg5amcCpu
       jamp_sv[46] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[92] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[116] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[82], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
@@ -29935,7 +29935,7 @@ namespace mg5amcCpu
       jamp_sv[82] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[92] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[106] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_FFV1_0( w_fp[46], w_fp[2], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[46], w_fp[2], w_fp[81], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -29951,17 +29951,17 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 1240
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[55], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[40] += amp_sv[0];
       jamp_sv[46] -= amp_sv[0];
       jamp_sv[92] -= amp_sv[0];
       jamp_sv[116] += amp_sv[0];
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[83], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[46] -= amp_sv[0];
       jamp_sv[82] += amp_sv[0];
       jamp_sv[92] -= amp_sv[0];
       jamp_sv[106] += amp_sv[0];
-      helas_FFV1_0( w_fp[99], w_fp[2], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[99], w_fp[2], w_fp[84], COUPs[1], 1.0, &amp_fp[0] );
       jamp_sv[40] -= amp_sv[0];
       jamp_sv[82] += amp_sv[0];
       jamp_sv[106] += amp_sv[0];

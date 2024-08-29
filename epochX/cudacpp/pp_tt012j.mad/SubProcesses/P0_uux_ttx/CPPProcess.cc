@@ -335,10 +335,10 @@ namespace mg5amcCpu
 
       ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
 
-      helas_FFV1P0_3( w_fp[0], w_fp[1], COUPs[1], 1.0, 0., 0., w_fp[4] );
+      helas_CD_FFV1P0_3( w_fp[0], w_fp[1], COUPs[1], 1.0, 0., 0., w_fp[4] );
 
       // Amplitude(s) for diagram number 1
-      helas_FFV1_0( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[2], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );

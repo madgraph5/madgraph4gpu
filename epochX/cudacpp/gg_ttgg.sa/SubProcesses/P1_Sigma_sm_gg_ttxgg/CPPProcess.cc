@@ -336,11 +336,11 @@ namespace mg5amcCpu
 
       vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][5], +1, w_fp[5], 5 );
 
-      helas_VVV1P0_1( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[6] );
-      helas_FFV1P0_3( w_fp[3], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[7] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[6] );
+      helas_CD_FFV1P0_3( w_fp[3], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[7] );
 
       // Amplitude(s) for diagram number 1
-      helas_VVVV1_0( w_fp[6], w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[6], w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -352,7 +352,7 @@ namespace mg5amcCpu
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[6], w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[6], w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -364,7 +364,7 @@ namespace mg5amcCpu
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[6], w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[6], w_fp[7], w_fp[4], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -380,10 +380,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 2 OF 123 ***
 
       // Wavefunction(s) for diagram number 2
-      helas_VVV1P0_1( w_fp[6], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[8] );
+      helas_CD_VVV1P0_1( w_fp[6], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[8] );
 
       // Amplitude(s) for diagram number 2
-      helas_VVV1_0( w_fp[7], w_fp[5], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[7], w_fp[5], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -399,10 +399,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 3 OF 123 ***
 
       // Wavefunction(s) for diagram number 3
-      helas_VVV1P0_1( w_fp[6], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[9] );
+      helas_CD_VVV1P0_1( w_fp[6], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[9] );
 
       // Amplitude(s) for diagram number 3
-      helas_VVV1_0( w_fp[7], w_fp[4], w_fp[9], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[7], w_fp[4], w_fp[9], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -418,10 +418,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 4 OF 123 ***
 
       // Wavefunction(s) for diagram number 4
-      helas_VVV1P0_1( w_fp[4], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[10] );
+      helas_CD_VVV1P0_1( w_fp[4], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[10] );
 
       // Amplitude(s) for diagram number 4
-      helas_VVV1_0( w_fp[6], w_fp[7], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[6], w_fp[7], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -437,11 +437,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 5 OF 123 ***
 
       // Wavefunction(s) for diagram number 5
-      helas_FFV1_1( w_fp[2], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[11] );
-      helas_FFV1_2( w_fp[3], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[12] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[11] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[12] );
 
       // Amplitude(s) for diagram number 5
-      helas_FFV1_0( w_fp[12], w_fp[11], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[11], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -454,7 +454,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 6
-      helas_FFV1_0( w_fp[3], w_fp[11], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[11], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -466,10 +466,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 7 OF 123 ***
 
       // Wavefunction(s) for diagram number 7
-      helas_FFV1_2( w_fp[3], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[13] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[13] );
 
       // Amplitude(s) for diagram number 7
-      helas_FFV1_0( w_fp[13], w_fp[11], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[11], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -479,10 +479,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 8 OF 123 ***
 
       // Wavefunction(s) for diagram number 8
-      helas_FFV1_1( w_fp[2], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[14] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[14] );
 
       // Amplitude(s) for diagram number 8
-      helas_FFV1_0( w_fp[12], w_fp[14], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[14], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -495,7 +495,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 9
-      helas_FFV1_0( w_fp[3], w_fp[14], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[14], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -507,10 +507,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 10 OF 123 ***
 
       // Wavefunction(s) for diagram number 10
-      helas_FFV1_2( w_fp[3], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[15] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[15] );
 
       // Amplitude(s) for diagram number 10
-      helas_FFV1_0( w_fp[15], w_fp[14], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[14], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -520,10 +520,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 11 OF 123 ***
 
       // Wavefunction(s) for diagram number 11
-      helas_FFV1_1( w_fp[2], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
 
       // Amplitude(s) for diagram number 11
-      helas_FFV1_0( w_fp[15], w_fp[16], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[16], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -536,7 +536,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 12
-      helas_FFV1_0( w_fp[15], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -551,7 +551,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 13
-      helas_FFV1_0( w_fp[13], w_fp[16], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[16], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -564,7 +564,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 14
-      helas_FFV1_0( w_fp[13], w_fp[2], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[2], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -579,7 +579,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 15
-      helas_FFV1_0( w_fp[3], w_fp[16], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[16], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -594,7 +594,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 16
-      helas_FFV1_0( w_fp[12], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -606,12 +606,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 17 OF 123 ***
 
       // Wavefunction(s) for diagram number 17
-      helas_FFV1_1( w_fp[2], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[12] );
-      helas_FFV1_2( w_fp[3], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
-      helas_FFV1_1( w_fp[12], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[8] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[12] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[16] );
+      helas_CD_FFV1_1( w_fp[12], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[8] );
 
       // Amplitude(s) for diagram number 17
-      helas_FFV1_0( w_fp[16], w_fp[8], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[8], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -620,10 +620,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 18 OF 123 ***
 
       // Wavefunction(s) for diagram number 18
-      helas_FFV1_1( w_fp[12], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[9] );
+      helas_CD_FFV1_1( w_fp[12], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[9] );
 
       // Amplitude(s) for diagram number 18
-      helas_FFV1_0( w_fp[16], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -635,7 +635,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 19
-      helas_FFV1_0( w_fp[16], w_fp[12], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[12], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -645,11 +645,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 20 OF 123 ***
 
       // Wavefunction(s) for diagram number 20
-      helas_VVV1P0_1( w_fp[1], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[6] );
-      helas_FFV1P0_3( w_fp[3], w_fp[12], COUPs[1], 1.0, 0., 0., w_fp[17] );
+      helas_CD_VVV1P0_1( w_fp[1], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[6] );
+      helas_CD_FFV1P0_3( w_fp[3], w_fp[12], COUPs[1], 1.0, 0., 0., w_fp[17] );
 
       // Amplitude(s) for diagram number 20
-      helas_VVV1_0( w_fp[6], w_fp[5], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[6], w_fp[5], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -664,7 +664,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 21
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -677,7 +677,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 22
-      helas_FFV1_0( w_fp[13], w_fp[12], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[12], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -687,10 +687,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 23 OF 123 ***
 
       // Wavefunction(s) for diagram number 23
-      helas_VVV1P0_1( w_fp[1], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[18] );
+      helas_CD_VVV1P0_1( w_fp[1], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[18] );
 
       // Amplitude(s) for diagram number 23
-      helas_VVV1_0( w_fp[18], w_fp[4], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[18], w_fp[4], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -705,7 +705,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 24
-      helas_FFV1_0( w_fp[3], w_fp[8], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[8], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -718,7 +718,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 25
-      helas_FFV1_0( w_fp[15], w_fp[12], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[12], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -728,10 +728,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 26 OF 123 ***
 
       // Wavefunction(s) for diagram number 26
-      helas_FFV1_1( w_fp[12], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[19] );
+      helas_CD_FFV1_1( w_fp[12], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[19] );
 
       // Amplitude(s) for diagram number 26
-      helas_FFV1_0( w_fp[15], w_fp[19], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[19], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -743,7 +743,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 27
-      helas_FFV1_0( w_fp[15], w_fp[9], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[9], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -755,7 +755,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 28
-      helas_FFV1_0( w_fp[13], w_fp[19], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[19], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -767,7 +767,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 29
-      helas_FFV1_0( w_fp[13], w_fp[8], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[8], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -779,7 +779,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 30
-      helas_FFV1_0( w_fp[3], w_fp[19], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[19], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -792,7 +792,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 31
-      helas_VVV1_0( w_fp[1], w_fp[10], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[10], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -804,12 +804,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 32 OF 123 ***
 
       // Wavefunction(s) for diagram number 32
-      helas_VVVV1P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[17] );
-      helas_VVVV3P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[19] );
-      helas_VVVV4P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[8] );
+      helas_CD_VVVV1P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[17] );
+      helas_CD_VVVV3P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[19] );
+      helas_CD_VVVV4P0_1( w_fp[1], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[8] );
 
       // Amplitude(s) for diagram number 32
-      helas_FFV1_0( w_fp[3], w_fp[12], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[12], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -817,7 +817,7 @@ namespace mg5amcCpu
       jamp_sv[1] -= amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[5] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[12], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[12], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -825,7 +825,7 @@ namespace mg5amcCpu
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
       jamp_sv[4] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[12], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[12], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -837,12 +837,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 33 OF 123 ***
 
       // Wavefunction(s) for diagram number 33
-      helas_FFV1_2( w_fp[3], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[12] );
-      helas_FFV1_1( w_fp[2], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[9] );
-      helas_FFV1_2( w_fp[12], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[20] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[12] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[9] );
+      helas_CD_FFV1_2( w_fp[12], w_fp[4], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[20] );
 
       // Amplitude(s) for diagram number 33
-      helas_FFV1_0( w_fp[20], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[20], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -851,10 +851,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 34 OF 123 ***
 
       // Wavefunction(s) for diagram number 34
-      helas_FFV1_2( w_fp[12], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
+      helas_CD_FFV1_2( w_fp[12], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
 
       // Amplitude(s) for diagram number 34
-      helas_FFV1_0( w_fp[21], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -866,7 +866,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 35
-      helas_FFV1_0( w_fp[12], w_fp[9], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[9], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -876,10 +876,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 36 OF 123 ***
 
       // Wavefunction(s) for diagram number 36
-      helas_FFV1P0_3( w_fp[12], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[22] );
+      helas_CD_FFV1P0_3( w_fp[12], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[22] );
 
       // Amplitude(s) for diagram number 36
-      helas_VVV1_0( w_fp[6], w_fp[5], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[6], w_fp[5], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -894,7 +894,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 37
-      helas_FFV1_0( w_fp[21], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -907,7 +907,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 38
-      helas_FFV1_0( w_fp[12], w_fp[14], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[14], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -920,7 +920,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 39
-      helas_VVV1_0( w_fp[18], w_fp[4], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[18], w_fp[4], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -935,7 +935,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 40
-      helas_FFV1_0( w_fp[20], w_fp[2], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[20], w_fp[2], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -948,7 +948,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 41
-      helas_FFV1_0( w_fp[12], w_fp[11], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[11], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -958,10 +958,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 42 OF 123 ***
 
       // Wavefunction(s) for diagram number 42
-      helas_FFV1_2( w_fp[12], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
+      helas_CD_FFV1_2( w_fp[12], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
 
       // Amplitude(s) for diagram number 42
-      helas_FFV1_0( w_fp[23], w_fp[11], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[23], w_fp[11], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -973,7 +973,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 43
-      helas_FFV1_0( w_fp[21], w_fp[11], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[11], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -985,7 +985,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 44
-      helas_FFV1_0( w_fp[23], w_fp[14], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[23], w_fp[14], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -997,7 +997,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 45
-      helas_FFV1_0( w_fp[20], w_fp[14], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[20], w_fp[14], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1009,7 +1009,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 46
-      helas_FFV1_0( w_fp[23], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[23], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1022,7 +1022,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 47
-      helas_VVV1_0( w_fp[1], w_fp[10], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[10], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1037,7 +1037,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 48
-      helas_FFV1_0( w_fp[12], w_fp[2], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[2], w_fp[17], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1045,7 +1045,7 @@ namespace mg5amcCpu
       jamp_sv[11] -= amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
-      helas_FFV1_0( w_fp[12], w_fp[2], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[2], w_fp[19], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1053,7 +1053,7 @@ namespace mg5amcCpu
       jamp_sv[15] += amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
       jamp_sv[21] += amp_sv[0];
-      helas_FFV1_0( w_fp[12], w_fp[2], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[2], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1065,11 +1065,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 49 OF 123 ***
 
       // Wavefunction(s) for diagram number 49
-      helas_VVV1P0_1( w_fp[0], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[12] );
-      helas_FFV1_2( w_fp[3], w_fp[12], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[22] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[12] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[12], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[22] );
 
       // Amplitude(s) for diagram number 49
-      helas_FFV1_0( w_fp[22], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1079,10 +1079,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 50 OF 123 ***
 
       // Wavefunction(s) for diagram number 50
-      helas_VVV1P0_1( w_fp[12], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[23] );
+      helas_CD_VVV1P0_1( w_fp[12], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[23] );
 
       // Amplitude(s) for diagram number 50
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1097,7 +1097,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 51
-      helas_FFV1_0( w_fp[13], w_fp[9], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[9], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1107,10 +1107,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 52 OF 123 ***
 
       // Wavefunction(s) for diagram number 52
-      helas_FFV1_1( w_fp[2], w_fp[12], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[20] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[12], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[20] );
 
       // Amplitude(s) for diagram number 52
-      helas_FFV1_0( w_fp[16], w_fp[20], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[20], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1123,7 +1123,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 53
-      helas_FFV1_0( w_fp[16], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1138,7 +1138,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 54
-      helas_FFV1_0( w_fp[16], w_fp[14], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[14], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1151,7 +1151,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 55
-      helas_FFV1_0( w_fp[3], w_fp[20], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[20], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1166,7 +1166,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 56
-      helas_FFV1_0( w_fp[22], w_fp[2], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[2], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1181,7 +1181,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 57
-      helas_VVV1_0( w_fp[12], w_fp[18], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[12], w_fp[18], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1200,7 +1200,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 58
-      helas_VVVV1_0( w_fp[12], w_fp[1], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[12], w_fp[1], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1212,7 +1212,7 @@ namespace mg5amcCpu
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[12], w_fp[1], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[12], w_fp[1], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1224,7 +1224,7 @@ namespace mg5amcCpu
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[12], w_fp[1], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[12], w_fp[1], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1240,10 +1240,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 59 OF 123 ***
 
       // Wavefunction(s) for diagram number 59
-      helas_VVV1P0_1( w_fp[12], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVV1P0_1( w_fp[12], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[21] );
 
       // Amplitude(s) for diagram number 59
-      helas_VVV1_0( w_fp[7], w_fp[5], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[7], w_fp[5], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1262,7 +1262,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 60
-      helas_VVV1_0( w_fp[1], w_fp[7], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[7], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1281,7 +1281,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 61
-      helas_FFV1_0( w_fp[3], w_fp[14], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[14], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1296,7 +1296,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 62
-      helas_FFV1_0( w_fp[22], w_fp[14], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[14], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1309,7 +1309,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 63
-      helas_FFV1_0( w_fp[13], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1324,7 +1324,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 64
-      helas_FFV1_0( w_fp[13], w_fp[20], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[20], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1334,11 +1334,11 @@ namespace mg5amcCpu
       // *** DIAGRAM 65 OF 123 ***
 
       // Wavefunction(s) for diagram number 65
-      helas_VVV1P0_1( w_fp[0], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[20] );
-      helas_FFV1_2( w_fp[3], w_fp[20], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[5], COUPs[0], 1.0, 0., 0., w_fp[20] );
+      helas_CD_FFV1_2( w_fp[3], w_fp[20], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
 
       // Amplitude(s) for diagram number 65
-      helas_FFV1_0( w_fp[21], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1348,10 +1348,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 66 OF 123 ***
 
       // Wavefunction(s) for diagram number 66
-      helas_VVV1P0_1( w_fp[20], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[22] );
+      helas_CD_VVV1P0_1( w_fp[20], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[22] );
 
       // Amplitude(s) for diagram number 66
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1366,7 +1366,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 67
-      helas_FFV1_0( w_fp[15], w_fp[9], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[9], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1376,10 +1376,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 68 OF 123 ***
 
       // Wavefunction(s) for diagram number 68
-      helas_FFV1_1( w_fp[2], w_fp[20], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
+      helas_CD_FFV1_1( w_fp[2], w_fp[20], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
 
       // Amplitude(s) for diagram number 68
-      helas_FFV1_0( w_fp[16], w_fp[23], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[23], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1392,7 +1392,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 69
-      helas_FFV1_0( w_fp[16], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1407,7 +1407,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 70
-      helas_FFV1_0( w_fp[16], w_fp[11], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[11], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1420,7 +1420,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 71
-      helas_FFV1_0( w_fp[3], w_fp[23], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[23], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1435,7 +1435,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 72
-      helas_FFV1_0( w_fp[21], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1450,7 +1450,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 73
-      helas_VVV1_0( w_fp[20], w_fp[6], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[20], w_fp[6], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1469,7 +1469,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 74
-      helas_VVVV1_0( w_fp[20], w_fp[1], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[20], w_fp[1], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1481,7 +1481,7 @@ namespace mg5amcCpu
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[20], w_fp[1], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[20], w_fp[1], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1493,7 +1493,7 @@ namespace mg5amcCpu
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[20], w_fp[1], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[20], w_fp[1], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1509,10 +1509,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 75 OF 123 ***
 
       // Wavefunction(s) for diagram number 75
-      helas_VVV1P0_1( w_fp[20], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[12] );
+      helas_CD_VVV1P0_1( w_fp[20], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[12] );
 
       // Amplitude(s) for diagram number 75
-      helas_VVV1_0( w_fp[7], w_fp[4], w_fp[12], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[7], w_fp[4], w_fp[12], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1531,7 +1531,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 76
-      helas_VVV1_0( w_fp[1], w_fp[7], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[7], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1550,7 +1550,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 77
-      helas_FFV1_0( w_fp[3], w_fp[11], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[11], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1565,7 +1565,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 78
-      helas_FFV1_0( w_fp[21], w_fp[11], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[11], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1578,7 +1578,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 79
-      helas_FFV1_0( w_fp[15], w_fp[2], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[2], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1593,7 +1593,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 80
-      helas_FFV1_0( w_fp[15], w_fp[23], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[23], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1603,10 +1603,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 81 OF 123 ***
 
       // Wavefunction(s) for diagram number 81
-      helas_FFV1_1( w_fp[9], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
+      helas_CD_FFV1_1( w_fp[9], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
 
       // Amplitude(s) for diagram number 81
-      helas_FFV1_0( w_fp[15], w_fp[23], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[23], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1615,10 +1615,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 82 OF 123 ***
 
       // Wavefunction(s) for diagram number 82
-      helas_FFV1_2( w_fp[15], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[12] );
+      helas_CD_FFV1_2( w_fp[15], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[12] );
 
       // Amplitude(s) for diagram number 82
-      helas_FFV1_0( w_fp[12], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1630,7 +1630,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 83
-      helas_FFV1_0( w_fp[13], w_fp[23], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[23], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1639,10 +1639,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 84 OF 123 ***
 
       // Wavefunction(s) for diagram number 84
-      helas_FFV1_2( w_fp[13], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
+      helas_CD_FFV1_2( w_fp[13], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[21] );
 
       // Amplitude(s) for diagram number 84
-      helas_FFV1_0( w_fp[21], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1654,7 +1654,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 85
-      helas_FFV1_0( w_fp[3], w_fp[23], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[23], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1664,10 +1664,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 86 OF 123 ***
 
       // Wavefunction(s) for diagram number 86
-      helas_VVV1P0_1( w_fp[0], w_fp[10], COUPs[0], 1.0, 0., 0., w_fp[23] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[10], COUPs[0], 1.0, 0., 0., w_fp[23] );
 
       // Amplitude(s) for diagram number 86
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1679,10 +1679,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 87 OF 123 ***
 
       // Wavefunction(s) for diagram number 87
-      helas_FFV1_2( w_fp[16], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[22] );
+      helas_CD_FFV1_2( w_fp[16], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[22] );
 
       // Amplitude(s) for diagram number 87
-      helas_FFV1_0( w_fp[22], w_fp[11], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[11], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1691,10 +1691,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 88 OF 123 ***
 
       // Wavefunction(s) for diagram number 88
-      helas_FFV1_1( w_fp[11], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[20] );
+      helas_CD_FFV1_1( w_fp[11], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[20] );
 
       // Amplitude(s) for diagram number 88
-      helas_FFV1_0( w_fp[16], w_fp[20], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[20], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1706,7 +1706,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 89
-      helas_FFV1_0( w_fp[22], w_fp[14], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[14], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1715,10 +1715,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 90 OF 123 ***
 
       // Wavefunction(s) for diagram number 90
-      helas_FFV1_1( w_fp[14], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[24] );
+      helas_CD_FFV1_1( w_fp[14], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[24] );
 
       // Amplitude(s) for diagram number 90
-      helas_FFV1_0( w_fp[16], w_fp[24], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[24], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1730,7 +1730,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 91
-      helas_FFV1_0( w_fp[22], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[22], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1743,7 +1743,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 92
-      helas_FFV1_0( w_fp[16], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1758,7 +1758,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 93
-      helas_VVVV1_0( w_fp[0], w_fp[6], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[6], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1770,7 +1770,7 @@ namespace mg5amcCpu
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[6], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[6], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1782,7 +1782,7 @@ namespace mg5amcCpu
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[6], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[6], w_fp[7], w_fp[5], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1798,10 +1798,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 94 OF 123 ***
 
       // Wavefunction(s) for diagram number 94
-      helas_VVV1P0_1( w_fp[0], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[22] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[6], COUPs[0], 1.0, 0., 0., w_fp[22] );
 
       // Amplitude(s) for diagram number 94
-      helas_VVV1_0( w_fp[7], w_fp[5], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[7], w_fp[5], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1817,10 +1817,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 95 OF 123 ***
 
       // Wavefunction(s) for diagram number 95
-      helas_VVV1P0_1( w_fp[0], w_fp[7], COUPs[0], 1.0, 0., 0., w_fp[25] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[7], COUPs[0], 1.0, 0., 0., w_fp[25] );
 
       // Amplitude(s) for diagram number 95
-      helas_VVV1_0( w_fp[6], w_fp[5], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[6], w_fp[5], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1839,7 +1839,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 96
-      helas_FFV1_0( w_fp[3], w_fp[14], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[14], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1854,7 +1854,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 97
-      helas_FFV1_0( w_fp[3], w_fp[24], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[24], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1867,7 +1867,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 98
-      helas_FFV1_0( w_fp[13], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1882,7 +1882,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 99
-      helas_FFV1_0( w_fp[21], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1895,7 +1895,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 100
-      helas_VVVV1_0( w_fp[0], w_fp[18], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[18], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1907,7 +1907,7 @@ namespace mg5amcCpu
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[18], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[18], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1919,7 +1919,7 @@ namespace mg5amcCpu
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[18], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[18], w_fp[7], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1935,10 +1935,10 @@ namespace mg5amcCpu
       // *** DIAGRAM 101 OF 123 ***
 
       // Wavefunction(s) for diagram number 101
-      helas_VVV1P0_1( w_fp[0], w_fp[18], COUPs[0], 1.0, 0., 0., w_fp[6] );
+      helas_CD_VVV1P0_1( w_fp[0], w_fp[18], COUPs[0], 1.0, 0., 0., w_fp[6] );
 
       // Amplitude(s) for diagram number 101
-      helas_VVV1_0( w_fp[7], w_fp[4], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[7], w_fp[4], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1957,7 +1957,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 102
-      helas_VVV1_0( w_fp[18], w_fp[4], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[18], w_fp[4], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1976,7 +1976,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 103
-      helas_FFV1_0( w_fp[3], w_fp[11], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[11], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1991,7 +1991,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 104
-      helas_FFV1_0( w_fp[3], w_fp[20], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[20], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2004,7 +2004,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 105
-      helas_FFV1_0( w_fp[15], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2019,7 +2019,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 106
-      helas_FFV1_0( w_fp[12], w_fp[2], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[2], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2032,7 +2032,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 107
-      helas_VVVV1_0( w_fp[0], w_fp[1], w_fp[7], w_fp[10], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV1_0( w_fp[0], w_fp[1], w_fp[7], w_fp[10], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2044,7 +2044,7 @@ namespace mg5amcCpu
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV3_0( w_fp[0], w_fp[1], w_fp[7], w_fp[10], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV3_0( w_fp[0], w_fp[1], w_fp[7], w_fp[10], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2056,7 +2056,7 @@ namespace mg5amcCpu
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVVV4_0( w_fp[0], w_fp[1], w_fp[7], w_fp[10], COUPs[2], 1.0, &amp_fp[0] );
+      helas_CD_VVVV4_0( w_fp[0], w_fp[1], w_fp[7], w_fp[10], COUPs[2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2075,7 +2075,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 108
-      helas_VVV1_0( w_fp[1], w_fp[10], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[10], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2094,7 +2094,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 109
-      helas_VVV1_0( w_fp[1], w_fp[7], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[1], w_fp[7], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2113,7 +2113,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 110
-      helas_FFV1_0( w_fp[13], w_fp[20], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[20], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2125,7 +2125,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 111
-      helas_FFV1_0( w_fp[21], w_fp[11], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[21], w_fp[11], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2137,7 +2137,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 112
-      helas_FFV1_0( w_fp[15], w_fp[24], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[24], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2149,7 +2149,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 113
-      helas_FFV1_0( w_fp[12], w_fp[14], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[12], w_fp[14], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2158,12 +2158,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 114 OF 123 ***
 
       // Wavefunction(s) for diagram number 114
-      helas_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[12] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[24] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[12] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[24] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[21] );
 
       // Amplitude(s) for diagram number 114
-      helas_VVV1_0( w_fp[12], w_fp[7], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[12], w_fp[7], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2175,7 +2175,7 @@ namespace mg5amcCpu
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[24], w_fp[7], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[24], w_fp[7], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2187,7 +2187,7 @@ namespace mg5amcCpu
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[21], w_fp[7], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[21], w_fp[7], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2206,7 +2206,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 115
-      helas_FFV1_0( w_fp[3], w_fp[14], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[14], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2214,7 +2214,7 @@ namespace mg5amcCpu
       jamp_sv[19] -= amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[23] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[14], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[14], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2222,7 +2222,7 @@ namespace mg5amcCpu
       jamp_sv[20] += amp_sv[0];
       jamp_sv[21] -= amp_sv[0];
       jamp_sv[22] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[14], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[14], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2237,7 +2237,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 116
-      helas_FFV1_0( w_fp[13], w_fp[2], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[2], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2245,7 +2245,7 @@ namespace mg5amcCpu
       jamp_sv[2] -= amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[14] += amp_sv[0];
-      helas_FFV1_0( w_fp[13], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2253,7 +2253,7 @@ namespace mg5amcCpu
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
       jamp_sv[12] += amp_sv[0];
-      helas_FFV1_0( w_fp[13], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[13], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2265,12 +2265,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 117 OF 123 ***
 
       // Wavefunction(s) for diagram number 117
-      helas_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[21] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[13] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[24] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[21] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[13] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[1], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[24] );
 
       // Amplitude(s) for diagram number 117
-      helas_VVV1_0( w_fp[21], w_fp[7], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[21], w_fp[7], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2282,7 +2282,7 @@ namespace mg5amcCpu
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[13], w_fp[7], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[13], w_fp[7], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2294,7 +2294,7 @@ namespace mg5amcCpu
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[24], w_fp[7], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[24], w_fp[7], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2313,7 +2313,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 118
-      helas_FFV1_0( w_fp[3], w_fp[11], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[11], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2321,7 +2321,7 @@ namespace mg5amcCpu
       jamp_sv[13] -= amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[17] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[11], w_fp[13], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[11], w_fp[13], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2329,7 +2329,7 @@ namespace mg5amcCpu
       jamp_sv[14] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
       jamp_sv[16] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[11], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[11], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2344,7 +2344,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 119
-      helas_FFV1_0( w_fp[15], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2352,7 +2352,7 @@ namespace mg5amcCpu
       jamp_sv[4] -= amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[20] += amp_sv[0];
-      helas_FFV1_0( w_fp[15], w_fp[2], w_fp[13], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[2], w_fp[13], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2360,7 +2360,7 @@ namespace mg5amcCpu
       jamp_sv[7] += amp_sv[0];
       jamp_sv[10] -= amp_sv[0];
       jamp_sv[18] += amp_sv[0];
-      helas_FFV1_0( w_fp[15], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[15], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2372,12 +2372,12 @@ namespace mg5amcCpu
       // *** DIAGRAM 120 OF 123 ***
 
       // Wavefunction(s) for diagram number 120
-      helas_VVVV1P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[24] );
-      helas_VVVV3P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[15] );
-      helas_VVVV4P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[13] );
+      helas_CD_VVVV1P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[24] );
+      helas_CD_VVVV3P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[15] );
+      helas_CD_VVVV4P0_1( w_fp[0], w_fp[4], w_fp[5], COUPs[2], 1.0, 0., 0., w_fp[13] );
 
       // Amplitude(s) for diagram number 120
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2385,7 +2385,7 @@ namespace mg5amcCpu
       jamp_sv[7] -= amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[11] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[15], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[15], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2393,7 +2393,7 @@ namespace mg5amcCpu
       jamp_sv[8] += amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
       jamp_sv[10] += amp_sv[0];
-      helas_FFV1_0( w_fp[3], w_fp[9], w_fp[13], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[3], w_fp[9], w_fp[13], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2408,7 +2408,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 121
-      helas_FFV1_0( w_fp[16], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[2], w_fp[24], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2416,7 +2416,7 @@ namespace mg5amcCpu
       jamp_sv[5] -= amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[22] += amp_sv[0];
-      helas_FFV1_0( w_fp[16], w_fp[2], w_fp[15], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[2], w_fp[15], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2424,7 +2424,7 @@ namespace mg5amcCpu
       jamp_sv[13] += amp_sv[0];
       jamp_sv[16] -= amp_sv[0];
       jamp_sv[19] += amp_sv[0];
-      helas_FFV1_0( w_fp[16], w_fp[2], w_fp[13], COUPs[1], 1.0, &amp_fp[0] );
+      helas_CD_FFV1_0( w_fp[16], w_fp[2], w_fp[13], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2439,7 +2439,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 122
-      helas_VVV1_0( w_fp[24], w_fp[1], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[24], w_fp[1], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2451,7 +2451,7 @@ namespace mg5amcCpu
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[15], w_fp[1], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[15], w_fp[1], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2463,7 +2463,7 @@ namespace mg5amcCpu
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[13], w_fp[1], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[13], w_fp[1], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2482,7 +2482,7 @@ namespace mg5amcCpu
       // (none)
 
       // Amplitude(s) for diagram number 123
-      helas_VVV1_0( w_fp[0], w_fp[17], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[17], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2494,7 +2494,7 @@ namespace mg5amcCpu
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[0], w_fp[19], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[19], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2506,7 +2506,7 @@ namespace mg5amcCpu
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
-      helas_VVV1_0( w_fp[0], w_fp[8], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
+      helas_CD_VVV1_0( w_fp[0], w_fp[8], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
