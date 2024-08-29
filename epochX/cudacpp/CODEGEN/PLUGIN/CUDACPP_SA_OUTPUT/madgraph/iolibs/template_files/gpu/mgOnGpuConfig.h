@@ -29,7 +29,7 @@
 
 // Choose if curand is supported for generating random numbers
 // For HIP, by default, do not allow curand to be used (hiprand or common random numbers will be used instead)
-// For both CUDA and C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
+// For both CUDA and C++, by default, do not skip curand, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_CURAND
 // (there exist CUDA installations, e.g. using the HPC package, which do not include curand - see PR #784 and #785)
 #if defined __HIPCC__
 #define MGONGPU_HAS_NO_CURAND 1
@@ -45,7 +45,7 @@
 
 // Choose if hiprand is supported for generating random numbers
 // For CUDA, by default, do not allow hiprand to be used (curand or common random numbers will be used instead)
-// For both HIP and C++, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_HIPRAND
+// For both HIP and C++, by default, do not skip hiprand, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_HIPRAND
 // (there may exist HIP installations which do not include hiprand?)
 #if defined __CUDACC__
 #define MGONGPU_HAS_NO_HIPRAND 1
@@ -78,8 +78,15 @@
 // Choose whether to inline all HelAmps functions
 // This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
 // By default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
+// (NB: MGONGPU_INLINE_HELAMPS and MGONGPU_LINKER_HELAMPS are mutually exclusive)
 //#undef MGONGPU_INLINE_HELAMPS // default
 ////#define MGONGPU_INLINE_HELAMPS 1
+
+// Choose whether to compile and link all HelAmps functions as separate object files
+// By default, do not link, but allow this macro to be set from outside with e.g. -DMGONGPU_LINKER_HELAMPS
+// (NB: MGONGPU_INLINE_HELAMPS and MGONGPU_LINKER_HELAMPS are mutually exclusive)
+//#undef MGONGPU_LINKER_HELAMPS // default
+////#define MGONGPU_LINKER_HELAMPS 1
 
 // Choose whether to hardcode the cIPD physics parameters rather than reading them from user cards
 // This optimization can gain 20%% in CUDA in eemumu (issue #39)
@@ -145,6 +152,11 @@
 #if defined MGONGPU_CPPCXTYPE_STDCOMPLEX and defined MGONGPU_CPPCXTYPE_CXSMPL
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CPPCXTYPE_STDCOMPLEX or MGONGPU_CPPCXTYPE_CXSMPL for C++
 #endif
+#endif
+
+// SANITY CHECKS (HelAmps)
+#if defined MGONGPU_INLINE_HELAMPS and defined MGONGPU_LINKER_HELAMPS
+#error You must CHOOSE (AT MOST) ONLY ONE of MGONGPU_INLINE_HELAMPS or defined MGONGPU_LINKER_HELAMPS
 #endif
 
 // NB: namespace mgOnGpu includes types which are defined in exactly the same way for CPU and GPU builds (see #318 and #725)
