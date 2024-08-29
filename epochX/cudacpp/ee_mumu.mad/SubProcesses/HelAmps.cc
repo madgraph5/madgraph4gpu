@@ -71,7 +71,7 @@ namespace mg5amcCpu
                  const double Ccoeff,
                  fptype allvertexes[] )
   {
-    return FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( allF1, allF2, allV3, allCOUP, Ccoeff, allvertexes );
+    return FFV1_0<W_ACCESS, A_ACCESS, CI_ACCESS>( allF1, allF2, allV3, allCOUP, Ccoeff, allvertexes );
   }
 
   //--------------------------------------------------------------------------
@@ -86,7 +86,7 @@ namespace mg5amcCpu
                    const fptype W3,
                    fptype allV3[] )
   {
-    return FFV1P0_3<W_ACCESS, CD_ACCESS>( allF1, allF2, allCOUP, Ccoeff, M3, W3, allV3 );
+    return FFV1P0_3<W_ACCESS, CI_ACCESS>( allF1, allF2, allCOUP, Ccoeff, M3, W3, allV3 );
   }
 
   //--------------------------------------------------------------------------
@@ -100,7 +100,7 @@ namespace mg5amcCpu
                  const double Ccoeff,
                  fptype allvertexes[] )
   {
-    return FFV2_0<W_ACCESS, A_ACCESS, CD_ACCESS>( allF1, allF2, allV3, allCOUP, Ccoeff, allvertexes );
+    return FFV2_0<W_ACCESS, A_ACCESS, CI_ACCESS>( allF1, allF2, allV3, allCOUP, Ccoeff, allvertexes );
   }
 
   //--------------------------------------------------------------------------
@@ -115,7 +115,7 @@ namespace mg5amcCpu
                  const fptype W3,
                  fptype allV3[] )
   {
-    return FFV2_3<W_ACCESS, CD_ACCESS>( allF1, allF2, allCOUP, Ccoeff, M3, W3, allV3 );
+    return FFV2_3<W_ACCESS, CI_ACCESS>( allF1, allF2, allCOUP, Ccoeff, M3, W3, allV3 );
   }
 
   //--------------------------------------------------------------------------
@@ -129,7 +129,7 @@ namespace mg5amcCpu
                  const double Ccoeff,
                  fptype allvertexes[] )
   {
-    return FFV4_0<W_ACCESS, A_ACCESS, CD_ACCESS>( allF1, allF2, allV3, allCOUP, Ccoeff, allvertexes );
+    return FFV4_0<W_ACCESS, A_ACCESS, CI_ACCESS>( allF1, allF2, allV3, allCOUP, Ccoeff, allvertexes );
   }
 
   //--------------------------------------------------------------------------
@@ -144,7 +144,7 @@ namespace mg5amcCpu
                  const fptype W3,
                  fptype allV3[] )
   {
-    return FFV4_3<W_ACCESS, CD_ACCESS>( allF1, allF2, allCOUP, Ccoeff, M3, W3, allV3 );
+    return FFV4_3<W_ACCESS, CI_ACCESS>( allF1, allF2, allCOUP, Ccoeff, M3, W3, allV3 );
   }
 
   //--------------------------------------------------------------------------
@@ -158,7 +158,7 @@ namespace mg5amcCpu
                    const double Ccoeff,
                    fptype allvertexes[] )
   {
-    return FFV2_4_0<W_ACCESS, A_ACCESS, CD_ACCESS>( allF1, allF2, allV3, allCOUP, Ccoeff, allvertexes );
+    return FFV2_4_0<W_ACCESS, A_ACCESS, CI_ACCESS>( allF1, allF2, allV3, allCOUP, Ccoeff, allvertexes );
   }
 
   //--------------------------------------------------------------------------
@@ -173,7 +173,7 @@ namespace mg5amcCpu
                    const fptype W3,
                    fptype allV3[] )
   {
-    return FFV2_4_3<W_ACCESS, CD_ACCESS>( allF1, allF2, allCOUP, Ccoeff, M3, W3, allV3 );
+    return FFV2_4_3<W_ACCESS, CI_ACCESS>( allF1, allF2, allCOUP, Ccoeff, M3, W3, allV3 );
   }
 
   //--------------------------------------------------------------------------
