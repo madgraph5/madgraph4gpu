@@ -1307,8 +1307,10 @@ namespace mg5amcCpu
   linker_FFV2_4_0( const fptype allF1[],
                    const fptype allF2[],
                    const fptype allV3[],
-                   const fptype allCOUP[],
-                   const double Ccoeff,
+                   const fptype allCOUP1[],
+                   const double Ccoeff1,
+                   const fptype allCOUP2[],
+                   const double Ccoeff2,
                    fptype allvertexes[] );
 
   //--------------------------------------------------------------------------
@@ -1317,8 +1319,10 @@ namespace mg5amcCpu
   __device__ void
   linker_FFV2_4_3( const fptype allF1[],
                    const fptype allF2[],
-                   const fptype allCOUP[],
-                   const double Ccoeff,
+                   const fptype allCOUP1[],
+                   const double Ccoeff1,
+                   const fptype allCOUP2[],
+                   const double Ccoeff2,
                    const fptype M3,
                    const fptype W3,
                    fptype allV3[] );

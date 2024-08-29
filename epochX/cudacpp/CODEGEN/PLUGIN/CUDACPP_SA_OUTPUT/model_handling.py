@@ -121,11 +121,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     ###nodeclare = False # old behaviour (separate declaration with no initialization)
     nodeclare = True # new behaviour (delayed declaration with initialisation)
 
-    # AV - modify aloha_writers.WriteALOHA method (add a debug printout)
+    # AV - modify/enhance aloha_writers.WriteALOHA method (add a debug printout and add additional outputs)
     def write(self, **opt):
         ###misc.sprint('Entering PLUGIN_ALOHAWriter.write')
-        out = super().write(**opt)
-        return out
+        h_rout, cc_rout = super().write(**opt) # this is a tuple
+        h2a_rout = self.get_header_txt(mode='linker_define1')
+        h2b_rout = self.get_header_txt(mode='linker_define2')
+        h2c_rout = self.get_header_txt(mode='linker_decl')
+        cc2_rout = self.get_header_txt(mode='linker_impl')
+        return ( h_rout, cc_rout, h2a_rout, h2b_rout, h2c_rout, cc2_rout )
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def change_number_format(self, number):
@@ -175,6 +179,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             - function tag
             - definition of variable
         """
+        ###misc.sprint('get_header_txt',mode)
         if name is None:
             name = self.name
         if mode=='':
@@ -187,6 +192,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         argnames = []
         comment_inputs = [] # AV
         for format, argname in self.define_argument_list(couplings):
+            ###misc.sprint(format, argname) # note: for ee_mumu this already includes COUP1 and COUP2 separately
             if format.startswith('list'):
                 type = self.type2def[format[5:]] # double or complex (instead of list_double or list_complex)
                 comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
@@ -1107,18 +1113,15 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         else:
             aloha_model.compute_all(save=False, custom_propa=True)
         for abstracthelas in dict(aloha_model).values():
+            ###misc.sprint(type(abstracthelas), abstracthelas.name) # AV this is the loop on FFV functions
             print(type(abstracthelas), abstracthelas.name) # AV this is the loop on FFV functions
-            h_rout, cc_rout = abstracthelas.write(output_dir=None, language=self.aloha_writer, mode='no_include') # AV this eventually calls PLUGIN_ALOHAWriter.write
+            ###h_rout, cc_rout = abstracthelas.write(output_dir=None, language=self.aloha_writer, mode='no_include') # AV this eventually calls PLUGIN_ALOHAWriter.write
+            h_rout, cc_rout, h2a_rout, h2b_rout, h2c_rout, cc2_rout = abstracthelas.write(output_dir=None, language=self.aloha_writer, mode='no_include')
             template_h_files.append(h_rout)
             template_cc_files.append(cc_rout)
-            writer2 = aloha_writers.WriterFactory(abstracthelas, self.aloha_writer, None, abstracthelas.tag) # AV as in create_aloha.AbstractRoutine,write
-            h2a_rout = writer2.get_header_txt(mode='linker_define1')
-            h2b_rout = writer2.get_header_txt(mode='linker_define2')
-            h2c_rout = writer2.get_header_txt(mode='linker_decl')
             template_h2a_files.append(h2a_rout)
             template_h2b_files.append(h2b_rout)
             template_h2c_files.append(h2c_rout)
-            cc2_rout = writer2.get_header_txt(mode='linker_impl')
             template_cc2_files.append(cc2_rout)
         replace_dict['function_declarations'] = '\n'.join(template_h_files)
         replace_dict['function_definitions'] = '\n'.join(template_cc_files)

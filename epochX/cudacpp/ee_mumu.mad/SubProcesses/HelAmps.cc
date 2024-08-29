@@ -154,11 +154,13 @@ namespace mg5amcCpu
   linker_FFV2_4_0( const fptype allF1[],
                    const fptype allF2[],
                    const fptype allV3[],
-                   const fptype allCOUP[],
-                   const double Ccoeff,
+                   const fptype allCOUP1[],
+                   const double Ccoeff1,
+                   const fptype allCOUP2[],
+                   const double Ccoeff2,
                    fptype allvertexes[] )
   {
-    return FFV2_4_0<W_ACCESS, A_ACCESS, CI_ACCESS>( allF1, allF2, allV3, allCOUP, Ccoeff, allvertexes );
+    return FFV2_4_0<W_ACCESS, A_ACCESS, CI_ACCESS>( allF1, allF2, allV3, allCOUP1, Ccoeff1, allCOUP2, Ccoeff2, allvertexes );
   }
 
   //--------------------------------------------------------------------------
@@ -167,13 +169,15 @@ namespace mg5amcCpu
   __device__ void
   linker_FFV2_4_3( const fptype allF1[],
                    const fptype allF2[],
-                   const fptype allCOUP[],
-                   const double Ccoeff,
+                   const fptype allCOUP1[],
+                   const double Ccoeff1,
+                   const fptype allCOUP2[],
+                   const double Ccoeff2,
                    const fptype M3,
                    const fptype W3,
                    fptype allV3[] )
   {
-    return FFV2_4_3<W_ACCESS, CI_ACCESS>( allF1, allF2, allCOUP, Ccoeff, M3, W3, allV3 );
+    return FFV2_4_3<W_ACCESS, CI_ACCESS>( allF1, allF2, allCOUP1, Ccoeff1, allCOUP2, Ccoeff2, M3, W3, allV3 );
   }
 
   //--------------------------------------------------------------------------
