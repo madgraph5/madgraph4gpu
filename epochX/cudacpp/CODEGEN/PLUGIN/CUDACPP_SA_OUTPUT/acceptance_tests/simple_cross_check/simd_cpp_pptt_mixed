@@ -2,7 +2,7 @@
 import model sm
                  set automatic_html_opening False --no_save
                  set notification_center False --no_save
-                 generate g g > t t~
+                 generate p p > t t~
                  output madevent_simd %s -f -nojpeg
                  launch
                  set nevents 100

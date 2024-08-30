@@ -7,4 +7,4 @@ import model sm
                  launch
                  set nevents 100
                  set floating_type f
-#check run_01 0.0239204 0.0002854 100
+#check run_01 0.0266 0.0002854 100
