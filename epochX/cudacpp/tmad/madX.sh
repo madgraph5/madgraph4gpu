@@ -704,3 +704,4 @@ else
 fi
 
 printf "\nTEST COMPLETED\n"
+printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
