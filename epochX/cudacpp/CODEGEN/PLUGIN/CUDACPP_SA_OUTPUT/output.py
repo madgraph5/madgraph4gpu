@@ -191,22 +191,18 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                 makefile_test = self.read_template_file(self.template_tst_make) % {'model': self.get_model_name(model.get('name'))}
                 open(os.path.join('test', 'cudacpp_test.mk'), 'w').write(makefile_test)
 
+    # OM - overload export_v4.py version to add additional_clean section (and avoid patchMad.sh for Source/makefile)
     def write_source_makefile(self, writer, default=None):
-
         if default:
             replace_dict = default
         else:
             raise Exception('primary exporter should have been run first')
-        
-        path = pjoin(PLUGINDIR , 'madgraph', 'iolibs', 'template_files', 'madevent_makefile_source_addon') 
-        replace_dict['additional_dependencies'] += open(path).read()  
-
+        path = pjoin(PLUGINDIR , 'madgraph', 'iolibs', 'template_files', 'madevent_makefile_source_addon')
+        replace_dict['additional_clean'] += open(path).read()
         if writer:
             path = pjoin(MG5DIR, 'madgraph', 'iolibs','template_files','madevent_makefile_source')
             text = open(path).read() % replace_dict
             writer.write(text)
-        
-
 
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
