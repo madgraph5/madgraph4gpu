@@ -82,12 +82,6 @@ select_events.o: select_events.f run_config.inc
 setrun.o: setrun.f nexternal.inc leshouche.inc run_card.inc run_config.inc genps.inc vector.inc
 rw_events.o: rw_events.f run_config.inc
 
-cleanavx:
-	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
-cleanall: clean # THIS IS THE ONE
-	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
-
-
 run_card.inc: ../Cards/run_card.dat
 	../bin/madevent treatcards run
 
@@ -125,7 +119,7 @@ $(LIBDIR)libiregi.a: $(IREGIDIR)
 	cd $(IREGIDIR); make
 	ln -sf ../Source/$(IREGIDIR)libiregi.a $(LIBDIR)libiregi.a
 
-clean:
+cleanSource: # Clean builds: fortran in this Source
 	$(RM) *.o $(LIBRARIES) $(BINARIES)
 	cd PDF; make clean; cd ..
 	cd PDF/gammaUPC; make clean; cd ../../
@@ -137,4 +131,9 @@ clean:
 	cd BIAS/ptj_bias; make clean; cd ../..
 	if [ -d $(CUTTOOLSDIR) ]; then cd $(CUTTOOLSDIR); make clean; cd ..; fi
 	if [ -d $(IREGIDIR) ]; then cd $(IREGIDIR); make clean; cd ..; fi
+
+clean: cleanSource # Clean builds: fortran in this Source and in all P*
 	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make clean; cd -; done;
+
+cleanall: cleanSource # Clean builds: fortran in this Source and in all P*; cudacpp for all AVX in all P* and in src
+	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
