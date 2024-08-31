@@ -55,7 +55,7 @@ $(LIBDIR)libcernlib.$(libext): CERNLIB
 $(LIBDIR)libbias.$(libext): BIAS/dummy
 	cd BIAS/dummy; make; cd ../../
 
-$(LIBDIR)libmodel.$(libext): MODEL param_card.inc
+$(LIBDIR)libmodel.$(libext): MODEL param_card.inc vector.inc
 	cd MODEL; make    
 param_card.inc: ../Cards/param_card.dat
 	../bin/madevent treatcards param
@@ -72,16 +72,21 @@ $(BINDIR)gensudgrid: $(GENSUDGRID) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUP
 
 # Dependencies
 
-dsample.o: DiscreteSampler.o dsample.f genps.inc StringCast.o
+dsample.o: DiscreteSampler.o dsample.f genps.inc StringCast.o vector.inc
 DiscreteSampler.o: StringCast.o
 invarients.o: invarients.f genps.inc
-setrun.o: setrun.f nexternal.inc leshouche.inc genps.inc
-gen_ximprove.o: gen_ximprove.f run_config.inc run_card.inc
+gen_ximprove.o: gen_ximprove.f run_config.inc run_card.inc 
 #combine_events.o: combine_events.f run_config.inc run_card.inc
 combine_runs.o: combine_runs.f run_config.inc run_card.inc
 select_events.o: select_events.f run_config.inc
-setrun.o: setrun.f nexternal.inc leshouche.inc run_card.inc run_config.inc
+setrun.o: setrun.f nexternal.inc leshouche.inc run_card.inc run_config.inc genps.inc vector.inc
 rw_events.o: rw_events.f run_config.inc
+
+cleanavx:
+	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
+cleanall: clean # THIS IS THE ONE
+	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
+
 
 run_card.inc: ../Cards/run_card.dat
 	../bin/madevent treatcards run
@@ -120,7 +125,7 @@ $(LIBDIR)libiregi.a: $(IREGIDIR)
 	cd $(IREGIDIR); make
 	ln -sf ../Source/$(IREGIDIR)libiregi.a $(LIBDIR)libiregi.a
 
-cleanSource:
+clean:
 	$(RM) *.o $(LIBRARIES) $(BINARIES)
 	cd PDF; make clean; cd ..
 	cd PDF/gammaUPC; make clean; cd ../../
@@ -132,11 +137,4 @@ cleanSource:
 	cd BIAS/ptj_bias; make clean; cd ../..
 	if [ -d $(CUTTOOLSDIR) ]; then cd $(CUTTOOLSDIR); make clean; cd ..; fi
 	if [ -d $(IREGIDIR) ]; then cd $(IREGIDIR); make clean; cd ..; fi
-
-clean: cleanSource
 	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make clean; cd -; done;
-
-cleanavx:
-	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
-cleanall: cleanSource # THIS IS THE ONE
-	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
