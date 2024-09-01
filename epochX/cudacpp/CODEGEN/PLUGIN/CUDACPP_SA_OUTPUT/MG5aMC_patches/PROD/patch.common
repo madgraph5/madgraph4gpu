@@ -12,31 +12,6 @@ index a59181c70..af7e0efbc 100644
        INTEGER MAXTRIES
        PARAMETER(MAXTRIES=25)
  C     To pass the helicity configuration chosen by the DiscreteSampler to 
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/makefile a/epochX/cudacpp/gg_tt.mad/Source/makefile
-index 617f10b93..00c73099a 100644
---- b/epochX/cudacpp/gg_tt.mad/Source/makefile
-+++ a/epochX/cudacpp/gg_tt.mad/Source/makefile
-@@ -120,7 +120,7 @@ $(LIBDIR)libiregi.a: $(IREGIDIR)
- 	cd $(IREGIDIR); make
- 	ln -sf ../Source/$(IREGIDIR)libiregi.a $(LIBDIR)libiregi.a
- 
--clean:
-+cleanSource:
- 	$(RM) *.o $(LIBRARIES) $(BINARIES)
- 	cd PDF; make clean; cd ..
- 	cd PDF/gammaUPC; make clean; cd ../../
-@@ -132,4 +132,11 @@ clean:
- 	cd BIAS/ptj_bias; make clean; cd ../..
- 	if [ -d $(CUTTOOLSDIR) ]; then cd $(CUTTOOLSDIR); make clean; cd ..; fi
- 	if [ -d $(IREGIDIR) ]; then cd $(IREGIDIR); make clean; cd ..; fi
-+
-+clean: cleanSource
- 	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make clean; cd -; done;
-+
-+cleanavx:
-+	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
-+cleanall: cleanSource # THIS IS THE ONE
-+	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 index 348c283be..49e6800ff 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
