@@ -11,7 +11,7 @@ include make_opts
 # Source files
 
 PROCESS= hfill.o matrix.o myamp.o 
-DSAMPLE = dsample.o ranmar.o newranmar.o DiscreteSampler.o StringCast.o 
+DSAMPLE = dsample.o ranmar.o DiscreteSampler.o StringCast.o 
 HBOOK = hfill.o hcurve.o hbook1.o hbook2.o
 GENERIC = $(alfas_functions).o transpole.o invarients.o hfill.o pawgraphs.o ran1.o \
           rw_events.o rw_routines.o kin_functions.o open_file.o basecode.o setrun.o \
@@ -81,6 +81,7 @@ combine_runs.o: combine_runs.f run_config.inc run_card.inc
 select_events.o: select_events.f run_config.inc
 setrun.o: setrun.f nexternal.inc leshouche.inc run_card.inc run_config.inc genps.inc vector.inc
 rw_events.o: rw_events.f run_config.inc
+$(LIBDIR)libdsample.$(libext): newranmar.o
 
 run_card.inc: ../Cards/run_card.dat
 	../bin/madevent treatcards run
