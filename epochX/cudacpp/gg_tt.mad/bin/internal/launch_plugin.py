@@ -74,7 +74,7 @@ class CPPRunCard(banner_mod.RunCardLO):
             # code can handle the new size -> do not recompile
             return
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
-        subprocess.call(['make', 'cleanavx'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.call(['make', 'cleanall'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     def reset_makeopts(self, old_value, new_value, name):
         if not hasattr(self, 'path'):
@@ -86,7 +86,7 @@ class CPPRunCard(banner_mod.RunCardLO):
         else:
             raise Exception
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
-        subprocess.call(['make', 'cleanavx'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.call(['make', 'cleanall'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     def plugin_input(self, finput):
         return
