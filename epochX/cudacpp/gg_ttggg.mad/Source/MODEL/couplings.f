@@ -18,10 +18,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       READLHA = .TRUE.
       INCLUDE 'intparam_definition.inc'
       CALL COUP1()
+      IF (UPDATELOOP) THEN
+
+        CALL COUP2()
+
+      ENDIF
+
 C     
 couplings needed to be evaluated points by points
 C     
-      CALL COUP2(1)
+      CALL COUP3(1)
 
       RETURN
       END
@@ -65,7 +71,7 @@ C
 couplings needed to be evaluated points by points
 C     
       ALL_G(VECID) = G
-      CALL COUP2(VECID)
+      CALL COUP3(VECID)
 
       RETURN
       END
