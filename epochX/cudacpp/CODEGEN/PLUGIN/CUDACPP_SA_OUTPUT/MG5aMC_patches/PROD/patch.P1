@@ -1,8 +1,8 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index 4fbb8e6ba..f9e2335de 100644
+index 4fbb8e6ba..d5accb9fb 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-@@ -484,23 +484,140 @@ C
+@@ -484,23 +484,142 @@ C
        INTEGER VECSIZE_USED
  
        INTEGER IVEC
@@ -40,7 +40,7 @@ index 4fbb8e6ba..f9e2335de 100644
 +      
 +      IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 +#endif
-+        call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortran=-1
++        call counters_smatrix1multi_start( -1, VECSIZE_USED ) ! fortranMEs=-1
  !$OMP PARALLEL
  !$OMP DO
 -      DO IVEC=1, VECSIZE_USED
@@ -67,7 +67,7 @@ index 4fbb8e6ba..f9e2335de 100644
 +        ENDDO
  !$OMP END DO
  !$OMP END PARALLEL
-+        call counters_smatrix1multi_stop( -1 ) ! fortran=-1
++        call counters_smatrix1multi_stop( -1 ) ! fortranMEs=-1
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      ENDIF
 +
@@ -77,9 +77,10 @@ index 4fbb8e6ba..f9e2335de 100644
 +          STOP
 +        ENDIF
 +        IF ( FIRST ) THEN ! exclude first pass (helicity filtering) from timers (#461)
++          call counters_smatrix1multi_start( 1, VECSIZE_USED ) ! cudacppHEL=1
 +          CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled for helicity filtering
 +     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
-+     &      SELECTED_HEL2, SELECTED_COL2 )
++     &      SELECTED_HEL2, SELECTED_COL2, .TRUE.) ! quit after computing helicities
 +          FIRST = .FALSE.
 +c         ! This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
 +c          IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
@@ -93,22 +94,23 @@ index 4fbb8e6ba..f9e2335de 100644
 +          ENDIF
 +          WRITE (6,*) 'NGOODHEL =', NGOODHEL
 +          WRITE (6,*) 'NCOMB =', NCOMB
++          call counters_smatrix1multi_stop( 1 ) ! cudacppHEL=1
 +        ENDIF
-+        call counters_smatrix1multi_start( 0, VECSIZE_USED ) ! cudacpp=0
++        call counters_smatrix1multi_start( 0, VECSIZE_USED ) ! cudacppMEs=0
 +        IF ( .NOT. MULTI_CHANNEL ) THEN
 +          CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE, ! multi channel disabled
 +     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
-+     &      SELECTED_HEL2, SELECTED_COL2 )
++     &      SELECTED_HEL2, SELECTED_COL2, .FALSE.) ! do not quit after computing helicities
 +        ELSE
 +          IF( SDE_STRAT.NE.1 ) THEN
 +            WRITE(6,*) 'ERROR! The cudacpp bridge requires SDE=1' ! multi channel single-diagram enhancement strategy
 +            STOP
 +          ENDIF
-+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
++          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G, ! multi channel enabled
 +     &      HEL_RAND, COL_RAND, CHANNEL, OUT2,
-+     &      SELECTED_HEL2, SELECTED_COL2 ) ! 1-N: multi channel enabled
++     &      SELECTED_HEL2, SELECTED_COL2, .FALSE.) ! do not quit after computing helicities
 +        ENDIF
-+        call counters_smatrix1multi_stop( 0 ) ! cudacpp=0
++        call counters_smatrix1multi_stop( 0 ) ! cudacppMEs=0
 +      ENDIF
 +
 +      IF( FBRIDGE_MODE .LT. 0 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
@@ -284,7 +286,7 @@ index 1124a9164..27a6e4674 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index e73e654d4..27fbe7302 100644
+index e73e654d4..3072054f2 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -72,7 +72,10 @@ C
@@ -299,15 +301,7 @@ index e73e654d4..27fbe7302 100644
  C     
  C     This is just to temporarily store the reference grid for
  C      helicity of the DiscreteSampler so as to obtain its number of
-@@ -140,6 +143,7 @@ C     ----------
- C     BEGIN CODE
- C     ----------
- 
-+      call counters_smatrix1_start()
-       NTRY(1)=NTRY(1)+1
-       DO I=1,NEXTERNAL
-         JC(I) = +1       
-@@ -217,6 +221,17 @@ C     ----------
+@@ -217,6 +220,17 @@ C     ----------
            ENDIF
            IF(NTRY(1).EQ.MAXTRIES)THEN
              ISHEL=MIN(ISUM_HEL,NGOOD)
@@ -325,22 +319,3 @@ index e73e654d4..27fbe7302 100644
            ENDIF
          ENDIF
        ELSE IF (.NOT.INIT_MODE) THEN  ! random helicity 
-@@ -234,6 +249,7 @@ C       Include the Jacobian from helicity sampling
-         IHEL = HEL_PICKED
-       ELSE
-         ANS = 1D0
-+        call counters_smatrix1_stop()
-         RETURN
-       ENDIF
-       IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
-@@ -278,9 +294,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
-         ENDIF
-       ENDIF
-       ANS=ANS/DBLE(IDEN)
--
-       CALL SELECT_COLOR(RCOL, JAMP2, ICONFIG,1,  ICOL)
--
-+      call counters_smatrix1_stop()
-       END
- 
- 
