@@ -201,6 +201,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         else:
             raise Exception('primary exporter should have been run first')
         path = pjoin(PLUGINDIR , 'madgraph', 'iolibs', 'template_files', 'madevent_makefile_source_addon')
+        replace_dict['additional_dependencies'] += '$(LIBDIR)libdsample.$(libext): newranmar.o\n'
         replace_dict['additional_clean'] += open(path).read()
         if writer:
             path = pjoin(MG5DIR, 'madgraph', 'iolibs','template_files','madevent_makefile_source')
