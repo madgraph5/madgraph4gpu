@@ -202,6 +202,7 @@ ifeq ($(BACKEND),cuda)
   GPUFLAGS += -use_fast_math
 
   # Extra build warnings
+  GPUFLAGS += $(XCOMPILERFLAG) -Wunused-parameter
   ###GPUFLAGS += $(XCOMPILERFLAG) -Wall $(XCOMPILERFLAG) -Wextra $(XCOMPILERFLAG) -Wshadow
 
   # CUDA includes and NVTX
@@ -597,6 +598,14 @@ endif
 #=== Configure Position-Independent Code
 CXXFLAGS += -fPIC
 GPUFLAGS += $(XCOMPILERFLAG) -fPIC
+
+#-------------------------------------------------------------------------------
+
+#=== Configure channelid debugging
+ifneq ($(MG5AMC_CHANNELID_DEBUG),)
+  CXXFLAGS += -DMGONGPU_CHANNELID_DEBUG
+  GPUFLAGS += -DMGONGPU_CHANNELID_DEBUG
+endif
 
 #-------------------------------------------------------------------------------
 
