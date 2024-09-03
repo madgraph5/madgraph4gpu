@@ -195,7 +195,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                 open(os.path.join('test', 'cudacpp_test.mk'), 'w').write(makefile_test)
 
     # OM - overload export_v4.py version to add additional_clean section (and avoid patchMad.sh for Source/makefile)
-    def write_source_makefile(self, writer, default=None):
+    def write_source_makefile(self, writer, model=None, default=None):
         if default:
             replace_dict = default
         else:
