@@ -126,7 +126,7 @@ C     Continue only if IMODE is 0, 4 or 5
 
 
       IF (ABS(LPP(IB(1))).GE.1) THEN
-C       LP=SIGN(1,LPP(IB(1)))
+          !LP=SIGN(1,LPP(IB(1)))
         IF (DSQRT(Q2FACT(IB(1))).EQ.0D0) THEN
           QSCALE=0D0
           DO I=3,NEXTERNAL
@@ -140,7 +140,7 @@ C       LP=SIGN(1,LPP(IB(1)))
         G1=PDG2PDF(LPP(IB(1)),0, IB(1),XBK(IB(1)), QSCALE)
       ENDIF
       IF (ABS(LPP(IB(2))).GE.1) THEN
-C       LP=SIGN(1,LPP(IB(2)))
+          !LP=SIGN(1,LPP(IB(2)))
         IF (DSQRT(Q2FACT(IB(2))).NE.0D0) THEN
           QSCALE=DSQRT(Q2FACT(IB(2)))
         ENDIF
@@ -366,12 +366,12 @@ C     Continue only if IMODE is 0, 4 or 5
         DO IWARP=1, WARP_SIZE
           IVEC = (CURR_WARP-1)*WARP_SIZE+IWARP
           IF (ABS(LPP(IB(1))).GE.1) THEN
-C           LP=SIGN(1,LPP(IB(1)))
+              !LP=SIGN(1,LPP(IB(1)))
             G1(IVEC)=PDG2PDF(LPP(IB(1)),0, IB(1),ALL_XBK(IB(1),IVEC)
      $       ,DSQRT(ALL_Q2FACT(IB(1), IVEC)))
           ENDIF
           IF (ABS(LPP(IB(2))).GE.1) THEN
-C           LP=SIGN(1,LPP(IB(2)))
+              !LP=SIGN(1,LPP(IB(2)))
             G2(IVEC)=PDG2PDF(LPP(IB(2)),0, IB(2),ALL_XBK(IB(2),IVEC)
      $       ,DSQRT(ALL_Q2FACT(IB(2), IVEC)))
           ENDIF
@@ -586,10 +586,12 @@ C       ======================================================
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .TRUE.)  ! quit after computing helicities
           FIRST = .FALSE.
-cC        This is a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/22 (see PR #486)
-c         IF( FBRIDGE_MODE .EQ. 1 ) THEN ! (CppOnly=1 : SMATRIX1 is not called at all)
-c           CALL RESET_CUMULATIVE_VARIABLE() ! mimic 'avoid bias of the initialization' within SMATRIX1
-c         ENDIF
+C         ! This is a workaround for
+C          https://github.com/oliviermattelaer/mg5amc_test/issues/22
+C          (see PR #486)
+          IF( FBRIDGE_MODE .EQ. 1 ) THEN  ! (CppOnly=1 : SMATRIX1 is not called at all)
+            CALL RESET_CUMULATIVE_VARIABLE()  ! mimic 'avoid bias of the initialization' within SMATRIX1
+          ENDIF
           CALL FBRIDGEGETNGOODHEL(FBRIDGE_PBRIDGE,NGOODHEL,NTOTHEL)
           IF( NTOTHEL .NE. NCOMB ) THEN
             WRITE(6,*) 'ERROR  ! Cudacpp/Fortran mismatch',
