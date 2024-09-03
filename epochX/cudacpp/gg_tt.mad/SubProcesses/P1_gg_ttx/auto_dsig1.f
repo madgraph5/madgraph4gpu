@@ -328,7 +328,7 @@ C
 C     local
 C     
       DOUBLE PRECISION P1(0:3, NEXTERNAL)
-      INTEGER IVEC, CURR_WARP, IWARP
+      INTEGER IVEC, CURR_WARP, IWARP, NB_WARP_USED
       INTEGER CHANNELS(VECSIZE_MEMMAX)
 C     
 C     DATA
@@ -348,7 +348,14 @@ C     Continue only if IMODE is 0, 4 or 5
       IF(IMODE.NE.0.AND.IMODE.NE.4.AND.IMODE.NE.5) RETURN
 
 
-      DO CURR_WARP=1, NB_WARP
+      NB_WARP_USED = VECSIZE_USED / WARP_SIZE
+      IF( NB_WARP_USED * WARP_SIZE .NE. VECSIZE_USED ) THEN
+        WRITE(*,*) 'ERROR: NB_WARP_USED * WARP_SIZE .NE. VECSIZE_USED',
+     &    NB_WARP_USED, WARP_SIZE, VECSIZE_USED
+        STOP
+      ENDIF
+
+      DO CURR_WARP=1, NB_WARP_USED
         IF(IMIRROR_VEC(CURR_WARP).EQ.1)THEN
           IB(1) = 1
           IB(2) = 2
@@ -385,7 +392,7 @@ C           LP=SIGN(1,LPP(IB(2)))
         RETURN
       ENDIF
 
-      DO CURR_WARP=1, NB_WARP
+      DO CURR_WARP=1, NB_WARP_USED
         IF(IMIRROR_VEC(CURR_WARP).EQ.1)THEN
           IB(1) = 1
           IB(2) = 2
@@ -544,16 +551,11 @@ C
       LOGICAL FIRST
       SAVE FIRST
       DATA FIRST/.TRUE./
-#else
-      INTEGER FBRIDGE_MODE
-#endif
-      CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortran=-1
-
 
 
       IF( FBRIDGE_MODE .LE. 0 ) THEN  ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
-        CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortran=-1
-
+#endif
+        CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1
         DO IVEC=1, VECSIZE_USED
           CALL SMATRIX1(P_MULTI(0,1,IVEC),
      &	                         hel_rand(IVEC),
@@ -565,25 +567,24 @@ C
      &				 selected_col(IVEC)
      &				 )
         ENDDO
-C       The following lines has been copy from the plugin
-C       template_file
-C        CUDACPP/madgraph/iolibs/template_files/gpu/smatrix_multi.f 
-C       and are designed to be put at the end of the smatrix$i_multi
-C        function part of the auto_dsig$i.f file
-C       
-        CALL COUNTERS_SMATRIX1MULTI_STOP( -1 )  ! fortran=-1
+C       ======================================================
+C       *START* Included from CUDACPP template smatrix_multi.f
+C       (into function smatrix$i_multi in auto_dsig$i.f)
+C       ======================================================
+        CALL COUNTERS_SMATRIX1MULTI_STOP( -1 )  ! fortranMEs=-1
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
 
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN  ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
         IF( LIMHEL.NE.0 ) THEN
           WRITE(6,*) 'ERROR  ! The cudacpp bridge only supports LIMHEL=0'
           STOP
         ENDIF
         IF ( FIRST ) THEN  ! exclude first pass (helicity filtering) from timers (#461)
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
-     &      HEL_RAND, COL_RAND, 0, OUT2,
-     &      SELECTED_HEL2, SELECTED_COL2 ) ! 0: multi channel disabled for helicity filtering
+          CALL COUNTERS_SMATRIX1MULTI_START( 1, VECSIZE_USED )  ! cudacppHEL=1
+          CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE,  ! multi channel disabled for helicity filtering
+     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
+     &      SELECTED_HEL2, SELECTED_COL2, .TRUE.)  ! quit after computing helicities
           FIRST = .FALSE.
 C         ! This is a workaround for
 C          https://github.com/oliviermattelaer/mg5amc_test/issues/22
@@ -599,22 +600,23 @@ C          (see PR #486)
           ENDIF
           WRITE (6,*) 'NGOODHEL =', NGOODHEL
           WRITE (6,*) 'NCOMB =', NCOMB
+          CALL COUNTERS_SMATRIX1MULTI_STOP( 1 )  ! cudacppHEL=1
         ENDIF
-        CALL COUNTERS_SMATRIX1MULTI_START( 0, VECSIZE_USED )  ! cudacpp=0
+        CALL COUNTERS_SMATRIX1MULTI_START( 0, VECSIZE_USED )  ! cudacppMEs=0
         IF ( .NOT. MULTI_CHANNEL ) THEN
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
-     &      HEL_RAND, COL_RAND, 0, OUT2,
-     &      SELECTED_HEL2, SELECTED_COL2 ) ! 0: multi channel disabled
+          CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE,  ! multi channel disabled
+     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
+     &      SELECTED_HEL2, SELECTED_COL2, .FALSE.)  ! do not quit after computing helicities
         ELSE
           IF( SDE_STRAT.NE.1 ) THEN
-            WRITE(6,*) 'ERROR  ! The cudacpp bridge requires SDE=1' ! multi channel single-diagram enhancement strategy
+            WRITE(6,*) 'ERROR  ! The cudacpp bridge requires SDE=1'  ! multi channel single-diagram enhancement strategy
             STOP
           ENDIF
-          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,
-     &      HEL_RAND, COL_RAND, CHANNELS(1), OUT2,
-     &      SELECTED_HEL2, SELECTED_COL2 ) ! 1-N: multi channel enabled
+          CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,  ! multi channel enabled
+     &      HEL_RAND, COL_RAND, CHANNELS, OUT2,
+     &      SELECTED_HEL2, SELECTED_COL2, .FALSE.)  ! do not quit after computing helicities
         ENDIF
-        CALL COUNTERS_SMATRIX1MULTI_STOP( 0 )  ! cudacpp=0
+        CALL COUNTERS_SMATRIX1MULTI_STOP( 0 )  ! cudacppMEs=0
       ENDIF
 
       IF( FBRIDGE_MODE .LT. 0 ) THEN  ! (BothQuiet=-1 or BothDebug=-2)
@@ -658,6 +660,10 @@ C          (see PR #486)
                 WRITE (*,*) 'CHANNEL_ID =', CHANNELS(1)
                 FIRST_CHID = .FALSE.
               ENDIF
+C             ======================================================
+C             **END** Included from CUDACPP template smatrix_multi.f
+C             ======================================================
+
 
 
               RETURN

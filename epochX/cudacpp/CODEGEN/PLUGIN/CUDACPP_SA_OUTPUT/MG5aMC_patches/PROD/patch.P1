@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 71fbf2b25..0f1d199fc 100644
+index 1124a9164..27a6e4674 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 @@ -74,13 +74,77 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
@@ -81,7 +81,7 @@ index 71fbf2b25..0f1d199fc 100644
  c
  c     Read process number
  c
-@@ -207,8 +271,33 @@ c      call sample_result(xsec,xerr)
+@@ -208,8 +272,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -116,7 +116,7 @@ index 71fbf2b25..0f1d199fc 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -386,7 +475,7 @@ c
+@@ -387,7 +476,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
@@ -126,7 +126,7 @@ index 71fbf2b25..0f1d199fc 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index e73e654d4..27fbe7302 100644
+index 8b73188ef..710fd1297 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -72,7 +72,10 @@ C
@@ -141,15 +141,7 @@ index e73e654d4..27fbe7302 100644
  C     
  C     This is just to temporarily store the reference grid for
  C      helicity of the DiscreteSampler so as to obtain its number of
-@@ -140,6 +143,7 @@ C     ----------
- C     BEGIN CODE
- C     ----------
- 
-+      call counters_smatrix1_start()
-       NTRY(IMIRROR)=NTRY(IMIRROR)+1
-       THIS_NTRY(IMIRROR) = THIS_NTRY(IMIRROR)+1
-       DO I=1,NEXTERNAL
-@@ -217,6 +221,17 @@ C     ----------
+@@ -230,6 +233,17 @@ C            update.
            ENDIF
            IF(NTRY(IMIRROR).EQ.MAXTRIES)THEN
              ISHEL(IMIRROR)=MIN(ISUM_HEL,NGOOD(IMIRROR))
@@ -167,22 +159,3 @@ index e73e654d4..27fbe7302 100644
            ENDIF
          ENDIF
        ELSE IF (.NOT.INIT_MODE) THEN  ! random helicity 
-@@ -234,6 +249,7 @@ C       Include the Jacobian from helicity sampling
-         IHEL = HEL_PICKED
-       ELSE
-         ANS = 1D0
-+        call counters_smatrix1_stop()
-         RETURN
-       ENDIF
-       IF (ANS.NE.0D0.AND.(ISUM_HEL .NE. 1.OR.HEL_PICKED.EQ.-1)) THEN
-@@ -278,9 +294,8 @@ C           Set right sign for ANS, based on sign of chosen helicity
-         ENDIF
-       ENDIF
-       ANS=ANS/DBLE(IDEN)
--
-       CALL SELECT_COLOR(RCOL, JAMP2, ICONFIG,1,  ICOL)
--
-+      call counters_smatrix1_stop()
-       END
- 
- 

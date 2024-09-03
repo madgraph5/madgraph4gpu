@@ -34,11 +34,13 @@ using mg5amcCpu::CPPProcess;
 
 namespace
 {
-
   struct ReferenceData
   {
     std::vector<std::vector<std::array<fptype, CPPProcess::np4>>> momenta;
     std::vector<fptype> MEs;
+    std::vector<int> ChanIds;
+    std::vector<int> SelHels;
+    std::vector<int> SelCols;
   };
 
   /// Read batches of reference data from a file and store them in a map.
@@ -66,9 +68,32 @@ namespace
       {
         if( evtNo <= referenceData[batchNo].MEs.size() )
           referenceData[batchNo].MEs.resize( evtNo + 1 );
-
         std::string dummy;
         lineStr >> dummy >> referenceData[batchNo].MEs[evtNo];
+      }
+      else if( line.find( "ChanId" ) != std::string::npos )
+      {
+        if( evtNo <= referenceData[batchNo].ChanIds.size() )
+          referenceData[batchNo].ChanIds.resize( evtNo + 1 );
+        std::string dummy;
+        lineStr >> dummy >> referenceData[batchNo].ChanIds[evtNo];
+#ifndef MGONGPU_SUPPORTS_MULTICHANNEL
+        referenceData[batchNo].ChanIds[evtNo] = 0; // disable ChanId comparison if multichannel is not supported #976
+#endif
+      }
+      else if( line.find( "SelHel" ) != std::string::npos )
+      {
+        if( evtNo <= referenceData[batchNo].SelHels.size() )
+          referenceData[batchNo].SelHels.resize( evtNo + 1 );
+        std::string dummy;
+        lineStr >> dummy >> referenceData[batchNo].SelHels[evtNo];
+      }
+      else if( line.find( "SelCol" ) != std::string::npos )
+      {
+        if( evtNo <= referenceData[batchNo].SelCols.size() )
+          referenceData[batchNo].SelCols.resize( evtNo + 1 );
+        std::string dummy;
+        lineStr >> dummy >> referenceData[batchNo].SelCols[evtNo];
       }
       else
       {
@@ -97,29 +122,6 @@ namespace
  * Users need to implement:
  * - Functions to retrieve matrix element and 4-momenta. These are used in the tests.
  * - Driver functions that run the madgraph workflow.
- *
- * Usage:
- * ```
- * class TestImplementation : public TestDriverBase {
- *   <override all pure-virtual functions with Madgraph workflow>
- * }
- *
- * class TestImplementation2 : public TestDriverBase {
- *   <override all pure-virtual functions with a different Madgraph workflow>
- * }
- *
- * INSTANTIATE_TEST_SUITE_P( TestName,
- *                           MadgraphTest,
- *                           testing::Values( new TestImplementation, new TestImplementation2, ... ) );
- *```
- *
- * For adapting the test workflow, see the .cc and adapt
- *   TEST_P(MadgraphTest, CompareMomentaAndME)
- *
- * To add a test that should be runnable with all test implementations that derive from TestDriverBase, add a new
- *   TEST_P(MadgraphTest, <TestName>) {
- *     <test code>
- *   }
  */
 class TestDriverBase
 {
@@ -145,6 +147,9 @@ public:
   // ------------------------------------------------
   virtual fptype getMomentum( std::size_t evtNo, unsigned int particleNo, unsigned int component ) const = 0;
   virtual fptype getMatrixElement( std::size_t evtNo ) const = 0;
+  virtual int getChannelId( std::size_t ievt ) const = 0;
+  virtual int getSelectedHelicity( std::size_t ievt ) const = 0;
+  virtual int getSelectedColor( std::size_t ievt ) const = 0;
 
   // ------------------------------------------------
   // Interface for steering madgraph run
@@ -184,34 +189,20 @@ public:
 
 /**
  * Test class that's defining all tests to run with a Madgraph workflow.
- * The tests are defined below using TEST_P.
- * Instantiate them using:
- * ```
- * INSTANTIATE_TEST_SUITE_P( TestName,
- *                           MadgraphTest,
- *                           testing::Values( new TestImplementation, new TestImplementation2, ... ) );
- * ```
  */
-class MadgraphTest : public testing::TestWithParam<TestDriverBase*>
+class MadgraphTest
 {
-protected:
-  std::unique_ptr<TestDriverBase> testDriver;
-
-  MadgraphTest()
-    : TestWithParam(), testDriver( GetParam() )
-  {
-  }
+public:
+  MadgraphTest( TestDriverBase& testDriverRef )
+    : testDriver( &testDriverRef ) {}
+  ~MadgraphTest() {}
+  void CompareMomentaAndME( testing::Test& googleTest ) const; // NB: googleTest is ONLY needed for the HasFailure method...
+private:
+  TestDriverBase* testDriver; // non-owning pointer
 };
 
-// WARNING: before the split of C++ and CUDA builds, both CPU and GPU tests were linked together into the same executable;
-// it was therefore necessary to prevent multiply-defined symbols by only compiling this when "#ifndef MGONGPUCPP_GPUIMPL";
-// now that runTest.exe only contains either CPU or GPU tests, this is no longer necessary!
-//#ifndef MGONGPUCPP_GPUIMPL
-
-/// Compare momenta and matrix elements.
-/// This uses an implementation of TestDriverBase to run a madgraph workflow,
-/// and compares momenta and matrix elements with a reference file.
-TEST_P( MadgraphTest, CompareMomentaAndME )
+void
+MadgraphTest::CompareMomentaAndME( testing::Test& googleTest ) const
 {
   const fptype toleranceMomenta = std::is_same<double, fptype>::value ? 1.E-10 : 4.E-2; // see #735
 #ifdef __APPLE__
@@ -244,7 +235,7 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
   {
     referenceData = readReferenceData( refFileName );
   }
-  ASSERT_FALSE( HasFailure() ); // It doesn't make any sense to continue if we couldn't read the reference file.
+  ASSERT_FALSE( googleTest.HasFailure() ); // It doesn't make any sense to continue if we couldn't read the reference file.
   // **************************************
   // *** START MAIN LOOP ON #ITERATIONS ***
   // **************************************
@@ -254,7 +245,7 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
     testDriver->prepareMomenta( energy );
     testDriver->runSigmaKin( iiter );
     // --- Run checks on all events produced in this iteration
-    for( std::size_t ievt = 0; ievt < testDriver->nevt && !HasFailure(); ++ievt )
+    for( std::size_t ievt = 0; ievt < testDriver->nevt && !googleTest.HasFailure(); ++ievt )
     {
       if( dumpEvents )
       {
@@ -265,8 +256,13 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
         // Dump matrix element
         dumpFile << std::setw( 4 ) << "ME" << std::scientific << std::setw( 15 + 8 )
                  << testDriver->getMatrixElement( ievt ) << "\n"
-                 << std::endl
                  << std::defaultfloat;
+        // Dump channelId
+        dumpFile << "ChanId" << std::setw( 8 ) << testDriver->getChannelId( ievt ) << "\n";
+        // Dump selected helicity and color
+        dumpFile << "SelHel" << std::setw( 8 ) << testDriver->getSelectedHelicity( ievt ) << "\n";
+        dumpFile << "SelCol" << std::setw( 8 ) << testDriver->getSelectedColor( ievt ) << "\n"
+                 << std::endl; // leave one line between events
         continue;
       }
       // Check that we have the required reference data
@@ -274,6 +270,12 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
         << "Don't have enough reference data for iteration " << iiter << ". Ref file:" << refFileName;
       ASSERT_GT( referenceData[iiter].MEs.size(), ievt )
         << "Don't have enough reference MEs for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
+      ASSERT_GT( referenceData[iiter].ChanIds.size(), ievt )
+        << "Don't have enough reference ChanIds for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
+      ASSERT_GT( referenceData[iiter].SelHels.size(), ievt )
+        << "Don't have enough reference SelHels for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
+      ASSERT_GT( referenceData[iiter].SelCols.size(), ievt )
+        << "Don't have enough reference SelCols for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
       ASSERT_GT( referenceData[iiter].momenta.size(), ievt )
         << "Don't have enough reference momenta for iteration " << iiter << " event " << ievt << ".\nRef file: " << refFileName;
       ASSERT_GE( referenceData[iiter].momenta[ievt].size(), testDriver->nparticle )
@@ -288,6 +290,12 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
                  << std::setw( 4 ) << "r.ME" << std::scientific << std::setw( 15 + 8 )
                  << referenceData[iiter].MEs[ievt] << std::endl
                  << std::defaultfloat;
+      eventTrace << std::setw( 8 ) << "ChanId" << std::setw( 8 ) << testDriver->getChannelId( ievt ) << "\n"
+                 << std::setw( 8 ) << "r.ChanId" << std::setw( 8 ) << referenceData[iiter].ChanIds[ievt] << std::endl;
+      eventTrace << std::setw( 8 ) << "SelHel" << std::setw( 8 ) << testDriver->getSelectedHelicity( ievt ) << "\n"
+                 << std::setw( 8 ) << "r.SelHel" << std::setw( 8 ) << referenceData[iiter].SelHels[ievt] << std::endl;
+      eventTrace << std::setw( 8 ) << "SelCol" << std::setw( 8 ) << testDriver->getSelectedColor( ievt ) << "\n"
+                 << std::setw( 8 ) << "r.SelCol" << std::setw( 8 ) << referenceData[iiter].SelCols[ievt] << std::endl;
       SCOPED_TRACE( eventTrace.str() );
       // Compare Momenta
       for( unsigned int ipar = 0; ipar < testDriver->nparticle; ++ipar )
@@ -313,6 +321,14 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
       EXPECT_NEAR( testDriver->getMatrixElement( ievt ),
                    referenceData[iiter].MEs[ievt],
                    toleranceMEs * referenceData[iiter].MEs[ievt] );
+      // Compare channelId
+      EXPECT_EQ( testDriver->getChannelId( ievt ),
+                 referenceData[iiter].ChanIds[ievt] );
+      // Compare selected helicity and color
+      EXPECT_EQ( testDriver->getSelectedHelicity( ievt ),
+                 referenceData[iiter].SelHels[ievt] );
+      EXPECT_EQ( testDriver->getSelectedColor( ievt ),
+                 referenceData[iiter].SelCols[ievt] );
     }
   }
   if( dumpEvents )
@@ -320,10 +336,5 @@ TEST_P( MadgraphTest, CompareMomentaAndME )
     std::cout << "Event dump written to " << dumpFileName << std::endl;
   }
 }
-
-// WARNING: before the split of C++ and CUDA builds, both CPU and GPU tests were linked together into the same executable;
-// it was therefore necessary to prevent multiply-defined symbols by only compiling this when "#ifndef MGONGPUCPP_GPUIMPL";
-// now that runTest.exe only contains either CPU or GPU tests, this is no longer necessary!
-//#endif // MGONGPUCPP_GPUIMPL
 
 #endif /* MADGRAPHTEST_H_ */
