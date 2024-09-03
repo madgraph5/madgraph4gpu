@@ -126,7 +126,7 @@ index 1124a9164..27a6e4674 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index 1acba8200..e1eb9e5e4 100644
+index 1acba8200..069c74ef4 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -71,7 +71,10 @@ C
@@ -141,7 +141,7 @@ index 1acba8200..e1eb9e5e4 100644
  C     
  C     This is just to temporarily store the reference grid for
  C      helicity of the DiscreteSampler so as to obtain its number of
-@@ -211,6 +225,17 @@ C     ----------
+@@ -211,6 +214,17 @@ C     ----------
            ENDIF
            IF(NTRY(1).EQ.MAXTRIES)THEN
              ISHEL=MIN(ISUM_HEL,NGOOD)
