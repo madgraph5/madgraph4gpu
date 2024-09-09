@@ -117,7 +117,7 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
-    fpeEnable(); // enable SIGFPE traps for Floating Point Exceptions
+    //fpeEnable(); // enable SIGFPE traps for Floating Point Exceptions
   }
 
   //--------------------------------------------------------------------------

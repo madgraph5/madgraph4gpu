@@ -28,11 +28,12 @@ namespace rwgt{
     void warpPad( std::vector<T>& input, unsigned int nWarp = 32 ){
         auto nEvt = input.size();
         auto nWarpRemain = warpRemain( nEvt, nWarp );
-        auto fauxNEvt = nEvt + nWarpRemain;
+//        auto fauxNEvt = nEvt + nWarpRemain;
 //        auto output = std::vector<T>( fauxNEvt );
 //        std::copy( input.begin(), input.end(), output.begin());
 //        input.resize( fauxNEvt );
-        for( size_t k = nEvt - nWarpRemain ; k < fauxNEvt ; ++k ){
+        input.reserve( nEvt + nWarpRemain );
+        for( size_t k = nEvt - nWarpRemain ; k < nEvt ; ++k ){
             input.push_back( input[k] );
         }
         return;

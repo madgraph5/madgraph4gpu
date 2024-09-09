@@ -615,14 +615,14 @@ override RUNTIME =
 DIRS := $(wildcard P*)
 
 # Construct the library paths
-cxx_proclibs := $(shell for dir in $(DIRS); do basename $$dir | awk -F_ '{print "mg5amc_"$$(NF-1)"_"$$NF"_cpp"}'; done)
-gpu_proclibs := $(shell for dir in $(DIRS); do basename $$dir | awk -F_ '{print "mg5amc_"$$(NF-1)"_"$$NF"_$(GPUSUFFIX)"}'; done)
+cxx_proclibs := $(shell for dir in $(DIRS); do basename $$dir | awk -F_ '{print "-l mg5amc_"$$(NF-1)"_"$$NF"_cpp"}'; done)
+gpu_proclibs := $(shell for dir in $(DIRS); do basename $$dir | awk -F_ '{print "-l mg5amc_"$$(NF-1)"_"$$NF"_$(GPUSUFFIX)"}'; done)
 
 ifeq ($(GPUCC),)
   cxx_rwgt=$(BUILDDIR)/rwgt_driver_cpp.exe
   rwgtlib := $(addprefix ,$(addsuffix /librwgt_cpp.so,$(DIRS)))
 else
-  gpu_rwgt=$(BUILDDIR)/rwgt_driver_$(GPUSUFFIX).exe
+  gpu_rwgt=$(BUILDDIR)/rwgt_driver_gpu.exe
   rwgtlib := $(addprefix ,$(addsuffix /librwgt_$(GPUSUFFIX).so,$(DIRS)))
 endif
 
@@ -662,7 +662,7 @@ endif
 # $(BUILDDIR)/check_sa_cpp.o: CXXFLAGS += $(USE_NVTX) $(CUDA_INC)
 # $(BUILDDIR)/check_sa_$(GPUSUFFIX).o: CXXFLAGS += $(USE_NVTX) $(CUDA_INC)
 $(BUILDDIR)/rwgt_driver_cpp.o: CXXFLAGS += $(USE_NVTX) $(CUDA_INC)
-$(BUILDDIR)/rwgt_driver_$(GPUSUFFIX).o: CXXFLAGS += $(USE_NVTX) $(CUDA_INC)
+$(BUILDDIR)/rwgt_driver_gpu.o: CXXFLAGS += $(USE_NVTX) $(CUDA_INC)
 
 # # Apply special build flags only to check_sa_<cpp|$(GPUSUFFIX)>.o and (Cu|Hip)randRandomNumberKernel_<cpp|$(GPUSUFFIX)>.o
 # $(BUILDDIR)/check_sa_cpp.o: CXXFLAGS += $(RNDCXXFLAGS)
@@ -772,7 +772,7 @@ $(rwgtlib):
 # Target (and build rules): C++ and CUDA/HIP standalone executables
 $(cxx_rwgt): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_rwgt): $(BUILDDIR)/rwgt_driver.o $(rwgtlib)
-	$(CXX) -o $@ $(BUILDDIR)/rwgt_driver.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_proclibs) $(rwgtlib) 
+	$(CXX) -o $@ $(BUILDDIR)/rwgt_driver.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) $(cxx_proclibs) $(rwgtlib) 
 
 ifneq ($(GPUCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -782,8 +782,8 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
 $(gpu_rwgt): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
 $(gpu_rwgt): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(gpu_rwgt): $(BUILDDIR)/$(BUILDDIR)/rwgt_driver.o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(DIRS)
-	$(GPUCC) -o $@ $(BUILDDIR)/rwgt_driver.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_GPULIB) -l$(gpu_proclibs) $(rwgtlib)
+$(gpu_rwgt): $(BUILDDIR)/$(BUILDDIR)/rwgt_driver.o $(rwgtlib)
+	$(GPUCC) -o $@ $(BUILDDIR)/rwgt_driver.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(gpu_proclibs) $(rwgtlib)
 endif
 
 #-------------------------------------------------------------------------------

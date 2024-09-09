@@ -2206,6 +2206,7 @@ class PLUGIN_OneProcessExporterRwgt(PLUGIN_OneProcessExporter):
         replace_dict['init_prt_ids'] = self.get_init_prts_vecs(self.matrix_elements[0].get('processes'))
         replace_dict['fin_prt_ids'] = self.get_fin_prts_vecs(self.matrix_elements[0].get('processes'))
         replace_dict['process_events'] = self.get_rwgt_legs_vec(self.matrix_elements[0].get('processes'))
+        replace_dict['no_events'] = len(self.matrix_elements[0].get('processes'))
         template = open(pjoin(self.template_path,'REX', 'rwgt_runner.inc'),'r').read()
         ff = open(pjoin(self.path, 'rwgt_runner.cc'),'w')
         ff.write(template % replace_dict)

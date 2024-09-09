@@ -29,6 +29,22 @@ int usage( char* argv0, int ret = 1 )
     return ret;
 }
 
+void writeRwgtCsv( std::string path, std::shared_ptr<std::vector<std::string>> names, std::shared_ptr<std::vector<double>> xSecs, std::shared_ptr<std::vector<double>> errXSecs )
+{
+    std::ofstream outFile;
+    outFile.open( path );
+    if( !outFile.is_open() )
+        throw std::runtime_error( "Failed to open output file for writing." );
+    if( names->size() != xSecs->size() || names->size() != errXSecs->size() )
+        throw std::runtime_error( "Mismatch in number of processes, cross-sections, and errors when logging results." );
+    //outFile << "Process, Cross-Section, Error\n";
+    for( size_t k = 0 ; k < names->size() ; ++k )
+    {
+        outFile << names->at(k) << ", " << xSecs->at(k) << ", " << errXSecs->at(k) << "\n";
+    }
+    outFile.close();
+    return;
+}
 
 int main( int argc, char** argv ){
     std::cout << "Starting reweighting driver...\n";
@@ -95,29 +111,25 @@ int main( int argc, char** argv ){
     
 
     static REX::teaw::rwgtFiles fileCol( lheFilePath, slhaPath, rwgtCardPath );
-
     static std::vector<REX::eventSet> runSet = {%(run_set)s};
-
 //    std::vector<rwgt::instance> runSet;
     static REX::transSkel loadEvs = fileCol.initCards( runSet );
-
     fileCol.initDoubles();
-
 //    static std::vector<std::function<rwgt::fBridge&( std::vector<REX::event>&, unsigned int )>> fBridgeConstr;
     static std::vector<rwgt::fBridge> fBridgeVec = {%(fbridge_vec)s};
-
     static std::vector<rwgt::fBridge> bridges;
-    
     static std::vector<REX::teaw::amplitude> amps;
-
+    size_t relSet = 0;
     for( size_t k = 0 ; k < runSet.size() ; ++k ){
         if( !loadEvs.relEvSet[k] ){ continue; }
-        fBridgeVec[k].init( loadEvs.procSets[k], 32 );
+        fBridgeVec[k].init( loadEvs.procSets[relSet], 32 );
         bridges.push_back( fBridgeVec[k] );
-        REX::teaw::amplitude currAmp = std::bind(&rwgt::fBridge::bridgeCall, &bridges.back(), std::placeholders::_1, std::placeholders::_2);
+        auto currAmp = [bridge = bridges[relSet]](std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS) mutable {
+            return bridge.bridgeCall(momenta, alphaS);
+        };
         amps.push_back( currAmp );
+        ++relSet;
     }
-
     // REX::teaw::ampCall subProcSet;
 
     // for( auto proc : runSet ){
@@ -129,9 +141,19 @@ int main( int argc, char** argv ){
     //std::function<std::shared_ptr<std::vector<FORTRANFPTYPE>>( std::vector<double>&, std::vector<double>& )> scatteringAmplitude = bridgeCont.scatAmp;
     REX::teaw::rwgtRunner driver( fileCol, amps );
 
-
     driver.runRwgt( outputPath ); 
- 
+
+    auto rwgt_names = driver.getNames();
+    auto rwgt_xSecs = driver.getReXSecs();
+    auto rwgt_errXSecs = driver.getReXErrs();
+    // for( size_t k = 0 ; k < rwgt_names->size() ; ++k )
+    // {
+    //     std::cout << "Process: " << rwgt_names->at(k) << "\n";
+    //     std::cout << "Cross-Section: " << rwgt_xSecs->at(k) << " +/- " << rwgt_errXSecs->at(k) << "\n";
+    // }
+
+    writeRwgtCsv( "rwgt_results.csv", rwgt_names, rwgt_xSecs, rwgt_errXSecs );
+
     return 0;
 
 }

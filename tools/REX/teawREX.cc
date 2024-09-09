@@ -212,14 +212,14 @@ namespace REX::teaw
         //         rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( lnchPos[lnchPos.size()-1], endLi - lnchPos[lnchPos.size()-1] ), parseOnline ) );
         //     }
         //     rwgtProcs = std::vector<std::string_view>(); rwgtProcs.reserve( rwgtRuns.size() );
-        //     rwgtNames.reserve( rwgtRuns.size() );
+        //     rwgtNames->reserve( rwgtRuns.size() );
         //     int p = 1;
         //     for( auto run : rwgtRuns ){
         //         rwgtProcs.push_back( run.comRunProc() );
         //         if( run.rwgtName == "" ){
-        //             rwgtNames.push_back( "rwgt_" + std::to_string( p++ ) );
+        //             rwgtNames->push_back( "rwgt_" + std::to_string( p++ ) );
         //         } else {
-        //             rwgtNames.push_back( std::string(run.rwgtName) );
+        //             rwgtNames->push_back( std::string(run.rwgtName) );
         //         }
         //     }
         // }
@@ -239,6 +239,8 @@ namespace REX::teaw
                 if( line[line.find_first_not_of(" \n\r\f\t\v")] == '#' ){ continue; }
                 opts.push_back( line );
             }
+            rwgtNames = std::make_shared<std::vector<std::string>>();
+            rwgtNames->reserve( lnchPos.size() - 1 );
             for( size_t k = 0 ; k < lnchPos.size() - 1 ; ++k ){
                 auto setPos = srcCard.find( "set", lnchPos[k] );
                 if( setPos == REX::npos ){ continue; }
@@ -251,14 +253,14 @@ namespace REX::teaw
                     auto namePos = opts.find( "rwgt_name" );
                     if( namePos != REX::npos ){
                         auto endName = opts.find_first_of( " \n\r\f\t\v", namePos );
-                        rwgtNames.push_back( std::string( opts.substr( namePos + 9, endName - namePos - 9 ) ) );
+                        rwgtNames->push_back( std::string( opts.substr( namePos + 9, endName - namePos - 9 ) ) );
                     } else {
-                        rwgtNames.push_back( "rwgt_" + std::to_string( k + 1 ) );
+                        rwgtNames->push_back( "rwgt_" + std::to_string( k + 1 ) );
                     }
                 } else {
-                    rwgtNames.push_back( "rwgt_" + std::to_string( k + 1 ) );
+                    rwgtNames->push_back( "rwgt_" + std::to_string( k + 1 ) );
                 }
-                rwgtRuns[ rwgtRuns.size() - 1 ].rwgtName = rwgtNames[ rwgtNames.size() - 1 ];
+                rwgtRuns[ rwgtRuns.size() - 1 ].rwgtName = rwgtNames->at( rwgtNames->size() - 1 );
             }
             rwgtProcs = std::vector<std::string_view>(); rwgtProcs.reserve( rwgtRuns.size() );
             for( auto run : rwgtRuns ){
@@ -341,6 +343,7 @@ namespace REX::teaw
             rwgtSet = rwgts.rwgtSet;
             skeleton = rwgts.skeleton;
             eventFile = rwgts.eventFile;
+            flatWgts = rwgts.flatWgts;
         }
         REX::transSkel& rwgtCollection::getSkeleton(){
             if( !this->skeleton )
@@ -373,6 +376,7 @@ namespace REX::teaw
                 gS.push_back( vecOfVecs->at( 3*k + 1 ) ); 
                 momenta.push_back( vecOfVecs->at( 3*k + 2 ) );
             }
+            flatWgts = eventFile.vectorFlat( wgts );
             this->doublesSet = true;
         }
         void rwgtCollection::setSkeleton( std::vector<REX::eventSet>& evSets ){
@@ -396,8 +400,10 @@ namespace REX::teaw
                 gS.push_back( vecOfVecs->at( 3*k + 1 ) ); 
                 momenta.push_back( vecOfVecs->at( 3*k + 2 ) );
             }
+            flatWgts = eventFile.vectorFlat( wgts );
             this->doublesSet = true;
         }
+        std::shared_ptr<std::vector<std::string>> rwgtCollection::getNames(){ return rwgtSets->rwgtNames; }
 
         bool rwgtFiles::rwgtPulled(){ return (rewgtCard != nullptr); }
         bool rwgtFiles::slhaPulled(){ return (slhaCard != nullptr); }
@@ -507,6 +513,10 @@ namespace REX::teaw
             this->meNormWgts = rwgts.meNormWgts;
             this->normWgt = rwgts.normWgt;
             this->rwgtGroup = rwgts.rwgtGroup;
+            this->normXSecs = rwgts.normXSecs;
+            this->errXSecs = rwgts.errXSecs;
+            this->ampNorm = rwgts.ampNorm;
+            this->reWgts = rwgts.reWgts;
         }
         // rwgtRunner::rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
         // ampCall meCalcs ) : rwgtFiles( lhe_card, slha_card, reweight_card ){
@@ -517,7 +527,9 @@ namespace REX::teaw
         bool rwgtRunner::singAmp(){ return (meInit && !meCompInit); }
         template<class... Args>
         void rwgtRunner::setMEs(Args&&... args){
-            initCards(args...); 
+            initCards(args...);
+            normXSecs = std::make_shared<std::vector<double>>( );
+            errXSecs = std::make_shared<std::vector<double>>( );
             if( !oneME() )
                 throw std::runtime_error( "No or multiple function(s) for evaluating scattering amplitudes has been provided." );
             //ZW FIX THIS
@@ -568,6 +580,35 @@ namespace REX::teaw
             }
             normWgt = eventFile.vectorFlat( meNormWgts );
         }
+        void rwgtRunner::setAmpNorm( double precision ){
+            if( this->ampNorm != 0.0 ){ return; }
+            auto xSecLines = this->lheFile->getInit()->getLines();
+            if( xSecLines.size() > 1 ){
+                std::cout << "\n\033[1;33mWarning: Multiple cross-section lines found in LHE file.\nteawREX only supports single (inclusive) process reweighting.\nWill proceed assuming all events belong to first process type.\033[0m\n";
+            }
+            if( xSecLines.size() == 0 )
+                throw std::runtime_error( "No cross-section information found in LHE file." );
+            auto xSec = std::stod(std::string(xSecLines[0]->xsecup));
+            double div = 0.0;
+            bool sameWeight = true;
+            for( size_t k = 1 ; k < this->flatWgts->size() - 1 ; k += size_t(flatWgts->size()/21) ){
+                if( std::abs( flatWgts->at(0) - flatWgts->at(0) ) > precision ){
+                    sameWeight = false;
+                    break;
+                }
+            }
+            if( sameWeight ){
+                if( std::abs(xSec - flatWgts->at(0)) < precision ){
+                    this->ampNorm = double( 1 / flatWgts->size());
+                    return;
+                }
+                div = flatWgts->size() * flatWgts->at(0);
+            }
+            else{
+                div = std::accumulate( flatWgts->begin(), flatWgts->end(), 0.0 );
+            }
+            this->ampNorm = xSec / div;
+        }
         template<class... Args>
         void rwgtRunner::setNormWgts(Args&&... args){
             if( !oneME() ){ setMEs(args...); } 
@@ -601,7 +642,8 @@ namespace REX::teaw
                 newWGTs = REX::vecElemMult( *newMEs, *normWgt );
             }
             //ZW IF MULTIPLE TYPES
-            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs );
+            reWgts->push_back( newWGTs );
+            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), reWgts->at(reWgts->size() - 1) );
             lheIn->addWgt( 0, nuWgt );
             return true;
         }
@@ -625,7 +667,8 @@ namespace REX::teaw
                 newWGTs = REX::vecElemMult( *newMEs, *normWgt );
             }
             //ZW IF MULTIPLE TYPES
-            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs, id );
+            reWgts->push_back( newWGTs );
+            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), reWgts->at(reWgts->size() - 1), id );
             lheIn->addWgt( 0, nuWgt );
             return true;
         }
@@ -650,7 +693,8 @@ namespace REX::teaw
                 newWGTs = REX::vecElemMult( *newMEs, *normWgt );
             }
             //ZW IF MULTIPLE TYPES
-            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs );
+            reWgts->push_back( newWGTs );
+            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), reWgts->at(reWgts->size() - 1) );
             lheIn->addWgt( 0, nuWgt );
             return true;
         }
@@ -675,7 +719,8 @@ namespace REX::teaw
                 newWGTs = REX::vecElemMult( *newMEs, *normWgt );
             }
             //ZW IF MULTIPLE TYPES
-            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), newWGTs, id );
+            reWgts->push_back( newWGTs );
+            REX::newWgt nuWgt( rwgtSets->rwgtRuns[currId].comRunProc(), reWgts->at(reWgts->size() - 1), id );
             lheIn->addWgt( 0, nuWgt );
             return true;
         }
@@ -685,19 +730,64 @@ namespace REX::teaw
                 throw std::runtime_error( "Failed to write LHE file." );
             return true;
         }
-        void rwgtRunner::runRwgt( const std::string& output ){
+        bool rwgtRunner::calcXSecs(){
+            if( normXSecs->size() != 0 ){ return true; }
+            if( ampNorm == 0.0 )
+                throw std::runtime_error( "Normalisation factor for scattering amplitudes has not been calculated.\nReweighted LHE file has been written, but may contain errors." );
+            if( reWgts->size() == 0 )
+                throw std::runtime_error( "No reweighting has been performed, or new weights have not been stored properly.\nReweighted LHE file has been written, but may contain errors." );
+            for( size_t k = 0 ; k < reWgts->size() ; ++k ){
+                normXSecs->push_back( ampNorm * std::accumulate( reWgts->at(k)->begin(), reWgts->at(k)->end(), 0.0 ) );
+            }
+            return true;
+        }
+        bool rwgtRunner::calcXErrs(){
+            if( errXSecs->size() != 0 ){ return true; }
+            if( reWgts->size() == 0 )
+                throw std::runtime_error( "No reweighting has been performed, or new weights have not been stored properly.\nReweighted LHE file has been written, but may contain errors." );
+            if( normXSecs->size() != reWgts->size() )
+                throw std::runtime_error( "Different number of reweighted event sets and reweighted cross sections internally.\nReweighted LHE file has been written, but may contain errors." );
+            double invN = 1. / double(reWgts->at(0)->size());
+            double sqrtInvN = std::sqrt( invN );
+            auto xSecLines = this->lheFile->getInit()->getLines();
+            double xSec = std::stod(std::string(xSecLines[0]->xsecup));
+            double xErr = std::stod(std::string(xSecLines[0]->xerrup));
+            for( size_t k = 0 ; k < reWgts->size() ; ++k ){
+                double xSecCurr = normXSecs->at(k);
+                auto wgts = reWgts->at(k);
+                double omega = 0.0;
+                double omegaSqr = 0.0;
+                for( auto wgt : *wgts ){
+                    double invWgt = 1. / wgt;
+                    omega += invWgt;
+                    omegaSqr += invWgt * invWgt;
+                }
+                double var = (omegaSqr - omega * omega * invN) * invN * xSecCurr * xSecCurr;
+                errXSecs->push_back( std::sqrt( sqrtInvN * var )*xSec + xSecCurr * omega * invN * xErr ); 
+            }
+            return true;
+        }
+        void rwgtRunner::runRwgt( const std::string& output, double precision ){
+            reWgts = std::make_shared<std::vector<std::shared_ptr<std::vector<double>>>>( std::vector<std::shared_ptr<std::vector<double>>>() );
+            setAmpNorm( precision );
             setMEs();
-            setNormWgts();
-            rwgtGroup = std::make_shared<REX::weightGroup>();
-            auto currInd = lheFile->getHeader()->addWgtGroup( rwgtGroup );
-            auto paramSets = rwgtSets->writeCards( *slhaParameters );
-            for( size_t k = 0 ; k < paramSets.size(); k++ ){
-                singleRwgtIter( paramSets[k], lheFile, k, rwgtSets->rwgtNames[k] );
+            setNormWgts(); 
+            rwgtGroup = std::make_shared<REX::weightGroup>(); 
+            auto currInd = lheFile->getHeader()->addWgtGroup( rwgtGroup ); 
+            auto paramSets = rwgtSets->writeCards( *slhaParameters ); 
+            for( size_t k = 0 ; k < paramSets.size(); k++ ){ 
+                singleRwgtIter( paramSets[k], lheFile, k, rwgtSets->rwgtNames->at(k) ); 
                 std::cout << ".";
             }
-            lheFileWriter( lheFile, output );
-            REX::filePusher( slhaPath, *slhaCard );
+            lheFileWriter( lheFile, output ); 
+            REX::filePusher( slhaPath, *slhaCard ); 
             std::cout << "\nReweighting done.\n";
+        }
+        std::shared_ptr<std::vector<double>> rwgtRunner::getReXSecs(){
+            if(this->calcXSecs()){ return normXSecs; }
+        }
+        std::shared_ptr<std::vector<double>> rwgtRunner::getReXErrs(){
+            if(this->calcXErrs()){ return errXSecs; }
         }
 
     void rwgtRun( rwgtRunner& rwgt, const std::string& path ){

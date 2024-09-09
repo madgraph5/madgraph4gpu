@@ -77,12 +77,13 @@ namespace REX::teaw
         std::vector<rwgtProc> rwgtRuns;
         std::vector<std::string_view> rwgtProcs;
         std::vector<std::string_view> opts;
-        std::vector<std::string> rwgtNames;
+        std::shared_ptr<std::vector<std::string>> rwgtNames;
         std::string_view srcCard;
         void parse( bool parseOnline = false );
         rwgtCard( std::string_view reweight_card );
         rwgtCard( std::string_view reweight_card, REX::lesHouchesCard slhaParams, bool parseOnline = false );
         std::vector<std::shared_ptr<REX::lesHouchesCard>> writeCards( REX::lesHouchesCard& slhaOrig );
+        std::shared_ptr<std::vector<std::string>> getNames();
     };
 
     
@@ -103,6 +104,7 @@ namespace REX::teaw
         rwgtCollection();
         rwgtCollection( std::shared_ptr<REX::lheNode> lhe, std::shared_ptr<REX::lesHouchesCard> slha, std::shared_ptr<rwgtCard> rwgts );
         rwgtCollection( const rwgtCollection& rwgts );
+        std::shared_ptr<std::vector<std::string>> getNames();
     protected:
         template<class... Args>
         void setDoubles(Args&&... args);
@@ -114,6 +116,7 @@ namespace REX::teaw
         std::vector<std::shared_ptr<std::vector<double>>> wgts;
         std::vector<std::shared_ptr<std::vector<double>>> gS;
         std::vector<std::shared_ptr<std::vector<double>>> momenta;
+        std::shared_ptr<std::vector<double>> flatWgts;
         bool lheFileSet = false;
         bool slhaSet = false;
         bool rwgtSet = false;
@@ -179,13 +182,20 @@ namespace REX::teaw
         std::vector<amplitude> meVec;
         std::vector<std::shared_ptr<std::vector<double>>> initMEs;
         std::vector<std::shared_ptr<std::vector<double>>> meNormWgts;
+        std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> reWgts;
         std::shared_ptr<std::vector<double>> normWgt;
+        double ampNorm = 0.0;
+        std::shared_ptr<std::vector<double>> normXSecs;
+        std::shared_ptr<std::vector<double>> errXSecs;
         std::shared_ptr<REX::weightGroup> rwgtGroup;
         template<class... Args>
         void setMEs(Args&&... args);
+        void setAmpNorm( double precision );
         bool setParamCard( std::shared_ptr<REX::lesHouchesCard> slhaParams );
         void setNormWgtsSingleME();
         void setNormWgtsMultiME();
+        bool calcXSecs();
+        bool calcXErrs();
         template<class... Args>
         void setNormWgts(Args&&... args);
         bool singleRwgtIter( std::shared_ptr<REX::lesHouchesCard> slhaParams, std::shared_ptr<REX::lheNode> lheFile, size_t currId );
@@ -195,7 +205,9 @@ namespace REX::teaw
         std::string& id, REX::event& ev );
         bool lheFileWriter( std::shared_ptr<REX::lheNode> lheFile, std::string outputDir = "rwgt_evts.lhe" );
     public:
-        void runRwgt( const std::string& output );
+        void runRwgt( const std::string& output, double precision = 1e-6 );
+        std::shared_ptr<std::vector<double>> getReXSecs();
+        std::shared_ptr<std::vector<double>> getReXErrs();
     };
 
 

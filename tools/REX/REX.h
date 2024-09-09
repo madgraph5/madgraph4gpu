@@ -110,6 +110,7 @@ namespace REX
         xmlNode();
         xmlNode( const std::string_view originFile, const size_t& begin = 0, const std::vector<std::shared_ptr<xmlNode>>& childs = {} );
         xmlNode( xmlTree &tree );
+        xmlNode( const xmlNode& original );
         std::vector<std::shared_ptr<xmlNode>> getChildren();
         std::vector<std::shared_ptr<xmlTag>> getTags();
         std::string_view getFile();
@@ -361,14 +362,14 @@ namespace REX
     public:
         std::shared_ptr<std::string> nodeWriter() override;
         std::shared_ptr<std::string> nodeWriter( bool recursive );
-        std::map<std::string_view, std::vector<std::string_view>> &getProc();
-        std::map<std::string_view, std::vector<size_t>> &getProcOrder();
+        std::map<std::string_view, std::vector<std::string_view>> &getProc( bool hard = false );
+        std::map<std::string_view, std::vector<size_t>> &getProcOrder( bool hard = false );
         std::map<std::string_view, std::vector<std::string_view>> getProc() const;
         std::map<std::string_view, std::vector<size_t>> getProcOrder() const;
-        std::map<std::string_view, std::vector<std::string_view>> &getProc(sortFcn sorter);
-        std::map<std::string_view, std::vector<size_t>> &getProcOrder(sortFcn sorter);
-        std::map<std::string_view, std::vector<std::string_view>> &getProc(statSort sorter);
-        std::map<std::string_view, std::vector<size_t>> &getProcOrder(statSort sorter);
+        std::map<std::string_view, std::vector<std::string_view>> &getProc(sortFcn sorter, bool hard = true);
+        std::map<std::string_view, std::vector<size_t>> &getProcOrder(sortFcn sorter, bool hard = true);
+        std::map<std::string_view, std::vector<std::string_view>> &getProc(statSort sorter, bool hard = true);
+        std::map<std::string_view, std::vector<size_t>> &getProcOrder(statSort sorter, bool hard = true);
     };
 
     using eventComparison = std::function<bool(event&, event&, std::vector<std::string>&)>;
@@ -797,6 +798,8 @@ namespace REX
         std::vector<std::shared_ptr<transMonoLHE>> subProcs;
         std::vector<std::shared_ptr<event>> procSets;
         std::vector<std::shared_ptr<std::vector<bool>>> relProcs;
+        std::vector<bool> relEvSets;
+        void setRelEvSets();
         transLHE();
         transLHE( lheNode& lheFile );
         transLHE( lheNode& lheFile, 

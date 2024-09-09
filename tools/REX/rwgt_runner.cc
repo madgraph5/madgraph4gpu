@@ -25,7 +25,7 @@ namespace %(process_namespace)s{
         CppObjectInFortran *bridgeInst;
         auto evalScatAmps = std::make_shared<std::vector<FORTRANFPTYPE>>( nEvt );
         fbridgecreate_( &bridgeInst, &nEvt, &nPar, &nMom );
-        fbridgesequence_( &bridgeInst, &momenta.at(0), &alphaS.at(0), &rndHel[0], &rndCol[0], &chanId, &evalScatAmps->at(0), &selHel[0], &selCol[0] );
+        fbridgesequence_nomultichannel_( &bridgeInst, &momenta.at(0), &alphaS.at(0), &rndHel[0], &rndCol[0], &evalScatAmps->at(0), &selHel[0], &selCol[0] );
         fbridgedelete_( &bridgeInst );
         return evalScatAmps;
     }
@@ -44,37 +44,57 @@ namespace %(process_namespace)s{
         return constrBridge;
     }
 
-    std::shared_ptr<std::vector<size_t>> procSort( std::string_view status, std::vector<std::string_view> arguments ){
+    std::shared_ptr<std::vector<size_t>> procSort( std::string_view status, std::vector<std::string_view> arguments, size_t index ){
         std::vector<std::vector<std::string_view>> initPrts = {%(init_prt_ids)s};
         std::vector<std::vector<std::string_view>> finPrts = {%(fin_prt_ids)s};
 //        std::vector<std::string_view> initPrts = {"-1"};
 //        std::vector<std::string_view> finPrts = {"1"};
         std::shared_ptr<std::vector<size_t>> refOrder;
-        if( status == "-1" ){
+    if( index == REX::npos ){
+	if( status == "-1" ){
             for( auto& prts : initPrts ){
                 refOrder = REX::getRefOrder( prts, arguments );
-                if( refOrder->at(refOrder->size() - 1) != REX::npos ){ break; }
+                if( std::find(refOrder->begin(), refOrder->end(), REX::npos) == refOrder->end() ){ break; }
             }
             return refOrder;
         }
         else if( status == "1" ){
             for( auto& prts : finPrts ){
                 refOrder = REX::getRefOrder( prts, arguments );
-                if( refOrder->at(refOrder->size() - 1) != REX::npos ){ break; }
+                if( std::find(refOrder->begin(), refOrder->end(), REX::npos) == refOrder->end() ){ break; }
             }
             return refOrder;
         }
         return REX::stoiSort( arguments );
     }
+    else{
+        if( index >= initPrts.size() || index >= finPrts.size() ) throw std::runtime_error( "procSort called for out-of-bounds event." );
+        if( status == "-1" ){
+            refOrder = REX::getRefOrder( initPrts.at(index), arguments );
+            return refOrder;
+        }
+        else if( status == "1" ){
+            refOrder = REX::getRefOrder( finPrts.at(index), arguments );
+            return refOrder;
+        }
+        return REX::stoiSort( arguments );
+    }
+    }
 
     bool checkProc( REX::event& process, std::vector<std::string>& relStats ){
-        REX::statSort locSort = procSort;
-        auto order = process.getProcOrder( locSort );
-        for( auto stat : relStats ){
-            auto currPts = order.at( stat );
-            if( currPts[currPts.size() - 1 ] == REX::npos ){ return false; }
+        size_t no_evts = %(no_events)s;
+        for( size_t k = 0 ; k < no_evts ; ++k ){
+            REX::statSort locSort = [ind = k](std::string_view status, std::vector<std::string_view> arguments){
+                return procSort( status, arguments, ind );
+            };
+            auto order = process.getProcOrder( locSort );
+            for( size_t j = 0 ; j < relStats.size() ; ++j ){
+                auto currPts = order.at( relStats[j] );
+                if( std::find(currPts.begin(), currPts.end(), REX::npos) != currPts.end() ){ break; }
+                if( j == relStats.size() - 1 ){ return true; }
+            }
         }
-        return true;
+        return false;
     }
 
     REX::eventSet eventSetConstr( std::vector<REX::event>& process ){

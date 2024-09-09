@@ -342,7 +342,7 @@ namespace mg5amcCpu
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( channelId );
     copyHostFromDevice( m_hstMEs, m_devMEs );
-    flagAbnormalMEs( m_hstMEs.data(), m_nevt );
+    //flagAbnormalMEs( m_hstMEs.data(), m_nevt );
     copyHostFromDevice( m_hstSelHel, m_devSelHel );
     copyHostFromDevice( m_hstSelCol, m_devSelCol );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
@@ -392,7 +392,7 @@ namespace mg5amcCpu
     }
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( channelId );
-    flagAbnormalMEs( m_hstMEs.data(), m_nevt );
+    //flagAbnormalMEs( m_hstMEs.data(), m_nevt );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {
       memcpy( mes, m_hstMEs.data(), m_hstMEs.bytes() );
