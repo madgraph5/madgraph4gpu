@@ -22,7 +22,7 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 include ../../src/cudacpp_config.mk
 
 # Export CUDACPP_BUILDDIR (so that there is no need to check/define it again in cudacpp_src.mk)
-export CUDACPP_BUILDDIR
+#export CUDACPP_BUILDDIR
 
 #-------------------------------------------------------------------------------
 
@@ -84,10 +84,10 @@ endif
 
 #=== Configure the C++ compiler
 
-CXXFLAGS = $(OPTFLAGS) -std=c++17 -Wall -Wshadow -Wextra
-ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-  CXXFLAGS += -ffast-math # see issue #117
-endif
+#CXXFLAGS = $(OPTFLAGS) -std=c++17 -Wall -Wshadow -Wextra
+#ifeq ($(shell $(CXX) --version | grep ^nvc++),)
+#  CXXFLAGS += -ffast-math # see issue #117
+#endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
 
@@ -98,12 +98,12 @@ endif
 # See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
 # Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
-ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-  CXXFLAGS += -mmacosx-version-min=11.3
-endif
+#ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
+#  CXXFLAGS += -mmacosx-version-min=11.3
+#endif
 
 # Export CXXFLAGS (so that there is no need to check/define it again in cudacpp_src.mk)
-export CXXFLAGS
+#export CXXFLAGS
 
 #-------------------------------------------------------------------------------
 
@@ -111,10 +111,10 @@ export CXXFLAGS
 #=== (note, this is done also for C++, as NVTX and CURAND/ROCRAND are also needed by the C++ backends)
 
 # Set CUDA_HOME from the path to nvcc, if it exists
-override CUDA_HOME = $(patsubst %%/bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
+#override CUDA_HOME = $(patsubst %%/bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
 
 # Set HIP_HOME from the path to hipcc, if it exists
-override HIP_HOME = $(patsubst %%/bin/hipcc,%%,$(shell which hipcc 2>/dev/null))
+#override HIP_HOME = $(patsubst %%/bin/hipcc,%%,$(shell which hipcc 2>/dev/null))
 
 # Configure CUDA_INC (for CURAND and NVTX) and NVTX if a CUDA installation exists
 # (FIXME? Is there any equivalent of NVTX FOR HIP? What should be configured if both CUDA and HIP are installed?)
@@ -144,22 +144,22 @@ endif
 #=== Configure the CUDA or HIP compiler (only for the CUDA and HIP backends)
 #=== (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
 
-ifeq ($(BACKEND),cuda)
+#ifeq ($(BACKEND),cuda)
 
   # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
   # This is because it is impossible to pass this to "GPUFLAGS += -ccbin <host-compiler>" below
-  ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
-    $(error BACKEND=$(BACKEND) but CUDA builds are not supported for multi-word CXX "$(CXX)")
-  endif
+#  ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
+#    $(error BACKEND=$(BACKEND) but CUDA builds are not supported for multi-word CXX "$(CXX)")
+#  endif
 
   # Set GPUCC as $(CUDA_HOME)/bin/nvcc (it was already checked above that this exists)
-  GPUCC = $(CUDA_HOME)/bin/nvcc
-  XCOMPILERFLAG = -Xcompiler
-  GPULANGUAGE = cu
-  GPUSUFFIX = cuda
+#  GPUCC = $(CUDA_HOME)/bin/nvcc
+#  XCOMPILERFLAG = -Xcompiler
+#  GPULANGUAGE = cu
+#  GPUSUFFIX = cuda
 
   # Basic compiler flags (optimization and includes)
-  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
+#  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
 
   # NVidia CUDA architecture flags
   # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
@@ -168,31 +168,31 @@ ifeq ($(BACKEND),cuda)
   # This will embed device code for 70, and PTX for 70+.
   # One may pass MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to the make command to use another value or list of values (see #533).
   # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
-  MADGRAPH_CUDA_ARCHITECTURE ?= 70
+#  MADGRAPH_CUDA_ARCHITECTURE ?= 70
   ###GPUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
   ###GPUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE)  # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
-  comma:=,
-  GPUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
-  GPUFLAGS += $(GPUARCHFLAGS)
+#  comma:=,
+#  GPUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
+#  GPUFLAGS += $(GPUARCHFLAGS)
 
   # Other NVidia-specific flags
-  CUDA_OPTFLAGS = -lineinfo
-  GPUFLAGS += $(CUDA_OPTFLAGS)
+#  CUDA_OPTFLAGS = -lineinfo
+#  GPUFLAGS += $(CUDA_OPTFLAGS)
 
   # NVCC version
   ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
 
   # Fast math
-  GPUFLAGS += -use_fast_math
+#  GPUFLAGS += -use_fast_math
 
   # Extra build warnings
   ###GPUFLAGS += $(XCOMPILERFLAG) -Wall $(XCOMPILERFLAG) -Wextra $(XCOMPILERFLAG) -Wshadow
 
   # CUDA includes and NVTX
-  GPUFLAGS += $(CUDA_INC) $(USE_NVTX) 
+#  GPUFLAGS += $(CUDA_INC) $(USE_NVTX) 
 
   # C++ standard
-  GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
+#  GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
 
   # For nvcc, use -maxrregcount to control the maximum number of registries (this does not exist in hipcc)
   # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
@@ -203,81 +203,81 @@ ifeq ($(BACKEND),cuda)
 
   # Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
   # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
-  GPUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
+#  GPUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
 
   # Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
-  ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
-    GPUFLAGS += -allow-unsupported-compiler
-  endif
+#  ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
+#    GPUFLAGS += -allow-unsupported-compiler
+#  endif
 
-else ifeq ($(BACKEND),hip)
+#else ifeq ($(BACKEND),hip)
 
   # Set GPUCC as $(HIP_HOME)/bin/hipcc (it was already checked above that this exists)
-  GPUCC = $(HIP_HOME)/bin/hipcc
-  XCOMPILERFLAG =
-  GPULANGUAGE = hip
-  GPUSUFFIX = hip
+#  GPUCC = $(HIP_HOME)/bin/hipcc
+#  XCOMPILERFLAG =
+#  GPULANGUAGE = hip
+#  GPUSUFFIX = hip
 
   # Basic compiler flags (optimization and includes)
-  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
+#  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
 
   # AMD HIP architecture flags
-  GPUARCHFLAGS = --offload-arch=gfx90a
-  GPUFLAGS += $(GPUARCHFLAGS)
+#  GPUARCHFLAGS = --offload-arch=gfx90a
+#  GPUFLAGS += $(GPUARCHFLAGS)
 
   # Other AMD-specific flags
-  GPUFLAGS += -target x86_64-linux-gnu -DHIP_PLATFORM=amd
+#  GPUFLAGS += -target x86_64-linux-gnu -DHIP_PLATFORM=amd
 
   # Fast math (is -DHIP_FAST_MATH equivalent to -ffast-math?)
-  GPUFLAGS += -DHIP_FAST_MATH
+ # GPUFLAGS += -DHIP_FAST_MATH
 
   # Extra build warnings
   ###GPUFLAGS += $(XCOMPILERFLAG) -Wall $(XCOMPILERFLAG) -Wextra $(XCOMPILERFLAG) -Wshadow
 
   # HIP includes
-  HIP_INC = -I$(HIP_HOME)/include/
-  GPUFLAGS += $(HIP_INC)
+ # HIP_INC = -I$(HIP_HOME)/include/
+ # GPUFLAGS += $(HIP_INC)
 
   # C++ standard
-  GPUFLAGS += -std=c++17
+ # GPUFLAGS += -std=c++17
 
-else
+#else
 
   # Backend is neither cuda nor hip
-  override GPUCC=
-  override GPUFLAGS=
+#  override GPUCC=
+#  override GPUFLAGS=
 
   # Sanity check, this should never happen: if GPUCC is empty, then this is a C++ build, i.e. BACKEND is neither cuda nor hip.
   # In practice, in the following, "ifeq ($(GPUCC),)" is equivalent to "ifneq ($(findstring cpp,$(BACKEND)),)".
   # Conversely, note that GPUFLAGS is non-empty also for C++ builds, but it is never used in that case.
-  ifeq ($(findstring cpp,$(BACKEND)),)
-    $(error INTERNAL ERROR! Unknown backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
-  endif
+#  ifeq ($(findstring cpp,$(BACKEND)),)
+#    $(error INTERNAL ERROR! Unknown backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
+#  endif
 
-endif
+#endif
 
 # Export GPUCC, GPUFLAGS, GPULANGUAGE, GPUSUFFIX (so that there is no need to check/define them again in cudacpp_src.mk)
-export GPUCC
-export GPUFLAGS
-export GPULANGUAGE
-export GPUSUFFIX
+#export GPUCC
+#export GPUFLAGS
+#export GPULANGUAGE
+#export GPUSUFFIX
 
 #-------------------------------------------------------------------------------
 
 #=== Configure ccache for C++ and CUDA/HIP builds
 
 # Enable ccache if USECCACHE=1
-ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
-  override CXX:=ccache $(CXX)
-endif
+#ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
+#  override CXX:=ccache $(CXX)
+#endif
 #ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
 #  override AR:=ccache $(AR)
 #endif
-ifneq ($(GPUCC),)
-  ifeq ($(USECCACHE)$(shell echo $(GPUCC) | grep ccache),1)
-    override GPUCC:=ccache $(GPUCC)
-  endif
-endif
+#ifneq ($(GPUCC),)
+#  ifeq ($(USECCACHE)$(shell echo $(GPUCC) | grep ccache),1)
+#    override GPUCC:=ccache $(GPUCC)
+#  endif
+#endif
 
 #-------------------------------------------------------------------------------
 
@@ -784,9 +784,16 @@ endif
 $(gpu_checkmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_checkmain): $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
 	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
-gpu_rwgtfiles := $(BUILDDIR)/rwgt_runner.o $(BUILDDIR)/CurandRandomNumberKernel_cu.o $(BUILDDIR)/HiprandRandomNumberKernel_cu.o $(gpu_objects_exe)
+ifneq ($(shell $(CXX) --version | grep ^Intel),)
+$(gpu_rwgtlib): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
+$(gpu_rwgtlib): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
+else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
+$(gpu_rwgtlib): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
+endif
+$(gpu_rwgtlib): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+gpu_rwgtfiles := $(BUILDDIR)/rwgt_runner_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
 $(gpu_rwgtlib): $(gpu_rwgtfiles) $(gpu_objects_lib)
-  $(GPUCC) -shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_GPULIB)
+	$(GPUCC) -shared -o $@ $(BUILDDIR)/rwgt_runner_$(GPUSUFFIX).o $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
@@ -1013,7 +1020,7 @@ clean:
 ifeq ($(USEBUILDDIR),1)
 	rm -rf $(BUILDDIR)
 else
-	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.exe
+	rm -f $(BUILDDIR)/.build.* $(BUILDDIR)/*.o $(BUILDDIR)/*.so $(BUILDDIR)/*.exe
 	rm -f $(LIBDIR)/lib*.so
 endif
 	$(MAKE) -C ../../src clean -f $(CUDACPP_SRC_MAKEFILE)

@@ -111,7 +111,8 @@ export CXXFLAGS
 #=== (note, this is done also for C++, as NVTX and CURAND/ROCRAND are also needed by the C++ backends)
 
 # Set CUDA_HOME from the path to nvcc, if it exists
-override CUDA_HOME = $(patsubst %%/bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
+#override CUDA_HOME = $(patsubst %%/bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
+CUDA_HOME := $(patsubst %/bin/nvcc,%,$(shell which nvcc 2>/dev/null))
 
 # Set HIP_HOME from the path to hipcc, if it exists
 override HIP_HOME = $(patsubst %%/bin/hipcc,%%,$(shell which hipcc 2>/dev/null))
@@ -257,10 +258,12 @@ else
 endif
 
 # Export GPUCC, GPUFLAGS, GPULANGUAGE, GPUSUFFIX (so that there is no need to check/define them again in cudacpp_src.mk)
+export CUDA_HOME
 export GPUCC
 export GPUFLAGS
 export GPULANGUAGE
 export GPUSUFFIX
+export XCOMPILERFLAG
 
 #-------------------------------------------------------------------------------
 
@@ -783,7 +786,7 @@ $(gpu_rwgt): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))
 endif
 $(gpu_rwgt): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_rwgt): $(BUILDDIR)/$(BUILDDIR)/rwgt_driver.o $(rwgtlib)
-	$(GPUCC) -o $@ $(BUILDDIR)/rwgt_driver.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) -l$(gpu_proclibs) $(rwgtlib)
+	$(GPUCC) -o $@ $(BUILDDIR)/rwgt_driver.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) $(gpu_proclibs) $(rwgtlib)
 endif
 
 #-------------------------------------------------------------------------------
@@ -1004,9 +1007,9 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target: clean the builds
-.PHONY: clean
+.PHONY: clean clean-rwgtlib
 
-clean:
+clean: clean-rwgtlib
 ifeq ($(USEBUILDDIR),1)
 	rm -rf $(BUILDDIR)
 else
@@ -1015,6 +1018,9 @@ else
 endif
 	$(MAKE) -C ../src clean -f $(CUDACPP_SRC_MAKEFILE)
 ###	rm -rf $(INCDIR)
+
+clean-rwgtlib:
+	@for dir in $(DIRS); do $(MAKE) -C $$dir clean; done
 
 cleanall:
 	@echo

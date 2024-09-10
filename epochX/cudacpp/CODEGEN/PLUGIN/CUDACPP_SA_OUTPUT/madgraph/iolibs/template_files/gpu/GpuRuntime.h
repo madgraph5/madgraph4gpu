@@ -38,7 +38,7 @@ namespace mg5amcGpu
   // *** FIXME! This will all need to be designed differently when going to multi-GPU nodes! ***
   struct GpuRuntime final
   {
-    GpuRuntime( const bool debug = true )
+    GpuRuntime( const bool debug = false )
       : m_debug( debug ) { setUp( m_debug ); }
     ~GpuRuntime() { tearDown( m_debug ); }
     GpuRuntime( const GpuRuntime& ) = delete;
@@ -50,7 +50,7 @@ namespace mg5amcGpu
     // Set up CUDA application
     // ** NB: strictly speaking this is not needed when using the CUDA runtime API **
     // Calling cudaSetDevice on startup is useful to properly book-keep the time spent in CUDA initialization
-    static void setUp( const bool debug = true )
+    static void setUp( const bool debug = false )
     {
       // ** NB: it is useful to call cudaSetDevice, or cudaFree, to properly book-keep the time spent in CUDA initialization
       // ** NB: otherwise, the first CUDA operation (eg a cudaMemcpyToSymbol in CPPProcess ctor) appears to take much longer!
@@ -71,7 +71,7 @@ namespace mg5amcGpu
     // ** NB: strictly speaking this is not needed when using the CUDA runtime API **
     // Calling cudaDeviceReset on shutdown is only needed for checking memory leaks in cuda-memcheck
     // See https://docs.nvidia.com/cuda/cuda-memcheck/index.html#leak-checking
-    static void tearDown( const bool debug = true )
+    static void tearDown( const bool debug = false )
     {
       if( debug ) std::cout << "__GpuRuntime: calling GpuDeviceReset()" << std::endl;
       checkGpu( gpuDeviceReset() );
