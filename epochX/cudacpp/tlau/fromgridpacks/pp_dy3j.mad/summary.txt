@@ -1,0 +1,51 @@
+pp_dy3j.mad/fortran/output.txt
+[GridPackCmd.launch] OVERALL TOTAL    515.6369 seconds
+[madevent COUNTERS]  PROGRAM TOTAL    498.905
+[madevent COUNTERS]  Fortran Overhead 168.037
+[madevent COUNTERS]  Fortran MEs      330.869
+--------------------------------------------------------------------------------
+pp_dy3j.mad/cppnone/output.txt
+[GridPackCmd.launch] OVERALL TOTAL    504.0330 seconds
+[madevent COUNTERS]  PROGRAM TOTAL    486.688
+[madevent COUNTERS]  Fortran Overhead 165.031
+[madevent COUNTERS]  CudaCpp MEs      320.487
+[madevent COUNTERS]  CudaCpp HEL      1.1708
+--------------------------------------------------------------------------------
+pp_dy3j.mad/cppsse4/output.txt
+[GridPackCmd.launch] OVERALL TOTAL    350.8207 seconds
+[madevent COUNTERS]  PROGRAM TOTAL    334.902
+[madevent COUNTERS]  Fortran Overhead 165.453
+[madevent COUNTERS]  CudaCpp MEs      168.82
+[madevent COUNTERS]  CudaCpp HEL      0.6287
+--------------------------------------------------------------------------------
+pp_dy3j.mad/cppavx2/output.txt
+[GridPackCmd.launch] OVERALL TOTAL    251.9705 seconds
+[madevent COUNTERS]  PROGRAM TOTAL    235.865
+[madevent COUNTERS]  Fortran Overhead 165.362
+[madevent COUNTERS]  CudaCpp MEs      70.1697
+[madevent COUNTERS]  CudaCpp HEL      0.3335
+--------------------------------------------------------------------------------
+pp_dy3j.mad/cpp512y/output.txt
+[GridPackCmd.launch] OVERALL TOTAL    246.8361 seconds
+[madevent COUNTERS]  PROGRAM TOTAL    230.711
+[madevent COUNTERS]  Fortran Overhead 165.532
+[madevent COUNTERS]  CudaCpp MEs      64.8612
+[madevent COUNTERS]  CudaCpp HEL      0.3183
+--------------------------------------------------------------------------------
+pp_dy3j.mad/cpp512z/output.txt
+[GridPackCmd.launch] OVERALL TOTAL    267.4278 seconds
+[madevent COUNTERS]  PROGRAM TOTAL    251.51
+[madevent COUNTERS]  Fortran Overhead 165.54
+[madevent COUNTERS]  CudaCpp MEs      85.562
+[madevent COUNTERS]  CudaCpp HEL      0.4073
+--------------------------------------------------------------------------------
+pp_dy3j.mad/cuda/output.txt
+[GridPackCmd.launch] OVERALL TOTAL    257.3246 seconds
+[madevent COUNTERS]  PROGRAM TOTAL    215.547
+[madevent COUNTERS]  Fortran Overhead 208.011
+[madevent COUNTERS]  CudaCpp MEs      2.0941
+[madevent COUNTERS]  CudaCpp HEL      5.4425
+--------------------------------------------------------------------------------
+pp_dy3j.mad/hip/output.txt
+File not found: SKIP backend hip
+--------------------------------------------------------------------------------
