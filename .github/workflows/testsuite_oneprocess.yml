@@ -34,8 +34,7 @@ on:
         required: true
         type: choice
         # FIXME? Can the list of supported processes be specified only once in oneprocess.yml or allprocesses.yml?
-        options: [gg_tt.mad, gg_ttg.mad, gg_ttgg.mad, gg_ttggg.mad, ee_mumu.mad, nobm_pp_ttW.mad]
-        ###options: [ee_mumu.mad, gg_tt.mad, gg_ttg.mad, gg_ttgg.mad, gg_ttggg.mad, gg_tt01g.mad, gq_ttq.mad, pp_tt012j.mad]
+        options: [gg_tt.mad, gg_ttg.mad, gg_ttgg.mad, gg_ttggg.mad, ee_mumu.mad, nobm_pp_ttW.mad, susy_gg_tt.mad]
 
 #----------------------------------------------------------------------------------------------------------------------------------
 

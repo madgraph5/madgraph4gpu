@@ -13,7 +13,7 @@ index a59181c70..af7e0efbc 100644
        PARAMETER(MAXTRIES=25)
  C     To pass the helicity configuration chosen by the DiscreteSampler to 
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..504e41ea5 100644
+index 348c283be..205014f49 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,40 @@
@@ -79,7 +79,7 @@ index 348c283be..504e41ea5 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,41 +90,147 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,41 +90,150 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -123,6 +123,8 @@ index 348c283be..504e41ea5 100644
  
 -$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
 -	cd ../../Source/MODEL; make
++# Disable OpenMP by default: enable OpenMP only if USEOPENMP=1 (#758)
++ifeq ($(USEOPENMP),1)
 +ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 +override OMPFLAGS = -fopenmp
 +LINKLIBS += -liomp5 # see #578
@@ -135,11 +137,12 @@ index 348c283be..504e41ea5 100644
 +else
 +override OMPFLAGS = -fopenmp
 +endif
- 
--$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
++endif
++
 +$(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
 +	$(FC) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
-+
+ 
+-$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
 +$(LIBS): .libs
 +
 +.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
@@ -243,7 +246,7 @@ index 348c283be..504e41ea5 100644
  
  # Dependencies
  
-@@ -97,5 +250,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -97,5 +253,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  

@@ -14,6 +14,7 @@ flts=-mix # "d f m" (alternative: -flt i.e. "d f")
 makeclean=
 rmrdat=
 add10x="+10x"
+hip=
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-short" ]; then
@@ -34,8 +35,11 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-nobsm" ] && [ "$bsm" != "-bsmonly" ]; then
     bsm=$1
     shift
+  elif [ "$1" == "-hip" ]; then
+    hip=$1
+    shift
   else
-    echo "Usage: $0 [-short|-ggttggg] [-bsmonly|-nobsm] [-makeclean] [-no10x]"
+    echo "Usage: $0 [-short|-ggttggg] [-bsmonly|-nobsm] [-makeclean] [-no10x] [-hip]"
     exit 1
   fi
 done
@@ -44,11 +48,11 @@ started="STARTED  AT $(date)"
 
 if [ "${bsm}" != "-bsmonly" ]; then
   if [ "$short" == "1" ]; then
-    ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq $flts $makeclean $rmrdat $add10x
+    ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq $flts $makeclean $rmrdat $add10x $hip
   elif [ "$short" == "-1" ]; then
-    ${scrdir}/teeMadX.sh -ggttggg $flts $makeclean $rmrdat $add10x
+    ${scrdir}/teeMadX.sh -ggttggg $flts $makeclean $rmrdat $add10x $hip
   else
-    ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -ggttggg $flts $makeclean $rmrdat $add10x
+    ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -ggttggg $flts $makeclean $rmrdat $add10x $hip
   fi
 fi
 status=$?
@@ -56,7 +60,7 @@ ended1="(SM tests)\nENDED(1) AT $(date) [Status=$status]"
 
 if [ "${bsm}" != "-nobsm" ]; then
   if [ "$short" != "-1" ]; then
-    ${scrdir}/teeMadX.sh -heftggbb -susyggtt -susyggt1t1 -smeftggtttt $flts $makeclean $rmrdat $add10x
+    ${scrdir}/teeMadX.sh -heftggbb -susyggtt -susyggt1t1 -smeftggtttt $flts $makeclean $rmrdat $add10x $hip
   fi
 fi
 status=$?
@@ -71,3 +75,7 @@ echo -e "$ended1"
 echo -e "$ended2"
 echo
 for f in ${scrdir}/logs_*_mad/log_*; do echo $(cat $f | grep OK  | wc -l) $f; done # expect 24
+
+# Print out the MEK channelid debugging output
+echo
+\grep MEK ${scrdir}/logs_*/* | sed "s|${scrdir}/logs_||" | sed 's|_mad.*DEBUG:||' | sort -u
