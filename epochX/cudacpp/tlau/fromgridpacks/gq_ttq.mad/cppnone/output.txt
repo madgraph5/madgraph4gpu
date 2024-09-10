@@ -1,8 +1,8 @@
-START: Thu Aug 22 11:17:43 AM CEST 2024
+START: Tue Sep 10 06:49:49 PM CEST 2024
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU (nproc=4)] [GPU: 1x Tesla V100S-PCIE-32GB]:
 CUDACPP_RUNTIME_DISABLEFPE is not set
-lrwxrwxrwx. 1 avalassi zg 35 Aug 22 11:17 madevent/SubProcesses/P1_gu_ttxu/madevent -> build.none_m_inl0_hrd0/madevent_cpp
-lrwxrwxrwx. 1 avalassi zg 35 Aug 22 11:17 madevent/SubProcesses/P1_gux_ttxux/madevent -> build.none_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Sep 10 18:49 madevent/SubProcesses/P1_gu_ttxu/madevent -> build.none_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Sep 10 18:49 madevent/SubProcesses/P1_gux_ttxux/madevent -> build.none_m_inl0_hrd0/madevent_cpp
 Now generating 100 events with random seed 21 and granularity 1
 ************************************************************
 *                                                          *
@@ -41,52 +41,57 @@ __CUDACPP_DEBUG: GridPackCmd.refine4grid starting
 Using random number seed offset = 21
 INFO: Generating 100.0 unweighted events. 
 __CUDACPP_DEBUG: gen_ximprove.launch starting
-sum of cpu time of last step: 10 seconds
+sum of cpu time of last step: 11 seconds
 __CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event starting
-INFO: need to improve 6 channels 
-__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/ajob1'
-__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/ajob1'
-__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/ajob1' in 2.9452 seconds
-__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/ajob1'
-/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/G1/GridRun_21_app.log
- [COUNTERS] PROGRAM TOTAL          :    0.9736s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.8233s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1493s for    16384 events => throughput is 1.10E+05 events/s
- [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0011s
-/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/G2/GridRun_21_app.log
- [COUNTERS] PROGRAM TOTAL          :    0.9679s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.8182s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1487s for    16384 events => throughput is 1.10E+05 events/s
- [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0010s
-/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/G5/GridRun_21_app.log
- [COUNTERS] PROGRAM TOTAL          :    0.9604s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.8096s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1498s for    16384 events => throughput is 1.09E+05 events/s
- [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0010s
-__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/ajob1'
+INFO: need to improve 7 channels 
 __CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gu_ttxu/ajob1'
 __CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gu_ttxu/ajob1'
-__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gu_ttxu/ajob1' in 2.6043 seconds
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gu_ttxu/ajob1' in 3.5757 seconds
 __CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gu_ttxu/ajob1'
+/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gu_ttxu/G1/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.9675s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8114s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1550s for    16384 events => throughput is 1.06E+05 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0011s
 /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gu_ttxu/G2/GridRun_21_app.log
- [COUNTERS] PROGRAM TOTAL          :    0.6568s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.5070s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1488s for    16384 events => throughput is 1.10E+05 events/s
- [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0010s
+ [COUNTERS] PROGRAM TOTAL          :    0.6159s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4584s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1564s for    16384 events => throughput is 1.05E+05 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0011s
 /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gu_ttxu/G4/GridRun_21_app.log
- [COUNTERS] PROGRAM TOTAL          :    0.9679s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.8153s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1515s for    16384 events => throughput is 1.08E+05 events/s
- [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0010s
+ [COUNTERS] PROGRAM TOTAL          :    0.9866s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8304s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1551s for    16384 events => throughput is 1.06E+05 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0011s
 /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gu_ttxu/G5/GridRun_21_app.log
- [COUNTERS] PROGRAM TOTAL          :    0.9361s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.7846s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1505s for    16384 events => throughput is 1.09E+05 events/s
- [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0010s
+ [COUNTERS] PROGRAM TOTAL          :    0.9501s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.7933s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1557s for    16384 events => throughput is 1.05E+05 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0011s
 __CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gu_ttxu/ajob1'
-__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished in 5.5535 seconds
-__CUDACPP_DEBUG: gen_ximprove.launch finished in 5.5568 seconds
-__CUDACPP_DEBUG: GridPackCmd.refine4grid finished in 5.5574 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/ajob1' in 2.8133 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/ajob1'
+/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/G1/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.9933s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8379s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1543s for    16384 events => throughput is 1.06E+05 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0011s
+/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.8048s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6488s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1549s for    16384 events => throughput is 1.06E+05 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0011s
+/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/G5/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.9721s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8154s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.1556s for    16384 events => throughput is 1.05E+05 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0011s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gq_ttq.mad/madevent/SubProcesses/P1_gux_ttxux/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished in 6.3933 seconds
+__CUDACPP_DEBUG: gen_ximprove.launch finished in 6.3966 seconds
+__CUDACPP_DEBUG: GridPackCmd.refine4grid finished in 6.3974 seconds
 __CUDACPP_DEBUG: GridPackCmd.launch (3a) combine_events
 combine_events
 __CUDACPP_DEBUG: GridPackCmd.launch (3b) store_events
@@ -98,9 +103,9 @@ store_events
  
 INFO: No version of lhapdf. Can not run systematics computation 
 decay_events -from_cards
-__CUDACPP_DEBUG: GridPackCmd.launch finished in 6.2165 seconds
+__CUDACPP_DEBUG: GridPackCmd.launch finished in 7.1612 seconds
 __CUDACPP_DEBUG: GridPackCmd.__init__ back from self.launch
 DONE
 write ./events.lhe.gz
-END: Thu Aug 22 11:17:51 AM CEST 2024
-ELAPSED: 8 seconds
+END: Tue Sep 10 06:49:58 PM CEST 2024
+ELAPSED: 9 seconds
