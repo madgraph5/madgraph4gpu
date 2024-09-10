@@ -1,0 +1,4 @@
+cleanavxs: # Clean builds: fortran in all P*; cudacpp for all AVX in all P* and in src
+	for i in `ls -d ../SubProcesses/P*`; do cd $$i; make cleanavxs; cd -; done;
+
+cleanall: cleanSource cleanavxs # Clean builds: fortran in this Source and in all P*; cudacpp for all AVX in all P* and in src

@@ -23,11 +23,11 @@ diffpath="$(pwd)/logs*"
 # Performance lines which are expected to change
 exclude1='(EvtsPerSec|elapsed|cycles|instructions|TOTAL|DATE|\-\-\-|\+\+\+)'
 # Path-dependent lines which may change on different machines or directories
-exclude2='(Entering|Leaving|Building|HASCURAND|BACKEND|USEBUILDDIR)'
+exclude2='(Entering|Leaving|Building|HASCURAND|BACKEND|USEBUILDDIR|Nothing to be done)'
 # Lines (interesting) which may change on different software versions
 exclude3='(Symbols|Avg|Relative|MeanMatrixElemValue)'
 # Lines (uninteresting) which change when missing some tests (no avx512, cuda, hip...)
-exclude4='(runExe|cmpExe|runNcu|SIGMA|Workflow|FP|Internal|OMP|Symbols|PASSED|INFO|WARNING|PROF|\+OK|\-OK|CPU:|===|\.\.\.|\-$|\+$)'
+exclude4='(runTest|runExe|cmpExe|runNcu|SIGMA|Workflow|FP|Internal|OMP|Symbols|PASSED|INFO|WARNING|PROF|\+OK|\-OK|CPU:|===|\.\.\.|\-$|\+$)'
 # Lines (interesting) which show that some tests are missing (no avx512, cuda, hip...)
 exclude5='(Not found|no avx512vl)'
 
