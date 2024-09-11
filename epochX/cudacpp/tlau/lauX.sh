@@ -117,7 +117,7 @@ function getnevt()
     nevt=100
   else
     echo "WARNING! Unknown process ${proc}" > /dev/stderr
-    nevt=500
+    nevt=100
   fi
   echo $nevt
 }
