@@ -156,20 +156,11 @@ function showcpugpu()
 if [ "${grid}" == "-fromgridpack" ]; then
   echo "Execute $(basename $0) for process ${proc} and backend ${bckend} from gridpack directory $(pwd)"
   if [ ! -d ${gridpackdir} ]; then echo "ERROR! Gridpack directory '${gridpackdir}' does not exist"; usage; fi
+  # Untar the gridpack (NB: this is faster than doing an rsync of an untarred backup!)
   set -x
   cd ${gridpackdir}
   rm -rf madevent run.sh events.lhe*
-  # Use untarred backup if it exists, otherwise untar and prepare a backup
-  if [ -d madevent.BACKUP ] && [ -f run.sh.BACKUP ]; then
-    ###cp -dpr madevent.BACKUP madevent
-    rsync -rlptDPu madevent.BACKUP/ madevent
-    cp -dpr run.sh.BACKUP run.sh
-  else
-    tar -xzf run_01_gridpack.tar.gz
-    ###cp -dpr madevent madevent.BACKUP
-    rsync -rlptDPu madevent/ madevent.BACKUP
-    cp -dpr run.sh run.sh.BACKUP
-  fi
+  tar -xzf run_01_gridpack.tar.gz
   set +x
   # Configure gridpack patches
   dir=madevent/bin/internal
