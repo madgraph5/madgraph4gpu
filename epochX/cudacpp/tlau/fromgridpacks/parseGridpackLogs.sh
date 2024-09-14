@@ -14,10 +14,12 @@ fi
 
 for backend in fortran cppnone cppsse4 cppavx2 cpp512y cpp512z cuda hip; do
   outfile=$procdir/${backend}/output.txt
-  echo $outfile
+  outfile=${outfile/\/\///}
   if [ ! -f $outfile ]; then
+    echo $outfile
     echo "File not found: SKIP backend ${backend}"
   else
+    echo $outfile $(cat $outfile | awk '/events :/{printf "(#events: %d)\n", $5}')
     cat $outfile | grep "__CUDACPP_DEBUG: GridPackCmd.launch finished" \
       | sed 's/__CUDACPP_DEBUG: GridPackCmd.launch finished in/[GridPackCmd.launch] OVERALL TOTAL   /'
     for msg in "PROGRAM TOTAL   " "Fortran Overhead" "Fortran MEs     " "CudaCpp MEs     " "CudaCpp HEL     "; do
