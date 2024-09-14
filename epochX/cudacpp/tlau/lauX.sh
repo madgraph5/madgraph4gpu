@@ -59,6 +59,7 @@ if [ "${bckend}" == "ALL" ]; then
 fi
 
 gridpackdir=${scrdir}/gridpacks/${proc}
+###echo gridpackdir=${gridpackdir}; exit 1
 suff=.mad
 if [ "${proc}" == "${proc%${suff}}" ]; then echo "ERROR! Process directory does not end in '${suff}'"; usage; fi
 proc=${proc%${suff}}
@@ -157,7 +158,15 @@ if [ "${grid}" == "-fromgridpack" ]; then
   if [ ! -d ${gridpackdir} ]; then echo "ERROR! Gridpack directory '${gridpackdir}' does not exist"; usage; fi
   cd ${gridpackdir}
   rm -rf madevent run.sh events.lhe*
-  tar -xzf run_01_gridpack.tar.gz
+  # Use untarred backup if it exists, otherwise untar and prepare a backup
+  if [ -d madevent.BACKUP ] && [ -f run.sh.BACKUP ]; then
+    cp -dpr madevent.BACKUP madevent
+    cp -dpr run.sh.BACKUP run.sh
+  else
+    tar -xzf run_01_gridpack.tar.gz
+    cp -dpr madevent madevent.BACKUP
+    cp -dpr run.sh run.sh.BACKUP
+  fi
   # Configure gridpack patches
   dir=madevent/bin/internal
   pushd $dir >& /dev/null
