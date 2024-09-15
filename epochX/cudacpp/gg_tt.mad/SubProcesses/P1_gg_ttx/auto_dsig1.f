@@ -101,6 +101,8 @@ C
 C     ----------
 C     BEGIN CODE
 C     ----------
+      SELECTED_HEL(:) = 0
+      SELECTED_COL(:) = 0
       DSIG1=0D0
 
       IF(IMODE.EQ.1)THEN
@@ -126,7 +128,7 @@ C     Continue only if IMODE is 0, 4 or 5
 
 
       IF (ABS(LPP(IB(1))).GE.1) THEN
-          !LP=SIGN(1,LPP(IB(1)))
+C       LP=SIGN(1,LPP(IB(1)))
         IF (DSQRT(Q2FACT(IB(1))).EQ.0D0) THEN
           QSCALE=0D0
           DO I=3,NEXTERNAL
@@ -140,7 +142,7 @@ C     Continue only if IMODE is 0, 4 or 5
         G1=PDG2PDF(LPP(IB(1)),0, IB(1),XBK(IB(1)), QSCALE)
       ENDIF
       IF (ABS(LPP(IB(2))).GE.1) THEN
-          !LP=SIGN(1,LPP(IB(2)))
+C       LP=SIGN(1,LPP(IB(2)))
         IF (DSQRT(Q2FACT(IB(2))).NE.0D0) THEN
           QSCALE=DSQRT(Q2FACT(IB(2)))
         ENDIF
@@ -281,7 +283,7 @@ C
       DOUBLE PRECISION RHEL  ! random number
       INTEGER CHANNEL
 C     
-C     STUFF FOR DRESSED EE COLLISIONS --even if not supported for now--
+C     STUFF FOR DRESSED EE COLLISIONS
 C     
       INCLUDE '../../Source/PDF/eepdf.inc'
       DOUBLE PRECISION EE_COMP_PROD
@@ -320,9 +322,10 @@ C     Keep track of whether cuts already calculated for this event
       DOUBLE PRECISION ALL_RWGT(VECSIZE_MEMMAX)
 
 C     Common blocks
-      CHARACTER*7         PDLABEL,EPA_LABEL
-      INTEGER       LHAID
-      COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL
+      INCLUDE '../../Source/PDF/pdf.inc'
+C     CHARACTER*7         PDLABEL,EPA_LABEL
+C     INTEGER       LHAID
+C     COMMON/TO_PDF/LHAID,PDLABEL,EPA_LABEL     
 
 C     
 C     local
@@ -338,6 +341,8 @@ C
 C     ----------
 C     BEGIN CODE
 C     ----------
+      SELECTED_HEL(:) = 0
+      SELECTED_COL(:) = 0
 
       IF(IMODE.EQ.1)THEN
         NFACT = DSIG1(ALL_PP(0,1,1), ALL_WGT(1), IMODE)
@@ -366,12 +371,12 @@ C     Continue only if IMODE is 0, 4 or 5
         DO IWARP=1, WARP_SIZE
           IVEC = (CURR_WARP-1)*WARP_SIZE+IWARP
           IF (ABS(LPP(IB(1))).GE.1) THEN
-              !LP=SIGN(1,LPP(IB(1)))
+C           LP=SIGN(1,LPP(IB(1)))
             G1(IVEC)=PDG2PDF(LPP(IB(1)),0, IB(1),ALL_XBK(IB(1),IVEC)
      $       ,DSQRT(ALL_Q2FACT(IB(1), IVEC)))
           ENDIF
           IF (ABS(LPP(IB(2))).GE.1) THEN
-              !LP=SIGN(1,LPP(IB(2)))
+C           LP=SIGN(1,LPP(IB(2)))
             G2(IVEC)=PDG2PDF(LPP(IB(2)),0, IB(2),ALL_XBK(IB(2),IVEC)
      $       ,DSQRT(ALL_Q2FACT(IB(2), IVEC)))
           ENDIF
@@ -485,11 +490,6 @@ C         Call UNWGT to unweight and store events
       ENDDO
 
       END
-C     
-C     Functionality to handling grid
-C     
-
-
 
 
 
@@ -589,9 +589,11 @@ C       ======================================================
 C         ! This is a workaround for
 C          https://github.com/oliviermattelaer/mg5amc_test/issues/22
 C          (see PR #486)
-          IF( FBRIDGE_MODE .EQ. 1 ) THEN  ! (CppOnly=1 : SMATRIX1 is not called at all)
-            CALL RESET_CUMULATIVE_VARIABLE()  ! mimic 'avoid bias of the initialization' within SMATRIX1
-          ENDIF
+C         IF( FBRIDGE_MODE .EQ. 1 ) THEN  ! (CppOnly=1 : SMATRIX1 is
+C          not called at all)
+C         CALL RESET_CUMULATIVE_VARIABLE()  ! mimic 'avoid bias of the'
+C         //' initialization' within SMATRIX1
+C         ENDIF
           CALL FBRIDGEGETNGOODHEL(FBRIDGE_PBRIDGE,NGOODHEL,NTOTHEL)
           IF( NTOTHEL .NE. NCOMB ) THEN
             WRITE(6,*) 'ERROR  ! Cudacpp/Fortran mismatch',
@@ -702,5 +704,8 @@ C              for that particle
               GET_NHEL1 = NHEL(IPART, IABS(HEL))
               RETURN
               END
+
+
+
 
 

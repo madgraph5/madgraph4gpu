@@ -98,6 +98,7 @@ class CPPRunCard(banner_mod.RunCardLO):
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'
         self['matrix_flag'] = '-O3'
+        self['limhel'] = 0
         self.display_block.append('simd')
         self.display_block.append('psoptim')
 

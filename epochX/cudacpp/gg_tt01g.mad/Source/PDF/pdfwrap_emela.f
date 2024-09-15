@@ -13,7 +13,7 @@ C
       DOUBLE PRECISION VALUE(20)
       REAL*8 ALPHASPDF
       EXTERNAL ALPHASPDF
-        ! PDFs with beamstrahlung use specific initialisation/evaluation
+C     PDFs with beamstrahlung use specific initialisation/evaluation
       LOGICAL HAS_BSTRAHL
       COMMON /TO_HAS_BS/ HAS_BSTRAHL
 

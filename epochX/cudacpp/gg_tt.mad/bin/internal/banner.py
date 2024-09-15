@@ -3184,7 +3184,6 @@ class RunCard(ConfigFile):
         if path does not exists return the current value in self for all parameter"""
 
         #WARNING DOES NOT HANDLE LIST/DICT so far
-
         # handle case where file is missing
         if not os.path.exists(pjoin(output_dir,path)):
             misc.sprint("include file not existing", pjoin(output_dir,path))
@@ -3314,6 +3313,7 @@ class RunCard(ConfigFile):
             starttext = open(pjoin(outdir, path+'.orig')).read()
             fsock.remove_routine(starttext, to_mod[path][0])
             for text in to_mod[path][1]:
+                text = self.retro_compatible_custom_fct(text)
                 fsock.writelines(text)
             fsock.close()
             if not filecmp.cmp(pjoin(outdir, path), pjoin(outdir, path+'.tmp')):
@@ -3330,7 +3330,33 @@ class RunCard(ConfigFile):
                 files.mv(pjoin(outdir,path+'.orig'), pjoin(outdir, path))
 
 
+    @staticmethod
+    def retro_compatible_custom_fct(lines, mode=None):
 
+        f77_type = ['real*8', 'integer', 'double precision', 'logical']
+        function_pat = re.compile('^\s+(?:SUBROUTINE|(?:%(type)s)\s+function)\s+([a-zA-Z]\w*)' \
+                                % {'type':'|'.join(f77_type)}, re.I+re.M)
+        include_pat = re.compile(r"\s+include\s+[\'\"]([\w\./]*)") 
+        
+        assert isinstance(lines, list)
+        sol = []
+
+        if mode is None or 'vector.inc' in mode:
+            search = True
+            for i,line in enumerate(lines[:]):
+                if search and re.search(include_pat, line):
+                    name = re.findall(include_pat, line)[0]
+                    misc.sprint('DETECTED INCLUDE', name)
+                    if 'vector.inc' in name:
+                        search = False
+                    if 'run.inc' in name:
+                        sol.append("       include 'vector.inc'")
+                        search = False
+                sol.append(line)
+                if re.search(function_pat, line):
+                    misc.sprint("DETECTED FCT")
+                    search = True
+        return sol
 
     def guess_entry_fromname(self, name, value):
         """
@@ -3506,8 +3532,10 @@ class RunCard(ConfigFile):
         #ensusre that system only parameter are correctly set
         self.update_system_parameter_for_include()
 
-        value_in_old_include = self.get_last_value_include(output_dir)
-
+        if output_dir: #output_dir is set to None in some unittest
+            value_in_old_include = self.get_last_value_include(output_dir)
+        else:
+           value_in_old_include = {} 
 
         if output_dir:
             self.write_autodef(output_dir, output_file=None)
@@ -3524,7 +3552,6 @@ class RunCard(ConfigFile):
     def write_one_include_file(self, output_dir, incname, output_file=None):
         """write one include file at the time"""
 
-        misc.sprint(incname)
         if incname is True:
             pathinc = self.default_include_file
         elif incname is False:
