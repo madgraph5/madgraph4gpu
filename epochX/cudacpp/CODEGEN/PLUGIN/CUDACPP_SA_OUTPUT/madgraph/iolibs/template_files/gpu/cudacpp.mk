@@ -116,15 +116,31 @@ override CUDA_HOME = $(patsubst %%/bin/nvcc,%%,$(shell which nvcc 2>/dev/null))
 # Set HIP_HOME from the path to hipcc, if it exists
 override HIP_HOME = $(patsubst %%/bin/hipcc,%%,$(shell which hipcc 2>/dev/null))
 
-# Configure CUDA_INC (for CURAND and NVTX) and NVTX if a CUDA installation exists
-# (FIXME? Is there any equivalent of NVTX FOR HIP? What should be configured if both CUDA and HIP are installed?)
-ifneq ($(CUDA_HOME),)
-  USE_NVTX ?=-DUSE_NVTX
-  CUDA_INC = -I$(CUDA_HOME)/include/
-else
-  override USE_NVTX=
+# Configure CUDA_INC (for CURAND and NVTX) and NVTX if a CUDA installation exists (see #965)
+ifeq ($(CUDA_HOME),)
+  # CUDA_HOME is empty (nvcc not found)
   override CUDA_INC=
+else ifeq ($(wildcard $(CUDA_HOME)/include/),)
+  # CUDA_HOME is defined (nvcc was found) but $(CUDA_HOME)/include/ does not exist?
+  override CUDA_INC=
+else
+  CUDA_INC = -I$(CUDA_HOME)/include/
 endif
+###$(info CUDA_INC=$(CUDA_INC))
+
+# Configure NVTX if a CUDA include directory exists and NVTX headers exist (see #965)
+ifeq ($(CUDA_INC),)
+  # $(CUDA_HOME)/include/ does not exist
+  override USE_NVTX=
+else ifeq ($(wildcard $(CUDA_HOME)/include/nvtx3/nvToolsExt.h),)
+  # $(CUDA_HOME)/include/ exists but NVTX headers do not exist?
+  override USE_NVTX=
+else
+  # $(CUDA_HOME)/include/nvtx.h exists: use NVTX
+  # (NB: the option to disable NVTX if 'USE_NVTX=' is defined has been removed)
+  override USE_NVTX=-DUSE_NVTX
+endif
+###$(info USE_NVTX=$(USE_NVTX))
 
 # NB: NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV Feb-Mar 2024)
 # - In the old implementation, by default the C++ targets for one specific AVX were always built together with either CUDA or HIP.
@@ -186,6 +202,7 @@ ifeq ($(BACKEND),cuda)
   GPUFLAGS += -use_fast_math
 
   # Extra build warnings
+  GPUFLAGS += $(XCOMPILERFLAG) -Wunused-parameter
   ###GPUFLAGS += $(XCOMPILERFLAG) -Wall $(XCOMPILERFLAG) -Wextra $(XCOMPILERFLAG) -Wshadow
 
   # CUDA includes and NVTX
@@ -266,7 +283,7 @@ export GPUSUFFIX
 
 #=== Configure ccache for C++ and CUDA/HIP builds
 
-# Enable ccache if USECCACHE=1
+# Enable ccache only if USECCACHE=1
 ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
   override CXX:=ccache $(CXX)
 endif
@@ -314,20 +331,24 @@ export CXXNAMESUFFIX
 # Dependency on test directory
 # Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
 # Outside the madgraph4gpu git repo: by default do not build the tests (optionally use an external or local gtest)
+# Do not build the tests if USEGTEST is equal to 0 (default inside launch_plugin.py, see https://github.com/madgraph5/madgraph4gpu/issues/878)
 ###GTEST_ROOT = /cvmfs/sft.cern.ch/lcg/releases/gtest/1.11.0-21e8c/x86_64-centos8-gcc11-opt/# example of an external gtest installation
 ###LOCALGTEST = yes# comment this out (or use make LOCALGTEST=yes) to build tests using a local gtest installation
 TESTDIRCOMMON = ../../../../../test
 TESTDIRLOCAL = ../../test
-ifneq ($(wildcard $(GTEST_ROOT)),)
-  TESTDIR =
+ifeq ($(USEGTEST),0)
+  TESTDIR=
+  GTEST_ROOT=
+else ifneq ($(wildcard $(GTEST_ROOT)),)
+  TESTDIR=
 else ifneq ($(LOCALGTEST),)
   TESTDIR=$(TESTDIRLOCAL)
-  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
+  GTEST_ROOT=$(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
-  TESTDIR = $(TESTDIRCOMMON)
-  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
+  TESTDIR=$(TESTDIRCOMMON)
+  GTEST_ROOT= $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else
-  TESTDIR =
+  TESTDIR=
 endif
 ifneq ($(GTEST_ROOT),)
   GTESTLIBDIR = $(GTEST_ROOT)/lib64/
@@ -369,22 +390,34 @@ endif
 
 #=== Configure defaults for OMPFLAGS
 
-# Set the default OMPFLAGS choice
-ifneq ($(findstring hipcc,$(GPUCC)),)
-  override OMPFLAGS = # disable OpenMP MT when using hipcc #802
-else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-  override OMPFLAGS = -fopenmp
-  ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
-else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
-  override OMPFLAGS = -fopenmp
-  ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
-###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
-else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
-  override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
-  ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+# Disable OpenMP by default: enable OpenMP only if USEOPENMP=1 (#758)
+ifeq ($(USEOPENMP),1)
+  ###$(info USEOPENMP==1: will build with OpenMP if possible)
+  ifneq ($(findstring hipcc,$(GPUCC)),)
+    override OMPFLAGS = # disable OpenMP MT when using hipcc #802
+  else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
+    override OMPFLAGS = -fopenmp
+    ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 16'),)
+    ###override OMPFLAGS = # disable OpenMP on clang16 #904
+    $(error OpenMP is not supported by cudacpp on clang16 - issue #904)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 17'),)
+    ###override OMPFLAGS = # disable OpenMP on clang17 #904
+    $(error OpenMP is not supported by cudacpp on clang17 - issue #904)
+  else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
+    override OMPFLAGS = -fopenmp
+    ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
+  ###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
+  else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
+    override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
+    ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+  else
+    override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
+    ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+  endif
 else
-  override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
-  ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+  ###$(info USEOPENMP!=1: will build without OpenMP)
+  override OMPFLAGS =
 endif
 
 #-------------------------------------------------------------------------------
@@ -408,13 +441,18 @@ endif
 # (NB: allow HASCURAND=hasCurand even if $(GPUCC) does not point to nvcc: assume CUDA_HOME was defined correctly...)
 ifeq ($(HASCURAND),)
   ifeq ($(GPUCC),) # CPU-only build
-    ifneq ($(CUDA_HOME),)
+    ifeq ($(CUDA_INC),)
+      # $(CUDA_HOME)/include/ does not exist (see #965)
+      override HASCURAND = hasNoCurand
+    else ifeq ($(wildcard $(CUDA_HOME)/include/curand.h),)
+      # $(CUDA_HOME)/include/ exists but CURAND headers do not exist? (see #965)
+      override HASCURAND = hasNoCurand
+    else
       # By default, assume that curand is installed if a CUDA installation exists
       override HASCURAND = hasCurand
-    else
-      override HASCURAND = hasNoCurand
     endif
   else ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
+    # By default, assume that curand is installed if a CUDA build is requested
     override HASCURAND = hasCurand
   else # non-Nvidia GPU build
     override HASCURAND = hasNoCurand
@@ -563,6 +601,14 @@ GPUFLAGS += $(XCOMPILERFLAG) -fPIC
 
 #-------------------------------------------------------------------------------
 
+#=== Configure channelid debugging
+ifneq ($(MG5AMC_CHANNELID_DEBUG),)
+  CXXFLAGS += -DMGONGPU_CHANNELID_DEBUG
+  GPUFLAGS += -DMGONGPU_CHANNELID_DEBUG
+endif
+
+#-------------------------------------------------------------------------------
+
 #=== Configure build directories and build lockfiles ===
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
@@ -633,10 +679,20 @@ endif
 
 # Target (and build options): debug
 MAKEDEBUG=
-debug: OPTFLAGS   = -g -O0
+debug: OPTFLAGS = -g -O0
 debug: CUDA_OPTFLAGS = -G
 debug: MAKEDEBUG := debug
 debug: all.$(TAG)
+
+# Target (and build options): address sanitizer #207
+###CXXLIBFLAGSASAN =
+###GPULIBFLAGSASAN =
+###asan: OPTFLAGS = -g -O0 -fsanitize=address -fno-omit-frame-pointer
+###asan: CUDA_OPTFLAGS = -G $(XCOMPILERFLAG) -fsanitize=address $(XCOMPILERFLAG) -fno-omit-frame-pointer
+###asan: CXXLIBFLAGSASAN = -fsanitize=address
+###asan: GPULIBFLAGSASAN = -Xlinker -fsanitize=address -Xlinker -shared
+###asan: MAKEDEBUG := debug
+###asan: all.$(TAG)
 
 # Target: tag-specific build lockfiles
 override oldtagsb=`if [ -d $(BUILDDIR) ]; then find $(BUILDDIR) -maxdepth 1 -name '.build.*' ! -name '.build.$(TAG)' -exec echo $(shell pwd)/{} \; ; fi`
@@ -758,11 +814,13 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): C++ and CUDA/HIP standalone executables
+###$(cxx_checkmain): LIBFLAGS += $(CXXLIBFLAGSASAN)
 $(cxx_checkmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_checkmain): $(BUILDDIR)/check_sa_cpp.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o
 	$(CXX) -o $@ $(BUILDDIR)/check_sa_cpp.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o $(RNDLIBFLAGS)
 
 ifneq ($(GPUCC),)
+###$(gpu_checkmain): LIBFLAGS += $(GPULIBFLAGSASAN)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(gpu_checkmain): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
 $(gpu_checkmain): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
@@ -777,9 +835,11 @@ endif
 #-------------------------------------------------------------------------------
 
 # Generic target and build rules: objects from Fortran compilation
+# (NB In this makefile, this only applies to fcheck_sa_fortran.o)
+# (NB -fPIC was added to fix clang16 build #904, but this seems better for other cases too and is consistent to c++ and cuda builds)
 $(BUILDDIR)/%%_fortran.o : %%.f *.inc
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(FC) -I. -c $< -o $@
+	$(FC) -I. -fPIC -c $< -o $@
 
 # Generic target and build rules: objects from Fortran compilation
 ###$(BUILDDIR)/%%_fortran.o : %%.f *.inc
@@ -790,6 +850,7 @@ $(BUILDDIR)/%%_fortran.o : %%.f *.inc
 # Target (and build rules): Fortran standalone executables
 ###$(BUILDDIR)/fcheck_sa_fortran.o : $(INCDIR)/fbridge.inc
 
+###$(cxx_fcheckmain): LIBFLAGS += $(CXXLIBFLAGSASAN)
 ifeq ($(UNAME_S),Darwin)
 $(cxx_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
 endif
@@ -802,6 +863,7 @@ else
 endif
 
 ifneq ($(GPUCC),)
+###$(gpu_fcheckmain): LIBFLAGS += $(GPULIBFLAGSASAN)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(gpu_fcheckmain): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
 $(gpu_fcheckmain): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
@@ -904,10 +966,12 @@ endif
 ###endif
 
 ifeq ($(GPUCC),) # link only runTest_cpp.o
+###$(cxx_testmain): LIBFLAGS += $(CXXLIBFLAGSASAN)
 $(cxx_testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS)
 else # link only runTest_$(GPUSUFFIX).o (new: in the past, this was linking both runTest_cpp.o and runTest_$(GPUSUFFIX).o)
+###$(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSASAN)
 $(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(GTESTLIBS)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802

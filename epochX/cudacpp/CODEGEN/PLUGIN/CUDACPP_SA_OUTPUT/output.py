@@ -30,11 +30,12 @@ import PLUGIN.CUDACPP_OUTPUT.model_handling as model_handling
 # AV - create a plugin-specific logger
 import logging
 logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.output')
-
+from madgraph import MG5DIR
 #------------------------------------------------------------------------------------
 
 from os.path import join as pjoin
 import madgraph.iolibs.files as files
+import madgraph.iolibs.export_v4 as export_v4
 import madgraph.various.misc as misc
 
 from . import launch_plugin
@@ -102,6 +103,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
                                       s+'gpu/MemoryAccessGs.h', s+'gpu/MemoryAccessCouplingsFixed.h',
                                       s+'gpu/MemoryAccessNumerators.h', s+'gpu/MemoryAccessDenominators.h',
+                                      s+'gpu/MemoryAccessChannelIds.h',
                                       s+'gpu/EventStatistics.h', s+'gpu/CommonRandomNumbers.h',
                                       s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
                                       s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
@@ -111,7 +113,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
                                       s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
-                                      s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
+                                      s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt', s+'gpu/valgrind.h',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
                                       s+'CMake/SubProcesses/CMakeLists.txt'],
                      'test': [s+'gpu/cudacpp_test.mk']}
@@ -124,6 +126,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
                     'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h',
                     'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h',
+                    'MemoryAccessChannelIds.h',
                     'EventStatistics.h', 'CommonRandomNumbers.h',
                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
                     'MatrixElementKernels.cc', 'MatrixElementKernels.h',
@@ -133,7 +136,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
                     'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
                     'MadgraphTest.h', 'runTest.cc',
-                    'testmisc.cc', 'testxxx_cc_ref.txt',
+                    'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h',
                     'cudacpp.mk', # this is generated from a template in Subprocesses but we still link it in P1
                     'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
@@ -191,6 +194,19 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                 makefile_test = self.read_template_file(self.template_tst_make) % {'model': self.get_model_name(model.get('name'))}
                 open(os.path.join('test', 'cudacpp_test.mk'), 'w').write(makefile_test)
 
+    # OM - overload export_v4.py version to add additional_clean section (and avoid patchMad.sh for Source/makefile)
+    def write_source_makefile(self, writer, model=None, default=None):
+        if default:
+            replace_dict = default
+        else:
+            raise Exception('primary exporter should have been run first')
+        path = pjoin(PLUGINDIR , 'madgraph', 'iolibs', 'template_files', 'madevent_makefile_source_addon')
+        replace_dict['additional_clean'] += open(path).read()
+        if writer:
+            path = pjoin(MG5DIR, 'madgraph', 'iolibs','template_files','madevent_makefile_source')
+            text = open(path).read() % replace_dict
+            writer.write(text)
+
     # AV - add debug printouts (in addition to the default one from OM's tutorial)
     def generate_subprocess_directory(self, subproc_group, fortran_model, me=None):
         misc.sprint('Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory)')
@@ -202,16 +218,17 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         return out
     # AV (default from OM's tutorial) - add a debug printout
     def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
-        misc.sprint('Entering PLUGIN_ProcessExporter.convert_model (create the model)')
+        if hasattr(model , 'cudacpp_wanted_ordered_couplings'):
+            wanted_coupling = model.cudacpp_wanted_ordered_couplings
+            del model.cudacpp_wanted_ordered_couplings
         return super().convert_model(model, wanted_lorentz, wanted_coupling)
-
 
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
         """Typically creating jpeg/HTML output/ compilation/...
-           cmdhistory is the list of command used so far.
-           MG5options are all the options of the main interface
-           outputflags is a list of options provided when doing the output command"""
+            cmdhistory is the list of command used so far.
+            MG5options are all the options of the main interface
+            outputflags is a list of options provided when doing the output command"""
         ###misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
         if self.in_madevent_mode:
             self.add_input_for_banner()
@@ -294,24 +311,76 @@ class PLUGIN_ProcessExporter_MadEvent(PLUGIN_ProcessExporter):
     from_template['SubProcesses'] = from_template['SubProcesses'] + [s+'gpu/fbridge_common.inc',
                                       s+'gpu/counters.cc',
                                       s+'gpu/ompnumthreads.cc']
-     
-    to_link_in_P = PLUGIN_ProcessExporter.to_link_in_P + ['fbridge_common.inc', 'counters.cc','ompnumthreads.cc'] 
+
+    to_link_in_P = PLUGIN_ProcessExporter.to_link_in_P + ['fbridge_common.inc', 'counters.cc','ompnumthreads.cc']
 
 #------------------------------------------------------------------------------------
 
 class SIMD_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
-    
+
     # Default class for the run_card to use
     run_card_class = launch_plugin.CPPRunCard
-    
+
     def change_output_args(args, cmd):
         """ """
-        cmd._export_format = "madevent"
+        #cmd._export_format = "madevent_forplugin"
+        cmd._export_format = 'madevent'
+        cmd._export_plugin = FortranExporterBridge
         args.append('--hel_recycling=False')
         args.append('--me_exporter=standalone_simd')
         if 'vector_size' not in ''.join(args):
             args.append('--vector_size=16')
+        if 'nb_wrap' not in ''.join(args):
+            args.append('--nb_wrap=1')
         return args
+
+class FortranExporterBridge(export_v4.ProcessExporterFortranMEGroup):
+
+    def write_auto_dsig_file(self, writer, matrix_element, proc_id = ""):
+        replace_dict,context = super().write_auto_dsig_file(False, matrix_element, proc_id)
+        replace_dict['additional_header'] = """
+      INTEGER IEXT
+
+      INTEGER                    ISUM_HEL
+      LOGICAL                    MULTI_CHANNEL
+      COMMON/TO_MATRIX/ISUM_HEL, MULTI_CHANNEL
+
+      LOGICAL FIRST_CHID
+      SAVE FIRST_CHID
+      DATA FIRST_CHID/.TRUE./
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      INCLUDE 'coupl.inc' ! for ALL_G
+      INCLUDE 'fbridge.inc'
+      INCLUDE 'fbridge_common.inc'
+      INCLUDE 'genps.inc'
+      INCLUDE 'run.inc'
+      DOUBLE PRECISION OUT2(VECSIZE_MEMMAX)
+      INTEGER SELECTED_HEL2(VECSIZE_MEMMAX)
+      INTEGER SELECTED_COL2(VECSIZE_MEMMAX)
+      DOUBLE PRECISION CBYF1
+      INTEGER*4 NGOODHEL, NTOTHEL
+
+      INTEGER*4 NWARNINGS
+      SAVE NWARNINGS
+      DATA NWARNINGS/0/
+
+      LOGICAL FIRST
+      SAVE FIRST
+      DATA FIRST/.TRUE./"""
+        replace_dict['OMP_LIB'] = ''
+        replace_dict['OMP_PREFIX'] = """IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
+#endif
+CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1"""
+        replace_dict["OMP_POSTFIX"] = open(pjoin(PLUGINDIR,'madgraph','iolibs','template_files','gpu','smatrix_multi.f')).read().split('\n',4)[4] # AV skip 4 copyright lines
+        _file_path = export_v4._file_path
+        if writer:
+            file = open(pjoin(_file_path, 'iolibs/template_files/auto_dsig_v4.inc')).read()
+            file = file % replace_dict
+            # Write the file
+            writer.writelines(file, context=context)
+        else:
+            return replace_dict, context
 
 #------------------------------------------------------------------------------------
 
@@ -319,14 +388,18 @@ class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
 
     # Default class for the run_card to use
     run_card_class = launch_plugin.GPURunCard
-    
+
     def change_output_args(args, cmd):
         """ """
-        cmd._export_format = "madevent"
+        cmd._export_format = 'madevent'
+        cmd._export_plugin = FortranExporterBridge
+
         args.append('--hel_recycling=False')
         args.append('--me_exporter=standalone_cuda')
         if 'vector_size' not in ''.join(args):
-            args.append('--vector_size=16384')
+            args.append('--vector_size=32')
+        if 'nb_wrap' not in ''.join(args):
+            args.append('--nb_wrap=512')
         return args
 
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
@@ -348,65 +421,73 @@ class RWGT_ProcessExporter(PLUGIN_ProcessExporter):
     proc_lines = []
     
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
-    from_template = {'.': [s+'.clang-format', s+'CMake/CMakeLists.txt',
-                           s+'COPYRIGHT', s+'COPYING', s+'COPYING.LESSER' ],
-                     'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
-                     'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
-                             s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h',
-                             s+'gpu/constexpr_math.h',
-                             s+'gpu/cudacpp_config.mk',
-                             s+'CMake/src/CMakeLists.txt',
-                             s+'REX/REX.cc', s+'REX/teawREX.cc', 
-                             s+'REX/REX.h', s+'REX/teawREX.h', 
-                             s+'REX/rwgt_instance.h', s+'REX/rwgt_instance.cc' ],
-                     'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h',
-                                      s+'gpu/ompnumthreads.h', s+'gpu/GpuRuntime.h', s+'gpu/GpuAbstraction.h',
-                                      s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
-                                      s+'gpu/MemoryAccessMatrixElements.h', s+'gpu/MemoryAccessMomenta.h',
-                                      s+'gpu/MemoryAccessRandomNumbers.h', s+'gpu/MemoryAccessWeights.h',
-                                      s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
-                                      s+'gpu/MemoryAccessGs.h', s+'gpu/MemoryAccessCouplingsFixed.h',
-                                      s+'gpu/MemoryAccessNumerators.h', s+'gpu/MemoryAccessDenominators.h',
-                                      s+'gpu/EventStatistics.h', s+'gpu/CommonRandomNumbers.h',
-                                      s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
-                                      s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
-                                      s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
-                                      s+'gpu/RandomNumberKernels.h', s+'gpu/CommonRandomNumberKernel.cc',
-                                      s+'gpu/CurandRandomNumberKernel.cc', s+'gpu/HiprandRandomNumberKernel.cc',
-                                      s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
-                                      s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
-                                      s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
-                                      s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
-                                      s+'gpu/perf.py', s+'gpu/profile.sh',
-                                      s+'CMake/SubProcesses/CMakeLists.txt',
-                                      s+'gpu/cudacpp_driver.mk',
-                                      s+'REX/rwgt_instance.h', s+'REX/REX.h', s+'REX/teawREX.h'],
-                     'test': [s+'gpu/cudacpp_test.mk']}
+    from_template = dict(PLUGIN_ProcessExporter.from_template)
+    from_template['src'] = from_template['src'] + [s+'REX/REX.cc', s+'REX/teawREX.cc',
+                                                   s+'REX/REX.h', s+'REX/teawREX.h',
+                                                    s+'REX/rwgt_instance.h', s+'REX/rwgt_instance.cc']
+    from_template['SubProcesses'] = from_template['SubProcesses'] + [s+'gpu/cudacpp_driver.mk',
+                                                                     s+'REX/rwgt_instance.h', s+'REX/REX.h', s+'REX/teawREX.h']
+    # from_template = {'.': [s+'.clang-format', s+'CMake/CMakeLists.txt',
+    #                        s+'COPYRIGHT', s+'COPYING', s+'COPYING.LESSER' ],
+    #                  'CMake': [s+'CMake/Compilers.txt', s+'CMake/Platforms.txt', s+'CMake/Macros.txt'],
+    #                  'src': [s+'gpu/rambo.h', s+'read_slha.h', s+'read_slha.cc',
+    #                          s+'gpu/mgOnGpuFptypes.h', s+'gpu/mgOnGpuCxtypes.h', s+'gpu/mgOnGpuVectors.h',
+    #                          s+'gpu/constexpr_math.h',
+    #                          s+'gpu/cudacpp_config.mk',
+    #                          s+'CMake/src/CMakeLists.txt',
+    #                          s+'REX/REX.cc', s+'REX/teawREX.cc', 
+    #                          s+'REX/REX.h', s+'REX/teawREX.h', 
+    #                          s+'REX/rwgt_instance.h', s+'REX/rwgt_instance.cc' ],
+    #                  'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h',
+    #                                   s+'gpu/ompnumthreads.h', s+'gpu/GpuRuntime.h', s+'gpu/GpuAbstraction.h',
+    #                                   s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
+    #                                   s+'gpu/MemoryAccessMatrixElements.h', s+'gpu/MemoryAccessMomenta.h',
+    #                                   s+'gpu/MemoryAccessRandomNumbers.h', s+'gpu/MemoryAccessWeights.h',
+    #                                   s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
+    #                                   s+'gpu/MemoryAccessGs.h', s+'gpu/MemoryAccessCouplingsFixed.h',
+    #                                   s+'gpu/MemoryAccessNumerators.h', s+'gpu/MemoryAccessDenominators.h',
+    #                                   s+'gpu/EventStatistics.h', s+'gpu/CommonRandomNumbers.h',
+    #                                   s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
+    #                                   s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
+    #                                   s+'gpu/RamboSamplingKernels.cc', s+'gpu/RamboSamplingKernels.h',
+    #                                   s+'gpu/RandomNumberKernels.h', s+'gpu/CommonRandomNumberKernel.cc',
+    #                                   s+'gpu/CurandRandomNumberKernel.cc', s+'gpu/HiprandRandomNumberKernel.cc',
+    #                                   s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
+    #                                   s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
+    #                                   s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
+    #                                   s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt',
+    #                                   s+'gpu/perf.py', s+'gpu/profile.sh',
+    #                                   s+'CMake/SubProcesses/CMakeLists.txt',
+    #                                   s+'gpu/cudacpp_driver.mk',
+    #                                   s+'REX/rwgt_instance.h', s+'REX/REX.h', s+'REX/teawREX.h'],
+    #                  'test': [s+'gpu/cudacpp_test.mk']}
 
-    to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
-                    'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h',
-                    'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
-                    'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h',
-                    'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h',
-                    'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
-                    'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h',
-                    'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h',
-                    'EventStatistics.h', 'CommonRandomNumbers.h',
-                    'CrossSectionKernels.cc', 'CrossSectionKernels.h',
-                    'MatrixElementKernels.cc', 'MatrixElementKernels.h',
-                    'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
-                    'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc',
-                    'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc',
-                    'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
-                    'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
-                    'MadgraphTest.h', 'runTest.cc',
-                    'testmisc.cc', 'testxxx_cc_ref.txt',
-                    'cudacpp.mk', # this is generated from a template in Subprocesses but we still link it in P1
-                    'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
-                    'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
-                    'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
-                    'perf.py', 'profile.sh',
-                    'rwgt_instance.h', 'REX.h', 'teawREX.h']
+    to_link_in_P = PLUGIN_ProcessExporter.to_link_in_P + ['rwgt_instance.h', 'REX.h', 'teawREX.h']
+
+    # to_link_in_P = ['nvtx.h', 'timer.h', 'timermap.h',
+    #                 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h',
+    #                 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h',
+    #                 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h',
+    #                 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h',
+    #                 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
+    #                 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h',
+    #                 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h',
+    #                 'EventStatistics.h', 'CommonRandomNumbers.h',
+    #                 'CrossSectionKernels.cc', 'CrossSectionKernels.h',
+    #                 'MatrixElementKernels.cc', 'MatrixElementKernels.h',
+    #                 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h',
+    #                 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc',
+    #                 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc',
+    #                 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
+    #                 'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
+    #                 'MadgraphTest.h', 'runTest.cc',
+    #                 'testmisc.cc', 'testxxx_cc_ref.txt',
+    #                 'cudacpp.mk', # this is generated from a template in Subprocesses but we still link it in P1
+    #                 'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
+    #                 'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
+    #                 'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
+    #                 'perf.py', 'profile.sh',
+    #                 'rwgt_instance.h', 'REX.h', 'teawREX.h']
     
 #     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
 #     from_template = {'.': [s+'.clang-format', s+'CMake/CMakeLists.txt',
@@ -476,7 +557,7 @@ class RWGT_ProcessExporter(PLUGIN_ProcessExporter):
 #    to_link_in_P.append('REX.hpp')
 #    to_link_in_P.append('teawREX.hpp')
     
-    template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','cudacpp_src.mk')
+    template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','cudacpp_rex_src.mk')
     template_tst_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_test.mk')
     template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_runner.mk')
     

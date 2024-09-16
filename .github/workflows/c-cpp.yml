@@ -2,9 +2,9 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, master_june24 ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, master_june24 ]
 
 jobs:
   debug_builds:
@@ -38,7 +38,7 @@ jobs:
   CPU_MAC:
     runs-on: macos-latest
     env:
-      FC: gfortran-11
+      FC: gfortran-14 # see #971
     strategy:
       matrix:
         folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum, epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]

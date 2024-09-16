@@ -42,6 +42,7 @@ namespace rwgt{
     fBridge::fBridge(){}
     fBridge::fBridge( REX::event& process ){
         this->nPar = process.getPrts().size();
+        this->goodHel = false;
     }
     fBridge::fBridge( std::vector<REX::event>& process, unsigned int warpSize){
         this->nPar = process[0].getPrts().size();
@@ -53,6 +54,7 @@ namespace rwgt{
         this->rndCol = std::vector<FORTRANFPTYPE>( fauxNEvt, 0. );
         this->selHel = std::vector<int>( fauxNEvt, 0. );
         this->selCol = std::vector<int>( fauxNEvt, 0. );
+        this->goodHel = false;
     }
     fBridge::fBridge( std::vector<std::shared_ptr<REX::event>> process, unsigned int warpSize){
         this->nPar = process[0]->getPrts().size();
@@ -64,6 +66,7 @@ namespace rwgt{
         this->rndCol = std::vector<FORTRANFPTYPE>( fauxNEvt, 0. );
         this->selHel = std::vector<int>( fauxNEvt, 0. );
         this->selCol = std::vector<int>( fauxNEvt, 0. );
+        this->goodHel = false;
     }
     fBridge::fBridge( const fBridge& source ){
         this->rndHel = source.rndHel;
@@ -78,6 +81,7 @@ namespace rwgt{
         this->fauxNEvt = source.fauxNEvt;
         this->nPar = source.nPar;
         this->bridge = source.bridge;
+        this->goodHel = source.goodHel;
     }
     void fBridge::init( std::vector<REX::event>& process, unsigned int warpSize ){
         this->nPar = process[0].getPrts().size();
@@ -140,7 +144,7 @@ namespace rwgt{
         if( this->bridge == nullptr) throw std::runtime_error("fBridge object not defined.");
         warpPad( alphaS, nWarp );
         warpPad( momenta, nWarp * nPar * nMom );
-        auto evalScatAmps = this->bridge(fauxNEvt, nPar, nMom, momenta, alphaS, rndHel, rndCol, selHel, selCol, chanId );
+        auto evalScatAmps = this->bridge(fauxNEvt, nPar, nMom, momenta, alphaS, rndHel, rndCol, selHel, selCol, chanId, goodHel );
         alphaS.resize( nEvt );
         momenta.resize( nEvt * nPar * nMom );
         evalScatAmps->resize( nEvt );

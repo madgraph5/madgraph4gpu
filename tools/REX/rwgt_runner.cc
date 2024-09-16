@@ -21,11 +21,11 @@
 namespace %(process_namespace)s{
 //namespace dummy{
 
-    std::shared_ptr<std::vector<FORTRANFPTYPE>> amp( int& nEvt, int& nPar, int& nMom, std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS, std::vector<FORTRANFPTYPE>& rndHel, std::vector<FORTRANFPTYPE>& rndCol, std::vector<int>& selHel, std::vector<int>& selCol, unsigned int& chanId ){
+    std::shared_ptr<std::vector<FORTRANFPTYPE>> amp( int& nEvt, int& nPar, int& nMom, std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS, std::vector<FORTRANFPTYPE>& rndHel, std::vector<FORTRANFPTYPE>& rndCol, std::vector<int>& selHel, std::vector<int>& selCol, unsigned int& chanId, bool& goodHel ){
         CppObjectInFortran *bridgeInst;
         auto evalScatAmps = std::make_shared<std::vector<FORTRANFPTYPE>>( nEvt );
         fbridgecreate_( &bridgeInst, &nEvt, &nPar, &nMom );
-        fbridgesequence_nomultichannel_( &bridgeInst, &momenta.at(0), &alphaS.at(0), &rndHel[0], &rndCol[0], &evalScatAmps->at(0), &selHel[0], &selCol[0] );
+        fbridgesequence_nomultichannel_( &bridgeInst, &momenta.at(0), &alphaS.at(0), &rndHel[0], &rndCol[0], &evalScatAmps->at(0), &selHel[0], &selCol[0], &goodHel );
         fbridgedelete_( &bridgeInst );
         return evalScatAmps;
     }

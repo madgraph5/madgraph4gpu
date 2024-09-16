@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Nov 2023) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2023-2024) for the MG5aMC CUDACPP plugin.
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ on:
 
   # Trigger the all-processes workflow for pull requests to master
   pull_request:
-    branches: [ master ]
+    branches: [ master, master_june24 ]
 
   # Trigger the all-processes workflow when new changes to the workflow are pushed
   # (NB: this is now disabled to avoid triggering two jobs when pushing to a branch for which a PR is opened)

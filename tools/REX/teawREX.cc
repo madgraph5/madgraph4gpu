@@ -599,7 +599,7 @@ namespace REX::teaw
             }
             if( sameWeight ){
                 if( std::abs(xSec - flatWgts->at(0)) < precision ){
-                    this->ampNorm = double( 1 / flatWgts->size());
+                    this->ampNorm =  1. / double(flatWgts->size());
                     return;
                 }
                 div = flatWgts->size() * flatWgts->at(0);

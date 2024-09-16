@@ -7,7 +7,7 @@
 // Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.5.3_lo_vect, 2023-12-23
+// MadGraph5_aMC@NLO v. 3.6.0_lo_vect, 2024-06-17
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -61,7 +61,7 @@ namespace mg5amcCpu
     //double mdl_sqrt__aS, G, mdl_G__exp__2; // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
-    //cxsmpl<double> GC_6, GC_55, GC_57, GC_90; // now computed event-by-event (running alphas #373)
+    //cxsmpl<double> GC_90, GC_6, GC_55, GC_57; // now computed event-by-event (running alphas #373)
 
     // Set parameters that are unchanged during the run
     void setIndependentParameters( SLHAReader& slha );
@@ -752,10 +752,10 @@ namespace mg5amcCpu
     //constexpr double mdl_G__exp__2 = ( ( G ) * ( G ) ); // now computed event-by-event (running alphas #373)
 
     // Model couplings dependent on aS
+    //constexpr cxsmpl<double> GC_90 = mdl_complexi * mdl_G__exp__2 * mdl_I74x33 + mdl_complexi * mdl_G__exp__2 * mdl_I75x33; // now computed event-by-event (running alphas #373)
     //constexpr cxsmpl<double> GC_6 = -G; // now computed event-by-event (running alphas #373)
     //constexpr cxsmpl<double> GC_55 = -( mdl_complexi * G * mdl_I51x33 ) - mdl_complexi * G * mdl_I52x33; // now computed event-by-event (running alphas #373)
     //constexpr cxsmpl<double> GC_57 = -( mdl_complexi * G * mdl_I51x36 ) - mdl_complexi * G * mdl_I52x36; // now computed event-by-event (running alphas #373)
-    //constexpr cxsmpl<double> GC_90 = mdl_complexi * mdl_G__exp__2 * mdl_I74x33 + mdl_complexi * mdl_G__exp__2 * mdl_I75x33; // now computed event-by-event (running alphas #373)
 
     // Print parameters that are unchanged during the run
     void printIndependentParameters();
@@ -790,16 +790,16 @@ namespace mg5amcCpu
   namespace Parameters_MSSM_SLHA2_dependentCouplings
   {
     constexpr size_t ndcoup = 4; // #couplings that vary event by event because they depend on the running alphas QCD
-    constexpr size_t idcoup_GC_6 = 0;
-    constexpr size_t idcoup_GC_55 = 1;
-    constexpr size_t idcoup_GC_57 = 2;
-    constexpr size_t idcoup_GC_90 = 3;
+    constexpr size_t idcoup_GC_90 = 0;
+    constexpr size_t idcoup_GC_6 = 1;
+    constexpr size_t idcoup_GC_55 = 2;
+    constexpr size_t idcoup_GC_57 = 3;
     struct DependentCouplings_sv
     {
+      cxtype_sv GC_90;
       cxtype_sv GC_6;
       cxtype_sv GC_55;
       cxtype_sv GC_57;
-      cxtype_sv GC_90;
     };
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"        // e.g. <<warning: unused parameter ‘G’ [-Wunused-parameter]>>
@@ -835,24 +835,24 @@ namespace mg5amcCpu
         // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
         const fptype_sv mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
+        out.GC_90 = cI * mdl_G__exp__2 * (cxtype)mdl_I74x33 + cI * mdl_G__exp__2 * (cxtype)mdl_I75x33;
         out.GC_6 = -G;
         out.GC_55 = -( cI * G * (cxtype)mdl_I51x33 ) - cI * G * (cxtype)mdl_I52x33;
         out.GC_57 = -( cI * G * (cxtype)mdl_I51x36 ) - cI * G * (cxtype)mdl_I52x36;
-        out.GC_90 = cI * mdl_G__exp__2 * (cxtype)mdl_I74x33 + cI * mdl_G__exp__2 * (cxtype)mdl_I75x33;
       }
 #else
       // Couplings are VECTORS OF FLOATS: #439 special handling is needed (variable Gs are vector floats, fixed parameters are scalar doubles)
       // Use an explicit loop to avoid <<error: conversion of scalar ‘double’ to vector ‘fptype_sv’ {aka ‘__vector(8) float’} involves truncation>>
       // Problems may come e.g. in EFTs from multiplying a vector float (related to aS-dependent G) by a scalar double (aS-independent parameters)
       // (NB in pure SM processes this special handling is not needed, but we keep it here for simplicity, see PR #824)
+      fptype_v GC_90r_v;
+      fptype_v GC_90i_v;
       fptype_v GC_6r_v;
       fptype_v GC_6i_v;
       fptype_v GC_55r_v;
       fptype_v GC_55i_v;
       fptype_v GC_57r_v;
       fptype_v GC_57i_v;
-      fptype_v GC_90r_v;
-      fptype_v GC_90i_v;
       for( int i = 0; i < neppV; i++ )
       {
         const fptype& G = G_sv[i];
@@ -862,23 +862,23 @@ namespace mg5amcCpu
         // *** NB Compute all dependent parameters, including aS, in terms of G rather than in terms of aS ***
         const fptype mdl_G__exp__2 = ( ( G ) * ( G ) );
         // Model couplings dependent on aS
+        const cxtype GC_90 = cI * mdl_G__exp__2 * (cxtype)mdl_I74x33 + cI * mdl_G__exp__2 * (cxtype)mdl_I75x33;
         const cxtype GC_6 = -G;
         const cxtype GC_55 = -( cI * G * (cxtype)mdl_I51x33 ) - cI * G * (cxtype)mdl_I52x33;
         const cxtype GC_57 = -( cI * G * (cxtype)mdl_I51x36 ) - cI * G * (cxtype)mdl_I52x36;
-        const cxtype GC_90 = cI * mdl_G__exp__2 * (cxtype)mdl_I74x33 + cI * mdl_G__exp__2 * (cxtype)mdl_I75x33;
+        GC_90r_v[i] = cxreal( GC_90 );
+        GC_90i_v[i] = cximag( GC_90 );
         GC_6r_v[i] = cxreal( GC_6 );
         GC_6i_v[i] = cximag( GC_6 );
         GC_55r_v[i] = cxreal( GC_55 );
         GC_55i_v[i] = cximag( GC_55 );
         GC_57r_v[i] = cxreal( GC_57 );
         GC_57i_v[i] = cximag( GC_57 );
-        GC_90r_v[i] = cxreal( GC_90 );
-        GC_90i_v[i] = cximag( GC_90 );
       }
+      out.GC_90 = cxtype_v( GC_90r_v, GC_90i_v );
       out.GC_6 = cxtype_v( GC_6r_v, GC_6i_v );
       out.GC_55 = cxtype_v( GC_55r_v, GC_55i_v );
       out.GC_57 = cxtype_v( GC_57r_v, GC_57i_v );
-      out.GC_90 = cxtype_v( GC_90r_v, GC_90i_v );
 #endif
       return out;
     }
@@ -913,18 +913,18 @@ namespace mg5amcCpu
     using namespace Parameters_MSSM_SLHA2_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
     DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv, bsmIndepParamPtr );
+    fptype* GC_90s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_90 );
     fptype* GC_6s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_6 );
     fptype* GC_55s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_55 );
     fptype* GC_57s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_57 );
-    fptype* GC_90s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_90 );
+    cxtype_sv_ref GC_90s_sv = C_ACCESS::kernelAccess( GC_90s );
     cxtype_sv_ref GC_6s_sv = C_ACCESS::kernelAccess( GC_6s );
     cxtype_sv_ref GC_55s_sv = C_ACCESS::kernelAccess( GC_55s );
     cxtype_sv_ref GC_57s_sv = C_ACCESS::kernelAccess( GC_57s );
-    cxtype_sv_ref GC_90s_sv = C_ACCESS::kernelAccess( GC_90s );
+    GC_90s_sv = couplings_sv.GC_90;
     GC_6s_sv = couplings_sv.GC_6;
     GC_55s_sv = couplings_sv.GC_55;
     GC_57s_sv = couplings_sv.GC_57;
-    GC_90s_sv = couplings_sv.GC_90;
     mgDebug( 1, __FUNCTION__ );
     return;
   }

@@ -158,8 +158,11 @@ class gensym(object):
             (stdout, _) = p.communicate(''.encode())
             stdout = stdout.decode('ascii',errors='ignore')
             if stdout:
-                nb_channel = max([math.floor(float(d)) for d in stdout.split()])
+                lines = stdout.strip().split('\n')
+                nb_channel = max([math.floor(float(d)) for d in lines[-1].split()])
             else:
+                if os.path.exists(pjoin(self.me_dir, 'error')):
+                    os.remove(pjoin(self.me_dir, 'error'))
                 for matrix_file in misc.glob('matrix*orig.f', Pdir):
                     files.cp(matrix_file, matrix_file.replace('orig','optim'))
                 P_zero_result.append(Pdir)
@@ -297,12 +300,14 @@ class gensym(object):
                     bad_amps_perhel = []
                 if __debug__:
                     mtext = open(matrix_file).read()
-                    nb_amp = int(re.findall('PARAMETER \(NGRAPHS=(\d+)\)', mtext)[0])
-                    logger.debug('nb_hel: %s zero amp: %s bad_amps_hel: %s/%s', len(good_hels),len(bad_amps),len(bad_amps_perhel), len(good_hels)*nb_amp )
+                    nb_amp = int(re.findall(r'PARAMETER \(NGRAPHS=(\d+)\)', mtext)[0])
+                    logger.debug('(%s) nb_hel: %s zero amp: %s bad_amps_hel: %s/%s', split_file[-1], len(good_hels),len(bad_amps),len(bad_amps_perhel), len(good_hels)*nb_amp )
                 if len(good_hels) == 1:
                     files.cp(matrix_file, matrix_file.replace('orig','optim'))
                     continue # avoid optimization if onlye one helicity
-                recycler = hel_recycle.HelicityRecycler(good_hels, bad_amps, bad_amps_perhel)
+                
+                gauge = self.cmd.proc_characteristics['gauge']
+                recycler = hel_recycle.HelicityRecycler(good_hels, bad_amps, bad_amps_perhel, gauge=gauge)
                 # In case of bugs you can play around with these:
                 recycler.hel_filt = self.run_card['hel_filtering']
                 recycler.amp_splt = self.run_card['hel_splitamp']
@@ -391,17 +396,8 @@ class gensym(object):
                         done = True
                 if not done:
                     raise Exception('Parsing error in gensym: %s' % stdout)
-
-            cudacpp_backend = self.run_card['cudacpp_backend'] # the default value is defined in banner.py
-            logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
-            cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
-            if cudacpp_backend in cudacpp_supported_backends :
-                self.cmd.compile(['madevent_' + cudacpp_backend + '_link'], cwd=Pdir)
-            else:
-                raise Exception( "Invalid cudacpp_backend='%s': supported backends are %s"%supported_backends )
-                ###logger.info("Building madevent with ALL(FORTRAN/CPP/CUDA) matrix elements (cudacpp_backend=%s)"%cudacpp_backend)
-                ###self.cmd.compile(['all'], cwd=Pdir)
-
+                     
+            self.cmd.compile(['madevent'], cwd=Pdir)
             if to_submit:
                 self.submit_to_cluster(job_list)
                 job_list = {}
@@ -1308,7 +1304,7 @@ class gen_ximprove_v4(gen_ximprove):
                     'script_name': 'unknown',
                     'directory': C.name,    # need to be change for splitted job
                     'P_dir': C.parent_name, 
-                    #'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
+                    'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name), # needed for RO gridpack
                     'offset': 1,            # need to be change for splitted job
                     'nevents': nevents,
                     'maxiter': self.max_iter,
@@ -1396,7 +1392,7 @@ class gen_ximprove_v4(gen_ximprove):
                     break
                 info = jobs[j]
                 info['script_name'] = 'ajob%i' % script_number
-                info['keeplog'] = 'false'
+                info['keeplog'] = 'false' if self.run_card['keep_log'] != 'debug' else 'true'
                 if "base_directory" not in info:
                     info["base_directory"] = "./"
                 fsock.write(template_text % info)
@@ -1465,7 +1461,7 @@ class gen_ximprove_v4(gen_ximprove):
                     'script_name': 'unknown',
                     'directory': C.name,    # need to be change for splitted job
                     'P_dir': C.parent_name, 
-                    #'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
+                    'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name), # used for RO gridpack
                     'offset': 1,            # need to be change for splitted job
                     'nevents': nevents,
                     'maxiter': self.max_iter,
@@ -1925,7 +1921,7 @@ class gen_ximprove_gridpack(gen_ximprove_v4):
                     'directory': C.name,    # need to be change for splitted job
                     'P_dir': os.path.basename(C.parent_name), 
                     'offset': 1,            # need to be change for splitted job
-                    #'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name),
+                    'Ppath': pjoin(self.cmd.me_dir, 'SubProcesses', C.parent_name), # use for RO gridpack
                     'nevents': nevents, #int(nevents*self.gen_events_security)+1,
                     'maxiter': self.max_iter,
                     'miniter': self.min_iter,
