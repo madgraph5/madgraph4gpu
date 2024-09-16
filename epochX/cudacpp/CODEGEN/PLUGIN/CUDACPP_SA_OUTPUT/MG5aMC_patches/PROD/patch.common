@@ -1,88 +1,5 @@
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/dsample.f a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-index e18ba7c03..7f37cd083 100644
---- b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-+++ a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-@@ -169,7 +169,9 @@ c
-          if (iter .le. itmax) then
- c            write(*,*) 'iter/ievent/ivec', iter, ievent, ivec
-             ievent=ievent+1
-+            CALL COUNTERS_START_COUNTER( 3, 1 ) ! FortranRandom2Momenta=3
-             call x_to_f_arg(ndim,ipole,mincfig,maxcfig,ninvar,wgt,x,p)
-+            CALL COUNTERS_STOP_COUNTER( 3 ) ! FortranRandom2Momenta=3
-             CUTSDONE=.FALSE.
-             CUTSPASSED=.FALSE.
-             if (passcuts(p,VECSIZE_USED)) then
-@@ -223,6 +225,7 @@ c     write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
-                do I=1, VECSIZE_USED
-                   all_wgt(i) = all_wgt(i)*all_fx(i)
-               enddo
-+               CALL COUNTERS_START_COUNTER( 8, VECSIZE_USED ) ! FortranSamplePutPoint=8
-                do i =1, VECSIZE_USED
- c     if last paremeter is true -> allow grid update so only for a full page
-                   lastbin(:) = all_lastbin(:,i)
-@@ -230,6 +233,7 @@ c     if last paremeter is true -> allow grid update so only for a full page
- c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.VECSIZE_USED                   
-                   call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.VECSIZE_USED) !Store result
-                enddo
-+               CALL COUNTERS_STOP_COUNTER( 8 ) ! FortranSamplePutPoint=8
-                if (VECSIZE_USED.ne.1.and.force_reset)then
-                   call reset_cumulative_variable()
-                   force_reset=.false.
-@@ -240,7 +244,9 @@ c     if (wgt .ne. 0d0) call graph_point(p,wgt) !Update graphs
-             else
-                fx =0d0
-                wgt=0d0
-+               CALL COUNTERS_START_COUNTER( 8, 1 ) ! FortranSamplePutPoint=8
-                call sample_put_point(wgt,x(1),iter,ipole,.true.) !Store result
-+               CALL COUNTERS_STOP_COUNTER( 8 ) ! FortranSamplePutPoint=8
-             endif
- 
-          endif
-@@ -405,7 +411,9 @@ c
-          call sample_get_config(wgt,iter,ipole)
-          if (iter .le. itmax) then
-             ievent=ievent+1
-+            CALL COUNTERS_START_COUNTER( 3, 1 ) ! FortranRandom2Momenta=3
-             call x_to_f_arg(ndim,ipole,mincfig,maxcfig,ninvar,wgt,x,p)
-+            CALL COUNTERS_STOP_COUNTER( 3 ) ! FortranRandom2Momenta=3
-             if (pass_point(p)) then
-                xzoomfact = 1d0
-                fx = dsig(p,wgt,0) !Evaluate function
-@@ -421,7 +429,9 @@ c
-             endif
-             
-             if (nzoom .le. 0) then
-+               CALL COUNTERS_START_COUNTER( 8, 1 ) ! FortranSamplePutPoint=8
-                call sample_put_point(wgt,x(1),iter,ipole,.true.) !Store result
-+               CALL COUNTERS_STOP_COUNTER( 8 ) ! FortranSamplePutPoint=8
-             else
-                nzoom = nzoom -1
-                ievent=ievent-1
-@@ -727,7 +737,7 @@ c
-       common/read_grid_file/read_grid_file
- 
-       data use_cut/2/            !Grid: 0=fixed , 1=standard, 2=non-zero
--      data ituple/1/             !1=htuple, 2=sobel 
-+      data ituple/1/             !1=ntuple(ranmar or htuple), 2=sobel 
-       data Minvar(1,1)/-1/       !No special variable mapping
- 
- c-----
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/genps.inc a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
-index a59181c70..af7e0efbc 100644
---- b/epochX/cudacpp/gg_tt.mad/Source/genps.inc
-+++ a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
-@@ -30,7 +30,8 @@ c*************************************************************************
- c	Parameters for helicity sums in matrixN.f
- c*************************************************************************
-       REAL*8 LIMHEL
--      PARAMETER(LIMHEL=1e-8) ! ME threshold for helicity filtering
-+c     PARAMETER(LIMHEL=1e-8) ! ME threshold for helicity filtering (Fortran default)
-+      PARAMETER(LIMHEL=0) ! ME threshold for helicity filtering (force Fortran to mimic cudacpp, see #419)
-       INTEGER MAXTRIES
-       PARAMETER(MAXTRIES=25)
- C     To pass the helicity configuration chosen by the DiscreteSampler to 
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..64b33c4f1 100644
+index 348c283be..49e6800ff 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,37 @@
@@ -145,7 +62,7 @@ index 348c283be..64b33c4f1 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,41 +87,145 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,41 +87,148 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -186,7 +103,11 @@ index 348c283be..64b33c4f1 100644
 +else
 +all: $(PROG)_fortran $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 +endif
-+
+ 
+-$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
+-	cd ../../Source/MODEL; make
++# Disable OpenMP by default: enable OpenMP only if USEOPENMP=1 (#758)
++ifeq ($(USEOPENMP),1)
 +ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 +override OMPFLAGS = -fopenmp
 +LINKLIBS += -liomp5 # see #578
@@ -199,9 +120,8 @@ index 348c283be..64b33c4f1 100644
 +else
 +override OMPFLAGS = -fopenmp
 +endif
- 
--$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
--	cd ../../Source/MODEL; make
++endif
++
 +$(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
 +	$(FC) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
  
@@ -307,7 +227,7 @@ index 348c283be..64b33c4f1 100644
  
  # Dependencies
  
-@@ -97,5 +245,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -97,5 +248,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  

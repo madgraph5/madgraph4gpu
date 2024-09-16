@@ -107,7 +107,7 @@ namespace mg5amcCpu
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
      * @param rndhel the pointer to the input random numbers for helicity selection
      * @param rndcol the pointer to the input random numbers for color selection
-     * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+     * @param channelIds the Feynman diagram to enhance in multi-channel mode if 1 to n
      * @param mes the pointer to the output matrix elements
      * @param selhel the pointer to the output selected helicities
      * @param selcol the pointer to the output selected colors
@@ -117,7 +117,7 @@ namespace mg5amcCpu
                        const FORTRANFPTYPE* gs,
                        const FORTRANFPTYPE* rndhel,
                        const FORTRANFPTYPE* rndcol,
-                       const unsigned int channelId,
+                       const unsigned int* channelIds,
                        FORTRANFPTYPE* mes,
                        int* selhel,
                        int* selcol,
@@ -130,7 +130,7 @@ namespace mg5amcCpu
      * @param gs the pointer to the input Gs (running QCD coupling constant alphas)
      * @param rndhel the pointer to the input random numbers for helicity selection
      * @param rndcol the pointer to the input random numbers for color selection
-     * @param channelId the Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+     * @param channelIds the Feynman diagram to enhance in multi-channel mode if 1 to n
      * @param mes the pointer to the output matrix elements
      * @param selhel the pointer to the output selected helicities
      * @param selcol the pointer to the output selected colors
@@ -140,7 +140,7 @@ namespace mg5amcCpu
                        const FORTRANFPTYPE* gs,
                        const FORTRANFPTYPE* rndhel,
                        const FORTRANFPTYPE* rndcol,
-                       const unsigned int channelId,
+                       const unsigned int* channelIds,
                        FORTRANFPTYPE* mes,
                        int* selhel,
                        int* selcol,
@@ -168,12 +168,14 @@ namespace mg5amcCpu
     DeviceBufferMatrixElements m_devMEs;
     DeviceBufferSelectedHelicity m_devSelHel;
     DeviceBufferSelectedColor m_devSelCol;
+    DeviceBufferChannelIds m_devChannelIds;
     PinnedHostBufferGs m_hstGs;
     PinnedHostBufferRndNumHelicity m_hstRndHel;
     PinnedHostBufferRndNumColor m_hstRndCol;
     PinnedHostBufferMatrixElements m_hstMEs;
     PinnedHostBufferSelectedHelicity m_hstSelHel;
     PinnedHostBufferSelectedColor m_hstSelCol;
+    PinnedHostBufferChannelIds m_hstChannelIds;
     std::unique_ptr<MatrixElementKernelDevice> m_pmek;
     //static constexpr int s_gputhreadsmin = 16; // minimum number of gpu threads (TEST VALUE FOR MADEVENT)
     static constexpr int s_gputhreadsmin = 32; // minimum number of gpu threads (DEFAULT)
@@ -185,6 +187,7 @@ namespace mg5amcCpu
     HostBufferMatrixElements m_hstMEs;
     HostBufferSelectedHelicity m_hstSelHel;
     HostBufferSelectedColor m_hstSelCol;
+    HostBufferChannelIds m_hstChannelIds;
     std::unique_ptr<MatrixElementKernelHost> m_pmek;
 #endif
   };
@@ -227,6 +230,7 @@ namespace mg5amcCpu
     , m_devMEs( m_nevt )
     , m_devSelHel( m_nevt )
     , m_devSelCol( m_nevt )
+    , m_devChannelIds( m_nevt )
 #else
     , m_hstMomentaC( m_nevt )
 #endif
@@ -236,6 +240,7 @@ namespace mg5amcCpu
     , m_hstMEs( m_nevt )
     , m_hstSelHel( m_nevt )
     , m_hstSelCol( m_nevt )
+    , m_hstChannelIds( m_nevt )
     , m_pmek( nullptr )
   {
     if( nparF != CPPProcess::npar ) throw std::runtime_error( "Bridge constructor: npar mismatch" );
@@ -252,10 +257,10 @@ namespace mg5amcCpu
     }
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
-    m_pmek.reset( new MatrixElementKernelDevice( m_devMomentaC, m_devGs, m_devRndHel, m_devRndCol, m_devMEs, m_devSelHel, m_devSelCol, m_gpublocks, m_gputhreads ) );
+    m_pmek.reset( new MatrixElementKernelDevice( m_devMomentaC, m_devGs, m_devRndHel, m_devRndCol, m_devChannelIds, m_devMEs, m_devSelHel, m_devSelCol, m_gpublocks, m_gputhreads ) );
 #else
     std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
-    m_pmek.reset( new MatrixElementKernelHost( m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
+    m_pmek.reset( new MatrixElementKernelHost( m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstChannelIds, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
 #endif // MGONGPUCPP_GPUIMPL
     // Create a process object, read param card and set parameters
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
@@ -297,7 +302,7 @@ namespace mg5amcCpu
                                             const FORTRANFPTYPE* gs,
                                             const FORTRANFPTYPE* rndhel,
                                             const FORTRANFPTYPE* rndcol,
-                                            const unsigned int channelId,
+                                            const unsigned int* channelIds,
                                             FORTRANFPTYPE* mes,
                                             int* selhel,
                                             int* selcol,
@@ -327,16 +332,20 @@ namespace mg5amcCpu
       std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
       std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
     }
+    const bool useChannelIds = ( channelIds != nullptr ) && ( !goodHelOnly );
+    if( useChannelIds ) memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
+    //else ... // no need to initialize m_hstChannel: it is allocated with gpuMallocHost and NOT initialized in PinnedHostBufferBase, but it is NOT used later on
     copyDeviceFromHost( m_devGs, m_hstGs );
     copyDeviceFromHost( m_devRndHel, m_hstRndHel );
     copyDeviceFromHost( m_devRndCol, m_hstRndCol );
+    if( useChannelIds ) copyDeviceFromHost( m_devChannelIds, m_hstChannelIds );
     if( m_nGoodHel < 0 )
     {
       m_nGoodHel = m_pmek->computeGoodHelicities();
       if( m_nGoodHel < 0 ) throw std::runtime_error( "Bridge gpu_sequence: computeGoodHelicities returned nGoodHel<0" );
     }
     if( goodHelOnly ) return;
-    m_pmek->computeMatrixElements( channelId );
+    m_pmek->computeMatrixElements( useChannelIds );
     copyHostFromDevice( m_hstMEs, m_devMEs );
     flagAbnormalMEs( m_hstMEs.data(), m_nevt );
     copyHostFromDevice( m_hstSelHel, m_devSelHel );
@@ -362,7 +371,7 @@ namespace mg5amcCpu
                                             const FORTRANFPTYPE* gs,
                                             const FORTRANFPTYPE* rndhel,
                                             const FORTRANFPTYPE* rndcol,
-                                            const unsigned int channelId,
+                                            const unsigned int* channelIds,
                                             FORTRANFPTYPE* mes,
                                             int* selhel,
                                             int* selcol,
@@ -381,13 +390,16 @@ namespace mg5amcCpu
       std::copy( rndhel, rndhel + m_nevt, m_hstRndHel.data() );
       std::copy( rndcol, rndcol + m_nevt, m_hstRndCol.data() );
     }
+    const bool useChannelIds = ( channelIds != nullptr ) && ( !goodHelOnly );
+    if( useChannelIds ) memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
+    //else ... // no need to initialize m_hstChannel: it is allocated and default initialized in HostBufferBase (and it is not used later on anyway)
     if( m_nGoodHel < 0 )
     {
       m_nGoodHel = m_pmek->computeGoodHelicities();
       if( m_nGoodHel < 0 ) throw std::runtime_error( "Bridge cpu_sequence: computeGoodHelicities returned nGoodHel<0" );
     }
     if( goodHelOnly ) return;
-    m_pmek->computeMatrixElements( channelId );
+    m_pmek->computeMatrixElements( useChannelIds );
     flagAbnormalMEs( m_hstMEs.data(), m_nevt );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {
