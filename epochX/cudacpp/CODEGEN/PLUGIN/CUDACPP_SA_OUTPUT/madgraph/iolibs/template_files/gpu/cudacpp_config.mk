@@ -10,7 +10,7 @@
 
 # Set the default BACKEND (CUDA, HIP or C++/SIMD) choice
 ifeq ($(BACKEND),)
-  override BACKEND = cuda
+  override BACKEND = cppauto
 endif
 
 # Set the default FPTYPE (floating point type) choice
