@@ -1,41 +1,41 @@
-Working directory (build): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx
-
+Working directory (build): /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx
 
 make USEBUILDDIR=1 BACKEND=cuda
 
 make USEBUILDDIR=1 BACKEND=cppnone
-make USEBUILDDIR=1 BACKEND=cppsse4
 
+
+make USEBUILDDIR=1 BACKEND=cppsse4
 make USEBUILDDIR=1 BACKEND=cppavx2
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 
 make USEBUILDDIR=1 BACKEND=cpp512y
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 
 make USEBUILDDIR=1 BACKEND=cpp512z
-make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 make[1]: Nothing to be done for 'all'.
-make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 
 OMP_NUM_THREADS=
 
-DATE: 2024-09-02_11:07:29
+DATE: 2024-09-15_16:18:33
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
-Working directory (run): /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx
+Working directory (run): /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx
 
 *** (1) EXECUTE MADEVENT_FORTRAN (create results.dat) ***
 --------------------
@@ -58,9 +58,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_heftggbb_x1_fortran > /tmp/
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2.016 [2.0160081479755183] fbridge_mode=0
  [UNWEIGHT] Wrote 3371 events (found 6399 events)
- [COUNTERS] PROGRAM TOTAL          :    0.9127s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.8660s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0467s for     8192 events => throughput is 1.76E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.9786s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.9307s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0479s for     8192 events => throughput is 1.71E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
@@ -83,9 +83,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_heftggbb_x1_fortran > /tmp/
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2.016 [2.0160081479755183] fbridge_mode=0
  [UNWEIGHT] Wrote 1652 events (found 1657 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4136s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3670s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0466s for     8192 events => throughput is 1.76E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.4748s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4272s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0476s for     8192 events => throughput is 1.72E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x10 (create events.lhe) ***
 --------------------
@@ -106,11 +106,11 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_heftggbb_x10_fortran > /tmp
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.034 [2.0342240372187286] fbridge_mode=0
- [UNWEIGHT] Wrote 1858 events (found 1863 events)
- [COUNTERS] PROGRAM TOTAL          :    1.8083s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.2948s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.5135s for    90112 events => throughput is 1.75E+05 events/s
+ [XSECTION] Cross section = 2.034 [2.0336713375865285] fbridge_mode=0
+ [UNWEIGHT] Wrote 1707 events (found 1712 events)
+ [COUNTERS] PROGRAM TOTAL          :    2.0898s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.6127s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.4771s for    81920 events => throughput is 1.72E+05 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -134,10 +134,10 @@ DEBUG: MEK processed 8192 events across 4 channels { 1 : 8192 }
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 2.016 [2.0160406825242951] fbridge_mode=1
  [UNWEIGHT] Wrote 1653 events (found 1658 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4175s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.3702s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0469s for     8192 events => throughput is 1.75E+05 events/s
- [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0004s
+ [COUNTERS] PROGRAM TOTAL          :    0.4982s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4507s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0471s for     8192 events => throughput is 1.74E+05 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0003s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -145,7 +145,7 @@ OK! xsec from fortran (2.0160081479755183) and cpp (2.0160406825242951) differ b
 
 *** (2-none) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 ERROR! events.lhe.cpp.1 and events.lhe.ref.1 differ!
-diff /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx/events.lhe.cpp.1 /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx/events.lhe.ref.1 | head -20
+diff /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx/events.lhe.cpp.1 /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx/events.lhe.ref.1 | head -20
 7562,7575d7561
 < 4 1 1E-03 0.1250010E+03 0.7546771E-02 0.1235066E+00
 <          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.71320499473E+02  0.71320499473E+02  0.00000000000E+00 0.  1.
