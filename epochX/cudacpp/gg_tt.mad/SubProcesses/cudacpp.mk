@@ -483,7 +483,6 @@ CXXFLAGS += $(OMPFLAGS)
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
 ifeq ($(UNAME_P),ppc64le)
-  override AVXFLAGSNONE = # no SIMD
   ifeq ($(BACKEND),cppsse4)
     override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
   else ifeq ($(BACKEND),cppavx2)
@@ -494,7 +493,6 @@ ifeq ($(UNAME_P),ppc64le)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on PowerPC for the moment)
   endif
 else ifeq ($(UNAME_P),arm)
-  override AVXFLAGSNONE = # no SIMD
   ifeq ($(BACKEND),cppsse4)
     override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
   else ifeq ($(BACKEND),cppavx2)
@@ -505,7 +503,6 @@ else ifeq ($(UNAME_P),arm)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
   endif
 else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
-  override AVXFLAGSNONE = -mno-sse3 # no SIMD
   ifeq ($(BACKEND),cppnone)
     override AVXFLAGS = -mno-sse3 # no SIMD
   else ifeq ($(BACKEND),cppsse4)
@@ -518,7 +515,6 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
     override AVXFLAGS = -march=skylake -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
   endif
 else
-  override AVXFLAGSNONE = -march=x86-64 # no SIMD (see #588)
   ifeq ($(BACKEND),cppnone)
     override AVXFLAGS = -march=x86-64 # no SIMD (see #588)
   else ifeq ($(BACKEND),cppsse4)
@@ -532,11 +528,8 @@ else
   endif
 endif
 # For the moment, use AVXFLAGS everywhere (in C++ builds): eventually, use them only in encapsulated implementations?
-# Explicitly disable SIMD in the C++ libraries used with HIP and built with hipcc (work around for HIP crashes #1003)
 ifeq ($(GPUCC),)
   CXXFLAGS+= $(AVXFLAGS)
-else ifneq ($(findstring hipcc,$(GPUCC)),) # FIXME: do this also for nvcc?
-  GPUFLAGS+= $(AVXFLAGSNONE)
 endif
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
