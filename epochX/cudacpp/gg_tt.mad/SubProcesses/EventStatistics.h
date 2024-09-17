@@ -118,12 +118,13 @@ namespace mg5amcCpu
       sum.maxME = std::max( s1.maxME, s2.maxME );
       sum.minWG = std::min( s1.minWG, s2.minWG );
       sum.maxWG = std::max( s1.maxWG, s2.maxWG );
-      sum.refME = ( s1.meanME() * s1.nevtOK() + s2.meanME() * s2.nevtOK() ) / sum.nevtOK(); // new mean ME
+      volatile size_t sum_nevtOK = sum.nevtOK();
+      sum.refME = ( s1.meanME() * s1.nevtOK() + s2.meanME() * s2.nevtOK() ) / sum_nevtOK; // new mean ME
       s1.updateRefME( sum.refME );
       s2.updateRefME( sum.refME );
       sum.sumMEdiff = s1.sumMEdiff + s2.sumMEdiff;
       sum.sqsMEdiff = s1.sqsMEdiff + s2.sqsMEdiff;
-      sum.refWG = ( s1.meanWG() * s1.nevtOK() + s2.meanWG() * s2.nevtOK() ) / sum.nevtOK(); // new mean WG
+      sum.refWG = ( s1.meanWG() * s1.nevtOK() + s2.meanWG() * s2.nevtOK() ) / sum_nevtOK; // new mean WG
       s1.updateRefWG( sum.refWG );
       s2.updateRefWG( sum.refWG );
       sum.sumWGdiff = s1.sumWGdiff + s2.sumWGdiff;
