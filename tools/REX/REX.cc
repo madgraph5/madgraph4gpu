@@ -716,9 +716,9 @@ namespace REX
         std::string_view headWeight::getTag(){ return idTag; }
         bool headWeight::hasTag(){ return (idTag.size() > 0); }
         headWeight::headWeight(){ name = "weight"; return; }
-        headWeight::headWeight( std::string_view paramSet, const size_t& begin ) : xmlNode(){ name = "weight"; xmlFile = paramSet; content = paramSet; return; }
+        headWeight::headWeight( std::string_view paramSet, const size_t& begin ) : xmlNode(){ name = "weight"; xmlFile = paramSet; content = paramSet.substr(begin); return; }
         headWeight::headWeight( std::string_view paramSet, std::string_view idText, int idNo, const size_t& begin ) : xmlNode(){
-            name = "weight"; xmlFile = paramSet; content = paramSet; idTag = idText; id = idNo;
+            name = "weight"; xmlFile = paramSet; content = paramSet.substr(begin); idTag = idText; id = idNo;
         }
         headWeight::headWeight( xmlNode& node ) : xmlNode( node ){
             parser( false );
@@ -781,7 +781,7 @@ namespace REX
             }
         }
         headWeight::headWeight( std::string_view paramSet, std::string& idText, unsigned int idNo, const size_t& begin ) : xmlNode(){
-            name = "weight"; xmlFile = paramSet; content = paramSet; idTag = idText; id = idNo;
+            name = "weight"; xmlFile = paramSet; content = paramSet.substr(begin); idTag = idText; id = idNo;
         }
         headWeight::headWeight( std::string_view paramSet, std::string& idText){
             name = "weight"; xmlFile = paramSet; content = paramSet; idTag = idText;
@@ -1404,7 +1404,7 @@ namespace REX
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
         }
-        event::event( const event& original ){
+        event::event( const event& original ) : xmlNode( original ){
             this->rwgt = original.rwgt;
             this->header = original.header;
             this->prts = original.prts;
@@ -3421,7 +3421,7 @@ namespace REX
         std::shared_ptr<std::vector<double>> transLHE::vectorFlat( std::vector<std::shared_ptr<std::vector<double>>> vecVec )
         {
             bool allRel = (vecVec.size() == relProcs.size());
-            bool justRel = (vecVec.size() == std::count(relEvSets.begin(), relEvSets.end(), true));
+            bool justRel = (vecVec.size() == size_t(std::count(relEvSets.begin(), relEvSets.end(), true)));
             std::vector<std::size_t> relInds;
             if( !(allRel || justRel) ) throw std::range_error("vectorFlat: input vector size does not match number of (relevant) subprocesses");
             for( size_t k = 0; k < relEvSets.size(); ++k )
@@ -3469,15 +3469,15 @@ namespace REX
     
     // ZW: templated fcn for multiplying two vectors elementwise,
     // assuming T has a multiplication operator*
-    template<typename T>
-    std::shared_ptr<std::vector<T>> vecElemMult( const std::vector<T>& vec1, const std::vector<T>& vec2){
-        if( vec1.size() < vec2.size() ){ return vecElemMult( vec2, vec1 ); }
-        auto valVec = std::make_shared<std::vector<T>>( vec1.size() );
-        std::transform( vec1.begin(), vec1.end(), vec2.begin(), valVec->begin(), []( const T& v1, const T& v2 ){
-            return v1 * v2;
-        } );
-        return valVec;
-    }
+    // template<typename T>
+    // std::shared_ptr<std::vector<T>> vecElemMult( const std::vector<T>& vec1, const std::vector<T>& vec2){
+    //     if( vec1.size() < vec2.size() ){ return vecElemMult( vec2, vec1 ); }
+    //     auto valVec = std::make_shared<std::vector<T>>( vec1.size() );
+    //     std::transform( vec1.begin(), vec1.end(), vec2.begin(), valVec->begin(), []( const T& v1, const T& v2 ){
+    //         return v1 * v2;
+    //     } );
+    //     return valVec;
+    // }
 
     // ZW: bool struct to define which double values
     // to extract transposed from LHE file

@@ -2289,10 +2289,10 @@ class PLUGIN_OneProcessExporterRwgt(PLUGIN_OneProcessExporter):
     # are not used in the REX reweighting
     def generate_process_files(self):
         """Generate mgOnGpuConfig.h, CPPProcess.cc, CPPProcess.h, check_sa.cc, gXXX.cu links"""
-        misc.sprint('Entering RWGT_OneProcessExporter.generate_process_files')
+        # misc.sprint('Entering RWGT_OneProcessExporter.generate_process_files')
         super().generate_process_files()
-        misc.sprint('Generating rwgt_runner files')
+        # misc.sprint('Generating rwgt_runner files')
         self.edit_rwgt_header()
         self.edit_rwgt_runner()
-        misc.sprint('Finished generating rwgt files')
+        # misc.sprint('Finished generating rwgt files')
         

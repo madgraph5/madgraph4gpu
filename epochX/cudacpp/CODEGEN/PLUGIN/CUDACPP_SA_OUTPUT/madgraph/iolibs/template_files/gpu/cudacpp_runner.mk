@@ -82,31 +82,6 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Configure the C++ compiler
-
-#CXXFLAGS = $(OPTFLAGS) -std=c++17 -Wall -Wshadow -Wextra
-#ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-#  CXXFLAGS += -ffast-math # see issue #117
-#endif
-###CXXFLAGS+= -Ofast # performance is not different from --fast-math
-###CXXFLAGS+= -g # FOR DEBUGGING ONLY
-
-# Optionally add debug flags to display the full list of flags (eg on Darwin)
-###CXXFLAGS+= -v
-
-# Note: AR, CXX and FC are implicitly defined if not set externally
-# See https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
-
-# Add -mmacosx-version-min=11.3 to avoid "ld: warning: object file was built for newer macOS version than being linked"
-#ifneq ($(shell $(CXX) --version | egrep '^Apple clang'),)
-#  CXXFLAGS += -mmacosx-version-min=11.3
-#endif
-
-# Export CXXFLAGS (so that there is no need to check/define it again in cudacpp_src.mk)
-#export CXXFLAGS
-
-#-------------------------------------------------------------------------------
-
 #=== Configure the GPU compiler (CUDA or HIP)
 #=== (note, this is done also for C++, as NVTX and CURAND/ROCRAND are also needed by the C++ backends)
 
@@ -126,160 +101,6 @@ else
   override CUDA_INC=
 endif
 
-# NB: NEW LOGIC FOR ENABLING AND DISABLING CUDA OR HIP BUILDS (AV Feb-Mar 2024)
-# - In the old implementation, by default the C++ targets for one specific AVX were always built together with either CUDA or HIP.
-# If both CUDA and HIP were installed, then CUDA took precedence over HIP, and the only way to force HIP builds was to disable
-# CUDA builds by setting CUDA_HOME to an invalid value (as CUDA_HOME took precdence over PATH to find the installation of nvcc).
-# Similarly, C++-only builds could be forced by setting CUDA_HOME and/or HIP_HOME to invalid values. A check for an invalid nvcc
-# in CUDA_HOME or an invalid hipcc HIP_HOME was necessary to ensure this logic, and had to be performed at the very beginning.
-# - In the new implementation (PR #798), separate individual builds are performed for one specific C++/AVX mode, for CUDA or
-# for HIP. The choice of the type of build is taken depending on the value of the BACKEND variable (replacing the AVX variable).
-# Unlike what happened in the past, nvcc and hipcc must have already been added to PATH. Using 'which nvcc' and 'which hipcc',
-# their existence and their location is checked, and the variables CUDA_HOME and HIP_HOME are internally set by this makefile.
-# This must be still done before backend-specific customizations, e.g. because CURAND and NVTX are also used in C++ builds.
-# Note also that a preliminary check for nvcc and hipcc if BACKEND is cuda or hip is performed in cudacpp_config.mk.
-# - Note also that the REQUIRE_CUDA variable (which was used in the past, e.g. for CI tests on GPU #443) is now (PR #798) no
-# longer necessary, as it is now equivalent to BACKEND=cuda. Similarly, there is no need to introduce a REQUIRE_HIP variable.
-
-#=== Configure the CUDA or HIP compiler (only for the CUDA and HIP backends)
-#=== (NB: throughout all makefiles, an empty GPUCC is used to indicate that this is a C++ build, i.e. that BACKEND is neither cuda nor hip!)
-
-#ifeq ($(BACKEND),cuda)
-
-  # If CXX is not a single word (example "clang++ --gcc-toolchain...") then disable CUDA builds (issue #505)
-  # This is because it is impossible to pass this to "GPUFLAGS += -ccbin <host-compiler>" below
-#  ifneq ($(words $(subst ccache ,,$(CXX))),1) # allow at most "CXX=ccache <host-compiler>" from outside
-#    $(error BACKEND=$(BACKEND) but CUDA builds are not supported for multi-word CXX "$(CXX)")
-#  endif
-
-  # Set GPUCC as $(CUDA_HOME)/bin/nvcc (it was already checked above that this exists)
-#  GPUCC = $(CUDA_HOME)/bin/nvcc
-#  XCOMPILERFLAG = -Xcompiler
-#  GPULANGUAGE = cu
-#  GPUSUFFIX = cuda
-
-  # Basic compiler flags (optimization and includes)
-#  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
-
-  # NVidia CUDA architecture flags
-  # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
-  # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
-  # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
-  # This will embed device code for 70, and PTX for 70+.
-  # One may pass MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to the make command to use another value or list of values (see #533).
-  # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
-#  MADGRAPH_CUDA_ARCHITECTURE ?= 70
-  ###GPUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
-  ###GPUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE)  # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
-#  comma:=,
-#  GPUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
-#  GPUFLAGS += $(GPUARCHFLAGS)
-
-  # Other NVidia-specific flags
-#  CUDA_OPTFLAGS = -lineinfo
-#  GPUFLAGS += $(CUDA_OPTFLAGS)
-
-  # NVCC version
-  ###GPUCC_VERSION = $(shell $(GPUCC) --version | grep 'Cuda compilation tools' | cut -d' ' -f5 | cut -d, -f1)
-
-  # Fast math
-#  GPUFLAGS += -use_fast_math
-
-  # Extra build warnings
-  ###GPUFLAGS += $(XCOMPILERFLAG) -Wall $(XCOMPILERFLAG) -Wextra $(XCOMPILERFLAG) -Wshadow
-
-  # CUDA includes and NVTX
-#  GPUFLAGS += $(CUDA_INC) $(USE_NVTX) 
-
-  # C++ standard
-#  GPUFLAGS += -std=c++17 # need CUDA >= 11.2 (see #333): this is enforced in mgOnGpuConfig.h
-
-  # For nvcc, use -maxrregcount to control the maximum number of registries (this does not exist in hipcc)
-  # Without -maxrregcount: baseline throughput: 6.5E8 (16384 32 12) up to 7.3E8 (65536 128 12)
-  ###GPUFLAGS+= --maxrregcount 160 # improves throughput: 6.9E8 (16384 32 12) up to 7.7E8 (65536 128 12)
-  ###GPUFLAGS+= --maxrregcount 128 # improves throughput: 7.3E8 (16384 32 12) up to 7.6E8 (65536 128 12)
-  ###GPUFLAGS+= --maxrregcount 96 # degrades throughput: 4.1E8 (16384 32 12) up to 4.5E8 (65536 128 12)
-  ###GPUFLAGS+= --maxrregcount 64 # degrades throughput: 1.7E8 (16384 32 12) flat at 1.7E8 (65536 128 12)
-
-  # Set the host C++ compiler for nvcc via "-ccbin <host-compiler>"
-  # (NB issue #505: this must be a single word, "clang++ --gcc-toolchain..." is not supported)
-#  GPUFLAGS += -ccbin $(shell which $(subst ccache ,,$(CXX)))
-
-  # Allow newer (unsupported) C++ compilers with older versions of CUDA if ALLOW_UNSUPPORTED_COMPILER_IN_CUDA is set (#504)
-#  ifneq ($(origin ALLOW_UNSUPPORTED_COMPILER_IN_CUDA),undefined)
-#    GPUFLAGS += -allow-unsupported-compiler
-#  endif
-
-#else ifeq ($(BACKEND),hip)
-
-  # Set GPUCC as $(HIP_HOME)/bin/hipcc (it was already checked above that this exists)
-#  GPUCC = $(HIP_HOME)/bin/hipcc
-#  XCOMPILERFLAG =
-#  GPULANGUAGE = hip
-#  GPUSUFFIX = hip
-
-  # Basic compiler flags (optimization and includes)
-#  GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
-
-  # AMD HIP architecture flags
-#  GPUARCHFLAGS = --offload-arch=gfx90a
-#  GPUFLAGS += $(GPUARCHFLAGS)
-
-  # Other AMD-specific flags
-#  GPUFLAGS += -target x86_64-linux-gnu -DHIP_PLATFORM=amd
-
-  # Fast math (is -DHIP_FAST_MATH equivalent to -ffast-math?)
- # GPUFLAGS += -DHIP_FAST_MATH
-
-  # Extra build warnings
-  ###GPUFLAGS += $(XCOMPILERFLAG) -Wall $(XCOMPILERFLAG) -Wextra $(XCOMPILERFLAG) -Wshadow
-
-  # HIP includes
- # HIP_INC = -I$(HIP_HOME)/include/
- # GPUFLAGS += $(HIP_INC)
-
-  # C++ standard
- # GPUFLAGS += -std=c++17
-
-#else
-
-  # Backend is neither cuda nor hip
-#  override GPUCC=
-#  override GPUFLAGS=
-
-  # Sanity check, this should never happen: if GPUCC is empty, then this is a C++ build, i.e. BACKEND is neither cuda nor hip.
-  # In practice, in the following, "ifeq ($(GPUCC),)" is equivalent to "ifneq ($(findstring cpp,$(BACKEND)),)".
-  # Conversely, note that GPUFLAGS is non-empty also for C++ builds, but it is never used in that case.
-#  ifeq ($(findstring cpp,$(BACKEND)),)
-#    $(error INTERNAL ERROR! Unknown backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
-#  endif
-
-#endif
-
-# Export GPUCC, GPUFLAGS, GPULANGUAGE, GPUSUFFIX (so that there is no need to check/define them again in cudacpp_src.mk)
-#export GPUCC
-#export GPUFLAGS
-#export GPULANGUAGE
-#export GPUSUFFIX
-
-#-------------------------------------------------------------------------------
-
-#=== Configure ccache for C++ and CUDA/HIP builds
-
-# Enable ccache if USECCACHE=1
-#ifeq ($(USECCACHE)$(shell echo $(CXX) | grep ccache),1)
-#  override CXX:=ccache $(CXX)
-#endif
-#ifeq ($(USECCACHE)$(shell echo $(AR) | grep ccache),1)
-#  override AR:=ccache $(AR)
-#endif
-#ifneq ($(GPUCC),)
-#  ifeq ($(USECCACHE)$(shell echo $(GPUCC) | grep ccache),1)
-#    override GPUCC:=ccache $(GPUCC)
-#  endif
-#endif
-
-#-------------------------------------------------------------------------------
 
 #=== Configure common compiler flags for C++ and CUDA/HIP
 
@@ -350,11 +171,6 @@ endif
 ifeq ($(UNAME_P),ppc64le)
   CXXFLAGS+= -mcpu=power9 -mtune=power9 # gains ~2-3%% both for cppnone and cppsse4
   # Throughput references without the extra flags below: cppnone=1.41-1.42E6, cppsse4=2.15-2.19E6
-  ###CXXFLAGS+= -DNO_WARN_X86_INTRINSICS # no change
-  ###CXXFLAGS+= -fpeel-loops # no change
-  ###CXXFLAGS+= -funroll-loops # gains ~1%% for cppnone, loses ~1%% for cppsse4
-  ###CXXFLAGS+= -ftree-vectorize # no change
-  ###CXXFLAGS+= -flto # would increase to cppnone=4.08-4.12E6, cppsse4=4.99-5.03E6!
 else
   ###CXXFLAGS+= -flto # also on Intel this would increase throughputs by a factor 2 to 4...
   ######CXXFLAGS+= -fno-semantic-interposition # no benefit (neither alone, nor combined with -flto)
@@ -683,21 +499,6 @@ ifneq ($(GPUCC),)
 GPUFLAGS += -Wno-deprecated-builtins
 endif
 endif
-
-# Avoid clang warning "overriding '-ffp-contract=fast' option with '-ffp-contract=on'" (#516)
-# This patch does remove the warning, but I prefer to keep it disabled for the moment...
-###ifneq ($(shell $(CXX) --version | egrep '^(clang|Apple clang|Intel)'),)
-###$(BUILDDIR)/CrossSectionKernels_cpp.o: CXXFLAGS += -Wno-overriding-t-option
-###ifneq ($(GPUCC),)
-###$(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o: GPUFLAGS += $(XCOMPILERFLAG) -Wno-overriding-t-option
-###endif
-###endif
-
-#### Apply special build flags only to CPPProcess.o (-flto)
-###$(BUILDDIR)/CPPProcess_cpp.o: CXXFLAGS += -flto
-
-#### Apply special build flags only to CPPProcess.o (AVXFLAGS)
-###$(BUILDDIR)/CPPProcess_cpp.o: CXXFLAGS += $(AVXFLAGS)
 
 # Generic target and build rules: objects from C++ compilation
 # (NB do not include CUDA_INC here! add it only for NVTX or curand #679)

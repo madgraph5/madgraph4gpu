@@ -59,8 +59,24 @@ namespace REX
     std::shared_ptr<std::vector<size_t>> getRefOrder(const std::vector<T>& reference, const std::vector<T>& to_sort);
     extern template std::shared_ptr<std::vector<size_t>> getRefOrder<std::string_view>(const std::vector<std::string_view>& reference, const std::vector<std::string_view>& to_sort);
 
+    std::shared_ptr<std::vector<size_t>> nuFindEach( std::string_view textFile, std::string_view searchTerm );
+    std::shared_ptr<std::vector<std::string_view>> nuLineSplitter( std::string_view currEvt );
     std::shared_ptr<std::vector<std::string_view>> nuWordSplitter( std::string_view line );
+    std::shared_ptr<std::vector<std::string_view>> nuBlankSplitter( std::string_view currEvt );
+    std::shared_ptr<std::string> filePuller( const std::string& fileLoc );
+    bool filePusher( std::string fileLoc, std::string fileCont );
 
+    // ZW: templated fcn for multiplying two vectors elementwise,
+    // assuming T has a multiplication operator*
+    template<typename T>
+    std::shared_ptr<std::vector<T>> vecElemMult( const std::vector<T>& vec1, const std::vector<T>& vec2){
+        if( vec1.size() < vec2.size() ){ return vecElemMult( vec2, vec1 ); }
+        auto valVec = std::make_shared<std::vector<T>>( vec1.size() );
+        std::transform( vec1.begin(), vec1.end(), vec2.begin(), valVec->begin(), []( const T& v1, const T& v2 ){
+            return v1 * v2;
+        } );
+        return valVec;
+    }
     struct xmlTree;
 
 // ZW: struct for handling tags in XML node opening tags
@@ -863,12 +879,6 @@ std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles
 
 std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles(transLHE& lheAOS, lheRetDs vals = lheRetDs() );
 
-//    struct lhePrt;
-//    struct xmlNode;
-//    struct event : public xmlNode;
-//    event& makeEv( std::vector<std::pair<int,int>>& particles );
-//    std::vector<std::shared_ptr<lhePrt>> getParticles( event& ev );
-//    struct eventComp;
 }
 
 #endif

@@ -25,7 +25,8 @@
 #include <cstring>
 #include <variant>
 #include <stdarg.h>
-#include "REX.cc"
+//#include "REX.cc"
+#include "REX.h"
 #include "teawREX.h"
 
 namespace REX::teaw
@@ -248,12 +249,12 @@ namespace REX::teaw
                 auto possNamePos = srcCard.find_first_of( "-\n#", lnchPos[k] );
                 if( srcCard[possNamePos] == '-' ){
                     auto endLine = srcCard.find( "\n", possNamePos );
-                    auto opts = srcCard.substr( possNamePos, endLine - possNamePos );
-                    rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.push_back( opts );
-                    auto namePos = opts.find( "rwgt_name" );
+                    auto locOpts = srcCard.substr( possNamePos, endLine - possNamePos );
+                    rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.push_back( locOpts );
+                    auto namePos = locOpts.find( "rwgt_name" );
                     if( namePos != REX::npos ){
-                        auto endName = opts.find_first_of( " \n\r\f\t\v", namePos );
-                        rwgtNames->push_back( std::string( opts.substr( namePos + 9, endName - namePos - 9 ) ) );
+                        auto endName = locOpts.find_first_of( " \n\r\f\t\v", namePos );
+                        rwgtNames->push_back( std::string( locOpts.substr( namePos + 9, endName - namePos - 9 ) ) );
                     } else {
                         rwgtNames->push_back( "rwgt_" + std::to_string( k + 1 ) );
                     }
@@ -754,10 +755,10 @@ namespace REX::teaw
             double xErr = std::stod(std::string(xSecLines[0]->xerrup));
             for( size_t k = 0 ; k < reWgts->size() ; ++k ){
                 double xSecCurr = normXSecs->at(k);
-                auto wgts = reWgts->at(k);
+                auto locWgts = reWgts->at(k);
                 double omega = 0.0;
                 double omegaSqr = 0.0;
-                for( auto wgt : *wgts ){
+                for( auto wgt : *locWgts ){
                     double invWgt = 1. / wgt;
                     omega += invWgt;
                     omegaSqr += invWgt * invWgt;
@@ -785,9 +786,11 @@ namespace REX::teaw
         }
         std::shared_ptr<std::vector<double>> rwgtRunner::getReXSecs(){
             if(this->calcXSecs()){ return normXSecs; }
+            return nullptr;
         }
         std::shared_ptr<std::vector<double>> rwgtRunner::getReXErrs(){
             if(this->calcXErrs()){ return errXSecs; }
+            return nullptr;
         }
 
     void rwgtRun( rwgtRunner& rwgt, const std::string& path ){
