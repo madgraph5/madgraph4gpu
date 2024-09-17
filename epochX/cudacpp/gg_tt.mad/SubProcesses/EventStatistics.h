@@ -108,6 +108,7 @@ namespace mg5amcCpu
     // Combine two EventStatistics
     EventStatistics& operator+=( const EventStatistics& stats )
     {
+      //std::cout << "HALLO0 " << std::endl;
       EventStatistics s1 = *this; // temporary copy
       EventStatistics s2 = stats; // temporary copy
       EventStatistics& sum = *this;
@@ -118,16 +119,21 @@ namespace mg5amcCpu
       sum.maxME = std::max( s1.maxME, s2.maxME );
       sum.minWG = std::min( s1.minWG, s2.minWG );
       sum.maxWG = std::max( s1.maxWG, s2.maxWG );
+      //std::cout << "HALLO1a " << sum.nevtOK() << std::endl;
       sum.refME = ( s1.meanME() * s1.nevtOK() + s2.meanME() * s2.nevtOK() ) / sum.nevtOK(); // new mean ME
+      //std::cout << "HALLO1b " << sum.nevtOK() << std::endl;
       s1.updateRefME( sum.refME );
       s2.updateRefME( sum.refME );
       sum.sumMEdiff = s1.sumMEdiff + s2.sumMEdiff;
       sum.sqsMEdiff = s1.sqsMEdiff + s2.sqsMEdiff;
+      std::cout << "HALLO2a " << sum.nevtOK() << std::endl;
       sum.refWG = ( s1.meanWG() * s1.nevtOK() + s2.meanWG() * s2.nevtOK() ) / sum.nevtOK(); // new mean WG
+      //std::cout << "HALLO2b " << sum.nevtOK() << std::endl;
       s1.updateRefWG( sum.refWG );
       s2.updateRefWG( sum.refWG );
       sum.sumWGdiff = s1.sumWGdiff + s2.sumWGdiff;
       sum.sqsWGdiff = s1.sqsWGdiff + s2.sqsWGdiff;
+      //std::cout << "HALLON " << std::endl;
       return sum;
     }
     // Printout
