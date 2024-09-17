@@ -305,6 +305,13 @@ function codeGenAndDiff()
     echo "*** ERROR! Code generation failed"
     exit 1
   fi
+  # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)
+  # (NEW SEP2024: move this _before_ `madevent treatcards param` as otherwise param_card.inc changes during the build of the code)
+  if [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
+    cat ${outproc}/Cards/ident_card.dat | head -3 > ${outproc}/Cards/ident_card.dat.new
+    cat ${outproc}/Cards/ident_card.dat | tail -n+4 | sort >> ${outproc}/Cards/ident_card.dat.new
+    \mv ${outproc}/Cards/ident_card.dat.new ${outproc}/Cards/ident_card.dat
+  fi
   # Patches moved here from patchMad.sh after Olivier's PR #764 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)  
   if [ "${OUTBCK}" == "mad" ]; then
     # Force the use of strategy SDE=1 in multichannel mode (see #419)
@@ -419,12 +426,6 @@ function codeGenAndDiff()
   ###  dir_patches=PROD
   ###  $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   ###fi
-  # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2 (these are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)
-  if [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
-    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | head -3 > ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
-    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
-    \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
-  fi
   # Additional patches that are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
   cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/.gitignore
 crossx.html
