@@ -42,10 +42,10 @@ while [ "$1" != "" ]; do
     # Skip -makeclean (e.g. for brand new generated/downloaded code)
     makeclean=
     shift
-  elif [ "$1" == "-hip" ]; then
-    if [ "${bblds}" != "" ] && [ "${bblds}" != "$1" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
-    bblds="$1"
-    shift
+  ###elif [ "$1" == "-hip" ]; then
+  ###  if [ "${bblds}" != "" ] && [ "${bblds}" != "$1" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
+  ###  bblds="$1"
+  ###  shift
   elif [ "$1" == "-nocuda" ]; then
     if [ "${bblds}" != "" ] && [ "${bblds}" != "$1" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
     bblds="$1"
@@ -61,7 +61,7 @@ while [ "$1" != "" ]; do
     bsm=$1
     shift
   else
-    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-nomakeclean] [-nocuda] [-bsmonly|-nobsm]"
+    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-nomakeclean] [-nocuda|-cpponly] [-bsmonly|-nobsm]"
     exit 1
   fi
 done
