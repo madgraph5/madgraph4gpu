@@ -106,6 +106,11 @@ namespace mg5amcCpu
       , sqsWGdiff( 0 )
       , tag( "" ) {}
     // Combine two EventStatistics
+#if __HIP_CLANG_ONLY__
+    // Disable optimizations for this function in HIPCC (work around FPE crash #1003)
+    // See https://clang.llvm.org/docs/LanguageExtensions.html#extensions-for-selectively-disabling-optimization
+    __attribute__((optnone))
+#endif
     EventStatistics& operator+=( const EventStatistics& stats )
     {
       EventStatistics s1 = *this; // temporary copy
