@@ -166,64 +166,6 @@ namespace REX::teaw
         }
         std::string_view rwgtProc::comRunProc(){ return procString; }
 
-        // void rwgtCard::parse( bool parseOnline ) {
-        //     auto strt = srcCard.find("launch");
-        //     auto commPos = srcCard.find_last_of("#", strt);
-        //     while(  commPos > srcCard.find_last_of("\n", strt) ){ 
-        //         if( commPos == REX::npos ){
-        //             break;
-        //         }
-        //         strt = srcCard.find("launch", strt + 6 );
-        //     }
-        //     while( auto chPos = srcCard.find( "set" ) < strt ){
-        //         if( srcCard.find_last_of("#", chPos) > srcCard.find_last_of("\n", chPos) ){ chPos = srcCard.find("change", strt + 6 ); continue; }
-        //         opts.push_back( srcCard.substr( chPos, srcCard.find("\n", chPos) - chPos ) );
-        //     }
-        //     std::vector<size_t> lnchPos({strt}); 
-        //     auto nuLnch = srcCard.find( "launch", strt + 6 );
-        //     while ( nuLnch != std::string_view::npos )
-        //     {
-        //         if( srcCard.find_last_of("#", nuLnch) < srcCard.find_last_of("\n", nuLnch) ){ lnchPos.push_back(nuLnch); }
-        //         nuLnch = srcCard.find( "launch", nuLnch + 6 );
-        //     }
-        //     for( size_t k = 0 ; k < lnchPos.size() - 1 ; ++k )
-        //     {
-        //         auto strtLi = srcCard.find( "set", lnchPos[k] );
-        //         rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( strtLi, lnchPos[k+1] - strtLi ), parseOnline ) );
-        //         if( srcCard.find( "--", lnchPos[k] ) < strtLi ){
-        //             auto strtPos = srcCard.find( "--", lnchPos[k] );
-        //             while( (strtPos < strtLi ) && (strtPos!= std::string_view::npos) ){
-        //                 auto nuStrtPos = std::min( srcCard.find( "\n", strtPos ), srcCard.find( "--", strtPos + 1 ));
-        //                 rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.push_back( srcCard.substr( strtPos, nuStrtPos - strtPos ) );
-        //                 if( rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts[ rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.size() - 1 ].substr(2,11) == "rwgt_name"){
-        //                     rwgtRuns[ rwgtRuns.size() - 1 ].rwgtName = rwgtRuns[ rwgtRuns.size() - 1 ].
-        //                         rwgtOpts[ rwgtRuns[ rwgtRuns.size() - 1 ].rwgtOpts.size() - 1 ].substr( 11, nuStrtPos - strtPos - 11 );
-        //                 }
-        //                 if( nuStrtPos == srcCard.find( "\n", strtPos ) ){ break; }
-        //                 strtPos = nuStrtPos;
-        //             }
-        //         }
-        //     }
-        //     size_t endLi = srcCard.find( "\n", lnchPos[ lnchPos.size() - 1 ] );
-        //     if( srcCard.substr( endLi + 1, 3 ) == "set" ){
-        //         while( srcCard.substr( endLi + 1, 3 ) == "set" )
-        //         {
-        //             endLi = srcCard.find( "\n", endLi + 1 );
-        //         }
-        //         rwgtRuns.push_back( rwgtProc( slhaCard, srcCard.substr( lnchPos[lnchPos.size()-1], endLi - lnchPos[lnchPos.size()-1] ), parseOnline ) );
-        //     }
-        //     rwgtProcs = std::vector<std::string_view>(); rwgtProcs.reserve( rwgtRuns.size() );
-        //     rwgtNames->reserve( rwgtRuns.size() );
-        //     int p = 1;
-        //     for( auto run : rwgtRuns ){
-        //         rwgtProcs.push_back( run.comRunProc() );
-        //         if( run.rwgtName == "" ){
-        //             rwgtNames->push_back( "rwgt_" + std::to_string( p++ ) );
-        //         } else {
-        //             rwgtNames->push_back( std::string(run.rwgtName) );
-        //         }
-        //     }
-        // }
         void rwgtCard::parse( bool parseOnline ){
             auto allLaunchPos = REX::nuFindEach( this->srcCard, "launch" );
             std::vector<size_t> lnchPos;
@@ -319,7 +261,6 @@ namespace REX::teaw
         }
         void rwgtCollection::setLhe( std::string_view lhe_file ){
             if( lheFileSet ){ return; } 
-            //lheFile = REX::lheParser( lhe_file, strt, post );
             lheFile = std::make_shared<REX::lheNode>( REX::lheNode(lhe_file) );
             lheFileSet = true; 
         }
@@ -370,7 +311,6 @@ namespace REX::teaw
             auto vecOfVecs = REX::lheValDoubles( eventFile, returnBools );
             if( vecOfVecs->size() != 3 * eventFile.subProcs.size() )
                 throw std::runtime_error( "Incorrect number of parameters have been extracted from the LHE file." );
-            //wgts[0] = vecOfVecs->at( 0 ); gS[0] = vecOfVecs->at( 1 ); momenta[0] = vecOfVecs->at( 2 );
             for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
             {
                 wgts.push_back( vecOfVecs->at( 3*k ) ); 
@@ -478,11 +418,7 @@ namespace REX::teaw
 
         void rwgtRunner::setMeEval( amplitude eval ){ 
             meEval = eval; meInit = true;
-//            ampCall nuEvals;
-//            nuEvals.insert( std::pair<REX::event, amplitude>( *eventFile.subProcs[0]->process, eval ) );
-//            meEvals = nuEvals;     
         }
-//        void rwgtRunner::setMeEvals( ampCall evals ){ meEvals = evals; meCompInit = true; }
         void rwgtRunner::addMeEval( const REX::event& ev, const amplitude& eval ){}// meEvals.insert( std::pair<REX::event, amplitude>( ev, eval ) ); meCompInit = true; }
         rwgtRunner::rwgtRunner() : rwgtFiles(){ return; }
         rwgtRunner::rwgtRunner( rwgtFiles& rwgts ) : rwgtFiles( rwgts ){ return; }
@@ -490,10 +426,6 @@ namespace REX::teaw
             meEval = meCalc;
             meInit = true;
         }
-        // rwgtRunner::rwgtRunner( rwgtFiles& rwgts, ampCall& meCalcs ) : rwgtFiles( rwgts ){
-        //     meEvals = meCalcs;
-        //     meCompInit = true;
-        // }
         rwgtRunner::rwgtRunner( rwgtFiles& rwgts, std::vector<amplitude>& meCalcs ) : rwgtFiles( rwgts ){
             meVec = meCalcs;
             meCompInit = true;
@@ -519,11 +451,6 @@ namespace REX::teaw
             this->ampNorm = rwgts.ampNorm;
             this->reWgts = rwgts.reWgts;
         }
-        // rwgtRunner::rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
-        // ampCall meCalcs ) : rwgtFiles( lhe_card, slha_card, reweight_card ){
-        //     meEvals = meCalcs;
-        //     meCompInit = true;
-        // }
         bool rwgtRunner::oneME(){ return (meInit != meCompInit); }
         bool rwgtRunner::singAmp(){ return (meInit && !meCompInit); }
         template<class... Args>
@@ -543,14 +470,8 @@ namespace REX::teaw
                 }
             }
             else{
-                // for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
-                // {
-                //     auto ins = meEvals[*(eventFile.subProcs[k]->process)]( *(momenta[k]), *(gS[k]) );
-                //     initMEs.push_back( std::make_shared<std::vector<double>>( ins->begin(), ins->begin() + wgts[k]->size() ) );
-                // }
+                // DO NOT ALLOW FOR SINGLE ME WITHOUT PASSING EVERYTHING THROUGH VECTOR
             }
-                //auto ins = meEval( *(momenta[0]), *(gS[0]) );
-                //initMEs = {std::make_shared<std::vector<double>>( ins->begin(), ins->begin() + wgts[0]->size() )};
             meSet = true;
         }
         bool rwgtRunner::setParamCard( std::shared_ptr<REX::lesHouchesCard> slhaParams ){
@@ -563,8 +484,6 @@ namespace REX::teaw
             return true;
         }
         void rwgtRunner::setNormWgtsSingleME(){
-            //if( initMEs->size() != wgts[0]->size() )
-            //    throw std::runtime_error( "Inconsistent number of events and event weights." );
             meNormWgts = {std::make_shared<std::vector<double>>( wgts[0]->size() )};
             for( size_t k = 0; k < initMEs[0]->size(); k++ ){
                 meNormWgts[0]->at( k ) = wgts[0]->at( k ) / initMEs[0]->at( k );
@@ -613,8 +532,6 @@ namespace REX::teaw
         template<class... Args>
         void rwgtRunner::setNormWgts(Args&&... args){
             if( !oneME() ){ setMEs(args...); } 
-            //if( initMEs->size() != wgts[0]->size() )
-            //    throw std::runtime_error( "Inconsistent number of events and event weights." );
             for( size_t k = 0; k < initMEs.size() ; ++k ){
                 if( initMEs[k]->size() != wgts[k]->size() )
                     throw std::runtime_error( "Inconsistent number of events and event weights." );
@@ -635,10 +552,6 @@ namespace REX::teaw
             }
             else{
                 std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
-                // for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
-                // {
-                //     nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
-                // }
                 std::shared_ptr<std::vector<double>> newMEs = eventFile.vectorFlat( nuMEs );
                 newWGTs = REX::vecElemMult( *newMEs, *normWgt );
             }
@@ -678,7 +591,6 @@ namespace REX::teaw
                 throw std::runtime_error( "Normalised original weights (wgt/|ME|) not evaluated -- new weights cannot be calculated." );
             if( !setParamCard( slhaParams ) )
                 throw std::runtime_error( "Failed to rewrite parameter card." );
-            //auto newMEs = meEval( *momenta, *gS );
             std::shared_ptr<std::vector<double>> newWGTs;
             if( singAmp() ){
                 auto newMEs = meEval( *momenta[0], *gS[0] );
@@ -686,10 +598,6 @@ namespace REX::teaw
             }
             else{
                 std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
-                // for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
-                // {
-                //     nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
-                // }
                 std::shared_ptr<std::vector<double>> newMEs = eventFile.vectorFlat( nuMEs );
                 newWGTs = REX::vecElemMult( *newMEs, *normWgt );
             }
@@ -712,10 +620,6 @@ namespace REX::teaw
             }
             else{
                 std::vector<std::shared_ptr<std::vector<double>>> nuMEs = {};
-                // for( size_t k = 0 ; k < eventFile.subProcs.size() ; ++k )
-                // {
-                //     nuMEs.push_back(meEvals[*eventFile.subProcs[k]->process]( *(momenta[k]), *(gS[k]) ));
-                // }
                 std::shared_ptr<std::vector<double>> newMEs = eventFile.vectorFlat( nuMEs );
                 newWGTs = REX::vecElemMult( *newMEs, *normWgt );
             }

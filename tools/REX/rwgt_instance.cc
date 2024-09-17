@@ -28,10 +28,6 @@ namespace rwgt{
     void warpPad( std::vector<T>& input, unsigned int nWarp = 32 ){
         auto nEvt = input.size();
         auto nWarpRemain = warpRemain( nEvt, nWarp );
-//        auto fauxNEvt = nEvt + nWarpRemain;
-//        auto output = std::vector<T>( fauxNEvt );
-//        std::copy( input.begin(), input.end(), output.begin());
-//        input.resize( fauxNEvt );
         input.reserve( nEvt + nWarpRemain );
         for( size_t k = nEvt - nWarpRemain ; k < nEvt ; ++k ){
             input.push_back( input[k] );
@@ -135,12 +131,6 @@ namespace rwgt{
     }
     std::shared_ptr<std::vector<FORTRANFPTYPE>> fBridge::bridgeCall( std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS ){
         if(this->nEvt == 0) this->bridgeSetup( alphaS );
-        // for( auto j = 0 ; j < nWarpRemain ; ++j ){
-        //     alphaS.push_back( 0. );
-        //     for( auto k = 0 ; k < nMom * nPar ; ++k ){
-        //         momenta.push_back( 0. );
-        //     }
-        // }
         if( this->bridge == nullptr) throw std::runtime_error("fBridge object not defined.");
         warpPad( alphaS, nWarp );
         warpPad( momenta, nWarp * nPar * nMom );

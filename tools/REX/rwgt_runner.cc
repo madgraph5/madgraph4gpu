@@ -47,8 +47,6 @@ namespace %(process_namespace)s{
     std::shared_ptr<std::vector<size_t>> procSort( std::string_view status, std::vector<std::string_view> arguments, size_t index ){
         std::vector<std::vector<std::string_view>> initPrts = {%(init_prt_ids)s};
         std::vector<std::vector<std::string_view>> finPrts = {%(fin_prt_ids)s};
-//        std::vector<std::string_view> initPrts = {"-1"};
-//        std::vector<std::string_view> finPrts = {"1"};
         std::shared_ptr<std::vector<size_t>> refOrder;
     if( index == REX::npos ){
 	if( status == "-1" ){

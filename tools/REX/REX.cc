@@ -45,8 +45,6 @@
 namespace REX
 {
 
-//    using sortFcn = std::function<std::shared_ptr<std::vector<size_t>>(std::vector<std::string_view>)>;
-//    using statSort = std::function<std::shared_ptr<std::vector<size_t>>(std::string_view, std::vector<std::string_view>)>;
 
     // ZW: index sorting function, which returs vector
     // of the indices of the original vector sorted 
@@ -248,16 +246,6 @@ namespace REX
         return std::equal( org.begin(), org.end(), comp.begin(), comp.end(), 
         []( const char& x, char y ){ return (std::toupper(x) == std::toupper(y)); } );
     }
-    // template<typename Str1, typename Str2>
-    // bool clStringComp( const Str1& org, const Str2& comp ){
-    //     return std::equal( org.begin(), org.end(), comp.begin(), comp.end(), 
-    //     []( const char& x, char y ){ return (std::toupper(x) == std::toupper(y)); } );
-    // }
-    // template<typename Str1Pt, typename Str2>
-    // bool clStringComp( const Str1Pt& orgStrt, const Str1Pt& orgEnd, const Str2& comp ){
-    //     return std::equal( orgStrt, orgEnd, comp.begin(), comp.end(), 
-    //     []( const char& x, char y ){ return (std::toupper(x) == std::toupper(y)); } );
-    // }
 
     // ZW: templated fcn for finding a caseless substring searchTerm in srcFile
     // On failure to find searchTerm, returns REX::npos
@@ -628,8 +616,6 @@ namespace REX
         }
         void xmlNode::endWriter() {
             if( isFaux() ){ return; }
-            //auto endSt = xmlFile.find_last_of("<", end);
-            //nodeEnd = xmlFile.substr( endSt, end - endSt );
             nodeEnd = "</" + std::string(name) + ">\n";
         }
         void xmlNode::contWriter() {
@@ -2258,8 +2244,6 @@ namespace REX
         lheNode::lheNode() : xmlNode(){}
         lheNode::lheNode( const std::string_view originFile, const size_t& begin, const std::vector<std::shared_ptr<xmlNode>>& childs )
         : xmlNode(originFile, begin, childs){
-            //xmlFile = originFile; start = begin; children = childs; size_t trueStart = originFile.find_first_not_of(" ", begin+1);
-            //if( trueStart != npos ){name = originFile.substr( trueStart, originFile.find_first_of(">/ ", trueStart) - trueStart );}
             for( auto child : children ){
                 if( child->getName() == "header" ){ header = std::make_shared<lheHead>( *child ); continue; }
                 if( child->getName() == "init" ){ init = std::make_shared<initNode>( *child, true ); continue; }
@@ -3467,18 +3451,6 @@ namespace REX
         return valVec;
     }
     
-    // ZW: templated fcn for multiplying two vectors elementwise,
-    // assuming T has a multiplication operator*
-    // template<typename T>
-    // std::shared_ptr<std::vector<T>> vecElemMult( const std::vector<T>& vec1, const std::vector<T>& vec2){
-    //     if( vec1.size() < vec2.size() ){ return vecElemMult( vec2, vec1 ); }
-    //     auto valVec = std::make_shared<std::vector<T>>( vec1.size() );
-    //     std::transform( vec1.begin(), vec1.end(), vec2.begin(), valVec->begin(), []( const T& v1, const T& v2 ){
-    //         return v1 * v2;
-    //     } );
-    //     return valVec;
-    // }
-
     // ZW: bool struct to define which double values
     // to extract transposed from LHE file
         std::vector<bool> lheRetDs::getBools(){
