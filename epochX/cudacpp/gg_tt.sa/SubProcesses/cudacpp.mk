@@ -174,7 +174,7 @@ ifeq ($(BACKEND),cuda)
   GPULANGUAGE = cu
   GPUSUFFIX = cuda
 
-  # Basic compiler flags (optimization and includes)
+  # Optimization flags
   GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
 
   # NVidia CUDA architecture flags
@@ -235,8 +235,11 @@ else ifeq ($(BACKEND),hip)
   GPULANGUAGE = hip
   GPUSUFFIX = hip
 
-  # Basic compiler flags (optimization and includes)
+  # Optimization flags
   GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
+
+  # DEBUG FLAGS (for #806: see https://hackmd.io/@gmarkoma/lumi_finland)
+  ###GPUFLAGS += -ggdb # FOR DEBUGGING ONLY
 
   # AMD HIP architecture flags
   GPUARCHFLAGS = --offload-arch=gfx90a
