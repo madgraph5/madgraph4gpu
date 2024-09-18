@@ -704,7 +704,7 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  // The cxtype_ref class (a non-const reference to two fp variables) was originally designed for cxtype_v::operator[]
+  // The cxtype_ref class (a const reference to two non-const fp variables) was originally designed for cxtype_v::operator[]
   // It used to be included in the code only when MGONGPU_HAS_CPPCXTYPEV_BRK (originally MGONGPU_HAS_CPPCXTYPE_REF) is defined
   // It is now always included in the code because it is needed also to access an fptype wavefunction buffer as a cxtype
   class cxtype_ref
@@ -712,9 +712,9 @@ namespace mg5amcCpu
   public:
     cxtype_ref() = delete;
     cxtype_ref( const cxtype_ref& ) = delete;
-    cxtype_ref( cxtype_ref&& ) = default; // copy refs
+    cxtype_ref( cxtype_ref&& ) = default; // copy const refs
     __host__ __device__ cxtype_ref( fptype& r, fptype& i )
-      : m_preal( &r ), m_pimag( &i ) {} // copy refs
+      : m_preal( &r ), m_pimag( &i ) {} // copy (create from) const refs
     cxtype_ref& operator=( const cxtype_ref& ) = delete;
     //__host__ __device__ cxtype_ref& operator=( cxtype_ref&& c ) {...} // REMOVED! Should copy refs or copy values? No longer needed in cxternary
     __host__ __device__ cxtype_ref& operator=( const cxtype& c )
@@ -722,10 +722,11 @@ namespace mg5amcCpu
       *m_preal = cxreal( c );
       *m_pimag = cximag( c );
       return *this;
-    } // copy values
+    } // copy (assign) non-const values
     __host__ __device__ operator cxtype() const { return cxmake( *m_preal, *m_pimag ); }
   private:
-    fptype *m_preal, *m_pimag; // RI
+    fptype* const m_preal; // const pointer to non-const fptype R
+    fptype* const m_pimag; // const pointer to non-const fptype I
   };
 
   // Printout to stream for user defined types
