@@ -128,23 +128,11 @@ namespace mg5amcCpu
     PinnedHostBufferBase( const size_t size )
       : BufferBase<T>( size, false )
     {
-#ifdef __HIPCC__
-      // Workaround for memory corruption #806 in gq_ttq on HIP: use C++ malloc instead of HIP pinned host malloc
-      constexpr int cppAlign = 64; // alignment requirement for SIMD vectorization (64-byte i.e. 512-bit)
-      this->m_data = new( std::align_val_t( cppAlign ) ) T[size]();
-#else
       gpuMallocHost( &( this->m_data ), this->bytes() );
-#endif
     }
     virtual ~PinnedHostBufferBase()
     {
-#ifdef __HIPCC__
-      // Workaround for memory corruption #806 in gq_ttq on HIP: use C++ malloc instead of HIP pinned host malloc
-      constexpr int cppAlign = 64; // alignment requirement for SIMD vectorization (64-byte i.e. 512-bit)
-      ::operator delete[]( this->m_data, std::align_val_t( cppAlign ) );
-#else
       gpuFreeHost( this->m_data );
-#endif
     }
   };
 #endif

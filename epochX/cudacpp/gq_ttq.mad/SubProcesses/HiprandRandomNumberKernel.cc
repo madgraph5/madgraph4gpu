@@ -117,13 +117,11 @@ namespace mg5amcCpu
 
   void HiprandRandomNumberKernel::generateRnarray()
   {
-    //std::cout << "Get random numbers from Hiprand" << std::endl; // debug #806
 #if defined MGONGPU_FPTYPE_DOUBLE
     checkHiprand( hiprandGenerateUniformDouble( m_rnGen, m_rnarray.data(), m_rnarray.size() ) );
 #elif defined MGONGPU_FPTYPE_FLOAT
     checkHiprand( hiprandGenerateUniform( m_rnGen, m_rnarray.data(), m_rnarray.size() ) );
 #endif
-    //std::cout << "Got random numbers from Hiprand" << std::endl; // debug #806
     /*
     printf( "\nHiprandRandomNumberKernel::generateRnarray size = %d\n", (int)m_rnarray.size() );
     fptype* data = m_rnarray.data();

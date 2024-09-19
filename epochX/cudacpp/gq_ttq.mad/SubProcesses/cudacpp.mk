@@ -239,7 +239,7 @@ else ifeq ($(BACKEND),hip)
   GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
 
   # DEBUG FLAGS (for #806: see https://hackmd.io/@gmarkoma/lumi_finland)
-  GPUFLAGS += -ggdb # FOR DEBUGGING ONLY
+  ###GPUFLAGS += -ggdb # FOR DEBUGGING ONLY
 
   # AMD HIP architecture flags
   GPUARCHFLAGS = --offload-arch=gfx90a
