@@ -55,17 +55,20 @@ namespace mgOnGpu
     // Stop the timer for the current partition if there is one active
     float stop()
     {
+      std::cout << "DEBUG: TimerMap::stop() enter" << std::endl;
       // Close the previously active partition
       float last = 0;
       if( m_active != "" )
       {
         last = m_timer.GetDuration();
+	std::cout << "DEBUG: TimerMap::stop() retrieve '" << m_active << "'" << std::endl;
         m_partitionTimers[m_active] += last;
       }
       m_active = "";
       // Close the current Cuda NVTX range
       NVTX_POP();
       // Return last duration
+      std::cout << "DEBUG: TimerMap::stop() exit" << std::endl;
       return last;
     }
 
