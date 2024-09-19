@@ -236,7 +236,7 @@ else ifeq ($(BACKEND),hip)
   GPUSUFFIX = hip
 
   # Optimization flags
-  override OPTFLAGS = -O0 # work around "Memory access fault" in gq_ttq for HIP #806: disable hipcc optimizations
+  override OPTFLAGS = -O2 # work around "Memory access fault" in gq_ttq for HIP #806: disable hipcc -O3 optimizations
   GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
 
   # DEBUG FLAGS (for #806: see https://hackmd.io/@gmarkoma/lumi_finland)
