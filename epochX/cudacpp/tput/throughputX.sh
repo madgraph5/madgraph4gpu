@@ -556,15 +556,24 @@ function cmpExe() {
   echo "cmpExe $exe1 $args"
   echo "cmpExe $exef $argsf"
   if [ "${maketype}" == "-dryrun" ]; then return; fi
-  tmp=$(mktemp)
-  me1=$(${exe1} ${args} 2>${tmp} | grep MeanMatrix | awk '{print $4}'); cat ${tmp}
-  me2=$(${exef} ${argsf} 2>${tmp} | grep Average | awk '{print $4}'); cat ${tmp}
   if [ "${exe1%%/check_cuda*}" != "${exe1}" ] || [ "${exe1%%/check_hip*}" != "${exe1}" ]; then tag="/GPU)"; else tag="/C++) "; fi
+  tmp1=$(mktemp)
+  tmp2=$(mktemp)
+  if ! ${exe1} ${args} 2>${tmp2} >${tmp1}; then
+    echo "ERROR! C++ calculation (C++${tag} failed"; exit 1 # expose FPE crash #1003 on HIP
+  fi
+  me1=$(cat ${tmp1} | grep MeanMatrix | awk '{print $4}'); cat ${tmp2}
+  if ! ${exef} ${argsf} 2>${tmp2} >${tmp1}; then
+    echo "ERROR! Fortran calculation (F77${tag} failed"; exit 1
+  fi
+  me2=$(cat ${tmp1} | grep Average | awk '{print $4}'); cat ${tmp2}
   echo -e "Avg ME (C++${tag}   = ${me1}\nAvg ME (F77${tag}   = ${me2}"
   if [ "${me2}" == "NaN" ]; then
-    echo "ERROR! Fortran calculation (F77${tag} returned NaN"
+    echo "ERROR! Fortran calculation (F77${tag} returned NaN"; exit 1
   elif [ "${me2}" == "" ]; then
-    echo "ERROR! Fortran calculation (F77${tag} crashed"
+    echo "ERROR! Fortran calculation (F77${tag} crashed"; exit 1
+  elif [ "${me1}" == "" ]; then
+    echo "ERROR! C++ calculation (C++${tag} crashed"; exit 1
   else
     # NB skip python comparison if Fortran returned NaN or crashed, otherwise python returns an error status and the following tests are not executed
     python3 -c "me1=${me1}; me2=${me2}; reldif=abs((me2-me1)/me1); print('Relative difference =', reldif); ok = reldif <= 5E-3; print ( '%s (relative difference %s 5E-3)' % ( ('OK','<=') if ok else ('ERROR','>') ) )" 2>&1

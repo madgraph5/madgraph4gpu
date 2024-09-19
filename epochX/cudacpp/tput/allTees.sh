@@ -61,7 +61,7 @@ while [ "$1" != "" ]; do
     bsm=$1
     shift
   else
-    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-nomakeclean] [-nocuda] [-bsmonly|-nobsm]"
+    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-nomakeclean] [-hip|-nocuda|-cpponly] [-bsmonly|-nobsm]"
     exit 1
   fi
 done
@@ -75,13 +75,13 @@ elif [ "$bblds" == "-cpponly" ]; then
   # Random numbers use common instead of curand
   rndhst=-common
   opts+=" -cpponly"
-###elif [ "$bblds" == "-hip" ]; then
-###  #### Random numbers use hiprand instead of curand?
-###  ###rndhst=-hirhst
-###  # See https://github.com/ROCm/hipRAND/issues/76
-###  # Random numbers use common (not hiprand) instead of curand?
-###  rndhst=-common
-###  opts+=" -nocuda"
+elif [ "$bblds" == "-hip" ]; then # NB: currently (Sep 2024) this is identical to -nocuda
+  #### Random numbers use hiprand instead of curand?
+  #### This needs ROCm 6.2 (see https://github.com/ROCm/hipRAND/issues/76)
+  ###rndhst=-hirhst
+  # Random numbers use common (not hiprand) instead of curand
+  rndhst=-common
+  opts+=" -nocuda"
 fi
 
 # This is a script to launch in one go all tests for the (4 or) 5 main processes in this repository
