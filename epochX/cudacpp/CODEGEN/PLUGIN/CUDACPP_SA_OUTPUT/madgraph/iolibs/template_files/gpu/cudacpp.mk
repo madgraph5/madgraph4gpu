@@ -795,8 +795,13 @@ endif
 ifeq ($(HELINL),L)
 cxx_objects_lib+=$(BUILDDIR)/HelAmps_cpp.o
 gpu_objects_lib+=$(BUILDDIR)/HelAmps_$(GPUSUFFIX).o
+ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
 $(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o: GPUFLAGS += -rdc true # compilation fails if this is not added (ptxas fatal: Unresolved extern function)
 $(BUILDDIR)/HelAmps_$(GPUSUFFIX).o: GPUFLAGS += -rdc true # runtime fails if this is not added ('invalid device symbol' in CPPProcess.cc cHel to tHel copy)
+else ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
+$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o: GPUFLAGS += -fgpu-rdc # compilation fails if this is not added (lld: error: undefined hidden symbol: mg5amcGpu::linker_CD_FFV1_0)
+$(gpu_checkmain): LIBFLAGS += -fgpu-rdc --hip-link
+endif
 endif
 
 # Target (and build rules): C++ and CUDA/HIP shared libraries
