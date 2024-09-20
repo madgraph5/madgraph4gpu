@@ -305,12 +305,25 @@ function codeGenAndDiff()
     echo "*** ERROR! Code generation failed"
     exit 1
   fi
+  # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)
+  # (NEW SEP2024: move this _before_ `madevent treatcards param` as otherwise param_card.inc changes during the build of the code)
+  if [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
+    cat ${outproc}/Cards/ident_card.dat | head -3 > ${outproc}/Cards/ident_card.dat.new
+    cat ${outproc}/Cards/ident_card.dat | tail -n+4 | sort >> ${outproc}/Cards/ident_card.dat.new
+    \mv ${outproc}/Cards/ident_card.dat.new ${outproc}/Cards/ident_card.dat
+  fi
   # Patches moved here from patchMad.sh after Olivier's PR #764 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)  
   if [ "${OUTBCK}" == "mad" ]; then
     # Force the use of strategy SDE=1 in multichannel mode (see #419)
     sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${outproc}/Cards/run_card.dat
-    # Force the use of VECSIZE_MEMMAX=16384
-    sed -i 's/16 = vector_size/16384 = vector_size/' ${outproc}/Cards/run_card.dat
+    # Force the use of VECSIZE_MEMMAX=16384 (OLD CODE BEFORE JUNE24 WARP_SIZE)
+    ###sed -i 's/16 = vector_size/16384 = vector_size/' ${outproc}/Cards/run_card.dat 
+    # Force the use of WARP_SIZE=32 and NB_WARP=512 i.e. VECSIZE_MEMMAX=16384 (NEW CODE AFTER JUNE24 WARP_SIZE: NEEDS FIX FOR CRASH #885)
+    sed -i 's/16 = vector_size/32 = vector_size/' ${outproc}/Cards/run_card.dat 
+    sed -i 's/1 = nb_warp/512 = nb_warp/' ${outproc}/Cards/run_card.dat 
+    # Force the use of WARP_SIZE=32 and NB_WARP=2 i.e. VECSIZE_MEMMAX=64 is identical to (TEMPORARY) VECSIZE_USED=64 in tmad tests (workaround for crash #885)
+    ###sed -i 's/16 = vector_size/32 = vector_size/' ${outproc}/Cards/run_card.dat 
+    ###sed -i 's/1 = nb_warp/2 = nb_warp/' ${outproc}/Cards/run_card.dat 
     # Force the use of fast-math in Fortran builds
     sed -i 's/-O = global_flag.*/-O3 -ffast-math -fbounds-check = global_flag ! build flags for all Fortran code (for a fair comparison to cudacpp; default is -O)/' ${outproc}/Cards/run_card.dat
     # Generate run_card.inc and param_card.inc (include stdout and stderr in the code generation log which is later checked for errors)
@@ -413,12 +426,6 @@ function codeGenAndDiff()
   ###  dir_patches=PROD
   ###  $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   ###fi
-  # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2 (these are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)
-  if [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
-    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | head -3 > ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
-    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
-    \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
-  fi
   # Additional patches that are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
   cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/.gitignore
 crossx.html

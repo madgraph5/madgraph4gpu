@@ -16,7 +16,9 @@
  pdg_initial2 = [11] 
  splitting_types = [] 
  perturbation_order = [] 
- limitations = ['dressed_ee'] 
+ limitations = [] 
+ ew_sudakov = False 
  hel_recycling = False 
  single_color = True 
  nlo_mixed_expansion = True 
+ gauge = unitary 
