@@ -2,6 +2,7 @@
 This version is intended for development/beta testing and NOT for production.
 This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
 Running MG5 in debug mode
+('WARNING: loading of madgraph too slow!!!', 3.1248199939727783)
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -57,6 +58,11 @@ set auto_convert_model T
 save options auto_convert_model
 save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt
 import model heft
+INFO: load particles 
+INFO: load vertices 
+[1;34mWARNING: coupling GC_13=-(complex(0,1)*GH) has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
+[1;34mWARNING: coupling GC_16=(complex(0,1)*Gphi)/8. has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
+[1;32mDEBUG: model prefixing  takes 0.006158590316772461 [0m
 INFO: Restrict model heft with file models/heft/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
@@ -159,6 +165,8 @@ ALOHA: aloha creates 4 routines in  0.269 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFS2
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/./HelAmps_heft.h
 INFO: Created file HelAmps_heft.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/../SubProcesses/./HelAmps.cc
+INFO: Created file HelAmps.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/../SubProcesses/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/./Parameters_heft.h
@@ -167,7 +175,7 @@ INFO: Created files Parameters_heft.h and Parameters_heft.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. 
 quit
 
-real	0m0.664s
-user	0m0.584s
-sys	0m0.059s
-Code generation completed in 1 seconds
+real	0m3.668s
+user	0m0.614s
+sys	0m0.050s
+Code generation completed in 4 seconds

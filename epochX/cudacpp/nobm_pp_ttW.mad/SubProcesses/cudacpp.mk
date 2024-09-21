@@ -556,8 +556,11 @@ $(info HELINL='$(HELINL)')
 ifeq ($(HELINL),1)
   CXXFLAGS += -DMGONGPU_INLINE_HELAMPS
   GPUFLAGS += -DMGONGPU_INLINE_HELAMPS
+else ifeq ($(HELINL),L)
+  CXXFLAGS += -DMGONGPU_LINKER_HELAMPS
+  GPUFLAGS += -DMGONGPU_LINKER_HELAMPS
 else ifneq ($(HELINL),0)
-  $(error Unknown HELINL='$(HELINL)': only '0' and '1' are supported)
+  $(error Unknown HELINL='$(HELINL)': only 'L,', '0' and '1' are supported)
 endif
 
 # Set the build flags appropriate to each HRDCOD choice (example: "make HRDCOD=1")
@@ -659,7 +662,6 @@ override RUNTIME =
 #===============================================================================
 #=== Makefile TARGETS and build rules below
 #===============================================================================
-
 
 ifeq ($(GPUCC),)
   cxx_checkmain=$(BUILDDIR)/check_cpp.exe
@@ -789,6 +791,14 @@ gpu_objects_lib=$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o $(BUILDDIR)/MatrixElementK
 gpu_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/RamboSamplingKernels_$(GPUSUFFIX).o
 endif
 
+# Add object files and special build flags only for the HELINL=L mode
+ifeq ($(HELINL),L)
+cxx_objects_lib+=$(BUILDDIR)/HelAmps_cpp.o
+gpu_objects_lib+=$(BUILDDIR)/HelAmps_$(GPUSUFFIX).o
+$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o: GPUFLAGS += -rdc true # compilation fails if this is not added (ptxas fatal: Unresolved extern function)
+$(BUILDDIR)/HelAmps_$(GPUSUFFIX).o: GPUFLAGS += -rdc true # runtime fails if this is not added ('invalid device symbol' in CPPProcess.cc cHel to tHel copy)
+endif
+
 # Target (and build rules): C++ and CUDA/HIP shared libraries
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge_cpp.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge_cpp.o
@@ -799,12 +809,12 @@ ifneq ($(GPUCC),)
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: $(BUILDDIR)/fbridge_$(GPUSUFFIX).o
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: gpu_objects_lib += $(BUILDDIR)/fbridge_$(GPUSUFFIX).o
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib)
-	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPUARCHFLAGS) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 # Bypass std::filesystem completely to ease portability on LUMI #803
 #ifneq ($(findstring hipcc,$(GPUCC)),)
-#	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
+#	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPUARCHFLAGS) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
 #else
-#	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+#	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPUARCHFLAGS) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
 #endif
 endif
 
@@ -975,6 +985,7 @@ $(cxx_testmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY
 $(cxx_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_objects_exe) $(GTESTLIBS)
 	$(CXX) -o $@ $(cxx_objects_lib) $(cxx_objects_exe) -ldl -pthread $(LIBFLAGS)
 else # link only runTest_$(GPUSUFFIX).o (new: in the past, this was linking both runTest_cpp.o and runTest_$(GPUSUFFIX).o)
+$(gpu_testmain): LIBFLAGS += $(GPUARCHFLAGS) # avoid "nvlink warning: SM Arch not found" when using rdc
 ###$(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSASAN)
 $(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(GTESTLIBS)

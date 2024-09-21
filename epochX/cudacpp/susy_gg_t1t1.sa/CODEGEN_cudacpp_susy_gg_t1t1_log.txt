@@ -2,6 +2,7 @@
 This version is intended for development/beta testing and NOT for production.
 This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
 Running MG5 in debug mode
+('WARNING: loading of madgraph too slow!!!', 3.128488302230835)
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -549,7 +550,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t1 t1~ WEIGHTED<=2 @1  
 INFO: Process has 6 diagrams 
-1 processes with 6 diagrams generated in 0.126 s
+1 processes with 6 diagrams generated in 0.123 s
 Total: 1 processes with 6 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1
 Load PLUGIN.CUDACPP_OUTPUT
@@ -576,7 +577,7 @@ ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 3 routines in  0.189 s
+ALOHA: aloha creates 3 routines in  0.185 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
@@ -584,6 +585,8 @@ ALOHA: aloha creates 3 routines in  0.189 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVSS1
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/./HelAmps_MSSM_SLHA2.h
 INFO: Created file HelAmps_MSSM_SLHA2.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/. 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/../SubProcesses/./HelAmps.cc
+INFO: Created file HelAmps.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/../SubProcesses/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/./Parameters_MSSM_SLHA2.h
@@ -592,7 +595,7 @@ INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in dire
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/. 
 quit
 
-real	0m1.364s
-user	0m1.286s
-sys	0m0.065s
-Code generation completed in 1 seconds
+real	0m4.349s
+user	0m1.276s
+sys	0m0.068s
+Code generation completed in 4 seconds

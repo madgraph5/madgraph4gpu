@@ -2,6 +2,7 @@
 This version is intended for development/beta testing and NOT for production.
 This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
 Running MG5 in debug mode
+('WARNING: loading of madgraph too slow!!!', 3.1273341178894043)
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -57,7 +58,7 @@ generate g g > t t~ g g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005756378173828125 [0m
+[1;32mDEBUG: model prefixing  takes 0.005579710006713867 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -172,14 +173,14 @@ INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TM
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttgg/SubProcesses/P1_Sigma_sm_gg_ttxgg/. 
-Generated helas calls for 1 subprocesses (123 diagrams) in 0.442 s
+Generated helas calls for 1 subprocesses (123 diagrams) in 0.434 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.340 s
+ALOHA: aloha creates 5 routines in  0.330 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -194,6 +195,8 @@ ALOHA: aloha creates 5 routines in  0.340 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV4
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttgg/src/./HelAmps_sm.h
 INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttgg/src/. 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttgg/src/../SubProcesses/./HelAmps.cc
+INFO: Created file HelAmps.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttgg/src/../SubProcesses/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttgg/src/./Parameters_sm.h
@@ -202,7 +205,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttgg/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_ttgg/src/. 
 quit
 
-real	0m1.576s
-user	0m1.428s
+real	0m4.478s
+user	0m1.411s
 sys	0m0.060s
-Code generation completed in 2 seconds
+Code generation completed in 4 seconds

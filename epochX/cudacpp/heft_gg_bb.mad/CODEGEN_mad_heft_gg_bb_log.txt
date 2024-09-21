@@ -2,6 +2,7 @@
 This version is intended for development/beta testing and NOT for production.
 This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
 Running MG5 in debug mode
+('WARNING: loading of madgraph too slow!!!', 3.1262729167938232)
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -144,31 +145,31 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: g g > b b~ HIG<=1 HIW<=1 @1 
 INFO: Processing color information for process: g g > b b~ HIG<=1 HIW<=1 @1 
 INFO: Creating files in directory P1_gg_bbx 
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1152][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1229][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g g > b b~ HIG<=1 HIW<=1 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_bbx 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 4 [1;30m[model_handling.py at line 1523][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4} [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4} [1;30m[model_handling.py at line 1548][0m [0m
-Generated helas calls for 1 subprocesses (4 diagrams) in 0.009 s
-Wrote files for 12 helas calls in 0.078 s
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 4 [1;30m[model_handling.py at line 1604][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4} [1;30m[model_handling.py at line 1628][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4} [1;30m[model_handling.py at line 1629][0m [0m
+Generated helas calls for 1 subprocesses (4 diagrams) in 0.008 s
+Wrote files for 12 helas calls in 0.075 s
 [1;32mDEBUG:  self.vector_size = [0m 32 [1;30m[export_v4.py at line 7023][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFS2 routines[0m
-ALOHA: aloha creates 4 routines in  0.271 s
+ALOHA: aloha creates 4 routines in  0.263 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFS2 routines[0m
-ALOHA: aloha creates 8 routines in  0.254 s
+ALOHA: aloha creates 8 routines in  0.246 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -177,6 +178,8 @@ ALOHA: aloha creates 8 routines in  0.254 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFS2
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_bb/src/./HelAmps_heft.h
 INFO: Created file HelAmps_heft.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_bb/src/. 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_bb/src/../SubProcesses/./HelAmps.cc
+INFO: Created file HelAmps.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_bb/src/../SubProcesses/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
 FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_bb/src/./Parameters_heft.h
@@ -206,10 +209,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.179s
-user	0m1.907s
-sys	0m0.272s
-Code generation completed in 2 seconds
+real	0m5.115s
+user	0m1.836s
+sys	0m0.279s
+Code generation completed in 6 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
