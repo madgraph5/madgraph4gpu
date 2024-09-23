@@ -10,7 +10,20 @@
 
 # Set the default BACKEND (CUDA, HIP or C++/SIMD) choice
 ifeq ($(BACKEND),)
-  override BACKEND = cppauto
+  override BACKEND = gpucpp
+endif
+
+# Stop immediately if BACKEND=cuda but nvcc is missing
+ifeq ($(BACKEND),gpucpp)
+  ifeq ($(shell which nvcc 2>/dev/null),)
+    ifeq ($(shell which hipcc 2>/dev/null),)
+      override BACKEND = cppauto
+    else
+      override BACKEND = hip
+    endif
+  else
+    override BACKEND = cuda
+  endif
 endif
 
 # Set the default FPTYPE (floating point type) choice
