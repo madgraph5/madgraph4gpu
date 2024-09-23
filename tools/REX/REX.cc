@@ -111,7 +111,7 @@ namespace REX
 
     // ZW: minimal fcn for counting the amount of times
     // a given search term appears in a string
-    int nuStrCount( std::string_view searchString, std::string_view searchTerm )
+    int strCount( std::string_view searchString, std::string_view searchTerm )
     {
         int count = 0;
         size_t pos = 0;
@@ -124,11 +124,11 @@ namespace REX
 
     // ZW: fcn for finding the location of each
     // entry of seachTerm in the given string textFile
-    // Pre-allocates vector memory using nuStrCount
-    std::shared_ptr<std::vector<size_t>> nuFindEach( std::string_view textFile, std::string_view searchTerm )
+    // Pre-allocates vector memory using strCount
+    std::shared_ptr<std::vector<size_t>> findEach( std::string_view textFile, std::string_view searchTerm )
     {
         auto eachPos = std::make_shared<std::vector<size_t>>();
-        eachPos->reserve( nuStrCount(textFile, searchTerm) );
+        eachPos->reserve( strCount(textFile, searchTerm) );
         eachPos->push_back( textFile.find( searchTerm ) );
         size_t currPos = textFile.find( searchTerm, eachPos->at(0) + 1 );
         while( currPos != npos )
@@ -141,10 +141,10 @@ namespace REX
 
     // ZW: fcn for splitting a string into a vector of strings,
     // each element differentiated by linebreaks in the original string
-    // Removes sequential linebreaks, as well as leading blankspace
-    std::shared_ptr<std::vector<std::string_view>> nuLineSplitter( std::string_view currEvt )
+    // Removes sequential linebreaks, as well as lines with only whitespace
+    std::shared_ptr<std::vector<std::string_view>> lineSplitter( std::string_view currEvt )
     {
-        auto lineBreaks = nuFindEach( currEvt, "\n" );
+        auto lineBreaks = findEach( currEvt, "\n" );
         auto splitLines = std::make_shared<std::vector<std::string_view>>();
         if( lineBreaks->at(0) == npos ){ splitLines->push_back( currEvt ); return splitLines; }
         splitLines->reserve( lineBreaks->size() );
@@ -171,7 +171,7 @@ namespace REX
     // for the string "\n\n\n\n"
     std::shared_ptr<std::vector<size_t>> lineFinder( std::string_view currEvt, size_t startPos = 0, size_t endPos = npos )
     {
-        auto lineBreaks = nuFindEach( currEvt.substr( startPos, endPos - startPos), "\n" );
+        auto lineBreaks = findEach( currEvt.substr( startPos, endPos - startPos), "\n" );
         auto truBreaks = std::make_shared<std::vector<size_t>>();
         truBreaks->reserve( lineBreaks->size() );
         for( size_t k = 0 ; k < lineBreaks->size() ; ++k )
@@ -181,39 +181,11 @@ namespace REX
         }
         return truBreaks;
     }
-    
-    // ZW: fcn for splitting a string into a vector of strings,
-    // each element separated by blankspace (" ") in the original string
-    // Ignores sequential blankspaces, as well as linebreaks
-    // ie "hello     \n\n\n     world" would return {"hello", "world"}
-    // Does not ignore linebreaks that are not separated from words
-    // by anything other than blankspace,
-    // ie "hello     \n\n\nworld   \n\n" would return {"hello", "\n\nworld"}
-    std::shared_ptr<std::vector<std::string_view>> nuWordSplitter( std::string_view currEvt )
-    {
-        std::vector<size_t> noSpace;
-        size_t nuStart = currEvt.find_first_not_of( " " );
-        size_t nuEnd = currEvt.find(" ", nuStart+1 );
-        auto splitWords = std::make_shared<std::vector<std::string_view>>();
-        splitWords->reserve(13);
-        while( nuStart != npos )
-        {
-            std::string_view word = currEvt.substr( nuStart, nuEnd - nuStart );
-            if( word == "" || word == "\n" || word == " " ){
-                nuStart = currEvt.find_first_not_of(" ", nuEnd);
-                nuEnd = currEvt.find( " ", nuStart + 1);
-                continue; }
-            splitWords->push_back( currEvt.substr( nuStart, nuEnd - nuStart ) );
-            nuStart = currEvt.find_first_not_of(" ", nuEnd);
-            nuEnd = currEvt.find( " ", nuStart + 1);
-        }
-        return splitWords;
-    }
 
     // ZW: fcn for splitting a string into a vector of strings,
     // elements separated by any form of blankspace in the original string
     // Ignores sequential blankspaces of all forms
-    std::shared_ptr<std::vector<std::string_view>> nuBlankSplitter( std::string_view currEvt )
+    std::shared_ptr<std::vector<std::string_view>> blankSplitter( std::string_view currEvt )
     {
         auto strtPos = currEvt.find_first_not_of(" \n\r\f\t\v");
         auto splitString = std::make_shared<std::vector<std::string_view>>();
@@ -221,6 +193,7 @@ namespace REX
         auto endPos = currEvt.find_first_of(" \n\r\f\t\v", strtPos);
         while( strtPos != npos )
         {
+            if( endPos == npos ){ splitString->push_back( currEvt.substr( strtPos ) ); break; }
             splitString->push_back( currEvt.substr( strtPos, endPos - strtPos ) );
             strtPos = currEvt.find_first_not_of(" \n\r\f\t\v", endPos);
             endPos = currEvt.find_first_of(" \n\r\f\t\v", strtPos);
@@ -1116,7 +1089,7 @@ namespace REX
     // ZW: fcn for finding each decay line in SLHA format
     // parameter card
     std::vector<std::string_view> decBlockStractor( std::string_view parseFile ){
-        auto allDs = nuFindEach( parseFile, "\nd" );
+        auto allDs = findEach( parseFile, "\nd" );
         std::vector<std::string_view> decLines;
         decLines.reserve( allDs->size() );
         for( auto pos : *allDs )
@@ -1136,10 +1109,10 @@ namespace REX
         auto blockStrt = blockFinder( parseFile, startPt );
         auto newBlock = blockFinder( parseFile, blockStrt + 1 );
         std::vector<std::string_view> paramLines;
-        paramLines.reserve( nuStrCount( parseFile, "\n" ) );
+        paramLines.reserve( strCount( parseFile, "\n" ) );
         std::shared_ptr<std::vector<std::string_view>> parLines;
-        if( newBlock == npos ){ parLines = nuLineSplitter( parseFile.substr( blockStrt ) ); }
-        else{ parLines = nuLineSplitter( parseFile.substr( blockStrt, newBlock - blockStrt ) ); }
+        if( newBlock == npos ){ parLines = lineSplitter( parseFile.substr( blockStrt ) ); }
+        else{ parLines = lineSplitter( parseFile.substr( blockStrt, newBlock - blockStrt ) ); }
         for( auto line : *parLines )
         {
             if( line.size() == 0 ){ continue; }
@@ -1179,7 +1152,7 @@ namespace REX
             beginLine = originFile.find_first_not_of("\n \r\f\t\v", beginLine);
             if( endLine == npos ){ endLine = originFile.find("\n", beginLine ) + 1; }
             sourceFile = originFile.substr( beginLine, endLine - beginLine );
-            auto evLine = nuWordSplitter( sourceFile );
+            auto evLine = blankSplitter( sourceFile );
             nprt = evLine->at(0) ;
             procid = evLine->at(1);
             weight = evLine->at(2);
@@ -1241,7 +1214,7 @@ namespace REX
         lhePrt::lhePrt( const std::string_view originFile, const size_t& beginLine, const size_t& endLine )
         {
             sourceFile = originFile.substr( beginLine, endLine - beginLine );
-            auto evLine = nuWordSplitter( sourceFile );
+            auto evLine = blankSplitter( sourceFile );
             pdg = evLine->at(0);
             status = evLine->at(1);
             mothers[0] = evLine->at(2); mothers[1] = evLine->at(3);
@@ -1657,15 +1630,6 @@ namespace REX
         return this->comp(*ev, relStats);
     }
 
-    event& makeEv( std::vector<std::pair<int,int>>& particles ){
-        static auto returnEvent = event( particles );
-        return returnEvent;
-    }
-
-    std::vector<std::shared_ptr<lhePrt>> getParticles( event& ev ){
-        return ev.getPrts();
-    }
-
     // ZW: struct for handling the first line of
     // LHE format init tag
         bool lheInitHead::isWritten(){ return written; }
@@ -1674,7 +1638,7 @@ namespace REX
             if( isModded() || !isWritten() ){ writer(); }
             return content; }
         lheInitHead::lheInitHead( std::string_view initHead ){
-            auto vals = *nuBlankSplitter( initHead );
+            auto vals = *blankSplitter( initHead );
             if( vals.size() < 10 ){ return; }
             idbmup[0] = vals[0]; idbmup[1] = vals[1];
             ebmup[0] = vals[2]; ebmup[1] = vals[3];
@@ -1687,7 +1651,7 @@ namespace REX
             if( initNode.getName() != "init" ){ return; }
             auto startPos = initNode.getFile().find( ">", initNode.getStart() ) + 1;
             auto endPos = initNode.getFile().find( "\n", startPos );
-            auto vals = *nuBlankSplitter( initNode.getFile().substr( startPos, endPos - startPos ) );
+            auto vals = *blankSplitter( initNode.getFile().substr( startPos, endPos - startPos ) );
             idbmup[0] = vals[0]; idbmup[1] = vals[1];
             ebmup[0] = vals[2]; ebmup[1] = vals[3];
             pdfgup[0] = vals[4]; pdfgup[1] = vals[5];
@@ -1711,7 +1675,7 @@ namespace REX
         lheInitLine::lheInitLine(){}
         lheInitLine::lheInitLine( std::string_view procLine )
         {
-            auto vals = *nuBlankSplitter( procLine );
+            auto vals = *blankSplitter( procLine );
             if( vals.size() < 4 ){ return; }
             xsecup = vals[0];
             xerrup = vals[1];
@@ -1743,7 +1707,7 @@ namespace REX
                 }
             }
             realLine = paramLine;
-            auto vals = *nuBlankSplitter( realLine );
+            auto vals = *blankSplitter( realLine );
             idStr = vals[0];
             valStr = vals[1];
             if( parseOnline ){ 
@@ -1774,7 +1738,7 @@ namespace REX
     // ZW: struct for handling single DECAY line
     // in SLHA format parameter card
         void decVal::parse() {
-            auto vals = *nuBlankSplitter( realLine );
+            auto vals = *blankSplitter( realLine );
             id = std::stoi( std::string(vals[1]) );
             value = std::stod( std::string(vals[2]) );
             if( vals.size() > 3 )
@@ -2009,7 +1973,7 @@ namespace REX
         }
         bool initNode::parseContent(){
             if( content.size() == 0 ){ return false; }
-            auto lines = nuLineSplitter( content );
+            auto lines = lineSplitter( content );
             if( lines->size() == 0 ){ return false; }
             initHead = std::make_shared<lheInitHead>(lines->at(0) );
             for( size_t k = 1 ; k < lines->size() ; ++k ){
@@ -2329,126 +2293,6 @@ namespace REX
             if( isModded( true ) || !isWritten() ){ fullWriter(); }
             return writtenSelf;
         }
-
-    // ZW: function for extracting event information from
-    // LHE files
-    std::vector<std::shared_ptr<std::vector<double>>> valExtraction( lheNode& lheFile )
-    {
-        bool getGs = true;
-        auto momVec = std::make_shared<std::vector<double>>();
-        auto wgtVec = std::make_shared<std::vector<double>>();
-        auto gVec = std::make_shared<std::vector<double>>();
-        auto events = lheFile.getEvents();
-        momVec->reserve( events.size() * 4 * std::stoi(std::string(events[0]->getHead().getNprt())) );
-        wgtVec->reserve( events.size() );
-        gVec->reserve( events.size() );
-        if( getGs ){
-        for( auto event : events )
-        {
-            wgtVec->push_back(std::stod(std::string( event->getHead().getWeight() )));
-            gVec->push_back( std::sqrt( 4.0 * M_PI * std::stod(std::string( event->getHead().getAQCD() ))));
-            for( auto prt : event->getPrts() )
-            {
-                momVec->push_back(std::stod(std::string(prt->getE())));
-                for( int p = 0 ; p < 3 ; ++p )
-                { momVec->push_back(std::stod(std::string(prt->getMom()[p]))); }
-            }
-        }
-        } else{
-        for( auto event : events )
-        {
-            wgtVec->push_back(std::stod(std::string( event->getHead().getWeight() )));
-            gVec->push_back( std::stod(std::string( event->getHead().getAQCD() )));
-            for( auto prt : event->getPrts() )
-            {
-                momVec->push_back(std::stod(std::string(prt->getE())));
-                for( int p = 0 ; p < 3 ; ++p )
-                { momVec->push_back(std::stod(std::string(prt->getMom()[p]))); }
-            }
-            
-        } }
-        return {momVec, gVec, wgtVec};
-    }
-
-    // ZW: fcn for parsing an LHE format event block
-    // and return a REX format event object
-    std::shared_ptr<event> evPtrParsor( std::string_view parseFile, size_t& initPos, size_t& endPos )
-    {
-        auto currNode = std::make_shared<event>(parseFile, initPos);
-        initPos = nodeStartFind( parseFile, initPos + 1 );
-        while( initPos < endPos )
-        {
-            currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
-        }
-        size_t equalSign = parseFile.find_first_of("=>", initPos);
-        size_t nodeInitEnd = parseFile.find(">", initPos);
-        while( equalSign < nodeInitEnd ){
-            currNode->addTag( xmlTagParser(parseFile, equalSign) );
-        }
-        initPos = nodeStartFind( parseFile, endPos );
-        endPos = nodeEndFind( parseFile, endPos + 1 );
-        return currNode;
-    }
-
-    // ZW: fcn for parsing an LHE format header
-    // and return a REX format lheHead object
-    std::shared_ptr<lheHead> lheHeadParser( std::string_view parseFile, size_t& initPos, size_t& endPos )
-    {
-        auto currNode = std::make_shared<lheHead>(parseFile, initPos);
-        initPos = nodeStartFind( parseFile, initPos + 1 );
-        while( initPos < endPos )
-        {
-            currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
-            if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "init" ){ continue; }
-            if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "slha" ){
-                currNode->setParameters( std::make_shared<slhaNode>(currNode->getChildren()[ currNode->getChildren().size() - 1 ]) );
-            }
-            if( currNode->getChildren()[ currNode->getChildren().size() - 1 ]->getName() == "initrwgt" ){
-                currNode->setInitRwgt( std::make_shared<initRwgt>( currNode->getChildren()[ currNode->getChildren().size() - 1 ] ) );
-            }
-        }
-        size_t equalSign = parseFile.find("=", initPos);
-        size_t nodeInitEnd = parseFile.find(">", initPos);
-        while( equalSign < nodeInitEnd ){
-            currNode->addTag( xmlTagParser(parseFile, equalSign) );
-        }
-        initPos = nodeStartFind( parseFile, endPos );
-        endPos = nodeEndFind( parseFile, endPos + 1 );
-        return currNode;
-    }
-
-    // ZW: fcn for parsing an LHE format file
-    // and return a REX format LHE node object
-    std::shared_ptr<lheNode> lheParser( std::string_view parseFile, size_t& initPos, size_t& endPos )
-    {
-        auto currNode = std::make_shared<lheNode>(parseFile, initPos);
-        initPos = nodeStartFind( parseFile, initPos + 1 );
-        while( initPos < endPos )
-        {
-            if( parseFile.substr( initPos, 6 ) == "<event" ){
-                currNode->getEvents().push_back( evPtrParsor( parseFile, initPos, endPos ) );
-                continue;
-            } else if( parseFile.substr( initPos, 7 ) == "<header"  ){
-                currNode->setHeader(lheHeadParser( parseFile, initPos, endPos ));
-                continue;
-            } else if( parseFile.substr( initPos, 5 ) == "<init"  ){
-                currNode->setInit( std::make_shared<initNode>( parseFile, initPos ) );
-                initPos = nodeStartFind( parseFile, endPos );
-                endPos = nodeEndFind( parseFile, nodeEndFind( parseFile, endPos + 1 ) + 1);
-                continue;
-            } else {
-            currNode->addChild(xmlPtrParser( parseFile, initPos, endPos ));
-            }
-        }
-        size_t equalSign = parseFile.find("=", initPos);
-        size_t nodeInitEnd = parseFile.find(">", initPos);
-        while( equalSign < nodeInitEnd ){
-            currNode->addTag( xmlTagParser(parseFile, equalSign) );
-        }
-        initPos = nodeStartFind( parseFile, endPos );
-        endPos = nodeEndFind( parseFile, endPos + 1 );
-        return currNode;
-    }
 
     // ZW: struct for treating individual HEP
     // processes, formatted based on PDG codes

@@ -59,10 +59,9 @@ namespace REX
     std::shared_ptr<std::vector<size_t>> getRefOrder(const std::vector<T>& reference, const std::vector<T>& to_sort);
     extern template std::shared_ptr<std::vector<size_t>> getRefOrder<std::string_view>(const std::vector<std::string_view>& reference, const std::vector<std::string_view>& to_sort);
 
-    std::shared_ptr<std::vector<size_t>> nuFindEach( std::string_view textFile, std::string_view searchTerm );
-    std::shared_ptr<std::vector<std::string_view>> nuLineSplitter( std::string_view currEvt );
-    std::shared_ptr<std::vector<std::string_view>> nuWordSplitter( std::string_view line );
-    std::shared_ptr<std::vector<std::string_view>> nuBlankSplitter( std::string_view currEvt );
+    std::shared_ptr<std::vector<size_t>> findEach( std::string_view textFile, std::string_view searchTerm );
+    std::shared_ptr<std::vector<std::string_view>> lineSplitter( std::string_view currEvt );
+    std::shared_ptr<std::vector<std::string_view>> blankSplitter( std::string_view currEvt );
     std::shared_ptr<std::string> filePuller( const std::string& fileLoc );
     bool filePusher( std::string fileLoc, std::string fileCont );
 
@@ -460,6 +459,9 @@ namespace REX
     };
 
     bool clStringComp( std::string_view str1, std::string str2 );
+    bool clStringComp( std::string_view str1, std::string_view str2 );
+    bool clStringComp( std::string str1, std::string str2 );
+    bool clStringComp( std::string str1, std::string_view str2 );
 
     struct lesHouchesCard {
     public:

@@ -52,7 +52,7 @@ namespace REX::teaw
         rwgtVal::rwgtVal( std::string_view paramLine )
         : paramVal( paramLine, false ){if( paramLine.size() == 0 ){ return; }
             realLine = paramLine;
-            auto vals = *REX::nuBlankSplitter( realLine );
+            auto vals = *REX::blankSplitter( realLine );
             blockName = vals[1];
             idStr = vals[2];
             valStr = vals[3];
@@ -119,13 +119,13 @@ namespace REX::teaw
         void rwgtProc::parse(){
             std::vector<std::string_view> blocks;
             std::vector<std::shared_ptr<std::vector<rwgtVal>>> params;
-            auto procLines = *REX::nuLineSplitter( procString );
+            auto procLines = *REX::lineSplitter( procString );
             for( auto line : procLines )
             {
                 if( line.find_first_not_of(" \n\r\f\t\v") == '#' ){ continue; }
                 auto strtPt = line.find("set");
                 if( strtPt == REX::npos ){ continue; }
-                auto words = *REX::nuWordSplitter( line.substr(strtPt) );
+                auto words = *REX::blankSplitter( line.substr(strtPt) );
                 auto currBlock = words[1]; 
                 auto loc = std::find_if( blocks.begin(), blocks.end(), 
                 [&]( std::string_view block ){ return (block == currBlock); } );
@@ -167,7 +167,7 @@ namespace REX::teaw
         std::string_view rwgtProc::comRunProc(){ return procString; }
 
         void rwgtCard::parse( bool parseOnline ){
-            auto allLaunchPos = REX::nuFindEach( this->srcCard, "launch" );
+            auto allLaunchPos = REX::findEach( this->srcCard, "launch" );
             std::vector<size_t> lnchPos;
             lnchPos.reserve( allLaunchPos->size() );
             for( auto pos : *allLaunchPos )
@@ -176,7 +176,7 @@ namespace REX::teaw
                 if( srcCard.find_last_of("#", pos) < srcCard.find_last_of("\n", pos) ){ lnchPos.push_back(pos); }
             }
             lnchPos.push_back( REX::npos );
-            auto preamble = REX::nuLineSplitter( srcCard.substr( 0, lnchPos[0] - 1 ) );
+            auto preamble = REX::lineSplitter( srcCard.substr( 0, lnchPos[0] - 1 ) );
             for( auto line : *preamble )
             {
                 if( line[line.find_first_not_of(" \n\r\f\t\v")] == '#' ){ continue; }
@@ -668,7 +668,12 @@ namespace REX::teaw
                     omegaSqr += invWgt * invWgt;
                 }
                 double var = (omegaSqr - omega * omega * invN) * invN * xSecCurr * xSecCurr;
-                errXSecs->push_back( std::sqrt( sqrtInvN * var )*xSec + xSecCurr * omega * invN * xErr ); 
+                double error = std::sqrt( std::max( 0., sqrtInvN * var) )*xSec + xSecCurr * omega * invN * xErr;
+                if( std::isnan( error ) || std::isinf( error ) ){
+                    std::cout << "\033[1;33mWarning:Error propagation yielded NaN for " << rwgtSets->rwgtNames->at(k) << ". Approximating the error at cross section level.\033[0m\n";
+                    error = xErr * std::max( xSec / xSecCurr, xSecCurr / xSec );
+                }
+                errXSecs->push_back( error ); 
             }
             return true;
         }
@@ -697,9 +702,6 @@ namespace REX::teaw
             return nullptr;
         }
 
-    void rwgtRun( rwgtRunner& rwgt, const std::string& path ){
-        rwgt.runRwgt( path );
-    }
 }
 
 #endif
