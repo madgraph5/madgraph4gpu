@@ -60,24 +60,6 @@ namespace rwgt{
         std::shared_ptr<std::vector<FORTRANFPTYPE>> bridgeCall( std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS );
     };
 
-    struct instance{
-        std::vector<std::pair<int,int>> procEventInt;
-        std::vector<std::pair<std::string,std::string>> procEventStr;
-        REX::event process;
-        REX::teaw::amplitude bridgeCall;
-        instance();
-        instance( std::vector<std::pair<int,int>>& event);
-        instance( std::vector<std::pair<int,int>>& event, REX::teaw::amplitude& amp );
-        void setProc( std::vector<std::pair<int,int>>& event );
-        instance( std::vector<std::pair<std::string,std::string>>& event);
-        instance( std::vector<std::pair<std::string,std::string>>& event, REX::teaw::amplitude& amp );
-        void setProc( std::vector<std::pair<std::string,std::string>>& event );
-        void setAmp( REX::teaw::amplitude& amp );
-        std::shared_ptr<std::vector<FORTRANFPTYPE>> ampEval( std::vector<double>& momenta, std::vector<double>& alphaS );
-        std::shared_ptr<std::vector<FORTRANFPTYPE>> ampEval( std::shared_ptr<std::vector<double>> momenta, 
-        std::shared_ptr<std::vector<double>> alphaS );
-    };
-
 }
 
 #endif

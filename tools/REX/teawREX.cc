@@ -7,13 +7,17 @@
  *     \__\___|\__,_| \_/\_/ \_| \_\____/\/   \/
  *                                              
  ***/
-
-// THIS IS NOT A LICENSED RELEASE
-// IF YOU SEE THIS FILE, IT HAS BEEN SPREAD
-// FROM AN IMPROPER RELEASE.
-
+//
+// *t*ensorial *e*vent *a*daption *w*ith *REX* Version 0.9.0
+// teawREX is an extension to the REX C++ library for parsing and manipulating Les Houches Event-format (LHE) files,
+// designed for leading order event reweighting based on input LHE file(s) and scattering amplitude functions.
+// teawREX is in development and may not contain all features necessary for all desired features,
+// and does not have documentation beyond the code itself.
+//
 // Copyright © 2023-2024 CERN, CERN Author Zenny Wettersten. 
-// All rights reserved.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// All rights not expressly granted are reserved.
+//
 
 #ifndef _TEAWREX_CC_
 #define _TEAWREX_CC_
@@ -25,7 +29,6 @@
 #include <cstring>
 #include <variant>
 #include <stdarg.h>
-//#include "REX.cc"
 #include "REX.h"
 #include "teawREX.h"
 

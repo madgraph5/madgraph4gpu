@@ -7,13 +7,17 @@
  *     \__\___|\__,_| \_/\_/ \_| \_\____/\/   \/
  *                                              
  ***/
-
-// THIS IS NOT A LICENSED RELEASE
-// IF YOU SEE THIS FILE, IT HAS BEEN SPREAD
-// FROM AN IMPROPER RELEASE.
-
+//
+// *t*ensorial *e*vent *a*daption *w*ith *REX* Version 0.9.0
+// teawREX is an extension to the REX C++ library for parsing and manipulating Les Houches Event-format (LHE) files,
+// designed for leading order event reweighting based on input LHE file(s) and scattering amplitude functions.
+// teawREX is in development and may not contain all features necessary for all desired features,
+// and does not have documentation beyond the code itself.
+//
 // Copyright © 2023-2024 CERN, CERN Author Zenny Wettersten. 
-// All rights reserved.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// All rights not expressly granted are reserved.
+//
 
 #ifndef _TEAWREX_H_
 #define _TEAWREX_H_
@@ -31,8 +35,6 @@ namespace REX::teaw
 {
 
     using amplitude = std::function<std::shared_ptr<std::vector<double>>(std::vector<double>&, std::vector<double>&)>;
-    //using ampCall = std::map<REX::event, amplitude, REX::eventComp>;
-    //using ampPair = std::pair<REX::event, amplitude>;
     using vecMap = std::map<REX::event, std::shared_ptr<std::vector<double>>, REX::eventComp>;
 
     struct rwgtVal : REX::paramVal{
@@ -158,18 +160,14 @@ namespace REX::teaw
     struct rwgtRunner : rwgtFiles{
     public:
         void setMeEval( amplitude eval );
-        //void setMeEvals( ampCall evals );
         void addMeEval( const REX::event& ev, const amplitude& eval );
         rwgtRunner();
         rwgtRunner( rwgtFiles& rwgts );
         rwgtRunner( rwgtFiles& rwgts, amplitude meCalc );
-        //rwgtRunner( rwgtFiles& rwgts, ampCall& meCalcs );
         rwgtRunner( rwgtFiles& rwgts, std::vector<amplitude>& meCalcs );
         rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
         amplitude meCalc );
         rwgtRunner(const rwgtRunner& rwgts);
-        //rwgtRunner( std::string_view lhe_card, std::string_view slha_card, std::string_view reweight_card,
-        //ampCall meCalcs );
         bool oneME();
         bool singAmp();
     protected:

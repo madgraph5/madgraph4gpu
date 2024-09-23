@@ -141,44 +141,6 @@ namespace rwgt{
         return evalScatAmps;
     }
 
-    instance::instance(){}
-    instance::instance( std::vector<std::pair<int,int>>& event){
-        this->procEventInt = event;
-        this->process = REX::event( event );
-    }
-    instance::instance( std::vector<std::pair<int,int>>& event, REX::teaw::amplitude& amp ){
-        this->procEventInt = event;
-        this->process = REX::event( event );
-        bridgeCall = amp;
-    }
-    void instance::setProc( std::vector<std::pair<int,int>>& event ){
-        this->procEventInt = event;
-        this->process = REX::event( event );
-    }
-    instance::instance( std::vector<std::pair<std::string,std::string>>& event){
-        this->procEventStr = event;
-        this->process = REX::event( event );
-    }
-    instance::instance( std::vector<std::pair<std::string,std::string>>& event, REX::teaw::amplitude& amp ){
-        this->procEventStr = event;
-        this->process = REX::event( event );
-        bridgeCall = amp;
-    }
-    void instance::setProc( std::vector<std::pair<std::string,std::string>>& event ){
-        this->procEventStr = event;
-        this->process = REX::event( event );
-    }
-    void instance::setAmp( REX::teaw::amplitude& amp ){
-        bridgeCall = amp;
-    }
-    std::shared_ptr<std::vector<FORTRANFPTYPE>> instance::ampEval( std::vector<double>& momenta, std::vector<double>& alphaS ){
-        return bridgeCall( momenta, alphaS );
-    }
-    std::shared_ptr<std::vector<FORTRANFPTYPE>> instance::ampEval( std::shared_ptr<std::vector<double>> momenta, 
-    std::shared_ptr<std::vector<double>> alphaS ){
-        return bridgeCall( *momenta, *alphaS );
-    }
-
 }
 
 #endif

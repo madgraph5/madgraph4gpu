@@ -7,13 +7,17 @@
  *    \_| \_\____/\/   \/
  *                                             
  ***/
-
-// THIS IS NOT A LICENSED RELEASE
-// IF YOU SEE THIS FILE, IT HAS BEEN SPREAD
-// FROM AN IMPROPER RELEASE.
-
+//
+// *R*apid *E*vent e*X*traction Version 0.9.0
+// REX is a C++ library for parsing and manipulating Les Houches Event-format (LHE) files.
+// It is designed to fast and lightweight, in comparison to internal parsers in programs like MadGraph.
+// Currently, REX is in development and may not contain all features necessary for full LHE parsing;
+// particularly, it can only parse existing LHE files, rather than writing completely new ones.
+//
 // Copyright © 2023-2024 CERN, CERN Author Zenny Wettersten. 
-// All rights reserved.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// All rights not expressly granted are reserved.
+//
 
 #ifndef _REX_CC_
 #define _REX_CC_
