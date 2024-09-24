@@ -122,21 +122,21 @@ namespace REX::teaw
         void rwgtProc::parse(){
             std::vector<std::string_view> blocks;
             std::vector<std::shared_ptr<std::vector<rwgtVal>>> params;
-            auto procLines = *REX::lineSplitter( procString );
-            for( auto line : procLines )
+            auto procLines = REX::lineSplitter( procString );
+            for( auto line : *procLines )
             {
                 if( line.find_first_not_of(" \n\r\f\t\v") == '#' ){ continue; }
                 auto strtPt = line.find("set");
                 if( strtPt == REX::npos ){ continue; }
-                auto words = *REX::blankSplitter( line.substr(strtPt) );
-                auto currBlock = words[1]; 
+                auto words = REX::blankSplitter( line.substr(strtPt) );
+                auto currBlock = words->at(1); 
                 auto loc = std::find_if( blocks.begin(), blocks.end(), 
                 [&]( std::string_view block ){ return (block == currBlock); } );
                 if( loc == blocks.end() ){ 
                     blocks.push_back( currBlock ); 
                     params.push_back( std::make_shared<std::vector<rwgtVal>>( std::vector<rwgtVal>({rwgtVal( line )} ) )); }
                 else { 
-                    params[ std::distance( blocks.begin(), loc ) - 1 ]->push_back( rwgtVal( line ) );
+                    params[ std::distance( blocks.begin(), loc )  ]->push_back( rwgtVal( line ) );
                 }
             }
             rwgtParams.reserve(blocks.size());

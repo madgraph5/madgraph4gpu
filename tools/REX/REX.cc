@@ -1712,8 +1712,16 @@ namespace REX
             }
             realLine = paramLine;
             auto vals = *blankSplitter( realLine );
-            idStr = vals[0];
-            valStr = vals[1];
+            if( vals.size() < 2 ){ return; }
+            if( clStringComp(vals[0],std::string("set")) ){ 
+                if( vals.size() < 4 )
+                    throw std::runtime_error("Error while parsing SLHA parameter line --- this appears to be a reweight command, but insufficient arguments were provided.");
+                idStr = vals[2];
+                valStr = vals[3];
+            } else {
+                idStr = vals[0];
+                valStr = vals[1];
+            }
             if( parseOnline ){ 
             if( vals.size() > 2 )
             {
