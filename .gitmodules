@@ -2,3 +2,7 @@
 	path = MG5aMC/mg5amcnlo
 	url = https://github.com/mg5amcnlo/mg5amcnlo
 	branch = gpucpp
+[submodule "MG5aMC/HEPToolsInstallers"]
+	path = MG5aMC/HEPToolsInstallers
+	url = https://github.com/mg5amcnlo/HEPToolsInstallers
+	branch = cudacpp
