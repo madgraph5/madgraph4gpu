@@ -2,7 +2,6 @@
 This version is intended for development/beta testing and NOT for production.
 This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
 Running MG5 in debug mode
-('WARNING: loading of madgraph too slow!!!', 3.1298129558563232)
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -57,7 +56,7 @@ set zerowidth_tchannel F
 import model sm-no_b_mass
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005838632583618164 [0m
+[1;32mDEBUG: model prefixing  takes 0.005677461624145508 [0m
 INFO: Restrict model sm-no_b_mass with file models/sm/restrict_no_b_mass.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -181,7 +180,7 @@ INFO: Process u~ d > t t~ w- added to mirror process d u~ > t t~ w-
 INFO: Process c~ s > t t~ w- added to mirror process s c~ > t t~ w- 
 INFO: Process d~ u > t t~ w+ added to mirror process u d~ > t t~ w+ 
 INFO: Process s~ c > t t~ w+ added to mirror process c s~ > t t~ w+ 
-4 processes with 8 diagrams generated in 0.113 s
+4 processes with 8 diagrams generated in 0.112 s
 Total: 4 processes with 8 diagrams
 add process p p > t t~ w j @1
 INFO: Checking for minimal orders which gives processes. 
@@ -223,15 +222,21 @@ INFO: Process d~ g > t t~ w+ u~ added to mirror process g d~ > t t~ w+ u~
 INFO: Process d~ u > t t~ w+ g added to mirror process u d~ > t t~ w+ g 
 INFO: Process s~ g > t t~ w+ c~ added to mirror process g s~ > t t~ w+ c~ 
 INFO: Process s~ c > t t~ w+ g added to mirror process c s~ > t t~ w+ g 
-12 processes with 144 diagrams generated in 0.671 s
+12 processes with 144 diagrams generated in 0.663 s
 Total: 16 processes with 152 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_nobm_pp_ttW --hel_recycling=False --vector_size=32
+[1;34merror detected in plugin: maddm.[0m
+[1;34mNo module named 'maddm_interface'[0m
 Load PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.6.0_lo_vect. 
 It has been validated for the last time with version: 3.5.2[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
+[1;34merror detected in plugin: maddm.[0m
+[1;34mNo module named 'maddm_interface'[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4334][0m [0m
+[1;34merror detected in plugin: maddm.[0m
+[1;34mNo module named 'maddm_interface'[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 165][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_nobm_pp_ttW 
@@ -354,19 +359,19 @@ INFO: Finding symmetric diagrams for subprocess group dux_ttxwm
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 2 [1;30m[model_handling.py at line 1604][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1628][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1629][0m [0m
-Generated helas calls for 8 subprocesses (76 diagrams) in 0.211 s
-Wrote files for 212 helas calls in 0.860 s
+Generated helas calls for 8 subprocesses (76 diagrams) in 0.209 s
+Wrote files for 212 helas calls in 0.849 s
 [1;32mDEBUG:  self.vector_size = [0m 32 [1;30m[export_v4.py at line 7023][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 3 routines in  0.213 s
+ALOHA: aloha creates 3 routines in  0.210 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 6 routines in  0.210 s
+ALOHA: aloha creates 6 routines in  0.207 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -464,10 +469,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m7.811s
-user	0m4.243s
-sys	0m0.554s
-Code generation completed in 8 seconds
+real	0m4.776s
+user	0m4.184s
+sys	0m0.578s
+Code generation completed in 5 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *

@@ -2,7 +2,6 @@
 This version is intended for development/beta testing and NOT for production.
 This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
 Running MG5 in debug mode
-('WARNING: loading of madgraph too slow!!!', 3.1248199939727783)
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -62,7 +61,7 @@ INFO: load particles
 INFO: load vertices 
 [1;34mWARNING: coupling GC_13=-(complex(0,1)*GH) has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
 [1;34mWARNING: coupling GC_16=(complex(0,1)*Gphi)/8. has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
-[1;32mDEBUG: model prefixing  takes 0.006158590316772461 [0m
+[1;32mDEBUG: model prefixing  takes 0.006167888641357422 [0m
 INFO: Restrict model heft with file models/heft/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
@@ -131,6 +130,8 @@ INFO: Process has 4 diagrams
 1 processes with 4 diagrams generated in 0.006 s
 Total: 1 processes with 4 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_heft_gg_bb
+[1;34merror detected in plugin: maddm.[0m
+[1;34mNo module named 'maddm_interface'[0m
 Load PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.6.0_lo_vect. 
 It has been validated for the last time with version: 3.5.2[0m
@@ -156,7 +157,7 @@ ALOHA: aloha creates VVS3 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFS2 routines[0m
-ALOHA: aloha creates 4 routines in  0.269 s
+ALOHA: aloha creates 4 routines in  0.270 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -175,7 +176,7 @@ INFO: Created files Parameters_heft.h and Parameters_heft.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. 
 quit
 
-real	0m3.668s
-user	0m0.614s
-sys	0m0.050s
-Code generation completed in 4 seconds
+real	0m0.685s
+user	0m0.620s
+sys	0m0.055s
+Code generation completed in 0 seconds

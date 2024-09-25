@@ -2,7 +2,6 @@
 This version is intended for development/beta testing and NOT for production.
 This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
 Running MG5 in debug mode
-('WARNING: loading of madgraph too slow!!!', 0.9350659847259521)
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -58,7 +57,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005448341369628906 [0m
+[1;32mDEBUG: model prefixing  takes 0.006380796432495117 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -153,6 +152,8 @@ INFO: Process has 2 diagrams
 1 processes with 2 diagrams generated in 0.004 s
 Total: 1 processes with 2 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_ee_mumu
+[1;34merror detected in plugin: maddm.[0m
+[1;34mNo module named 'maddm_interface'[0m
 Load PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.6.0_lo_vect. 
 It has been validated for the last time with version: 3.5.2[0m
@@ -178,7 +179,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 4 routines in  0.268 s
+ALOHA: aloha creates 4 routines in  0.277 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -199,7 +200,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. 
 quit
 
-real	0m1.485s
-user	0m1.339s
-sys	0m0.076s
+real	0m0.911s
+user	0m0.709s
+sys	0m0.061s
 Code generation completed in 1 seconds
