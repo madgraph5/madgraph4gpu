@@ -49,13 +49,9 @@ jobs:
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            # *** NB1: acceptance tests require code generation (so in principle both PLUGIN and ../MG5aMC_PLUGIN are an option) 
-            # *** NB2: test_manager.py cannot handle absolute paths and '..' relative paths (therefore ../MG5aMC_PLUGIN will not work)
-            # *** ===> therefore, the only option is to install CUDACPP_OUTPUT in PLUGIN (this is done and undone in each CI job) 
-            if [ -f PLUGIN/CUDACPP_OUTPUT ]; then echo 'ERROR! PLUGIN/CUDACPP_OUTPUT already exists'; exit 1; fi
-            ln -sf ../../MG5aMC_PLUGIN/CUDACPP_OUTPUT PLUGIN/CUDACPP_OUTPUT
-            ./tests/test_manager.py -p./PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_eemumua_float 
-            rm -f PLUGIN/CUDACPP_OUTPUT
+            rm -f cudacpp_acceptance_tests
+            ln -sf ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests cudacpp_acceptance_tests # workaround for 'relative position not supported'
+            ./tests/test_manager.py -p./cudacpp_acceptance_tests/ test_simd_cpp_eemumua_float 
 
   simd_cpp_heft_ggh_double:
     # The type of runner that the job will run on
@@ -75,13 +71,9 @@ jobs:
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            # *** NB1: acceptance tests require code generation (so in principle both PLUGIN and ../MG5aMC_PLUGIN are an option) 
-            # *** NB2: test_manager.py cannot handle absolute paths and '..' relative paths (therefore ../MG5aMC_PLUGIN will not work)
-            # *** ===> therefore, the only option is to install CUDACPP_OUTPUT in PLUGIN (this is done and undone in each CI job) 
-            if [ -f PLUGIN/CUDACPP_OUTPUT ]; then echo 'ERROR! PLUGIN/CUDACPP_OUTPUT already exists'; exit 1; fi
-            ln -sf ../../MG5aMC_PLUGIN/CUDACPP_OUTPUT PLUGIN/CUDACPP_OUTPUT
-            ./tests/test_manager.py -p./PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_heft_ggh_double 
-            rm -f PLUGIN/CUDACPP_OUTPUT
+            rm -f cudacpp_acceptance_tests
+            ln -sf ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests cudacpp_acceptance_tests # workaround for 'relative position not supported'
+            ./tests/test_manager.py -p./cudacpp_acceptance_tests/ test_simd_cpp_heft_ggh_double 
 
   simd_cpp_pptt_mixed:
     # The type of runner that the job will run on
@@ -101,13 +93,9 @@ jobs:
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            # *** NB1: acceptance tests require code generation (so in principle both PLUGIN and ../MG5aMC_PLUGIN are an option) 
-            # *** NB2: test_manager.py cannot handle absolute paths and '..' relative paths (therefore ../MG5aMC_PLUGIN will not work)
-            # *** ===> therefore, the only option is to install CUDACPP_OUTPUT in PLUGIN (this is done and undone in each CI job) 
-            if [ -f PLUGIN/CUDACPP_OUTPUT ]; then echo 'ERROR! PLUGIN/CUDACPP_OUTPUT already exists'; exit 1; fi
-            ln -sf ../../MG5aMC_PLUGIN/CUDACPP_OUTPUT PLUGIN/CUDACPP_OUTPUT
-            ./tests/test_manager.py -p./PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_pptt_mixed 
-            rm -f PLUGIN/CUDACPP_OUTPUT
+            rm -f cudacpp_acceptance_tests
+            ln -sf ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests cudacpp_acceptance_tests # workaround for 'relative position not supported'
+            ./tests/test_manager.py -p./cudacpp_acceptance_tests/ test_simd_cpp_pptt_mixed 
 
   simd_cpp_vector_size:
     # The type of runner that the job will run on
@@ -127,10 +115,6 @@ jobs:
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            # *** NB1: acceptance tests require code generation (so in principle both PLUGIN and ../MG5aMC_PLUGIN are an option) 
-            # *** NB2: test_manager.py cannot handle absolute paths and '..' relative paths (therefore ../MG5aMC_PLUGIN will not work)
-            # *** ===> therefore, the only option is to install CUDACPP_OUTPUT in PLUGIN (this is done and undone in each CI job) 
-            if [ -f PLUGIN/CUDACPP_OUTPUT ]; then echo 'ERROR! PLUGIN/CUDACPP_OUTPUT already exists'; exit 1; fi
-            ln -sf ../../MG5aMC_PLUGIN/CUDACPP_OUTPUT PLUGIN/CUDACPP_OUTPUT
-            ./tests/test_manager.py -p./PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_vector_size 
-            rm -f PLUGIN/CUDACPP_OUTPUT
+            rm -f cudacpp_acceptance_tests
+            ln -sf ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests cudacpp_acceptance_tests # workaround for 'relative position not supported'
+            ./tests/test_manager.py -p./cudacpp_acceptance_tests/ test_simd_cpp_vector_size 
