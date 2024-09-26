@@ -106,7 +106,7 @@ template_one_cicd="""
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            rm cudacpp_acceptance_tests
+            rm -f cudacpp_acceptance_tests
             ln -sf ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests cudacpp_acceptance_tests # workaround for 'relative position not supported'
             ./tests/test_manager.py -p./cudacpp_acceptance_tests/ test_%(name)s 
 """
