@@ -49,7 +49,7 @@ jobs:
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            ./tests/test_manager.py -p./PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_eemumua_float 
+            ./tests/test_manager.py -p../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_eemumua_float 
 
   simd_cpp_heft_ggh_double:
     # The type of runner that the job will run on
@@ -69,7 +69,7 @@ jobs:
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            ./tests/test_manager.py -p./PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_heft_ggh_double 
+            ./tests/test_manager.py -p../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_heft_ggh_double 
 
   simd_cpp_pptt_mixed:
     # The type of runner that the job will run on
@@ -89,7 +89,7 @@ jobs:
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            ./tests/test_manager.py -p./PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_pptt_mixed 
+            ./tests/test_manager.py -p../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_pptt_mixed 
 
   simd_cpp_vector_size:
     # The type of runner that the job will run on
@@ -109,4 +109,4 @@ jobs:
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            ./tests/test_manager.py -p./PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_vector_size 
+            ./tests/test_manager.py -p../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_simd_cpp_vector_size 
