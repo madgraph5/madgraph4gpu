@@ -37,7 +37,7 @@ template_runtest = """
 
         open(pjoin(self.path, 'mg5_cmd'),'w').write(cmd)
         newenv = os.environ.copy()
-        newenv[\"PYTHONPATH\"] = f\"..:{newenv['PYTHONPATH']}\"
+        newenv[\"PYTHONPATH\"] = f\"..\"
         subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC','-m','CUDACPP_OUTPUT'), 
                          pjoin(self.path, 'mg5_cmd')], env=newenv,
                          #cwd=self.path,
