@@ -3,10 +3,12 @@
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
 # Further modified by: O. Mattelaer, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
-# AV - Rename the plugin as CUDACPP_OUTPUT (was CUDACPP_SA_OUTPUT)
-# [NB: madgraph4gpu's directory CUDACPP_SA_OUTPUT is copied to mg5amcnlo as directory CUDACPP_OUTPUT]
-# [NB: eventually, the git repo mg5amcnlo_cudacpp will become mg5amcnlo's submodule CUDACPP_OUTPUT]
-print('Load PLUGIN.CUDACPP_OUTPUT')
+# AV - Rename the plugin as CUDACPP_OUTPUT (even if the madgraph4gpu directory is still called CUDACPP_SA_OUTPUT)
+# This can be used in mg5amcnlo in one of two ways:
+# 1. (production) a tarball containing CUDACPP_OUTPUT is untarred in PLUGIN/CUDACPP_OUTPUT
+# 2. (dev) the original madgraph4gpu CUDACPP_SA_OUTPUT is symlinked in MG5aMC_PLUGIN/CUDACPP_OUTPUT
+PLUGIN_NAME = __name__ # PLUGIN_NAME can be one of PLUGIN/CUDACPP_OUTPUT or MG5aMC_PLUGIN/CUDACPP_OUTPUT
+print('Loading plugin %s'%PLUGIN_NAME)
 
 # AV - Require Python >= 3.8 to ensure that {} dictionaries preserve the order of item insertion
 # (note: python3.7 would probably be enough but this plugin has only been tested using python3.8)
@@ -14,7 +16,7 @@ import sys
 minpython = (3,8)
 if sys.version_info < minpython :
 
-    print('ERROR! Cannot load PLUGIN.CUDACPP_OUTPUT: Python >= %s.%s is required' % minpython)
+    print('ERROR! Cannot load plugin %s: Python >= %s.%s is required' % (PLUGIN_NAME, minpython[0], minpython[1] ))
 
 else:
 
@@ -31,7 +33,9 @@ else:
     #    Example: new_output = {'myformat': MYCLASS}
     #    allows the command "output myformat PATH" in madgraph.
     #    MYCLASS should inherit from class madgraph.iolibs.export_v4.VirtualExporter
-    import PLUGIN.CUDACPP_OUTPUT.output as output
+    ###import PLUGIN.CUDACPP_OUTPUT.output as output # AV modify this to also allow MG5aMC_PLUGIN
+    __import__('%s.output'%PLUGIN_NAME)
+    output = sys.modules['%s.output'%PLUGIN_NAME]
     new_output = { 'madevent_simd' : output.SIMD_ProcessExporter,
                    'madevent_gpu' : output.GPU_ProcessExporter,
                    'standalone_cudacpp' : output.PLUGIN_ProcessExporter,
