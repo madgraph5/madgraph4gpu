@@ -34,9 +34,9 @@ echo ${runnTAG}
 # Create the unique (~permanent) tag
 git tag ${uniqTAG} ${BRANCH} -m "Unique tag ${uniqTAG}"
 
-# Create the running tag
+# Create the running tag (use ^{} to disable nested tags)
 # (use '-f' to replace any previously existing tag with the same name)
-git tag -f ${runnTAG} ${uniqTAG} -m "Running tag ${runnTAG} (linked to unique tag ${uniqTAG})"
+git tag -f ${runnTAG} ${uniqTAG}^{} -m "Running tag ${runnTAG} (linked to unique tag ${uniqTAG})"
 
 # Push the tags to the remote repository
 # (use '-f' to replace any previously existing tag with the same name)
