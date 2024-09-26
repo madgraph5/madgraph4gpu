@@ -106,9 +106,10 @@ template_one_cicd="""
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            rm -f cudacpp_acceptance_tests
-            ln -sf ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests cudacpp_acceptance_tests # workaround for 'relative position not supported'
-            ./tests/test_manager.py -p./cudacpp_acceptance_tests/ test_%(name)s 
+            if [ -f tests/cudacpp_acceptance_tests ]; then echo 'ERROR! tests/cudacpp_acceptance_tests already exists'; exit 1; fi # should never happen
+            ln -sf ../../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests tests/cudacpp_acceptance_tests # workaround for 'relative position not supported'
+            ./tests/test_manager.py -p./tests/cudacpp_acceptance_tests/ test_%(name)s 
+            rm -f tests/cudacpp_acceptance_tests
 """
 
 def create_cicd():
