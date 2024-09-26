@@ -106,7 +106,7 @@ template_one_cicd="""
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            ./tests/test_manager.py -p./PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_%(name)s 
+            ./tests/test_manager.py -p../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_%(name)s 
 """
 
 def create_cicd():
