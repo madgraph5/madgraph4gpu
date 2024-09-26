@@ -36,11 +36,12 @@ template_runtest = """
                  \"\"\" %%self.run_dir
 
         open(pjoin(self.path, 'mg5_cmd'),'w').write(cmd)
-        
-        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC'), 
-                         pjoin(self.path, 'mg5_cmd')],
+        newenv = os.environ.copy()
+        newenv[\"PYTHONPATH\"] = f\"..:{newenv['PYTHONPATH']}\"
+        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC','-m','CUDACPP_OUTPUT'), 
+                         pjoin(self.path, 'mg5_cmd')], env=newenv,
                          #cwd=self.path,
-                        stdout=stdout, stderr=stderr)
+                         stdout=stdout, stderr=stderr)
 """
 
 template_onecheck = """
