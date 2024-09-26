@@ -20,9 +20,9 @@ for file in $(git ls-tree --name-only HEAD -r); do
   cp -dp ${file} ${outdir}/${file} # preserve symlinks for AUTHORS, COPYING, COPYING.LESSER and COPYRIGHT
 done
 
-# Create the zip archive
-outzip=cudacpp.zip
+# Create the tgz archive
+outtgz=cudacpp.tar.gz
 cd ${tmpdir}
-zip -qr ${outzip} CUDACPP_OUTPUT
-mv ${outzip} ${topdir}
-echo "Archive available on ${topdir}/${outzip}"
+tar -czf ${outtgz} CUDACPP_OUTPUT
+mv ${outtgz} ${topdir}
+echo "Archive available on ${topdir}/${outtgz}"
