@@ -1,0 +1,26 @@
+# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Sep 2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
+
+name: Archiver
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  archiver:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: archive
+      run: .github/workflows/archiver.sh
+    - name: upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: tarball
+        path: cudacpp.tgz
