@@ -36,12 +36,11 @@ template_runtest = """
                  \"\"\" %%self.run_dir
 
         open(pjoin(self.path, 'mg5_cmd'),'w').write(cmd)
-        newenv = os.environ.copy()
-        newenv[\"PYTHONPATH\"] = f\"..\"
-        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC','-m','CUDACPP_OUTPUT'), 
-                         pjoin(self.path, 'mg5_cmd')], env=newenv,
+        
+        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC'), 
+                         pjoin(self.path, 'mg5_cmd')],
                          #cwd=self.path,
-                         stdout=stdout, stderr=stderr)
+                        stdout=stdout, stderr=stderr)
 """
 
 template_onecheck = """
@@ -106,9 +105,13 @@ template_one_cicd="""
             cd MG5aMC/mg5amcnlo/
             cp input/.mg5_configuration_default.txt input/mg5_configuration.txt
             cp Template/LO/Source/.make_opts Template/LO/Source/make_opts
-            rm -f cudacpp_acceptance_tests
-            ln -sf ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/acceptance_tests cudacpp_acceptance_tests # workaround for 'relative position not supported'
-            ./tests/test_manager.py -p./cudacpp_acceptance_tests/ test_%(name)s 
+            # *** NB1: acceptance tests require code generation (so in principle both PLUGIN and ../MG5aMC_PLUGIN are an option) 
+            # *** NB2: test_manager.py cannot handle absolute paths and '..' relative paths (therefore ../MG5aMC_PLUGIN will not work)
+            # *** ===> therefore, the only option is to install CUDACPP_OUTPUT in PLUGIN (this is done and undone in each CI job) 
+            if [ -f PLUGIN/CUDACPP_OUTPUT ]; then echo 'ERROR! PLUGIN/CUDACPP_OUTPUT already exists'; exit 1; fi
+            ln -sf ../../MG5aMC_PLUGIN/CUDACPP_OUTPUT PLUGIN/CUDACPP_OUTPUT
+            ./tests/test_manager.py -p./PLUGIN/CUDACPP_OUTPUT/acceptance_tests/ test_%(name)s 
+            rm -f PLUGIN/CUDACPP_OUTPUT
 """
 
 def create_cicd():

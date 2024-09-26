@@ -148,12 +148,11 @@ import model sm
                  """ %self.run_dir
 
         open(pjoin(self.path, 'mg5_cmd'),'w').write(cmd)
-        newenv = os.environ.copy()
-        newenv["PYTHONPATH"] = f".."
-        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC','-m','CUDACPP_OUTPUT'), 
-                         pjoin(self.path, 'mg5_cmd')], env=newenv,
+        
+        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC'), 
+                         pjoin(self.path, 'mg5_cmd')],
                          #cwd=self.path,
-                         stdout=stdout, stderr=stderr)
+                        stdout=stdout, stderr=stderr)
 
         self.check_parton_output(cross=0.0266, error=0.0002854, run_name='run_01', html=True)
         event = '%s/Events/run_01/unweighted_events.lhe' % self.run_dir
@@ -198,12 +197,11 @@ import model heft
                  """ %self.run_dir
 
         open(pjoin(self.path, 'mg5_cmd'),'w').write(cmd)
-        newenv = os.environ.copy()
-        newenv["PYTHONPATH"] = f".."
-        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC','-m','CUDACPP_OUTPUT'), 
-                         pjoin(self.path, 'mg5_cmd')], env=newenv,
+        
+        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC'), 
+                         pjoin(self.path, 'mg5_cmd')],
                          #cwd=self.path,
-                         stdout=stdout, stderr=stderr)
+                        stdout=stdout, stderr=stderr)
 
         self.check_parton_output(cross=0.01859, error=0.0002853789088650386, run_name='run_01', html=True)
         event = '%s/Events/run_01/unweighted_events.lhe' % self.run_dir
@@ -248,12 +246,11 @@ import model sm
                  """ %self.run_dir
 
         open(pjoin(self.path, 'mg5_cmd'),'w').write(cmd)
-        newenv = os.environ.copy()
-        newenv["PYTHONPATH"] = f".."
-        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC','-m','CUDACPP_OUTPUT'), 
-                         pjoin(self.path, 'mg5_cmd')], env=newenv,
+        
+        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC'), 
+                         pjoin(self.path, 'mg5_cmd')],
                          #cwd=self.path,
-                         stdout=stdout, stderr=stderr)
+                        stdout=stdout, stderr=stderr)
 
         self.check_parton_output(cross=505.5, error=2.749, run_name='run_01', html=True)
         event = '%s/Events/run_01/unweighted_events.lhe' % self.run_dir
@@ -305,12 +302,11 @@ set vector_size 64
                  """ %self.run_dir
 
         open(pjoin(self.path, 'mg5_cmd'),'w').write(cmd)
-        newenv = os.environ.copy()
-        newenv["PYTHONPATH"] = f".."
-        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC','-m','CUDACPP_OUTPUT'), 
-                         pjoin(self.path, 'mg5_cmd')], env=newenv,
+        
+        subprocess.call([sys.executable, pjoin(MG5DIR, 'bin','mg5_aMC'), 
+                         pjoin(self.path, 'mg5_cmd')],
                          #cwd=self.path,
-                         stdout=stdout, stderr=stderr)
+                        stdout=stdout, stderr=stderr)
 
         self.check_parton_output(cross=505.5, error=2.749, run_name='run_01', html=True)
         event = '%s/Events/run_01/unweighted_events.lhe' % self.run_dir
