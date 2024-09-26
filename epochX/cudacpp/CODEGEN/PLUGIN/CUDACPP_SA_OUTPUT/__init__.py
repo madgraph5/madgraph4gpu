@@ -5,8 +5,8 @@
 
 # AV - Rename the plugin as CUDACPP_OUTPUT (even if the madgraph4gpu directory is still called CUDACPP_SA_OUTPUT)
 # This can be used in mg5amcnlo in one of two ways:
-# 1. (production) a tarball containing CUDACPP_OUTPUT is untarred in PLUGIN/CUDACPP_OUTPUT
-# 2. (dev) the original madgraph4gpu CUDACPP_SA_OUTPUT is symlinked in MG5aMC_PLUGIN/CUDACPP_OUTPUT
+# 1. production mode: a tarball containing CUDACPP_OUTPUT is untarred in PLUGIN/CUDACPP_OUTPUT
+# 2. developers mode: the madgraph4gpu CUDACPP_SA_OUTPUT is symlinked in MG5aMC_PLUGIN/CUDACPP_OUTPUT (PYTHONPATH=.. ./bin/mg5_aMC -m CUDACPP_OUTPUT)
 PLUGIN_NAME = __name__ # PLUGIN_NAME can be one of PLUGIN/CUDACPP_OUTPUT or MG5aMC_PLUGIN/CUDACPP_OUTPUT
 print('Loading plugin %s'%PLUGIN_NAME)
 
@@ -55,7 +55,11 @@ else:
     # 3. Define a new interface (allows adding/modifying MG5 command).
     #    This can be activated via ./bin/mg5_aMC --mode=PLUGINNAME.
     #    Put None if no dedicated command are required
-    new_interface = None
+    if PLUGIN_NAME.rsplit('.',1)[0] == 'MG5aMC_PLUGIN':
+        import madgraph.interface.master_interface as interface
+        new_interface = interface.MasterCmd # use the default interface (but this is needed in the '-m' aka '--mode' option)
+    else:
+        new_interface = None
 
     ########################## CONTROL VARIABLE ####################################
 
