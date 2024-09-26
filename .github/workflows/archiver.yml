@@ -7,9 +7,7 @@ name: Archiver
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    tags: [ '*' ]
 
 jobs:
   archiver:
@@ -19,14 +17,11 @@ jobs:
       uses: actions/checkout@v4
     - name: archive
       run: .github/workflows/archiver.sh
-    - name: upload
-      uses: actions/upload-artifact@v4
-      with:
-        name: tarball
-        path: cudacpp.tgz
     - name: release
       # See https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: cudacpp.tgz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
