@@ -1,7 +1,7 @@
 [submodule "MG5aMC/mg5amcnlo"]
 	path = MG5aMC/mg5amcnlo
 	url = https://github.com/zeniheisser/mg5amcnlo/
-	branch = rexCPP
+	branch = gpucpp
 [submodule "MG5aMC/"]
 	url = git@github.com:zeniheisser/mg5amcnlo.git
 [submodule "MG5aMC"]
