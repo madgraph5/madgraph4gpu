@@ -67,14 +67,14 @@ if [ "${url}" == "${prj}" ]; then
 fi
 echo "INFO: git project is '${prj}'"
 if [ "${prj}" != "valassi/madgraph4gpu" ]; then # TEMPORARY! this will change eventually...
-  echo "ERROR! Unknown local branch ${brn}"
+  echo "ERROR! Invalid project ${prj}"
   exit 1
 fi
 
 # Check that all changes are committed to git (except at most for this script only in the '-l' mode)
 if [ "$(git status --porcelain | grep -v ^??)" != "" ]; then
   if [ "$tagsuffix" != "" ] || [ "$(git status --porcelain | grep -v ^??)" != " M ${scr}" ]; then
-    echo "ERROR! there are local changes not committed to git yet"
+    echo "ERROR! There are local changes not committed to git yet"
     exit 1
   fi
 fi
@@ -85,7 +85,7 @@ if [ "${skipFetch}" == "0" ]; then
   git fetch
 fi
 if [ "$(git rev-parse @{0})" != "$(git rev-parse @{u})" ]; then
-  echo "ERROR! you need to git push or git pull"
+  echo "ERROR! You need to git push or git pull"
   git status
   exit 1
 fi
@@ -98,7 +98,7 @@ fi
 echo ""
 
 # Retrieve the list of existing tags
-existing_tags=$(git tag -l | grep ${PREFIX})
+existing_tags=$(git tag -l | grep ^${PREFIX} || true)
 
 #
 # OPTION 1 - LIST TAGS
@@ -106,8 +106,9 @@ existing_tags=$(git tag -l | grep ${PREFIX})
 if [ "$tagsuffix" == "" ]; then
 
   # See https://stackoverflow.com/questions/13208734
-  echo "INFO: list existing tags (detailed list)"
+  echo "INFO: list existing tags starting with '${PREFIX}' (detailed list)"
   ###git --no-pager log --oneline --decorate --tags --no-walk
+  if [ "${existing_tags}" == "" ]; then echo "[None]"; fi
   for tag in ${existing_tags}; do
     echo "--------------------------------------------------------------------------------"
     echo "$tag"
@@ -151,7 +152,8 @@ else
   echo ""
 
   # List the existing tags
-  echo "INFO: list existing tags (short list)"
+  echo "INFO: list existing tags starting with '${PREFIX}' (short list)"
+  if [ "${existing_tags}" == "" ]; then echo "> [None]"; fi
   for tag in ${existing_tags}; do
     echo "> $tag"
   done
