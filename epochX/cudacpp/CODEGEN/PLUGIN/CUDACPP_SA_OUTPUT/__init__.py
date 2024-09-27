@@ -32,16 +32,18 @@ else:
     #    allows the command "output myformat PATH" in madgraph.
     #    MYCLASS should inherit from class madgraph.iolibs.export_v4.VirtualExporter
     import PLUGIN.CUDACPP_OUTPUT.output as output
+    import PLUGIN.CUDACPP_OUTPUT.trex as trex
     new_output = { 'madevent_simd' : output.SIMD_ProcessExporter,
                    'madevent_gpu' : output.GPU_ProcessExporter,
                    'standalone_cudacpp' : output.PLUGIN_ProcessExporter,
-                   'standalone_rwgtcpp' : output.RWGT_ProcessExporter,
+                   'standalone_trex' : trex.TREX_ProcessExporter,
                    # the following one are used for the second exporter class 
                    # (not really needed so far but interesting if need
                    #  specialization in the futur) 
                    'standalone_simd' :  output.SIMD_ProcessExporter,
                    'standalone_cuda' :  output.GPU_ProcessExporter,
                   }
+    new_reweight = {'trex': trex.TREX_ReweightInterface}
 
     # 2. Define new way to handle the cluster.
     #    Example: new_cluster = {'mycluster': MYCLUSTERCLASS}

@@ -199,7 +199,7 @@ namespace REX::teaw
                     auto namePos = locOpts.find( "rwgt_name" );
                     if( namePos != REX::npos ){
                         auto endName = locOpts.find_first_of( " \n\r\f\t\v", namePos );
-                        rwgtNames->push_back( std::string( locOpts.substr( namePos + 9, endName - namePos - 9 ) ) );
+                        rwgtNames->push_back( std::string( locOpts.substr( namePos + 10, endName - namePos - 10 ) ) );
                     } else {
                         rwgtNames->push_back( "rwgt_" + std::to_string( k + 1 ) );
                     }
