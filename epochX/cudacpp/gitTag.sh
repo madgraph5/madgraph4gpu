@@ -107,14 +107,14 @@ if [ "$tagsuffix" == "" ]; then
 
   # See https://stackoverflow.com/questions/13208734
   echo "INFO: list existing tags (detailed list)"
-  ###git log --oneline --decorate --tags --no-walk
+  ###git --no-pager log --oneline --decorate --tags --no-walk
   for tag in ${existing_tags}; do
     echo "--------------------------------------------------------------------------------"
     echo "$tag"
     echo "--------------------------------------------------------------------------------"
-    ###git for-each-ref --format="%(refname)" refs/tags/${tag}
-    git for-each-ref --format="TagDate:       %(creatordate)" refs/tags/${tag}
-    git log -n1 ${tag} --pretty=format:'commit         %h%nAuthor:        %an%nAuthorDate:    %ad%nMessage:       "%s"%n'
+    ###git --no-pager for-each-ref --format="%(refname)" refs/tags/${tag}
+    git --no-pager for-each-ref --format="TagDate:       %(creatordate)" refs/tags/${tag}
+    git --no-pager log -n1 ${tag} --pretty=format:'commit         %h%nAuthor:        %an%nAuthorDate:    %ad%nMessage:       "%s"%n'
     echo ""
   done
 
