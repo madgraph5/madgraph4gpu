@@ -173,12 +173,12 @@ else
   # Create the version (~permanent) tag
   # (optionally use '-f' to replace any previously existing tag with the same name)
   echo "INFO: create version tag ${versTAG}"
-  git tag ${force} ${versTAG} -m "Version tag ${versTAG}"
+  git tag ${force} ${versTAG} -m "Version tag ${versTAG}" -m "Tag created on $(date)"
 
   # Create the running tag
   # (always use '-f' to replace any previously existing tag with the same name)
   echo "INFO: create running tag ${runnTAG}"
-  git tag -f ${runnTAG} -m "Running tag ${runnTAG}" -m "This is equivalent to version tag ${versTAG}"
+  git tag -f ${runnTAG} -m "Running tag ${runnTAG}" -m "Tag created on $(date)" -m "This is equivalent to version tag ${versTAG}"
   
   # Push the tags to the remote repository
   # (use '-f' to replace any previously existing tag with the same name)
