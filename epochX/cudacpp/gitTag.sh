@@ -22,6 +22,7 @@ function usage()
   echo "Usage (1): $0 [-f] <tagsuffix>"
   echo "Creates a new version tag and a new running tag and pushes them to the remote repository"
   echo "Valid formats for <tagsuffix> are 'n1.n2.n3' or 'n1.n2.n3_txt' where txt only contains letters or digits"
+  echo "Version number 'n1.n2.n3' must match that in the CUDACPP_OUTPUT/__init__.py file"
   echo "Use the -f option to delete and recreate a version tag that already exists"
   echo ""
   echo "Usage (2): $0 -l"
@@ -39,6 +40,8 @@ if [ "$1" == "" ] || [ "$2" != "" ]; then
   usage
 elif [ "$1" == "-l" ]; then
   tagsuffix=""
+elif [ "${1/-}" != "${1}" ]; then # exclude immediately tagsuffix beginning with "-" (print usage on '-h')
+  usage
 else
   tagsuffix="$1"
   shift
