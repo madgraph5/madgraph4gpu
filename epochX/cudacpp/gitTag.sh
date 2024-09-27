@@ -6,8 +6,9 @@
 
 set -e # fail on error
 
-scr=`basename $0` # the name of this script
-topdir=$(cd $(dirname $0)/../..; pwd) # the top directory in this local repo
+cd $(dirname $0)
+topdir=$(cd ../..; pwd) # the top directory in this local repo
+scr=$(basename $(cd ..; pwd))/$(basename $(pwd))/$(basename $0) # the name of this script in the git repo
 
 skipFetch=0
 ###skipFetch=1 # FOR DEBUGGING!
@@ -117,33 +118,45 @@ if [ "$tagsuffix" == "" ]; then
 #
 else
 
-  # See https://stackoverflow.com/questions/229551
-  if [[ $tagsuffix == *" "* ]]; then
-    echo "ERROR! Invalid tag suffix '${tagsuffix}' (no spaces allowed)"; exit 1
-  fi
-  # See https://stackoverflow.com/questions/55486225
-  if [ `python3 -c "import re; print(re.match('^[0-9]+\.[0-9]+\.[0-9]+(|_[0-9a-z]+)$','${tagsuffix}') is not None)"` == "False" ]; then
-    echo "ERROR! Invalid tag suffix '${tagsuffix}' (valid formats are 'n1.n2.n3' or 'n1.n2.n3_txt' where txt only contains letters or digits)"; exit 1
-  fi
-
-  # List the existing tags
-  echo "INFO: list existing tags (short list)"
-  for tag in ${existing_tags}; do
-    echo "$tag"
-  done
-  echo ""
+  # Determine cudacpp_version (as in archiver.sh)
+  echo "INFO: determine cudacpp and mg5amc versions"
+  cudacpp_version=$(cat ${topdir}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/__init__.py | awk '/__version__/{print $3}' | sed 's/(//' | sed 's/)//' | sed 's/,/./g')
+  echo "> cudacpp_version = $cudacpp_version"
 
   # Determine mg5_version (as in HEPToolInstaller.py)
   mg5VERSION=${topdir}/MG5aMC/mg5amcnlo/VERSION 
   if [ ! -f ${mg5VERSION} ]; then echo "ERROR! File ${mg5VERSION} not found"; exit 1; fi 
   mg5_version=$(python3 -c "import re; print(re.findall(r'version\s*=\s*([\.\d]*)','$(cat ${mg5VERSION} | grep ^version)')[0])")
-  echo "mg5_version_current = $mg5_version"
+  echo "> mg5_version_current = $mg5_version"
+  echo ""
+
+  # Validate tagsuffix
+  # See https://stackoverflow.com/questions/229551
+  # See https://stackoverflow.com/questions/55486225
+  echo "INFO: validate tag suffix '${tagsuffix}'"
+  if [[ $tagsuffix == *" "* ]]; then
+    echo "ERROR! Invalid tag suffix '${tagsuffix}' (no spaces allowed)"; exit 1
+  fi
+  if [ `python3 -c "import re; print(re.match('^[0-9]+\.[0-9]+\.[0-9]+(|_[0-9a-z]+)$','${tagsuffix}') is not None)"` == "False" ]; then
+    echo "ERROR! Invalid tag suffix '${tagsuffix}' (valid formats are 'n1.n2.n3' or 'n1.n2.n3_txt' where txt only contains letters or digits)"; exit 1
+  fi
+  if [ "${tagsuffix/${cudacpp_version}}" == "${tagsuffix}" ]; then
+    echo "ERROR! Invalid tag suffix '${tagsuffix}' (the version number does not match the cudacpp_version)"; exit 1
+  fi
+  echo ""
+
+  # List the existing tags
+  echo "INFO: list existing tags (short list)"
+  for tag in ${existing_tags}; do
+    echo "> $tag"
+  done
+  echo ""
 
   # Build the version and running tag names
   versTAG=${PREFIX}_for${mg5_version}_v${tagsuffix}
   runnTAG=${PREFIX}_for${mg5_version}_latest
-  echo ${versTAG}
-  echo ${runnTAG}
+  echo "INFO: will create version tag ${versTAG}"
+  echo "INFO: will create running tag ${runnTAG}"
 
   # Check if the version tag and/or running tag already exist
   for tag in ${existing_tags}; do
@@ -152,17 +165,21 @@ else
       exit 1
     fi
   done
+  echo ""
 
   # Create the version (~permanent) tag
   # (optionally use '-f' to replace any previously existing tag with the same name)
+  echo "INFO: create version tag ${versTAG}"
   git tag ${force} ${versTAG} -m "Version tag ${versTAG}"
 
   # Create the running tag
   # (always use '-f' to replace any previously existing tag with the same name)
+  echo "INFO: create running tag ${runnTAG}"
   git tag -f ${runnTAG} -m "Running tag ${runnTAG}" -m "This is equivalent to version tag ${versTAG}"
   
   # Push the tags to the remote repository
   # (use '-f' to replace any previously existing tag with the same name)
+  echo "INFO: push tags to the remote repository"
   git push -f --tags
 
 fi
