@@ -27,6 +27,8 @@ echo "TARBALL DATE:  $(date -u +"${dateformat}")" >> ${outfile}
 echo "" >> ${outfile}
 TZ=UTC git log -n1 --date=format-local:"${dateformat}" --pretty=format:'commit         %h%ntree           %t%nparent         %p%nAuthor:        %an%nAuthorDate:    %ad%nCommitter:     %cn%nCommitterDate: %cd%nMessage:       "%s"%n' >> ${outfile}
 python -c 'print("="*132)'; cat ${outfile}; python -c 'print("="*132)'
+cp ${outfile} ${topdir}
+echo "VERSION file available on ${topdir}/$(basename ${outfile})"
 
 # Copy all relevant plugin files to the temporary directory
 cd ${topdir}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT
