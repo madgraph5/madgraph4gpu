@@ -1,43 +1,168 @@
 #!/bin/bash
 # Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
-# Created by: A. Valassi (Sep 2024) for the MG5aMC CUDACPP plugin.
+# Created by: A. Valassi (Sep 2024) for the MG5aMC CUDACPP plugin (based on earlier work for the HEP_OSlibs project).
 # Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
 
 set -e # fail on error
 
-topdir=$(cd $(dirname $0)/../..; pwd)
+scr=`basename $0` # the name of this script
+topdir=$(cd $(dirname $0)/../..; pwd) # the top directory in this local repo
 
-# The remote repo used for tagging
-REMOTE=origin
+skipFetch=0
+###skipFetch=1 # FOR DEBUGGING!
 
-# The branch name used for tagging
-BRANCH=${REMOTE}/install # temporary! it should be master eventually...
-
-# Determine mg5_version (as in HEPToolInstaller.py)
-fVERSION=${topdir}/MG5aMC/mg5amcnlo/VERSION 
-if [ ! -f ${fVERSION} ]; then echo "ERROR! File ${fVERSION} not found"; exit 1; fi 
-VERSION=$(python3 -c "import re; print(re.findall(r'version\s*=\s*([\.\d]*)','$(cat ${fVERSION} | grep ^version)')[0])")
-###echo $VERSION
-
-# Determine UTC date
-DATE=$(date -u +on%y%m%d_at%H%M%S)
-###echo $DATE
-
-# Build the unique and running tag names
+# The tag prefix used for all tags handled by this script
 PREFIX=TEST_cudacpp
-uniqTAG=${PREFIX}_for${VERSION}_${DATE}
-runnTAG=${PREFIX}_for${VERSION}_latest
-echo ${uniqTAG}
-echo ${runnTAG}
 
-# Create the unique (~permanent) tag
-git tag ${uniqTAG} ${BRANCH} -m "Unique tag ${uniqTAG}"
+# Usage
+function usage()
+{
+  echo "Usage (1): $0 [-f] <tagsuffix>"
+  echo "Creates a new version tag and a new running tag and pushes them to the remote repository"
+  echo "Valid formats for <tagsuffix> are 'n1.n2.n3' or 'n1.n2.n3_txt' where txt only contains letters or digits"
+  echo "Use the -f option to delete and recreate a version tag that already exists"
+  echo ""
+  echo "Usage (2): $0 -l"
+  echo "Shows all available git tags (these are not necessarily github releases)"
+  exit 1
+}
 
-# Create the running tag (use ^{} to disable nested tags)
-# (use '-f' to replace any previously existing tag with the same name)
-git tag -f ${runnTAG} ${uniqTAG}^{} -m "Running tag ${runnTAG} (linked to unique tag ${uniqTAG})"
+# Command line arguments
+force=""
+if [ "$1" == "-f" ]; then
+  force=$1
+  shift
+fi
+if [ "$1" == "" ] || [ "$2" != "" ]; then
+  usage
+elif [ "$1" == "-l" ]; then
+  tagsuffix=""
+else
+  tagsuffix="$1"
+  shift
+fi
 
-# Push the tags to the remote repository
-# (use '-f' to replace any previously existing tag with the same name)
-git push -f ${REMOTE} --tags
+# Determine the local git branch
+brn=`git branch | grep \* | cut -d ' ' -f2`
+echo "INFO: git branch is  '${brn}'"
+if [ "${brn}" != "install" ]; then # TEMPORARY! this should be branch 'master' eventually...
+  echo "ERROR! Invalid local branch ${brn}"
+  exit 1
+fi
+
+# Determine the remote git origin and the corresponding project name
+# Stop if the remote git origin is not at github.com
+url=`git config --get remote.origin.url`
+echo "INFO: git remote is  '${url}'"
+url=${url%.git}
+prj=${url##*github.com:}
+if [ "${url}" == "${prj}" ]; then
+  echo "ERROR! git remote does not seem to be at github.com"
+  exit 1
+fi
+echo "INFO: git project is '${prj}'"
+if [ "${prj}" != "valassi/madgraph4gpu" ]; then # TEMPORARY! this will change eventually...
+  echo "ERROR! Unknown local branch ${brn}"
+  exit 1
+fi
+
+# Check that all changes are committed to git (except at most for this script)
+if [ "$(git status --porcelain | grep -v ^??)" != "" ] && [ "$(git status --porcelain | grep -v ^??)" != " M ${scr}" ]; then
+  echo "ERROR! there are local changes not committed to git yet"
+  exit 1
+fi
+
+# Check that the local and remote branch are in sync
+# See https://stackoverflow.com/a/3278427, https://stackoverflow.com/a/17938274
+if [ "${skipFetch}" == "0" ]; then
+  git fetch
+fi
+if [ "$(git rev-parse @{0})" != "$(git rev-parse @{u})" ]; then
+  echo "ERROR! you need to git push or git pull"
+  git status
+  exit 1
+fi
+
+# Remove local git tags that are no longer on the remote repo
+# See https://stackoverflow.com/a/27254532
+if [ "${skipFetch}" == "0" ]; then
+  git fetch --prune origin +refs/tags/*:refs/tags/*
+fi
+echo ""
+
+# Retrieve the list of existing tags
+existing_tags=$(git tag -l | grep ${PREFIX})
+
+#
+# OPTION 1 - LIST TAGS
+#
+if [ "$tagsuffix" == "" ]; then
+
+  # See https://stackoverflow.com/questions/13208734
+  echo "INFO: list existing tags (detailed list)"
+  ###git log --oneline --decorate --tags --no-walk
+  for tag in ${existing_tags}; do
+    echo "--------------------------------------------------------------------------------"
+    echo "$tag"
+    echo "--------------------------------------------------------------------------------"
+    ###git for-each-ref --format="%(refname)" refs/tags/${tag}
+    git for-each-ref --format="TagDate:       %(creatordate)" refs/tags/${tag}
+    git log -n1 ${tag} --pretty=format:'commit         %h%nAuthor:        %an%nAuthorDate:    %ad%nMessage:       "%s"%n'
+    echo ""
+  done
+
+#
+# OPTION 2 - CREATE NEW TAGS
+#
+else
+
+  # See https://stackoverflow.com/questions/229551
+  if [[ $tagsuffix == *" "* ]]; then
+    echo "ERROR! Invalid tag suffix '${tagsuffix}' (no spaces allowed)"; exit 1
+  fi
+  # See https://stackoverflow.com/questions/55486225
+  if [ `python3 -c "import re; print(re.match('^[0-9]+\.[0-9]+\.[0-9]+(|_[0-9a-z]+)$','${tagsuffix}') is not None)"` == "False" ]; then
+    echo "ERROR! Invalid tag suffix '${tagsuffix}' (valid formats are 'n1.n2.n3' or 'n1.n2.n3_txt' where txt only contains letters or digits)"; exit 1
+  fi
+
+  # List the existing tags
+  echo "INFO: list existing tags (short list)"
+  for tag in ${existing_tags}; do
+    echo "$tag"
+  done
+  echo ""
+
+  # Determine mg5_version (as in HEPToolInstaller.py)
+  mg5VERSION=${topdir}/MG5aMC/mg5amcnlo/VERSION 
+  if [ ! -f ${mg5VERSION} ]; then echo "ERROR! File ${mg5VERSION} not found"; exit 1; fi 
+  mg5_version=$(python3 -c "import re; print(re.findall(r'version\s*=\s*([\.\d]*)','$(cat ${mg5VERSION} | grep ^version)')[0])")
+  echo "mg5_version_current = $mg5_version"
+
+  # Build the version and running tag names
+  versTAG=${PREFIX}_for${mg5_version}_v${tagsuffix}
+  runnTAG=${PREFIX}_for${mg5_version}_latest
+  echo ${versTAG}
+  echo ${runnTAG}
+
+  # Check if the version tag and/or running tag already exist
+  for tag in ${existing_tags}; do
+    if [ "${versTAG}" == "${tag}" ]; then
+      echo "ERROR! Tag ${tag} already exists: use the -f option to recreate it"
+      exit 1
+    fi
+  done
+
+  # Create the version (~permanent) tag
+  # (optionally use '-f' to replace any previously existing tag with the same name)
+  git tag ${force} ${versTAG} -m "Version tag ${versTAG}"
+
+  # Create the running tag
+  # (always use '-f' to replace any previously existing tag with the same name)
+  git tag -f ${runnTAG} -m "Running tag ${runnTAG}" -m "This is equivalent to version tag ${versTAG}"
+  
+  # Push the tags to the remote repository
+  # (use '-f' to replace any previously existing tag with the same name)
+  git push -f --tags
+
+fi
