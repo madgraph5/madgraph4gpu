@@ -71,10 +71,12 @@ if [ "${prj}" != "valassi/madgraph4gpu" ]; then # TEMPORARY! this will change ev
   exit 1
 fi
 
-# Check that all changes are committed to git (except at most for this script)
-if [ "$(git status --porcelain | grep -v ^??)" != "" ] && [ "$(git status --porcelain | grep -v ^??)" != " M ${scr}" ]; then
-  echo "ERROR! there are local changes not committed to git yet"
-  exit 1
+# Check that all changes are committed to git (except at most for this script only in the '-l' mode)
+if [ "$(git status --porcelain | grep -v ^??)" != "" ]; then
+  if [ "$tagsuffix" != "" ] || [ "$(git status --porcelain | grep -v ^??)" != " M ${scr}" ]; then
+    echo "ERROR! there are local changes not committed to git yet"
+    exit 1
+  fi
 fi
 
 # Check that the local and remote branch are in sync
