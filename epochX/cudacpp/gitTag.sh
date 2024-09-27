@@ -163,7 +163,7 @@ else
 
   # Check if the version tag and/or running tag already exist
   for tag in ${existing_tags}; do
-    if [ "${versTAG}" == "${tag}" ]; then
+    if [ "${versTAG}" == "${tag}" ] && [ "${force}" != "-f" ]; then
       echo "ERROR! Tag ${tag} already exists: use the -f option to recreate it"
       exit 1
     fi
