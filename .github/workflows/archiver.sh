@@ -9,12 +9,12 @@
 echo "Executing $0 $*"
 topdir=$(cd $(dirname $0)/../..; pwd)
 
-# Create a temporary directory and a VERSION file
+# Create a temporary directory and a VERSION.txt file
 tmpdir=$(mktemp -d)
 outdir=${tmpdir}/CUDACPP_OUTPUT
 mkdir ${outdir}
 cd ${topdir}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT
-outfile=${outdir}/VERSION
+outfile=${outdir}/VERSION.txt
 touch ${outfile}
 dateformat='%Y-%m-%d_%H:%M:%S UTC'
 echo "cudacpp_version              = $(cat __init__.py | awk '/__version__/{print $3}' | sed 's/(//' | sed 's/)//' | sed 's/,/./g')" >> ${outfile}
@@ -28,7 +28,7 @@ echo "" >> ${outfile}
 TZ=UTC git --no-pager log -n1 --date=format-local:"${dateformat}" --pretty=format:'commit         %h%ntree           %t%nparent         %p%nAuthor:        %an%nAuthorDate:    %ad%nCommitter:     %cn%nCommitterDate: %cd%nMessage:       "%s"%n' >> ${outfile}
 python -c 'print("="*132)'; cat ${outfile}; python -c 'print("="*132)'
 cp ${outfile} ${topdir}
-echo "VERSION file available on ${topdir}/$(basename ${outfile})"
+echo "VERSION.txt file available on ${topdir}/$(basename ${outfile})"
 
 # Copy all relevant plugin files to the temporary directory
 cd ${topdir}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT

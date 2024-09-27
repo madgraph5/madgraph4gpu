@@ -15,6 +15,8 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v4
+      with:
+        submodules: 'true'
     - name: archive
       run: .github/workflows/archiver.sh
     - name: release
@@ -24,6 +26,6 @@ jobs:
       with:
         files: |
           cudacpp.tar.gz
-          VERSION
+          VERSION.txt
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
