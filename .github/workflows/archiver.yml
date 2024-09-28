@@ -36,6 +36,7 @@ jobs:
         git config user.name github-actions
         git config user.email github-actions@github.com
         # Note: 'git checkout INFO' would fails if it found version_info.dat
+        git fetch
         git checkout INFO
         mv TMP_version_info.dat version_info.dat
         if [ -z "$(git status --porcelain version_info.dat)" ]; then
