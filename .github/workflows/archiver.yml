@@ -17,35 +17,48 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: 'true'
+        path: branch_PR
     - name: create_tarball
       run: |
         echo "HOME is ${HOME}"
         echo "Current directory is $(pwd)"
+        cd branch_PR
+        echo "Current directory is now $(pwd)"
+        echo "Current branch is $(git branch --show-current)"
         .github/workflows/archiver.sh
+        mv cudacpp.tar.gz ${HOME}
+        mv VERSION.txt ${HOME}
     - name: release
       # See https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          cudacpp.tar.gz
-          VERSION.txt
+          ${HOME}/cudacpp.tar.gz
+          ${HOME}/VERSION.txt
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: create_infodat
       run: |
         echo "HOME is ${HOME}"
         echo "Current directory is $(pwd)"
+        cd branch_PR
+        echo "Current directory is now $(pwd)"
+        echo "Current branch is $(git branch --show-current)"
         python3 .github/workflows/archiver.py version_info.dat
         mv version_info.dat ${HOME}
     - name: checkout_INFO
       uses: actions/checkout@v4
       with:
         ref: INFO
+        path: branch_INFO
     - name: commit_infodat
       run: |
         echo "HOME is ${HOME}"
         echo "Current directory is $(pwd)"
+        cd branch_INFO
+        echo "Current directory is now $(pwd)"
+        echo "Current branch is $(git branch --show-current)"
         mv ${HOME}/version_info.dat .
         git config user.name github-actions
         git config user.email github-actions@github.com
