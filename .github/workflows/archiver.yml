@@ -18,7 +18,10 @@ jobs:
       with:
         submodules: 'true'
     - name: create_tarball
-      run: .github/workflows/archiver.sh
+      run: |
+        echo "HOME is ${HOME}"
+        echo "Current directory is $(pwd)"
+        .github/workflows/archiver.sh
     - name: release
       # See https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v2
@@ -30,17 +33,22 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: create_infodat
-      run: python3 .github/workflows/archiver.py TMP_version_info.dat
+      run: |
+        echo "HOME is ${HOME}"
+        echo "Current directory is $(pwd)"
+        python3 .github/workflows/archiver.py version_info.dat
+        mv version_info.dat ${HOME}
     - name: checkout_INFO
       uses: actions/checkout@v4
       with:
         ref: INFO
     - name: commit_infodat
       run: |
+        echo "HOME is ${HOME}"
+        echo "Current directory is $(pwd)"
+        mv ${HOME}/version_info.dat .
         git config user.name github-actions
         git config user.email github-actions@github.com
-        # Note: 'git checkout INFO' would fail if it found version_info.dat
-        mv TMP_version_info.dat version_info.dat
         if [ -z "$(git status --porcelain version_info.dat)" ]; then
           echo "Nothing to commit"
         else
