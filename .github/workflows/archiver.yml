@@ -87,9 +87,9 @@ jobs:
         # Release notes for the version tag
         echo "Version tag ${tagname}" > ${WORKDIR}/versiontag.txt
         echo "" >> ${WORKDIR}/versiontag.txt
-        python3 -c 'print("="*80)' >> ${WORKDIR}/versiontag.txt
+        echo "---" >> ${WORKDIR}/versiontag.txt
+        echo "" >> ${WORKDIR}/versiontag.txt
         cat ${WORKDIR}/VERSION.txt >> ${WORKDIR}/versiontag.txt
-        python3 -c 'print("="*80)' >> ${WORKDIR}/versiontag.txt
 
     - name: create_runningtag
       run: |
@@ -115,9 +115,9 @@ jobs:
         echo "Running tag ${tagname_latest}" > ${WORKDIR}/runningtag.txt
         echo "This is equivalent to version tag ${tagname}" >> ${WORKDIR}/runningtag.txt
         echo "" >> ${WORKDIR}/runningtag.txt
-        python3 -c 'print("="*80)' >> ${WORKDIR}/runningtag.txt
+        echo "---" >> ${WORKDIR}/runningtag.txt
+        echo "" >> ${WORKDIR}/runningtag.txt
         cat ${WORKDIR}/VERSION.txt >> ${WORKDIR}/runningtag.txt
-        python3 -c 'print("="*80)' >> ${WORKDIR}/runningtag.txt
 
     - name: release_versiontag
       # See https://github.com/softprops/action-gh-release
