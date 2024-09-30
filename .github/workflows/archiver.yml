@@ -27,6 +27,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    if: github.repository == 'valassi/madgraph4gpu'
+
     steps:
 
     - name: checkout_PR
