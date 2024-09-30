@@ -20,7 +20,8 @@ PREFIX=TEST_cudacpp
 function usage()
 {
   echo "Usage (1): $0 [-f] <tagsuffix>"
-  echo "Creates a new version tag and a new running tag and pushes them to the remote repository"
+  echo "Creates a new version tag and pushes it to the remote repository"
+  echo "The github CI will then create also a running tag with '_latest' suffix"
   echo "Valid formats for <tagsuffix> are 'n1.n2.n3' or 'n1.n2.n3_txt' where txt only contains letters or digits"
   echo "Version number 'n1.n2.n3' must match that in the CUDACPP_OUTPUT/__init__.py file"
   echo "Use the -f option to delete and recreate a version tag that already exists"
@@ -159,13 +160,13 @@ else
   done
   echo ""
 
-  # Build the version and running tag names
+  # Build the version tag and running tag names
   versTAG=${PREFIX}_for${mg5_version}_v${tagsuffix}
   runnTAG=${PREFIX}_for${mg5_version}_latest
   echo "INFO: will create version tag ${versTAG}"
-  echo "INFO: will create running tag ${runnTAG}"
+  echo "(the CI will create running tag ${runnTAG})"
 
-  # Check if the version tag and/or running tag already exist
+  # Check if the version tag already exists
   for tag in ${existing_tags}; do
     if [ "${versTAG}" == "${tag}" ] && [ "${force}" != "-f" ]; then
       echo "ERROR! Tag ${tag} already exists: use the -f option to recreate it"
@@ -179,14 +180,9 @@ else
   echo "INFO: create version tag ${versTAG}"
   git tag ${force} ${versTAG} -m "Version tag ${versTAG}" -m "Tag created on $(date)"
 
-  # Create the running tag
-  # (always use '-f' to replace any previously existing tag with the same name)
-  echo "INFO: create running tag ${runnTAG}"
-  git tag -f ${runnTAG} -m "Running tag ${runnTAG}" -m "Tag created on $(date)" -m "This is equivalent to version tag ${versTAG}"
-  
-  # Push the tags to the remote repository
+  # Push the tag to the remote repository
   # (use '-f' to replace any previously existing tag with the same name)
-  echo "INFO: push tags to the remote repository"
+  echo "INFO: push tag to the remote repository"
   git push -f --tags
 
 fi

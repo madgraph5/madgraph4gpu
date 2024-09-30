@@ -9,15 +9,31 @@ name: Archiver
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
+env:
+
+  TAGPREFIX: TEST_cudacpp_for
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
 on:
   push:
-    tags: [ '*' ]
+
+    tags:
+    # Include version tags such as 'cudacpp_for3.6.0_v1.0.0' or 'cudacpp_for3.6.0_v1.0.0_test001'
+    - '${{ env.TAGPREFIX }*_v*'
+
+    tags-ignore:
+    # Exclude running tags such as 'cudacpp_for3.6.0_latest'
+    - '${{ env.TAGPREFIX }*_latest'
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
 jobs:
+
   archiver:
+
     runs-on: ubuntu-latest
+
     steps:
 
     - name: checkout_master
@@ -26,7 +42,7 @@ jobs:
         submodules: 'true'
         path: branch_PR
 
-    - name: create_tarball
+    - name: create_tarball_and_versiontxt
       run: |
         echo "HOME is ${HOME}"
         echo "Current directory is $(pwd)"
@@ -37,11 +53,62 @@ jobs:
         mv cudacpp.tar.gz ${HOME}
         mv VERSION.txt ${HOME}
 
-    - name: release
+    - name: check_versiontag_and_create_runningtag_and_update_versiontxt
+      run: |
+        echo "HOME is ${HOME}"
+        tagname=$${{ github.ref_name }}
+        echo "(From github.ref)  tagname             = ${tagname}"
+        cudacpp_version=$(cat ${HOME}/VERSION.txt | awk '/^cudacpp_version/{print $3}')
+        mg5_version=$(cat ${HOME}/VERSION.txt | awk '/^mg5_version_current/{print $3}')
+        echo "(From VERSION.txt) cudacpp_version     = ${cudacpp_version}"
+        echo "(From VERSION.txt) mg5_version_current = ${mg5_version}"
+        tagname_version=${TAGPREFIX}${mg5_version}_v${cudacpp_version}
+        echo "(From VERSION.txt) _expected_ tagname  = ${tagname_version}[_...]"
+        if [ "${tagname/${tagname_version}}" == "${tagname}" ]; then
+          echo "ERROR! Invalid tagname '${tagname}' does not start with '${tagname_version}'"
+          exit 1 # this will cause the job to fail without running the next steps
+        fi
+        tagname_suffix="${tagname/${tagname_version}}"
+        if [ `python3 -c "import re; print(re.match('(|_[0-9a-z]+)$','${tagsuffix}') is not None)"` == "False" ]; then
+          echo "ERROR! Invalid tagname '${tagname}' (valid format is '${tagname_version}[_txt]' where txt only contains letters or digits)"
+          exit 1 # this will cause the job to fail without running the next steps
+        fi
+        tagname_latest=${TAGPREFIX}${mg5_version}_latest
+        echo "TAGNAME_LATEST=${tagname_latest}" >> $GITHUB_ENV
+        echo "" >> ${HOME}/VERSION.txt
+        echo "VERSION TAG:   ${tagname} >> ${HOME}/VERSION.txt
+        echo "RUNNING TAG:   ${tagname_latest} >> ${HOME}/VERSION.txt
+
+    - name: create_runningtag
+      run: |
+        tagname=$${{ github.ref_name }}
+        echo "(From github.ref)  tagname             = ${tagname}"
+        tagname_latest=${TAGNAME_LATEST}
+        echo "(From GITHUB_ENV)  tagname_latest      = ${tagname_latest}"
+        commit=$(cat ${HOME}/VERSION.txt | awk '/^commit/{print $2}')
+        echo "(From VERSION.txt) commit              = ${commit}"
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        echo "INFO: create running tag ${tagname_latest}"
+        git tag -f ${tagname_latest} ${commit} -m "Running tag ${tagname_latest}" -m "Tag created on $(date)" -m "This is equivalent to version tag ${tagname}"
+        git push -f --tags
+
+    - name: release_versiontag
       # See https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
+        files: |
+          ${HOME}/cudacpp.tar.gz
+          ${HOME}/VERSION.txt
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: release_runningtag
+      # See https://github.com/softprops/action-gh-release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: 'refs/tags/${TAGNAME_LATEST}'
         files: |
           ${HOME}/cudacpp.tar.gz
           ${HOME}/VERSION.txt
