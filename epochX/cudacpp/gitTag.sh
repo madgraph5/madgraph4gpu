@@ -14,7 +14,7 @@ skipFetch=0
 ###skipFetch=1 # FOR DEBUGGING!
 
 # The tag prefix used for all tags handled by this script
-PREFIX=TEST_cudacpp
+PREFIX=cudacpp
 
 # Usage
 function usage()
