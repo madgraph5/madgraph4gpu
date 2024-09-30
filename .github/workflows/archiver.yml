@@ -29,7 +29,7 @@ jobs:
 
     steps:
 
-    - name: checkout_master
+    - name: checkout_PR
       uses: actions/checkout@v4
       with:
         submodules: 'true'
@@ -51,8 +51,11 @@ jobs:
         echo "HOME is ${HOME}"
         TAGPREFIX=cudacpp_for
         echo "TAGPREFIX is ${TAGPREFIX}"
-        tagname=$${{ github.ref_name }}
+        githubref=$${{ github.ref }}
+        echo "(From github.ref)  githubref           = ${githubref}"
+        tagname=${githubref#/tags/}
         echo "(From github.ref)  tagname             = ${tagname}"
+        echo "TAGNAME=${tagname}" >> $GITHUB_ENV
         cudacpp_version=$(cat ${HOME}/VERSION.txt | awk '/^cudacpp_version/{print $3}')
         mg5_version=$(cat ${HOME}/VERSION.txt | awk '/^mg5_version_current/{print $3}')
         echo "(From VERSION.txt) cudacpp_version     = ${cudacpp_version}"
@@ -76,8 +79,8 @@ jobs:
 
     - name: create_runningtag
       run: |
-        tagname=$${{ github.ref_name }}
-        echo "(From github.ref)  tagname             = ${tagname}"
+        tagname=${TAGNAME}
+        echo "(From GITHUB_ENV)  tagname             = ${tagname}"
         tagname_latest=${TAGNAME_LATEST}
         echo "(From GITHUB_ENV)  tagname_latest      = ${tagname_latest}"
         commit=$(cat ${HOME}/VERSION.txt | awk '/^commit/{print $2}')

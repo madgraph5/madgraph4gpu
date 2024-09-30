@@ -14,7 +14,7 @@ skipFetch=0
 ###skipFetch=1 # FOR DEBUGGING!
 
 # The tag prefix used for all tags handled by this script
-PREFIX=cudacpp
+PREFIX=cudacpp_for
 
 # Usage
 function usage()
@@ -161,8 +161,8 @@ else
   echo ""
 
   # Build the version tag and running tag names
-  versTAG=${PREFIX}_for${mg5_version}_v${tagsuffix}
-  runnTAG=${PREFIX}_for${mg5_version}_latest
+  versTAG=${PREFIX}${mg5_version}_v${tagsuffix}
+  runnTAG=${PREFIX}${mg5_version}_latest
   echo "INFO: will create version tag ${versTAG}"
   echo "(the CI will create running tag ${runnTAG})"
 
