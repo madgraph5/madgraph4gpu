@@ -12,7 +12,7 @@ def get_all_tags():
     return out.split('\n')
 
 def get_supported_versions(tags):
-    PREFIX = 'TEST_cudacpp_for'
+    PREFIX = 'cudacpp_for'
     SUFFIX = '_latest'
     versions = [ t[len(PREFIX):-len(SUFFIX)] for t in tags if t.startswith(PREFIX) and t.endswith(SUFFIX)]
     versions = set(versions)
