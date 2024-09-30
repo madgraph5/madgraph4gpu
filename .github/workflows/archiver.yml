@@ -74,8 +74,8 @@ jobs:
         tagname_latest=${TAGPREFIX}${mg5_version}_latest
         echo "TAGNAME_LATEST=${tagname_latest}" >> $GITHUB_ENV
         echo "" >> ${HOME}/VERSION.txt
-        echo "VERSION TAG:   ${tagname} >> ${HOME}/VERSION.txt
-        echo "RUNNING TAG:   ${tagname_latest} >> ${HOME}/VERSION.txt
+        echo "VERSION TAG:   ${tagname}" >> ${HOME}/VERSION.txt
+        echo "RUNNING TAG:   ${tagname_latest}" >> ${HOME}/VERSION.txt
 
     - name: create_runningtag
       run: |
