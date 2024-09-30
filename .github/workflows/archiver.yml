@@ -51,7 +51,7 @@ jobs:
         mv cudacpp.tar.gz ${WORKDIR}
         mv VERSION.txt ${WORKDIR}
 
-    - name: check_versiontag_and_create_runningtag_and_update_versiontxt
+    - name: check_versiontag_and_update_versiontxt
       run: |
         echo "HOME is ${HOME}"
         echo "WORKDIR is ${WORKDIR}"
@@ -62,6 +62,7 @@ jobs:
         tagname=${githubref#/tags/}
         echo "(From github.ref)  tagname             = ${tagname}"
         echo "TAGNAME=${tagname}" >> $GITHUB_ENV
+        # Check version tag
         cudacpp_version=$(cat ${WORKDIR}/VERSION.txt | awk '/^cudacpp_version/{print $3}')
         mg5_version=$(cat ${WORKDIR}/VERSION.txt | awk '/^mg5_version_current/{print $3}')
         echo "(From VERSION.txt) cudacpp_version     = ${cudacpp_version}"
@@ -79,9 +80,16 @@ jobs:
         fi
         tagname_latest=${TAGPREFIX}${mg5_version}_latest
         echo "TAGNAME_LATEST=${tagname_latest}" >> $GITHUB_ENV
+        # Update VERSION.txt
         echo "" >> ${WORKDIR}/VERSION.txt
         echo "VERSION TAG:   ${tagname}" >> ${WORKDIR}/VERSION.txt
         echo "RUNNING TAG:   ${tagname_latest}" >> ${WORKDIR}/VERSION.txt
+        # Release notes for the version tag
+        echo "Version tag ${tagname}" > ${WORKDIR}/versiontag.txt
+        echo "" >> ${WORKDIR}/versiontag.txt
+        python3 -c 'print("="*80)' >> ${WORKDIR}/versiontag.txt
+        cat ${WORKDIR}/VERSION.txt >> ${WORKDIR}/versiontag.txt
+        python3 -c 'print("="*80)' >> ${WORKDIR}/versiontag.txt
 
     - name: create_runningtag
       run: |
@@ -97,17 +105,19 @@ jobs:
         echo "(From GITHUB_ENV)  tagname_latest      = ${tagname_latest}"
         commit=$(cat ${WORKDIR}/VERSION.txt | awk '/^commit/{print $2}')
         echo "(From VERSION.txt) commit              = ${commit}"
+        # Create running tag
         git config user.name github-actions
         git config user.email github-actions@github.com
         echo "INFO: create running tag ${tagname_latest}"
-        echo "Running tag ${tagname_latest}" > msg.txt
-        echo "This is equivalent to version tag ${tagname}" >> msg.txt
-        echo "" >> msg.txt
-        python3 -c 'print("="*80)' >> msg.txt
-        cat ${WORKDIR}/VERSION.txt >> msg.txt
-        python3 -c 'print("="*80)' >> msg.txt
-        git tag -f ${tagname_latest} ${commit} -F msg.txt
+        git tag -f ${tagname_latest} ${commit} -m "Running tag ${tagname_latest}"
         git push -f --tags
+        # Release notes for the running tag
+        echo "Running tag ${tagname_latest}" > ${WORKDIR}/runningtag.txt
+        echo "This is equivalent to version tag ${tagname}" >> ${WORKDIR}/runningtag.txt
+        echo "" >> ${WORKDIR}/runningtag.txt
+        python3 -c 'print("="*80)' >> ${WORKDIR}/runningtag.txt
+        cat ${WORKDIR}/VERSION.txt >> ${WORKDIR}/runningtag.txt
+        python3 -c 'print("="*80)' >> ${WORKDIR}/runningtag.txt
 
     - name: release_versiontag
       # See https://github.com/softprops/action-gh-release
@@ -115,6 +125,7 @@ jobs:
       ###if: startsWith(github.ref, 'refs/tags/')
       with:
         name: ${{ env.TAGNAME }}
+        body_path: versiontag.txt
         # Previous attempt to upload files from ${HOME}/VERSION.txt and ${HOME}/cudacpp.tar.gz failed
         # The current implementation uploads files from the default $WORKDIR (without giving the explicit full path)
         files: |
@@ -129,6 +140,7 @@ jobs:
       with:
         name: ${{ env.TAGNAME_LATEST }}
         tag_name: refs/tags/${{ env.TAGNAME_LATEST }}
+        body_path: runningtag.txt
         # Previous attempt to upload files from ${HOME}/VERSION.txt and ${HOME}/cudacpp.tar.gz failed
         # The current implementation uploads files from the default $WORKDIR (without giving the explicit full path)
         files: |
