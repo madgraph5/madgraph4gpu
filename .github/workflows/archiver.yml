@@ -3,21 +3,29 @@
 # Created by: A. Valassi (Sep 2024) for the MG5aMC CUDACPP plugin.
 # Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
 
+#----------------------------------------------------------------------------------------------------------------------------------
+
 name: Archiver
+
+#----------------------------------------------------------------------------------------------------------------------------------
 
 on:
   push:
     tags: [ '*' ]
 
+#----------------------------------------------------------------------------------------------------------------------------------
+
 jobs:
   archiver:
     runs-on: ubuntu-latest
     steps:
+
     - name: checkout_master
       uses: actions/checkout@v4
       with:
         submodules: 'true'
         path: branch_PR
+
     - name: create_tarball
       run: |
         echo "HOME is ${HOME}"
@@ -28,6 +36,7 @@ jobs:
         .github/workflows/archiver.sh
         mv cudacpp.tar.gz ${HOME}
         mv VERSION.txt ${HOME}
+
     - name: release
       # See https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v2
@@ -38,6 +47,7 @@ jobs:
           ${HOME}/VERSION.txt
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: create_infodat
       run: |
         echo "HOME is ${HOME}"
@@ -47,11 +57,13 @@ jobs:
         echo "Current branch is $(git branch --show-current)"
         python3 .github/workflows/archiver.py version_info.dat
         mv version_info.dat ${HOME}
+
     - name: checkout_INFO
       uses: actions/checkout@v4
       with:
         ref: INFO
         path: branch_INFO
+
     - name: commit_infodat
       run: |
         echo "HOME is ${HOME}"
@@ -72,3 +84,5 @@ jobs:
           git commit -F msg.txt version_info.dat
           git push
         fi
+
+#----------------------------------------------------------------------------------------------------------------------------------
