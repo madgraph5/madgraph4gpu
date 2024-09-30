@@ -9,21 +9,15 @@ name: Archiver
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
-env:
-
-  TAGPREFIX: cudacpp_for
-
-#----------------------------------------------------------------------------------------------------------------------------------
-
 on:
   push:
 
     tags:
     # Include version tags such as 'cudacpp_for3.6.0_v1.0.0' or 'cudacpp_for3.6.0_v1.0.0_test001'
-    - '${{ env.TAGPREFIX }*_v*'
+    - 'cudacpp_for*_v*'
     # Exclude running tags such as 'cudacpp_for3.6.0_latest'
     # See https://github.com/orgs/community/discussions/25114
-    - '!${{ env.TAGPREFIX }*_latest'
+    - '!cudacpp_for*_latest'
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -55,6 +49,8 @@ jobs:
     - name: check_versiontag_and_create_runningtag_and_update_versiontxt
       run: |
         echo "HOME is ${HOME}"
+        TAGPREFIX=cudacpp_for
+        echo "TAGPREFIX is ${TAGPREFIX}"
         tagname=$${{ github.ref_name }}
         echo "(From github.ref)  tagname             = ${tagname}"
         cudacpp_version=$(cat ${HOME}/VERSION.txt | awk '/^cudacpp_version/{print $3}')
