@@ -98,7 +98,13 @@ jobs:
         git config user.name github-actions
         git config user.email github-actions@github.com
         echo "INFO: create running tag ${tagname_latest}"
-        git tag -f ${tagname_latest} ${commit} -m "Running tag ${tagname_latest}" -m "Tag created on $(date)" -m "This is equivalent to version tag ${tagname}"
+        echo "Running tag ${tagname_latest}" > msg.txt
+        echo "This is equivalent to version tag ${tagname}" >> msg.txt
+        echo "" >> msg.txt
+        python3 -c 'print("="*80)' >> msg.txt
+        cat ${WORKDIR}/VERSION.txt >> msg.txt
+        python3 -c 'print("="*80)' >> msg.txt
+        git tag -f ${tagname_latest} ${commit} -F msg.txt
         git push -f --tags
 
     - name: release_versiontag
