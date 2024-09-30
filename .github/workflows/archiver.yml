@@ -79,6 +79,11 @@ jobs:
 
     - name: create_runningtag
       run: |
+        echo "HOME is ${HOME}"
+        echo "Current directory is $(pwd)"
+        cd branch_PR
+        echo "Current directory is now $(pwd)"
+        echo "Current branch is $(git branch --show-current)"
         tagname=${TAGNAME}
         echo "(From GITHUB_ENV)  tagname             = ${tagname}"
         tagname_latest=${TAGNAME_LATEST}
