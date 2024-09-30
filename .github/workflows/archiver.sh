@@ -26,7 +26,7 @@ echo "" >> ${outfile}
 echo "TARBALL DATE:  $(date -u +"${dateformat}")" >> ${outfile}
 echo "" >> ${outfile}
 TZ=UTC git --no-pager log -n1 --date=format-local:"${dateformat}" --pretty=format:'commit         %h%nAuthor:        %an%nAuthorDate:    %ad%nCommitter:     %cn%nCommitterDate: %cd%nMessage:       "%s"%n' >> ${outfile}
-python -c 'print("="*132)'; cat ${outfile}; python -c 'print("="*132)'
+python3 -c 'print("="*132)'; cat ${outfile}; python3 -c 'print("="*132)'
 cp ${outfile} ${topdir}
 echo "VERSION.txt file available on ${topdir}/$(basename ${outfile})"
 
