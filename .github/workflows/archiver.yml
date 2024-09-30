@@ -21,10 +21,9 @@ on:
     tags:
     # Include version tags such as 'cudacpp_for3.6.0_v1.0.0' or 'cudacpp_for3.6.0_v1.0.0_test001'
     - '${{ env.TAGPREFIX }*_v*'
-
-    tags-ignore:
     # Exclude running tags such as 'cudacpp_for3.6.0_latest'
-    - '${{ env.TAGPREFIX }*_latest'
+    # See https://github.com/orgs/community/discussions/25114
+    - '!${{ env.TAGPREFIX }*_latest'
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
