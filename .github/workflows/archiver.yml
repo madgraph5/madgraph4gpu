@@ -112,8 +112,9 @@ jobs:
     - name: release_versiontag
       # See https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v2
-      if: startsWith(github.ref, 'refs/tags/')
+      ###if: startsWith(github.ref, 'refs/tags/')
       with:
+        name: ${{ env.TAGNAME }}
         # Previous attempt to upload files from ${HOME}/VERSION.txt and ${HOME}/cudacpp.tar.gz failed
         # The current implementation uploads files from the default $WORKDIR (without giving the explicit full path)
         files: |
@@ -126,6 +127,7 @@ jobs:
       # See https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v2
       with:
+        name: ${{ env.TAGNAME_LATEST }}
         tag_name: refs/tags/${{ env.TAGNAME_LATEST }}
         # Previous attempt to upload files from ${HOME}/VERSION.txt and ${HOME}/cudacpp.tar.gz failed
         # The current implementation uploads files from the default $WORKDIR (without giving the explicit full path)
