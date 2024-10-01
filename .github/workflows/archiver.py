@@ -7,10 +7,9 @@
 import subprocess
 import sys
 
-GITHUB_REPO = 'valassi/madgraph4gpu/'
-
-PREFIX = 'cudacpp_for'
-SUFFIX = '_latest'
+def get_repo():
+    out = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url']).decode()
+    return out.split(':')[1].split('.')[0].split('/') # returns (repo_owner, repo_name)
 
 def get_all_tags():
     out = subprocess.check_output(['git', 'tag']).decode()
@@ -31,6 +30,14 @@ if "__main__" == __name__:
     if len(sys.argv) != 2:
         print('Usage: python3 %s <infodat>'%sys.argv[0])
         sys.exit(1)
+    repo_owner, repo_name = get_repo()
+    ###print('Repo owner:', repo_owner)
+    ###print('Repo name:', repo_name)
+    GITHUB_REPO = '%s/%s/'%(repo_owner, repo_name)
+    PREFIX = 'cudacpp_for'
+    if repo_owner != 'madgraph5' : PREFIX = repo_owner + "_" + PREFIX # TEMPORARY! this will change eventually...
+    if repo_name != 'madgraph4gpu' : raise Exception('Invalid repo_name (expect "madgraph4gpu")') # TEMPORARY! this will change eventually...
+    SUFFIX = '_latest'
     tags = get_all_tags()
     ###print('Tags:', tags)
     versions = get_supported_versions(tags)

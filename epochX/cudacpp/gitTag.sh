@@ -13,9 +13,6 @@ scr=$(basename $(cd ..; pwd))/$(basename $(pwd))/$(basename $0) # the name of th
 skipFetch=0
 ###skipFetch=1 # FOR DEBUGGING!
 
-# The tag prefix used for all tags handled by this script
-PREFIX=cudacpp_for
-
 # Protect non-prerelease tags from deletion?
 PROTECTTAGS=1
 ###PROTECTTAGS=0 # WARNING! USE WITH CARE...
@@ -54,27 +51,42 @@ fi
 
 # Determine the local git branch
 brn=`git branch | grep \* | cut -d ' ' -f2`
-echo "INFO: git branch is  '${brn}'"
+echo "INFO: git branch is     '${brn}'"
 if [ "${brn}" != "install" ]; then # TEMPORARY! this should be branch 'master' eventually...
   echo "ERROR! Invalid local branch ${brn}"
   exit 1
 fi
 
-# Determine the remote git origin and the corresponding project name
+# Determine the remote git origin and the corresponding repo name
 # Stop if the remote git origin is not at github.com
 url=`git config --get remote.origin.url`
-echo "INFO: git remote is  '${url}'"
+echo "INFO: git remote is     '${url}'"
 url=${url%.git}
 prj=${url##*github.com:}
 if [ "${url}" == "${prj}" ]; then
   echo "ERROR! git remote does not seem to be at github.com"
   exit 1
 fi
-echo "INFO: git project is '${prj}'"
-if [ "${prj}" != "valassi/madgraph4gpu" ]; then # TEMPORARY! this will change eventually...
-  echo "ERROR! Invalid project ${prj}"
+echo "INFO: git repo is       '${prj}'"
+prjown=${prj%/*}
+prjnam=${prj#*/}
+echo "INFO: git repo owner is '${prjown}'"
+echo "INFO: git repo name  is '${prjnam}'"
+
+# Check the repo name
+if [ "${prjnam}" != "madgraph4gpu" ]; then # TEMPORARY! this will change eventually...
+  echo "ERROR! Invalid repo name '${prjnam}' (expect 'madgraph4gpu')"
   exit 1
 fi
+
+# Check the repo owner
+# Determine the tag prefix used for all tags handled by this script
+if [ "${prjown}" == "madgraph5" ]; then # TEMPORARY! this will change eventually...
+  PREFIX=cudacpp_for
+else
+  PREFIX=${prjown}_cudacpp_for
+fi
+echo "INFO: tag prefix for repo owner '${prjown}' is '${PREFIX}'"
 
 # Check that all changes are committed to git (except at most for this script only in the '-l' mode)
 if [ "$(git status --porcelain | grep -v ^??)" != "" ]; then

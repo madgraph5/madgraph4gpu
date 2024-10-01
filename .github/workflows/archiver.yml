@@ -14,10 +14,13 @@ on:
 
     tags:
     # Include version tags such as 'cudacpp_for3.6.0_v1.0.0' or 'cudacpp_for3.6.0_v1.0.0_test001'
-    - 'cudacpp_for*_v*'
+    # Include version tags such as 'valassi_cudacpp_for3.6.0_v1.0.0' or 'valassi_cudacpp_for3.6.0_v1.0.0_test001'
+    - '*cudacpp_for*_v*'
+
     # Exclude running tags such as 'cudacpp_for3.6.0_latest'
+    # Exclude running tags such as 'valassi_cudacpp_for3.6.0_latest'
     # See https://github.com/orgs/community/discussions/25114
-    - '!cudacpp_for*_latest'
+    - '!*cudacpp_for*_latest'
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -27,7 +30,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    if: github.repository == 'valassi/madgraph4gpu'
+    # TEMPORARY! this will change eventually...
+    if: |
+      ( github.repository == 'madgraph5/madgraph4gpu' && startsWith( github.ref, 'refs/tags/cudacpp_for' ) )
+      || ( github.repository == 'valassi/madgraph4gpu' && startsWith( github.ref, 'refs/tags/valassi_cudacpp_for' ) )
 
     steps:
 
@@ -54,7 +60,10 @@ jobs:
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
+        OWNER=$${{ github.repository_owner }}
+        echo "WORKDIR is ${WORKDIR}"
         TAGPREFIX=cudacpp_for
+        if [ "${OWNER}" != "madgraph5" ]; then TAGPREFIX="${OWNER}_${TAGPREFIX}"; fi # TEMPORARY! this will change eventually...
         echo "TAGPREFIX is ${TAGPREFIX}"
         githubref=$${{ github.ref }}
         echo "(From github.ref)  githubref           = ${githubref}"
@@ -163,7 +172,6 @@ jobs:
     - name: release_versiontag
       # See https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v2
-      ###if: startsWith(github.ref, 'refs/tags/')
       with:
         name: ${{ env.TAGNAME }}
         body_path: versiontag.txt
