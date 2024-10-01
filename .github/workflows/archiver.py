@@ -34,5 +34,5 @@ if "__main__" == __name__:
     tags = get_all_tags()
     ###print('Tags:', tags)
     versions = get_supported_versions(tags)
-    print('Supported versions:', versions)
+    ###print('Supported versions:', versions)
     create_infodat_file(sys.argv[1], versions)

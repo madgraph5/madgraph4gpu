@@ -39,21 +39,20 @@ jobs:
 
     - name: create_tarball_and_versiontxt
       run: |
+        echo "Current directory is $(pwd)"
         WORKDIR=$(pwd)
         echo "WORKDIR=${WORKDIR}" >> $GITHUB_ENV
-        echo "HOME is ${HOME}"
-        echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
         cd branch_PR
         echo "Current directory is now $(pwd)"
-        echo "Current branch is $(git branch --show-current)"
+        echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
         .github/workflows/archiver.sh
         mv cudacpp.tar.gz ${WORKDIR}
         mv VERSION.txt ${WORKDIR}
 
     - name: check_versiontag_and_update_versiontxt
       run: |
-        echo "HOME is ${HOME}"
+        echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
         TAGPREFIX=cudacpp_for
         echo "TAGPREFIX is ${TAGPREFIX}"
@@ -78,6 +77,7 @@ jobs:
           echo "ERROR! Invalid tagname '${tagname}' (valid format is '${tagname_version}[_txt]' where txt only contains letters or digits)"
           exit 1 # this will cause the job to fail without running the next steps
         fi
+        echo "OK! Tagname '${tagname}' respects the expected format"
         tagname_latest=${TAGPREFIX}${mg5_version}_latest
         echo "TAGNAME_LATEST=${tagname_latest}" >> $GITHUB_ENV
         # Update VERSION.txt
@@ -95,16 +95,18 @@ jobs:
       # See https://cli.github.com/manual/gh_release_delete
       # See https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/using-github-cli-in-workflows
       run: |
-        echo "HOME is ${HOME}"
         echo "Current directory is $(pwd)"
-        echo "WORKDIR is ${WORKDIR}"
         cd branch_PR
         echo "Current directory is now $(pwd)"
-        echo "Current branch is $(git branch --show-current)"
+        echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
+        echo "Retrieve release ${{ env.TAGNAME }}"
+        python3 -c 'print("-"*132)'
         if gh release view ${{ env.TAGNAME }}; then
-          echo "Deleting release ${{ env.TAGNAME }}"
+          python3 -c 'print("-"*132)'
+          echo "Delete release ${{ env.TAGNAME }}"
           gh release delete ${{ env.TAGNAME }} -y
         else
+          python3 -c 'print("-"*132)'
           echo "Release ${{ env.TAGNAME }} does not exist"
         fi
       env:
@@ -114,16 +116,18 @@ jobs:
       # See https://cli.github.com/manual/gh_release_delete
       # See https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/using-github-cli-in-workflows
       run: |
-        echo "HOME is ${HOME}"
         echo "Current directory is $(pwd)"
-        echo "WORKDIR is ${WORKDIR}"
         cd branch_PR
         echo "Current directory is now $(pwd)"
-        echo "Current branch is $(git branch --show-current)"
+        echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
+        echo "Retrieve release ${{ env.TAGNAME_LATEST }}"
+        python3 -c 'print("-"*132)'
         if gh release view ${{ env.TAGNAME_LATEST }}; then
-          echo "Deleting release ${{ env.TAGNAME_LATEST }} and the associated tag"
+          python3 -c 'print("-"*132)'
+          echo "Delete release ${{ env.TAGNAME_LATEST }} and the associated tag"
           gh release delete ${{ env.TAGNAME_LATEST }} -y --cleanup-tag
         else
+          python3 -c 'print("-"*132)'
           echo "Release ${{ env.TAGNAME_LATEST }} does not exist"
         fi
       env:
@@ -131,12 +135,11 @@ jobs:
 
     - name: create_runningtag
       run: |
-        echo "HOME is ${HOME}"
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
         cd branch_PR
         echo "Current directory is now $(pwd)"
-        echo "Current branch is $(git branch --show-current)"
+        echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
         tagname=${TAGNAME}
         echo "(From GITHUB_ENV)  tagname             = ${tagname}"
         tagname_latest=${TAGNAME_LATEST}
@@ -165,7 +168,7 @@ jobs:
         name: ${{ env.TAGNAME }}
         body_path: versiontag.txt
         # Previous attempt to upload files from ${HOME}/VERSION.txt and ${HOME}/cudacpp.tar.gz failed
-        # The current implementation uploads files from the default $WORKDIR (without giving the explicit full path)
+        # The current implementation uploads files from the default ${WORKDIR} (without giving the explicit full path)
         files: |
           cudacpp.tar.gz
           VERSION.txt
@@ -180,7 +183,7 @@ jobs:
         tag_name: refs/tags/${{ env.TAGNAME_LATEST }}
         body_path: runningtag.txt
         # Previous attempt to upload files from ${HOME}/VERSION.txt and ${HOME}/cudacpp.tar.gz failed
-        # The current implementation uploads files from the default $WORKDIR (without giving the explicit full path)
+        # The current implementation uploads files from the default ${WORKDIR} (without giving the explicit full path)
         files: |
           cudacpp.tar.gz
           VERSION.txt
@@ -189,14 +192,16 @@ jobs:
 
     - name: create_infodat
       run: |
-        echo "HOME is ${HOME}"
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
         cd branch_PR
         echo "Current directory is now $(pwd)"
-        echo "Current branch is $(git branch --show-current)"
+        echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
         python3 .github/workflows/archiver.py version_info.dat
-        mv version_info.dat ${HOME}
+        mv version_info.dat ${WORKDIR}
+        echo "Created version_info.dat"
+        python3 -c 'print("-"*132)'
+        cat ${WORKDIR}/version_info.dat
 
     - name: checkout_INFO
       uses: actions/checkout@v4
@@ -206,17 +211,16 @@ jobs:
 
     - name: commit_infodat
       run: |
-        echo "HOME is ${HOME}"
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
         cd branch_INFO
         echo "Current directory is now $(pwd)"
-        echo "Current branch is $(git branch --show-current)"
-        mv ${HOME}/version_info.dat .
+        echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
+        mv ${WORKDIR}/version_info.dat .
         git config user.name github-actions
         git config user.email github-actions@github.com
         if [ -z "$(git status --porcelain version_info.dat)" ]; then
-          echo "Nothing to commit"
+          echo "No changes detected in version_info.dat: nothing to commit"
         else
           echo "Commit and push version_info.dat"
           echo "Update version_info.dat" > msg.txt
