@@ -61,26 +61,41 @@ jobs:
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
         githubref=$${{ github.ref }}
-        echo "(From github.ref)  githubref           = ${githubref}"
+        echo "(From github.ref)        githubref           = ${githubref}"
         tagname=${githubref#/tags/}
-        echo "(From github.ref)  tagname             = ${tagname}"
+        echo "(From github.ref)        tagname             = ${tagname}"
         echo "TAGNAME=${tagname}" >> $GITHUB_ENV
-        ###REPO=$${{ github.repository }}
-        ###echo "REPO is ${REPO}" # owner is empty???
-        ###OWNER=${REPO%/*}
-        ###echo "OWNER is ${OWNER}" # owner is empty???
-        ###TAGPREFIX=cudacpp_for
-        ###if [ "${OWNER}" != "madgraph5" ]; then TAGPREFIX="${OWNER}_${TAGPREFIX}"; fi # TEMPORARY! this will change eventually...
+        REPOSITORY=$${{ github.repository }}
+        echo "(From github.repository) REPOSITORY          = ${REPOSITORY}"
+        ###REPOOWNER=${REPOSITORY%/*} # owner is empty??
+        REPONAME=${REPOSITORY#*/} # owner is empty??
+        echo "(From github.repository) REPONAME            = ${REPONAME}"
         tmpsuffix=${tagname#*cudacpp_for}
         TAGPREFIX=${tagname/${tmpsuffix}} # determine TAGPREFIX from triggering tag because github.repository_owner is empty(???)
-        echo "TAGPREFIX is ${TAGPREFIX}"
+        echo "(From tagname)           TAGPREFIX           = ${TAGPREFIX}"
+        REPOOWNER=${TAGPREFIX%cudacpp_for}
+        if [ "${REPOOWNER}" == "${TAGPREFIX}" ]; then
+          echo "INTERNAL ERROR! Invalid TAGPREFIX '${TAGPREFIX}'" # does not end in 'cudacpp_for'?
+          exit 1
+        elif [ "${REPOOWNER}" == "" ]; then
+          REPOOWNER=madgraph5 # TEMPORARY! Will change eventually...
+        elif [ "${REPOOWNER%_}" != "${REPOOWNER}" ]; then
+          REPOOWNER=${REPOOWNER%_}
+        else
+          echo "INTERNAL ERROR! Invalid REPOOWNER '${REPOOWNER}'" # empty or does not end in '-'?
+          exit 1
+        fi
+        echo "(From tagname)           REPOOWNER           = ${REPOOWNER}"
+        REPOSITORY=${REPOOWNER}/${REPONAME}
+        echo "(From tagname)           REPOSITORY          = ${REPOSITORY}"
+        echo "REPOSITORY=${REPOSITORY}" >> $GITHUB_ENV
         # Check version tag
         cudacpp_version=$(cat ${WORKDIR}/VERSION.txt | awk '/^cudacpp_version/{print $3}')
         mg5_version=$(cat ${WORKDIR}/VERSION.txt | awk '/^mg5_version_current/{print $3}')
-        echo "(From VERSION.txt) cudacpp_version     = ${cudacpp_version}"
-        echo "(From VERSION.txt) mg5_version_current = ${mg5_version}"
+        echo "(From VERSION.txt)       cudacpp_version     = ${cudacpp_version}"
+        echo "(From VERSION.txt)       mg5_version_current = ${mg5_version}"
         tagname_version=${TAGPREFIX}${mg5_version}_v${cudacpp_version}
-        echo "(From VERSION.txt) _expected_ tagname  = ${tagname_version}[_...]"
+        echo "(From VERSION.txt)       supported tagname   = ${tagname_version}[_...]"
         if [ "${tagname/${tagname_version}}" == "${tagname}" ]; then
           echo "ERROR! Invalid tagname '${tagname}' does not start with '${tagname_version}'"
           exit 1 # this will cause the job to fail without running the next steps
@@ -154,11 +169,11 @@ jobs:
         echo "Current directory is now $(pwd)"
         echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
         tagname=${TAGNAME}
-        echo "(From GITHUB_ENV)  tagname             = ${tagname}"
+        echo "(From GITHUB_ENV)        tagname             = ${tagname}"
         tagname_latest=${TAGNAME_LATEST}
-        echo "(From GITHUB_ENV)  tagname_latest      = ${tagname_latest}"
+        echo "(From GITHUB_ENV)        tagname_latest      = ${tagname_latest}"
         commit=$(cat ${WORKDIR}/VERSION.txt | awk '/^commit/{print $2}')
-        echo "(From VERSION.txt) commit              = ${commit}"
+        echo "(From VERSION.txt)       commit              = ${commit}"
         # Create running tag
         git config user.name github-actions
         git config user.email github-actions@github.com
@@ -209,9 +224,8 @@ jobs:
         cd branch_PR
         echo "Current directory is now $(pwd)"
         echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
-        REPO=$${{ github.repository }}
-        echo "REPO is ${REPO}"
-        python3 .github/workflows/archiver.py ${REPO} version_info.dat
+        echo "(From GITHUB_ENV)        REPOSITORY          = ${REPOSITORY}"
+        python3 .github/workflows/archiver.py ${REPOSITORY} version_info.dat
         mv version_info.dat ${WORKDIR}
         echo "Created version_info.dat"
         python3 -c 'print("-"*132)'
