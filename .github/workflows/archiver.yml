@@ -60,16 +60,20 @@ jobs:
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
-        OWNER=$${{ github.repository_owner }}
-        echo "OWNER is ${OWNER}"
-        TAGPREFIX=cudacpp_for
-        if [ "${OWNER}" != "madgraph5" ]; then TAGPREFIX="${OWNER}_${TAGPREFIX}"; fi # TEMPORARY! this will change eventually...
-        echo "TAGPREFIX is ${TAGPREFIX}"
         githubref=$${{ github.ref }}
         echo "(From github.ref)  githubref           = ${githubref}"
         tagname=${githubref#/tags/}
         echo "(From github.ref)  tagname             = ${tagname}"
         echo "TAGNAME=${tagname}" >> $GITHUB_ENV
+        ###REPO=$${{ github.repository }}
+        ###echo "REPO is ${REPO}" # owner is empty???
+        ###OWNER=${REPO%/*}
+        ###echo "OWNER is ${OWNER}" # owner is empty???
+        ###TAGPREFIX=cudacpp_for
+        ###if [ "${OWNER}" != "madgraph5" ]; then TAGPREFIX="${OWNER}_${TAGPREFIX}"; fi # TEMPORARY! this will change eventually...
+        tmpsuffix=${tagname#*cudacpp_for}
+        TAGPREFIX=${tagname/${tmpsuffix}} # determine TAGPREFIX from triggering tag because github.repository_owner is empty(???)
+        echo "TAGPREFIX is ${TAGPREFIX}"
         # Check version tag
         cudacpp_version=$(cat ${WORKDIR}/VERSION.txt | awk '/^cudacpp_version/{print $3}')
         mg5_version=$(cat ${WORKDIR}/VERSION.txt | awk '/^mg5_version_current/{print $3}')
@@ -82,13 +86,12 @@ jobs:
           exit 1 # this will cause the job to fail without running the next steps
         fi
         tagname_suffix="${tagname/${tagname_version}}"
-        if [ `python3 -c "import re; print(re.match('(|_[0-9a-z]+)$','${tagsuffix}') is not None)"` == "False" ]; then
+        if [ `python3 -c "import re; print(re.match('(|_[0-9a-z]+)$','${tagname_suffix}') is not None)"` == "False" ]; then
           echo "ERROR! Invalid tagname '${tagname}' (valid format is '${tagname_version}[_txt]' where txt only contains letters or digits)"
           exit 1 # this will cause the job to fail without running the next steps
         fi
         echo "OK! Tagname '${tagname}' respects the expected format"
         tagname_latest=${TAGPREFIX}${mg5_version}_latest
-        echo "(From TAGPREFIX)   tagname_latest      = ${tagname_latest}"
         echo "TAGNAME_LATEST=${tagname_latest}" >> $GITHUB_ENV
         # Update VERSION.txt
         echo "" >> ${WORKDIR}/VERSION.txt
