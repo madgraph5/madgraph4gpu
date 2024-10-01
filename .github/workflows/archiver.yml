@@ -61,7 +61,7 @@ jobs:
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
         OWNER=$${{ github.repository_owner }}
-        echo "WORKDIR is ${WORKDIR}"
+        echo "OWNER is ${OWNER}"
         TAGPREFIX=cudacpp_for
         if [ "${OWNER}" != "madgraph5" ]; then TAGPREFIX="${OWNER}_${TAGPREFIX}"; fi # TEMPORARY! this will change eventually...
         echo "TAGPREFIX is ${TAGPREFIX}"
@@ -88,6 +88,7 @@ jobs:
         fi
         echo "OK! Tagname '${tagname}' respects the expected format"
         tagname_latest=${TAGPREFIX}${mg5_version}_latest
+        echo "(From TAGPREFIX)   tagname_latest      = ${tagname_latest}"
         echo "TAGNAME_LATEST=${tagname_latest}" >> $GITHUB_ENV
         # Update VERSION.txt
         echo "" >> ${WORKDIR}/VERSION.txt
@@ -205,7 +206,9 @@ jobs:
         cd branch_PR
         echo "Current directory is now $(pwd)"
         echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
-        python3 .github/workflows/archiver.py version_info.dat
+        REPO=$${{ github.repository }}
+        echo "REPO is ${REPO}"
+        python3 .github/workflows/archiver.py ${REPO} version_info.dat
         mv version_info.dat ${WORKDIR}
         echo "Created version_info.dat"
         python3 -c 'print("-"*132)'

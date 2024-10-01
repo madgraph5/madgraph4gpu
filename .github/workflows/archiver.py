@@ -7,10 +7,6 @@
 import subprocess
 import sys
 
-def get_repo():
-    out = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url']).decode()
-    return out.split(':')[1].split('.')[0].split('/') # returns (repo_owner, repo_name)
-
 def get_all_tags():
     out = subprocess.check_output(['git', 'tag']).decode()
     return out.split('\n')
@@ -27,19 +23,22 @@ def create_infodat_file(path, versions):
             fsock.write(line%{'repo':GITHUB_REPO, 'prefix':PREFIX, 'version':v, 'suffix':SUFFIX})
 
 if "__main__" == __name__:
-    if len(sys.argv) != 2:
-        print('Usage: python3 %s <infodat>'%sys.argv[0])
+    if len(sys.argv) != 3:
+        print('Usage: python3 %s <repoowner/reponame> <infodat>'%sys.argv[0])
         sys.exit(1)
-    repo_owner, repo_name = get_repo()
+    print('Executing: python3 %s "%s" "%s"'%( sys.argv[0],sys.argv[1],sys.argv[2]))
+    repo = sys.argv[1]
+    infodat = sys.argv[2]
+    repo_owner, repo_name = repo.split('/')
     ###print('Repo owner:', repo_owner)
     ###print('Repo name:', repo_name)
     GITHUB_REPO = '%s/%s/'%(repo_owner, repo_name)
     PREFIX = 'cudacpp_for'
     if repo_owner != 'madgraph5' : PREFIX = repo_owner + "_" + PREFIX # TEMPORARY! this will change eventually...
-    if repo_name != 'madgraph4gpu' : raise Exception('Invalid repo_name (expect "madgraph4gpu")') # TEMPORARY! this will change eventually...
+    if repo_name != 'madgraph4gpu' : raise Exception('Invalid repo_name "%s" (expect "madgraph4gpu")'%repo_name) # TEMPORARY! this will change eventually...
     SUFFIX = '_latest'
     tags = get_all_tags()
     ###print('Tags:', tags)
     versions = get_supported_versions(tags)
     ###print('Supported versions:', versions)
-    create_infodat_file(sys.argv[1], versions)
+    create_infodat_file(infodat, versions)
