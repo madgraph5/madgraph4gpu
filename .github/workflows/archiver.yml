@@ -89,7 +89,7 @@ jobs:
         echo "" >> ${WORKDIR}/versiontag.txt
         echo "---" >> ${WORKDIR}/versiontag.txt
         echo "" >> ${WORKDIR}/versiontag.txt
-        cat ${WORKDIR}/VERSION.txt >> ${WORKDIR}/versiontag.txt
+        cat ${WORKDIR}/VERSION.txt | egrep '^(commit|TARBALL) ' >> ${WORKDIR}/versiontag.txt
 
     - name: create_runningtag
       run: |
@@ -117,7 +117,7 @@ jobs:
         echo "" >> ${WORKDIR}/runningtag.txt
         echo "---" >> ${WORKDIR}/runningtag.txt
         echo "" >> ${WORKDIR}/runningtag.txt
-        cat ${WORKDIR}/VERSION.txt >> ${WORKDIR}/runningtag.txt
+        cat ${WORKDIR}/VERSION.txt | egrep '^(commit|TARBALL) ' >> ${WORKDIR}/runningtag.txt
 
     - name: release_versiontag
       # See https://github.com/softprops/action-gh-release
