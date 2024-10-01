@@ -16,6 +16,10 @@ skipFetch=0
 # The tag prefix used for all tags handled by this script
 PREFIX=cudacpp_for
 
+# Protect non-prerelease tags from deletion?
+PROTECTTAGS=1
+###PROTECTTAGS=0 # WARNING! USE WITH CARE...
+
 # Usage
 function usage()
 {
@@ -166,11 +170,21 @@ else
   echo "INFO: will create version tag ${versTAG}"
   echo "(the CI will create running tag ${runnTAG})"
 
+  # Check if the version tag is a pre-release tag 'n1.n2.n3_txt
+  if [ "${tagsuffix%_*}" != "${tagsuffix}" ]; then prerelease=1; else prerelease=0; fi
+
   # Check if the version tag already exists
   for tag in ${existing_tags}; do
-    if [ "${versTAG}" == "${tag}" ] && [ "${force}" != "-f" ]; then
-      echo "ERROR! Tag ${tag} already exists: use the -f option to recreate it"
-      exit 1
+    if [ "${versTAG}" == "${tag}" ]; then
+      if [ "${prerelease}" == "0" ] && [ "${PROTECTTAGS}" == "1" ]; then
+        echo "ERROR! Tag ${tag} already exists and is not a pre-release tag: you must unprotect it and delete it from the web interface"
+        exit 1
+      elif [ "${force}" != "-f" ]; then
+        echo "ERROR! Tag ${tag} already exists: use the -f option to recreate it"
+        exit 1
+      else
+        echo "WARNING! Tag ${tag} already exists and the -f option was specified: it will be recreated"
+      fi
     fi
   done
   echo ""
