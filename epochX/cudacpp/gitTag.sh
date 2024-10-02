@@ -21,10 +21,10 @@ PROTECTTAGS=1
 function usage()
 {
   echo "Usage (1): $0 [-f] <tagsuffix>"
-  echo "Creates a new version tag and pushes it to the remote repository"
-  echo "The github CI will then create also a running tag with '_latest' suffix"
+  echo "Creates a new version tag (from the HEAD of the local branch) and pushes it to the remote repository"
   echo "Valid formats for <tagsuffix> are 'n1.n2.n3' or 'n1.n2.n3_txt' where txt only contains letters or digits"
   echo "Version number 'n1.n2.n3' must match that in the CUDACPP_OUTPUT/__init__.py file"
+  echo "For release tags (no trailing '_txt'), the github CI will then create also a running tag with '_latest' suffix"
   echo "Use the -f option to delete and recreate a version tag that already exists"
   echo ""
   echo "Usage (2): $0 -l"
@@ -52,10 +52,10 @@ fi
 # Determine the local git branch
 brn=`git branch | grep \* | cut -d ' ' -f2`
 echo "INFO: git branch is     '${brn}'"
-if [ "${brn}" != "install" ]; then # TEMPORARY! this should be branch 'master' eventually...
-  echo "ERROR! Invalid local branch ${brn}"
-  exit 1
-fi
+###if [ "${brn}" != "install" ]; then # TEMPORARY! this should be branch 'master' eventually...
+###  echo "ERROR! Invalid local branch ${brn}"
+###  exit 1
+###fi
 
 # Determine the remote git origin and the corresponding repo name
 # Stop if the remote git origin is not at github.com
