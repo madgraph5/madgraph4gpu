@@ -154,14 +154,15 @@ else
   echo ""
 
   # Validate tagsuffix
+  # Expect 1-digit major and 2-digit minor and patch versions with an optional prerelease suffix ('n.nn.nn[_txt]')
   # See https://stackoverflow.com/questions/229551
   # See https://stackoverflow.com/questions/55486225
   echo "INFO: validate tag suffix '${tagsuffix}'"
   if [[ $tagsuffix == *" "* ]]; then
     echo "ERROR! Invalid tag suffix '${tagsuffix}' (no spaces allowed)"; exit 1
   fi
-  if [ `python3 -c "import re; print(re.match('^[0-9]+\.[0-9]+\.[0-9]+(|_[0-9a-z]+)$','${tagsuffix}') is not None)"` == "False" ]; then
-    echo "ERROR! Invalid tag suffix '${tagsuffix}' (valid formats are 'n1.n2.n3' or 'n1.n2.n3_txt' where txt only contains letters or digits)"; exit 1
+  if [ `python3 -c "import re; print(re.match('^[0-9]\.[0-9]{2}\.[0-9]{2}(|_[0-9a-z]+)$','${tagsuffix}') is not None)"` == "False" ]; then
+    echo "ERROR! Invalid tag suffix '${tagsuffix}' (valid formats are 'n.nn.nn' or 'n.nn.nn_txt' where txt only contains letters or digits)"; exit 1
   fi
   if [ "${tagsuffix/${cudacpp_version}}" == "${tagsuffix}" ]; then
     echo "ERROR! Invalid tag suffix '${tagsuffix}' (the version number does not match the cudacpp_version)"; exit 1
