@@ -65,7 +65,9 @@ else:
 
     __author__ = 'Andrea Valassi'
     __email__ = 'andrea.valassi@cern.ch'
-    __version__ = (1,0,0)
+
+    __version__ = (1,00,00) # NB the release infrastructure expects 1-digit major and 2-digit minor and patch versions (n,nn,nn)
+
     minimal_mg5amcnlo_version = (3,6,0)
     maximal_mg5amcnlo_version = (1000,1000,1000)
     latest_validated_version = (3,6,0)
