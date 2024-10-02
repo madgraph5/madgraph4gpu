@@ -57,7 +57,7 @@ if ! git submodule status | grep '^ ' > /dev/null; then
 fi
 
 # Check that all changes are committed to git (except at most for this script only in the '-l' mode)
-if [ "$(git status --porcelain | grep -v ^??)" != "" ]; then
+if [ "$(git status --porcelain | grep -v ^?? | grep -v ' M MG5aMC/mg5amcnlo')" != "" ]; then
   if [ "$tagsuffix" != "" ] || [ "$(git status --porcelain | grep -v ^??)" != " M ${scr}" ]; then
     echo "ERROR! There are local changes not committed to git yet"
     exit 1
