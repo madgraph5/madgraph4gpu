@@ -49,45 +49,6 @@ else
   shift
 fi
 
-# Determine the local git branch
-brn=`git branch | grep \* | cut -d ' ' -f2`
-echo "INFO: git branch is     '${brn}'"
-###if [ "${brn}" != "install" ]; then # TEMPORARY! this should be branch 'master' eventually...
-###  echo "ERROR! Invalid local branch ${brn}"
-###  exit 1
-###fi
-
-# Determine the remote git origin and the corresponding repo name
-# Stop if the remote git origin is not at github.com
-url=`git config --get remote.origin.url`
-echo "INFO: git remote is     '${url}'"
-url=${url%.git}
-prj=${url##*github.com:}
-if [ "${url}" == "${prj}" ]; then
-  echo "ERROR! git remote does not seem to be at github.com"
-  exit 1
-fi
-echo "INFO: git repo is       '${prj}'"
-prjown=${prj%/*}
-prjnam=${prj#*/}
-echo "INFO: git repo owner is '${prjown}'"
-echo "INFO: git repo name  is '${prjnam}'"
-
-# Check the repo name
-if [ "${prjnam}" != "madgraph4gpu" ]; then # TEMPORARY! this will change eventually...
-  echo "ERROR! Invalid repo name '${prjnam}' (expect 'madgraph4gpu')"
-  exit 1
-fi
-
-# Check the repo owner
-# Determine the tag prefix used for all tags handled by this script
-if [ "${prjown}" == "madgraph5" ]; then # TEMPORARY! this will change eventually...
-  PREFIX=cudacpp_for
-else
-  PREFIX=${prjown}_cudacpp_for
-fi
-echo "INFO: tag prefix for repo owner '${prjown}' is '${PREFIX}'"
-
 # Check that all changes are committed to git (except at most for this script only in the '-l' mode)
 if [ "$(git status --porcelain | grep -v ^??)" != "" ]; then
   if [ "$tagsuffix" != "" ] || [ "$(git status --porcelain | grep -v ^??)" != " M ${scr}" ]; then
@@ -106,6 +67,51 @@ if [ "$(git rev-parse @{0})" != "$(git rev-parse @{u})" ]; then
   git status
   exit 1
 fi
+
+# Determine the local and remote git branches
+brnl=`git branch | grep ^* | cut -d ' ' -f2`
+brnr=`git branch -vv | grep ^* | awk '{print $4}' | sed 's|^\[||' | sed 's|]$||'`
+echo "INFO: git local  branch is '${brnl}'"
+echo "INFO: git remote branch is '${brnr}'"
+###if [ "${brnl}" != "master" ]; then
+###  echo "ERROR! Invalid local branch ${brn}"
+###  exit 1
+###fi
+if [ "${brnr#origin/}" == "${brnr}" ]; then
+  echo "ERROR! Invalid remote branch ${brnr} does not track origin"
+  exit 1
+fi
+
+# Determine the remote git origin and the corresponding repo name
+# Stop if the remote git origin is not at github.com
+url=`git config --get remote.origin.url`
+echo "INFO: git remote is        '${url}'"
+url=${url%.git}
+prj=${url##*github.com:}
+if [ "${url}" == "${prj}" ]; then
+  echo "ERROR! git remote does not seem to be at github.com"
+  exit 1
+fi
+echo "INFO: git repo is          '${prj}'"
+prjown=${prj%/*}
+prjnam=${prj#*/}
+echo "INFO: git repo owner is    '${prjown}'"
+echo "INFO: git repo name  is    '${prjnam}'"
+
+# Check the repo name
+if [ "${prjnam}" != "madgraph4gpu" ]; then # TEMPORARY! this will change eventually...
+  echo "ERROR! Invalid repo name '${prjnam}' (expect 'madgraph4gpu')"
+  exit 1
+fi
+
+# Check the repo owner
+# Determine the tag prefix used for all tags handled by this script
+if [ "${prjown}" == "madgraph5" ]; then # TEMPORARY! this will change eventually...
+  PREFIX=cudacpp_for
+else
+  PREFIX=${prjown}_cudacpp_for
+fi
+echo "INFO: tag prefix for repo owner '${prjown}' is '${PREFIX}'"
 
 # Remove local git tags that are no longer on the remote repo
 # See https://stackoverflow.com/a/27254532
