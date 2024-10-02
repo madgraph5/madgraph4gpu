@@ -238,8 +238,13 @@ class TREX_ProcessExporter(output.PLUGIN_ProcessExporter):
         ff.write(template % replace_dict)
         ff.close()
     
+    def link_makefile(self):
+        """Link the makefile for the REX reweighting"""
+        files.ln(pjoin(self.dir_path, 'SubProcesses', 'cudacpp_driver.mk'), starting_dir=pjoin(self.dir_path, 'SubProcesses'), name='makefile')
+    
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
         self.export_driver()
+        self.link_makefile()
         return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
     
 class TREX_ReweightInterface(rwgt_interface.ReweightInterface):
@@ -349,7 +354,6 @@ class TREX_ReweightInterface(rwgt_interface.ReweightInterface):
                 nb_core = self.mother.options['nb_core'] if self.mother.options['run_mode'] !=0 else 1
             else:
                 nb_core = 1
-            files.cp(pjoin(pdir, 'cudacpp_driver.mk'),pjoin(pdir, 'makefile'))
             misc.compile(cwd=pdir, nb_core=nb_core,mode='cpp')
         return
     

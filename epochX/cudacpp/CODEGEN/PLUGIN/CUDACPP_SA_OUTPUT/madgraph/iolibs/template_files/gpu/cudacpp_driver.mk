@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
@@ -257,7 +257,7 @@ else
 
 endif
 
-# Export GPUCC, GPUFLAGS, GPULANGUAGE, GPUSUFFIX (so that there is no need to check/define them again in cudacpp_src.mk)
+# Export GPUCC, GPUFLAGS, GPULANGUAGE, GPUSUFFIX (these are needed by both src and rwgt_runners, but should not be overwritten there)
 export CUDA_HOME
 export GPUCC
 export GPUFLAGS
@@ -313,37 +313,6 @@ override CXXNAMESUFFIX = _$(CXXNAME)
 
 # Export CXXNAMESUFFIX (so that there is no need to check/define it again in cudacpp_test.mk)
 export CXXNAMESUFFIX
-
-# Dependency on test directory
-# Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
-# Outside the madgraph4gpu git repo: by default do not build the tests (optionally use an external or local gtest)
-###GTEST_ROOT = /cvmfs/sft.cern.ch/lcg/releases/gtest/1.11.0-21e8c/x86_64-centos8-gcc11-opt/# example of an external gtest installation
-###LOCALGTEST = yes# comment this out (or use make LOCALGTEST=yes) to build tests using a local gtest installation
-TESTDIRCOMMON = ../../../../test
-TESTDIRLOCAL = ../test
-ifneq ($(wildcard $(GTEST_ROOT)),)
-  TESTDIR =
-else ifneq ($(LOCALGTEST),)
-  TESTDIR=$(TESTDIRLOCAL)
-  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
-else ifneq ($(wildcard ../../../../epochX/cudacpp/CODEGEN),)
-  TESTDIR = $(TESTDIRCOMMON)
-  GTEST_ROOT = $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
-else
-  TESTDIR =
-endif
-ifneq ($(GTEST_ROOT),)
-  GTESTLIBDIR = $(GTEST_ROOT)/lib64/
-  GTESTLIBS = $(GTESTLIBDIR)/libgtest.a
-  GTESTINC = -I$(GTEST_ROOT)/include
-else
-  GTESTLIBDIR =
-  GTESTLIBS =
-  GTESTINC =
-endif
-###$(info GTEST_ROOT = $(GTEST_ROOT))
-###$(info LOCALGTEST = $(LOCALGTEST))
-###$(info TESTDIR = $(TESTDIR))
 
 #-------------------------------------------------------------------------------
 
@@ -653,14 +622,6 @@ $(BUILDDIR)/.build.$(TAG):
 	@if [ "$(oldtagsb)" != "" ]; then echo "Cannot build for tag=$(TAG) as old builds exist for other tags:"; echo "  $(oldtagsb)"; echo "Please run 'make clean' first\nIf 'make clean' is not enough: run 'make clean USEBUILDDIR=1 AVX=$(AVX) FPTYPE=$(FPTYPE)' or 'make cleanall'"; exit 1; fi
 	@touch $(BUILDDIR)/.build.$(TAG)
 
-# Apply special build flags only to CrossSectionKernel_<cpp|$(GPUSUFFIX)>.o (no fast math, see #117 and #516)
-# Added edgecase for HIP compilation
-ifeq ($(shell $(CXX) --version | grep ^nvc++),)
-$(BUILDDIR)/CrossSectionKernels_cpp.o: CXXFLAGS := $(filter-out -ffast-math,$(CXXFLAGS))
-$(BUILDDIR)/CrossSectionKernels_cpp.o: CXXFLAGS += -fno-fast-math
-$(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o: GPUFLAGS += $(XCOMPILERFLAG) -fno-fast-math
-endif
-
 # # Apply special build flags only to check_sa_<cpp|$(GPUSUFFIX)>.o (NVTX in timermap.h, #679)
 $(BUILDDIR)/rwgt_driver_cpp.o: CXXFLAGS += $(USE_NVTX) $(CUDA_INC)
 $(BUILDDIR)/rwgt_driver_gpu.o: CXXFLAGS += $(USE_NVTX) $(CUDA_INC)
@@ -688,22 +649,21 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): common (src) library
-# commonlib : $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
-
-# $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../src/*.h ../src/*.cc $(BUILDDIR)/.build.$(TAG)
-# 	$(MAKE) -C ../src $(MAKEDEBUG) -f $(CUDACPP_SRC_MAKEFILE)
+commonlib : $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so
+$(LIBDIR)/lib$(MG5AMC_COMMONLIB).so: ../src/*.h ../src/*.cc $(BUILDDIR)/.build.$(TAG)
+	$(MAKE) -C ../src $(MAKEDEBUG) -f $(CUDACPP_SRC_MAKEFILE)
 
 #-------------------------------------------------------------------------------
 
 #HERE LOOP MAKE OVER P DIRECTORIES AND ADD RWGT_RUNNER_LIBS
 # Ensure each librwgt.a depends on its directory being built
-$(rwgtlib):
+$(rwgtlib): $(commonlib)
 	@$(MAKE) -C $(@D) VARIABLE=true
 
 # Target (and build rules): C++ and CUDA/HIP standalone executables
 $(cxx_rwgt): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_rwgt): $(BUILDDIR)/rwgt_driver.o $(rwgtlib)
-	$(CXX) -o $@ $(BUILDDIR)/rwgt_driver.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) $(cxx_proclibs) $(rwgtlib) 
+	$(CXX) -o $@ $(BUILDDIR)/rwgt_driver.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) $(rwgtlib) 
 
 ifneq ($(GPUCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -714,15 +674,8 @@ $(gpu_rwgt): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))
 endif
 $(gpu_rwgt): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_rwgt): $(BUILDDIR)/$(BUILDDIR)/rwgt_driver.o $(rwgtlib)
-	$(GPUCC) -o $@ $(BUILDDIR)/rwgt_driver.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) $(gpu_proclibs) $(rwgtlib)
+	$(GPUCC) -o $@ $(BUILDDIR)/rwgt_driver.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) $(rwgtlib)
 endif
-
-#-------------------------------------------------------------------------------
-
-# Generic target and build rules: objects from Fortran compilation
-$(BUILDDIR)/%%_fortran.o : %%.f *.inc
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(FC) -I. -c $< -o $@
 
 #-------------------------------------------------------------------------------
 

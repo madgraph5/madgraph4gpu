@@ -15,7 +15,7 @@
 #define _LIBCOMP_
 #endif
 #include "rwgt_instance.h"
-#include "fbridge.cc"
+#include "fbridge.h"
 
 // ZW: SET UP NAMESPACE
 namespace %(process_namespace)s{

@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
@@ -127,10 +127,10 @@ else
   override CXXNAME = unknown
 endif
 ###$(info CXXNAME=$(CXXNAME))
-override CXXNAMESUFFIX = _$(CXXNAME)
+# override CXXNAMESUFFIX = _$(CXXNAME)
 
-# Export CXXNAMESUFFIX (so that there is no need to check/define it again in cudacpp_test.mk)
-export CXXNAMESUFFIX
+# # Export CXXNAMESUFFIX (so that there is no need to check/define it again in cudacpp_test.mk)
+# export CXXNAMESUFFIX
 
 # Dependency on test directory
 # Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
@@ -428,15 +428,9 @@ override RUNTIME =
 
 
 ifeq ($(GPUCC),)
-  cxx_checkmain=$(BUILDDIR)/check_cpp.exe
-  cxx_fcheckmain=$(BUILDDIR)/fcheck_cpp.exe
   cxx_rwgtlib=$(BUILDDIR)/librwgt_cpp.so
-  cxx_testmain=$(BUILDDIR)/runTest_cpp.exe
 else
-  gpu_checkmain=$(BUILDDIR)/check_$(GPUSUFFIX).exe
-  gpu_fcheckmain=$(BUILDDIR)/fcheck_$(GPUSUFFIX).exe
   gpu_rwgtlib=$(BUILDDIR)/librwgt_$(GPUSUFFIX).so
-  gpu_testmain=$(BUILDDIR)/runTest_$(GPUSUFFIX).exe
 endif
 
 # Explicitly define the default goal (this is not necessary as it is the first target, which is implicitly the default goal)
@@ -444,9 +438,9 @@ endif
 
 # First target (default goal)
 ifeq ($(GPUCC),)
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_rwgtlib) 
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(cxx_rwgtlib) 
 else
-all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_rwgtlib) 
+all.$(TAG): $(BUILDDIR)/.build.$(TAG) $(gpu_rwgtlib) 
 endif
 
 # Target (and build options): debug
@@ -557,23 +551,11 @@ endif
 
 #-------------------------------------------------------------------------------
 
-# Target (and build rules): Fortran include files
-###$(INCDIR)/%%.inc : ../%%.inc
-###	@if [ ! -d $(INCDIR) ]; then echo "mkdir -p $(INCDIR)"; mkdir -p $(INCDIR); fi
-###	\cp $< $@
-
-#-------------------------------------------------------------------------------
-
-# Target (and build rules): C++ and CUDA/HIP standalone executables
-$(cxx_checkmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(cxx_checkmain): $(BUILDDIR)/check_sa_cpp.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o
-	$(CXX) -o $@ $(BUILDDIR)/check_sa_cpp.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o $(RNDLIBFLAGS)
-
 # Target (and build rules): C++ rwgt libraries
-cxx_rwgtfiles := $(BUILDDIR)/rwgt_runner_cpp.o $(BUILDDIR)/CurandRandomNumberKernel.o $(BUILDDIR)/HiprandRandomNumberKernel.o $(cxx_objects_exe)
+cxx_rwgtfiles := $(BUILDDIR)/rwgt_runner_cpp.o $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(BUILDDIR)/fbridge_cpp.o $(cxx_objects_lib) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o
 $(cxx_rwgtlib): LIBFLAGS += $(CXXLIBFLAGSRPATH)
-$(cxx_rwgtlib): $(BUILDDIR)/rwgt_runner_cpp.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o
-	$(CXX) -shared -o $@ $(BUILDDIR)/rwgt_runner_cpp.o  $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o $(RNDLIBFLAGS)
+$(cxx_rwgtlib): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_rwgtfiles) $(cxx_objects_lib)
+	$(CXX) -shared -Wl,-Bsymbolic -o $@ $(BUILDDIR)/rwgt_runner_cpp.o  $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) $(BUILDDIR)/fbridge_cpp.o $(cxx_objects_lib) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o $(RNDLIBFLAGS)
 
 ifneq ($(GPUCC),)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
@@ -583,7 +565,7 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
 $(gpu_checkmain): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
 $(gpu_checkmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(gpu_checkmain): $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
+$(gpu_checkmain): $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(gp_objects_lib) $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
 	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
 ifneq ($(shell $(CXX) --version | grep ^Intel),)
 $(gpu_rwgtlib): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
@@ -592,53 +574,9 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
 $(gpu_rwgtlib): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
 $(gpu_rwgtlib): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-gpu_rwgtfiles := $(BUILDDIR)/rwgt_runner_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
-$(gpu_rwgtlib): $(gpu_rwgtfiles) $(gpu_objects_lib)
-	$(GPUCC) -shared -o $@ $(BUILDDIR)/rwgt_runner_$(GPUSUFFIX).o $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
-endif
-
-#-------------------------------------------------------------------------------
-
-# Generic target and build rules: objects from Fortran compilation
-$(BUILDDIR)/%%_fortran.o : %%.f *.inc
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(FC) -I. -c $< -o $@
-
-# Generic target and build rules: objects from Fortran compilation
-###$(BUILDDIR)/%%_fortran.o : %%.f *.inc
-###	@if [ ! -d $(INCDIR) ]; then echo "mkdir -p $(INCDIR)"; mkdir -p $(INCDIR); fi
-###	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-###	$(FC) -I. -I$(INCDIR) -c $< -o $@
-
-# Target (and build rules): Fortran standalone executables
-###$(BUILDDIR)/fcheck_sa_fortran.o : $(INCDIR)/fbridge.inc
-
-ifeq ($(UNAME_S),Darwin)
-$(cxx_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
-endif
-$(cxx_fcheckmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(cxx_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_cpp.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
-	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(OMPFLAGS) $(BUILDDIR)/fsampler_cpp.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) -lstdc++
-else
-	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(OMPFLAGS) $(BUILDDIR)/fsampler_cpp.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe)
-endif
-
-ifneq ($(GPUCC),)
-ifneq ($(shell $(CXX) --version | grep ^Intel),)
-$(gpu_fcheckmain): LIBFLAGS += -lintlc # compile with icpx and link with GPUCC (undefined reference to `_intel_fast_memcpy')
-$(gpu_fcheckmain): LIBFLAGS += -lsvml # compile with icpx and link with GPUCC (undefined reference to `__svml_cos4_l9')
-endif
-ifeq ($(UNAME_S),Darwin)
-$(gpu_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
-endif
-$(gpu_fcheckmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(gpu_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe)
-ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
-	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) -lstdc++ -L$(shell dirname $(shell $(GPUCC) -print-prog-name=clang))/../../lib -lamdhip64
-else
-	$(GPUCC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe)
-endif
+gpu_rwgtfiles := $(BUILDDIR)/rwgt_runner_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(BUILDDIR)/fbridge_$(GPUSUFFIX).o $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
+$(gpu_rwgtlib): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_rwgtfiles) $(gpu_objects_lib)
+	$(GPUCC) -shared -Wl,-Bsymbolic -o $@ $(BUILDDIR)/rwgt_runner_$(GPUSUFFIX).o $(LIBFLAGS) -L$(LIBDIR) $(BUILDDIR)/fbridge_$(GPUSUFFIX).o $(gpu_objects_exe) $(gpu_objects_lib) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
