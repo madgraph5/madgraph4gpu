@@ -109,13 +109,13 @@ jobs:
         tagname_latest=${TAGPREFIX}${mg5_version}_latest
         echo "TAGNAME_LATEST=${tagname_latest}" >> $GITHUB_ENV
         if [ "${tagname_suffix}" == "" ]; then
-          tagname_isprerelease=0
+          tagname_makelatest=true
           echo "INFO: tagname ${tagname} is a release tag: will update running tag ${tagname_latest}"
         else
-          tagname_isprerelease=1
+          tagname_makelatest=false
           echo "INFO: tagname ${tagname} is a pre-release tag: will NOT update running tag ${tagname_latest}"
         fi
-        echo "TAGNAME_ISPRERELEASE=${tagname_isprerelease}" >> $GITHUB_ENV
+        echo "TAGNAME_MAKELATEST=${tagname_makelatest}" >> $GITHUB_ENV
         # Update VERSION.txt
         echo "" >> ${WORKDIR}/VERSION.txt
         echo "VERSION TAG:   ${tagname}" >> ${WORKDIR}/VERSION.txt
@@ -124,7 +124,7 @@ jobs:
         echo "Version tag ${tagname}" > ${WORKDIR}/versiontag.txt
         echo "" >> ${WORKDIR}/versiontag.txt
         echo "---" >> ${WORKDIR}/versiontag.txt
-        if [ "${tagname_isprerelease}" == "1" ]; then
+        if [ "${tagname_makelatest}" != "true" ]; then
           echo "" >> ${WORKDIR}/versiontag.txt
           echo "This is a test or pre-release tag: to use it, install it directly as follows" >> ${WORKDIR}/versiontag.txt
           echo "" >> ${WORKDIR}/versiontag.txt
@@ -161,7 +161,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: delete_runningtag_releaseandtag
-      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
+      if: ${{ env.TAGNAME_MAKELATEST == 'true' }}
       # See https://cli.github.com/manual/gh_release_delete
       # See https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/using-github-cli-in-workflows
       run: |
@@ -183,7 +183,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: create_runningtag
-      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
+      if: ${{ env.TAGNAME_MAKELATEST == 'true' }}
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
@@ -215,7 +215,8 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         name: ${{ env.TAGNAME }}
-        prerelease: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
+        prerelease: ${{ env.TAGNAME_MAKELATEST != 'true' }}
+        make_latest: ${{ env.TAGNAME_MAKELATEST }}
         body_path: versiontag.txt
         # Previous attempt to upload files from ${HOME}/VERSION.txt and ${HOME}/cudacpp.tar.gz failed
         # The current implementation uploads files from the default ${WORKDIR} (without giving the explicit full path)
@@ -226,11 +227,13 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: release_runningtag
-      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
+      if: ${{ env.TAGNAME_MAKELATEST == 'true' }}
       # See https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v2
       with:
         name: ${{ env.TAGNAME_LATEST }}
+        prerelease: ${{ env.TAGNAME_MAKELATEST != 'true' }}
+        make_latest: ${{ env.TAGNAME_MAKELATEST }}
         tag_name: refs/tags/${{ env.TAGNAME_LATEST }}
         body_path: runningtag.txt
         # Previous attempt to upload files from ${HOME}/VERSION.txt and ${HOME}/cudacpp.tar.gz failed
@@ -242,7 +245,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: create_infodat
-      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
+      if: ${{ env.TAGNAME_MAKELATEST == 'true' }}
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
@@ -257,14 +260,14 @@ jobs:
         cat ${WORKDIR}/version_info.dat
 
     - name: checkout_INFO
-      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
+      if: ${{ env.TAGNAME_MAKELATEST == 'true' }}
       uses: actions/checkout@v4
       with:
         ref: INFO
         path: branch_INFO
 
     - name: commit_infodat
-      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
+      if: ${{ env.TAGNAME_MAKELATEST == 'true' }}
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
