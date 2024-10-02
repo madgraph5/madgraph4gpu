@@ -49,6 +49,13 @@ else
   shift
 fi
 
+# Check that all git submodules have been updated
+if ! git submodule status | grep '^ ' > /dev/null; then
+  echo "ERROR! There are git submodules that need to be updated"
+  git submodule status
+  exit 1
+fi
+
 # Check that all changes are committed to git (except at most for this script only in the '-l' mode)
 if [ "$(git status --porcelain | grep -v ^??)" != "" ]; then
   if [ "$tagsuffix" != "" ] || [ "$(git status --porcelain | grep -v ^??)" != " M ${scr}" ]; then
