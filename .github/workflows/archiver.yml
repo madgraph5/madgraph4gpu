@@ -137,7 +137,7 @@ jobs:
           echo "---" >> ${WORKDIR}/versiontag.txt
         fi
         echo "" >> ${WORKDIR}/versiontag.txt
-        cat ${WORKDIR}/VERSION.txt | egrep '^(commit|TARBALL) ' >> ${WORKDIR}/versiontag.txt
+        cat ${WORKDIR}/VERSION.txt | egrep '^(commit|TARBALL|mg5_commit_current) ' >> ${WORKDIR}/versiontag.txt
 
     - name: delete_versiontag_releaseonly
       # See https://cli.github.com/manual/gh_release_delete
