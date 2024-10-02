@@ -213,6 +213,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         name: ${{ env.TAGNAME }}
+        prerelease: ${{ env.TAGNAME_ISPRERELEASE }}
         body_path: versiontag.txt
         # Previous attempt to upload files from ${HOME}/VERSION.txt and ${HOME}/cudacpp.tar.gz failed
         # The current implementation uploads files from the default ${WORKDIR} (without giving the explicit full path)
