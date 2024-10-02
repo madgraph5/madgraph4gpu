@@ -128,9 +128,11 @@ jobs:
           echo "" >> ${WORKDIR}/versiontag.txt
           echo "This is a test or pre-release tag: to use it, install it directly as follows" >> ${WORKDIR}/versiontag.txt
           echo "" >> ${WORKDIR}/versiontag.txt
-          echo "```" >> ${WORKDIR}/versiontag.txt
+          echo "<sub>" >> ${WORKDIR}/versiontag.txt # hack to display smaller text in markdown
+          ###echo "\`\`\`" >> ${WORKDIR}/versiontag.txt
           echo "MG5_aMC>install cudacpp --cudacpp_tarball=https://github.com/${REPOSITORY}/releases/download/${tagname}/cudacpp.tar.gz" >> ${WORKDIR}/versiontag.txt
-          echo "```" >> ${WORKDIR}/versiontag.txt
+          ###echo "\`\`\`" >> ${WORKDIR}/versiontag.txt
+          echo "</sub>" >> ${WORKDIR}/versiontag.txt # hack to display smaller text in markdown
           echo "" >> ${WORKDIR}/versiontag.txt
           echo "---" >> ${WORKDIR}/versiontag.txt
         fi
@@ -159,7 +161,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: delete_runningtag_releaseandtag
-      if: ${{ env.tagname_isprerelease != '0' }}
+      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
       # See https://cli.github.com/manual/gh_release_delete
       # See https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/using-github-cli-in-workflows
       run: |
@@ -181,7 +183,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: create_runningtag
-      if: ${{ env.tagname_isprerelease != '0' }}
+      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
@@ -213,7 +215,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         name: ${{ env.TAGNAME }}
-        prerelease: ${{ env.TAGNAME_ISPRERELEASE }}
+        prerelease: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
         body_path: versiontag.txt
         # Previous attempt to upload files from ${HOME}/VERSION.txt and ${HOME}/cudacpp.tar.gz failed
         # The current implementation uploads files from the default ${WORKDIR} (without giving the explicit full path)
@@ -224,7 +226,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: release_runningtag
-      if: ${{ env.tagname_isprerelease != '0' }}
+      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
       # See https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v2
       with:
@@ -240,7 +242,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: create_infodat
-      if: ${{ env.tagname_isprerelease != '0' }}
+      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
@@ -255,14 +257,14 @@ jobs:
         cat ${WORKDIR}/version_info.dat
 
     - name: checkout_INFO
-      if: ${{ env.tagname_isprerelease != '0' }}
+      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
       uses: actions/checkout@v4
       with:
         ref: INFO
         path: branch_INFO
 
     - name: commit_infodat
-      if: ${{ env.tagname_isprerelease != '0' }}
+      if: ${{ env.TAGNAME_ISPRERELEASE != '0' }}
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
