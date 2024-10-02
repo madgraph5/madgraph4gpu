@@ -181,10 +181,15 @@ else
   versTAG=${PREFIX}${mg5_version}_v${tagsuffix}
   runnTAG=${PREFIX}${mg5_version}_latest
   echo "INFO: will create version tag ${versTAG}"
-  echo "(the CI will create running tag ${runnTAG})"
 
   # Check if the version tag is a pre-release tag 'n1.n2.n3_txt
-  if [ "${tagsuffix%_*}" != "${tagsuffix}" ]; then prerelease=1; else prerelease=0; fi
+  if [ "${tagsuffix%_*}" != "${tagsuffix}" ]; then
+    prerelease=1
+    echo "INFO: tag ${versTAG} is a pre-release tag: running tag ${runnTAG} will NOT be updated by the CI"
+  else
+    prerelease=0
+    echo "INFO: tag ${versTAG} is a release tag: running tag ${runnTAG} will be updated by the CI"
+  fi
 
   # Check if the version tag already exists
   for tag in ${existing_tags}; do

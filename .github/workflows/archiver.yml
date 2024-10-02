@@ -76,14 +76,14 @@ jobs:
         REPOOWNER=${TAGPREFIX%cudacpp_for}
         if [ "${REPOOWNER}" == "${TAGPREFIX}" ]; then
           echo "INTERNAL ERROR! Invalid TAGPREFIX '${TAGPREFIX}'" # does not end in 'cudacpp_for'?
-          exit 1
+          exit 1 # this causes the job to fail without running the next steps
         elif [ "${REPOOWNER}" == "" ]; then
           REPOOWNER=madgraph5 # TEMPORARY! Will change eventually...
         elif [ "${REPOOWNER%_}" != "${REPOOWNER}" ]; then
           REPOOWNER=${REPOOWNER%_}
         else
           echo "INTERNAL ERROR! Invalid REPOOWNER '${REPOOWNER}'" # empty or does not end in '-'?
-          exit 1
+          exit 1 # this causes the job to fail without running the next steps
         fi
         echo "(From tagname)           REPOOWNER           = ${REPOOWNER}"
         REPOSITORY=${REPOOWNER}/${REPONAME}
@@ -98,16 +98,24 @@ jobs:
         echo "(From VERSION.txt)       supported tagname   = ${tagname_version}[_...]"
         if [ "${tagname/${tagname_version}}" == "${tagname}" ]; then
           echo "ERROR! Invalid tagname '${tagname}' does not start with '${tagname_version}'"
-          exit 1 # this will cause the job to fail without running the next steps
+          exit 1 # this causes the job to fail without running the next steps
         fi
         tagname_suffix="${tagname/${tagname_version}}"
         if [ `python3 -c "import re; print(re.match('(|_[0-9a-z]+)$','${tagname_suffix}') is not None)"` == "False" ]; then
           echo "ERROR! Invalid tagname '${tagname}' (valid format is '${tagname_version}[_txt]' where txt only contains letters or digits)"
-          exit 1 # this will cause the job to fail without running the next steps
+          exit 1 # this causes the job to fail without running the next steps
         fi
         echo "OK! Tagname '${tagname}' respects the expected format"
         tagname_latest=${TAGPREFIX}${mg5_version}_latest
         echo "TAGNAME_LATEST=${tagname_latest}" >> $GITHUB_ENV
+        if [ "${tagname_suffix}" == "" ]; then
+          tagname_isprerelease=0
+          echo "INFO: tagname ${tagname} is a release tag: will update running tag ${tagname_latest}"
+        else
+          tagname_isprerelease=1
+          echo "INFO: tagname ${tagname} is a pre-release tag: will NOT update running tag ${tagname_latest}"
+        fi
+        echo "TAGNAME_ISPRERELEASE=${tagname_isprerelease}" >> $GITHUB_ENV
         # Update VERSION.txt
         echo "" >> ${WORKDIR}/VERSION.txt
         echo "VERSION TAG:   ${tagname}" >> ${WORKDIR}/VERSION.txt
@@ -116,6 +124,16 @@ jobs:
         echo "Version tag ${tagname}" > ${WORKDIR}/versiontag.txt
         echo "" >> ${WORKDIR}/versiontag.txt
         echo "---" >> ${WORKDIR}/versiontag.txt
+        if [ "${tagname_isprerelease}" == "1" ]; then
+          echo "" >> ${WORKDIR}/versiontag.txt
+          echo "This is a test or pre-release tag: to use it, install it directly as follows" >> ${WORKDIR}/versiontag.txt
+          echo "" >> ${WORKDIR}/versiontag.txt
+          echo "```" >> ${WORKDIR}/versiontag.txt
+          echo "MG5_aMC>install cudacpp --cudacpp_tarball=https://github.com/${REPOSITORY}/releases/download/${tagname}/cudacpp.tar.gz" >> ${WORKDIR}/versiontag.txt
+          echo "```" >> ${WORKDIR}/versiontag.txt
+          echo "" >> ${WORKDIR}/versiontag.txt
+          echo "---" >> ${WORKDIR}/versiontag.txt
+        fi
         echo "" >> ${WORKDIR}/versiontag.txt
         cat ${WORKDIR}/VERSION.txt | egrep '^(commit|TARBALL) ' >> ${WORKDIR}/versiontag.txt
 
@@ -141,6 +159,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: delete_runningtag_releaseandtag
+      if: ${{ env.tagname_isprerelease != '0' }}
       # See https://cli.github.com/manual/gh_release_delete
       # See https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/using-github-cli-in-workflows
       run: |
@@ -162,6 +181,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: create_runningtag
+      if: ${{ env.tagname_isprerelease != '0' }}
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
@@ -203,6 +223,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: release_runningtag
+      if: ${{ env.tagname_isprerelease != '0' }}
       # See https://github.com/softprops/action-gh-release
       uses: softprops/action-gh-release@v2
       with:
@@ -218,6 +239,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: create_infodat
+      if: ${{ env.tagname_isprerelease != '0' }}
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
@@ -232,12 +254,14 @@ jobs:
         cat ${WORKDIR}/version_info.dat
 
     - name: checkout_INFO
+      if: ${{ env.tagname_isprerelease != '0' }}
       uses: actions/checkout@v4
       with:
         ref: INFO
         path: branch_INFO
 
     - name: commit_infodat
+      if: ${{ env.tagname_isprerelease != '0' }}
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
