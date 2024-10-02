@@ -121,7 +121,7 @@ jobs:
         echo "VERSION TAG:   ${tagname}" >> ${WORKDIR}/VERSION.txt
         echo "RUNNING TAG:   ${tagname_latest}" >> ${WORKDIR}/VERSION.txt
         # Release notes for the version tag
-        echo "Version tag ${tagname}" > ${WORKDIR}/versiontag.txt
+        echo "Version tag ${tagname} ([changelog](https://github.com/${REPOSITORY}/blob/${tagname}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/CHANGELOG.md))" > ${WORKDIR}/versiontag.txt
         echo "" >> ${WORKDIR}/versiontag.txt
         echo "---" >> ${WORKDIR}/versiontag.txt
         if [ "${tagname_makelatest}" != "true" ]; then
@@ -203,7 +203,7 @@ jobs:
         git tag -f ${tagname_latest} ${commit} -m "Running tag ${tagname_latest}"
         git push -f --tags
         # Release notes for the running tag
-        echo "Running tag ${tagname_latest}" > ${WORKDIR}/runningtag.txt
+        echo "Running tag ${tagname_latest} ([changelog](https://github.com/${REPOSITORY}/blob/${tagname_latest}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/CHANGELOG.md))" > ${WORKDIR}/runningtag.txt
         echo "This is equivalent to version tag ${tagname}" >> ${WORKDIR}/runningtag.txt
         echo "" >> ${WORKDIR}/runningtag.txt
         echo "---" >> ${WORKDIR}/runningtag.txt
