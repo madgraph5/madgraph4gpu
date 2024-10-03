@@ -89,9 +89,12 @@ function checklogs()
   cd $scrdir/..
   # Print out any errors in the logs
   if ! egrep -i '(error|fault|failed)' ./tput/logs_* -r; then echo "No errors found in logs"; fi
-  # Print out the MEK channelid debugging output
+  # Print out any FPEs or '{ }' in the logs
   echo
-  \grep MEK ${scrdir}/logs_*/* | sed "s|${scrdir}/logs_||" | sed 's|_mad.*DEBUG:||' | sort -u
+  if ! egrep '(^Floating Point Exception|{ })' tput/logs* -r; then echo "No FPEs or '{ }' found in logs"; fi
+  # Print out the MEK channelid debugging output (except for '{ }')
+  echo
+  \grep MEK ${scrdir}/logs_*/* | sed "s|${scrdir}/logs_||" | grep -v '{ }' | sed 's|_mad.*DEBUG:||' | sort -u
 }
 if [ "${checkonly}" != "0" ]; then checklogs; exit 0; fi
 
