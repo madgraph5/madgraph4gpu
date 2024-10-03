@@ -66,7 +66,11 @@ else:
     __author__ = 'Andrea Valassi'
     __email__ = 'andrea.valassi@cern.ch'
 
-    __version__ = (1,00,01) # NB the release infrastructure expects 1-digit major and 2-digit minor and patch versions (n,nn,nn)
+    # Plugin version (major,minor,patch) where major>1, 0<=minor<=99 and 0<=patch<=99
+    # The release infrastructure expects 'vN.NN.NN' tags with 1-digit major and 2-digit minor and patch versions
+    # and it takes care of converting the python tuple '(1,0,1)' into a version string 'v1.00.01'
+    # NB! Do not use '(1,00,01)' here: leading zeros in decimal integer literals are not permitted in python (#1013)
+    __version__ = (1,0,1)
 
     minimal_mg5amcnlo_version = (3,6,0)
     maximal_mg5amcnlo_version = (1000,1000,1000)
