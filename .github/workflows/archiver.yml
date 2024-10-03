@@ -128,18 +128,19 @@ jobs:
         echo "Validated for mg5amcnlo version ${mg5_version} (commit [${mg5_commit}](https://github.com/mg5amcnlo/mg5amcnlo/commit/${mg5_commit}))" >> ${WORKDIR}/versiontag.txt
         echo "" >> ${WORKDIR}/versiontag.txt
         echo "---" >> ${WORKDIR}/versiontag.txt
+        echo "" >> ${WORKDIR}/versiontag.txt
         if [ "${tagname_makelatest}" != "true" ]; then
-          echo "" >> ${WORKDIR}/versiontag.txt
-          echo "This is a test or pre-release tag: to use it, install it directly as follows" >> ${WORKDIR}/versiontag.txt
-          echo "" >> ${WORKDIR}/versiontag.txt
-          echo "<sub>" >> ${WORKDIR}/versiontag.txt # hack to display smaller text in markdown
-          ###echo "\`\`\`" >> ${WORKDIR}/versiontag.txt
-          echo "MG5_aMC>install cudacpp --cudacpp_tarball=https://github.com/${REPOSITORY}/releases/download/${tagname}/cudacpp.tar.gz" >> ${WORKDIR}/versiontag.txt
-          ###echo "\`\`\`" >> ${WORKDIR}/versiontag.txt
+          echo "This is a test or pre-release tag: to use it, you must install it directly as follows<sub>" >> ${WORKDIR}/versiontag.txt
+        else
+          echo "This is a release tag: you may install the *latest* release tag ${tagname_latest} as follows<sub>" >> ${WORKDIR}/versiontag.txt
+          echo "MG5_aMC>install cudacpp" >> ${WORKDIR}/versiontag.txt
           echo "</sub>" >> ${WORKDIR}/versiontag.txt # hack to display smaller text in markdown
-          echo "" >> ${WORKDIR}/versiontag.txt
-          echo "---" >> ${WORKDIR}/versiontag.txt
+          echo "Alternatively, you may install directly this specific tag as follows<sub>" >> ${WORKDIR}/versiontag.txt
         fi
+        echo "MG5_aMC>install cudacpp --cudacpp_tarball=https://github.com/${REPOSITORY}/releases/download/${tagname}/cudacpp.tar.gz" >> ${WORKDIR}/versiontag.txt
+        echo "</sub>" >> ${WORKDIR}/versiontag.txt # hack to display smaller text in markdown
+        echo "" >> ${WORKDIR}/versiontag.txt
+        echo "---" >> ${WORKDIR}/versiontag.txt
         echo "" >> ${WORKDIR}/versiontag.txt
         cat ${WORKDIR}/VERSION.txt | egrep '^(commit|TARBALL) ' >> ${WORKDIR}/versiontag.txt
 
