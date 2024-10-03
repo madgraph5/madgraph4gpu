@@ -20,18 +20,26 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 - This section lists some of the main new issues identified in release v1.00.00.
 
 - General issues
-  - (#959) Cross-section instabilities when changing vector size between 32 and 16384.
-  - (#993) LHE file mismatch (fortran vs cudacpp) in the experimental multi-backend gridpacks.
+  - ([#959]) Cross-section instabilities when changing vector size between 32 and 16384.
+  - ([#993]) LHE file mismatch (fortran vs cudacpp) in the experimental multi-backend gridpacks.
 
 - Platform-specific issues
-  - (#1011) Floating Point Exceptions in vxxxxx in the HIP backend.
+  - ([#1011]) Floating Point Exceptions in vxxxxx in the HIP backend.
 
 - Physics-process-specific issues
-  - (#944) Cross-section mismatch (fortran vs cudacpp) in Drell-Yan plus 4 jets.
-  - (#942) Floating Point Exceptions in Drell-Yan plus 0 to 2 jets (workaround: `CUDACPP_RUNTIME_DISABLEFPE=1`).
-  - (#846) ME mismatch (HRDCOD=1 vs HRDCOD=1) in EWdim6 models.
-  - (#601) Builds fail with very complex final states (e.g. gg to ttgggg).
+  - ([#944]) Cross-section mismatch (fortran vs cudacpp) in Drell-Yan plus 4 jets.
+  - ([#942]) Floating Point Exceptions in Drell-Yan plus 0 to 2 jets (workaround: `CUDACPP_RUNTIME_DISABLEFPE=1`).
+  - ([#846]) ME mismatch (HRDCOD=1 vs HRDCOD=1) in EWdim6 models.
+  - ([#601]) Builds fail with very complex final states (e.g. gg to ttgggg).
 
 --------------------------------------------------------------------------------
 
 [1.00.00]: https://github.com/madgraph5/madgraph4gpu/releases/tag/cudacpp_for3.6.0_v1.00.00
+
+[#601]: https://github.com/madgraph5/madgraph4gpu/issues/601
+[#846]: https://github.com/madgraph5/madgraph4gpu/issues/846
+[#942]: https://github.com/madgraph5/madgraph4gpu/issues/942
+[#944]: https://github.com/madgraph5/madgraph4gpu/issues/944
+[#959]: https://github.com/madgraph5/madgraph4gpu/issues/959
+[#993]: https://github.com/madgraph5/madgraph4gpu/issues/993
+[#1011]: https://github.com/madgraph5/madgraph4gpu/issues/1011
