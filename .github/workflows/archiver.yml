@@ -13,8 +13,8 @@ on:
   push:
 
     tags:
-    # Include version tags such as 'cudacpp_for3.6.0_v1.0.0' or 'cudacpp_for3.6.0_v1.0.0_test001'
-    # Include version tags such as 'valassi_cudacpp_for3.6.0_v1.0.0' or 'valassi_cudacpp_for3.6.0_v1.0.0_test001'
+    # Include version tags such as 'cudacpp_for3.6.0_v1.00.00' or 'cudacpp_for3.6.0_v1.00.00_test001'
+    # Include version tags such as 'valassi_cudacpp_for3.6.0_v1.00.00' or 'valassi_cudacpp_for3.6.0_v1.00.00_test001'
     - '*cudacpp_for*_v*'
 
     # Exclude running tags such as 'cudacpp_for3.6.0_latest'

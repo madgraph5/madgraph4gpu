@@ -22,8 +22,8 @@ function usage()
 {
   echo "Usage (1): $0 [-f] <tagsuffix>"
   echo "Creates a new version tag (from the HEAD of the local branch) and pushes it to the remote repository"
-  echo "Valid formats for <tagsuffix> are 'n1.n2.n3' or 'n1.n2.n3_txt' where txt only contains letters or digits"
-  echo "Version number 'n1.n2.n3' must match that in the CUDACPP_OUTPUT/__init__.py file"
+  echo "Valid formats for <tagsuffix> are 'n.nn.nn' or 'n.nn.nn_txt' where txt only contains letters or digits)"
+  echo "Version number must match the (n1,n2,n3) specified with single digits in the CUDACPP_OUTPUT/__init__.py file"
   echo "For release tags (no trailing '_txt'), the github CI will then create also a running tag with '_latest' suffix"
   echo "Use the -f option to delete and recreate a version tag that already exists"
   echo ""
@@ -156,7 +156,13 @@ else
 
   # Determine cudacpp_version (as in archiver.sh)
   echo "INFO: determine cudacpp and mg5amc versions"
-  cudacpp_version=$(cat ${topdir}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/__init__.py | awk '/__version__/{print $3}' | sed 's/(//' | sed 's/)//' | sed 's/,/./g')
+  cudacpp_major=$(cat ${topdir}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/__init__.py | grep __version__ | sed -r 's/(.*=|\(|\)|,)/ /g' | awk '{print $1}')
+  cudacpp_minor=$(cat ${topdir}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/__init__.py | grep __version__ | sed -r 's/(.*=|\(|\)|,)/ /g' | awk '{print $2}')
+  cudacpp_patch=$(cat ${topdir}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/__init__.py | grep __version__ | sed -r 's/(.*=|\(|\)|,)/ /g' | awk '{print $3}')
+  if [ ${cudacpp_major} -lt 0 ] || [ ${cudacpp_major} -gt 99 ]; then echo "ERROR! cudacpp_major is not in the [0,99] range"; exit 1; fi
+  if [ ${cudacpp_minor} -lt 0 ] || [ ${cudacpp_minor} -gt 99 ]; then echo "ERROR! cudacpp_minor is not in the [0,99] range"; exit 1; fi
+  if [ ${cudacpp_patch} -lt 0 ] || [ ${cudacpp_patch} -gt 99 ]; then echo "ERROR! cudacpp_patch is not in the [0,99] range"; exit 1; fi
+  cudacpp_version=$(printf "%1d.%02d.%02d" ${cudacpp_major} ${cudacpp_minor} ${cudacpp_patch})
   echo "> cudacpp_version = $cudacpp_version"
 
   # Determine mg5_version (as in HEPToolInstaller.py)
