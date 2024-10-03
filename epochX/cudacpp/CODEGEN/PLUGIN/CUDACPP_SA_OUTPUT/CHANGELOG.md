@@ -12,6 +12,11 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 
 - Updated cudacpp version to 1.00.01.
 
+### Fixed
+
+- Infrastructure issues
+  - AV ([#1013]) Fix release scripts to create 'v1.00.01' tags from a '(1,0,1)' python tuple.
+
 --------------------------------------------------------------------------------
 
 ## [1.00.00] - 2024-10-03
@@ -52,3 +57,4 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 [#959]: https://github.com/madgraph5/madgraph4gpu/issues/959
 [#993]: https://github.com/madgraph5/madgraph4gpu/issues/993
 [#1011]: https://github.com/madgraph5/madgraph4gpu/issues/1011
+[#1013]: https://github.com/madgraph5/madgraph4gpu/issues/1013
