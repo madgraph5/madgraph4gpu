@@ -6,6 +6,14 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 
 --------------------------------------------------------------------------------
 
+## [Unreleased] - 2024-10-03
+
+### Changed
+
+- Updated cudacpp version to 1.00.01.
+
+--------------------------------------------------------------------------------
+
 ## [1.00.00] - 2024-10-03
 
 ### Added
@@ -35,6 +43,7 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 --------------------------------------------------------------------------------
 
 [1.00.00]: https://github.com/madgraph5/madgraph4gpu/releases/tag/cudacpp_for3.6.0_v1.00.00
+[Unreleased]: https://github.com/madgraph5/madgraph4gpu/releases/compare/cudacpp_for3.6.0_v1.00.00...HEAD
 
 [#601]: https://github.com/madgraph5/madgraph4gpu/issues/601
 [#846]: https://github.com/madgraph5/madgraph4gpu/issues/846
