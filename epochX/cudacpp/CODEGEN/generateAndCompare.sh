@@ -287,8 +287,11 @@ function codeGenAndDiff()
     echo "--------------------------------------------------"
     cat ${outproc}.mg
     echo -e "--------------------------------------------------\n"
-    ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
-    { time python3 ./bin/mg5_aMC ${outproc}.mg || true ; } >& ${outproc}_log.txt
+    PYTHONPATHOLD=$PYTHONPATH
+    export PYTHONPATH=..:$PYTHONPATHOLD
+    ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC -m CUDACPP_OUTPUT ${outproc}.mg ; } >& ${outproc}_log.txt
+    { time python3 ./bin/mg5_aMC -m CUDACPP_OUTPUT ${outproc}.mg || true ; } >& ${outproc}_log.txt
+    export PYTHONPATH=$PYTHONPATHOLD
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
@@ -511,6 +514,7 @@ function usage()
 
 #--------------------------------------------------------------------------------------
 
+# Clean up MG5AMC/mg5amcnlo
 function cleanup_MG5AMC_HOME()
 {
   # Remove MG5aMC fragments from previous runs
@@ -522,13 +526,15 @@ function cleanup_MG5AMC_HOME()
   rm -rf $(find ${MG5AMC_HOME} -name '*~')
 }
 
-#function cleanup_MG5AMC_PLUGIN()
-#{
-#  # Remove and recreate MG5AMC_HOME/PLUGIN
-#  rm -rf ${MG5AMC_HOME}/PLUGIN
-#  mkdir ${MG5AMC_HOME}/PLUGIN
-#  touch ${MG5AMC_HOME}/PLUGIN/__init__.py
-#}
+# Clean up MG5AMC/mg5amcnlo/PLUGIN
+# (NB: as of PR #1008, this is needed before code generation, to ensure that the only plugin is MG5AMC/MG5AMC_PLUGIN)
+function cleanup_MG5AMC_PLUGIN()
+{
+  # Remove and recreate MG5AMC_HOME/PLUGIN
+  rm -rf ${MG5AMC_HOME}/PLUGIN
+  mkdir ${MG5AMC_HOME}/PLUGIN
+  touch ${MG5AMC_HOME}/PLUGIN/__init__.py
+}
 
 #--------------------------------------------------------------------------------------
 
@@ -690,9 +696,13 @@ cd - > /dev/null
 ###  echo -e "Copy MG5aMC_patches/${dir_patches} patches... done\n"
 ###fi
 
-# Clean up before code generation
+# Clean up MG5AMC/mg5amcnlo before code generation
 cleanup_MG5AMC_HOME
-###cleanup_MG5AMC_PLUGIN
+
+# Clean up MG5AMC/mg5amcnlo/PLUGIN before code generation
+# (NB: between PR #766 and PR #1008, this was removed because cudacpp was a symlink in MG5AMC/mg5amcnlo/PLUGIN)
+# (NB: as of PR #1008, this is needed again to ensure that the only plugin is MG5AMC/MG5AMC_PLUGIN)
+cleanup_MG5AMC_PLUGIN
 
 # Print differences in MG5AMC with respect to git after copying ad-hoc patches
 if [ "$QUIET" != "1" ]; then
@@ -733,8 +743,12 @@ SECONDS=0 # bash built-in
 export CUDACPP_CODEGEN_PATCHLEVEL=${PATCHLEVEL}
 codeGenAndDiff $proc "$cmd"
 
-# Clean up after code generation
+# Clean up MG5AMC/mg5amcnlo after code generation
 cleanup_MG5AMC_HOME
+
+# Clean up MG5AMC/mg5amcnlo/PLUGIN after code generation
+# (NB: between PR #766 and PR #1008, this was removed because cudacpp was a symlink in MG5AMC/mg5amcnlo/PLUGIN)
+# (NB: as of PR #1008, this remains unnecessary because MG5AMC/mg5amcnlo/PLUGIN is not modified by generateAndCompare.sh)
 ###cleanup_MG5AMC_PLUGIN
 
 # Check formatting in the auto-generated code
