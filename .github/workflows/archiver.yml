@@ -60,9 +60,6 @@ jobs:
       run: |
         echo "Current directory is $(pwd)"
         echo "WORKDIR is ${WORKDIR}"
-        cd branch_PR
-        echo "Current directory is now $(pwd)"
-        echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
         githubref=$${{ github.ref }}
         echo "(From github.ref)        githubref           = ${githubref}"
         tagname=${githubref#/tags/}
@@ -121,9 +118,6 @@ jobs:
           echo "INFO: tagname ${tagname} is a pre-release tag: will NOT update running tag ${tagname_latest}"
         fi
         echo "TAGNAME_MAKELATEST=${tagname_makelatest}" >> $GITHUB_ENV
-        dateformat='%Y-%m-%d_%H:%M:%S UTC'
-        tagdate=$(TZ=UTC git for-each-ref --format "Tag '${tagname}' created on %(taggerdate:format-local:${dateformat}) by %(taggername)" refs/tags/${tagname})
-        echo "TAGDATE=${tagdate}" >> $GITHUB_ENV
         # Update VERSION.txt
         echo "" >> ${WORKDIR}/VERSION.txt
         echo "VERSION TAG:   ${tagname}" >> ${WORKDIR}/VERSION.txt
@@ -132,8 +126,6 @@ jobs:
         echo "Version tag ${tagname} ([changelog](https://github.com/${REPOSITORY}/blob/${tagname}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/CHANGELOG.md))" > ${WORKDIR}/versiontag.txt
         echo "" >> ${WORKDIR}/versiontag.txt
         echo "Validated for mg5amcnlo version ${mg5_version} (commit [${mg5_commit}](https://github.com/mg5amcnlo/mg5amcnlo/commit/${mg5_commit}))" >> ${WORKDIR}/versiontag.txt
-        echo "" >> ${WORKDIR}/versiontag.txt
-        echo "${tagdate}" >> ${WORKDIR}/versiontag.txt
         echo "" >> ${WORKDIR}/versiontag.txt
         echo "---" >> ${WORKDIR}/versiontag.txt
         echo "" >> ${WORKDIR}/versiontag.txt
@@ -213,7 +205,6 @@ jobs:
         mg5_commit=$(cat ${WORKDIR}/VERSION.txt | awk '/^mg5_commit_current/{print $3}')
         echo "(From VERSION.txt)       mg5_version_current = ${mg5_version}"
         echo "(From VERSION.txt)       mg5_commit_current  = ${mg5_commit}"
-        tagdate=${TAGDATE}
         # Create running tag
         git config user.name github-actions
         git config user.email github-actions@github.com
@@ -225,8 +216,6 @@ jobs:
         echo "This is equivalent to version tag ${tagname}" >> ${WORKDIR}/runningtag.txt
         echo "" >> ${WORKDIR}/runningtag.txt
         echo "Validated for mg5amcnlo version ${mg5_version} (commit [${mg5_commit}](https://github.com/mg5amcnlo/mg5amcnlo/commit/${mg5_commit}))" >> ${WORKDIR}/runningtag.txt
-        echo "" >> ${WORKDIR}/runningtag.txt
-        echo "${tagdate}" >> ${WORKDIR}/runningtag.txt
         echo "" >> ${WORKDIR}/runningtag.txt
         echo "---" >> ${WORKDIR}/runningtag.txt
         echo "" >> ${WORKDIR}/runningtag.txt
