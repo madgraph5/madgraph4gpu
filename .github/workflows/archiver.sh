@@ -16,7 +16,7 @@ if ! git submodule status | grep '^ ' > /dev/null; then
   git submodule status
   exit 1
 fi
-mg5_commit_current=$(git submodule status | awk '/ MG5aMC\/mg5amcnlo /{print substr($1,0,9)}')
+mg5_commit_current=$(git submodule status | awk '/ MG5aMC\/mg5amcnlo /{print substr($1,0,7)}')
 
 # Create a temporary directory and a VERSION.txt file
 cd ${topdir}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT

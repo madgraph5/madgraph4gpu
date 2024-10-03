@@ -92,8 +92,10 @@ jobs:
         # Check version tag
         cudacpp_version=$(cat ${WORKDIR}/VERSION.txt | awk '/^cudacpp_version/{print $3}')
         mg5_version=$(cat ${WORKDIR}/VERSION.txt | awk '/^mg5_version_current/{print $3}')
+        mg5_commit=$(cat ${WORKDIR}/VERSION.txt | awk '/^mg5_commit_current/{print $3}')
         echo "(From VERSION.txt)       cudacpp_version     = ${cudacpp_version}"
         echo "(From VERSION.txt)       mg5_version_current = ${mg5_version}"
+        echo "(From VERSION.txt)       mg5_commit_current  = ${mg5_commit}"
         tagname_version=${TAGPREFIX}${mg5_version}_v${cudacpp_version}
         echo "(From VERSION.txt)       supported tagname   = ${tagname_version}[_...]"
         if [ "${tagname/${tagname_version}}" == "${tagname}" ]; then
@@ -123,6 +125,8 @@ jobs:
         # Release notes for the version tag
         echo "Version tag ${tagname} ([changelog](https://github.com/${REPOSITORY}/blob/${tagname}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/CHANGELOG.md))" > ${WORKDIR}/versiontag.txt
         echo "" >> ${WORKDIR}/versiontag.txt
+        echo "Validated for mg5amcnlo version ${mg5_version} (commit [${mg5_commit}](https://github.com/mg5amcnlo/mg5amcnlo/commit/${mg5_commit}))" >> ${WORKDIR}/versiontag.txt
+        echo "" >> ${WORKDIR}/versiontag.txt
         echo "---" >> ${WORKDIR}/versiontag.txt
         if [ "${tagname_makelatest}" != "true" ]; then
           echo "" >> ${WORKDIR}/versiontag.txt
@@ -137,7 +141,7 @@ jobs:
           echo "---" >> ${WORKDIR}/versiontag.txt
         fi
         echo "" >> ${WORKDIR}/versiontag.txt
-        cat ${WORKDIR}/VERSION.txt | egrep '^(commit|TARBALL|mg5_commit_current) ' >> ${WORKDIR}/versiontag.txt
+        cat ${WORKDIR}/VERSION.txt | egrep '^(commit|TARBALL) ' >> ${WORKDIR}/versiontag.txt
 
     - name: delete_versiontag_releaseonly
       # See https://cli.github.com/manual/gh_release_delete
@@ -196,6 +200,10 @@ jobs:
         echo "(From GITHUB_ENV)        tagname_latest      = ${tagname_latest}"
         commit=$(cat ${WORKDIR}/VERSION.txt | awk '/^commit/{print $2}')
         echo "(From VERSION.txt)       commit              = ${commit}"
+        mg5_version=$(cat ${WORKDIR}/VERSION.txt | awk '/^mg5_version_current/{print $3}')
+        mg5_commit=$(cat ${WORKDIR}/VERSION.txt | awk '/^mg5_commit_current/{print $3}')
+        echo "(From VERSION.txt)       mg5_version_current = ${mg5_version}"
+        echo "(From VERSION.txt)       mg5_commit_current  = ${mg5_commit}"
         # Create running tag
         git config user.name github-actions
         git config user.email github-actions@github.com
@@ -205,6 +213,8 @@ jobs:
         # Release notes for the running tag
         echo "Running tag ${tagname_latest} ([changelog](https://github.com/${REPOSITORY}/blob/${tagname_latest}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/CHANGELOG.md))" > ${WORKDIR}/runningtag.txt
         echo "This is equivalent to version tag ${tagname}" >> ${WORKDIR}/runningtag.txt
+        echo "" >> ${WORKDIR}/runningtag.txt
+        echo "Validated for mg5amcnlo version ${mg5_version} (commit [${mg5_commit}](https://github.com/mg5amcnlo/mg5amcnlo/commit/${mg5_commit}))" >> ${WORKDIR}/runningtag.txt
         echo "" >> ${WORKDIR}/runningtag.txt
         echo "---" >> ${WORKDIR}/runningtag.txt
         echo "" >> ${WORKDIR}/runningtag.txt
