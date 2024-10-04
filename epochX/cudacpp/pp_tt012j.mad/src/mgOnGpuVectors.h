@@ -104,8 +104,9 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
     // NB: THIS IS THE FUNDAMENTAL DIFFERENCE BETWEEN MGONGPU_HAS_CPPCXTYPEV_BRK DEFINED AND NOT DEFINED
     // NB: the alternative "clang" implementation is simpler: it simply does not have any bracket operator[]
-    // NB: ** do NOT implement operator[] to return a value: it does not fail the build (why?) and gives unexpected results! **
-    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
+    //cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); } // gcc14.2 build fails #1004
+    cxtype_ref operator[]( size_t i ) { return cxtype_ref( m_real[i], m_imag[i] ); }
+    cxtype operator[]( size_t i ) const { return cxtype( m_real[i], m_imag[i] ); }
 #endif
     const fptype_v& real() const
     {

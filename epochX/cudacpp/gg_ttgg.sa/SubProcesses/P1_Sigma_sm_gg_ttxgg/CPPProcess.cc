@@ -7,7 +7,7 @@
 // Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.6.0_lo_vect, 2024-06-17
+// MadGraph5_aMC@NLO v. 3.6.0, 2024-09-30
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -2862,6 +2862,18 @@ namespace mg5amcCpu
   CPPProcess::getCompiler()
   {
     std::stringstream out;
+    // HIP version (HIPCC)
+    // [Use __HIPCC__ instead of MGONGPUCPP_GPUIMPL here!]
+    // [This tests if 'hipcc' was used even to build a .cc file, even if not necessarily 'nvcc -x cu' for a .cu file]
+    // [Check 'hipcc -dM -E -x hip -I ../../src CPPProcess.cc | grep HIP']
+#ifdef __HIPCC__
+#if defined HIP_VERSION_MAJOR && defined HIP_VERSION_MINOR && defined HIP_VERSION_PATCH
+    out << "hipcc " << HIP_VERSION_MAJOR << "." << HIP_VERSION_MINOR << "." << HIP_VERSION_PATCH;
+#else
+    out << "hipcc UNKNOWN";
+#endif
+    out << " (";
+#endif
     // CUDA version (NVCC)
     // [Use __NVCC__ instead of MGONGPUCPP_GPUIMPL here!]
     // [This tests if 'nvcc' was used even to build a .cc file, even if not necessarily 'nvcc -x cu' for a .cu file]
@@ -2923,7 +2935,7 @@ namespace mg5amcCpu
     out << "gcc UNKNOWKN";
 #endif
 #endif
-#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
+#if defined __HIPCC__ or defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ")";
 #endif
     return out.str();
