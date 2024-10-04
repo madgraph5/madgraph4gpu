@@ -26,8 +26,17 @@ mkdir ${outdir}
 outfile=${outdir}/VERSION.txt
 touch ${outfile}
 dateformat='%Y-%m-%d_%H:%M:%S UTC'
+cudacpp_major=$(cat __init__.py | grep __version__ | sed -r 's/(.*=|\(|\)|,)/ /g' | awk '{print $1}')
+cudacpp_minor=$(cat __init__.py | grep __version__ | sed -r 's/(.*=|\(|\)|,)/ /g' | awk '{print $2}')
+cudacpp_patch=$(cat __init__.py | grep __version__ | sed -r 's/(.*=|\(|\)|,)/ /g' | awk '{print $3}')
+###echo "(From CUDACPP_OUTPUT/__init__.py)"
+###echo "cudacpp (major, minor, patch) = ( ${cudacpp_major}, ${cudacpp_minor}, ${cudacpp_patch} )"
+if [ ${cudacpp_major} -lt 0 ] || [ ${cudacpp_major} -gt 99 ]; then echo "ERROR! cudacpp_major is not in the [0,99] range"; exit 1; fi
+if [ ${cudacpp_minor} -lt 0 ] || [ ${cudacpp_minor} -gt 99 ]; then echo "ERROR! cudacpp_minor is not in the [0,99] range"; exit 1; fi
+if [ ${cudacpp_patch} -lt 0 ] || [ ${cudacpp_patch} -gt 99 ]; then echo "ERROR! cudacpp_patch is not in the [0,99] range"; exit 1; fi
+cudacpp_version=$(printf "%1d.%02d.%02d" ${cudacpp_major} ${cudacpp_minor} ${cudacpp_patch})
 echo "(From CUDACPP_OUTPUT/__init__.py)" >> ${outfile}
-echo "cudacpp_version              = $(cat __init__.py | awk '/__version__/{print $3}' | sed 's/(//' | sed 's/)//' | sed 's/,/./g')" >> ${outfile}
+echo "cudacpp_version              = ${cudacpp_version}" >> ${outfile}
 echo "mg5_version_minimal          = $(cat __init__.py | awk '/minimal_mg5amcnlo_version/{print $3}'  | sed 's/(//' | sed 's/)//' | sed 's/,/./g')" >> ${outfile}
 echo "mg5_version_latest_validated = $(cat __init__.py | awk '/latest_validated_version/{print $3}'  | sed 's/(//' | sed 's/)//' | sed 's/,/./g')" >> ${outfile}
 echo "" >> ${outfile}
