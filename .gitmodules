@@ -2,3 +2,5 @@
 	path = MG5aMC/mg5amcnlo
 	url = https://github.com/mg5amcnlo/mg5amcnlo
 	branch = gpucpp
+        # See https://git-scm.com/docs/gitmodules#Documentation/gitmodules.txt-submoduleltnamegtignore
+        ignore = untracked
