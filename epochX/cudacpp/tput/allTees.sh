@@ -16,11 +16,29 @@ makeclean=-makeclean
 bblds=
 if [ "$(hostname)" == "itgold91.cern.ch" ]; then bblds=-cpponly; fi
 
+# Usage
+function usage()
+{
+  echo "Usage (1): $0 [-short] [-e] [-sa] [-makeonly] [-nomakeclean] [-hip|-nocuda|-cpponly] [-bsmonly|-nobsm]"
+  echo "Run tests and check all logs"
+  echo ""
+  echo "Usage (2): $0 -checkonly"
+  echo "Check existing logs without running any tests"
+  exit 1
+}
+
 # Parse command line arguments
+checkonly=0
 ggttggg=-ggttggg
 rndhst=-curhst
 bsm=
-while [ "$1" != "" ]; do
+if [ "$1" == "-checkonly" ]; then
+  # Check existing logs without running any tests?
+  checkonly=1
+  shift
+  if [ "$1" != "" ]; then usage; fi
+fi
+while [ "${checkonly}" == "0" ] && [ "$1" != "" ]; do
   if [ "$1" == "-short" ]; then
     # Short (no ggttggg) or long version?
     ggttggg=
@@ -61,10 +79,24 @@ while [ "$1" != "" ]; do
     bsm=$1
     shift
   else
-    echo "Usage: $0 [-short] [-e] [-sa] [-makeonly] [-nomakeclean] [-nocuda] [-bsmonly|-nobsm]"
-    exit 1
+    usage
   fi
 done
+
+# Check logs
+function checklogs()
+{
+  cd $scrdir/..
+  # Print out any errors in the logs
+  if ! egrep -i '(error|fault|failed)' ./tput/logs_* -r; then echo "No errors found in logs"; fi
+  # Print out any FPEs or '{ }' in the logs
+  echo
+  if ! egrep '(^Floating Point Exception|{ })' tput/logs* -r; then echo "No FPEs or '{ }' found in logs"; fi
+  # Print out the MEK channelid debugging output (except for '{ }')
+  echo
+  \grep MEK ${scrdir}/logs_*/* | sed "s|${scrdir}/logs_||" | grep -v '{ }' | sed 's|_mad.*DEBUG:||' | sort -u
+}
+if [ "${checkonly}" != "0" ]; then checklogs; exit 0; fi
 
 # Define builds
 if [ "$bblds" == "-nocuda" ]; then
@@ -75,18 +107,17 @@ elif [ "$bblds" == "-cpponly" ]; then
   # Random numbers use common instead of curand
   rndhst=-common
   opts+=" -cpponly"
-###elif [ "$bblds" == "-hip" ]; then
-###  #### Random numbers use hiprand instead of curand?
-###  ###rndhst=-hirhst
-###  # See https://github.com/ROCm/hipRAND/issues/76
-###  # Random numbers use common (not hiprand) instead of curand?
-###  rndhst=-common
-###  opts+=" -nocuda"
+elif [ "$bblds" == "-hip" ]; then # NB: currently (Sep 2024) this is identical to -nocuda
+  #### Random numbers use hiprand instead of curand?
+  #### This needs ROCm 6.2 (see https://github.com/ROCm/hipRAND/issues/76)
+  ###rndhst=-hirhst
+  # Random numbers use common (not hiprand) instead of curand
+  rndhst=-common
+  opts+=" -nocuda"
 fi
 
-# This is a script to launch in one go all tests for the (4 or) 5 main processes in this repository
-# It reproduces the logs in tput at the time of commit c0c276840654575d9fa0c3f3c4a0088e57764dbc
-# This is the commit just before the large alphas PR #434
+# This is a script to launch in one go all tests for the main physics processes in this repository
+# (Initially it reproduced the logs in tput at the time of commit c0c276840, just before the large alphas PR #434)
 
 cd $scrdir/..
 started="STARTED  AT $(date)"
@@ -186,10 +217,6 @@ if [ "$ggttggg" == "" ]; then
   echo "  ./tput/teeThroughputX.sh -makej -ggttggg -flt -bridge ${makeclean} ${opts}"
 fi
 
-# Print out any errors in the logs
+# Finally check all logs
 echo
-if ! egrep -i '(error|fault|failed)' ./tput/logs_* -r; then echo "No errors found in logs"; fi
-
-# Print out the MEK channelid debugging output
-echo
-\grep MEK ${scrdir}/logs_*/* | sed "s|${scrdir}/logs_||" | sed 's|_mad.*DEBUG:||' | sort -u
+checklogs

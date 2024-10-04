@@ -1,17 +1,3 @@
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/genps.inc a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
-index a59181c70..af7e0efbc 100644
---- b/epochX/cudacpp/gg_tt.mad/Source/genps.inc
-+++ a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
-@@ -30,7 +30,8 @@ c*************************************************************************
- c	Parameters for helicity sums in matrixN.f
- c*************************************************************************
-       REAL*8 LIMHEL
--      PARAMETER(LIMHEL=1e-8) ! ME threshold for helicity filtering
-+c     PARAMETER(LIMHEL=1e-8) ! ME threshold for helicity filtering (Fortran default)
-+      PARAMETER(LIMHEL=0) ! ME threshold for helicity filtering (force Fortran to mimic cudacpp, see #419)
-       INTEGER MAXTRIES
-       PARAMETER(MAXTRIES=25)
- C     To pass the helicity configuration chosen by the DiscreteSampler to 
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 index 348c283be..205014f49 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile

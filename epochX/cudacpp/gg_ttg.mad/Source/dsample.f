@@ -204,6 +204,9 @@ c               all_wgt(i) = all_wgt(i)*fx
 
                if (VECSIZE_USED.le.1) then
                   all_fx(1) = dsig(all_p, all_wgt,0)
+                  ivec=0
+                  ilock=0
+                  iwarp=1 
                else
 c                 Here "i" is the position in the full grid of the event                  
                   do i=(iwarp-1)*WARP_SIZE+1, iwarp*warp_size
@@ -748,7 +751,7 @@ c
       common/read_grid_file/read_grid_file
 
       data use_cut/2/            !Grid: 0=fixed , 1=standard, 2=non-zero
-      data ituple/1/             !1=htuple, 2=sobel 
+      data ituple/1/             !1=MC (htuple or ranmar or ...), 2=sobel (no clear support anymore-> do not try in production) 
       data Minvar(1,1)/-1/       !No special variable mapping
 
 c-----
