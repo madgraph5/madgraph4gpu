@@ -48,7 +48,7 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW.mg
+import /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
@@ -56,7 +56,7 @@ set zerowidth_tchannel F
 import model sm-no_b_mass
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005758047103881836 [0m
+[1;32mDEBUG: model prefixing  takes 0.005693197250366211 [0m
 INFO: Restrict model sm-no_b_mass with file models/sm/restrict_no_b_mass.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -222,7 +222,7 @@ INFO: Process d~ g > t t~ w+ u~ added to mirror process g d~ > t t~ w+ u~
 INFO: Process d~ u > t t~ w+ g added to mirror process u d~ > t t~ w+ g 
 INFO: Process s~ g > t t~ w+ c~ added to mirror process g s~ > t t~ w+ c~ 
 INFO: Process s~ c > t t~ w+ g added to mirror process c s~ > t t~ w+ g 
-12 processes with 144 diagrams generated in 0.661 s
+12 processes with 144 diagrams generated in 0.665 s
 Total: 16 processes with 152 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_nobm_pp_ttW --hel_recycling=False --vector_size=32
 Load PLUGIN.CUDACPP_OUTPUT
@@ -236,10 +236,10 @@ It has been validated for the last time with version: 3.5.2[0m
 INFO: initialize a new directory: CODEGEN_mad_nobm_pp_ttW 
 INFO: remove old information in CODEGEN_mad_nobm_pp_ttW 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 170][0m [0m
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW [0m
-INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW 
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards [0m
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses [0m
+[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW [0m
+INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW 
+[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards [0m
+[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses [0m
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g u > t t~ w+ d WEIGHTED<=5 @1 
 INFO: Processing color information for process: g u > t t~ w+ d @1 
@@ -353,19 +353,19 @@ INFO: Finding symmetric diagrams for subprocess group dux_ttxwm
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 2 [1;30m[model_handling.py at line 1523][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1547][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1548][0m [0m
-Generated helas calls for 8 subprocesses (76 diagrams) in 0.206 s
-Wrote files for 212 helas calls in 0.836 s
+Generated helas calls for 8 subprocesses (76 diagrams) in 0.207 s
+Wrote files for 212 helas calls in 0.900 s
 [1;32mDEBUG:  self.vector_size = [0m 32 [1;30m[export_v4.py at line 7023][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 3 routines in  0.207 s
+ALOHA: aloha creates 3 routines in  0.210 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 6 routines in  0.206 s
+ALOHA: aloha creates 6 routines in  0.207 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -373,97 +373,186 @@ ALOHA: aloha creates 6 routines in  0.206 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/./HelAmps_sm_no_b_mass.h
-INFO: Created file HelAmps_sm_no_b_mass.h in directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/. 
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/./HelAmps_sm_no_b_mass.h
+INFO: Created file HelAmps_sm_no_b_mass.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/./Parameters_sm_no_b_mass.h
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/./Parameters_sm_no_b_mass.cc
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/./Parameters_sm_no_b_mass.h
+FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/./Parameters_sm_no_b_mass.cc
 INFO: Created files Parameters_sm_no_b_mass.h and Parameters_sm_no_b_mass.cc in directory 
-INFO: /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/. and /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/. 
+INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/src/. 
 The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
 If you want to make this value the default for future session, you can run 'save options --all'
-save configuration file to /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards/me5_configuration.txt
+save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards/me5_configuration.txt
 INFO: Use Fortran compiler gfortran 
 INFO: Use c++ compiler g++ 
 INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
+patching file Source/dsample.f
 patching file SubProcesses/makefile
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P0_dux_ttxwm; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P0_dux_ttxwm; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 128 (offset 1 line).
+Hunk #2 succeeded at 152 with fuzz 2 (offset 3 lines).
+Hunk #3 succeeded at 194 (offset 6 lines).
+Hunk #4 succeeded at 371 (offset 7 lines).
+Hunk #5 succeeded at 398 with fuzz 1 (offset 11 lines).
+Hunk #6 succeeded at 449 (offset 17 lines).
+Hunk #7 succeeded at 507 (offset 17 lines).
+Hunk #8 succeeded at 582 (offset 17 lines).
+Hunk #9 succeeded at 598 (offset 17 lines).
+Hunk #10 succeeded at 608 (offset 17 lines).
+Hunk #11 succeeded at 629 (offset 17 lines).
+Hunk #12 succeeded at 645 (offset 17 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 72 (offset 1 line).
-Hunk #2 succeeded at 268 (offset 54 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P0_udx_ttxwp; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 268 (offset 41 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P0_udx_ttxwp; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 128 (offset 1 line).
+Hunk #2 succeeded at 152 with fuzz 2 (offset 3 lines).
+Hunk #3 succeeded at 194 (offset 6 lines).
+Hunk #4 succeeded at 371 (offset 7 lines).
+Hunk #5 succeeded at 398 with fuzz 1 (offset 11 lines).
+Hunk #6 succeeded at 449 (offset 17 lines).
+Hunk #7 succeeded at 507 (offset 17 lines).
+Hunk #8 succeeded at 582 (offset 17 lines).
+Hunk #9 succeeded at 598 (offset 17 lines).
+Hunk #10 succeeded at 608 (offset 17 lines).
+Hunk #11 succeeded at 629 (offset 17 lines).
+Hunk #12 succeeded at 645 (offset 17 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 72 (offset 1 line).
-Hunk #2 succeeded at 268 (offset 54 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_dux_ttxwmg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 268 (offset 41 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_dux_ttxwmg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 128 (offset 1 line).
+Hunk #2 succeeded at 152 with fuzz 2 (offset 3 lines).
+Hunk #3 succeeded at 194 (offset 6 lines).
+Hunk #4 succeeded at 371 (offset 7 lines).
+Hunk #5 succeeded at 398 with fuzz 1 (offset 11 lines).
+Hunk #6 succeeded at 449 (offset 17 lines).
+Hunk #7 succeeded at 507 (offset 17 lines).
+Hunk #8 succeeded at 582 (offset 17 lines).
+Hunk #9 succeeded at 598 (offset 17 lines).
+Hunk #10 succeeded at 608 (offset 17 lines).
+Hunk #11 succeeded at 629 (offset 17 lines).
+Hunk #12 succeeded at 645 (offset 17 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 72 (offset 1 line).
-Hunk #2 succeeded at 316 (offset 102 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_gd_ttxwmu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 316 (offset 89 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_gd_ttxwmu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 128 (offset 1 line).
+Hunk #2 succeeded at 151 with fuzz 2 (offset 2 lines).
+Hunk #3 succeeded at 193 (offset 5 lines).
+Hunk #4 succeeded at 370 (offset 6 lines).
+Hunk #5 succeeded at 395 with fuzz 1 (offset 8 lines).
+Hunk #6 succeeded at 446 (offset 14 lines).
+Hunk #7 succeeded at 504 (offset 14 lines).
+Hunk #8 succeeded at 579 (offset 14 lines).
+Hunk #9 succeeded at 595 (offset 14 lines).
+Hunk #10 succeeded at 605 (offset 14 lines).
+Hunk #11 succeeded at 626 (offset 14 lines).
+Hunk #12 succeeded at 642 (offset 14 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 72 (offset 1 line).
-Hunk #2 succeeded at 316 (offset 102 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_gdx_ttxwpux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 316 (offset 89 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_gdx_ttxwpux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 128 (offset 1 line).
+Hunk #2 succeeded at 151 with fuzz 2 (offset 2 lines).
+Hunk #3 succeeded at 193 (offset 5 lines).
+Hunk #4 succeeded at 370 (offset 6 lines).
+Hunk #5 succeeded at 395 with fuzz 1 (offset 8 lines).
+Hunk #6 succeeded at 446 (offset 14 lines).
+Hunk #7 succeeded at 504 (offset 14 lines).
+Hunk #8 succeeded at 579 (offset 14 lines).
+Hunk #9 succeeded at 595 (offset 14 lines).
+Hunk #10 succeeded at 605 (offset 14 lines).
+Hunk #11 succeeded at 626 (offset 14 lines).
+Hunk #12 succeeded at 642 (offset 14 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 72 (offset 1 line).
-Hunk #2 succeeded at 316 (offset 102 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_gu_ttxwpd; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 316 (offset 89 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_gu_ttxwpd; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 128 (offset 1 line).
+Hunk #2 succeeded at 151 with fuzz 2 (offset 2 lines).
+Hunk #3 succeeded at 193 (offset 5 lines).
+Hunk #4 succeeded at 370 (offset 6 lines).
+Hunk #5 succeeded at 395 with fuzz 1 (offset 8 lines).
+Hunk #6 succeeded at 446 (offset 14 lines).
+Hunk #7 succeeded at 504 (offset 14 lines).
+Hunk #8 succeeded at 579 (offset 14 lines).
+Hunk #9 succeeded at 595 (offset 14 lines).
+Hunk #10 succeeded at 605 (offset 14 lines).
+Hunk #11 succeeded at 626 (offset 14 lines).
+Hunk #12 succeeded at 642 (offset 14 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 72 (offset 1 line).
-Hunk #2 succeeded at 316 (offset 102 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_gux_ttxwmdx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 316 (offset 89 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_gux_ttxwmdx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 128 (offset 1 line).
+Hunk #2 succeeded at 151 with fuzz 2 (offset 2 lines).
+Hunk #3 succeeded at 193 (offset 5 lines).
+Hunk #4 succeeded at 370 (offset 6 lines).
+Hunk #5 succeeded at 395 with fuzz 1 (offset 8 lines).
+Hunk #6 succeeded at 446 (offset 14 lines).
+Hunk #7 succeeded at 504 (offset 14 lines).
+Hunk #8 succeeded at 579 (offset 14 lines).
+Hunk #9 succeeded at 595 (offset 14 lines).
+Hunk #10 succeeded at 605 (offset 14 lines).
+Hunk #11 succeeded at 626 (offset 14 lines).
+Hunk #12 succeeded at 642 (offset 14 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 72 (offset 1 line).
-Hunk #2 succeeded at 316 (offset 102 lines).
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_udx_ttxwpg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuBis/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+Hunk #2 succeeded at 316 (offset 89 lines).
+DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/SubProcesses/P1_udx_ttxwpg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 128 (offset 1 line).
+Hunk #2 succeeded at 152 with fuzz 2 (offset 3 lines).
+Hunk #3 succeeded at 194 (offset 6 lines).
+Hunk #4 succeeded at 371 (offset 7 lines).
+Hunk #5 succeeded at 398 with fuzz 1 (offset 11 lines).
+Hunk #6 succeeded at 449 (offset 17 lines).
+Hunk #7 succeeded at 507 (offset 17 lines).
+Hunk #8 succeeded at 582 (offset 17 lines).
+Hunk #9 succeeded at 598 (offset 17 lines).
+Hunk #10 succeeded at 608 (offset 17 lines).
+Hunk #11 succeeded at 629 (offset 17 lines).
+Hunk #12 succeeded at 645 (offset 17 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 72 (offset 1 line).
-Hunk #2 succeeded at 316 (offset 102 lines).
+Hunk #2 succeeded at 316 (offset 89 lines).
 [1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 258][0m [0m
-Output to directory /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW done.
+Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW done.
 Type "launch" to generate events from this process, or see
-/data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/README
+/data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m4.712s
-user	0m4.184s
-sys	0m0.513s
+real	0m4.858s
+user	0m4.243s
+sys	0m0.557s
 Code generation completed in 5 seconds
 ************************************************************
 *                                                          *
@@ -485,9 +574,9 @@ Code generation completed in 5 seconds
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards/me5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards/me5_configuration.txt  
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
@@ -515,9 +604,9 @@ launch in debug mode
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards/me5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuBis/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards/me5_configuration.txt  
 Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
