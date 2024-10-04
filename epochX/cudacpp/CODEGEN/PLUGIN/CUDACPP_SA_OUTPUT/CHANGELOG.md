@@ -14,6 +14,9 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 
 ### Fixed
 
+- Platform-specific issues
+  - AV ([#1011]) Added workaround for Floating Point Exceptions in vxxxxx in the HIP backend.
+
 - Infrastructure issues
   - AV ([#1013]) Fix release scripts to create 'v1.00.01' tags from a '(1,0,1)' python tuple.
 
