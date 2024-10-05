@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/dsample.f a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-index bcfe1138b..53eec814a 100644
+index bcfe1138b..f43710093 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 +++ a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 @@ -175,7 +175,9 @@ c
@@ -58,7 +58,7 @@ index bcfe1138b..53eec814a 100644
              else
                 nzoom = nzoom -1
                 ievent=ievent-1
-@@ -1240,7 +1250,26 @@ c
+@@ -1264,7 +1274,26 @@ c
  c     Local
  c
        integer  im, ip,ij,icount,it_warned
@@ -86,7 +86,7 @@ index bcfe1138b..53eec814a 100644
  c
  c     External
  c
-@@ -1291,15 +1320,29 @@ c         write(*,'(7f11.5)')(ddum(j)*real(ng),j=1,dim)
+@@ -1315,15 +1344,29 @@ c         write(*,'(7f11.5)')(ddum(j)*real(ng),j=1,dim)
        endif
        if (ituple .eq. 1) then
  c         write(*,*) 'Getting variable',ipole,j,minvar(j,ipole)
@@ -125,7 +125,7 @@ index bcfe1138b..53eec814a 100644
  c
  c     Line which allows us to keep choosing same x
  c
-@@ -1312,10 +1355,10 @@ c            write(*,*) 'Reusing num',j,nzoom,tx(2,j)
+@@ -1336,10 +1379,10 @@ c            write(*,*) 'Reusing num',j,nzoom,tx(2,j)
              call ntuple(ddum(j),max(xbin_min,dble(int(tx(2,j)))),
       $           min(xbin_max,dble(int(tx(2,j))+1)),j,ipole)
  
@@ -139,7 +139,7 @@ index bcfe1138b..53eec814a 100644
  
  c            write(*,'(2i6,4e15.5)') nzoom,j,ddum(j),tx(2,j),
  c     $           max(xbin_min,dble(int(tx(2,j)))),
-@@ -1378,7 +1421,19 @@ c     to the fact that the grids are required to be separated by 1e-14. Since
+@@ -1402,7 +1445,19 @@ c     to the fact that the grids are required to be separated by 1e-14. Since
  c     double precision is about 18 digits, we expect things to agree to
  c     3 digit accuracy.
  c
@@ -160,7 +160,7 @@ index bcfe1138b..53eec814a 100644
           if (icount .lt. 5) then
              write(*,'(a,i4,2e14.6,1e12.4)')
       &           'Warning xbin not returning correct x', ij,
-@@ -1389,10 +1444,11 @@ c
+@@ -1413,10 +1468,11 @@ c
           endif
           icount=icount+1
        endif
@@ -175,7 +175,7 @@ index bcfe1138b..53eec814a 100644
        wgt = wgt * xo * dble(xbin_max-xbin_min)
  c      print*,'Returning x',ij,ipole,j,x
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be7..504e41ea52 100644
+index 348c283be..205014f49 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,40 @@
@@ -241,7 +241,7 @@ index 348c283be7..504e41ea52 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,41 +90,147 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,41 +90,150 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -303,7 +303,8 @@ index 348c283be7..504e41ea52 100644
 +
 +$(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
 +	$(FC) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
-+
+ 
+-$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
 +$(LIBS): .libs
 +
 +.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
@@ -407,7 +408,7 @@ index 348c283be7..504e41ea52 100644
  
  # Dependencies
  
-@@ -97,5 +250,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -97,5 +253,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
