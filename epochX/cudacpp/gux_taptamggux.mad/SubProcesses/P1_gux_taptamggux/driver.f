@@ -43,6 +43,8 @@ c
       DOUBLE PRECISION CUMULATED_TIMING
       COMMON/GENERAL_STATS/CUMULATED_TIMING
 
+      logical init_mode
+      common /to_determine_zero_hel/init_mode
 c
 c     PARAM_CARD
 c
@@ -106,8 +108,7 @@ c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is n
       CALL COUNTERS_REGISTER_COUNTER( 11, 'CudaCpp Initialise'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 12, 'CudaCpp Finalise'//char(0) )
       CALL COUNTERS_REGISTER_COUNTER( 19, 'CudaCpp MEs'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 21, 'TEST    SampleGetX'//char(0) )
-      CALL COUNTERS_INCLUDE_COUNTER1_WITHIN_COUNTER2( 21, 3 )
+c     CALL COUNTERS_REGISTER_COUNTER( 21, 'TEST    SampleGetX'//char(0) )
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
 #else
@@ -243,6 +244,12 @@ c
       call init_good_hel()
       call get_user_params(ncall,itmax,itmin,mincfig)
       maxcfig=mincfig
+      if (init_mode) then
+          fixed_ren_scale = .true.
+          fixed_fac_scale1 = .true.
+          fixed_fac_scale2 = .true.
+          ickkw = 0
+      endif 
       minvar(1,1) = 0              !This tells it to map things invarients
       write(*,*) 'Attempting mappinvarients',nconfigs,nexternal
       if (mincfig.lt.0)then
@@ -357,9 +364,11 @@ c
       common /to_accuracy/accur
       integer           use_cut
       common /to_weight/use_cut
+
       logical init_mode
       common /to_determine_zero_hel/init_mode
-
+      include 'vector.inc'
+      include 'run.inc'
 
       integer        lbw(0:nexternal)  !Use of B.W.
       common /to_BW/ lbw
@@ -407,6 +416,9 @@ c-----
          isum_hel = 0
          multi_channel = .false.
          init_mode = .true.
+         fixed_ren_scale = .true.
+         fixed_fac_scale1 = .true.
+         fixed_fac_scale2 = .true.
          write(*,*) 'Determining zero helicities'
       else
          isum_hel= i

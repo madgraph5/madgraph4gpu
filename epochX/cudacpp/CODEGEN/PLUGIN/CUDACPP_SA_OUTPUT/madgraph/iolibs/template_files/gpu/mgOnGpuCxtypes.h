@@ -19,7 +19,7 @@
 #include <complex>
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl
-#ifdef __CUDACC__ // this must be __CUDAC__ (not MGONGPUCPP_GPUIMPL)
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #if defined MGONGPU_CUCXTYPE_THRUST
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wtautological-compare" // for icpx2021/clang13 (https://stackoverflow.com/a/15864661)
@@ -48,7 +48,7 @@
 // COMPLEX TYPES: INSTRUMENTED CUCOMPLEX CLASS (cucomplex)
 //==========================================================================
 
-#ifdef __CUDACC__ // this must be __CUDAC__ (not MGONGPUCPP_GPUIMPL)
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
 namespace mg5amcGpu
 {
@@ -134,7 +134,7 @@ namespace mgOnGpu /* clang-format off */
     __host__ __device__ constexpr const FP& real() const { return m_real; }
     __host__ __device__ constexpr const FP& imag() const { return m_imag; }
     template<typename FP2> __host__ __device__ constexpr operator cxsmpl<FP2>() const { return cxsmpl<FP2>( m_real, m_imag ); }
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #ifdef MGONGPU_CUCXTYPE_THRUST
     template<typename FP2> __host__ __device__ constexpr operator thrust::complex<FP2>() const { return thrust::complex<FP2>( m_real, m_imag ); }
 #elif defined MGONGPU_CUCXTYPE_CUCOMPLEX 
@@ -303,7 +303,7 @@ namespace mg5amcCpu
 #endif
 {
   // --- Type definitions (complex type: cxtype)
-#ifdef __CUDACC__ // this must be __CUDAC__ (not MGONGPUCPP_GPUIMPL)
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #if defined MGONGPU_CUCXTYPE_THRUST
   typedef thrust::complex<fptype> cxtype;
 #elif defined MGONGPU_CUCXTYPE_CUCOMPLEX
@@ -384,7 +384,7 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust (this must be __CUDAC__ and not MGONGPUCPP_GPUIMPL)
+#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust (this must be __CUDACC__ and not MGONGPUCPP_GPUIMPL)
 
   //------------------------------
   // CUDA - using thrust::complex
@@ -424,7 +424,7 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex (this must be __CUDAC__ and not MGONGPUCPP_GPUIMPL)
+#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex (this must be __CUDACC__ and not MGONGPUCPP_GPUIMPL)
 
   //------------------------------
   // CUDA - using cuComplex
@@ -631,7 +631,7 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-#if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX // c++/hip + stdcomplex (this must be __CUDAC__ and not MGONGPUCPP_GPUIMPL)
+#if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX // c++/hip + stdcomplex (this must be __CUDACC__ and not MGONGPUCPP_GPUIMPL)
 
   //------------------------------
   // C++ - using std::complex
@@ -704,7 +704,7 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  // The cxtype_ref class (a non-const reference to two fp variables) was originally designed for cxtype_v::operator[]
+  // The cxtype_ref class (a const reference to two non-const fp variables) was originally designed for cxtype_v::operator[]
   // It used to be included in the code only when MGONGPU_HAS_CPPCXTYPEV_BRK (originally MGONGPU_HAS_CPPCXTYPE_REF) is defined
   // It is now always included in the code because it is needed also to access an fptype wavefunction buffer as a cxtype
   class cxtype_ref
@@ -712,9 +712,9 @@ namespace mg5amcCpu
   public:
     cxtype_ref() = delete;
     cxtype_ref( const cxtype_ref& ) = delete;
-    cxtype_ref( cxtype_ref&& ) = default; // copy refs
+    cxtype_ref( cxtype_ref&& ) = default; // copy const refs
     __host__ __device__ cxtype_ref( fptype& r, fptype& i )
-      : m_preal( &r ), m_pimag( &i ) {} // copy refs
+      : m_preal( &r ), m_pimag( &i ) {} // copy (create from) const refs
     cxtype_ref& operator=( const cxtype_ref& ) = delete;
     //__host__ __device__ cxtype_ref& operator=( cxtype_ref&& c ) {...} // REMOVED! Should copy refs or copy values? No longer needed in cxternary
     __host__ __device__ cxtype_ref& operator=( const cxtype& c )
@@ -722,10 +722,11 @@ namespace mg5amcCpu
       *m_preal = cxreal( c );
       *m_pimag = cximag( c );
       return *this;
-    } // copy values
+    } // copy (assign) non-const values
     __host__ __device__ operator cxtype() const { return cxmake( *m_preal, *m_pimag ); }
   private:
-    fptype *m_preal, *m_pimag; // RI
+    fptype* const m_preal; // const pointer to non-const fptype R
+    fptype* const m_pimag; // const pointer to non-const fptype I
   };
 
   // Printout to stream for user defined types

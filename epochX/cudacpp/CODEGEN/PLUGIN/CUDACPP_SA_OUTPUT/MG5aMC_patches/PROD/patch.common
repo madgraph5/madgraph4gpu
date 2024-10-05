@@ -1,8 +1,8 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/dsample.f a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-index e18ba7c03..7f37cd083 100644
+index bcfe1138b..f43710093 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 +++ a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-@@ -169,7 +169,9 @@ c
+@@ -175,7 +175,9 @@ c
           if (iter .le. itmax) then
  c            write(*,*) 'iter/ievent/ivec', iter, ievent, ivec
              ievent=ievent+1
@@ -12,7 +12,7 @@ index e18ba7c03..7f37cd083 100644
              CUTSDONE=.FALSE.
              CUTSPASSED=.FALSE.
              if (passcuts(p,VECSIZE_USED)) then
-@@ -223,6 +225,7 @@ c     write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
+@@ -247,6 +249,7 @@ c     write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
                 do I=1, VECSIZE_USED
                    all_wgt(i) = all_wgt(i)*all_fx(i)
                enddo
@@ -20,7 +20,7 @@ index e18ba7c03..7f37cd083 100644
                 do i =1, VECSIZE_USED
  c     if last paremeter is true -> allow grid update so only for a full page
                    lastbin(:) = all_lastbin(:,i)
-@@ -230,6 +233,7 @@ c     if last paremeter is true -> allow grid update so only for a full page
+@@ -254,6 +257,7 @@ c     if last paremeter is true -> allow grid update so only for a full page
  c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.VECSIZE_USED                   
                    call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.VECSIZE_USED) !Store result
                 enddo
@@ -28,7 +28,7 @@ index e18ba7c03..7f37cd083 100644
                 if (VECSIZE_USED.ne.1.and.force_reset)then
                    call reset_cumulative_variable()
                    force_reset=.false.
-@@ -240,7 +244,9 @@ c     if (wgt .ne. 0d0) call graph_point(p,wgt) !Update graphs
+@@ -264,7 +268,9 @@ c     if (wgt .ne. 0d0) call graph_point(p,wgt) !Update graphs
              else
                 fx =0d0
                 wgt=0d0
@@ -38,7 +38,7 @@ index e18ba7c03..7f37cd083 100644
              endif
  
           endif
-@@ -405,7 +411,9 @@ c
+@@ -429,7 +435,9 @@ c
           call sample_get_config(wgt,iter,ipole)
           if (iter .le. itmax) then
              ievent=ievent+1
@@ -48,7 +48,7 @@ index e18ba7c03..7f37cd083 100644
              if (pass_point(p)) then
                 xzoomfact = 1d0
                 fx = dsig(p,wgt,0) !Evaluate function
-@@ -421,7 +429,9 @@ c
+@@ -445,7 +453,9 @@ c
              endif
              
              if (nzoom .le. 0) then
@@ -58,15 +58,6 @@ index e18ba7c03..7f37cd083 100644
              else
                 nzoom = nzoom -1
                 ievent=ievent-1
-@@ -727,7 +737,7 @@ c
-       common/read_grid_file/read_grid_file
- 
-       data use_cut/2/            !Grid: 0=fixed , 1=standard, 2=non-zero
--      data ituple/1/             !1=htuple, 2=sobel 
-+      data ituple/1/             !1=ntuple(ranmar or htuple), 2=sobel 
-       data Minvar(1,1)/-1/       !No special variable mapping
- 
- c-----
 @@ -1218,7 +1228,7 @@ c     taken care of at the level of matrix<i> already.
        
        end subroutine sample_get_discrete_x
@@ -104,7 +95,7 @@ index e18ba7c03..7f37cd083 100644
  c
  c     External
  c
-@@ -1291,15 +1320,29 @@ c         write(*,'(7f11.5)')(ddum(j)*real(ng),j=1,dim)
+@@ -1315,15 +1344,29 @@ c         write(*,'(7f11.5)')(ddum(j)*real(ng),j=1,dim)
        endif
        if (ituple .eq. 1) then
  c         write(*,*) 'Getting variable',ipole,j,minvar(j,ipole)
@@ -143,7 +134,7 @@ index e18ba7c03..7f37cd083 100644
  c
  c     Line which allows us to keep choosing same x
  c
-@@ -1312,10 +1355,10 @@ c            write(*,*) 'Reusing num',j,nzoom,tx(2,j)
+@@ -1336,10 +1379,10 @@ c            write(*,*) 'Reusing num',j,nzoom,tx(2,j)
              call ntuple(ddum(j),max(xbin_min,dble(int(tx(2,j)))),
       $           min(xbin_max,dble(int(tx(2,j))+1)),j,ipole)
  
@@ -157,7 +148,7 @@ index e18ba7c03..7f37cd083 100644
  
  c            write(*,'(2i6,4e15.5)') nzoom,j,ddum(j),tx(2,j),
  c     $           max(xbin_min,dble(int(tx(2,j)))),
-@@ -1378,7 +1421,19 @@ c     to the fact that the grids are required to be separated by 1e-14. Since
+@@ -1402,7 +1445,19 @@ c     to the fact that the grids are required to be separated by 1e-14. Since
  c     double precision is about 18 digits, we expect things to agree to
  c     3 digit accuracy.
  c
@@ -178,7 +169,7 @@ index e18ba7c03..7f37cd083 100644
           if (icount .lt. 5) then
              write(*,'(a,i4,2e14.6,1e12.4)')
       &           'Warning xbin not returning correct x', ij,
-@@ -1389,10 +1444,11 @@ c
+@@ -1413,10 +1468,11 @@ c
           endif
           icount=icount+1
        endif
@@ -207,7 +198,7 @@ index a59181c70..af7e0efbc 100644
        PARAMETER(MAXTRIES=25)
  C     To pass the helicity configuration chosen by the DiscreteSampler to 
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..f6ed99bae 100644
+index 348c283be..205014f49 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,40 @@
@@ -273,7 +264,7 @@ index 348c283be..f6ed99bae 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,41 +90,147 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,41 +90,150 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -317,6 +308,8 @@ index 348c283be..f6ed99bae 100644
  
 -$(LIBDIR)libmodel.$(libext): ../../Cards/param_card.dat
 -	cd ../../Source/MODEL; make
++# Disable OpenMP by default: enable OpenMP only if USEOPENMP=1 (#758)
++ifeq ($(USEOPENMP),1)
 +ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
 +override OMPFLAGS = -fopenmp
 +LINKLIBS += -liomp5 # see #578
@@ -329,11 +322,12 @@ index 348c283be..f6ed99bae 100644
 +else
 +override OMPFLAGS = -fopenmp
 +endif
- 
--$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
++endif
++
 +$(PROG)_fortran: $(PROCESS) $(DSIG) auto_dsig.o $(LIBS) $(MATRIX) counters.o ompnumthreads.o
 +	$(FC) -o $(PROG)_fortran $(PROCESS) $(DSIG) auto_dsig.o $(MATRIX) $(LINKLIBS) $(BIASDEPENDENCIES) $(OMPFLAGS) counters.o ompnumthreads.o $(LDFLAGS)
-+
+ 
+-$(LIBDIR)libgeneric.$(libext): ../../Cards/run_card.dat
 +$(LIBS): .libs
 +
 +.libs: ../../Cards/param_card.dat ../../Cards/run_card.dat
@@ -437,7 +431,7 @@ index 348c283be..f6ed99bae 100644
  
  # Dependencies
  
-@@ -97,5 +250,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -97,5 +253,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  

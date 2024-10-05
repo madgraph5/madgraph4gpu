@@ -4,18 +4,22 @@
 # Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2021-2024) for the MG5aMC CUDACPP plugin.
 
 import os
+import sys
 import subprocess
+
+# AV - PLUGIN_NAME can be one of PLUGIN/CUDACPP_OUTPUT or MG5aMC_PLUGIN/CUDACPP_OUTPUT
+PLUGIN_NAME = __name__.rsplit('.',1)[0]
 
 # AV - load an independent 2nd copy of the export_cpp module (as PLUGIN_export_cpp) and use that within the plugin (workaround for #341)
 # See https://stackoverflow.com/a/11285504
 ###import madgraph.iolibs.export_cpp as export_cpp # 1st copy
 ######import madgraph.iolibs.export_cpp as PLUGIN_export_cpp # this is not enough to define an independent 2nd copy: id(export_cpp)==id(PLUGIN_export_cpp)
-import sys
 import importlib.util
 SPEC_EXPORTCPP = importlib.util.find_spec('madgraph.iolibs.export_cpp')
 PLUGIN_export_cpp = importlib.util.module_from_spec(SPEC_EXPORTCPP)
 SPEC_EXPORTCPP.loader.exec_module(PLUGIN_export_cpp)
-sys.modules['PLUGIN.CUDACPP_OUTPUT.PLUGIN_export_cpp'] = PLUGIN_export_cpp # allow 'import PLUGIN.CUDACPP_OUTPUT.PLUGIN_export_cpp' in model_handling.py
+###sys.modules['PLUGIN.CUDACPP_OUTPUT.PLUGIN_export_cpp'] = PLUGIN_export_cpp # allow 'import PLUGIN.CUDACPP_OUTPUT.PLUGIN_export_cpp' in model_handling.py
+sys.modules['%s.PLUGIN_export_cpp'%PLUGIN_NAME] = PLUGIN_export_cpp # allow 'import <PLUGIN_NAME>.PLUGIN_export_cpp' in model_handling.py
 del SPEC_EXPORTCPP
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
@@ -25,16 +29,19 @@ del SPEC_EXPORTCPP
 PLUGINDIR = os.path.dirname( __file__ )
 
 # AV - model_handling includes the custom FileWriter, ALOHAWriter, UFOModelConverter, OneProcessExporter and HelasCallWriter, plus additional patches
-import PLUGIN.CUDACPP_OUTPUT.model_handling as model_handling
+###import PLUGIN.CUDACPP_OUTPUT.model_handling as model_handling # AV modify this to also allow MG5aMC_PLUGIN
+__import__('%s.model_handling'%PLUGIN_NAME)
+model_handling = sys.modules['%s.model_handling'%PLUGIN_NAME]
 
 # AV - create a plugin-specific logger
 import logging
-logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.output')
+logger = logging.getLogger('madgraph.%s.output'%PLUGIN_NAME)
 from madgraph import MG5DIR
 #------------------------------------------------------------------------------------
 
 from os.path import join as pjoin
 import madgraph.iolibs.files as files
+import madgraph.iolibs.export_v4 as export_v4
 import madgraph.various.misc as misc
 
 from . import launch_plugin
@@ -103,6 +110,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
                                       s+'gpu/MemoryAccessGs.h', s+'gpu/MemoryAccessCouplingsFixed.h',
                                       s+'gpu/MemoryAccessNumerators.h', s+'gpu/MemoryAccessDenominators.h',
+                                      s+'gpu/MemoryAccessChannelIds.h',
                                       s+'gpu/EventStatistics.h', s+'gpu/CommonRandomNumbers.h',
                                       s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
                                       s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
@@ -126,6 +134,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
                     'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h',
                     'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h',
+                    'MemoryAccessChannelIds.h',
                     'EventStatistics.h', 'CommonRandomNumbers.h',
                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
                     'MatrixElementKernels.cc', 'MatrixElementKernels.h',
@@ -195,7 +204,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                 open(os.path.join('test', 'cudacpp_test.mk'), 'w').write(makefile_test)
 
     # OM - overload export_v4.py version to add additional_clean section (and avoid patchMad.sh for Source/makefile)
-    def write_source_makefile(self, writer, default=None):
+    def write_source_makefile(self, writer, model=None, default=None):
         if default:
             replace_dict = default
         else:
@@ -227,9 +236,9 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
         """Typically creating jpeg/HTML output/ compilation/...
-           cmdhistory is the list of command used so far.
-           MG5options are all the options of the main interface
-           outputflags is a list of options provided when doing the output command"""
+            cmdhistory is the list of command used so far.
+            MG5options are all the options of the main interface
+            outputflags is a list of options provided when doing the output command"""
         ###misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
         if self.in_madevent_mode:
             self.add_input_for_banner()
@@ -313,24 +322,76 @@ class PLUGIN_ProcessExporter_MadEvent(PLUGIN_ProcessExporter):
     from_template['SubProcesses'] = from_template['SubProcesses'] + [s+'gpu/fbridge_common.inc',
                                       s+'gpu/counters.cc',
                                       s+'gpu/ompnumthreads.cc']
-     
-    to_link_in_P = PLUGIN_ProcessExporter.to_link_in_P + ['fbridge_common.inc', 'counters.cc','ompnumthreads.cc'] 
+
+    to_link_in_P = PLUGIN_ProcessExporter.to_link_in_P + ['fbridge_common.inc', 'counters.cc','ompnumthreads.cc']
 
 #------------------------------------------------------------------------------------
 
 class SIMD_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
-    
+
     # Default class for the run_card to use
     run_card_class = launch_plugin.CPPRunCard
-    
+
     def change_output_args(args, cmd):
         """ """
-        cmd._export_format = "madevent"
+        #cmd._export_format = "madevent_forplugin"
+        cmd._export_format = 'madevent'
+        cmd._export_plugin = FortranExporterBridge
         args.append('--hel_recycling=False')
         args.append('--me_exporter=standalone_simd')
         if 'vector_size' not in ''.join(args):
             args.append('--vector_size=16')
+        if 'nb_wrap' not in ''.join(args):
+            args.append('--nb_wrap=1')
         return args
+
+class FortranExporterBridge(export_v4.ProcessExporterFortranMEGroup):
+
+    def write_auto_dsig_file(self, writer, matrix_element, proc_id = ""):
+        replace_dict,context = super().write_auto_dsig_file(False, matrix_element, proc_id)
+        replace_dict['additional_header'] = """
+      INTEGER IEXT
+
+      INTEGER                    ISUM_HEL
+      LOGICAL                    MULTI_CHANNEL
+      COMMON/TO_MATRIX/ISUM_HEL, MULTI_CHANNEL
+
+      LOGICAL FIRST_CHID
+      SAVE FIRST_CHID
+      DATA FIRST_CHID/.TRUE./
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      INCLUDE 'coupl.inc' ! for ALL_G
+      INCLUDE 'fbridge.inc'
+      INCLUDE 'fbridge_common.inc'
+      INCLUDE 'genps.inc'
+      INCLUDE 'run.inc'
+      DOUBLE PRECISION OUT2(VECSIZE_MEMMAX)
+      INTEGER SELECTED_HEL2(VECSIZE_MEMMAX)
+      INTEGER SELECTED_COL2(VECSIZE_MEMMAX)
+      DOUBLE PRECISION CBYF1
+      INTEGER*4 NGOODHEL, NTOTHEL
+
+      INTEGER*4 NWARNINGS
+      SAVE NWARNINGS
+      DATA NWARNINGS/0/
+
+      LOGICAL FIRST
+      SAVE FIRST
+      DATA FIRST/.TRUE./"""
+        replace_dict['OMP_LIB'] = ''
+        replace_dict['OMP_PREFIX'] = """IF( FBRIDGE_MODE .LE. 0 ) THEN ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
+#endif
+CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1"""
+        replace_dict["OMP_POSTFIX"] = open(pjoin(PLUGINDIR,'madgraph','iolibs','template_files','gpu','smatrix_multi.f')).read().split('\n',4)[4] # AV skip 4 copyright lines
+        _file_path = export_v4._file_path
+        if writer:
+            file = open(pjoin(_file_path, 'iolibs/template_files/auto_dsig_v4.inc')).read()
+            file = file % replace_dict
+            # Write the file
+            writer.writelines(file, context=context)
+        else:
+            return replace_dict, context
 
 #------------------------------------------------------------------------------------
 
@@ -338,14 +399,18 @@ class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
 
     # Default class for the run_card to use
     run_card_class = launch_plugin.GPURunCard
-    
+
     def change_output_args(args, cmd):
         """ """
-        cmd._export_format = "madevent"
+        cmd._export_format = 'madevent'
+        cmd._export_plugin = FortranExporterBridge
+
         args.append('--hel_recycling=False')
         args.append('--me_exporter=standalone_cuda')
         if 'vector_size' not in ''.join(args):
-            args.append('--vector_size=16384')
+            args.append('--vector_size=32')
+        if 'nb_wrap' not in ''.join(args):
+            args.append('--nb_wrap=512')
         return args
 
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):

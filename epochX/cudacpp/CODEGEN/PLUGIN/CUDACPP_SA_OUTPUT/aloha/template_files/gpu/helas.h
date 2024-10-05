@@ -451,7 +451,10 @@
       }
       else
       {
-        const fptype emp = pvec0 / ( vmass * pp );
+        //printf( "DEBUG1011 (before emp): pvec0=%f vmass=%f pp=%f vmass*pp=%f\n", pvec0, vmass, pp, vmass * pp );
+        //const fptype emp = pvec / ( vmass * pp ); // this may give a FPE #1011 (why?! maybe when vmass=+-epsilon?)
+        const fptype emp = pvec0 / vmass / pp; // workaround for FPE #1011
+        //printf( "DEBUG1011 (after emp): emp=%f\n", emp );
         vc[2] = cxmake( hel0 * pp / vmass, 0. );
         vc[5] = cxmake( hel0 * pvec3 * emp + hel * pt / pp * sqh, 0. );
         if( pt != 0. )

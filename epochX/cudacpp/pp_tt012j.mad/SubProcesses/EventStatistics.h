@@ -106,7 +106,14 @@ namespace mg5amcCpu
       , sqsWGdiff( 0 )
       , tag( "" ) {}
     // Combine two EventStatistics
-    EventStatistics& operator+=( const EventStatistics& stats )
+#ifdef __clang__
+    // Disable optimizations for this function in HIP (work around FPE crash #1003: originally using #if __HIP_CLANG_ONLY__)
+    // Disable optimizations for this function in clang tout court (work around FPE crash #1005: now using #ifdef __clang__)
+    // See https://clang.llvm.org/docs/LanguageExtensions.html#extensions-for-selectively-disabling-optimization
+    __attribute__( ( optnone ) )
+#endif
+    EventStatistics&
+    operator+=( const EventStatistics& stats )
     {
       EventStatistics s1 = *this; // temporary copy
       EventStatistics s2 = stats; // temporary copy
