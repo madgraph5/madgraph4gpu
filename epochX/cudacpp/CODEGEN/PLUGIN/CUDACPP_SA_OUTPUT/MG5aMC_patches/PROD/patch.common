@@ -1,5 +1,5 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/Source/dsample.f a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
-index bcfe1138b..f43710093 100644
+index bcfe1138b..5fa3ce506 100644
 --- b/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 +++ a/epochX/cudacpp/gg_tt.mad/Source/dsample.f
 @@ -175,7 +175,9 @@ c
@@ -58,7 +58,7 @@ index bcfe1138b..f43710093 100644
              else
                 nzoom = nzoom -1
                 ievent=ievent-1
-@@ -1218,7 +1228,7 @@ c     taken care of at the level of matrix<i> already.
+@@ -1242,7 +1252,7 @@ c     taken care of at the level of matrix<i> already.
        
        end subroutine sample_get_discrete_x
  
@@ -67,7 +67,7 @@ index bcfe1138b..f43710093 100644
  c************************************************************************
  c     Returns maxdim random numbers between 0 and 1, and the wgt
  c     associated with this set of points, and the iteration number
-@@ -1240,7 +1250,26 @@ c
+@@ -1264,7 +1274,26 @@ c
  c     Local
  c
        integer  im, ip,ij,icount,it_warned
@@ -183,22 +183,8 @@ index bcfe1138b..f43710093 100644
  
        wgt = wgt * xo * dble(xbin_max-xbin_min)
  c      print*,'Returning x',ij,ipole,j,x
-diff --git b/epochX/cudacpp/gg_tt.mad/Source/genps.inc a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
-index a59181c70..af7e0efbc 100644
---- b/epochX/cudacpp/gg_tt.mad/Source/genps.inc
-+++ a/epochX/cudacpp/gg_tt.mad/Source/genps.inc
-@@ -30,7 +30,8 @@ c*************************************************************************
- c	Parameters for helicity sums in matrixN.f
- c*************************************************************************
-       REAL*8 LIMHEL
--      PARAMETER(LIMHEL=1e-8) ! ME threshold for helicity filtering
-+c     PARAMETER(LIMHEL=1e-8) ! ME threshold for helicity filtering (Fortran default)
-+      PARAMETER(LIMHEL=0) ! ME threshold for helicity filtering (force Fortran to mimic cudacpp, see #419)
-       INTEGER MAXTRIES
-       PARAMETER(MAXTRIES=25)
- C     To pass the helicity configuration chosen by the DiscreteSampler to 
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..205014f49 100644
+index 348c283be..ac52b1183 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 @@ -1,6 +1,40 @@
