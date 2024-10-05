@@ -312,8 +312,11 @@ function codeGenAndDiff()
     echo "--------------------------------------------------"
     cat ${outproc}.mg
     echo -e "--------------------------------------------------\n"
-    ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
-    { time python3 ./bin/mg5_aMC ${outproc}.mg || true ; } >& ${outproc}_log.txt
+    PYTHONPATHOLD=$PYTHONPATH
+    export PYTHONPATH=..:$PYTHONPATHOLD
+    ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC -m CUDACPP_OUTPUT ${outproc}.mg ; } >& ${outproc}_log.txt
+    { time python3 ./bin/mg5_aMC -m CUDACPP_OUTPUT ${outproc}.mg || true ; } >& ${outproc}_log.txt
+    export PYTHONPATH=$PYTHONPATHOLD
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
@@ -330,12 +333,25 @@ function codeGenAndDiff()
     echo "*** ERROR! Code generation failed"
     exit 1
   fi
+  # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)
+  # (NEW SEP2024: move this _before_ `madevent treatcards param` as otherwise param_card.inc changes during the build of the code)
+  if [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
+    cat ${outproc}/Cards/ident_card.dat | head -3 > ${outproc}/Cards/ident_card.dat.new
+    cat ${outproc}/Cards/ident_card.dat | tail -n+4 | sort >> ${outproc}/Cards/ident_card.dat.new
+    \mv ${outproc}/Cards/ident_card.dat.new ${outproc}/Cards/ident_card.dat
+  fi
   # Patches moved here from patchMad.sh after Olivier's PR #764 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)  
   if [ "${OUTBCK}" == "mad" ]; then
     # Force the use of strategy SDE=1 in multichannel mode (see #419)
     sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${outproc}/Cards/run_card.dat
-    # Force the use of VECSIZE_MEMMAX=16384
-    sed -i 's/16 = vector_size/16384 = vector_size/' ${outproc}/Cards/run_card.dat
+    # Force the use of VECSIZE_MEMMAX=16384 (OLD CODE BEFORE JUNE24 WARP_SIZE)
+    ###sed -i 's/16 = vector_size/16384 = vector_size/' ${outproc}/Cards/run_card.dat 
+    # Force the use of WARP_SIZE=32 and NB_WARP=512 i.e. VECSIZE_MEMMAX=16384 (NEW CODE AFTER JUNE24 WARP_SIZE: NEEDS FIX FOR CRASH #885)
+    sed -i 's/16 = vector_size/32 = vector_size/' ${outproc}/Cards/run_card.dat 
+    sed -i 's/1 = nb_warp/512 = nb_warp/' ${outproc}/Cards/run_card.dat 
+    # Force the use of WARP_SIZE=32 and NB_WARP=2 i.e. VECSIZE_MEMMAX=64 is identical to (TEMPORARY) VECSIZE_USED=64 in tmad tests (workaround for crash #885)
+    ###sed -i 's/16 = vector_size/32 = vector_size/' ${outproc}/Cards/run_card.dat 
+    ###sed -i 's/1 = nb_warp/2 = nb_warp/' ${outproc}/Cards/run_card.dat 
     # Force the use of fast-math in Fortran builds
     sed -i 's/-O = global_flag.*/-O3 -ffast-math -fbounds-check = global_flag ! build flags for all Fortran code (for a fair comparison to cudacpp; default is -O)/' ${outproc}/Cards/run_card.dat
     # Generate run_card.inc and param_card.inc (include stdout and stderr in the code generation log which is later checked for errors)
@@ -438,12 +454,6 @@ function codeGenAndDiff()
   ###  dir_patches=PROD
   ###  $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   ###fi
-  # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2 (these are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)
-  if [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
-    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | head -3 > ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
-    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
-    \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
-  fi
   # Additional patches that are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
   cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/.gitignore
 crossx.html
@@ -529,6 +539,7 @@ function usage()
 
 #--------------------------------------------------------------------------------------
 
+# Clean up MG5AMC/mg5amcnlo
 function cleanup_MG5AMC_HOME()
 {
   # Remove MG5aMC fragments from previous runs
@@ -540,13 +551,15 @@ function cleanup_MG5AMC_HOME()
   rm -rf $(find ${MG5AMC_HOME} -name '*~')
 }
 
-#function cleanup_MG5AMC_PLUGIN()
-#{
-#  # Remove and recreate MG5AMC_HOME/PLUGIN
-#  rm -rf ${MG5AMC_HOME}/PLUGIN
-#  mkdir ${MG5AMC_HOME}/PLUGIN
-#  touch ${MG5AMC_HOME}/PLUGIN/__init__.py
-#}
+# Clean up MG5AMC/mg5amcnlo/PLUGIN
+# (NB: as of PR #1008, this is needed before code generation, to ensure that the only plugin is MG5AMC/MG5AMC_PLUGIN)
+function cleanup_MG5AMC_PLUGIN()
+{
+  # Remove and recreate MG5AMC_HOME/PLUGIN
+  rm -rf ${MG5AMC_HOME}/PLUGIN
+  mkdir ${MG5AMC_HOME}/PLUGIN
+  touch ${MG5AMC_HOME}/PLUGIN/__init__.py
+}
 
 #--------------------------------------------------------------------------------------
 
@@ -708,9 +721,13 @@ cd - > /dev/null
 ###  echo -e "Copy MG5aMC_patches/${dir_patches} patches... done\n"
 ###fi
 
-# Clean up before code generation
+# Clean up MG5AMC/mg5amcnlo before code generation
 cleanup_MG5AMC_HOME
-###cleanup_MG5AMC_PLUGIN
+
+# Clean up MG5AMC/mg5amcnlo/PLUGIN before code generation
+# (NB: between PR #766 and PR #1008, this was removed because cudacpp was a symlink in MG5AMC/mg5amcnlo/PLUGIN)
+# (NB: as of PR #1008, this is needed again to ensure that the only plugin is MG5AMC/MG5AMC_PLUGIN)
+cleanup_MG5AMC_PLUGIN
 
 # Print differences in MG5AMC with respect to git after copying ad-hoc patches
 if [ "$QUIET" != "1" ]; then
@@ -751,8 +768,12 @@ SECONDS=0 # bash built-in
 export CUDACPP_CODEGEN_PATCHLEVEL=${PATCHLEVEL}
 codeGenAndDiff $proc "$cmd"
 
-# Clean up after code generation
+# Clean up MG5AMC/mg5amcnlo after code generation
 cleanup_MG5AMC_HOME
+
+# Clean up MG5AMC/mg5amcnlo/PLUGIN after code generation
+# (NB: between PR #766 and PR #1008, this was removed because cudacpp was a symlink in MG5AMC/mg5amcnlo/PLUGIN)
+# (NB: as of PR #1008, this remains unnecessary because MG5AMC/mg5amcnlo/PLUGIN is not modified by generateAndCompare.sh)
 ###cleanup_MG5AMC_PLUGIN
 
 # Check formatting in the auto-generated code

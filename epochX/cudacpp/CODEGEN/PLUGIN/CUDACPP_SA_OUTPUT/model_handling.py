@@ -4,6 +4,10 @@
 # Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 import os
+import sys
+
+# AV - PLUGIN_NAME can be one of PLUGIN/CUDACPP_OUTPUT or MG5aMC_PLUGIN/CUDACPP_OUTPUT
+PLUGIN_NAME = __name__.rsplit('.',1)[0]
 
 # AV - use templates for source code, scripts and Makefiles from PLUGINDIR instead of MG5DIR
 ###from madgraph import MG5DIR
@@ -11,15 +15,16 @@ PLUGINDIR = os.path.dirname( __file__ )
 
 # AV - create a plugin-specific logger
 import logging
-logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.model_handling')
-
+logger = logging.getLogger('madgraph.%s.model_handling'%PLUGIN_NAME)
 
 #------------------------------------------------------------------------------------
 
 # AV - import the independent 2nd copy of the export_cpp module (as PLUGIN_export_cpp), previously loaded in output.py
 ###import madgraph.iolibs.export_cpp as export_cpp # 1st copy
 ######import madgraph.iolibs.export_cpp as PLUGIN_export_cpp # this is not enough to define an independent 2nd copy: id(export_cpp)==id(PLUGIN_export_cpp)
-import PLUGIN.CUDACPP_OUTPUT.PLUGIN_export_cpp as PLUGIN_export_cpp # 2nd copy loaded in the plugin's output.py
+######import PLUGIN.CUDACPP_OUTPUT.PLUGIN_export_cpp as PLUGIN_export_cpp # 2nd copy loaded in the plugin's output.py (but not enough for MG5aMC_PLUGIN case)
+__import__('%s.PLUGIN_export_cpp'%PLUGIN_NAME)
+PLUGIN_export_cpp = sys.modules['%s.PLUGIN_export_cpp'%PLUGIN_NAME] # 2nd copy loaded in the plugin's output.py (modified for MG5aMC_PLUGIN case)
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
 
@@ -37,12 +42,11 @@ PLUGIN_export_cpp.get_mg5_info_lines = PLUGIN_get_mg5_info_lines
 # AV - load an independent 2nd copy of the writers module (as PLUGIN_writers) and use that within the plugin (workaround for #341)
 # See https://stackoverflow.com/a/11285504
 ###import madgraph.iolibs.file_writers as writers # 1st copy
-import sys
 import importlib.util
 SPEC_WRITERS = importlib.util.find_spec('madgraph.iolibs.file_writers')
 PLUGIN_writers = importlib.util.module_from_spec(SPEC_WRITERS)
 SPEC_WRITERS.loader.exec_module(PLUGIN_writers)
-###sys.modules['PLUGIN.CUDACPP_OUTPUT.PLUGIN_writers'] = PLUGIN_writers # would allow 'import PLUGIN.CUDACPP_OUTPUT.PLUGIN_writers' (not needed)
+###sys.modules['%s.PLUGIN_writers'%PLUGIN_NAME] = PLUGIN_writers # would allow 'import <PLUGIN_NAME>.PLUGIN_writers' (not needed)
 del SPEC_WRITERS
 
 # AV - use the independent 2nd copy of the writers module within the PLUGIN_export_cpp module (workaround for #341)
@@ -1169,6 +1173,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['nincoming'] = nincoming
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
+        replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
         file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
         file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
         return file
@@ -1305,13 +1310,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
   // In CUDA, this device function computes the ME for a single event
   // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
+  // *** NB: calculate_wavefunction accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898 ***
   __device__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
                            const fptype* allmomenta,      // input: momenta[nevt*npar*4]
                            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
                            fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+                           const unsigned int channelId,  // input: multichannel SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
                            fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
                            fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
@@ -1447,11 +1453,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         pathlib.Path(self.path + '/../../test/ref/.keepme').touch()
         ###template_ref = 'dump_CPUTest.'+self.process_name+'.txt'
         template_ref = self.template_path + '/../../../test/ref/' + 'dump_CPUTest.' + self.process_name + '.txt'
-        if os.path.exists( template_ref ):
-            ###misc.sprint( 'Copying test reference file: ', template_ref )
-            PLUGIN_export_cpp.cp( template_ref, self.path + '/../../test/ref' )
-        ###else:
-            ###misc.sprint( 'Test reference file does not exist and will not be copied: ', template_ref )
+        for ref in template_ref, template_ref + '2' : # two different reference files for tests without/with multichannel #896
+            if os.path.exists( ref ):
+                ###misc.sprint( 'Copying test reference file: ', ref )
+                PLUGIN_export_cpp.cp( ref, self.path + '/../../test/ref' )
+            ###else:
+                ###misc.sprint( 'Test reference file does not exist and will not be copied: ', ref )
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
@@ -1876,7 +1883,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         res.append("""//constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
       constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
       const fptype* allCOUPs[nxcoup];
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
 #endif
@@ -1886,7 +1893,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )                                 // FIX #823
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
 #ifdef MGONGPUCPP_GPUIMPL
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic pop
 #endif
       // CUDA kernels take input/output buffers with momenta/MEs for all events

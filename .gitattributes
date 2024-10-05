@@ -1,3 +1,5 @@
-# github linguist by default assumes documention in an "examples" directory
+# SR (Aug 2020): github linguist by default assumes documention in an "examples" directory
 examples/** -linguist-documentation
-
+ 
+# AV (Sep 2024): exclude all files from "Source code" release archives produced with git-archive
+* export-ignore
