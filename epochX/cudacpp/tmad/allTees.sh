@@ -1,7 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (May 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
 
@@ -10,7 +11,7 @@ if [ "${host/juwels}" != "${host}" ]; then ${scrdir}/juwelspatch.sh; fi # workar
 
 short=0
 bsm=
-flts=-mix # "d f m" (alternative: -flt i.e. "d f")
+flts=-dmf # "d m f" (alternative: -d_f i.e. "d f")
 makeclean=
 rmrdat=
 add10x="+10x"
