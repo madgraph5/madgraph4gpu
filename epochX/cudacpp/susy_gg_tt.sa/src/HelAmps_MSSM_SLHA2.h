@@ -8,7 +8,7 @@
 // Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.6.0_lo_vect, 2024-06-17
+// MadGraph5_aMC@NLO v. 3.6.0, 2024-09-30
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -478,7 +478,10 @@ namespace mg5amcCpu
       }
       else
       {
-        const fptype emp = pvec0 / ( vmass * pp );
+        //printf( "DEBUG1011 (before emp): pvec0=%f vmass=%f pp=%f vmass*pp=%f\n", pvec0, vmass, pp, vmass * pp );
+        //const fptype emp = pvec / ( vmass * pp ); // this may give a FPE #1011 (why?! maybe when vmass=+-epsilon?)
+        const fptype emp = pvec0 / vmass / pp; // workaround for FPE #1011
+        //printf( "DEBUG1011 (after emp): emp=%f\n", emp );
         vc[2] = cxmake( hel0 * pp / vmass, 0. );
         vc[5] = cxmake( hel0 * pvec3 * emp + hel * pt / pp * sqh, 0. );
         if( pt != 0. )

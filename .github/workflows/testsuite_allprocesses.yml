@@ -16,7 +16,7 @@ on:
 
   # Trigger the all-processes workflow for pull requests to master
   pull_request:
-    branches: [ master, master_june24 ]
+    branches: [ master ]
 
   # Trigger the all-processes workflow when new changes to the workflow are pushed
   # (NB: this is now disabled to avoid triggering two jobs when pushing to a branch for which a PR is opened)
