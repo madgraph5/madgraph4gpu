@@ -1,0 +1,619 @@
+START: Wed Aug  7 07:39:03 PM CEST 2024
+On itgold91.cern.ch [CPU: Intel(R) Xeon(R) Gold 6326 CPU (nproc=32)] [GPU: none]:
+CUDACPP_RUNTIME_DISABLEFPE is set
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P0_ddx_epem/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P0_ddx_taptam/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P0_uux_epem/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P0_uux_taptam/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_ddx_epemg/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_ddx_taptamg/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_gd_epemd/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_gd_taptamd/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_gdx_epemdx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_gdx_taptamdx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_gu_epemu/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_gu_taptamu/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_gux_epemux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_gux_taptamux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_uux_epemg/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P1_uux_taptamg/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dc_epemdc/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dc_taptamdc/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dd_epemdd/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dd_taptamdd/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ddx_epemddx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ddx_epemgg/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ddx_epemssx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ddx_epemuux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ddx_taptamddx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ddx_taptamgg/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ddx_taptamssx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ddx_taptamuux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ds_epemds/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ds_taptamds/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dsx_epemdsx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dsx_taptamdsx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dux_epemdux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dux_taptamdux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dxcx_epemdxcx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dxcx_taptamdxcx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dxdx_epemdxdx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dxdx_taptamdxdx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dxsx_epemdxsx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_dxsx_taptamdxsx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gd_epemgd/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gd_taptamgd/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gdx_epemgdx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gdx_taptamgdx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gg_epemddx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gg_epemuux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gg_taptamddx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gg_taptamuux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gu_epemgu/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gu_taptamgu/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gux_epemgux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_gux_taptamgux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uc_epemuc/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uc_taptamuc/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ucx_epemucx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ucx_taptamucx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ud_epemud/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_ud_taptamud/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_udx_epemudx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_udx_taptamudx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uu_epemuu/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uu_taptamuu/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uux_epemccx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uux_epemddx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uux_epemgg/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uux_epemuux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uux_taptamccx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uux_taptamddx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uux_taptamgg/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uux_taptamuux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uxcx_epemuxcx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uxcx_taptamuxcx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uxdx_epemuxdx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uxdx_taptamuxdx/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uxux_epemuxux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 19:39 madevent/SubProcesses/P2_uxux_taptamuxux/madevent -> build.512z_m_inl0_hrd0/madevent_cpp
+Now generating 100 events with random seed 21 and granularity 1
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.3_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+WRITE GRIDCARD /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent
+__CUDACPP_DEBUG: GridPackCmd.__init__ will call self.launch
+__CUDACPP_DEBUG: GridPackCmd.launch starting
+__CUDACPP_DEBUG: GridPackCmd.launch (1) restore_data
+generate 100 events
+P2_gg_epemuux
+P2_gg_epemddx
+P2_gg_taptamuux
+P2_gg_taptamddx
+P2_gu_epemgu
+P2_gd_epemgd
+P2_gux_epemgux
+P2_gdx_epemgdx
+P2_gu_taptamgu
+P2_gd_taptamgd
+P2_gux_taptamgux
+P2_gdx_taptamgdx
+P2_uu_epemuu
+P2_uux_epemuux
+P2_dd_epemdd
+P2_ddx_epemddx
+P2_uxux_epemuxux
+P2_dxdx_epemdxdx
+P2_ud_epemud
+P2_uc_epemuc
+P2_uux_epemddx
+P2_uux_epemccx
+P2_udx_epemudx
+P2_ucx_epemucx
+P2_dc_epemdc
+P2_ds_epemds
+P2_dux_epemdux
+P2_ddx_epemuux
+P2_ddx_epemssx
+P2_dsx_epemdsx
+P2_uxdx_epemuxdx
+P2_uxcx_epemuxcx
+P2_dxcx_epemdxcx
+P2_dxsx_epemdxsx
+P2_uu_taptamuu
+P2_uux_taptamuux
+P2_dd_taptamdd
+P2_ddx_taptamddx
+P2_uxux_taptamuxux
+P2_dxdx_taptamdxdx
+P2_ud_taptamud
+P2_uc_taptamuc
+P2_uux_taptamddx
+P2_uux_taptamccx
+P2_udx_taptamudx
+P2_ucx_taptamucx
+P2_dc_taptamdc
+P2_ds_taptamds
+P2_dux_taptamdux
+P2_ddx_taptamuux
+P2_ddx_taptamssx
+P2_dsx_taptamdsx
+P2_uxdx_taptamuxdx
+P2_uxcx_taptamuxcx
+P2_dxcx_taptamdxcx
+P2_dxsx_taptamdxsx
+P2_uux_epemgg
+P2_ddx_epemgg
+P2_uux_taptamgg
+P2_ddx_taptamgg
+P1_gu_epemu
+P1_gd_epemd
+P1_gux_epemux
+P1_gdx_epemdx
+P1_gu_taptamu
+P1_gd_taptamd
+P1_gux_taptamux
+P1_gdx_taptamdx
+P1_uux_epemg
+P1_ddx_epemg
+P1_uux_taptamg
+P1_ddx_taptamg
+P0_uux_epem
+P0_ddx_epem
+P0_uux_taptam
+P0_ddx_taptam
+__CUDACPP_DEBUG: GridPackCmd.launch (2) refine4grid
+__CUDACPP_DEBUG: GridPackCmd.refine4grid starting
+Using random number seed offset = 21
+INFO: Generating 100.0 unweighted events. 
+__CUDACPP_DEBUG: gen_ximprove.launch starting
+sum of cpu time of last step: 22m06s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event starting
+INFO: need to improve 65 channels 
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_taptamg/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_taptamg/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_taptamg/ajob1' in 0.5873 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_taptamg/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_taptamg/G3/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5765s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5497s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0269s for    16384 events => throughput is 6.10E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_taptamg/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uux_taptamddx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uux_taptamddx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uux_taptamddx/ajob1' in 0.6354 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uux_taptamddx/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uux_taptamddx/G7/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.6246s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5849s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0398s for    16384 events => throughput is 4.12E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uux_taptamddx/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_taptamdx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_taptamdx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_taptamdx/ajob1' in 1.6999 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_taptamdx/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_taptamdx/G1/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5264s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5004s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0260s for    16384 events => throughput is 6.30E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_taptamdx/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.6213s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5953s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0261s for    16384 events => throughput is 6.28E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_taptamdx/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5251s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4990s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0261s for    16384 events => throughput is 6.28E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_taptamdx/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_taptamgdx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_taptamgdx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_taptamgdx/ajob1' in 1.9685 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_taptamgdx/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_taptamgdx/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.9091s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8181s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0910s for    16384 events => throughput is 1.80E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_taptamgdx/G12/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    1.0394s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.9469s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0925s for    16384 events => throughput is 1.77E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_taptamgdx/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_taptamgd/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_taptamgd/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_taptamgd/ajob1' in 2.9586 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_taptamgd/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_taptamgd/G5/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    1.3629s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.2693s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0936s for    16384 events => throughput is 1.75E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_taptamgd/G14/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.7702s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6781s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0921s for    16384 events => throughput is 1.78E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_taptamgd/G16/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.7783s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6859s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0924s for    16384 events => throughput is 1.77E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_taptamgd/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ucx_taptamucx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ucx_taptamucx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ucx_taptamucx/ajob1' in 1.2227 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ucx_taptamucx/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ucx_taptamucx/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    1.2115s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.1718s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0397s for    16384 events => throughput is 4.13E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ucx_taptamucx/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_taptamu/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_taptamu/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_taptamu/ajob1' in 1.2753 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_taptamu/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_taptamu/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.6402s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6141s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0260s for    16384 events => throughput is 6.29E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_taptamu/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.6153s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5893s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0260s for    16384 events => throughput is 6.30E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_taptamu/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_taptamddx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_taptamddx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_taptamddx/ajob1' in 1.8542 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_taptamddx/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_taptamddx/G8/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.8118s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.7191s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0928s for    16384 events => throughput is 1.77E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_taptamddx/G6/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    1.0232s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.9307s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0925s for    16384 events => throughput is 1.77E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_taptamddx/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemddx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemddx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemddx/ajob1' in 1.8096 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemddx/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemddx/G8/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.7337s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6948s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0389s for    16384 events => throughput is 4.21E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemddx/G6/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.8689s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8298s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0390s for    16384 events => throughput is 4.20E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemddx/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_taptamgu/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_taptamgu/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_taptamgu/ajob1' in 4.6940 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_taptamgu/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_taptamgu/G7/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    1.4466s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.3560s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0907s for    16384 events => throughput is 1.81E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_taptamgu/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.7764s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6852s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0912s for    16384 events => throughput is 1.80E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_taptamgu/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    1.3670s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.2747s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0924s for    16384 events => throughput is 1.77E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_taptamgu/G8/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    1.0688s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.9779s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0909s for    16384 events => throughput is 1.80E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_taptamgu/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_taptam/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_taptam/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_taptam/ajob1' in 0.8885 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_taptam/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_taptam/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.4280s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4176s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0105s for    16384 events => throughput is 1.57E+06 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_taptam/G1/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.4418s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4314s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0105s for    16384 events => throughput is 1.56E+06 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_taptam/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_epemu/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_epemu/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_epemu/ajob1' in 2.2874 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_epemu/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_epemu/G3/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5082s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4984s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0098s for    16384 events => throughput is 1.67E+06 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_epemu/G1/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5776s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5678s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0098s for    16384 events => throughput is 1.67E+06 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_epemu/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5930s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5838s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0092s for    16384 events => throughput is 1.78E+06 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_epemu/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5722s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5629s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0092s for    16384 events => throughput is 1.78E+06 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gu_epemu/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_epemd/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_epemd/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_epemd/ajob1' in 1.1590 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_epemd/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_epemd/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5891s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5798s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0092s for    16384 events => throughput is 1.77E+06 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_epemd/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5511s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5413s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0098s for    16384 events => throughput is 1.67E+06 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_epemd/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_taptamux/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_taptamux/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_taptamux/ajob1' in 0.6045 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_taptamux/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_taptamux/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5938s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5677s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0261s for    16384 events => throughput is 6.28E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_taptamux/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uu_taptamuu/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uu_taptamuu/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uu_taptamuu/ajob1' in 0.9957 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uu_taptamuu/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uu_taptamuu/G1/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.9850s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.9112s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0737s for    16384 events => throughput is 2.22E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uu_taptamuu/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_epemux/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_epemux/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_epemux/ajob1' in 1.0259 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_epemux/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_epemux/G1/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.4615s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4515s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0100s for    16384 events => throughput is 1.65E+06 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_epemux/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5461s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5368s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0093s for    16384 events => throughput is 1.77E+06 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gux_epemux/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_epemgd/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_epemgd/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_epemgd/ajob1' in 3.6052 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_epemgd/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_epemgd/G3/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.7308s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6918s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0390s for    16384 events => throughput is 4.20E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_epemgd/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.6803s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6412s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0391s for    16384 events => throughput is 4.19E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_epemgd/G14/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.6431s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6041s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0390s for    16384 events => throughput is 4.20E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_epemgd/G16/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.6926s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6530s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0396s for    16384 events => throughput is 4.14E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_epemgd/G6/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.8146s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.7755s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0391s for    16384 events => throughput is 4.19E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gd_epemgd/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_epem/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_epem/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_epem/ajob1' in 0.8727 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_epem/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_epem/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.4163s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4128s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0035s for    16384 events => throughput is 4.70E+06 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_epem/G1/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.4377s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4343s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0035s for    16384 events => throughput is 4.73E+06 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_ddx_epem/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemuux/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemuux/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemuux/ajob1' in 2.0758 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemuux/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemuux/G5/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    1.2136s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.1747s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0390s for    16384 events => throughput is 4.21E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemuux/G6/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.8435s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8046s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0389s for    16384 events => throughput is 4.21E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gg_epemuux/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/ajob1' in 7.1718 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/G3/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.7445s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.7066s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0379s for    16384 events => throughput is 4.32E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/G1/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    1.1919s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.1540s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0379s for    16384 events => throughput is 4.32E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.7254s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6875s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0379s for    16384 events => throughput is 4.32E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/G8/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.9587s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.9191s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0395s for    16384 events => throughput is 4.14E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/G16/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.6618s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6239s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0379s for    16384 events => throughput is 4.32E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    1.2912s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.2520s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0392s for    16384 events => throughput is 4.18E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/G14/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.6798s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6420s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0378s for    16384 events => throughput is 4.33E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/G6/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.8507s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8129s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0378s for    16384 events => throughput is 4.33E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gu_epemgu/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ddx_epemgg/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ddx_epemgg/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ddx_epemgg/ajob1' in 0.8617 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ddx_epemgg/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ddx_epemgg/G6/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.8511s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.8116s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0395s for    16384 events => throughput is 4.15E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_ddx_epemgg/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_epemg/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_epemg/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_epemg/ajob1' in 1.0752 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_epemg/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_epemg/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5372s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5272s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0100s for    16384 events => throughput is 1.64E+06 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_epemg/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5193s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5094s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0100s for    16384 events => throughput is 1.64E+06 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_ddx_epemg/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_uux_epemg/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_uux_epemg/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_uux_epemg/ajob1' in 1.1020 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_uux_epemg/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_uux_epemg/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5663s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5564s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0099s for    16384 events => throughput is 1.66E+06 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_uux_epemg/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5166s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5066s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0100s for    16384 events => throughput is 1.64E+06 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_uux_epemg/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_taptam/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_taptam/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_taptam/ajob1' in 0.8928 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_taptam/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_taptam/G1/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.4476s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4371s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0105s for    16384 events => throughput is 1.56E+06 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_taptam/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.4266s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4162s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0104s for    16384 events => throughput is 1.58E+06 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_taptam/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_taptamd/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_taptamd/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_taptamd/ajob1' in 0.6280 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_taptamd/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_taptamd/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.6171s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5911s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0259s for    16384 events => throughput is 6.33E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gd_taptamd/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_epemgdx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_epemgdx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_epemgdx/ajob1' in 2.3039 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_epemgdx/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_epemgdx/G3/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.6565s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6170s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0395s for    16384 events => throughput is 4.15E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_epemgdx/G4/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.8059s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.7674s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0385s for    16384 events => throughput is 4.26E+05 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_epemgdx/G10/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.8146s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.7752s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0394s for    16384 events => throughput is 4.16E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_gdx_epemgdx/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_epemdx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_epemdx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_epemdx/ajob1' in 0.5309 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_epemdx/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_epemdx/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.5206s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.5107s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0100s for    16384 events => throughput is 1.64E+06 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P1_gdx_epemdx/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_epem/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_epem/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_epem/ajob1' in 0.8834 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_epem/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_epem/G2/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.4296s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4261s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0034s for    16384 events => throughput is 4.77E+06 events/s
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_epem/G1/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    0.4347s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.4312s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0035s for    16384 events => throughput is 4.72E+06 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P0_uux_epem/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event will call launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uxdx_epemuxdx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait starting '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uxdx_epemuxdx/ajob1'
+__CUDACPP_DEBUG: MultiCore.launch_and_wait finished '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uxdx_epemuxdx/ajob1' in 1.3997 seconds
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event back from launch_and_wait '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uxdx_epemuxdx/ajob1'
+/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uxdx_epemuxdx/G5/GridRun_21_app.log
+ [COUNTERS] PROGRAM TOTAL          :    1.3887s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.3706s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0181s for    16384 events => throughput is 9.06E+05 events/s
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished dumping logs from '/data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/pp_dy012j.mad/madevent/SubProcesses/P2_uxdx_epemuxdx/ajob1'
+__CUDACPP_DEBUG: gen_ximprove_gridpack.get_job_for_event finished in 49.1053 seconds
+__CUDACPP_DEBUG: gen_ximprove.launch finished in 49.2048 seconds
+__CUDACPP_DEBUG: GridPackCmd.refine4grid finished in 49.2054 seconds
+__CUDACPP_DEBUG: GridPackCmd.launch (3a) combine_events
+combine_events
+__CUDACPP_DEBUG: GridPackCmd.launch (3b) store_events
+store_events
+  === Results Summary for run: GridRun_21 tag: tag_1 ===
+
+     Cross-section :   0 +- 0 pb
+     Nb of events :  100
+ 
+INFO: No version of lhapdf. Can not run systematics computation 
+decay_events -from_cards
+__CUDACPP_DEBUG: GridPackCmd.launch finished in 52.6996 seconds
+__CUDACPP_DEBUG: GridPackCmd.__init__ back from self.launch
+DONE
+write ./events.lhe.gz
+END: Wed Aug  7 07:39:56 PM CEST 2024
+ELAPSED: 53 seconds

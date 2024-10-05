@@ -1,4 +1,4 @@
-START: Wed Dec 20 12:28:02 AM CET 2023
+START: Mon Aug  5 04:12:46 PM CEST 2024
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -11,7 +11,7 @@ START: Wed Dec 20 12:28:02 AM CET 2023
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.5.2_lo_vect                            *
+*         VERSION 3.5.3_lo_vect                            *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -34,34 +34,36 @@ INFO: Running Survey
 Creating Jobs
 Working on SubProcesses
 INFO:     P1_gg_ttx  
-INFO: Building madevent in madevent_interface.py with 'cpp512y' matrix elements 
-INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 00h28 ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 1 [  1.8s  ] 
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cpp512y' matrix elements
+INFO:  Idle: 1,  Running: 0,  Completed: 0 [ current time: 16h12 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.7s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 1 [  2.7s  ] 
 INFO: End survey 
 refine 10000
 Creating Jobs
 INFO: Refine results to 10000 
 INFO: Generating 10000.0 unweighted events. 
-sum of cpu time of last step: 2 seconds
-INFO: Effective Luminosity 27.040181710021088 pb^-1 
-INFO: need to improve 2 channels 
-- Current estimate of cross-section: 443.78400000000005 +- 4.146007168348844
+sum of cpu time of last step: 3 seconds
+INFO: Effective Luminosity 27.13133601481371 pb^-1 
+INFO: need to improve 1 channels 
+- Current estimate of cross-section: 442.293 +- 4.035736223404597
     P1_gg_ttx 
+Pre-building madevent in madevent_interface.py with ALL matrix elements
 Building madevent in madevent_interface.py with 'cpp512y' matrix elements
-INFO:  Idle: 9,  Running: 4,  Completed: 0 [ current time: 00h28 ] 
-INFO:  Idle: 4,  Running: 4,  Completed: 5 [  2.6s  ] 
-INFO:  Idle: 0,  Running: 0,  Completed: 13 [  5.2s  ] 
+INFO:  Idle: 7,  Running: 4,  Completed: 0 [ current time: 16h12 ] 
+INFO:  Idle: 2,  Running: 4,  Completed: 5 [  2.9s  ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 11 [  4.3s  ] 
 INFO: Combining runs 
-sum of cpu time of last step: 22 seconds
+sum of cpu time of last step: 21 seconds
 INFO: finish refine 
 refine 10000 --treshold=0.9
 No need for second refine due to stability of cross-section
 INFO: Combining Events 
-combination of events done in 2.0271809101104736 s 
+combination of events done in 2.16316819190979 s 
   === Results Summary for run: run_01 tag: tag_1 ===
 
-     Cross-section :   440.4 +- 0.4447 pb
+     Cross-section :   440.1 +- 0.547 pb
      Nb of events :  10000
  
 INFO: No version of lhapdf. Can not run systematics computation 
@@ -74,7 +76,7 @@ INFO: storing files of previous run
 INFO: Done 
 quit
 INFO:  
-38.15user 4.10system 0:17.72elapsed 238%CPU (0avgtext+0avgdata 95444maxresident)k
-0inputs+422576outputs (31major+852227minor)pagefaults 0swaps
-END: Wed Dec 20 12:28:20 AM CET 2023
-ELAPSED: 18 seconds
+24.32user 2.02system 0:12.74elapsed 206%CPU (0avgtext+0avgdata 95356maxresident)k
+0inputs+403112outputs (2major+357321minor)pagefaults 0swaps
+END: Mon Aug  5 04:12:59 PM CEST 2024
+ELAPSED: 13 seconds

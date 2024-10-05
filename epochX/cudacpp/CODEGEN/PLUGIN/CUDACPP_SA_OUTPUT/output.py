@@ -285,7 +285,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # OM additional fixes for madevent+cudacpp mode
     def add_input_for_banner(self):
         # Note: this is only called in madevent mode (self.in_madevent_mode = True)
-        new_parameters = ["{'name':'cudacpp_backend', 'value':'CPP', 'include':False, 'hidden':False}"]
+        new_parameters = ["{'name':'cudacpp_backend', 'value':'cpp', 'include':False, 'hidden':False}\n"]
+        new_parameters += ["{'name':'cudacpp_fptype', 'value':'m', 'include':False, 'hidden':False}\n"]
         finput = open(pjoin(self.dir_path, 'bin', 'internal', 'plugin_run_card'), 'w')
         for entry in new_parameters:
             finput.write(entry)

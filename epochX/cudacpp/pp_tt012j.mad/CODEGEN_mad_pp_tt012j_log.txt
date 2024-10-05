@@ -57,7 +57,7 @@ set zerowidth_tchannel F
 define j = p
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006647348403930664 [0m
+[1;32mDEBUG: model prefixing  takes 0.0061724185943603516 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -168,7 +168,7 @@ INFO: Process u~ u > t t~ added to mirror process u u~ > t t~
 INFO: Process c~ c > t t~ added to mirror process c c~ > t t~ 
 INFO: Process d~ d > t t~ added to mirror process d d~ > t t~ 
 INFO: Process s~ s > t t~ added to mirror process s s~ > t t~ 
-5 processes with 7 diagrams generated in 0.031 s
+5 processes with 7 diagrams generated in 0.030 s
 Total: 5 processes with 7 diagrams
 add process p p > t t~ j @1
 INFO: Checking for minimal orders which gives processes. 
@@ -208,7 +208,7 @@ INFO: Process d~ g > t t~ d~ added to mirror process g d~ > t t~ d~
 INFO: Process d~ d > t t~ g added to mirror process d d~ > t t~ g 
 INFO: Process s~ g > t t~ s~ added to mirror process g s~ > t t~ s~ 
 INFO: Process s~ s > t t~ g added to mirror process s s~ > t t~ g 
-13 processes with 76 diagrams generated in 0.146 s
+13 processes with 76 diagrams generated in 0.141 s
 Total: 18 processes with 83 diagrams
 add process p p > t t~ j j @2
 INFO: Checking for minimal orders which gives processes. 
@@ -374,7 +374,7 @@ INFO: Process s~ u~ > t t~ u~ s~ added to mirror process u~ s~ > t t~ u~ s~
 INFO: Process s~ c~ > t t~ c~ s~ added to mirror process c~ s~ > t t~ c~ s~ 
 INFO: Process s~ d~ > t t~ d~ s~ added to mirror process d~ s~ > t t~ d~ s~ 
 INFO: Crossed process found for s~ s~ > t t~ s~ s~, reuse diagrams. 
-65 processes with 1119 diagrams generated in 1.946 s
+65 processes with 1119 diagrams generated in 1.882 s
 Total: 83 processes with 1202 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -689,8 +689,8 @@ INFO: Finding symmetric diagrams for subprocess group uux_ttx
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 1 [1;30m[model_handling.py at line 1527][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1} [1;30m[model_handling.py at line 1551][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1} [1;30m[model_handling.py at line 1552][0m [0m
-Generated helas calls for 18 subprocesses (372 diagrams) in 1.306 s
-Wrote files for 810 helas calls in 2.776 s
+Generated helas calls for 18 subprocesses (372 diagrams) in 1.332 s
+Wrote files for 810 helas calls in 2.854 s
 [1;32mDEBUG:  self.vector_size = [0m 32 [1;30m[export_v4.py at line 7023][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -698,14 +698,14 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.338 s
+ALOHA: aloha creates 5 routines in  0.352 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.314 s
+ALOHA: aloha creates 10 routines in  0.328 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -734,148 +734,314 @@ INFO: Use c++ compiler g++
 INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
+patching file Source/dsample.f
 patching file SubProcesses/makefile
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_gg_ttx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
-Hunk #2 succeeded at 227 (offset 13 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P0_uux_ttx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 158 with fuzz 2 (offset 9 lines).
+Hunk #3 succeeded at 206 (offset 18 lines).
+Hunk #4 succeeded at 389 (offset 25 lines).
+Hunk #5 succeeded at 424 with fuzz 1 (offset 37 lines).
+Hunk #6 succeeded at 487 (offset 55 lines).
+Hunk #7 succeeded at 545 (offset 55 lines).
+Hunk #8 succeeded at 620 (offset 55 lines).
+Hunk #9 succeeded at 636 (offset 55 lines).
+Hunk #10 succeeded at 646 (offset 55 lines).
+Hunk #11 succeeded at 667 (offset 55 lines).
+Hunk #12 succeeded at 683 (offset 55 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 230 (offset 16 lines).
+Hunk #2 succeeded at 230 (offset 3 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gg_ttxg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #2 succeeded at 149 with fuzz 1.
+Hunk #5 succeeded at 387 with fuzz 1.
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
-Hunk #2 succeeded at 243 (offset 29 lines).
+Hunk #2 succeeded at 243 (offset 16 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gu_ttxu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 155 with fuzz 2 (offset 6 lines).
+Hunk #3 succeeded at 203 (offset 15 lines).
+Hunk #4 succeeded at 384 (offset 20 lines).
+Hunk #5 succeeded at 413 with fuzz 1 (offset 26 lines).
+Hunk #6 succeeded at 476 (offset 44 lines).
+Hunk #7 succeeded at 534 (offset 44 lines).
+Hunk #8 succeeded at 609 (offset 44 lines).
+Hunk #9 succeeded at 625 (offset 44 lines).
+Hunk #10 succeeded at 635 (offset 44 lines).
+Hunk #11 succeeded at 656 (offset 44 lines).
+Hunk #12 succeeded at 672 (offset 44 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 246 (offset 32 lines).
+Hunk #2 succeeded at 246 (offset 19 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_gux_ttxux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 155 with fuzz 2 (offset 6 lines).
+Hunk #3 succeeded at 203 (offset 15 lines).
+Hunk #4 succeeded at 384 (offset 20 lines).
+Hunk #5 succeeded at 413 with fuzz 1 (offset 26 lines).
+Hunk #6 succeeded at 476 (offset 44 lines).
+Hunk #7 succeeded at 534 (offset 44 lines).
+Hunk #8 succeeded at 609 (offset 44 lines).
+Hunk #9 succeeded at 625 (offset 44 lines).
+Hunk #10 succeeded at 635 (offset 44 lines).
+Hunk #11 succeeded at 656 (offset 44 lines).
+Hunk #12 succeeded at 672 (offset 44 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 246 (offset 32 lines).
+Hunk #2 succeeded at 246 (offset 19 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P1_uux_ttxg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 158 with fuzz 2 (offset 9 lines).
+Hunk #3 succeeded at 206 (offset 18 lines).
+Hunk #4 succeeded at 389 (offset 25 lines).
+Hunk #5 succeeded at 424 with fuzz 1 (offset 37 lines).
+Hunk #6 succeeded at 487 (offset 55 lines).
+Hunk #7 succeeded at 545 (offset 55 lines).
+Hunk #8 succeeded at 620 (offset 55 lines).
+Hunk #9 succeeded at 636 (offset 55 lines).
+Hunk #10 succeeded at 646 (offset 55 lines).
+Hunk #11 succeeded at 667 (offset 55 lines).
+Hunk #12 succeeded at 683 (offset 55 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 246 (offset 32 lines).
+Hunk #2 succeeded at 246 (offset 19 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #2 succeeded at 149 with fuzz 1.
+Hunk #5 succeeded at 387 with fuzz 1.
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
-Hunk #2 succeeded at 275 (offset 61 lines).
+Hunk #2 succeeded at 275 (offset 48 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gg_ttxuux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 152 with fuzz 1 (offset 3 lines).
+Hunk #3 succeeded at 200 (offset 12 lines).
+Hunk #4 succeeded at 379 (offset 15 lines).
+Hunk #5 succeeded at 402 with fuzz 1 (offset 15 lines).
+Hunk #6 succeeded at 465 (offset 33 lines).
+Hunk #7 succeeded at 523 (offset 33 lines).
+Hunk #8 succeeded at 598 (offset 33 lines).
+Hunk #9 succeeded at 614 (offset 33 lines).
+Hunk #10 succeeded at 624 (offset 33 lines).
+Hunk #11 succeeded at 645 (offset 33 lines).
+Hunk #12 succeeded at 661 (offset 33 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 278 (offset 64 lines).
+Hunk #2 succeeded at 278 (offset 51 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gu_ttxgu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 155 with fuzz 2 (offset 6 lines).
+Hunk #3 succeeded at 203 (offset 15 lines).
+Hunk #4 succeeded at 384 (offset 20 lines).
+Hunk #5 succeeded at 413 with fuzz 1 (offset 26 lines).
+Hunk #6 succeeded at 476 (offset 44 lines).
+Hunk #7 succeeded at 534 (offset 44 lines).
+Hunk #8 succeeded at 609 (offset 44 lines).
+Hunk #9 succeeded at 625 (offset 44 lines).
+Hunk #10 succeeded at 635 (offset 44 lines).
+Hunk #11 succeeded at 656 (offset 44 lines).
+Hunk #12 succeeded at 672 (offset 44 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 278 (offset 64 lines).
+Hunk #2 succeeded at 278 (offset 51 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_gux_ttxgux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 155 with fuzz 2 (offset 6 lines).
+Hunk #3 succeeded at 203 (offset 15 lines).
+Hunk #4 succeeded at 384 (offset 20 lines).
+Hunk #5 succeeded at 413 with fuzz 1 (offset 26 lines).
+Hunk #6 succeeded at 476 (offset 44 lines).
+Hunk #7 succeeded at 534 (offset 44 lines).
+Hunk #8 succeeded at 609 (offset 44 lines).
+Hunk #9 succeeded at 625 (offset 44 lines).
+Hunk #10 succeeded at 635 (offset 44 lines).
+Hunk #11 succeeded at 656 (offset 44 lines).
+Hunk #12 succeeded at 672 (offset 44 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 278 (offset 64 lines).
+Hunk #2 succeeded at 278 (offset 51 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uc_ttxuc; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 132 (offset 5 lines).
+Hunk #2 succeeded at 158 with fuzz 2 (offset 9 lines).
+Hunk #3 succeeded at 212 (offset 24 lines).
+Hunk #4 succeeded at 397 (offset 33 lines).
+Hunk #5 succeeded at 428 with fuzz 1 (offset 41 lines).
+Hunk #6 succeeded at 503 (offset 71 lines).
+Hunk #7 succeeded at 561 (offset 71 lines).
+Hunk #8 succeeded at 636 (offset 71 lines).
+Hunk #9 succeeded at 652 (offset 71 lines).
+Hunk #10 succeeded at 662 (offset 71 lines).
+Hunk #11 succeeded at 683 (offset 71 lines).
+Hunk #12 succeeded at 699 (offset 71 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 76 (offset 5 lines).
-Hunk #2 succeeded at 280 (offset 66 lines).
+Hunk #2 succeeded at 280 (offset 53 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_ucx_ttxucx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 138 (offset 11 lines).
+Hunk #2 succeeded at 166 with fuzz 2 (offset 17 lines).
+Hunk #3 succeeded at 238 (offset 50 lines).
+Hunk #4 succeeded at 429 (offset 65 lines).
+Hunk #5 succeeded at 464 with fuzz 1 (offset 77 lines).
+Hunk #6 succeeded at 575 (offset 143 lines).
+Hunk #7 succeeded at 633 (offset 143 lines).
+Hunk #8 succeeded at 708 (offset 143 lines).
+Hunk #9 succeeded at 724 (offset 143 lines).
+Hunk #10 succeeded at 734 (offset 143 lines).
+Hunk #11 succeeded at 755 (offset 143 lines).
+Hunk #12 succeeded at 771 (offset 143 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 82 (offset 11 lines).
-Hunk #2 succeeded at 286 (offset 72 lines).
+Hunk #2 succeeded at 286 (offset 59 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uu_ttxuu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 158 with fuzz 2 (offset 9 lines).
+Hunk #3 succeeded at 206 (offset 18 lines).
+Hunk #4 succeeded at 389 (offset 25 lines).
+Hunk #5 succeeded at 424 with fuzz 1 (offset 37 lines).
+Hunk #6 succeeded at 487 (offset 55 lines).
+Hunk #7 succeeded at 545 (offset 55 lines).
+Hunk #8 succeeded at 620 (offset 55 lines).
+Hunk #9 succeeded at 636 (offset 55 lines).
+Hunk #10 succeeded at 646 (offset 55 lines).
+Hunk #11 succeeded at 667 (offset 55 lines).
+Hunk #12 succeeded at 683 (offset 55 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 278 (offset 64 lines).
+Hunk #2 succeeded at 278 (offset 51 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxccx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 138 (offset 11 lines).
+Hunk #2 succeeded at 166 with fuzz 2 (offset 17 lines).
+Hunk #3 succeeded at 238 (offset 50 lines).
+Hunk #4 succeeded at 429 (offset 65 lines).
+Hunk #5 succeeded at 464 with fuzz 1 (offset 77 lines).
+Hunk #6 succeeded at 575 (offset 143 lines).
+Hunk #7 succeeded at 633 (offset 143 lines).
+Hunk #8 succeeded at 708 (offset 143 lines).
+Hunk #9 succeeded at 724 (offset 143 lines).
+Hunk #10 succeeded at 734 (offset 143 lines).
+Hunk #11 succeeded at 755 (offset 143 lines).
+Hunk #12 succeeded at 771 (offset 143 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 82 (offset 11 lines).
-Hunk #2 succeeded at 286 (offset 72 lines).
+Hunk #2 succeeded at 286 (offset 59 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxgg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 158 with fuzz 2 (offset 9 lines).
+Hunk #3 succeeded at 206 (offset 18 lines).
+Hunk #4 succeeded at 389 (offset 25 lines).
+Hunk #5 succeeded at 424 with fuzz 1 (offset 37 lines).
+Hunk #6 succeeded at 487 (offset 55 lines).
+Hunk #7 succeeded at 545 (offset 55 lines).
+Hunk #8 succeeded at 620 (offset 55 lines).
+Hunk #9 succeeded at 636 (offset 55 lines).
+Hunk #10 succeeded at 646 (offset 55 lines).
+Hunk #11 succeeded at 667 (offset 55 lines).
+Hunk #12 succeeded at 683 (offset 55 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 278 (offset 64 lines).
+Hunk #2 succeeded at 278 (offset 51 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uux_ttxuux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 158 with fuzz 2 (offset 9 lines).
+Hunk #3 succeeded at 206 (offset 18 lines).
+Hunk #4 succeeded at 389 (offset 25 lines).
+Hunk #5 succeeded at 424 with fuzz 1 (offset 37 lines).
+Hunk #6 succeeded at 487 (offset 55 lines).
+Hunk #7 succeeded at 545 (offset 55 lines).
+Hunk #8 succeeded at 620 (offset 55 lines).
+Hunk #9 succeeded at 636 (offset 55 lines).
+Hunk #10 succeeded at 646 (offset 55 lines).
+Hunk #11 succeeded at 667 (offset 55 lines).
+Hunk #12 succeeded at 683 (offset 55 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 278 (offset 64 lines).
+Hunk #2 succeeded at 278 (offset 51 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxcx_ttxuxcx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 132 (offset 5 lines).
+Hunk #2 succeeded at 158 with fuzz 2 (offset 9 lines).
+Hunk #3 succeeded at 212 (offset 24 lines).
+Hunk #4 succeeded at 397 (offset 33 lines).
+Hunk #5 succeeded at 428 with fuzz 1 (offset 41 lines).
+Hunk #6 succeeded at 503 (offset 71 lines).
+Hunk #7 succeeded at 561 (offset 71 lines).
+Hunk #8 succeeded at 636 (offset 71 lines).
+Hunk #9 succeeded at 652 (offset 71 lines).
+Hunk #10 succeeded at 662 (offset 71 lines).
+Hunk #11 succeeded at 683 (offset 71 lines).
+Hunk #12 succeeded at 699 (offset 71 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 76 (offset 5 lines).
-Hunk #2 succeeded at 280 (offset 66 lines).
+Hunk #2 succeeded at 280 (offset 53 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses/P2_uxux_ttxuxux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 158 with fuzz 2 (offset 9 lines).
+Hunk #3 succeeded at 206 (offset 18 lines).
+Hunk #4 succeeded at 389 (offset 25 lines).
+Hunk #5 succeeded at 424 with fuzz 1 (offset 37 lines).
+Hunk #6 succeeded at 487 (offset 55 lines).
+Hunk #7 succeeded at 545 (offset 55 lines).
+Hunk #8 succeeded at 620 (offset 55 lines).
+Hunk #9 succeeded at 636 (offset 55 lines).
+Hunk #10 succeeded at 646 (offset 55 lines).
+Hunk #11 succeeded at 667 (offset 55 lines).
+Hunk #12 succeeded at 683 (offset 55 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 278 (offset 64 lines).
+Hunk #2 succeeded at 278 (offset 51 lines).
 [1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 264][0m [0m
 Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j done.
 Type "launch" to generate events from this process, or see
@@ -883,10 +1049,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m10.704s
-user	0m9.729s
-sys	0m0.940s
-Code generation completed in 10 seconds
+real	0m11.997s
+user	0m9.821s
+sys	0m0.994s
+Code generation completed in 12 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
