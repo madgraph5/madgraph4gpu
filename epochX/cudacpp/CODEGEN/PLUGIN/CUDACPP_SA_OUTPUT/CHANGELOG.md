@@ -6,7 +6,7 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 
 --------------------------------------------------------------------------------
 
-## [Unreleased] - 2024-10-03
+## [Unreleased] - 2024-10-05
 
 ### Changed
 
@@ -19,6 +19,7 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 
 - Infrastructure issues
   - AV ([#1013]) Fix release scripts to create 'v1.00.01' tags from a '(1,0,1)' python tuple.
+  - AV ([#1015]) Remove add_input_for_banner from output.py (plugin_run_card is not needed in cudacpp).
 
 --------------------------------------------------------------------------------
 
@@ -61,3 +62,4 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 [#993]: https://github.com/madgraph5/madgraph4gpu/issues/993
 [#1011]: https://github.com/madgraph5/madgraph4gpu/issues/1011
 [#1013]: https://github.com/madgraph5/madgraph4gpu/issues/1013
+[#1015]: https://github.com/madgraph5/madgraph4gpu/issues/1015

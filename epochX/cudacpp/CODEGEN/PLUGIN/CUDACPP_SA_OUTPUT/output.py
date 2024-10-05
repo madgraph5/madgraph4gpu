@@ -237,7 +237,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             outputflags is a list of options provided when doing the output command"""
         ###misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
         if self.in_madevent_mode:
-            self.add_input_for_banner()
+            ###self.add_input_for_banner() # AV Oct24 THIS IS NO LONGER NEEDED (#1015)
             if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
             else: patchlevel = ''
             # OLDEST implementation (AV)
@@ -283,13 +283,14 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         return False, matrix_element
 
     # OM additional fixes for madevent+cudacpp mode
-    def add_input_for_banner(self):
-        # Note: this is only called in madevent mode (self.in_madevent_mode = True)
-        new_parameters = ["{'name':'cudacpp_backend', 'value':'cpp', 'include':False, 'hidden':False}\n"]
-        new_parameters += ["{'name':'cudacpp_fptype', 'value':'m', 'include':False, 'hidden':False}\n"]
-        finput = open(pjoin(self.dir_path, 'bin', 'internal', 'plugin_run_card'), 'w')
-        for entry in new_parameters:
-            finput.write(entry)
+    # AV Oct24: THIS IS NO LONGER NEEDED (#1015)
+    # AV Oct24: plugin_run_card is used in RunCard.plugin_input, but NOT in the overloaded cudacpp's CPPRunCard.plugin_input 
+    ###def add_input_for_banner(self):
+    ###    # Note: this is only called in madevent mode (self.in_madevent_mode = True)
+    ###    new_parameters = ["{'name':'cudacpp_backend', 'value':'CPP', 'include':False, 'hidden':False}"]
+    ###    finput = open(pjoin(self.dir_path, 'bin', 'internal', 'plugin_run_card'), 'w')
+    ###    for entry in new_parameters:
+    ###        finput.write(entry)
 
     # OM adding a new way to "patch" python file such that the launch command of MG5aMC is working
     # this consist in a file plugin_interface.py
