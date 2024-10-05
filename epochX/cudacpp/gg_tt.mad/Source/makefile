@@ -81,6 +81,7 @@ combine_runs.o: combine_runs.f run_config.inc run_card.inc
 select_events.o: select_events.f run_config.inc
 setrun.o: setrun.f nexternal.inc leshouche.inc run_card.inc run_config.inc genps.inc vector.inc
 rw_events.o: rw_events.f run_config.inc
+$(LIBDIR)libdsample.$(libext): newranmar.o
 
 run_card.inc: ../Cards/run_card.dat
 	../bin/madevent treatcards run

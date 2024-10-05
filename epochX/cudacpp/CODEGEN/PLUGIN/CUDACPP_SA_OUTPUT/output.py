@@ -101,6 +101,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                              s+'gpu/constexpr_math.h',
                              s+'gpu/cudacpp_config.mk',
                              s+'CMake/src/CMakeLists.txt' ],
+                     'Source': [s+'gpu/newranmar.f'],
                      'SubProcesses': [s+'gpu/nvtx.h', s+'gpu/timer.h', s+'gpu/timermap.h',
                                       s+'gpu/ompnumthreads.h', s+'gpu/GpuRuntime.h', s+'gpu/GpuAbstraction.h',
                                       s+'gpu/MemoryAccessHelpers.h', s+'gpu/MemoryAccessVectors.h',
@@ -121,6 +122,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt', s+'gpu/valgrind.h',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
+                                      s+'gpu/newgenps.f',
                                       s+'CMake/SubProcesses/CMakeLists.txt'],
                      'test': [s+'gpu/cudacpp_test.mk']}
 
@@ -147,7 +149,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
-                    'perf.py', 'profile.sh']
+                    'perf.py', 'profile.sh',
+                    'newgenps.f']
 
     # AV - use template files from PLUGINDIR instead of MG5DIR and change their names
     ###template_src_make = pjoin(MG5DIR, 'madgraph' ,'iolibs', 'template_files','gpu','Makefile_src')
@@ -207,6 +210,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         else:
             raise Exception('primary exporter should have been run first')
         path = pjoin(PLUGINDIR , 'madgraph', 'iolibs', 'template_files', 'madevent_makefile_source_addon')
+        replace_dict['additional_dependencies'] += '$(LIBDIR)libdsample.$(libext): newranmar.o\n'
         replace_dict['additional_clean'] += open(path).read()
         if writer:
             path = pjoin(MG5DIR, 'madgraph', 'iolibs','template_files','madevent_makefile_source')
@@ -285,7 +289,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # OM additional fixes for madevent+cudacpp mode
     def add_input_for_banner(self):
         # Note: this is only called in madevent mode (self.in_madevent_mode = True)
-        new_parameters = ["{'name':'cudacpp_backend', 'value':'CPP', 'include':False, 'hidden':False}"]
+        new_parameters = ["{'name':'cudacpp_backend', 'value':'cpp', 'include':False, 'hidden':False}\n"]
+        new_parameters += ["{'name':'cudacpp_fptype', 'value':'m', 'include':False, 'hidden':False}\n"]
         finput = open(pjoin(self.dir_path, 'bin', 'internal', 'plugin_run_card'), 'w')
         for entry in new_parameters:
             finput.write(entry)

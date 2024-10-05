@@ -43,3 +43,8 @@ cd $(dirname $0)/..
 ./CODEGEN/generateAndCompare.sh -q gg_tt01g --mad
 
 ./CODEGEN/generateAndCompare.sh -q pp_tt012j --mad
+
+./CODEGEN/generateAndCompare.sh -q pp_dy012j --mad
+./CODEGEN/generateAndCompare.sh -q pp_dy3j --mad
+
+./CODEGEN/generateAndCompare.sh -q gux_taptamggux --mad

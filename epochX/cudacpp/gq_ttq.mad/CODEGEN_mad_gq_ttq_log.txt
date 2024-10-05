@@ -57,7 +57,7 @@ set zerowidth_tchannel F
 define q = u c d s u~ c~ d~ s~
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0063931941986083984 [0m
+[1;32mDEBUG: model prefixing  takes 0.006422519683837891 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -166,7 +166,7 @@ INFO: Crossed process found for g u~ > t t~ u~, reuse diagrams.
 INFO: Crossed process found for g c~ > t t~ c~, reuse diagrams. 
 INFO: Crossed process found for g d~ > t t~ d~, reuse diagrams. 
 INFO: Crossed process found for g s~ > t t~ s~, reuse diagrams. 
-8 processes with 40 diagrams generated in 0.078 s
+8 processes with 40 diagrams generated in 0.080 s
 Total: 8 processes with 40 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_gq_ttq --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -214,17 +214,17 @@ INFO: Finding symmetric diagrams for subprocess group gux_ttxux
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 5 [1;30m[model_handling.py at line 1527][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1551][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1552][0m [0m
-Generated helas calls for 2 subprocesses (10 diagrams) in 0.030 s
-Wrote files for 32 helas calls in 0.163 s
+Generated helas calls for 2 subprocesses (10 diagrams) in 0.031 s
+Wrote files for 32 helas calls in 0.168 s
 [1;32mDEBUG:  self.vector_size = [0m 32 [1;30m[export_v4.py at line 7023][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.145 s
+ALOHA: aloha creates 2 routines in  0.153 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVV1 routines[0m
-ALOHA: aloha creates 4 routines in  0.132 s
+ALOHA: aloha creates 4 routines in  0.390 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -246,23 +246,46 @@ INFO: Use c++ compiler g++
 INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gq_ttq; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
+patching file Source/dsample.f
 patching file SubProcesses/makefile
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gq_ttq/SubProcesses/P1_gu_ttxu; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 155 with fuzz 2 (offset 6 lines).
+Hunk #3 succeeded at 203 (offset 15 lines).
+Hunk #4 succeeded at 384 (offset 20 lines).
+Hunk #5 succeeded at 413 with fuzz 1 (offset 26 lines).
+Hunk #6 succeeded at 476 (offset 44 lines).
+Hunk #7 succeeded at 534 (offset 44 lines).
+Hunk #8 succeeded at 609 (offset 44 lines).
+Hunk #9 succeeded at 625 (offset 44 lines).
+Hunk #10 succeeded at 635 (offset 44 lines).
+Hunk #11 succeeded at 656 (offset 44 lines).
+Hunk #12 succeeded at 672 (offset 44 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 254 (offset 40 lines).
+Hunk #2 succeeded at 254 (offset 27 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gq_ttq/SubProcesses/P1_gux_ttxux; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
+patching file auto_dsig.f
+patching file auto_dsig1.f
+Hunk #1 succeeded at 130 (offset 3 lines).
+Hunk #2 succeeded at 155 with fuzz 2 (offset 6 lines).
+Hunk #3 succeeded at 203 (offset 15 lines).
+Hunk #4 succeeded at 384 (offset 20 lines).
+Hunk #5 succeeded at 413 with fuzz 1 (offset 26 lines).
+Hunk #6 succeeded at 476 (offset 44 lines).
+Hunk #7 succeeded at 534 (offset 44 lines).
+Hunk #8 succeeded at 609 (offset 44 lines).
+Hunk #9 succeeded at 625 (offset 44 lines).
+Hunk #10 succeeded at 635 (offset 44 lines).
+Hunk #11 succeeded at 656 (offset 44 lines).
+Hunk #12 succeeded at 672 (offset 44 lines).
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
-Hunk #2 succeeded at 254 (offset 40 lines).
+Hunk #2 succeeded at 254 (offset 27 lines).
 [1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 264][0m [0m
 Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gq_ttq done.
 Type "launch" to generate events from this process, or see
@@ -270,10 +293,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.176s
-user	0m1.872s
-sys	0m0.303s
-Code generation completed in 2 seconds
+real	0m3.009s
+user	0m1.962s
+sys	0m0.312s
+Code generation completed in 3 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *

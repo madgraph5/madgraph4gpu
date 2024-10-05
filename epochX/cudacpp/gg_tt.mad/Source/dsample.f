@@ -175,7 +175,9 @@ c
          if (iter .le. itmax) then
 c            write(*,*) 'iter/ievent/ivec', iter, ievent, ivec
             ievent=ievent+1
+            CALL COUNTERS_START_COUNTER( 3, 1 ) ! FortranRandom2Momenta=3
             call x_to_f_arg(ndim,ipole,mincfig,maxcfig,ninvar,wgt,x,p)
+            CALL COUNTERS_STOP_COUNTER( 3 ) ! FortranRandom2Momenta=3
             CUTSDONE=.FALSE.
             CUTSPASSED=.FALSE.
             if (passcuts(p,VECSIZE_USED)) then
@@ -247,6 +249,7 @@ c     write(*,*) i, all_wgt(i), fx, all_wgt(i)*fx
                do I=1, VECSIZE_USED
                   all_wgt(i) = all_wgt(i)*all_fx(i)
               enddo
+               CALL COUNTERS_START_COUNTER( 8, VECSIZE_USED ) ! FortranSamplePutPoint=8
                do i =1, VECSIZE_USED
 c     if last paremeter is true -> allow grid update so only for a full page
                   lastbin(:) = all_lastbin(:,i)
@@ -254,6 +257,7 @@ c     if last paremeter is true -> allow grid update so only for a full page
 c                  write(*,*) 'put point in sample kevent', kevent, 'allow_update', ivec.eq.VECSIZE_USED                   
                   call sample_put_point(all_wgt(i),all_x(1,i),iter,ipole, i.eq.VECSIZE_USED) !Store result
                enddo
+               CALL COUNTERS_STOP_COUNTER( 8 ) ! FortranSamplePutPoint=8
                if (VECSIZE_USED.ne.1.and.force_reset)then
                   call reset_cumulative_variable()
                   force_reset=.false.
@@ -264,7 +268,9 @@ c     if (wgt .ne. 0d0) call graph_point(p,wgt) !Update graphs
             else
                fx =0d0
                wgt=0d0
+               CALL COUNTERS_START_COUNTER( 8, 1 ) ! FortranSamplePutPoint=8
                call sample_put_point(wgt,x(1),iter,ipole,.true.) !Store result
+               CALL COUNTERS_STOP_COUNTER( 8 ) ! FortranSamplePutPoint=8
             endif
 
          endif
@@ -429,7 +435,9 @@ c
          call sample_get_config(wgt,iter,ipole)
          if (iter .le. itmax) then
             ievent=ievent+1
+            CALL COUNTERS_START_COUNTER( 3, 1 ) ! FortranRandom2Momenta=3
             call x_to_f_arg(ndim,ipole,mincfig,maxcfig,ninvar,wgt,x,p)
+            CALL COUNTERS_STOP_COUNTER( 3 ) ! FortranRandom2Momenta=3
             if (pass_point(p)) then
                xzoomfact = 1d0
                fx = dsig(p,wgt,0) !Evaluate function
@@ -445,7 +453,9 @@ c
             endif
             
             if (nzoom .le. 0) then
+               CALL COUNTERS_START_COUNTER( 8, 1 ) ! FortranSamplePutPoint=8
                call sample_put_point(wgt,x(1),iter,ipole,.true.) !Store result
+               CALL COUNTERS_STOP_COUNTER( 8 ) ! FortranSamplePutPoint=8
             else
                nzoom = nzoom -1
                ievent=ievent-1
@@ -1242,7 +1252,7 @@ c     taken care of at the level of matrix<i> already.
       
       end subroutine sample_get_discrete_x
 
-      subroutine sample_get_x(wgt, x, j, ipole, xmin, xmax)
+      subroutine sample_get_x_old(wgt, x, j, ipole, xmin, xmax)
 c************************************************************************
 c     Returns maxdim random numbers between 0 and 1, and the wgt
 c     associated with this set of points, and the iteration number
@@ -1264,7 +1274,26 @@ c
 c     Local
 c
       integer  im, ip,ij,icount,it_warned
-      double precision xbin_min,xbin_max,ddum(maxdim),xo,y
+      double precision xbin_min,xbin_max,ddum(maxdim),xo,y 
+c
+c     Local (performance optimization #969)
+c
+      integer xbinarraydim
+      parameter (xbinarraydim=maxdim*lmaxconfigs)
+      double precision xbin_min0_array(maxdim, lmaxconfigs)
+      double precision xbin_max1_array(maxdim, lmaxconfigs)
+      logical xbin_min0_saved(maxdim, lmaxconfigs)
+      logical xbin_max1_saved(maxdim, lmaxconfigs)
+      save xbin_min0_array, xbin_max1_array
+      save xbin_min0_saved, xbin_max1_saved
+      data xbin_min0_saved/xbinarraydim*.false./
+      data xbin_max1_saved/xbinarraydim*.false./
+
+      character*255 env_name, env_value
+      integer env_length, env_status
+      logical first, skipxbinchecks
+      data first, skipxbinchecks/.true., .false./
+      save first, skipxbinchecks
 c
 c     External
 c
@@ -1315,15 +1344,29 @@ c         write(*,'(7f11.5)')(ddum(j)*real(ng),j=1,dim)
       endif
       if (ituple .eq. 1) then
 c         write(*,*) 'Getting variable',ipole,j,minvar(j,ipole)
-         xbin_min = xbin(xmin,minvar(j,ipole))
-         xbin_max = xbin(xmax,minvar(j,ipole))
-         if (xbin_min .gt. xbin_max-1) then
-c            write(*,'(a,4e15.4)') 'Bad limits',xbin_min,xbin_max,
-c     &           xmin,xmax
-c            xbin_max=xbin_min+1d-10
-            xbin_max = xbin(xmax,minvar(j,ipole))
-            xbin_min = min(xbin(xmin,minvar(j,ipole)), xbin_max)
-         endif
+
+        if(xmax.ne.1 .or. .not.xbin_max1_saved(j,ipole)) then
+          xbin_max = xbin(xmax, minvar(j,ipole))
+          if(xmax.eq.1) then
+            xbin_max1_array(j,ipole) = xbin_max
+            xbin_max1_saved(j,ipole) = .true.
+          endif
+        else
+          xbin_max = xbin_max1_array(j,ipole)
+        endif
+
+        if(xmin.ne.0 .or. .not.xbin_min0_saved(j,ipole)) then
+          xbin_min = xbin(xmin, minvar(j,ipole))
+          if (xbin_min .gt. xbin_max-1) then
+            xbin_min = min(xbin_min, xbin_max)
+          endif
+          if(xmin.eq.0) then
+            xbin_min0_array(j,ipole) = xbin_min
+            xbin_min0_saved(j,ipole) = .true.
+          endif
+        else
+          xbin_min = xbin_min0_array(j,ipole)
+        endif
 c
 c     Line which allows us to keep choosing same x
 c
@@ -1336,10 +1379,10 @@ c            write(*,*) 'Reusing num',j,nzoom,tx(2,j)
             call ntuple(ddum(j),max(xbin_min,dble(int(tx(2,j)))),
      $           min(xbin_max,dble(int(tx(2,j))+1)),j,ipole)
 
-            if(max(xbin_min,dble(int(tx(2,j)))).gt.
-     $           min(xbin_max,dble(int(tx(2,j))+1))) then
+c           if(max(xbin_min,dble(int(tx(2,j)))).gt.
+c    $           min(xbin_max,dble(int(tx(2,j))+1))) then
 c               write(*,*) 'not good'
-            endif
+c           endif
 
 c            write(*,'(2i6,4e15.5)') nzoom,j,ddum(j),tx(2,j),
 c     $           max(xbin_min,dble(int(tx(2,j)))),
@@ -1402,7 +1445,19 @@ c     to the fact that the grids are required to be separated by 1e-14. Since
 c     double precision is about 18 digits, we expect things to agree to
 c     3 digit accuracy.
 c
-      if (abs(ddum(j)-xbin(x,ij))/(ddum(j)+1d-22) .gt. 1e-3) then
+      if (first) then
+        env_name = 'CUDACPP_RUNTIME_SKIPXBINCHECKS'
+        call get_environment_variable(env_name, env_value, env_length, env_status)
+        if( env_status.eq.0 ) then
+          skipxbinchecks = .true.
+        endif
+      endif
+
+      if (skipxbinchecks) then
+        if (first) then
+          write(6,*) 'WARNING: skipping xbin checks (CUDACPP_RUNTIME_SKIPXBINCHECKS is set)'
+        endif
+      else if (abs(ddum(j)-xbin(x,ij))/(ddum(j)+1d-22) .gt. 1e-3) then
          if (icount .lt. 5) then
             write(*,'(a,i4,2e14.6,1e12.4)')
      &           'Warning xbin not returning correct x', ij,
@@ -1413,10 +1468,11 @@ c
          endif
          icount=icount+1
       endif
-      if (x .lt. xmin .or. x .gt. xmax) then
+      first = .false.
+c     if (x .lt. xmin .or. x .gt. xmax) then
 c         write(*,'(a,4i4,2f24.16,1e10.2)') 'Bad x',ij,int(xbin_min),ip,
 c     &        int(xbin_max),xmin,x,xmax-xmin
-      endif
+c     endif
 
       wgt = wgt * xo * dble(xbin_max-xbin_min)
 c      print*,'Returning x',ij,ipole,j,x

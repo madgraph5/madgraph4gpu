@@ -50,6 +50,9 @@ function codeGenAndDiff()
     gq_ttllq)
       cmd="define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
       ;;
+    gux_taptamggux) # subset of pp_dy3j from Jin #942 (no need for no_b_mass however)
+      cmd="generate g u~ > ta+ ta- g g u~"
+      ;;
     pp_tt)
       cmd="generate p p > t t~"
       ;;
@@ -198,6 +201,28 @@ function codeGenAndDiff()
       ;;
     susy_gg_ulul)
       cmd="import model MSSM_SLHA2; generate g g > ul ul~"
+      ;;
+    pp_dy012j) # from Jin #942
+      cmd="import model sm-no_b_mass
+      define p = u d c s b u~ d~ c~ s~ b~ g
+      define j = p
+      define ell+ = e+ mu+ ta+
+      define ell- = e- mu- ta-
+      define nu = ve vm vt
+      define nubar = ve~ vm~ vt~
+      generate p p > ell+ ell- @0
+      add process p p > ell+ ell- j @1
+      add process p p > ell+ ell- j j @2"
+      ;;
+    pp_dy3j) # from Jin #942
+      cmd="import model sm-no_b_mass
+      define p = u d c s b u~ d~ c~ s~ b~ g
+      define j = p
+      define ell+ = e+ mu+ ta+
+      define ell- = e- mu- ta-
+      define nu = ve vm vt
+      define nubar = ve~ vm~ vt~
+      generate p p > ell+ ell- j j j @0"
       ;;
     atlas)
       cmd="import model sm-no_b_mass
