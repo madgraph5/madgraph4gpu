@@ -1,1 +1,0 @@
-DIRNAME=P0_gu_taptamuccx

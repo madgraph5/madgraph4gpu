@@ -1,1 +1,0 @@
-DIRNAME=P0_uxux_taptamguxux
