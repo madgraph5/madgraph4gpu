@@ -125,6 +125,16 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     ###nodeclare = False # old behaviour (separate declaration with no initialization)
     nodeclare = True # new behaviour (delayed declaration with initialisation)
 
+    # AV - modify/enhance aloha_writers.WriteALOHA method (add a debug printout and add additional outputs)
+    def write(self, **opt):
+        ###misc.sprint('Entering PLUGIN_ALOHAWriter.write')
+        h_rout, cc_rout = super().write(**opt) # this is a tuple
+        h2a_rout = self.get_header_txt(mode='linker_define1')
+        h2b_rout = self.get_header_txt(mode='linker_define2')
+        h2c_rout = self.get_header_txt(mode='linker_decl')
+        cc2_rout = self.get_header_txt(mode='linker_impl')
+        return ( h_rout, cc_rout, h2a_rout, h2b_rout, h2c_rout, cc2_rout )
+
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def change_number_format(self, number):
         """Formatting the number"""
@@ -168,22 +178,25 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # [NB: this exists in ALOHAWriterForGPU but essentially falls back to ALOHAWriterForCPP]
     # [NB: no, actually this exists twice(!) in ForGPU and the 2nd version is not trivial! but I keep the ForCPP version]
     # This affects HelAmps_sm.h and HelAmps_sm.cc
-    def get_header_txt(self, name=None, couplings=None,mode=''):
+    def get_header_txt(self, name=None, couplings=None, mode=''):
         """Define the Header of the fortran file. This include
             - function tag
             - definition of variable
         """
+        ###misc.sprint('get_header_txt',mode)
         if name is None:
             name = self.name
         if mode=='':
             mode = self.mode
         out = StringIO()
         # define the type of function and argument
-        if not 'no_include' in mode:
+        if not 'no_include' in mode and not 'linker' in mode:
             out.write('#include \"%s.h\"\n\n' % self.name)
         args = []
+        argnames = []
         comment_inputs = [] # AV
         for format, argname in self.define_argument_list(couplings):
+            ###misc.sprint(format, argname) # note: for ee_mumu this already includes COUP1 and COUP2 separately
             if format.startswith('list'):
                 type = self.type2def[format[5:]] # double or complex (instead of list_double or list_complex)
                 comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
@@ -202,39 +215,70 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 point = self.type2def['pointer_coup']
                 args.append('%s %s%s%s'% (type, point, argname, list_arg))
                 args.append('double Ccoeff%s'% argname[7:]) # OM for 'unary minus' #628
+                argnames.append(argname)
+                argnames.append('Ccoeff%s'% argname[7:])
             else:
                 args.append('%s %s%s'% (type, argname, list_arg))
+                argnames.append(argname)
         if not self.offshell:
-            ###output = '%(doublec)s%(pointer_vertex)s allvertexes' % {
-            ###    'doublec': self.type2def['double'],
-            ###    'pointer_vertex': self.type2def['pointer_vertex']}
             output = '%(doublec)s allvertexes[]' % {
                 'doublec': self.type2def['double']}
+            outputname = 'allvertexes'
             comment_output = 'amplitude \'vertex\''
-            template = 'template<class W_ACCESS, class A_ACCESS, class C_ACCESS>'
+            template = '  template<class W_ACCESS, class A_ACCESS, class C_ACCESS>\n'
+            template_defineCD = '<W_ACCESS, A_ACCESS, CD_ACCESS>'
+            template_defineCI = '<W_ACCESS, A_ACCESS, CI_ACCESS>'
         else:
             output = '%(doublec)s all%(spin)s%(id)d[]' % {
                      'doublec': self.type2def['double'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
+            outputname = 'all%(spin)s%(id)d' % {
+                     'spin': self.particles[self.outgoing -1],
+                     'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
-            template = 'template<class W_ACCESS, class C_ACCESS>'
-        comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
-        indent = ' ' * len( '  %s( ' % name )
-        out.write('  %(comment)s\n  %(template)s\n  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
-                  {'comment': comment, # AV - add comment
-                   'template': template, # AV - add template
-                   'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ), # AV - add INLINE
-                   'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ), # AV - add ALWAYS_INLINE
-                   'indent':indent, 'output':output, 'name': name,
-                   'args': (',\n' + indent + 'const ').join(args)}) # AV - add const, add indent
-        if 'is_h' in mode:
-            out.write(';\n')
-            out.write('\n  //--------------------------------------------------------------------------\n') # AV add footer
+            template = '  template<class W_ACCESS, class C_ACCESS>\n'
+            template_defineCD = '<W_ACCESS, CD_ACCESS>'
+            template_defineCI = '<W_ACCESS, CI_ACCESS>'
+        if 'linker' in mode: template = ''
+        comment = '  // Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) )
+        if 'linker_define1' in mode :
+            out.write('#define helas_CD_%s %s%s\n'%(name,name,template_defineCD))
+            out.write('#define helas_CI_%s %s%s'%(name,name,template_defineCI))
+        elif 'linker_define2' in mode :
+            out.write('#define helas_CD_%s linker_CD_%s\n'%(name,name))
+            out.write('#define helas_CI_%s linker_CI_%s'%(name,name))
         else:
-            ###out.write('\n{\n')
-            out.write('\n  {\n') # AV
+            if 'linker_decl' in mode or 'linker_impl' in mode :
+                names2 = ( 'linker_CD_' + name, 'linker_CI_' + name )
+                comments2 = ( comment + ' (dependent couplings)', '\n' + comment + ' (independent couplings)' )
+            else:
+                names2 = ( name, )
+                comments2 = ( comment, )
+            indent = ' ' * len( '  %s( ' % names2[0] )
+            for i, name2 in enumerate(names2):
+                out.write('%(comment)s\n%(template)s  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
+                          {'comment': comments2[i],
+                           'template': template,
+                           'prefix': self.prefix + ( ' INLINE' if 'is_h' in mode else '' ),
+                           'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ),
+                           'indent':indent, 'output':output, 'name': name2,
+                           'args': (',\n' + indent + 'const ').join(args)})
+                if 'is_h' in mode or 'linker_decl' in mode:
+                    out.write(';\n')
+                    out.write('\n  //--------------------------------------------------------------------------\n')
+                elif 'linker_impl' in mode:
+                    out.write('\n  {\n')
+                    out.write('    return %(name)s%(template)s( %(args)s, %(output)s );' %
+                              {'name': name,
+                               'template': template_defineCD if i == 0 else template_defineCI,
+                               'output': outputname, 
+                               'args': ', '.join(argnames)})
+                    out.write('\n  }\n')
+                    out.write('\n  //--------------------------------------------------------------------------\n')
+                else:
+                    out.write('\n  {\n')
         return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
@@ -648,6 +692,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     ###cc_ext = 'cu'
     ###aloha_template_h = pjoin('gpu','cpp_hel_amps_h.inc')
     ###aloha_template_cc = pjoin('gpu','cpp_hel_amps_cc.inc')
+    aloha_template_cc2 = pjoin('gpu','cpp_hel_amps_cc2.inc')
     ###helas_h = pjoin('gpu', 'helas.h')
     ###helas_cc = pjoin('gpu', 'helas.cu')
 
@@ -668,7 +713,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         out.append( file )
         return out
 
-    # AV - use the plugin's PLUGIN_OneProcessExporter template_path and __template_path (for aloha_template_h/cc)
+    # AV - use the plugin's PLUGIN_OneProcessExporter template_path and __template_path (for aloha_template_h/cc/cc2)
     @classmethod
     def read_template_file(cls, filename, classpath=False):
         """Open a template file and return the contents."""
@@ -1058,8 +1103,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             os.makedirs(os.path.join(self.dir_path, self.cc_file_dir))
         model_h_file = os.path.join(self.dir_path, self.include_dir,
                                     'HelAmps_%s.h' % self.model_name)
-        model_cc_file = os.path.join(self.dir_path, self.cc_file_dir,
-                                     'HelAmps_%s.%s' % (self.model_name, self.cc_ext))
+        ###model_cc_file = os.path.join(self.dir_path, self.cc_file_dir,
+        ###                             'HelAmps_%s.%s' % (self.model_name, self.cc_ext))
+        model_cc2_file = os.path.join(self.dir_path+'/../SubProcesses', self.cc_file_dir,
+                                      'HelAmps.%s' % (self.cc_ext))
         replace_dict = {}
         replace_dict['output_name'] = self.output_name
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
@@ -1068,6 +1115,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # Read in the template .h and .cc files, stripped of compiler commands and namespaces
         template_h_files = self.read_aloha_template_files(ext = 'h')
         template_cc_files = self.read_aloha_template_files(ext = 'cc')
+        template_h2a_files = ['']
+        template_h2b_files = ['']
+        template_h2c_files = ['']
+        template_cc2_files = ['']
         aloha_model = create_aloha.AbstractALOHAModel(self.model.get('name'), explicit_combine=True)
         aloha_model.add_Lorentz_object(self.model.get('lorentz'))
         if self.wanted_lorentz:
@@ -1075,15 +1126,24 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         else:
             aloha_model.compute_all(save=False, custom_propa=True)
         for abstracthelas in dict(aloha_model).values():
+            ###misc.sprint(type(abstracthelas), abstracthelas.name) # AV this is the loop on FFV functions
             print(type(abstracthelas), abstracthelas.name) # AV this is the loop on FFV functions
-            h_rout, cc_rout = abstracthelas.write(output_dir=None, language=self.aloha_writer, mode='no_include')
+            ###h_rout, cc_rout = abstracthelas.write(output_dir=None, language=self.aloha_writer, mode='no_include') # AV this eventually calls PLUGIN_ALOHAWriter.write
+            h_rout, cc_rout, h2a_rout, h2b_rout, h2c_rout, cc2_rout = abstracthelas.write(output_dir=None, language=self.aloha_writer, mode='no_include')
             template_h_files.append(h_rout)
             template_cc_files.append(cc_rout)
+            template_h2a_files.append(h2a_rout)
+            template_h2b_files.append(h2b_rout)
+            template_h2c_files.append(h2c_rout)
+            template_cc2_files.append(cc2_rout)
         replace_dict['function_declarations'] = '\n'.join(template_h_files)
         replace_dict['function_definitions'] = '\n'.join(template_cc_files)
+        replace_dict['function_definitions2'] = '\n'.join(template_cc2_files)
         file_h = self.read_template_file(self.aloha_template_h) % replace_dict
         file_cc = self.read_template_file(self.aloha_template_cc) % replace_dict
+        file_cc2 = self.read_template_file(self.aloha_template_cc2) % replace_dict
         file_cc = '\n'.join( file_cc.split('\n')[9:] ) # skip first 9 lines in cpp_hel_amps_cc.inc (copyright including ALOHA)
+        file_cc = file_cc[:-1] # skip the trailing empty line
         # Write the HelAmps_sm.h and HelAmps_sm.cc files
         ###PLUGIN_writers.CPPWriter(model_h_file).writelines(file_h)
         ###PLUGIN_writers.CPPWriter(model_cc_file).writelines(file_cc)
@@ -1095,12 +1155,29 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###             os.path.split(model_cc_file)[0]))
         # Write only the HelAmps_sm.h file
         file_h_lines = file_h.split('\n')
-        file_h = '\n'.join( file_h_lines[:-3]) # skip the trailing '//---'
+        file_cc_lines = file_cc.split('\n')
+        file_h = ''
+        file_h += '\n'.join( file_h_lines[:-3]) # skip the trailing '//---'
+        file_cc = '\n'.join( file_cc_lines[:-5]) # skip the footer
+        file_cc_footer = '\n'.join( file_cc_lines[-3:]) # keep the footer (excluding one //--- separator) for later
         file_h += file_cc # append the contents of HelAmps_sm.cc directly to HelAmps_sm.h!
-        file_h = file_h[:-1] # skip the trailing empty line
+        file_h += '\n  //==========================================================================\n'
+        file_h += '\n#ifndef MGONGPU_LINKER_HELAMPS\n'
+        file_h += '\n'.join(template_h2a_files)
+        file_h += '\n\n#else\n'
+        file_h += '\n'.join(template_h2b_files)
+        file_h += '\n\n  //--------------------------------------------------------------------------\n'
+        file_h += '\n'.join(template_h2c_files)
+        file_h += '\n#endif\n\n  //==========================================================================\n\n'
+        file_h = file_h + file_cc_footer # add the footer
         PLUGIN_writers.CPPWriter(model_h_file).writelines(file_h)
         logger.info('Created file %s in directory %s' \
                     % (os.path.split(model_h_file)[-1], os.path.split(model_h_file)[0] ) )
+        file_cc2_lines = file_cc2.split('\n')
+        file_cc2 = '\n'.join( file_cc2_lines[:-1]) # skip the last empty trailing line
+        PLUGIN_writers.CPPWriter(model_cc2_file).writelines(file_cc2)
+        logger.info('Created file %s in directory %s' \
+                    % (os.path.split(model_cc2_file)[-1], os.path.split(model_cc2_file)[0] ) )
 
     def prepare_couplings(self, wanted_couplings = []):
         super().prepare_couplings(wanted_couplings)
@@ -1333,7 +1410,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
     using E_ACCESS = DeviceAccessMatrixElements;  // non-trivial access: buffer includes all events
     using W_ACCESS = DeviceAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+#ifndef MGONGPU_LINKER_HELAMPS
     using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+#endif
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -1345,7 +1424,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
     using E_ACCESS = HostAccessMatrixElements;  // non-trivial access: buffer includes all events
     using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+#ifndef MGONGPU_LINKER_HELAMPS
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+#endif
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -1439,10 +1520,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
-        
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
+        files.ln(pjoin(self.path+'/..', 'HelAmps.cc'), self.path, 'HelAmps.cc')
         # NB: symlink of cudacpp.mk to makefile is overwritten by madevent makefile if this exists (#480)
         # NB: this relies on the assumption that cudacpp code is generated before madevent code
         files.ln(pjoin(self.path, 'cudacpp.mk'), self.path, 'makefile')
@@ -2145,13 +2226,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                             if usesdepcoupl is None: usesdepcoupl = False
                             elif usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
             # AV FOR PR #434: CI_ACCESS for independent couplings and CD_ACCESS for dependent couplings
+            ###if usesdepcoupl is None: raise Exception('PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?')
+            ###elif usesdepcoupl: caccess = 'CD_ACCESS'
+            ###else: caccess = 'CI_ACCESS'
+            ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s>'%caccess
+            ###else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess
             if usesdepcoupl is None: raise Exception('PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?')
-            elif usesdepcoupl: caccess = 'CD_ACCESS'
-            else: caccess = 'CI_ACCESS'
-            ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, C_ACCESS>'
-            ###else : arg['routine_name'] += '<W_ACCESS, C_ACCESS>'
-            if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s>'%caccess
-            else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess
+            elif usesdepcoupl: caccess = 'CD_'
+            else: caccess = 'CI_'
+            arg['routine_name'] = 'helas_' + caccess + arg['routine_name']
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
                 arg['out'] = 'w_fp[%(out)d]'

@@ -10,7 +10,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocuda] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocuda] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly|-inlL|-inlLonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -29,7 +29,7 @@ bldall=-bldall
 suffs="mad" # DEFAULT code base: madevent + cudacpp as 2nd exporter (logs_*_mad)
 alpaka=
 fptypes="d"
-helinls="0"
+helinls="" # set default later
 hrdcods="0"
 rndgen=
 rmbsmp=
@@ -96,11 +96,17 @@ for arg in $*; do
     if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="m"
   elif [ "$arg" == "-inl" ]; then
-    if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
     helinls="0 1"
   elif [ "$arg" == "-inlonly" ]; then
-    if [ "${helinls}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
     helinls="1"
+  elif [ "$arg" == "-inlL" ]; then
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
+    helinls="0 1 L"
+  elif [ "$arg" == "-inlLonly" ]; then
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
+    helinls="L"
   elif [ "$arg" == "-hrd" ]; then
     if [ "${hrdcods}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
     hrdcods="0 1"
@@ -138,6 +144,9 @@ for arg in $*; do
   fi  
 done
 
+# Set defaults a posteriori
+if [ "${helinls}" == "" ]; then helinls="0"; fi
+
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
 if [ "${dlpset}" == "1" ]; then usage; fi
 
@@ -149,9 +158,9 @@ fi
 
 #echo "procs=$procs"
 #echo "suffs=$suffs"
-#echo "df=$df"
-#echo "inl=$inl"
-#echo "hrd=$hrd"
+#echo "fptypes=$fptypes"
+#echo "helinls=$helinls"
+#echo "hrdcods=$hrdcods"
 #echo "steps=$steps"
 ###exit 0
 
@@ -168,8 +177,11 @@ for step in $steps; do
       for fptype in $fptypes; do
         flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; elif [ "${fptype}" == "m" ]; then flt=" -mixonly"; fi
         for helinl in $helinls; do
-          inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
+          inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; elif [ "${helinl}" == "L" ]; then inl=" -inlLonly"; fi
           for hrdcod in $hrdcods; do
+            logfile=logs_${proc#-}_${sufflog}/log_${proc#-}_${sufflog}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
+            if [ "${rndgen}" != "" ]; then logfile=${logfile%.txt}_${rndgen#-}.txt; fi
+            if [ "${rmbsmp}" != "" ]; then logfile=${logfile%.txt}_${rmbsmp#-}.txt; fi
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
             args="${proc}${sa}${flt}${inl}${hrd} ${dlp}"
             args="${args} ${alpaka}" # optionally disable alpaka tests
@@ -186,16 +198,19 @@ for step in $steps; do
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./throughputX.sh -makeonly ${makej} $args"
               printf "\n%80s\n" |tr " " "*"
+              SECONDS=0 # bash built-in
               if ! ./throughputX.sh -makeonly ${makej} $args; then exit 1; fi
+              BUILDTIME=$(date -d@$SECONDS -u "+$(($SECONDS/86400))d %Hh %Mm %Ss")
+              echo "" | tee $logfile 
+              echo "------------------------------------------------" | tee -a $logfile 
+              echo "Preliminary build completed in $BUILDTIME" | tee -a $logfile 
+              echo "------------------------------------------------" | tee -a $logfile 
             else
-              logfile=logs_${proc#-}_${sufflog}/log_${proc#-}_${sufflog}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
-              if [ "${rndgen}" != "" ]; then logfile=${logfile%.txt}_${rndgen#-}.txt; fi
-              if [ "${rmbsmp}" != "" ]; then logfile=${logfile%.txt}_${rmbsmp#-}.txt; fi
               printf "\n%80s\n" |tr " " "*"
-              printf "*** ./throughputX.sh $args | tee $logfile"
+              printf "*** ./throughputX.sh $args | tee -a $logfile"
               printf "\n%80s\n" |tr " " "*"
               mkdir -p $(dirname $logfile)
-              ./throughputX.sh $args -gtest | tee $logfile 
+              ./throughputX.sh $args -gtest | tee -a $logfile 
               if [ ${PIPESTATUS[0]} -ne "0" ]; then status=2; fi
             fi
           done

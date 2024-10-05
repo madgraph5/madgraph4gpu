@@ -10,7 +10,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-hip] [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-hip] [-flt|-fltonly|-mix|-mixonly]  [-inl|-inlonly|-inlL|-inlLonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -31,7 +31,7 @@ hip=
 
 suffs="mad"
 fptypes="d"
-helinls="0"
+helinls="" # set default later
 hrdcods="0"
 
 steps="make test"
@@ -96,12 +96,18 @@ for arg in $*; do
   elif [ "$arg" == "-mixonly" ]; then
     if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
     fptypes="m"
-  #elif [ "$arg" == "-inl" ]; then
-  #  if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
-  #  helinls="0 1"
-  #elif [ "$arg" == "-inlonly" ]; then
-  #  if [ "${helinls}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
-  #  helinls="1"
+  elif [ "$arg" == "-inl" ]; then
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
+    helinls="0 1"
+  elif [ "$arg" == "-inlonly" ]; then
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
+    helinls="1"
+  elif [ "$arg" == "-inlL" ]; then
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
+    helinls="0 1 L"
+  elif [ "$arg" == "-inlLonly" ]; then
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
+    helinls="L"
   #elif [ "$arg" == "-hrd" ]; then
   #  if [ "${hrdcods}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
   #  hrdcods="0 1"
@@ -133,6 +139,9 @@ for arg in $*; do
   fi  
 done
 
+# Set defaults a posteriori
+if [ "${helinls}" == "" ]; then helinls="0"; fi
+
 # Check that at least one process has been selected
 if [ "${procs}" == "" ]; then usage; fi
 
@@ -145,7 +154,7 @@ for step in $steps; do
       for fptype in $fptypes; do
         flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; elif [ "${fptype}" == "m" ]; then flt=" -mixonly"; fi
         for helinl in $helinls; do
-          inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
+          inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; elif [ "${helinl}" == "L" ]; then inl=" -inlLonly"; fi
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
             args="${proc}${flt}${inl}${hrd}${deb}${rmrdat}${add10x}${checkonly}${hip} ${dlp}"

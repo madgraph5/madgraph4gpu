@@ -971,6 +971,8 @@ main( int argc, char** argv )
               << " [" << process.getCompiler() << "]"
 #ifdef MGONGPU_INLINE_HELAMPS
               << " [inlineHel=1]"
+#elif defined MGONGPU_LINKER_HELAMPS
+              << " [inlineHel=L]"
 #else
               << " [inlineHel=0]"
 #endif

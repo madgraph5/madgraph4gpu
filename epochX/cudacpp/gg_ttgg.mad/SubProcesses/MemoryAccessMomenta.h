@@ -8,7 +8,7 @@
 
 #include "mgOnGpuConfig.h"
 
-#include "CPPProcess.h"
+#include "CPPProcess.h" // for CPPProcess::np4 and CPPProcess::npar (NB: npar may differ in different P* subprocess directories!)
 #include "MemoryAccessHelpers.h"
 #include "MemoryAccessVectors.h"
 

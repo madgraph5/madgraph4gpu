@@ -19,7 +19,7 @@ export MG5AMC_CHANNELID_DEBUG=1
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly|-inlL|-inlLonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -46,7 +46,7 @@ bblds=
 alpaka=1
 
 fptypes="d"
-helinls="0"
+helinls="" # set default later
 hrdcods="0"
 rndgen=""
 rmbsam=""
@@ -181,12 +181,20 @@ while [ "$1" != "" ]; do
     fptypes="m"
     shift
   elif [ "$1" == "-inl" ]; then
-    if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
     helinls="0 1"
     shift
   elif [ "$1" == "-inlonly" ]; then
-    if [ "${helinls}" == "0 1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
     helinls="1"
+    shift
+  elif [ "$1" == "-inlL" ]; then
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
+    helinls="0 1 L"
+    shift
+  elif [ "$1" == "-inlLonly" ]; then
+    if [ "${helinls}" != "" ]; then echo "ERROR! Options -inl, -inlonly, -inlL, -inlLonly are incompatible (and can be specified only once)"; usage; fi
+    helinls="L"
     shift
   elif [ "$1" == "-hrd" ]; then
     if [ "${hrdcods}" == "1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
@@ -263,6 +271,9 @@ done
 if [ "${gtest}" == "" ]; then gtest=1; fi
 ###echo procs=$procs
 ###exit 1
+
+# Set defaults a posteriori
+if [ "${helinls}" == "" ]; then helinls="0"; fi
 
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
 if [ "${dlp}" != "" ]; then
