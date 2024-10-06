@@ -8,9 +8,20 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased] - 2024-10-06
 
+### Added
+
+- Infrastructure issues
+  - AV ([#945]) Add cudacpp_bldall runcard to produce multi-backend gridpacks.
+  - AV ([#700]) Add cudacpp_helinl and cudacpp_hrdcod runcards to support HELINL=1 and HRDCOD=1 builds.
+  - AV ([#957]) In internal "tlau" tests, instrument python code in gridpacks to provide timing profiles for event generation.
+  - AV Enhance internal "tlau" tests and add a few test logs and various scripts to analyse them.
+
 ### Changed
 
 - Updated cudacpp version to 1.00.01.
+
+- Infrastructure issues
+  - AV ([#700]) Renamed the floating_type runcard as cudacpp_fptype for consistency with other cudacpp runcards.
 
 ### Fixed
 
@@ -21,7 +32,7 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
   - AV ([#1013]) Fix release scripts to create 'v1.00.01' tags from a '(1,0,1)' python tuple.
   - AV ([#1015]) Remove add_input_for_banner from output.py (plugin_run_card is not needed in cudacpp).
   - AV ([#995]) In cudacpp_config.mk move default FPTYPE from 'd' to 'm' (already the default cudacpp_backend in run_card.dat).
-
+	
 --------------------------------------------------------------------------------
 
 ## [1.00.00] - 2024-10-03
@@ -56,9 +67,12 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 [Unreleased]: https://github.com/madgraph5/madgraph4gpu/releases/compare/cudacpp_for3.6.0_v1.00.00...HEAD
 
 [#601]: https://github.com/madgraph5/madgraph4gpu/issues/601
+[#700]: https://github.com/madgraph5/madgraph4gpu/issues/700
 [#846]: https://github.com/madgraph5/madgraph4gpu/issues/846
 [#942]: https://github.com/madgraph5/madgraph4gpu/issues/942
 [#944]: https://github.com/madgraph5/madgraph4gpu/issues/944
+[#945]: https://github.com/madgraph5/madgraph4gpu/issues/945
+[#957]: https://github.com/madgraph5/madgraph4gpu/issues/957
 [#959]: https://github.com/madgraph5/madgraph4gpu/issues/959
 [#993]: https://github.com/madgraph5/madgraph4gpu/issues/993
 [#995]: https://github.com/madgraph5/madgraph4gpu/issues/995
