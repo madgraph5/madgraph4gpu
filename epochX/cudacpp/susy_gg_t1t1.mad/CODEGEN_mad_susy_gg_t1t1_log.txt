@@ -550,7 +550,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t1 t1~ WEIGHTED<=2 @1  
 INFO: Process has 6 diagrams 
-1 processes with 6 diagrams generated in 0.126 s
+1 processes with 6 diagrams generated in 0.123 s
 Total: 1 processes with 6 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_susy_gg_t1t1 --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -580,18 +580,18 @@ INFO: Finding symmetric diagrams for subprocess group gg_t1t1x
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 2, 2: 3, 3: 4, 4: 5, 5: 6} [1;30m[model_handling.py at line 1551][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {2: 1, 3: 2, 4: 3, 5: 4, 6: 5} [1;30m[model_handling.py at line 1552][0m [0m
 Generated helas calls for 1 subprocesses (6 diagrams) in 0.009 s
-Wrote files for 16 helas calls in 0.087 s
+Wrote files for 16 helas calls in 0.081 s
 [1;32mDEBUG:  self.vector_size = [0m 32 [1;30m[export_v4.py at line 7023][0m [0m
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 3 routines in  0.188 s
+ALOHA: aloha creates 3 routines in  0.191 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 6 routines in  0.185 s
+ALOHA: aloha creates 6 routines in  0.181 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
@@ -628,9 +628,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m3.068s
-user	0m2.726s
-sys	0m0.341s
+real	0m2.979s
+user	0m2.658s
+sys	0m0.321s
 Code generation completed in 3 seconds
 ************************************************************
 *                                                          *
