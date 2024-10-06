@@ -33,8 +33,10 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
         if 'cwd' in opts and os.path.basename(opts['cwd']) == 'Source':
             path = pjoin(opts['cwd'], 'make_opts')
             common_run_interface.CommonRunCmd.update_make_opts_full(path,
-                {'FPTYPE': self.run_card['cudacpp_fptype'] })
-            misc.sprint('FPTYPE checked')
+                {'FPTYPE': self.run_card['cudacpp_fptype'],
+                 'HELINL': self.run_card['cudacpp_helinl'],
+                 'HRDCOD': self.run_card['cudacpp_hrdcod'] })
+            misc.sprint('FPTYPE, HELINL, HRDCOD checked')
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
             if self.run_card['cudacpp_bldall'] == True: # pre-build all backends #945
@@ -56,9 +58,11 @@ template_on = \
 """#***********************************************************************
 # SIMD/GPU configuration for the CUDACPP plugin
 #************************************************************************
- %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
-#*** WARNING! Do not change the cudacpp runcard below! Users should normally change only the cudacpp_backend card ***
- %(cudacpp_fptype)s = cudacpp_fptype ! CUDACPP floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
+ %(cudacpp_backend)s = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp (DEFAULT), cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
+#*** WARNING! The following cudacpp runcards are experimental! Users should normally change only the cudacpp_backend card ***
+ %(cudacpp_fptype)s = cudacpp_fptype ! CUDACPP floating point precision: f (single), d (double), m (mixed, DEFAULT: double for amplitudes, single for colors)
+ %(cudacpp_hrdcod)s = cudacpp_hrdcod ! CUDACPP parameter hardcoding: 0 (DEFAULT, parameters not hardcoded: read param_card.dat at runtime), 1 (hardcoded parameters)
+ %(cudacpp_helinl)s = cudacpp_helinl ! CUDACPP helicity amplitude inlining: 0 (DEFAULT, ordinary inlining of templates), 1 (aggressive inlining with 'always inline')
  %(cudacpp_bldall)s = cudacpp_bldall ! CUDACPP build all available backends in separate build directories: False, True
 """
 template_off = ''
@@ -83,6 +87,10 @@ class CPPRunCard(banner_mod.RunCardLO):
             raise Exception
         if name == 'cudacpp_fptype':
             common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': new_value})
+        elif name == 'cudacpp_hrdcod':
+            raise Exception('Cannot change cudacpp_hrdcod')
+        elif name == 'cudacpp_helinl':
+            raise Exception('Cannot change cudacpp_helinl')
         elif name == 'cudacpp_bldall':
             raise Exception('Cannot change cudacpp_bldall')
         else:
@@ -106,10 +114,22 @@ class CPPRunCard(banner_mod.RunCardLO):
                        fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this forces a 'make cleanavx' if FPTYPE changes?
                        allowed=['m','d','f']
                        )
+        self.add_param('cudacpp_helinl', '0',
+                       include=False,  # AV: no need to add this parameter to run_card.inc
+                       hidden=False, # AV: add cudacpp_helinl to runcard template and keep 'hidden='False'
+                       fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this raises an exception if cudacpp_helinl changes?
+                       allowed=['0','1']
+                       )
+        self.add_param('cudacpp_hrdcod', '0',
+                       include=False,  # AV: no need to add this parameter to run_card.inc
+                       hidden=False, # AV: add cudacpp_hrdcod to runcard template and keep 'hidden='False'
+                       fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this raises an exception if cudacpp_hrdcod changes?
+                       allowed=['0','1']
+                       )
         self.add_param('cudacpp_bldall', False,
                        include=False, # AV: no need to add this parameter to run_card.inc
                        hidden=False, # AV: add cudacpp_bldall to runcard template and keep 'hidden='False'
-                       fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this will raise an exception if cudacpp_bldall changes?
+                       fct_mod=(self.reset_makeopts,(),{}), # AV: I assume this raises an exception if cudacpp_bldall changes?
                        )
         self['vector_size'] = 16 # already setup in default class (just change value)
         self['aloha_flag'] = '--fast-math'

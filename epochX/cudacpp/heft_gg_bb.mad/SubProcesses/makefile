@@ -2,8 +2,10 @@ SHELL := /bin/bash
 
 include ../../Source/make_opts
 
-# Export the relevant settings from make_opts to builds using the cudacpp makefile
+# Export the relevant settings from make_opts to builds using the cudacpp makefile (#700)
 export FPTYPE
+export HELINL
+export HRDCOD
 
 # Determine CUDACPP_BUILDDIR based on the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD and USEBUILDDIR (#829)
 # Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing
