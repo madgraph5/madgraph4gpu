@@ -132,10 +132,10 @@ index db3c284ca..f1cd4e976 100644
  
        IF( FBRIDGE_MODE .LT. 0 ) THEN  ! (BothQuiet=-1 or BothDebug=-2)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index ecd11b239..ec5722702 100644
+index ecd11b239..4650934b2 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-@@ -76,13 +76,77 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+@@ -76,16 +76,95 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
  
        include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
        INTEGER VECSIZE_USED
