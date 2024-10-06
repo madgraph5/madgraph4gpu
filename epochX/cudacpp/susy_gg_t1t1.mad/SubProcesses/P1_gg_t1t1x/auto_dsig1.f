@@ -127,7 +127,6 @@ C     Continue only if IMODE is 0, 4 or 5
       IF(IMODE.NE.0.AND.IMODE.NE.4.AND.IMODE.NE.5) RETURN
 
 
-      CALL COUNTERS_START_COUNTER( 4, 1 ) ! FortranPDFs=4
       IF (ABS(LPP(IB(1))).GE.1) THEN
 C       LP=SIGN(1,LPP(IB(1)))
         IF (DSQRT(Q2FACT(IB(1))).EQ.0D0) THEN
@@ -149,7 +148,6 @@ C       LP=SIGN(1,LPP(IB(2)))
         ENDIF
         G2=PDG2PDF(LPP(IB(2)),0, IB(2),XBK(IB(2)), QSCALE)
       ENDIF
-      CALL COUNTERS_STOP_COUNTER( 4 ) ! FortranPDFs=2
       PD(0) = 0D0
       IPROC = 0
       IPROC=IPROC+1  ! g g > t1 t1~
@@ -188,9 +186,7 @@ C     Select a flavor combination (need to do here for right sign)
         R=R-DABS(PD(IPSEL))/PD(0)
       ENDDO
 
-      CALL COUNTERS_START_COUNTER( 6, 1 ) ! FortranReweight=6
       DSIGUU=DSIGUU*REWGT(PP,1)
-      CALL COUNTERS_STOP_COUNTER( 6 ) ! FortranReweight=6
 
 C     Apply the bias weight specified in the run card (default is 1.0)
       DSIGUU=DSIGUU*CUSTOM_BIAS(PP,DSIGUU,1,1)
@@ -364,7 +360,6 @@ C     Continue only if IMODE is 0, 4 or 5
         STOP
       ENDIF
 
-      CALL COUNTERS_START_COUNTER( 4, VECSIZE_USED ) ! FortranPDFs=2
       DO CURR_WARP=1, NB_WARP_USED
         IF(IMIRROR_VEC(CURR_WARP).EQ.1)THEN
           IB(1) = 1
@@ -387,7 +382,6 @@ C           LP=SIGN(1,LPP(IB(2)))
           ENDIF
         ENDDO  ! IWARP LOOP
       ENDDO  ! CURRWARP LOOP
-      CALL COUNTERS_STOP_COUNTER( 4 ) ! FortranPDFs=2
       ALL_PD(0,:) = 0D0
       IPROC = 0
       IPROC=IPROC+1  ! g g > t1 t1~
@@ -432,9 +426,7 @@ C         Select a flavor combination (need to do here for right sign)
           CHANNEL = SUBDIAG(1)
 
 
-          CALL COUNTERS_START_COUNTER( 6, 1 ) ! FortranReweight=6
           ALL_RWGT(IVEC) = REWGT(ALL_PP(0,1,IVEC), IVEC)
-          CALL COUNTERS_STOP_COUNTER( 6 ) ! FortranReweight=6
 
           IF(FRAME_ID.NE.6)THEN
             CALL BOOST_TO_FRAME(ALL_PP(0,1,IVEC), FRAME_ID, P_MULTI(0
@@ -490,13 +482,11 @@ C         Set sign of dsig based on sign of PDF and matrix element
           ALL_OUT(IVEC)=0D0
         ENDIF
 C       Generate events only if IMODE is 0.
-        CALL COUNTERS_START_COUNTER( 7, 1 ) ! FortranUnweight=7
         IF(IMODE.EQ.0.AND.DABS(ALL_OUT(IVEC)).GT.0D0)THEN
 C         Call UNWGT to unweight and store events
           CALL UNWGT(ALL_PP(0,1,IVEC), ALL_OUT(IVEC)*ALL_WGT(IVEC),1,
      $      SELECTED_HEL(IVEC), SELECTED_COL(IVEC), IVEC)
         ENDIF
-        CALL COUNTERS_STOP_COUNTER( 7 ) ! FortranUnweight=7
       ENDDO
 
       END
@@ -565,7 +555,7 @@ C         Call UNWGT to unweight and store events
 
       IF( FBRIDGE_MODE .LE. 0 ) THEN  ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
-        CALL COUNTERS_START_COUNTER( 9, VECSIZE_USED ) ! FortranMEs=9
+        CALL COUNTERS_START_COUNTER( 1, VECSIZE_USED )  ! FortranMEs=1
         DO IVEC=1, VECSIZE_USED
           CALL SMATRIX1(P_MULTI(0,1,IVEC),
      &	                         hel_rand(IVEC),
@@ -581,7 +571,7 @@ C       ======================================================
 C       *START* Included from CUDACPP template smatrix_multi.f
 C       (into function smatrix$i_multi in auto_dsig$i.f)
 C       ======================================================
-        CALL COUNTERS_STOP_COUNTER( 9 ) ! FortranMEs=9
+        CALL COUNTERS_STOP_COUNTER( 1 )  ! FortranMEs=1
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
 
@@ -591,7 +581,7 @@ C       ======================================================
           STOP
         ENDIF
         IF ( FIRST ) THEN  ! exclude first pass (helicity filtering) from timers (#461)
-          CALL COUNTERS_START_COUNTER( 11, 0 ) ! 11=CudaCpp-Initialise (was CudaCpp-HEL; counter set to 1 on bridge creation, do not increment it further)
+          CALL COUNTERS_START_COUNTER( 3, VECSIZE_USED )  ! CudaCpp-HEL=3
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE,  ! multi channel disabled for helicity filtering
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .TRUE.)  ! quit after computing helicities
@@ -612,9 +602,9 @@ C         ENDIF
           ENDIF
           WRITE (6,*) 'NGOODHEL =', NGOODHEL
           WRITE (6,*) 'NCOMB =', NCOMB
-          CALL COUNTERS_STOP_COUNTER( 11 ) ! 11=CudaCpp-Initialise (was CudaCpp-HEL)
+          CALL COUNTERS_STOP_COUNTER( 3 )  ! CudaCpp-HEL=3
         ENDIF
-        CALL COUNTERS_START_COUNTER( 19, VECSIZE_USED ) ! CudaCppMEs=19
+        CALL COUNTERS_START_COUNTER( 2, VECSIZE_USED )  ! CudaCppMEs=2
         IF ( .NOT. MULTI_CHANNEL ) THEN
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE,  ! multi channel disabled
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
@@ -628,7 +618,7 @@ C         ENDIF
      &      HEL_RAND, COL_RAND, CHANNELS, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .FALSE.)  ! do not quit after computing helicities
         ENDIF
-        CALL COUNTERS_STOP_COUNTER( 19 ) ! CudaCppMEs=19
+        CALL COUNTERS_STOP_COUNTER( 2 )  ! CudaCppMEs=2
       ENDIF
 
       IF( FBRIDGE_MODE .LT. 0 ) THEN  ! (BothQuiet=-1 or BothDebug=-2)

@@ -96,19 +96,10 @@ C-----
       CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
 #endif
       CALL COUNTERS_INITIALISE()
-c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is not needed, but it does not harm)
-      CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran Initialise(I/O)'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran PhaseSpaceSampling'//char(0) ) ! uniform [0,1] + vegas to [0,1] + map to momenta
-      CALL COUNTERS_REGISTER_COUNTER( 4, 'Fortran PDFs'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 5, 'Fortran UpdateScaleCouplings'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 6, 'Fortran Reweight'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 7, 'Fortran Unweight(LHE-I/O)'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 8, 'Fortran SamplePutPoint'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 9, 'Fortran MEs'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 11, 'CudaCpp Initialise'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 12, 'CudaCpp Finalise'//char(0) )
-      CALL COUNTERS_REGISTER_COUNTER( 19, 'CudaCpp MEs'//char(0) )
-c     CALL COUNTERS_REGISTER_COUNTER( 21, 'TEST    SampleGetX'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran MEs'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 2, 'CudaCpp MEs'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 3, 'CudaCpp HEL'//char(0) )
+
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
 #else
@@ -152,19 +143,16 @@ c     CALL COUNTERS_REGISTER_COUNTER( 21, 'TEST    SampleGetX'//char(0) )
       endif
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL COUNTERS_START_COUNTER( 11, 1 ) ! 11=CudaCpp-Initialise
       CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
       FBRIDGE_CBYF1SUM2 = 0
       FBRIDGE_CBYF1MAX = -1D100
       FBRIDGE_CBYF1MIN = 1D100
-      CALL COUNTERS_STOP_COUNTER( 11 ) ! 11=CudaCpp-Initialise
 #endif
 c
 c     Read process number
 c
-      CALL COUNTERS_START_COUNTER( 1, 1 ) ! FortranInitialise=1
       call open_file(lun+1, 'dname.mg', fopened)
       if (.not.fopened)then
          goto 11
@@ -235,7 +223,6 @@ c   If CKKW-type matching, read IS Sudakov grid
           print *,'Running CKKW as lower mult sample'
         endif
       endif
-      CALL COUNTERS_STOP_COUNTER( 1 ) ! FortranInitialise=1
 
 c     
 c     Get user input
@@ -299,7 +286,6 @@ c      write(*,*) 'Final xsec: ',xsec
       close(lun)
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL COUNTERS_START_COUNTER( 12, 1 ) ! 12=CudaCpp-Finalise
       CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
       IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         WRITE(*,'(a,f10.8,a,e8.2)')
@@ -322,7 +308,6 @@ c    &    SQRT( FBRIDGE_CBYF1SUM2 / FBRIDGE_NCBYF1 ) ! ~standard deviation
      &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1, ' +- ',
      &    SQRT( FBRIDGE_CBYF1SUM2 ) / FBRIDGE_NCBYF1 ! ~standard error
       ENDIF
-      CALL COUNTERS_STOP_COUNTER( 12 ) ! 12=CudaCpp-Finalise
 #endif
       CALL COUNTERS_FINALISE()
       end
