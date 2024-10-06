@@ -1,141 +1,8 @@
-diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
-index bc9bcfeb9..0c1962d3e 100644
---- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
-+++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig.f
-@@ -315,8 +315,10 @@ C     ENDDO
- 
- C     set the running scale 
- C     and update the couplings accordingly
-+      CALL COUNTERS_START_COUNTER( 5, VECSIZE_USED ) ! FortranUpdateScaleCouplings=5
-       CALL UPDATE_SCALE_COUPLING_VEC(ALL_P, ALL_WGT, ALL_Q2FACT,
-      $  VECSIZE_USED)
-+      CALL COUNTERS_STOP_COUNTER( 5 ) ! FortranUpdateScaleCouplings=5
- 
-       IF(GROUPED_MC_GRID_STATUS.EQ.0) THEN
- C       If we were in the initialization phase of the grid for MC over
-diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-index db3c284ca..f1cd4e976 100644
---- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-+++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/auto_dsig1.f
-@@ -127,6 +127,7 @@ C     Continue only if IMODE is 0, 4 or 5
-       IF(IMODE.NE.0.AND.IMODE.NE.4.AND.IMODE.NE.5) RETURN
- 
- 
-+      CALL COUNTERS_START_COUNTER( 4, 1 ) ! FortranPDFs=4
-       IF (ABS(LPP(IB(1))).GE.1) THEN
- C       LP=SIGN(1,LPP(IB(1)))
-         IF (DSQRT(Q2FACT(IB(1))).EQ.0D0) THEN
-@@ -148,6 +149,7 @@ C       LP=SIGN(1,LPP(IB(2)))
-         ENDIF
-         G2=PDG2PDF(LPP(IB(2)),0, IB(2),XBK(IB(2)), QSCALE)
-       ENDIF
-+      CALL COUNTERS_STOP_COUNTER( 4 ) ! FortranPDFs=2
-       PD(0) = 0D0
-       IPROC = 0
-       IPROC=IPROC+1  ! g g > t t~
-@@ -186,7 +188,9 @@ C     Select a flavor combination (need to do here for right sign)
-         R=R-DABS(PD(IPSEL))/PD(0)
-       ENDDO
- 
-+      CALL COUNTERS_START_COUNTER( 6, 1 ) ! FortranReweight=6
-       DSIGUU=DSIGUU*REWGT(PP,1)
-+      CALL COUNTERS_STOP_COUNTER( 6 ) ! FortranReweight=6
- 
- C     Apply the bias weight specified in the run card (default is 1.0)
-       DSIGUU=DSIGUU*CUSTOM_BIAS(PP,DSIGUU,1,1)
-@@ -360,6 +364,7 @@ C     Continue only if IMODE is 0, 4 or 5
-         STOP
-       ENDIF
- 
-+      CALL COUNTERS_START_COUNTER( 4, VECSIZE_USED ) ! FortranPDFs=2
-       DO CURR_WARP=1, NB_WARP_USED
-         IF(IMIRROR_VEC(CURR_WARP).EQ.1)THEN
-           IB(1) = 1
-@@ -382,6 +387,7 @@ C           LP=SIGN(1,LPP(IB(2)))
-           ENDIF
-         ENDDO  ! IWARP LOOP
-       ENDDO  ! CURRWARP LOOP
-+      CALL COUNTERS_STOP_COUNTER( 4 ) ! FortranPDFs=2
-       ALL_PD(0,:) = 0D0
-       IPROC = 0
-       IPROC=IPROC+1  ! g g > t t~
-@@ -426,7 +432,9 @@ C         Select a flavor combination (need to do here for right sign)
-           CHANNEL = SUBDIAG(1)
- 
- 
-+          CALL COUNTERS_START_COUNTER( 6, 1 ) ! FortranReweight=6
-           ALL_RWGT(IVEC) = REWGT(ALL_PP(0,1,IVEC), IVEC)
-+          CALL COUNTERS_STOP_COUNTER( 6 ) ! FortranReweight=6
- 
-           IF(FRAME_ID.NE.6)THEN
-             CALL BOOST_TO_FRAME(ALL_PP(0,1,IVEC), FRAME_ID, P_MULTI(0
-@@ -482,11 +490,13 @@ C         Set sign of dsig based on sign of PDF and matrix element
-           ALL_OUT(IVEC)=0D0
-         ENDIF
- C       Generate events only if IMODE is 0.
-+        CALL COUNTERS_START_COUNTER( 7, 1 ) ! FortranUnweight=7
-         IF(IMODE.EQ.0.AND.DABS(ALL_OUT(IVEC)).GT.0D0)THEN
- C         Call UNWGT to unweight and store events
-           CALL UNWGT(ALL_PP(0,1,IVEC), ALL_OUT(IVEC)*ALL_WGT(IVEC),1,
-      $      SELECTED_HEL(IVEC), SELECTED_COL(IVEC), IVEC)
-         ENDIF
-+        CALL COUNTERS_STOP_COUNTER( 7 ) ! FortranUnweight=7
-       ENDDO
- 
-       END
-@@ -555,7 +565,7 @@ C         Call UNWGT to unweight and store events
- 
-       IF( FBRIDGE_MODE .LE. 0 ) THEN  ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
- #endif
--        CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1
-+        CALL COUNTERS_START_COUNTER( 9, VECSIZE_USED ) ! FortranMEs=9
-         DO IVEC=1, VECSIZE_USED
-           CALL SMATRIX1(P_MULTI(0,1,IVEC),
-      &	                         hel_rand(IVEC),
-@@ -571,7 +581,7 @@ C       ======================================================
- C       *START* Included from CUDACPP template smatrix_multi.f
- C       (into function smatrix$i_multi in auto_dsig$i.f)
- C       ======================================================
--        CALL COUNTERS_SMATRIX1MULTI_STOP( -1 )  ! fortranMEs=-1
-+        CALL COUNTERS_STOP_COUNTER( 9 ) ! FortranMEs=9
- #ifdef MG5AMC_MEEXPORTER_CUDACPP
-       ENDIF
- 
-@@ -581,7 +591,7 @@ C       ======================================================
-           STOP
-         ENDIF
-         IF ( FIRST ) THEN  ! exclude first pass (helicity filtering) from timers (#461)
--          CALL COUNTERS_SMATRIX1MULTI_START( 1, VECSIZE_USED )  ! cudacppHEL=1
-+          CALL COUNTERS_START_COUNTER( 11, 0 ) ! 11=CudaCpp-Initialise (was CudaCpp-HEL; counter set to 1 on bridge creation, do not increment it further)
-           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE,  ! multi channel disabled for helicity filtering
-      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
-      &      SELECTED_HEL2, SELECTED_COL2, .TRUE.)  ! quit after computing helicities
-@@ -602,9 +612,9 @@ C         ENDIF
-           ENDIF
-           WRITE (6,*) 'NGOODHEL =', NGOODHEL
-           WRITE (6,*) 'NCOMB =', NCOMB
--          CALL COUNTERS_SMATRIX1MULTI_STOP( 1 )  ! cudacppHEL=1
-+          CALL COUNTERS_STOP_COUNTER( 11 ) ! 11=CudaCpp-Initialise (was CudaCpp-HEL)
-         ENDIF
--        CALL COUNTERS_SMATRIX1MULTI_START( 0, VECSIZE_USED )  ! cudacppMEs=0
-+        CALL COUNTERS_START_COUNTER( 19, VECSIZE_USED ) ! CudaCppMEs=19
-         IF ( .NOT. MULTI_CHANNEL ) THEN
-           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE,  ! multi channel disabled
-      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
-@@ -618,7 +628,7 @@ C         ENDIF
-      &      HEL_RAND, COL_RAND, CHANNELS, OUT2,
-      &      SELECTED_HEL2, SELECTED_COL2, .FALSE.)  ! do not quit after computing helicities
-         ENDIF
--        CALL COUNTERS_SMATRIX1MULTI_STOP( 0 )  ! cudacppMEs=0
-+        CALL COUNTERS_STOP_COUNTER( 19 ) ! CudaCppMEs=19
-       ENDIF
- 
-       IF( FBRIDGE_MODE .LT. 0 ) THEN  ! (BothQuiet=-1 or BothDebug=-2)
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index ecd11b239..4650934b2 100644
+index ecd11b239..67d1c2218 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-@@ -76,16 +76,95 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+@@ -76,13 +76,80 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
  
        include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
        INTEGER VECSIZE_USED
@@ -160,19 +27,10 @@ index ecd11b239..4650934b2 100644
 +      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
 +#endif
 +      CALL COUNTERS_INITIALISE()
-+c Use null-terminated C-string in COUNTERS_REGISTER_COUNTER calls (maybe it is not needed, but it does not harm)
-+      CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran Initialise(I/O)'//char(0) )
-+      CALL COUNTERS_REGISTER_COUNTER( 3, 'Fortran PhaseSpaceSampling'//char(0) ) ! uniform [0,1] + vegas to [0,1] + map to momenta
-+      CALL COUNTERS_REGISTER_COUNTER( 4, 'Fortran PDFs'//char(0) )
-+      CALL COUNTERS_REGISTER_COUNTER( 5, 'Fortran UpdateScaleCouplings'//char(0) )
-+      CALL COUNTERS_REGISTER_COUNTER( 6, 'Fortran Reweight'//char(0) )
-+      CALL COUNTERS_REGISTER_COUNTER( 7, 'Fortran Unweight(LHE-I/O)'//char(0) )
-+      CALL COUNTERS_REGISTER_COUNTER( 8, 'Fortran SamplePutPoint'//char(0) )
-+      CALL COUNTERS_REGISTER_COUNTER( 9, 'Fortran MEs'//char(0) )
-+      CALL COUNTERS_REGISTER_COUNTER( 11, 'CudaCpp Initialise'//char(0) )
-+      CALL COUNTERS_REGISTER_COUNTER( 12, 'CudaCpp Finalise'//char(0) )
-+      CALL COUNTERS_REGISTER_COUNTER( 19, 'CudaCpp MEs'//char(0) )
-+c     CALL COUNTERS_REGISTER_COUNTER( 21, 'TEST    SampleGetX'//char(0) )
++      CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran MEs'//char(0) )
++      CALL COUNTERS_REGISTER_COUNTER( 2, 'CudaCpp MEs'//char(0) )
++      CALL COUNTERS_REGISTER_COUNTER( 3, 'CudaCpp HEL'//char(0) )
++
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
 +#else
@@ -216,31 +74,17 @@ index ecd11b239..4650934b2 100644
 +      endif
 +
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
-+      CALL COUNTERS_START_COUNTER( 11, 1 ) ! 11=CudaCpp-Initialise
 +      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
 +      FBRIDGE_NCBYF1 = 0
 +      FBRIDGE_CBYF1SUM = 0
 +      FBRIDGE_CBYF1SUM2 = 0
 +      FBRIDGE_CBYF1MAX = -1D100
 +      FBRIDGE_CBYF1MIN = 1D100
-+      CALL COUNTERS_STOP_COUNTER( 11 ) ! 11=CudaCpp-Initialise
 +#endif
  c
  c     Read process number
  c
-+      CALL COUNTERS_START_COUNTER( 1, 1 ) ! FortranInitialise=1
-       call open_file(lun+1, 'dname.mg', fopened)
-       if (.not.fopened)then
-          goto 11
-@@ -156,6 +235,7 @@ c   If CKKW-type matching, read IS Sudakov grid
-           print *,'Running CKKW as lower mult sample'
-         endif
-       endif
-+      CALL COUNTERS_STOP_COUNTER( 1 ) ! FortranInitialise=1
- 
- c     
- c     Get user input
-@@ -216,8 +296,35 @@ c      call sample_result(xsec,xerr)
+@@ -216,8 +283,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -248,7 +92,6 @@ index ecd11b239..4650934b2 100644
        close(lun)
 +
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
-+      CALL COUNTERS_START_COUNTER( 12, 1 ) ! 12=CudaCpp-Finalise
 +      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
 +      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
 +        WRITE(*,'(a,f10.8,a,e8.2)')
@@ -271,13 +114,12 @@ index ecd11b239..4650934b2 100644
 +     &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1, ' +- ',
 +     &    SQRT( FBRIDGE_CBYF1SUM2 ) / FBRIDGE_NCBYF1 ! ~standard error
 +      ENDIF
-+      CALL COUNTERS_STOP_COUNTER( 12 ) ! 12=CudaCpp-Finalise
 +#endif
 +      CALL COUNTERS_FINALISE()
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -400,7 +507,7 @@ c
+@@ -400,7 +492,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
