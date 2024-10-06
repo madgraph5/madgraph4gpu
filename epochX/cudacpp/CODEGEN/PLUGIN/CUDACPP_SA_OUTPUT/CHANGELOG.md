@@ -6,7 +6,7 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 
 --------------------------------------------------------------------------------
 
-## [Unreleased] - 2024-10-05
+## [Unreleased] - 2024-10-06
 
 ### Changed
 
@@ -20,6 +20,7 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 - Infrastructure issues
   - AV ([#1013]) Fix release scripts to create 'v1.00.01' tags from a '(1,0,1)' python tuple.
   - AV ([#1015]) Remove add_input_for_banner from output.py (plugin_run_card is not needed in cudacpp).
+  - AV ([#995]) In cudacpp_config.mk move default FPTYPE from 'd' to 'm' (already the default cudacpp_backend in run_card.dat).
 
 --------------------------------------------------------------------------------
 
@@ -60,6 +61,7 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 [#944]: https://github.com/madgraph5/madgraph4gpu/issues/944
 [#959]: https://github.com/madgraph5/madgraph4gpu/issues/959
 [#993]: https://github.com/madgraph5/madgraph4gpu/issues/993
+[#995]: https://github.com/madgraph5/madgraph4gpu/issues/995
 [#1011]: https://github.com/madgraph5/madgraph4gpu/issues/1011
 [#1013]: https://github.com/madgraph5/madgraph4gpu/issues/1013
 [#1015]: https://github.com/madgraph5/madgraph4gpu/issues/1015
