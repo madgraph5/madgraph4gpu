@@ -202,6 +202,38 @@ function codeGenAndDiff()
     susy_gg_ulul)
       cmd="import model MSSM_SLHA2; generate g g > ul ul~"
       ;;
+    pp_dy012j) # from Jin #942
+      cmd="import model sm-no_b_mass
+      define p = u d c s b u~ d~ c~ s~ b~ g
+      define j = p
+      define ell+ = e+ mu+ ta+
+      define ell- = e- mu- ta-
+      define nu = ve vm vt
+      define nubar = ve~ vm~ vt~
+      generate p p > ell+ ell- @0
+      add process p p > ell+ ell- j @1
+      add process p p > ell+ ell- j j @2"
+      ;;
+    pp_dy3j) # from Jin #942
+      cmd="import model sm-no_b_mass
+      define p = u d c s b u~ d~ c~ s~ b~ g
+      define j = p
+      define ell+ = e+ mu+ ta+
+      define ell- = e- mu- ta-
+      define nu = ve vm vt
+      define nubar = ve~ vm~ vt~
+      generate p p > ell+ ell- j j j @0"
+      ;;
+    pp_dy4j) # extend dy3j from Jin #942
+      cmd="import model sm-no_b_mass
+      define p = u d c s b u~ d~ c~ s~ b~ g
+      define j = p
+      define ell+ = e+ mu+ ta+
+      define ell- = e- mu- ta-
+      define nu = ve vm vt
+      define nubar = ve~ vm~ vt~
+      generate p p > ell+ ell- j j j j @0"
+      ;;
     atlas)
       cmd="import model sm-no_b_mass
       define p = g u c d s b u~ c~ d~ s~ b~
@@ -345,12 +377,14 @@ function codeGenAndDiff()
           ###\rm -f $matrixps # keep also the .ps file as suggested by Olivier #854
           # Strip PDF metadata from ps2pdf to make the file reproducible (use binary 'grep -a' for tests)
           # Alternatively I tried pdftk (https://stackoverflow.com/questions/60738960) but this did not remove PdfID0/PdfID1 or XMP metadata
-          # Use pdftk <file.pdf> dump_data to inspect the PDF metadata (but this does not include XMP metadata!)
+          # Use 'pdftk <file.pdf> dump_data' to inspect the PDF metadata (but this does not include XMP metadata!)
+          # Use 'xxd -c256 <file.pdf>' to view the binary content in text format
           cat $matrixpdf \
             | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/ModDate\\().*(\\)>>endobj$)","\\1"date"\\2","g")}' \
             | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/CreationDate\\().*(\\)$)","\\1"date"\\2","g")}' \
             | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("(^/ID \\[<).*><.*(>\\]$)","\\1"id"><"id"\\2","g")}' \
             | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("(^/ID \\[\\().*\\)\\(.*(\\)\\]$)","\\1"id")("id"\\2","g")}' \
+            | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("\\("id"\\)","<"id">","g")}' \
             | awk -vdate="2024-03-01T00:00:00+01:00" '{print gensub("(<xmp:ModifyDate>).*(</xmp:ModifyDate>)","\\1"date"\\2","g")}' \
             | awk -vdate="2024-03-01T00:00:00+01:00" '{print gensub("(<xmp:CreateDate>).*(</xmp:CreateDate>)","\\1"date"\\2","g")}' \
             | awk -vuuid="'uuid=01234567-89ab-cdef-0123-456789abcdef'" '{print gensub("(xapMM:DocumentID=).*(/>$)","\\1"uuid"\\2","g")}' \
