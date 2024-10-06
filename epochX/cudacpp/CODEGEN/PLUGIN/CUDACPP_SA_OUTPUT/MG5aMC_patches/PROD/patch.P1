@@ -1,8 +1,8 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 1124a9164..27a6e4674 100644
+index ecd11b239..ec5722702 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-@@ -74,13 +74,77 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+@@ -76,13 +76,77 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
  
        include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
        INTEGER VECSIZE_USED
@@ -81,7 +81,7 @@ index 1124a9164..27a6e4674 100644
  c
  c     Read process number
  c
-@@ -208,8 +272,33 @@ c      call sample_result(xsec,xerr)
+@@ -216,8 +280,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -116,7 +116,7 @@ index 1124a9164..27a6e4674 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -387,7 +476,7 @@ c
+@@ -400,7 +489,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
@@ -126,7 +126,7 @@ index 1124a9164..27a6e4674 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index 1acba8200..069c74ef4 100644
+index bf488e4b0..707ea4032 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -71,7 +71,10 @@ C
@@ -141,7 +141,7 @@ index 1acba8200..069c74ef4 100644
  C     
  C     This is just to temporarily store the reference grid for
  C      helicity of the DiscreteSampler so as to obtain its number of
-@@ -211,6 +214,17 @@ C     ----------
+@@ -224,6 +227,17 @@ C            update.
            ENDIF
            IF(NTRY(1).EQ.MAXTRIES)THEN
              ISHEL=MIN(ISUM_HEL,NGOOD)

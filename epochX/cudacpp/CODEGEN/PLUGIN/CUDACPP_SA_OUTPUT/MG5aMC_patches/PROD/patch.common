@@ -1,14 +1,16 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-index 348c283be..205014f49 100644
+index 348c283be..2e5bff046 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/makefile
-@@ -1,6 +1,40 @@
+@@ -1,6 +1,42 @@
 +SHELL := /bin/bash
 +
  include ../../Source/make_opts
 +
-+# Export the relevant settings from make_opts to builds using the cudacpp makefile
++# Export the relevant settings from make_opts to builds using the cudacpp makefile (#700)
 +export FPTYPE
++export HELINL
++export HRDCOD
 +
 +# Determine CUDACPP_BUILDDIR based on the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD and USEBUILDDIR (#829)
 +# Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing
@@ -43,7 +45,7 @@ index 348c283be..205014f49 100644
  # Load additional dependencies of the bias module, if present
  ifeq (,$(wildcard ../bias_dependencies))
  BIASDEPENDENCIES =
-@@ -24,7 +58,20 @@ else
+@@ -24,7 +60,20 @@ else
      MADLOOP_LIB =
  endif
  
@@ -65,7 +67,7 @@ index 348c283be..205014f49 100644
  
  LIBS = $(LIBDIR)libbias.$(libext) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libdsample.$(libext) $(LIBDIR)libgeneric.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUPC.$(libext) $(LIBDIR)libmodel.$(libext) $(LIBDIR)libcernlib.$(libext) $(MADLOOP_LIB) $(LOOP_LIBS)
  
-@@ -43,41 +90,150 @@ ifeq ($(strip $(MATRIX_HEL)),)
+@@ -43,41 +92,150 @@ ifeq ($(strip $(MATRIX_HEL)),)
  endif
  
  
@@ -232,7 +234,7 @@ index 348c283be..205014f49 100644
  
  # Dependencies
  
-@@ -97,5 +253,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
+@@ -97,5 +255,80 @@ unwgt.o: genps.inc nexternal.inc symswap.inc cluster.inc run.inc message.inc \
  	 run_config.inc
  initcluster.o: message.inc
  
