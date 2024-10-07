@@ -50,6 +50,9 @@ function codeGenAndDiff()
     gq_ttllq)
       cmd="define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
       ;;
+    gux_taptamggux) # subset of pp_dy3j from Jin #942 (no need for no_b_mass however)
+      cmd="generate g u~ > ta+ ta- g g u~"
+      ;;
     pp_tt)
       cmd="generate p p > t t~"
       ;;

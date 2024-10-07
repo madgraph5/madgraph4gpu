@@ -1,8 +1,8 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index ecd11b239..ec5722702 100644
+index ecd11b239..67d1c2218 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-@@ -76,13 +76,77 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+@@ -76,13 +76,80 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
  
        include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
        INTEGER VECSIZE_USED
@@ -27,6 +27,9 @@ index ecd11b239..ec5722702 100644
 +      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
 +#endif
 +      CALL COUNTERS_INITIALISE()
++      CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran MEs'//char(0) )
++      CALL COUNTERS_REGISTER_COUNTER( 2, 'CudaCpp MEs'//char(0) )
++      CALL COUNTERS_REGISTER_COUNTER( 3, 'CudaCpp HEL'//char(0) )
 +
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
@@ -81,7 +84,7 @@ index ecd11b239..ec5722702 100644
  c
  c     Read process number
  c
-@@ -216,8 +280,33 @@ c      call sample_result(xsec,xerr)
+@@ -216,8 +283,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
@@ -116,7 +119,7 @@ index ecd11b239..ec5722702 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -400,7 +489,7 @@ c
+@@ -400,7 +492,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 

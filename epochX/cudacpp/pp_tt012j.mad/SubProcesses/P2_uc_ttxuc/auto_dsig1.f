@@ -626,7 +626,7 @@ C         Call UNWGT to unweight and store events
 
       IF( FBRIDGE_MODE .LE. 0 ) THEN  ! (FortranOnly=0 or BothQuiet=-1 or BothDebug=-2)
 #endif
-        CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1
+        CALL COUNTERS_START_COUNTER( 1, VECSIZE_USED )  ! FortranMEs=1
         DO IVEC=1, VECSIZE_USED
           CALL SMATRIX1(P_MULTI(0,1,IVEC),
      &	                         hel_rand(IVEC),
@@ -642,7 +642,7 @@ C       ======================================================
 C       *START* Included from CUDACPP template smatrix_multi.f
 C       (into function smatrix$i_multi in auto_dsig$i.f)
 C       ======================================================
-        CALL COUNTERS_SMATRIX1MULTI_STOP( -1 )  ! fortranMEs=-1
+        CALL COUNTERS_STOP_COUNTER( 1 )  ! FortranMEs=1
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       ENDIF
 
@@ -652,7 +652,7 @@ C       ======================================================
           STOP
         ENDIF
         IF ( FIRST ) THEN  ! exclude first pass (helicity filtering) from timers (#461)
-          CALL COUNTERS_SMATRIX1MULTI_START( 1, VECSIZE_USED )  ! cudacppHEL=1
+          CALL COUNTERS_START_COUNTER( 3, VECSIZE_USED )  ! CudaCpp-HEL=3
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE,  ! multi channel disabled for helicity filtering
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .TRUE.)  ! quit after computing helicities
@@ -673,9 +673,9 @@ C         ENDIF
           ENDIF
           WRITE (6,*) 'NGOODHEL =', NGOODHEL
           WRITE (6,*) 'NCOMB =', NCOMB
-          CALL COUNTERS_SMATRIX1MULTI_STOP( 1 )  ! cudacppHEL=1
+          CALL COUNTERS_STOP_COUNTER( 3 )  ! CudaCpp-HEL=3
         ENDIF
-        CALL COUNTERS_SMATRIX1MULTI_START( 0, VECSIZE_USED )  ! cudacppMEs=0
+        CALL COUNTERS_START_COUNTER( 2, VECSIZE_USED )  ! CudaCppMEs=2
         IF ( .NOT. MULTI_CHANNEL ) THEN
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE,  ! multi channel disabled
      &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
@@ -689,7 +689,7 @@ C         ENDIF
      &      HEL_RAND, COL_RAND, CHANNELS, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .FALSE.)  ! do not quit after computing helicities
         ENDIF
-        CALL COUNTERS_SMATRIX1MULTI_STOP( 0 )  ! cudacppMEs=0
+        CALL COUNTERS_STOP_COUNTER( 2 )  ! CudaCppMEs=2
       ENDIF
 
       IF( FBRIDGE_MODE .LT. 0 ) THEN  ! (BothQuiet=-1 or BothDebug=-2)

@@ -1,3 +1,10 @@
+<--
+Copyright (C) 2020-2024 CERN and UCLouvain.
+Licensed under the GNU Lesser General Public License (version 3 or later).
+Created by: A. Valassi (Oct 2023) for the MG5aMC CUDACPP plugin.
+Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
+-->
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -11,10 +18,11 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 ### Added
 
 - Infrastructure issues
-  - AV ([#945]) Add cudacpp_bldall runcard to produce multi-backend gridpacks.
-  - AV ([#700]) Add cudacpp_helinl and cudacpp_hrdcod runcards to support HELINL=1 and HRDCOD=1 builds.
-  - AV ([#957]) In internal "tlau" tests, instrument python code in gridpacks to provide timing profiles for event generation.
-  - AV Enhance internal "tlau" tests and add a few test logs and various scripts to analyse them.
+  - AV ([#945]) Added cudacpp_bldall runcard to produce multi-backend gridpacks.
+  - AV ([#700]) Added cudacpp_helinl and cudacpp_hrdcod runcards to support HELINL=1 and HRDCOD=1 builds.
+  - AV ([#957]) In internal "tlau" tests, instrumented python code in gridpacks to provide timing profiles for event generation.
+  - AV Enhanced internal "tlau" tests and added a few test logs and various scripts to analyse them.
+  - AV ([#972]) Added new RDTSC-based timers (faster than the legacy chrono-based timers) and adapted all internal APIs.
 
 ### Changed
 
@@ -29,10 +37,10 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
   - AV ([#1011]) Added workaround for Floating Point Exceptions in vxxxxx in the HIP backend.
 
 - Infrastructure issues
-  - AV ([#1013]) Fix release scripts to create 'v1.00.01' tags from a '(1,0,1)' python tuple.
-  - AV ([#1015]) Remove add_input_for_banner from output.py (plugin_run_card is not needed in cudacpp).
-  - AV ([#995]) In cudacpp_config.mk move default FPTYPE from 'd' to 'm' (already the default cudacpp_backend in run_card.dat).
-	
+  - AV ([#1013]) Fixed release scripts to create 'v1.00.01' tags from a '(1,0,1)' python tuple.
+  - AV ([#1015]) Removed add_input_for_banner from output.py (plugin_run_card is not needed in cudacpp).
+  - AV ([#995]) In cudacpp_config.mk moved default FPTYPE from 'd' to 'm' (already the default cudacpp_backend in run_card.dat).
+
 --------------------------------------------------------------------------------
 
 ## [1.00.00] - 2024-10-03
@@ -74,6 +82,7 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 [#945]: https://github.com/madgraph5/madgraph4gpu/issues/945
 [#957]: https://github.com/madgraph5/madgraph4gpu/issues/957
 [#959]: https://github.com/madgraph5/madgraph4gpu/issues/959
+[#972]: https://github.com/madgraph5/madgraph4gpu/issues/972
 [#993]: https://github.com/madgraph5/madgraph4gpu/issues/993
 [#995]: https://github.com/madgraph5/madgraph4gpu/issues/995
 [#1011]: https://github.com/madgraph5/madgraph4gpu/issues/1011

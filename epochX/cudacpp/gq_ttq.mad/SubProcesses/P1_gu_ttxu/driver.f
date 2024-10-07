@@ -96,6 +96,9 @@ C-----
       CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
 #endif
       CALL COUNTERS_INITIALISE()
+      CALL COUNTERS_REGISTER_COUNTER( 1, 'Fortran MEs'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 2, 'CudaCpp MEs'//char(0) )
+      CALL COUNTERS_REGISTER_COUNTER( 3, 'CudaCpp HEL'//char(0) )
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
