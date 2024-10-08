@@ -19,10 +19,10 @@ index ecd11b239..ec5722702 100644
  
  C-----
  C  BEGIN CODE
- C----- 
+@@ -84,6 +92,61 @@ C-----
        call cpu_time(t_before)
        CUMULATED_TIMING = t_before
-+
+ 
 +#ifdef _OPENMP
 +      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
 +#endif
@@ -87,7 +87,7 @@ index ecd11b239..ec5722702 100644
        rewind(lun)
 -
        close(lun)
-+
+ 
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
 +      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)

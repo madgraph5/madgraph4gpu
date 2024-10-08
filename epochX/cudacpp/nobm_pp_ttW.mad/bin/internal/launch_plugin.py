@@ -98,9 +98,6 @@ class CPPRunCard(banner_mod.RunCardLO):
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
         subprocess.call(['make', 'cleanall'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    def plugin_input(self, finput):
-        return
-
     def default_setup(self):
         super().default_setup()
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
