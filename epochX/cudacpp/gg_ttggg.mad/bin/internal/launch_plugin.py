@@ -82,9 +82,6 @@ class CPPRunCard(banner_mod.RunCardLO):
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
         subprocess.call(['make', 'cleanall'], cwd=Sourcedir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    def plugin_input(self, finput):
-        return
-
     def default_setup(self):
         super().default_setup()
         self.add_param('floating_type', 'm', include=False, hidden=True,
