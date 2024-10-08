@@ -1,0 +1,49 @@
+START: Wed Aug  7 02:04:39 PM CEST 2024
+CUDACPP_RUNTIME_DISABLEFPE is not set
+lrwxrwxrwx. 1 avalassi zg 35 Aug  7 14:04 madevent/SubProcesses/P1_gg_ttx/madevent -> build.512y_m_inl0_hrd0/madevent_cpp
+Now generating 10000 events with random seed 21 and granularity 1
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.3_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gg_tt.mad/madevent/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gg_tt.mad/madevent/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+No valid eps viewer found. Please set in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+WRITE GRIDCARD /data/avalassi/GPU2024/madgraph4gpuX/epochX/cudacpp/tlau/gridpacks/gg_tt.mad/madevent
+generate 10000 events
+P1_gg_ttx
+Using random number seed offset = 21
+INFO: Generating 10000.0 unweighted events. 
+sum of cpu time of last step: 2 seconds
+INFO: need to improve 2 channels 
+combine_events
+store_events
+  === Results Summary for run: GridRun_21 tag: tag_1 ===
+
+     Cross-section :   0 +- 0 pb
+     Nb of events :  10000
+ 
+INFO: No version of lhapdf. Can not run systematics computation 
+decay_events -from_cards
+DONE
+write ./events.lhe.gz
+END: Wed Aug  7 02:04:46 PM CEST 2024
+ELAPSED: 7 seconds

@@ -1,0 +1,38 @@
+gq_ttq.mad//fortran/output.txt
+[GridPackCmd.launch] GRIDPCK TOTAL                      6.0845
+[madevent COUNTERS]  PROGRAM TOTAL                      5.3412s
+[madevent COUNTERS]  Fortran MEs                        0.8371s for      98304 events
+------------------------------------------------------------------------------------------
+gq_ttq.mad//cppnone/output.txt
+[GridPackCmd.launch] GRIDPCK TOTAL                      6.2165
+[madevent COUNTERS]  PROGRAM TOTAL                      5.4627s
+[madevent COUNTERS]  CudaCpp MEs                        0.8986s for      98304 events
+------------------------------------------------------------------------------------------
+gq_ttq.mad//cppsse4/output.txt
+[GridPackCmd.launch] GRIDPCK TOTAL                      5.7925
+[madevent COUNTERS]  PROGRAM TOTAL                      5.0438s
+[madevent COUNTERS]  CudaCpp MEs                        0.4927s for      98304 events
+------------------------------------------------------------------------------------------
+gq_ttq.mad//cppavx2/output.txt
+[GridPackCmd.launch] GRIDPCK TOTAL                      5.6014
+[madevent COUNTERS]  PROGRAM TOTAL                      4.8507s
+[madevent COUNTERS]  CudaCpp MEs                        0.2861s for      98304 events
+------------------------------------------------------------------------------------------
+gq_ttq.mad//cpp512y/output.txt
+[GridPackCmd.launch] GRIDPCK TOTAL                      5.5618
+[madevent COUNTERS]  PROGRAM TOTAL                      4.8145s
+[madevent COUNTERS]  CudaCpp MEs                        0.2568s for      98304 events
+------------------------------------------------------------------------------------------
+gq_ttq.mad//cpp512z/output.txt
+[GridPackCmd.launch] GRIDPCK TOTAL                      5.7225
+[madevent COUNTERS]  PROGRAM TOTAL                      4.9635s
+[madevent COUNTERS]  CudaCpp MEs                        0.4014s for      98304 events
+------------------------------------------------------------------------------------------
+gq_ttq.mad//cuda/output.txt
+[GridPackCmd.launch] GRIDPCK TOTAL                      9.3365
+[madevent COUNTERS]  PROGRAM TOTAL                      7.1848s
+[madevent COUNTERS]  CudaCpp MEs                        0.0066s for      98304 events
+------------------------------------------------------------------------------------------
+gq_ttq.mad//hip/output.txt
+File not found: SKIP backend hip
+------------------------------------------------------------------------------------------
