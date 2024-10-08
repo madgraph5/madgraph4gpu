@@ -1,8 +1,8 @@
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-index 1124a9164..27a6e4674 100644
+index af6d02998..ec5722702 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/driver.f
-@@ -74,13 +74,77 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
+@@ -76,7 +76,15 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
  
        include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
        INTEGER VECSIZE_USED
@@ -19,10 +19,10 @@ index 1124a9164..27a6e4674 100644
  
  C-----
  C  BEGIN CODE
- C----- 
+@@ -84,6 +92,61 @@ C-----
        call cpu_time(t_before)
        CUMULATED_TIMING = t_before
-+
+ 
 +#ifdef _OPENMP
 +      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
 +#endif
@@ -81,13 +81,13 @@ index 1124a9164..27a6e4674 100644
  c
  c     Read process number
  c
-@@ -208,8 +272,33 @@ c      call sample_result(xsec,xerr)
+@@ -217,9 +280,33 @@ c      call sample_result(xsec,xerr)
  c      write(*,*) 'Final xsec: ',xsec
  
        rewind(lun)
 -
        close(lun)
-+
+ 
 +#ifdef MG5AMC_MEEXPORTER_CUDACPP
 +      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
 +      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
@@ -116,7 +116,7 @@ index 1124a9164..27a6e4674 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -387,7 +476,7 @@ c
+@@ -402,7 +489,7 @@ c
        fopened=.false.
        tempname=filename 	 
        fine=index(tempname,' ') 	 
@@ -126,7 +126,7 @@ index 1124a9164..27a6e4674 100644
        open(unit=lun,file=tempname,status='old',ERR=20)
        fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
-index 1acba8200..069c74ef4 100644
+index bf488e4b0..707ea4032 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 +++ a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 @@ -71,7 +71,10 @@ C
@@ -141,7 +141,7 @@ index 1acba8200..069c74ef4 100644
  C     
  C     This is just to temporarily store the reference grid for
  C      helicity of the DiscreteSampler so as to obtain its number of
-@@ -211,6 +214,17 @@ C     ----------
+@@ -224,6 +227,17 @@ C            update.
            ENDIF
            IF(NTRY(1).EQ.MAXTRIES)THEN
              ISHEL=MIN(ISUM_HEL,NGOOD)
