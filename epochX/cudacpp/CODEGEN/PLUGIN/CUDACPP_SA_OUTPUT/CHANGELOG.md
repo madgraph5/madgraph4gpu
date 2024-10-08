@@ -20,7 +20,7 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com).
 - Infrastructure issues
   - AV ([#1013]) Fix release scripts to create 'v1.00.01' tags from a '(1,0,1)' python tuple.
   - AV ([#1015]) Remove add_input_for_banner from output.py (plugin_run_card is not needed in cudacpp).
-  - AV ([#995]) In cudacpp_config.mk move default FPTYPE from 'd' to 'm' (already the default cudacpp_backend in run_card.dat).
+  - AV ([#995]) In cudacpp_config.mk move default FPTYPE from 'd' to 'm' (already the default floating_type in run_card.dat).
 
 --------------------------------------------------------------------------------
 
