@@ -1,7 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Apr 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
 
@@ -122,9 +123,9 @@ fi
 cd $scrdir/..
 started="STARTED  AT $(date)"
 
-# (36/102) Six logs (double/float/mixed x hrd0/hrd1 x inl0) in each of the six SM processes
+# (36/102) Six logs (double/mixed/float x hrd0/hrd1 x inl0) in each of the six SM processes
 \rm -rf gg_ttggg${suff}/lib/build.none_*
-cmd="./tput/teeThroughputX.sh -mix -hrd -makej -eemumu -ggtt -ggttg -ggttgg -gqttq $ggttggg ${makeclean} ${opts}"
+cmd="./tput/teeThroughputX.sh -dmf -hrd -makej -eemumu -ggtt -ggttg -ggttgg -gqttq $ggttggg ${makeclean} ${opts}"
 tmp1=$(mktemp)
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
@@ -137,7 +138,7 @@ ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 # (48/102) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the six SM processes
 \rm -rf gg_ttg${suff}/lib/build.none_*
 \rm -rf gg_ttggg${suff}/lib/build.none_*
-cmd="./tput/teeThroughputX.sh -flt -hrd -makej -eemumu -ggtt -ggttgg -inlonly ${makeclean} ${opts}"
+cmd="./tput/teeThroughputX.sh -d_f -hrd -makej -eemumu -ggtt -ggttgg -inlonly ${makeclean} ${opts}"
 tmp2=$(mktemp)
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
@@ -148,7 +149,7 @@ fi
 ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 
 # (60/102) Two extra logs (double/float x hrd0 x inl0 + bridge) in all six SM processes (rebuild from cache)
-cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -gqttq -ggttgg $ggttggg -flt -bridge ${makeclean} ${opts}"
+cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -gqttq -ggttgg $ggttggg -d_f -bridge ${makeclean} ${opts}"
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
 else
@@ -157,7 +158,7 @@ fi
 ended3="$cmd\nENDED(3) AT $(date) [Status=$status]"
 
 # (66/102) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the six SM processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -rmbhst ${opts}"
+cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f -rmbhst ${opts}"
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
 else
@@ -166,7 +167,7 @@ fi
 ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
 # (72/102) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six SM processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt ${rndhst} ${opts}"
+cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f ${rndhst} ${opts}"
 if [ "${bsm}" != "-bsmonly" ] && [ "${rndhst}" != "-common" ]; then
   $cmd; status=$?
 else
@@ -175,7 +176,7 @@ fi
 ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 
 # (78/102) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six SM processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -flt -common ${opts}"
+cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f -common ${opts}"
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
 else
@@ -183,8 +184,8 @@ else
 fi
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
-# (102/102) Six extra logs (double/float/mixed x hrd0/hrd1 x inl0) only in the four BSM processes
-cmd="./tput/teeThroughputX.sh -mix -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb ${makeclean} ${opts}"
+# (102/102) Six extra logs (double/mixed/float x hrd0/hrd1 x inl0) only in the four BSM processes
+cmd="./tput/teeThroughputX.sh -dmf -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb ${makeclean} ${opts}"
 tmp3=$(mktemp)
 if [ "${bsm}" != "-nobsm" ]; then
   $cmd; status=$?
@@ -213,8 +214,8 @@ echo -e "$ended7"
 if [ "$ggttggg" == "" ]; then
   echo
   echo "To complete the test for ggttggg type:"
-  echo "  ./tput/teeThroughputX.sh -flt -hrd -makej -ggttggg ${makeclean} ${opts}"
-  echo "  ./tput/teeThroughputX.sh -makej -ggttggg -flt -bridge ${makeclean} ${opts}"
+  echo "  ./tput/teeThroughputX.sh -dmf -hrd -makej -ggttggg ${makeclean} ${opts}"
+  echo "  ./tput/teeThroughputX.sh -makej -ggttggg -d_f -bridge ${makeclean} ${opts}"
 fi
 
 # Finally check all logs

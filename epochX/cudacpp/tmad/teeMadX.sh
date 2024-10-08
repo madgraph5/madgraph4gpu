@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (May 2022) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
@@ -10,7 +10,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-hip] [-flt|-fltonly|-mix|-mixonly] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-hip] [-dblonly|-fltonly|-d_f|-dmf] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -30,7 +30,7 @@ smeftggtttt=
 hip=
 
 suffs="mad"
-fptypes="d"
+fptypes="m" # new default #995 (was "d")
 helinls="0"
 hrdcods="0"
 
@@ -84,18 +84,18 @@ for arg in $*; do
     smeftggtttt=$arg
   elif [ "$arg" == "-hip" ]; then
     hip=" -hip"
-  elif [ "$arg" == "-flt" ]; then
-    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
-    fptypes="d f"
+  elif [ "$arg" == "-dblonly" ]; then
+    if [ "${fptypes}" != "m" ] && [ "${fptypes}" != "d" ]; then echo "ERROR! Options -dblonly, -fltonly, -d_f and -dmf are incompatible"; usage; fi
+    fptypes="d"
   elif [ "$arg" == "-fltonly" ]; then
-    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    if [ "${fptypes}" != "m" ] && [ "${fptypes}" != "f" ]; then echo "ERROR! Options -dblonly, -fltonly, -d_f and -dmf are incompatible"; usage; fi
     fptypes="f"
-  elif [ "$arg" == "-mix" ]; then
-    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
-    fptypes="d f m"
-  elif [ "$arg" == "-mixonly" ]; then
-    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
-    fptypes="m"
+  elif [ "$arg" == "-d_f" ]; then
+    if [ "${fptypes}" != "m" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -dblonly, -fltonly, -d_f and -dmf are incompatible"; usage; fi
+    fptypes="d f"
+  elif [ "$arg" == "-dmf" ]; then
+    if [ "${fptypes}" != "m" ] && [ "${fptypes}" != "d m f" ]; then echo "ERROR! Options -dblonly, -fltonly, -d_f and -dmf are incompatible"; usage; fi
+    fptypes="d m f"
   #elif [ "$arg" == "-inl" ]; then
   #  if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
   #  helinls="0 1"
@@ -143,7 +143,7 @@ for step in $steps; do
   for proc in $procs; do
     for suff in $suffs; do
       for fptype in $fptypes; do
-        flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; elif [ "${fptype}" == "m" ]; then flt=" -mixonly"; fi
+        flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; elif [ "${fptype}" == "d" ]; then flt=" -dblonly"; fi
         for helinl in $helinls; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           for hrdcod in $hrdcods; do
