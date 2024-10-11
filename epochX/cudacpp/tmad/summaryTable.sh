@@ -1,17 +1,29 @@
 #!/bin/sh
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
-# Created by: A. Valassi (Jun 2022) for the MG5aMC CUDACPP plugin.
+# Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
+
+echo "==============================================================================="
+echo "Executing $0 $*"
+echo "==============================================================================="
+echo
 
 # Include CUDA/8tpb?
 ###cuda8tpb=
 cuda8tpb="CUDA/8tpb"
 
+# Quiet?
+quiet=
+if [ "$1" == "-quiet" ]; then
+  quiet=$1; shift
+fi
+
 # Short tables?
 onlyxmax=1
-if [ "$1" == "--long" ] && [ "$2" != "-ALL" ]; then
+if [ "$1" == "-long" ] && [ "$2" != "-ALL" ]; then
   onlyxmax=0
   shift
 fi
@@ -20,14 +32,14 @@ fi
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
-  $0 --long -default
-  $0 -default
-  $0 -juwels
-  $0 -ichep22
-  $0 -acat22
-  $0 -ggttgg
-  $0 -ggttggg
-  ###$0 -openlab23
+  $0 ${quiet} -long -default
+  $0 ${quiet} -default
+  $0 ${quiet} -juwels
+  $0 ${quiet} -ichep22
+  $0 ${quiet} -acat22
+  $0 ${quiet} -ggttgg
+  $0 ${quiet} -ggttggg
+  ###$0 ${quiet} -openlab23
   exit 0
 elif [ "$1" == "-default" ]; then
   table="default"; shift
@@ -44,7 +56,7 @@ elif [ "$1" == "-ggttggg" ]; then
 elif [ "$1" == "-openlab23" ]; then
   table="openlab23"; shift
 else
-  echo "Usage: $0 [--long] <table [-ALL|-default|-juwels|-ichep22|-acat22|-ggttgg|-ggttggg|-openlab23]>"; exit 1
+  echo "Usage: $0 [-quiet] [-long] <table [-ALL|-default|-juwels|-ichep22|-acat22|-ggttgg|-ggttggg|-openlab23]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -159,7 +171,7 @@ function oneTable()
       /create events.lhe/{fac=substr($5,2)} # current fac
       /\[XSECTION\] nb_page_loop =/{if(tag!="") nloop2[tag,fac]=$4}
       /\[COUNTERS\]/{if($3=="TOTAL") typ=1; else if($3=="Overhead") typ=2; else if($3=="MEs") typ=3;
-                     else{print "ERROR! Unknown type $3"; status=1; exit status};
+                     else{print "ERROR! Unknown type "$3; status=1; exit status};
                      if($4==":") sec=$5; else sec=$8; sec=substr(sec,1,length(sec)-1); # current sec
                      sec3[tag,fac,typ]=sec}
       /\[COUNTERS\]/{if(tag!="" && $3=="MEs")
@@ -265,7 +277,7 @@ function oneTable()
 }
 
 cd $(dirname $0)/..
-echo PWD=$(pwd)
+###echo PWD=$(pwd)
 
 suff=mad
 inl=inl0
@@ -286,4 +298,4 @@ for fpt in $fpts; do
 done
 
 git checkout HEAD ../cudacpp/tmad/logs* >& /dev/null
-cat $out
+if [ "$quiet" == "" ]; then cat $out; fi
