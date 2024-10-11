@@ -30,6 +30,7 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 ${quiet} -3xcomp
   $0 ${quiet} -ol23silv
   ###$0 ${quiet} -ol23gold
+  $0 ${quiet} -v10000
   exit 0
 elif [ "$1" == "-latest" ]; then
   table="latest"; shift
@@ -51,10 +52,12 @@ elif [ "$1" == "-ol23silv" ]; then
   table="ol23silv"; shift
 elif [ "$1" == "-ol23gold" ]; then
   table="ol23gold"; shift
+elif [ "$1" == "-v10000" ]; then
+  table="v10000"; shift
 fi
 
 if [ "$1" != "" ] || [ "$table" == '' ]; then
-  echo "Usage: $0 [-quiet] <table [-ALL|-latest|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp|-ol23silv|-ol23gold]>"; exit 1
+  echo "Usage: $0 [-quiet] <table [-ALL|-latest|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp|-ol23silv|-ol23gold|-v10000]>"; exit 1
 fi
 
 unames=$(uname -s)
@@ -83,6 +86,10 @@ touch $out
 # 1. Logs (20 Jun 2022, 2d3e789): cuda116/gcc102 (60 logs from allTees.sh) <= previous cuda116/gcc102
 # 2. Logs (26 Aug 2022, 21c4cb8): cuda116/gcc102 (60 logs from allTees.sh) <= LATEST cuda116/gcc102
 # 3. Logs (26 Aug 2022, d250d2d): cuda117/gcc112 (60 logs from allTees.sh) <= LATEST cuda117/gcc112
+#----------------------------------------------------------------------------
+# 1. Logs (03 Oct 2024, cd8e872): cuda120/gcc113 (102 logs from allTees.sh) <= v1.00.00     itscrd90
+# 2. Logs (03 Oct 2024, a3d64bd): -------/gcc114 ( 96 logs from allTees.sh) <= v1.00.00     itgold91
+# 3. Logs (03 Oct 2024, 07c2a53): roc60/clang170 ( 96 logs from allTees.sh) <= v1.00.00+amd lumi
 #----------------------------------------------------------------------------
 
 # Select revisions of cudacpp and alpaka logs
@@ -123,8 +130,12 @@ elif [ "$table" == "ol23gold" ]; then
   mrevs="$mrevs e67558d" # nocuda/gcc121   (10 Mar 2023 bmkGold6130)
   mrevs="$mrevs aa4a5c4" # nocuda/clang14  (09 Mar 2023 bmkGold6130)
   mrevs="$mrevs 99c1bd6" # nocuda/icx2023  (10 Mar 2023 bmkGold6130)
+elif [ "$table" == "v10000" ]; then
+  mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
+  mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00
+  mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
 else
-  echo "ERROR! Unknown table '$table'"; exit 1
+  echo "ERROR! Unknown table '$table' (while choosing revisions)"; exit 1
 fi
 
 # Select processes
@@ -179,8 +190,15 @@ elif [ "$table" == "ol23silv" ] || [ "$table" == "ol23gold" ]; then
   ###hrds="hrd0 hrd1"
   hrds="hrd0"
   brds="nobr"
+elif [ "$table" == "v10000" ]; then
+  fpts="d f m"
+  ###inls="inl0 inl1"
+  inls="inl0"
+  ###hrds="hrd0 hrd1"
+  hrds="hrd0"
+  brds="nobr"
 else
-  echo "ERROR! Unknown table '$table'"; exit 1
+  echo "ERROR! Unknown table '$table' (while choosing fpts/inls/hrds/brds)"; exit 1
 fi
 
 # Select tag list
