@@ -1,24 +1,35 @@
 #!/bin/sh
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 # NB: some PRs include many log modifications but eventually go back to the initial logs (overall noop)
 # NB: use 'git log --full-history' to show all intermediate commits (which are pruned by a simple 'git log')
 
+echo "==============================================================================="
+echo "Executing $0 $*"
+echo "==============================================================================="
+echo
+
+quiet=
+if [ "$1" == "-quiet" ]; then
+  quiet=$1; shift
+fi
+
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
-  $0 -latest
-  $0 -bridge
-  $0 -hrdcod
-  $0 -juwels
-  $0 -alpaka
-  $0 -macm1
-  $0 -alphas
-  $0 -3xcomp
-  $0 -ol23silv
-  ###$0 -ol23gold
+  $0 ${quiet} -latest
+  $0 ${quiet} -bridge
+  $0 ${quiet} -hrdcod
+  $0 ${quiet} -juwels
+  $0 ${quiet} -alpaka
+  $0 ${quiet} -macm1
+  $0 ${quiet} -alphas
+  $0 ${quiet} -3xcomp
+  $0 ${quiet} -ol23silv
+  ###$0 ${quiet} -ol23gold
   exit 0
 elif [ "$1" == "-latest" ]; then
   table="latest"; shift
@@ -40,8 +51,10 @@ elif [ "$1" == "-ol23silv" ]; then
   table="ol23silv"; shift
 elif [ "$1" == "-ol23gold" ]; then
   table="ol23gold"; shift
-else
-  echo "Usage: $0 <table [-ALL|-latest|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp|-ol23silv|ol23gold]>"; exit 1
+fi
+
+if [ "$1" != "" ] || [ "$table" == '' ]; then
+  echo "Usage: $0 [-quiet] <table [-ALL|-latest|-bridge|-hrdcod|-juwels|-alpaka|-macm1|-alphas|-3xcomp|-ol23silv|-ol23gold]>"; exit 1
 fi
 
 unames=$(uname -s)
@@ -51,7 +64,8 @@ if [ "${unames}" == "Darwin" ]; then
 fi
 
 cd $(dirname $0)/..
-echo PWD=$(pwd)
+scr=tput/$(basename ${0})
+###echo PWD=$(pwd)
 
 # Output file
 out=tput/summaryTable_${table}.txt
@@ -300,9 +314,9 @@ for fpt in $fpts; do
   done
 done
 ###echo TEST >> ${out}
-cp ${0} ${0}.NEW
+cp ${scr} ${scr}.NEW # allows using a summaryTable.sh not committed to git
 cp ${out} ${out}.NEW
 git reset --hard HEAD >& /dev/null
-mv ${0}.NEW ${0}
+mv ${scr}.NEW ${scr} # allows using a summaryTable.sh not committed to git
 mv ${out}.NEW ${out}
-cat $out
+if [ "$quiet" == "" ]; then cat $out; fi
