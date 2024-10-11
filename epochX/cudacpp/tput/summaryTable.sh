@@ -105,8 +105,11 @@ function oneTable()
   if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
   ###cat $files | awk '/^runExe.*check.*/{print $0};/^Process/{print $0};/Workflow/{print $0};/MECalcOnly/{print $0}'; continue
   cat $files | awk -vtaglist="$taglist" -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none -vbrdlast=none '
-    ###/^runExe .*check.*/{print $0}
-    /^runExe .*check.*/{split($0,a,"check.exe"); last=substr(a[1],length(a[1])); if (last=="g"){tag="CUD"} else if(last=="p"){tag="ALP"} else{tag="CPP"}; split($0,a,"build."); split(a[2],b,"_"); tag=tag"/"b[1]};
+    /^runExe .*check_cpp.*/{tag="CPP"};
+    /^runExe .*check_cpp.*/{split($0,a,"build."); split(a[2],b,"_"); tag=tag"/"b[1]};
+    /^runExe .*check_cuda.*/{tag="CUD/none"};
+    /^runExe .*check_hip.*/{tag="HIP/none"};
+    ###/^runExe .*check.*/{print $0, tag};
     /^runExe .*check.*/{split($0,a," -p "); split(a[2],b); grid=b[1]"/"b[2]"/"b[3]};
     /^runExe .*check.*/{proc=$0; gsub("/SubProcesses.*","",proc); gsub(".*/","",proc); gsub(".auto","",proc); gsub(".mad","",proc); grid_proc_tag[proc,tag]=grid};
     ###/^Process/{split($3,a,"_"); proc=a[3]"_"a[4]; grid_proc_tag[proc,tag]=grid};
