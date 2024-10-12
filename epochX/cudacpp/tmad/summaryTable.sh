@@ -67,9 +67,10 @@ elif [ "$table" == "gold_chep24" ]; then
 elif [ "$table" == "lumi_chep24" ]; then
   mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
 elif [ "$table" == "dy3j_chep24" ]; then
-  fpts="m"
-  procs="guxtaptamggux" # default
-  mrevs="$mrevs cd2b3ec" # cuda120/gcc113  (12 Oct 2024 itscrd90) v1.00.00+dy3j
+  fpts="d m f"
+  procs="guxtaptamggux"
+  mrevs="$mrevs ca715b5" # -------/gcc114  (12 Oct 2024 gold91)   v1.00.00+dy3j
+  mrevs="$mrevs 667b080" # cuda120/gcc113  (12 Oct 2024 itscrd90) v1.00.00+dy3j
 else
   echo "ERROR! Unknown table '$table' (while choosing revisions and modifying defaults)"; exit 1
 fi
