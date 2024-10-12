@@ -55,11 +55,12 @@ mrevs=""
 if [ "$table" == "v10000" ]; then
   #procs="ggttgg ggttggg"
   procs="ggttgg"
-  taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
-  mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
+  taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 HIP/8192 CUDA/max $cuda8tpb"
+  #mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
   #mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00
-  #mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
-  fpts="d f m"
+  mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
+  #fpts="d f m"
+  fpts="d"
 fi
 revs="$mrevs"
 
@@ -73,8 +74,8 @@ function oneTable()
   # NB1 (Oct2024) remove "(3bis)": this existed in 2022 logs (commit 83087b14c4) when madX.sh ran gmadevent2/gmadevent with 32/8192 grids
   # NB2 (Oct2024) distinguish taglist (madevent only tags) and taglistdump (madevent+check tags) and add back check #taglist==#parlist
   # NB3 (Oct2024) #taglistdump may even be smaller than #taglist (only include the tags that should be printed out)
-  parlist="(1) (2-none) (2-sse4) (2-avx2) (2-512y) (2-512z) (3-cuda)"
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192"
+  parlist="(1) (2-none) (2-sse4) (2-avx2) (2-512y) (2-512z) (3-cuda) (3-hip)"
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 HIP/8192"
   faclist="1 10"
   for proc in $procs; do
     file=tmad/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}.txt
