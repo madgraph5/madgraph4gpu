@@ -20,14 +20,20 @@ fi
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
-  $0 ${quiet} -v10000
+  $0 ${quiet} -rd90_chep24
+  $0 ${quiet} -gold_chep24
+  $0 ${quiet} -lumi_chep24
   exit 0
-elif [ "$1" == "-v10000" ]; then
-  table="v10000"; shift
+elif [ "$1" == "-rd90_chep24" ]; then
+  table="rd90_chep24"; shift
+elif [ "$1" == "-gold_chep24" ]; then
+  table="gold_chep24"; shift
+elif [ "$1" == "-lumi_chep24" ]; then
+  table="lumi_chep24"; shift
 fi
 
 if [ "$1" != "" ] || [ "$table" == '' ]; then
-  echo "Usage: $0 [-quiet] <table [-ALL|-v10000]>"; exit 1
+  echo "Usage: $0 [-quiet] <table [-ALL|-rd90_chep24|gold_chep24|lumi_chep24]>"; exit 1
 fi
 
 unames=$(uname -s)
@@ -53,29 +59,26 @@ touch $out
 # 3. Logs (03 Oct 2024, 07c2a53): roc60/clang170 ( 96 logs from allTees.sh) <= v1.00.00+amd lumi
 #----------------------------------------------------------------------------
 
-# Select revisions of cudacpp logs
-mrevs="" # cudacpp .mad
-if [ "$table" == "v10000" ]; then
-  mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
-  mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00
-  mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
-else
-  echo "ERROR! Unknown table '$table' (while choosing revisions)"; exit 1
-fi
-
-# Select processes
+# Default processes
 procs="eemumu ggtt ggttg ggttgg ggttggg"
 
-# Select fptype, helinl, hrdcod, bridge
-if [ "$table" == "v10000" ]; then
-  fpts="d m f"
+# Default fptype, helinl, hrdcod, bridge
+fpts="d m f" # default
+inls="inl0" # default
+hrds="hrd0" # default
+brds="nobr" # default
+
+# Select revisions of cudacpp logs and modify defaults
+if [ "$table" == "rd90_chep24" ]; then
+  mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
   ###inls="inl0 inl1"
-  inls="inl0"
   ###hrds="hrd0 hrd1"
-  hrds="hrd0"
-  brds="nobr"
+elif [ "$table" == "gold_chep24" ]; then
+  mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00e
+elif [ "$table" == "lumi_chep24" ]; then
+  mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
 else
-  echo "ERROR! Unknown table '$table' (while choosing fpts/inls/hrds/brds)"; exit 1
+  echo "ERROR! Unknown table '$table' (while choosing revisions and modifying defaults)"; exit 1
 fi
 
 # Select tag list
@@ -158,7 +161,7 @@ for fpt in $fpts; do
       echo "ERROR! Unknown backend '$bckend' (while setting revs and suff)"; exit 1
     fi
     if [ "$revs" == "" ]; then continue; fi
-    if [ "$table" == "v10000" ]; then
+    if [ "${table/chep24}" != "${table}" ]; then
       ### New sorting (3xcomp)
       for inl in $inls; do
         for hrd in $hrds; do
