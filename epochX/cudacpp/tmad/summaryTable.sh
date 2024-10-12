@@ -70,7 +70,7 @@ testmode=0
 # Kernel function
 function oneTable()
 {
-  parlist="(1) (2-none) (2-sse4) (2-avx2) (2-512y) (2-512z) (3) (3bis)"
+  parlist="(1) (2-none) (2-sse4) (2-avx2) (2-512y) (2-512z) (3-cuda) (3bis)"
   faclist="1 10"
   for proc in $procs; do
     file=tmad/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}.txt
@@ -93,6 +93,7 @@ function oneTable()
       BEGIN{if(onlyxmax==0) ifac0=1; else ifac0=nfac}
       ###/create events.lhe/{print $0}
       /create events.lhe/{par=$2; tag=tag1[par]} # current tag (FORTRAN... CUDA/8192)
+      ###/create events.lhe/{print par, tag}
       /GCHECK\(MAX\)/{tag="CUDA/max"} # current tag (CUDA/max)
       /GCHECK\(MAX128THR\)/{tag="CUDA/max128t"} # current tag (CUDA/max128t)
       /GCHECK\(MAX8THR\)/{tag="CUDA/8tpb"} # current tag (CUDA/8tpb)
