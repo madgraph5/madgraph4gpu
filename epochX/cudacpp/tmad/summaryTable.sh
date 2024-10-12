@@ -11,9 +11,9 @@ echo "Executing $0 $*"
 echo "==============================================================================="
 echo
 
-# Include CUDA/8tpb?
-###cuda8tpb=
-cuda8tpb="CUDA/8tpb"
+# Include GPU/8tpb?
+###gpu8tpb=
+gpu8tpb="GPU/8tpb"
 
 # Quiet?
 quiet=
@@ -55,11 +55,11 @@ mrevs=""
 if [ "$table" == "v10000" ]; then
   #procs="ggttgg ggttggg"
   procs="ggttgg"
-  taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 HIP/8192 CUDA/max $cuda8tpb"
+  taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z GPU/8192 GPU/max $gpu8tpb"
   #mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
   #mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00
   mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
-  #fpts="d f m"
+  #fpts="d m f"
   fpts="d"
 fi
 revs="$mrevs"
@@ -74,8 +74,9 @@ function oneTable()
   # NB1 (Oct2024) remove "(3bis)": this existed in 2022 logs (commit 83087b14c4) when madX.sh ran gmadevent2/gmadevent with 32/8192 grids
   # NB2 (Oct2024) distinguish taglist (madevent only tags) and taglistdump (madevent+check tags) and add back check #taglist==#parlist
   # NB3 (Oct2024) #taglistdump may even be smaller than #taglist (only include the tags that should be printed out)
+  # NB4 (Oct2024) both "(3-cuda)" and "(3-hip)" are mapped to GPU/8192, but previously there is a check that only one of the two exists
   parlist="(1) (2-none) (2-sse4) (2-avx2) (2-512y) (2-512z) (3-cuda) (3-hip)"
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 HIP/8192"
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z GPU/8192 GPU/8192"
   faclist="1 10"
   for proc in $procs; do
     file=tmad/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}.txt
@@ -98,12 +99,15 @@ function oneTable()
       BEGIN{if(onlyxmax==0) lsepEQUAL2=sprintf("%014d%97s%025d",0,"",0); else lsepEQUAL2=sprintf("%014d%68s%025d",0,"",0);
             lsepDASH2=lsepEQUAL2; gsub("0","-",lsepDASH2); gsub("0","=",lsepEQUAL2)}
       BEGIN{if(onlyxmax==0) ifac0=1; else ifac0=nfac}
+      BEGIN{gpu="none"}
       ###/create events.lhe/{print $0}
-      /create events.lhe/{par=$2; tag=tag1[par]} # current tag (FORTRAN... CUDA/8192)
-      ###/create events.lhe/{print par, tag}
-      /GCHECK\(MAX\)/{tag="CUDA/max"} # current tag (CUDA/max)
-      /GCHECK\(MAX128THR\)/{tag="CUDA/max128t"} # current tag (CUDA/max128t)
-      /GCHECK\(MAX8THR\)/{tag="CUDA/8tpb"} # current tag (CUDA/8tpb)
+      /3-hip.*create events.lhe/{if(gpu!="none" && gpu!="HIP"){print "ERROR! choose HIP or", gpu; status=1; exit status} else gpu="HIP"}
+      /3-cuda.*create events.lhe/{if(gpu!="none" && gpu!="CUDA"){print "ERROR! choose CUDA or", gpu; status=1; exit status} else gpu="CUDA"}
+      /create events.lhe/{par=$2; tag=tag1[par]} # current tag (FORTRAN... GPU/8192 GPU/8192)
+      ###/create events.lhe/{print par, tag, gpu}
+      /GCHECK\(MAX\)/{tag="GPU/max"} # current tag (GPU/max)
+      /GCHECK\(MAX128THR\)/{tag="GPU/max128t"} # current tag (GPU/max128t)
+      /GCHECK\(MAX8THR\)/{tag="GPU/8tpb"} # current tag (GPU/8tpb)
       ###/GCHECK/{print "GCHECK", tag}
       /create events.lhe/{fac=substr($5,2)} # current fac
       /\[XSECTION\] nb_page_loop =/{if(tag!="") nloop2[tag,fac]=$4}
@@ -154,7 +158,7 @@ function oneTable()
           print lsepEQUAL;
           for (itag=1; itag<=ntagdump; itag++) # NB3 (Oct2024) only include the tags in taglistdump
           {tag=tagsdump[itag]; # NB3 (Oct2024) only include the tags in taglistdump
-           if(tag=="FORTRAN"){if(onlyxmax==0)
+          if(tag=="FORTRAN"){if(onlyxmax==0)
                                 printf "| %-10s | %26s | %26s | %17s | %17s | %9s | %9s |\n",
                                 "nevt/grid", nloop2[tag,fac], nloop2[tag,fac], nloop2[tag,fac], nloop2[tag,fac],
                                 sabg1["CPP/none"], sag1["CPP/none"];
@@ -171,8 +175,8 @@ function oneTable()
                                 "nevt total", nevt1[facs[2]], nevt1[facs[2]], nevt1[facs[2]],
                                 sabp1["CPP/none"], sap1["CPP/none"];
                               print lsepDASH}
-           else if(tag=="CUDA/max"||tag=="CUDA/8tpb"){
-                              if(tag=="CUDA/max") print lsepEQUAL; else print lsepEQUAL2;
+           else if(tag=="GPU/max"||tag=="GPU/8tpb"){
+                              if(tag=="GPU/max") print lsepEQUAL; else print lsepEQUAL2;
                               if(onlyxmax==0)
                                 printf "| %-10s | %95s | %9s | %9s |\n",
                                 "nevt/grid", "", sabg1[tag], sag1[tag];
@@ -186,8 +190,9 @@ function oneTable()
                                 printf "| %-10s | %66s | %9s | %9s |\n",
                                 "nevt total", "", sabp1[tag], sap1[tag];
                               print lsepDASH2};
-           printf "| %-10s |", tag;
-           if(tag=="CUDA/max"||tag=="CUDA/8tpb")
+           tagdump=gensub("GPU",gpu,"g",tag);
+           printf "| %-10s |", tagdump;
+           if(tag=="GPU/max"||tag=="GPU/8tpb")
                             { if(onlyxmax==0) printf " %95s |", "";
                               else printf " %66s |", ""; }
            else{ for(ifac=ifac0; ifac<=nfac; ifac++)
@@ -205,7 +210,7 @@ function oneTable()
                         tputm1[tag], txtmes, ratiomes; }
            if(tag=="FORTRAN"){ printf " %9s | %9s |", "---", "---"; }
            else{ printf " %9.2e |", tputb1[tag]; printf " %9.2e |", tput1[tag]; }
-           if(tag=="CUDA/max"||tag=="CUDA/8tpb")
+           if(tag=="GPU/max"||tag=="GPU/8tpb")
                             { printf "\n| %-10s |", "";
                               if(onlyxmax==0) printf " %95s |", "";
                               else printf " %66s |", "";
@@ -213,7 +218,7 @@ function oneTable()
                               if(length(ratiomes2)>4) ratiomes2=substr(ratiomes2,0,4);
                               printf " %-9s |", ""; printf "   (x%4s) |", ratiomes2; }
            printf "\n"};
-	  if(tag=="CUDA/max"||tag=="CUDA/8tpb") print lsepEQUAL2; else print lsepEQUAL;
+	  if(tag=="GPU/max"||tag=="GPU/8tpb") print lsepEQUAL2; else print lsepEQUAL;
           print "\n";
          }' >> $out
   done
