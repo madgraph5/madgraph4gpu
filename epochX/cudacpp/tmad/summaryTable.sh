@@ -32,110 +32,27 @@ fi
 table=
 if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
-  $0 ${quiet} -long -default
-  $0 ${quiet} -default
-  $0 ${quiet} -juwels
-  $0 ${quiet} -ichep22
-  $0 ${quiet} -acat22
-  $0 ${quiet} -ggttgg
-  $0 ${quiet} -ggttggg
-  ###$0 ${quiet} -openlab23
+  ###$0 ${quiet} -long -default
+  ###$0 ${quiet} -default
   $0 ${quiet} -v10000
   exit 0
-elif [ "$1" == "-default" ]; then
-  table="default"; shift
-elif [ "$1" == "-juwels" ]; then
-  table="juwels"; shift
-elif [ "$1" == "-ichep22" ]; then
-  table="ichep22"; shift
-elif [ "$1" == "-acat22" ]; then
-  table="acat22"; shift
-elif [ "$1" == "-ggttgg" ]; then
-  table="ggttgg"; shift
-elif [ "$1" == "-ggttggg" ]; then
-  table="ggttggg"; shift
-elif [ "$1" == "-openlab23" ]; then
-  table="openlab23"; shift
+###elif [ "$1" == "-default" ]; then
+###  table="default"; shift
 elif [ "$1" == "-v10000" ]; then
   table="v10000"; shift
 else
-  echo "Usage: $0 [-quiet] [-long] <table [-ALL|-default|-juwels|-ichep22|-acat22|-ggttgg|-ggttggg|-openlab23|-v10000]>"; exit 1
+  echo "Usage: $0 [-quiet] [-long] <table [-ALL|-default|-v10000]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
 # Select processes and fptypes
 mrevs=""
-if [ "$table" == "default" ]; then
-  procs="eemumu ggtt ggttg ggttgg ggttggg"
-  mrevs="$mrevs 82729ba"  # cuda117/gcc112  (14 Oct 2022)
-  ###mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
-  fpts="d f"
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
-elif [ "$table" == "juwels" ]; then
-  procs="eemumu ggtt ggttg ggttgg ggttggg"
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
-  # -- Before implementing 'm': add a second 'd' table for better diffs
-  ###mrevs="$mrevs 59b311b"  # cuda115/gcc102  (14 Oct 2022 jwlogin04=slower #540)
-  ###mrevs="$mrevs cdc8dda"  # cuda115/gcc102  (14 Oct 2022 jwlogin07=faster #540)
-  ###fpts="d f"
-  # -- After implementing 'm'
-  mrevs="$mrevs 4a90ec2"  # cuda115/gcc102  (18 Oct 2022 jwlogin07) add hack3/mixedfps (all processes), faster ACAT2022
-  ###mrevs="$mrevs 210a006"  # cuda115/gcc102  (21 Oct 2022 jwlogin07) rerun add hack3/mixedfps (all processes), slower?
-  fpts="d f m"
-elif [ "$table" == "ichep22" ]; then
-  procs="ggttgg"
-  mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
-  mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
-  fpts="d f"
-elif [ "$table" == "acat22" ]; then
-  procs="ggttgg ggttggg"
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
-  # -- Before implementing 'm': add a second 'd' table for better diffs
-  ###mrevs="$mrevs eb30e41"  # cuda115/gcc112  (12 Oct 2022 jwlogin07) ICHEP2022table CPU
-  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
-  ###fpts="d f d"
-  # -- After implementing 'm'
-  mrevs="$mrevs 4a90ec2"  # cuda115/gcc102  (18 Oct 2022 jwlogin07) add hack3/mixedfps (all processes)
-  mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
-  fpts="d f m"
-elif [ "$table" == "ggttgg" ]; then
-  procs="ggttgg"
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
-  # -- Before implementing 'm': add a second 'd' table for better diffs
-  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022table GPU
-  ###mrevs="$mrevs f64a68e"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack1/MLM (NB: no ggttggg here!)
-  ###mrevs="$mrevs f718e74"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack2/symmetricmatrix(cuda/c++)
-  ###mrevs="$mrevs d95e49c"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/symmetricmatrix(c++ only)
-  ###mrevs="$mrevs 48e2012"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/constexpr(c++ only)
-  ###fpts="d f d"
-  # -- After implementing 'm'
-  ###mrevs="$mrevs 9598b41"  # cuda117/gcc112  (17 Oct 2022 itscrd70)  add hack3/mixedfps (no ggttggg)
-  mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
-  fpts="d f m"
-elif [ "$table" == "ggttggg" ]; then
-  procs="ggttggg"
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
-  # -- Before implementing 'm': add a second 'd' table for better diffs
-  ###mrevs="$mrevs 1efee04"  # cuda117/gcc112  (13 Oct 2022 itscrd70)  ICHEP2022 code (but gave ggttgg results only)
-  ###mrevs="$mrevs f718e74"  # cuda117/gcc112  (15 Oct 2022 itscrd70)  add hack1/MLM and hack2/symmetricmatrix(cuda/c++)
-  ###mrevs="$mrevs d95e49c"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/symmetricmatrix(c++ only)
-  ###mrevs="$mrevs 48e2012"  # cuda117/gcc112  (16 Oct 2022 itscrd70)  modify hack2/constexpr(c++ only)
-  ###fpts="d f d"
-  # -- After implementing 'm'
-  ###mrevs="$mrevs 68c9859"  # cuda117/gcc112  (18 Oct 2022 itscrd70)  add hack3/mixedfps (only ggttggg)
-  mrevs="$mrevs bb15ee2"  # cuda117/gcc112  (21 Oct 2022 itscrd70)  rerun add hack3/mixedfps (all processes)
-  fpts="d f m"
-elif [ "$table" == "openlab23" ]; then
-  procs="ggttgg ggttggg"
-  ###taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z"
-  mrevs="$mrevs 49e4381" # cuda120/gcc112  (23 Feb 2023 itscrd90) baseline
-  mrevs="$mrevs aed7c84" # cuda120/clang14 (23 Feb 2023 itscrd90)
-  mrevs="$mrevs 32e098f" # cuda120/icx2023 (23 Feb 2023 itscrd90)
-  mrevs="$mrevs 2a6ddd0" # cuda120/gcc121  (24 Feb 2023 itscrd90)
-  fpts="d f m"
-elif [ "$table" == "v10000" ]; then
+###if [ "$table" == "default" ]; then
+###  procs=...
+###  mrevs=...
+###  fpts=...
+###  taglist=...
+if [ "$table" == "v10000" ]; then
   #procs="ggttgg ggttggg"
   procs="ggttgg"
   taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
