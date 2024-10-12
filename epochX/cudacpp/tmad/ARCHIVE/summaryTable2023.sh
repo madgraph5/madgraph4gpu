@@ -277,7 +277,7 @@ function oneTable()
   done
 }
 
-cd $(dirname $0)/..
+cd $(dirname $0)/../..
 ###echo PWD=$(pwd)
 
 suff=mad
