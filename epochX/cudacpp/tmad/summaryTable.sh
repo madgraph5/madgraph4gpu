@@ -51,11 +51,11 @@ mrevs=""
 ###  procs=...
 ###  mrevs=...
 ###  fpts=...
-###  taglist=...
+###  taglistALL=...
 if [ "$table" == "v10000" ]; then
   #procs="ggttgg ggttggg"
   procs="ggttgg"
-  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
+  taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
   mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
   #mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00
   #mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
@@ -70,7 +70,11 @@ testmode=0
 # Kernel function
 function oneTable()
 {
-  parlist="(1) (2-none) (2-sse4) (2-avx2) (2-512y) (2-512z) (3-cuda) (3bis)"
+  # NB1 (Oct2024) remove "(3bis)": this existed in 2022 logs (commit 83087b14c4) when madX.sh ran gmadevent2/gmadevent with 32/8192 grids
+  # NB2 (Oct2024) distinguish taglist (madevent only tags) and taglistdump (madevent+check tags) and add back check #taglist==#parlist
+  # NB3 (Oct2024) #taglistdump may even be smaller than #taglist (only include the tags that should be printed out)
+  parlist="(1) (2-none) (2-sse4) (2-avx2) (2-512y) (2-512z) (3-cuda)"
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192"
   faclist="1 10"
   for proc in $procs; do
     file=tmad/logs_${proc}_${suff}/log_${proc}_${suff}_${fpt}_${inl}_${hrd}.txt
@@ -80,11 +84,13 @@ function oneTable()
     if [ "$?" != "0" ]; then echo "ERROR! 'git checkout $rev' failed!"; exit 1; fi
     node=$(cat $file | grep ^On | sort -u)
     if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
-    cat $file | awk -vproc=$proc -vtaglist="$taglist" -vparlist="$parlist" -vfaclist="$faclist" -vonlyxmax=$onlyxmax -vtestmode=$testmode '
+    cat $file | awk -vproc=$proc -vtaglistdump="$taglistdump" -vtaglist="$taglist" -vparlist="$parlist" -vfaclist="$faclist" \
+                    -vonlyxmax=$onlyxmax -vtestmode=$testmode '
       BEGIN{status=testmode} # set status=1 to skip the END printout and debug individual lines 
       BEGIN{ntag=split(taglist,tags); npar=split(parlist,pars);
-            ###if(ntag!=npar){print "ERROR! ntag!=npar", ntag, npar; status=1; exit status}; # NB new ntag>npar!
+            if(ntag!=npar){print "ERROR! ntag!=npar", ntag, npar; status=1; exit status}; # NB (Oct2024) ntagall>=ntag but ntag==npar!
             for(i=1;i<=npar;i++){tag1[pars[i]]=tags[i];}}
+      BEGIN{ntagdump=split(taglistdump,tagsdump);}
       BEGIN{nfac=split(faclist,facs)}
       BEGIN{if(onlyxmax==0) lsepEQUAL=sprintf("%0136d",0); else lsepEQUAL=sprintf("%0107d",0);
             lsepDASH=lsepEQUAL; gsub("0","-",lsepDASH); gsub("0","=",lsepEQUAL)}
@@ -97,6 +103,7 @@ function oneTable()
       /GCHECK\(MAX\)/{tag="CUDA/max"} # current tag (CUDA/max)
       /GCHECK\(MAX128THR\)/{tag="CUDA/max128t"} # current tag (CUDA/max128t)
       /GCHECK\(MAX8THR\)/{tag="CUDA/8tpb"} # current tag (CUDA/8tpb)
+      ###/GCHECK/{print "GCHECK", tag}
       /create events.lhe/{fac=substr($5,2)} # current fac
       /\[XSECTION\] nb_page_loop =/{if(tag!="") nloop2[tag,fac]=$4}
       ###/\[COUNTERS\]/{print $0}
@@ -144,8 +151,8 @@ function oneTable()
                    proc, "[sec] tot = mad + MEs",
                    "[TOT/sec]", "[MEs/sec]", "[MEs/sec]", "[MEs/sec]";
           print lsepEQUAL;
-          for (itag=1; itag<=ntag; itag++)
-          {tag=tags[itag]; 
+          for (itag=1; itag<=ntagdump; itag++) # NB3 (Oct2024) only include the tags in taglistdump
+          {tag=tagsdump[itag]; # NB3 (Oct2024) only include the tags in taglistdump
            if(tag=="FORTRAN"){if(onlyxmax==0)
                                 printf "| %-10s | %26s | %26s | %17s | %17s | %9s | %9s |\n",
                                 "nevt/grid", nloop2[tag,fac], nloop2[tag,fac], nloop2[tag,fac], nloop2[tag,fac],
