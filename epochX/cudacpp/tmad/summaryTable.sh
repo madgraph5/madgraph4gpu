@@ -40,6 +40,7 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 ${quiet} -ggttgg
   $0 ${quiet} -ggttggg
   ###$0 ${quiet} -openlab23
+  $0 ${quiet} -v10000
   exit 0
 elif [ "$1" == "-default" ]; then
   table="default"; shift
@@ -55,8 +56,10 @@ elif [ "$1" == "-ggttggg" ]; then
   table="ggttggg"; shift
 elif [ "$1" == "-openlab23" ]; then
   table="openlab23"; shift
+elif [ "$1" == "-v10000" ]; then
+  table="v10000"; shift
 else
-  echo "Usage: $0 [-quiet] [-long] <table [-ALL|-default|-juwels|-ichep22|-acat22|-ggttgg|-ggttggg|-openlab23]>"; exit 1
+  echo "Usage: $0 [-quiet] [-long] <table [-ALL|-default|-juwels|-ichep22|-acat22|-ggttgg|-ggttggg|-openlab23|-v10000]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -132,6 +135,14 @@ elif [ "$table" == "openlab23" ]; then
   mrevs="$mrevs 32e098f" # cuda120/icx2023 (23 Feb 2023 itscrd90)
   mrevs="$mrevs 2a6ddd0" # cuda120/gcc121  (24 Feb 2023 itscrd90)
   fpts="d f m"
+elif [ "$table" == "v10000" ]; then
+  #procs="ggttgg ggttggg"
+  procs="ggttgg"
+  taglist="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z CUDA/8192 CUDA/max $cuda8tpb"
+  mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
+  #mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00
+  #mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
+  fpts="d f m"
 fi
 revs="$mrevs"
 
@@ -170,7 +181,10 @@ function oneTable()
       /GCHECK\(MAX8THR\)/{tag="CUDA/8tpb"} # current tag (CUDA/8tpb)
       /create events.lhe/{fac=substr($5,2)} # current fac
       /\[XSECTION\] nb_page_loop =/{if(tag!="") nloop2[tag,fac]=$4}
-      /\[COUNTERS\]/{if($3=="TOTAL") typ=1; else if($3=="Overhead") typ=2; else if($3=="MEs") typ=3;
+      ###/\[COUNTERS\]/{print $0}
+      /\[COUNTERS\]/{if($3=="TOTAL") typ=1;
+                     else if($3=="Overhead") typ=2;
+                     else if($3=="MEs") typ=3;
                      else{print "ERROR! Unknown type "$3; status=1; exit status};
                      if($4==":") sec=$5; else sec=$8; sec=substr(sec,1,length(sec)-1); # current sec
                      sec3[tag,fac,typ]=sec}
