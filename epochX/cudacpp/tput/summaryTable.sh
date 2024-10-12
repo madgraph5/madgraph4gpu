@@ -23,6 +23,7 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 ${quiet} -rd90_chep24
   $0 ${quiet} -gold_chep24
   $0 ${quiet} -lumi_chep24
+  #$0 ${quiet} -dy3j_chep24
   exit 0
 elif [ "$1" == "-rd90_chep24" ]; then
   table="rd90_chep24"; shift
@@ -30,10 +31,12 @@ elif [ "$1" == "-gold_chep24" ]; then
   table="gold_chep24"; shift
 elif [ "$1" == "-lumi_chep24" ]; then
   table="lumi_chep24"; shift
+elif [ "$1" == "-dy3j_chep24" ]; then
+  table="dy3j_chep24"; shift
 fi
 
 if [ "$1" != "" ] || [ "$table" == '' ]; then
-  echo "Usage: $0 [-quiet] <table [-ALL|-rd90_chep24|gold_chep24|lumi_chep24]>"; exit 1
+  echo "Usage: $0 [-quiet] <table [-ALL|-rd90_chep24|-gold_chep24|-lumi_chep24|-dy3j_chep24]>"; exit 1
 fi
 
 unames=$(uname -s)
@@ -54,10 +57,13 @@ touch $out
 #-------------------------------------------------------------------------------------------------------
 # A few reference points 
 #-------------------------------------------------------------------------------------------------------
-# 1. Logs (03 Oct 2024, cd8e872): cuda120/gcc113 (102 logs from allTees.sh) <= v1.00.00     itscrd90
-# 2. Logs (03 Oct 2024, a3d64bd): -------/gcc114 ( 96 logs from allTees.sh) <= v1.00.00     itgold91
-# 3. Logs (03 Oct 2024, 07c2a53): roc60/clang170 ( 96 logs from allTees.sh) <= v1.00.00+amd lumi
-#----------------------------------------------------------------------------
+# 1. Logs (03 Oct 2024, cd8e872): cuda120/gcc113 (102 logs from allTees.sh) <= v1.00.00      itscrd90
+# 2. Logs (03 Oct 2024, a3d64bd): -------/gcc114 ( 96 logs from allTees.sh) <= v1.00.00      itgold91
+# 3. Logs (03 Oct 2024, 07c2a53): roc60/clang170 ( 96 logs from allTees.sh) <= v1.00.00+amd  lumi
+#-------------------------------------------------------------------------------------------------------
+# 1. Logs (12 Oct 2024, ca715b5): -------/gcc114 (guxtaptamggux logs only)  <= v1.00.00+dy3j itgold91
+# 2. Logs (12 Oct 2024, 667b080): cuda120/gcc113 (guxtaptamggux logs only)  <= v1.00.00+dy3j itscrd90
+#-------------------------------------------------------------------------------------------------------
 
 # Default processes
 procs="eemumu ggtt ggttg ggttgg ggttggg"
@@ -77,6 +83,11 @@ elif [ "$table" == "gold_chep24" ]; then
   mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00e
 elif [ "$table" == "lumi_chep24" ]; then
   mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
+elif [ "$table" == "dy3j_chep24" ]; then
+  fpts="d m f"
+  procs="guxtaptamggux"
+  mrevs="$mrevs ca715b5" # -------/gcc114  (12 Oct 2024 gold91)   v1.00.00+dy3j
+  mrevs="$mrevs 667b080" # cuda120/gcc113  (12 Oct 2024 itscrd90) v1.00.00+dy3j
 else
   echo "ERROR! Unknown table '$table' (while choosing revisions and modifying defaults)"; exit 1
 fi
@@ -107,7 +118,8 @@ function oneTable()
   node=$(cat $files | grep ^On | sort -u)
   if [ "$nodelast" != "$node" ]; then echo -e "$node\n" >> $out; nodelast=$node; fi
   ###cat $files | awk '/^runExe.*check.*/{print $0};/^Process/{print $0};/Workflow/{print $0};/MECalcOnly/{print $0}'; continue
-  cat $files | awk -vtaglist="$taglist" -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none -vbrdlast=none '
+  cat $files | \
+    awk -vproclist="$procs" -vtaglist="$taglist" -vrev=$rev -vcomplast=none -vinllast=none -vhrdlast=none -vfptlast=none -vbrdlast=none '
     /^runExe .*check_cpp.*/{tag="CPP"};
     /^runExe .*check_cpp.*/{split($0,a,"build."); split(a[2],b,"_"); tag=tag"/"b[1]};
     /^runExe .*check_cuda.*/{tag="CUD/none"};
@@ -115,6 +127,7 @@ function oneTable()
     ###/^runExe .*check.*/{print $0, tag};
     /^runExe .*check.*/{split($0,a," -p "); split(a[2],b); grid=b[1]"/"b[2]"/"b[3]};
     /^runExe .*check.*/{proc=$0; gsub("/SubProcesses.*","",proc); gsub(".*/","",proc); gsub(".auto","",proc); gsub(".mad","",proc); grid_proc_tag[proc,tag]=grid};
+    ###/^runExe .*check.*/{print proc};
     ###/^Process/{split($3,a,"_"); proc=a[3]"_"a[4]; grid_proc_tag[proc,tag]=grid};
     /^Process(.)/{split($0,a,"["); comp="["a[2]; if ( complast == "none" ){print comp; complast=comp}};
     /^Process/{split($0,a,"]"); split(a[2],b,"="); inl=b[2]; if(inl!=inllast){printf "HELINL="inl; inllast=inl}}
@@ -127,18 +140,13 @@ function oneTable()
     /MECalcOnly/{tput=sprintf("%.2e", $5); tput_proc_tag[proc,tag]=tput};
     /.*check.exe: Aborted/{tput_proc_tag[proc,tag]="(FAILED)"};
     END{ntag=split(taglist,tags);
-        ###nproc=split("EPEM_MUPMUM GG_TTX GG_TTXG GG_TTXGG GG_TTXGGG",procs);
-        ###procs_txt["EPEM_MUPMUM"]="eemumu";
-        ###procs_txt["GG_TTX"]="ggtt";
-        ###procs_txt["GG_TTXG"]="ggttg";
-        ###procs_txt["GG_TTXGG"]="ggttgg";
-        ###procs_txt["GG_TTXGGG"]="ggttggg";
-        nproc=split("ee_mumu gg_tt gg_ttg gg_ttgg gg_ttggg",procs);
+        nproc=split("ee_mumu gg_tt gg_ttg gg_ttgg gg_ttggg gux_taptamggux",procs);
         procs_txt["ee_mumu"]="eemumu";
         procs_txt["gg_tt"]="ggtt";
         procs_txt["gg_ttg"]="ggttg";
         procs_txt["gg_ttgg"]="ggttgg";
         procs_txt["gg_ttggg"]="ggttggg";
+        procs_txt["gux_taptamggux"]="guxtaptamggux";
         printf "%8s", ""; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%14s", procs_txt[proc]}; printf "\n";
         gridslast="";
         for(itag=1;itag<=ntag;itag++)
