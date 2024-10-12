@@ -34,7 +34,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-hip] [-dblonly|-fltonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-guxtaptamggux]> [-d] [-hip] [-dblonly|-fltonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -56,6 +56,7 @@ heftggbb=0
 susyggtt=0
 susyggt1t1=0
 smeftggtttt=0
+guxtaptamggux=0
 
 hip=0
 
@@ -111,6 +112,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-smeftggtttt" ]; then
     smeftggtttt=1
     shift
+  elif [ "$1" == "-guxtaptamggux" ]; then
+    guxtaptamggux=1
+    shift
   elif [ "$1" == "-hip" ]; then
     hip=1
     shift
@@ -154,7 +158,7 @@ done
 ###exit 1
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gguu}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ] && [ "${guxtaptamggux}" == "0" ]; then usage; fi
 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
@@ -202,6 +206,8 @@ function showdir()
       dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_gg_t1t1x
     elif [ "${smeftggtttt}" == "1" ]; then 
       dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_gg_ttxttx
+    elif [ "${guxtaptamggux}" == "1" ]; then 
+      dir=$topdir/epochX/${bckend}/gux_taptamggux.mad/SubProcesses/P1_gux_taptamggux
     ###else
     ###  echo "INTERNAL ERROR! Unknown process '${proc}'" > /dev/stderr; exit 1 # this should never happen
     fi
@@ -235,6 +241,8 @@ function getnevt()
   elif [ "${susyggt1t1}" == "1" ]; then
     nevt=8192 # use the same settings as for SM ggtt
   elif [ "${smeftggtttt}" == "1" ]; then
+    nevt=8192 # use the same settings as for SM ggttggg
+  elif [ "${guxtaptamggux}" == "1" ]; then
     nevt=8192 # use the same settings as for SM ggttg
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
@@ -268,6 +276,8 @@ function getgridmax()
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${smeftggtttt}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
+  elif [ "${guxtaptamggux}" == "1" ]; then
+    echo 512 32 # same total grid dimension as 64 256
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -304,6 +314,8 @@ function getinputfile()
     iconfig_proc=2 # use iconfig=2 in susyggt1t1 to check #855 SIGFPE fix (but issue #826 is pending: no cross section!)
   elif [ "${smeftggtttt}" == "1" ]; then 
     tmp=$tmpdir/input_smeftggtttt
+  elif [ "${guxtaptamggux}" == "1" ]; then 
+    tmp=$tmpdir/input_guxtaptamggux
   else
     echo "ERROR! cannot determine input file name"; exit 1
   fi

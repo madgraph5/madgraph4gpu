@@ -10,7 +10,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-hip] [-dblonly|-fltonly|-d_f|-dmf] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-guxtaptamggux]> [-hip] [-dblonly|-fltonly|-d_f|-dmf] [-makeonly] [-makeclean] [-rmrdat] [+10x] [-checkonly]" > /dev/stderr
   exit 1
 }
 
@@ -26,6 +26,7 @@ heftggbb=
 susyggtt=
 susyggt1t1=
 smeftggtttt=
+guxtaptamggux=
 
 hip=
 
@@ -82,6 +83,9 @@ for arg in $*; do
   elif [ "$arg" == "-smeftggtttt" ]; then
     if [ "$smeftggtttt" == "" ]; then procs+=${procs:+ }${arg}; fi
     smeftggtttt=$arg
+  elif [ "$arg" == "-guxtaptamggux" ]; then
+    if [ "$guxtaptamggux" == "" ]; then procs+=${procs:+ }${arg}; fi
+    guxtaptamggux=$arg
   elif [ "$arg" == "-hip" ]; then
     hip=" -hip"
   elif [ "$arg" == "-dblonly" ]; then
