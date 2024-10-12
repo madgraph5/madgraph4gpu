@@ -34,14 +34,20 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   set -e
   ###$0 ${quiet} -long -default
   ###$0 ${quiet} -default
-  $0 ${quiet} -v10000
+  $0 ${quiet} -rd90_chep24
+  $0 ${quiet} -gold_chep24
+  $0 ${quiet} -lumi_chep24
   exit 0
 ###elif [ "$1" == "-default" ]; then
 ###  table="default"; shift
-elif [ "$1" == "-v10000" ]; then
-  table="v10000"; shift
+elif [ "$1" == "-rd90_chep24" ]; then
+  table="rd90_chep24"; shift
+elif [ "$1" == "-gold_chep24" ]; then
+  table="gold_chep24"; shift
+elif [ "$1" == "-lumi_chep24" ]; then
+  table="lumi_chep24"; shift
 else
-  echo "Usage: $0 [-quiet] [-long] <table [-ALL|-default|-v10000]>"; exit 1
+  echo "Usage: $0 [-quiet] [-long] <table [-ALL|-default|-rd90_chep24|gold_chep24|lumi_chep24]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -52,15 +58,21 @@ mrevs=""
 ###  mrevs=...
 ###  fpts=...
 ###  taglistALL=...
-if [ "$table" == "v10000" ]; then
+if [ "$table" == "rd90_chep24" ]; then
   procs="ggttgg ggttggg"
-  ###procs="ggttgg"
   taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z GPU/8192 GPU/max $gpu8tpb"
   mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
+  fpts="d m f"
+elif [ "$table" == "gold_chep24" ]; then
+  procs="ggttgg ggttggg"
+  taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z GPU/8192 GPU/max $gpu8tpb"
   mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00
+  fpts="d m f"
+elif [ "$table" == "lumi_chep24" ]; then
+  procs="ggttgg ggttggg"
+  taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z GPU/8192 GPU/max $gpu8tpb"
   mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
   fpts="d m f"
-  ###fpts="d"
 fi
 revs="$mrevs"
 
