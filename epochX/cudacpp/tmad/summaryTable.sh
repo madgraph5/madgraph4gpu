@@ -49,32 +49,22 @@ elif [ "$1" == "-lumi_chep24" ]; then
 fi
 
 if [ "$1" != "" ] || [ "$table" == '' ]; then
-  echo "Usage: $0 [-quiet] [-long] <table [-ALL|-default|-rd90_chep24|gold_chep24|lumi_chep24]>"; exit 1
+  echo "Usage: $0 [-quiet] [-long] <table [-ALL|-rd90_chep24|gold_chep24|lumi_chep24]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
 # Select processes and fptypes
-mrevs=""
-###if [ "$table" == "default" ]; then
-###  procs=...
-###  mrevs=...
-###  fpts=...
-###  taglistALL=...
+taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z GPU/8192 GPU/max $gpu8tpb" # default
+fpts="d m f" # default
+procs="ggttgg ggttggg" # default
 if [ "$table" == "rd90_chep24" ]; then
-  procs="ggttgg ggttggg"
-  taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z GPU/8192 GPU/max $gpu8tpb"
   mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
-  fpts="d m f"
 elif [ "$table" == "gold_chep24" ]; then
-  procs="ggttgg ggttggg"
-  taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z GPU/8192 GPU/max $gpu8tpb"
   mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00
-  fpts="d m f"
 elif [ "$table" == "lumi_chep24" ]; then
-  procs="ggttgg ggttggg"
-  taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z GPU/8192 GPU/max $gpu8tpb"
   mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
-  fpts="d m f"
+else
+  echo "ERROR! Unknown table '$table' (while choosing revisions and modifying defaults)"; exit 1
 fi
 revs="$mrevs"
 
