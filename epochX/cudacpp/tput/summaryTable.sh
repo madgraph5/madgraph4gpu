@@ -23,7 +23,7 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 ${quiet} -rd90_chep24
   $0 ${quiet} -gold_chep24
   $0 ${quiet} -lumi_chep24
-  #$0 ${quiet} -dy3j_chep24
+  $0 ${quiet} -dy3j_chep24
   exit 0
 elif [ "$1" == "-rd90_chep24" ]; then
   table="rd90_chep24"; shift
@@ -140,20 +140,22 @@ function oneTable()
     /MECalcOnly/{tput=sprintf("%.2e", $5); tput_proc_tag[proc,tag]=tput};
     /.*check.exe: Aborted/{tput_proc_tag[proc,tag]="(FAILED)"};
     END{ntag=split(taglist,tags);
-        nproc=split("ee_mumu gg_tt gg_ttg gg_ttgg gg_ttggg gux_taptamggux",procs);
-        procs_txt["ee_mumu"]="eemumu";
-        procs_txt["gg_tt"]="ggtt";
-        procs_txt["gg_ttg"]="ggttg";
-        procs_txt["gg_ttgg"]="ggttgg";
-        procs_txt["gg_ttggg"]="ggttggg";
-        procs_txt["gux_taptamggux"]="guxtaptamggux";
-        printf "%8s", ""; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; printf "%14s", procs_txt[proc]}; printf "\n";
+        nproc=split(proclist,procs);
+        procs_fromtxt["eemumu"]="ee_mumu";
+        procs_fromtxt["ggtt"]="gg_tt";
+        procs_fromtxt["ggttg"]="gg_ttg";
+        procs_fromtxt["ggttgg"]="gg_ttgg";
+        procs_fromtxt["ggttggg"]="gg_ttggg";
+        procs_fromtxt["guxtaptamggux"]="gux_taptamggux";
+        printf "%8s", "";
+        for(iproc=1;iproc<=nproc;iproc++){proctxt=procs[iproc]; proc=procs_fromtxt[proctxt]; printf "%14s", proctxt};
+        printf "\n";
         gridslast="";
         for(itag=1;itag<=ntag;itag++)
         {tag=tags[itag];
-         gridsok=0; grids=""; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; grid=grid_proc_tag[proc,tag]; if(grid==""){grid="------"} else {gridsok=1}; grids=grids""sprintf("%14s","["grid"]")}; grids=grids"\n";
+         gridsok=0; grids=""; for(iproc=1;iproc<=nproc;iproc++){proc=procs_fromtxt[procs[iproc]]; grid=grid_proc_tag[proc,tag]; if(grid==""){grid="------"} else {gridsok=1}; grids=grids""sprintf("%14s","["grid"]")}; grids=grids"\n";
          if(grids!=gridslast && gridsok==1){printf "%-8s%s", "", grids}; gridslast=grids;
-         printf "%-8s", tag; for(iproc=1;iproc<=nproc;iproc++){proc=procs[iproc]; tput=tput_proc_tag[proc,tag]; if(tput==""){tput="--------"}; printf "%14s", tput}; printf "\n";
+         printf "%-8s", tag; for(iproc=1;iproc<=nproc;iproc++){proc=procs_fromtxt[procs[iproc]]; tput=tput_proc_tag[proc,tag]; if(tput==""){tput="--------"}; printf "%14s", tput}; printf "\n";
          }}' >> $out
   echo "" >> $out
 }

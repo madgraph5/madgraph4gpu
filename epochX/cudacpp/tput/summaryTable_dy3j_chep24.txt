@@ -1,0 +1,105 @@
+*** FPTYPE=d ******************************************************************
+
+-------------------------------------------------------------------------------
+
++++ cudacpp.mad REVISION ca715b5 (commit date: 2024-10-12 12:55:17 +0200) +++
+On itgold91.cern.ch [CPU: Intel(R) Xeon(R) Gold 6326 CPU] [GPU: none]:
+
+[gcc 11.4.1] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+         guxtaptamggux
+CUD/none      --------
+HIP/none      --------
+             [1/256/2]
+CPP/none      3.32e+03
+CPP/sse4      6.50e+03
+CPP/avx2      1.59e+04
+CPP/512y      1.68e+04
+CPP/512z      2.69e+04
+
++++ cudacpp.mad REVISION 667b080 (commit date: 2024-10-12 12:56:31 +0200) +++
+On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
+
+[nvcc 12.0.140 (gcc 11.3.1)] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+         guxtaptamggux
+            [64/256/1]
+CUD/none      4.49e+05
+HIP/none      --------
+             [1/256/2]
+CPP/none      2.51e+03
+CPP/sse4      4.61e+03
+CPP/avx2      1.12e+04
+CPP/512y      1.21e+04
+CPP/512z      8.61e+03
+
+*** FPTYPE=m ******************************************************************
+
+-------------------------------------------------------------------------------
+
++++ cudacpp.mad REVISION ca715b5 (commit date: 2024-10-12 12:55:17 +0200) +++
+On itgold91.cern.ch [CPU: Intel(R) Xeon(R) Gold 6326 CPU] [GPU: none]:
+
+[gcc 11.4.1] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+         guxtaptamggux
+CUD/none      --------
+HIP/none      --------
+             [1/256/2]
+CPP/none      3.31e+03
+CPP/sse4      6.52e+03
+CPP/avx2      1.59e+04
+CPP/512y      1.70e+04
+CPP/512z      2.73e+04
+
++++ cudacpp.mad REVISION 667b080 (commit date: 2024-10-12 12:56:31 +0200) +++
+On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
+
+[nvcc 12.0.140 (gcc 11.3.1)] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+         guxtaptamggux
+            [64/256/1]
+CUD/none      4.49e+05
+HIP/none      --------
+             [1/256/2]
+CPP/none      2.49e+03
+CPP/sse4      4.97e+03
+CPP/avx2      1.12e+04
+CPP/512y      1.23e+04
+CPP/512z      8.62e+03
+
+*** FPTYPE=f ******************************************************************
+
+-------------------------------------------------------------------------------
+
++++ cudacpp.mad REVISION ca715b5 (commit date: 2024-10-12 12:55:17 +0200) +++
+On itgold91.cern.ch [CPU: Intel(R) Xeon(R) Gold 6326 CPU] [GPU: none]:
+
+[gcc 11.4.1] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+         guxtaptamggux
+CUD/none      --------
+HIP/none      --------
+             [1/256/2]
+CPP/none      3.41e+03
+CPP/sse4      1.29e+04
+CPP/avx2      3.07e+04
+CPP/512y      3.31e+04
+CPP/512z      5.37e+04
+
++++ cudacpp.mad REVISION 667b080 (commit date: 2024-10-12 12:56:31 +0200) +++
+On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
+
+[nvcc 12.0.140 (gcc 11.3.1)] 
+HELINL=0 HRDCOD=0 BRIDGE=no
+         guxtaptamggux
+            [64/256/1]
+CUD/none      7.05e+05
+HIP/none      --------
+             [1/256/2]
+CPP/none      2.52e+03
+CPP/sse4      8.96e+03
+CPP/avx2      2.19e+04
+CPP/512y      2.37e+04
+CPP/512z      1.72e+04
+
