@@ -37,6 +37,7 @@ if [ "$1" == "-ALL" ] && [ "$2" == "" ]; then
   $0 ${quiet} -rd90_chep24
   $0 ${quiet} -gold_chep24
   $0 ${quiet} -lumi_chep24
+  $0 ${quiet} -dy3j_chep24
   exit 0
 ###elif [ "$1" == "-default" ]; then
 ###  table="default"; shift
@@ -46,10 +47,12 @@ elif [ "$1" == "-gold_chep24" ]; then
   table="gold_chep24"; shift
 elif [ "$1" == "-lumi_chep24" ]; then
   table="lumi_chep24"; shift
+elif [ "$1" == "-dy3j_chep24" ]; then
+  table="dy3j_chep24"; shift
 fi
 
 if [ "$1" != "" ] || [ "$table" == '' ]; then
-  echo "Usage: $0 [-quiet] [-long] <table [-ALL|-rd90_chep24|gold_chep24|lumi_chep24]>"; exit 1
+  echo "Usage: $0 [-quiet] [-long] <table [-ALL|-rd90_chep24|-gold_chep24|-lumi_chep24|-dy3j_chep24]>"; exit 1
 fi
 
 # Select revisions and characteristics of mad logs
@@ -63,6 +66,10 @@ elif [ "$table" == "gold_chep24" ]; then
   mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00
 elif [ "$table" == "lumi_chep24" ]; then
   mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
+elif [ "$table" == "dy3j_chep24" ]; then
+  fpts="m"
+  procs="guxtaptamggux" # default
+  mrevs="$mrevs cd2b3ec" # cuda120/gcc113  (12 Oct 2024 itscrd90) v1.00.00+dy3j
 else
   echo "ERROR! Unknown table '$table' (while choosing revisions and modifying defaults)"; exit 1
 fi
@@ -152,11 +159,11 @@ function oneTable()
                    "", "", "", "", "sa/brdg", "sa/full";
           print lsepDASH;
           if(onlyxmax==0)
-            printf "| %-10s | %-26s | %-26s | %-17s | %-17s | %-9s | %-9s |\n",
+            printf "| %-14s | %-22s | %-26s | %-17s | %-17s | %-9s | %-9s |\n",
                    proc, "[sec] tot = mad + MEs", "[sec] tot = mad + MEs",
                    "[TOT/sec]", "[MEs/sec]", "[MEs/sec]", "[MEs/sec]";
           else
-            printf "| %-10s | %-26s | %-17s | %-17s | %-9s | %-9s |\n",
+            printf "| %-14s | %-22s | %-17s | %-17s | %-9s | %-9s |\n",
                    proc, "[sec] tot = mad + MEs",
                    "[TOT/sec]", "[MEs/sec]", "[MEs/sec]", "[MEs/sec]";
           print lsepEQUAL;
