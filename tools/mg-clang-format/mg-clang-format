@@ -20,6 +20,7 @@ if [ ${clangVersion} -ge 13 ] && [ ${clangVersion} -le 15 ]; then
 else
   if [ ! -d /cvmfs/sft.cern.ch/lcg/releases/clang ]; then
     echo "ERROR! clang-format version >= 13 and <= 15 is not installed and /cvmfs/sft.cern.ch/lcg/releases/clang is not reachable"
+    echo "ERROR! current clang-format version is '$clangVersion'"
     exit 1    
   fi
   redrel=$(cat /etc/redhat-release 2> /dev/null)
