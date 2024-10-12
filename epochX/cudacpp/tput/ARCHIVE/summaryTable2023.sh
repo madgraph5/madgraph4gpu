@@ -63,12 +63,12 @@ if [ "${unames}" == "Darwin" ]; then
   exit 1
 fi
 
-cd $(dirname $0)/..
-scr=tput/$(basename ${0})
+cd $(dirname $0)/../..
+scr=tput/ARCHIVE/$(basename ${0})
 ###echo PWD=$(pwd)
 
 # Output file
-out=tput/summaryTable_${table}.txt
+out=tput/ARCHIVE/summaryTable_${table}.txt
 \rm -f $out
 touch $out
 
