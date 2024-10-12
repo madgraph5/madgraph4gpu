@@ -182,12 +182,15 @@ function oneTable()
       /create events.lhe/{fac=substr($5,2)} # current fac
       /\[XSECTION\] nb_page_loop =/{if(tag!="") nloop2[tag,fac]=$4}
       ###/\[COUNTERS\]/{print $0}
-      /\[COUNTERS\]/{if($3=="TOTAL") typ=1;
+      /\[COUNTERS\]/{typadd=0; # NEW (TEMPORARY?) add HEL to Overhead
+                     if($3=="TOTAL") typ=1;
                      else if($3=="Overhead") typ=2;
                      else if($3=="MEs") typ=3;
+                     else if($3=="HEL") {typ=4; typadd=2} # NEW (TEMPORARY?) add HEL to Overhead
                      else{print "ERROR! Unknown type "$3; status=1; exit status};
                      if($4==":") sec=$5; else sec=$8; sec=substr(sec,1,length(sec)-1); # current sec
-                     sec3[tag,fac,typ]=sec}
+                     sec3[tag,fac,typ]=sec;
+                     if(typadd>0) sec3[tag,fac,typadd]+=sec} # NEW (TEMPORARY?) add HEL to Overhead
       /\[COUNTERS\]/{if(tag!="" && $3=="MEs")
                      {nevt=$10; ###print tag, nevt;
                       if(tag=="FORTRAN") nevt1[fac]=nevt; 
