@@ -46,7 +46,9 @@ elif [ "$1" == "-gold_chep24" ]; then
   table="gold_chep24"; shift
 elif [ "$1" == "-lumi_chep24" ]; then
   table="lumi_chep24"; shift
-else
+fi
+
+if [ "$1" != "" ] || [ "$table" == '' ]; then
   echo "Usage: $0 [-quiet] [-long] <table [-ALL|-default|-rd90_chep24|gold_chep24|lumi_chep24]>"; exit 1
 fi
 
