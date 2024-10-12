@@ -165,6 +165,7 @@ function oneTable()
       BEGIN{if(onlyxmax==0) ifac0=1; else ifac0=nfac}
       ###/create events.lhe/{print $0}
       /create events.lhe/{par=$2; tag=tag1[par]} # current tag (FORTRAN... CUDA/8192)
+      ###/create events.lhe/{print par, tag}
       /GCHECK\(MAX\)/{tag="CUDA/max"} # current tag (CUDA/max)
       /GCHECK\(MAX128THR\)/{tag="CUDA/max128t"} # current tag (CUDA/max128t)
       /GCHECK\(MAX8THR\)/{tag="CUDA/8tpb"} # current tag (CUDA/8tpb)
