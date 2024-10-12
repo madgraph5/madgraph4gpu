@@ -10,7 +10,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocuda] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-guxtaptamggux]> [-nocuda] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -25,6 +25,7 @@ heftggbb=
 susyggtt=
 susyggt1t1=
 smeftggtttt=
+guxtaptamggux=
 bldall=-bldall
 suffs="mad" # DEFAULT code base: madevent + cudacpp as 2nd exporter (logs_*_mad)
 alpaka=
@@ -75,6 +76,9 @@ for arg in $*; do
   elif [ "$arg" == "-smeftggtttt" ]; then
     if [ "$smeftggtttt" == "" ]; then procs+=${procs:+ }${arg}; fi
     smeftggtttt=$arg
+  elif [ "$arg" == "-guxtaptamggux" ]; then
+    if [ "$guxtaptamggux" == "" ]; then procs+=${procs:+ }${arg}; fi
+    guxtaptamggux=$arg
   elif [ "$arg" == "-cpponly" ]; then
     bldall=-cpponly
   elif [ "$arg" == "-nocuda" ]; then
