@@ -1,4 +1,0 @@
-set stdout_level DEBUG
-set zerowidth_tchannel F
-generate g u~ > ta+ ta- g g u~
-output madevent_simd gux_taptamggux.mad --hel_recycling=False --vector_size=32 
