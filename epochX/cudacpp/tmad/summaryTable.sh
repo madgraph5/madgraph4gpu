@@ -53,14 +53,14 @@ mrevs=""
 ###  fpts=...
 ###  taglistALL=...
 if [ "$table" == "v10000" ]; then
-  #procs="ggttgg ggttggg"
-  procs="ggttgg"
+  procs="ggttgg ggttggg"
+  ###procs="ggttgg"
   taglistdump="FORTRAN CPP/none CPP/sse4 CPP/avx2 CPP/512y CPP/512z GPU/8192 GPU/max $gpu8tpb"
-  #mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
-  #mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00
+  mrevs="$mrevs cd8e872" # cuda120/gcc113  (03 Oct 2024 itscrd90) v1.00.00
+  mrevs="$mrevs a3d64bd" # -------/gcc114  (03 Oct 2024 gold91)   v1.00.00
   mrevs="$mrevs 07c2a53" # roc60/clang170  (03 Oct 2024 lumi)     v1.00.00+amd
-  #fpts="d m f"
-  fpts="d"
+  fpts="d m f"
+  ###fpts="d"
 fi
 revs="$mrevs"
 
@@ -176,7 +176,9 @@ function oneTable()
                                 sabp1["CPP/none"], sap1["CPP/none"];
                               print lsepDASH}
            else if(tag=="GPU/max"||tag=="GPU/8tpb"){
-                              if(tag=="GPU/max") print lsepEQUAL; else print lsepEQUAL2;
+                              if(tag=="GPU/max") print lsepEQUAL;
+                              if(gpu=="none") continue; # SKIP GPU/xxxx if gpu is none (e.g. itgold91)
+                              if(tag!="GPU/max") print lsepEQUAL2;
                               if(onlyxmax==0)
                                 printf "| %-10s | %95s | %9s | %9s |\n",
                                 "nevt/grid", "", sabg1[tag], sag1[tag];
@@ -191,6 +193,7 @@ function oneTable()
                                 "nevt total", "", sabp1[tag], sap1[tag];
                               print lsepDASH2};
            tagdump=gensub("GPU",gpu,"g",tag);
+           if(tagdump=="none/8192") continue; # SKIP GPU/xxxx if gpu is none (e.g. itgold91)
            printf "| %-10s |", tagdump;
            if(tag=="GPU/max"||tag=="GPU/8tpb")
                             { if(onlyxmax==0) printf " %95s |", "";
@@ -218,7 +221,8 @@ function oneTable()
                               if(length(ratiomes2)>4) ratiomes2=substr(ratiomes2,0,4);
                               printf " %-9s |", ""; printf "   (x%4s) |", ratiomes2; }
            printf "\n"};
-	  if(tag=="GPU/max"||tag=="GPU/8tpb") print lsepEQUAL2; else print lsepEQUAL;
+	  if(tag=="GPU/max"||tag=="GPU/8tpb") {if(gpu!="none") print lsepEQUAL2}
+          else print lsepEQUAL;
           print "\n";
          }' >> $out
   done
