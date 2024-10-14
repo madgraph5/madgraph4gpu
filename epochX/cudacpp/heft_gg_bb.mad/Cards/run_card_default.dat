@@ -174,5 +174,10 @@ systematics = systematics_program ! none, systematics [python], SysCalc [deprece
 #***********************************************************************
 # SIMD/GPU configuration for the CUDACPP plugin
 #************************************************************************
- cpp = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
+ cpp = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp (DEFAULT), cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
+#*** WARNING! The following cudacpp runcards are experimental! Users should normally change only the cudacpp_backend card ***
+ m = cudacpp_fptype ! CUDACPP floating point precision: f (single), d (double), m (mixed, DEFAULT: double for amplitudes, single for colors)
+ 0 = cudacpp_hrdcod ! CUDACPP parameter hardcoding: 0 (DEFAULT, parameters not hardcoded: read param_card.dat at runtime), 1 (hardcoded parameters)
+ 0 = cudacpp_helinl ! CUDACPP helicity amplitude inlining: 0 (DEFAULT, ordinary inlining of templates), 1 (aggressive inlining with 'always inline')
+ False = cudacpp_bldall ! CUDACPP build all available backends in separate build directories: False, True
 

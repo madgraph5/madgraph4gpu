@@ -1,0 +1,74 @@
+START: Tue Sep 10 06:46:17 PM CEST 2024
+On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU (nproc=4)] [GPU: 1x Tesla V100S-PCIE-32GB]:
+CUDACPP_RUNTIME_DISABLEFPE is not set
+************************************************************
+*                                                          *
+*                      W E L C O M E to                    *
+*             M A D G R A P H 5 _ a M C @ N L O            *
+*                      M A D E V E N T                     *
+*                                                          *
+*                 *                       *                *
+*                   *        * *        *                  *
+*                     * * * * 5 * * * *                    *
+*                   *        * *        *                  *
+*                 *                       *                *
+*                                                          *
+*         VERSION 3.5.3_lo_vect                            *
+*                                                          *
+*    The MadGraph5_aMC@NLO Development Team - Find us at   *
+*    https://server06.fynu.ucl.ac.be/projects/madgraph     *
+*                                                          *
+*               Type 'help' for in-line help.              *
+*                                                          *
+************************************************************
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/Cards/me5_configuration.txt  
+INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gq_ttq.mad/Cards/me5_configuration.txt  
+Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
+Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
+generate_events -f
+Generating gridpack with run name run_01
+survey  run_01 --accuracy=0.01 --points=2000 --iterations=8 --gridpack=.true.
+INFO: compile directory 
+compile Source Directory
+Using random number seed offset = 21
+INFO: Running Survey 
+Creating Jobs
+Working on SubProcesses
+INFO:     P1_gu_ttxu  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cuda' matrix elements
+INFO:     P1_gux_ttxux  
+Pre-building madevent in madevent_interface.py with ALL matrix elements
+Building madevent in madevent_interface.py with 'cuda' matrix elements
+INFO:  Idle: 1,  Running: 1,  Completed: 2 [ current time: 18h47 ] 
+INFO:  Idle: 0,  Running: 2,  Completed: 2 [ current time: 18h47 ] 
+INFO:  Idle: 0,  Running: 0,  Completed: 4 [  3s  ] 
+sum of cpu time of last step: 11 seconds
+  === Results Summary for run: run_01 tag: tag_1 ===
+
+     Cross-section :   133.9 +- 1.921 pb
+     Nb of events :  0
+ 
+INFO: End survey 
+combine_events
+INFO: Combining Events 
+combination of events done in 0.006100177764892578 s 
+store_events
+INFO: Storing parton level results 
+INFO: End Parton 
+decay_events -from_cards
+create_gridpack
+INFO: Creating gridpack 
+P1_gu_ttxu
+P1_gux_ttxux
+Cleaning  SubProcesses.. 
+INFO: gridpack created 
+quit
+INFO: storing files of previous run 
+INFO: Done 
+INFO:  
+167.23user 28.43system 1:33.76elapsed 208%CPU (0avgtext+0avgdata 398048maxresident)k
+160inputs+1337160outputs (88major+7248399minor)pagefaults 0swaps
+END: Tue Sep 10 06:47:52 PM CEST 2024
+ELAPSED: 95 seconds
