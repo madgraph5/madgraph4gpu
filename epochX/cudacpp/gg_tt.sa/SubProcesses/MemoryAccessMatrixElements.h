@@ -46,6 +46,7 @@ namespace mg5amcCpu
     friend class KernelAccessHelper<MemoryAccessMatrixElementsBase, false>;
 
     // The number of (good and bad) helicity combinations
+    // Note that a typical loop over helicities uses ihel over ncomb values: "for( int ihel = 0; ihel < ncomb; ihel++ )"
     static constexpr int ncomb = CPPProcess::ncomb;
 
     //--------------------------------------------------------------------------
@@ -61,22 +62,22 @@ namespace mg5amcCpu
     {
       const int ipagME = ievt / neppME; // #event "ME-page"
       const int ieppME = ievt % neppME; // #event in the current event ME-page
-      constexpr int icomb = 0;
-      return &( buffer[ipagME * ( ncomb + 1 ) * neppME + icomb * neppME + ieppME] ); // AOSOA[ipagME][icomb][ieppME]
+      constexpr int ihel = 0;
+      return &( buffer[ipagME * ( ncomb + 1 ) * neppME + ihel * neppME + ieppME] ); // AOSOA[ipagME][ihel][ieppME]
     }
 
     //--------------------------------------------------------------------------
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
     // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, Ts... args ) <===]
-    // [NB: expand variadic template "Ts... args" to "const int icomb" and rename "Field" as "Icomb"]
+    // [NB: expand variadic template "Ts... args" to "const int ihel" and rename "Field" as "Ihel"]
     static __host__ __device__ inline fptype&
     decodeRecord( fptype* buffer,
-                  const int icomb )
+                  const int ihel )
     {
       constexpr int ipagME = 0;
       constexpr int ieppME = 0;
-      return buffer[ipagME * ( ncomb + 1 ) * neppME + icomb * neppME + ieppME]; // AOSOA[ipagME][icomb][ieppME]
+      return buffer[ipagME * ( ncomb + 1 ) * neppME + ihel * neppME + ieppME]; // AOSOA[ipagME][ihel][ieppME]
     }
   };
 
@@ -97,22 +98,22 @@ namespace mg5amcCpu
     static constexpr auto ieventAccessRecordConst = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::ieventAccessRecordConst;
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
-    // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, const int icomb ) <===]
-    static constexpr auto decodeRecordIcomb = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::decodeRecord;
+    // [Signature (non-const) ===> fptype& decodeRecord( fptype* buffer, const int ihel ) <===]
+    static constexpr auto decodeRecordIhel = MemoryAccessHelper<MemoryAccessMatrixElementsBase>::decodeRecord;
 
     // Locate a field (output) of an event record (input) from the given field indexes (input)
-    // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int icomb ) <===]
-    static constexpr auto decodeRecordIcombConst =
+    // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, const int ihel ) <===]
+    static constexpr auto decodeRecordIhelConst =
       MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template decodeRecordConst<int>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-    // [Signature (non-const) ===> fptype& ieventAccess( fptype* buffer, const ievt, const icomb ) <===]
-    static constexpr auto ieventAccessIcomb =
+    // [Signature (non-const) ===> fptype& ieventAccess( fptype* buffer, const ievt, const ihel ) <===]
+    static constexpr auto ieventAccessIhel =
       MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessField<int>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-    // [Signature (const) ===> const fptype& ieventAccessConst( const fptype* buffer, const ievt, const icomb ) <===]
-    static constexpr auto ieventAccessIcombConst =
+    // [Signature (const) ===> const fptype& ieventAccessConst( const fptype* buffer, const ievt, const ihel ) <===]
+    static constexpr auto ieventAccessIhelConst =
       MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessFieldConst<int>;
   };
 
@@ -129,16 +130,16 @@ namespace mg5amcCpu
     static constexpr auto ieventAccessRecord = MemoryAccessMatrixElements::ieventAccessRecord;
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-    // [Signature (non-const, SCALAR) ===> fptype& kernelAccess_s( fptype* buffer, const int icomb ) <===]
-    static constexpr auto kernelAccessIcomb_s =
+    // [Signature (non-const, SCALAR) ===> fptype& kernelAccess_s( fptype* buffer, const int ihel ) <===]
+    static constexpr auto kernelAccessIhel_s =
       KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<int>; // requires cuda 11.4
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
-    // [Signature (non const, SCALAR OR VECTOR) ===> fptype_sv& kernelAccess( const fptype* buffer, const int icomb ) <===]
+    // [Signature (non const, SCALAR OR VECTOR) ===> fptype_sv& kernelAccess( const fptype* buffer, const int ihel ) <===]
     static __host__ __device__ inline fptype_sv&
-    kernelAccessIcomb( fptype* buffer )
+    kernelAccessIhel( fptype* buffer )
     {
-      fptype& out = kernelAccessIcomb_s( buffer );
+      fptype& out = kernelAccessIhel_s( buffer );
 #ifndef MGONGPU_CPPSIMD
       return out;
 #else
@@ -150,8 +151,8 @@ namespace mg5amcCpu
     }
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-    // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer, const int icomb ) <===]
-    static constexpr auto kernelAccessIcombConst =
+    // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer, const int ihel ) <===]
+    static constexpr auto kernelAccessIhelConst =
       KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<int>; // requires cuda 11.4
   };
 
