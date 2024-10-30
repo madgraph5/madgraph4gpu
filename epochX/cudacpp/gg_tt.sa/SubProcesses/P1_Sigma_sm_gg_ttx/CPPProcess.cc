@@ -407,10 +407,10 @@ namespace mg5amcCpu
       // *** STORE THE RESULTS ***
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
+      fptype_sv& MEs_sv = E_ACCESS::kernelAccessIhel( MEs, ihel );
       MEs_sv += deltaMEs; // fix #435
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      fptype_sv& MEs_sv_previous = E_ACCESS::kernelAccess( MEs_previous );
+      fptype_sv& MEs_sv_previous = E_ACCESS::kernelAccessIhel( MEs_previous, ihel );
       MEs_sv_previous += deltaMEs_previous;
 #endif
       /*
@@ -849,8 +849,11 @@ namespace mg5amcCpu
     {
       const int ievt0 = ipagV * neppV;
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
-      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
-      MEs_sv = fptype_sv{ 0 };
+      for( int ihel = 0; ihel < ncomb; ihel++ )
+      {
+        fptype_sv& MEs_sv = E_ACCESS::kernelAccessIhel( MEs, ihel );
+        MEs_sv = fptype_sv{ 0 };
+      }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
@@ -969,9 +972,9 @@ namespace mg5amcCpu
 #else
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
 #endif
-        MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
+        MEs_ighel[ighel] = E_ACCESS::kernelAccessIhel( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ), ihel );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
+        MEs_ighel2[ighel] = E_ACCESS::kernelAccessIhel( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ), ihel );
 #endif
       }
       // Event-by-event random choice of helicity #403
@@ -1087,8 +1090,11 @@ namespace mg5amcCpu
     {
       const int ievt0 = ipagV * neppV;
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
-      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
-      MEs_sv /= helcolDenominators[0];
+      for( int ihel = 0; ihel < ncomb; ihel++ )
+      {
+        fptype_sv& MEs_sv = E_ACCESS::kernelAccessIhel( MEs, ihel );
+        MEs_sv /= helcolDenominators[0];
+      }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId > 0 )
       {

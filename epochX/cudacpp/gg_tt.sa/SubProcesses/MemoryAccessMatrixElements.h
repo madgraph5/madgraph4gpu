@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MemoryAccessMatrixElements_H
 #define MemoryAccessMatrixElements_H 1
@@ -107,12 +107,12 @@ namespace mg5amcCpu
       MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template decodeRecordConst<int>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-    // [Signature (non-const) ===> fptype& ieventAccess( fptype* buffer, const ievt, const ihel ) <===]
+    // [Signature (non-const) ===> fptype& ieventAccessIhel( fptype* buffer, const ievt, const ihel ) <===]
     static constexpr auto ieventAccessIhel =
       MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessField<int>;
 
     // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
-    // [Signature (const) ===> const fptype& ieventAccessConst( const fptype* buffer, const ievt, const ihel ) <===]
+    // [Signature (const) ===> const fptype& ieventAccessIhelConst( const fptype* buffer, const ievt, const ihel ) <===]
     static constexpr auto ieventAccessIhelConst =
       MemoryAccessHelper<MemoryAccessMatrixElementsBase>::template ieventAccessFieldConst<int>;
   };
@@ -130,16 +130,16 @@ namespace mg5amcCpu
     static constexpr auto ieventAccessRecord = MemoryAccessMatrixElements::ieventAccessRecord;
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-    // [Signature (non-const, SCALAR) ===> fptype& kernelAccess_s( fptype* buffer, const int ihel ) <===]
+    // [Signature (non-const, SCALAR) ===> fptype& kernelAccessIhel_s( fptype* buffer, const int ihel ) <===]
     static constexpr auto kernelAccessIhel_s =
       KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessField<int>; // requires cuda 11.4
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
-    // [Signature (non const, SCALAR OR VECTOR) ===> fptype_sv& kernelAccess( const fptype* buffer, const int ihel ) <===]
+    // [Signature (non const, SCALAR OR VECTOR) ===> fptype_sv& kernelAccessIhel( const fptype* buffer, const int ihel ) <===]
     static __host__ __device__ inline fptype_sv&
-    kernelAccessIhel( fptype* buffer )
+    kernelAccessIhel( fptype* buffer, const int ihel )
     {
-      fptype& out = kernelAccessIhel_s( buffer );
+      fptype& out = kernelAccessIhel_s( buffer, ihel );
 #ifndef MGONGPU_CPPSIMD
       return out;
 #else
@@ -151,7 +151,7 @@ namespace mg5amcCpu
     }
 
     // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
-    // [Signature (const) ===> const fptype& kernelAccessConst( const fptype* buffer, const int ihel ) <===]
+    // [Signature (const) ===> const fptype& kernelAccessIhelConst( const fptype* buffer, const int ihel ) <===]
     static constexpr auto kernelAccessIhelConst =
       KernelAccessHelper<MemoryAccessMatrixElementsBase, onDevice>::template kernelAccessFieldConst<int>; // requires cuda 11.4
   };

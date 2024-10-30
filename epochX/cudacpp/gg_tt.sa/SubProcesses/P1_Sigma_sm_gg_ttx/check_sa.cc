@@ -746,7 +746,7 @@ main( int argc, char** argv )
         std::cout << std::string( SEP79, '-' ) << std::endl;
         // Display matrix elements
         std::cout << " Matrix element = "
-                  << MemoryAccessMatrixElements::ieventAccessIcombConst( hstMatrixElements.data(), ievt, CPPProcess::ncomb )
+                  << MemoryAccessMatrixElements::ieventAccessIhelConst( hstMatrixElements.data(), ievt, CPPProcess::ncomb )
                   << " GeV^" << meGeVexponent << std::endl;
         std::cout << std::string( SEP79, '-' ) << std::endl;
       }
