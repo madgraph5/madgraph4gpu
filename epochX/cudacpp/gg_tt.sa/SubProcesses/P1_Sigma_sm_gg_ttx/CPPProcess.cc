@@ -1074,7 +1074,7 @@ namespace mg5amcCpu
 
 #endif // CUDA or C++
 
-    // PART 2 - FINALISATION (after calculate_wavefunctions)
+    // === PART 2 - FINALISATION (after calculate_wavefunctions) ===
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
@@ -1090,10 +1090,12 @@ namespace mg5amcCpu
     {
       const int ievt0 = ipagV * neppV;
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
+      fptype_sv& MEsTot_sv = E_ACCESS::kernelAccessIhel( MEs, ncomb );
       for( int ihel = 0; ihel < ncomb; ihel++ )
       {
         fptype_sv& MEs_sv = E_ACCESS::kernelAccessIhel( MEs, ihel );
         MEs_sv /= helcolDenominators[0];
+        MEsTot_sv += MEs_sv;
       }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( channelId > 0 )
