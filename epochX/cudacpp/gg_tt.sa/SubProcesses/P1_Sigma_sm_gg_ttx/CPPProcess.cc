@@ -849,7 +849,7 @@ namespace mg5amcCpu
     {
       const int ievt0 = ipagV * neppV;
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
-      for( int ihel = 0; ihel < ncomb; ihel++ )
+      for( int ihel = 0; ihel < ncomb + 1; ihel++ ) // initialise also the sum of MEs for all ihel (element ihel=ncomb)
       {
         fptype_sv& MEs_sv = E_ACCESS::kernelAccessIhel( MEs, ihel );
         MEs_sv = fptype_sv{ 0 };
@@ -1095,18 +1095,18 @@ namespace mg5amcCpu
       {
         fptype_sv& MEs_sv = E_ACCESS::kernelAccessIhel( MEs, ihel );
         MEs_sv /= helcolDenominators[0];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+        if( channelId > 0 )
+        {
+          fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+          fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+          fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+          fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
+          MEs_sv *= numerators_sv / denominators_sv;
+        }
+#endif
         MEsTot_sv += MEs_sv;
       }
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId > 0 )
-      {
-        fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
-        fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
-        fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
-        fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-        MEs_sv *= numerators_sv / denominators_sv;
-      }
-#endif
       //for( int ieppV = 0; ieppV < neppV; ieppV++ )
       //{
       //  const unsigned int ievt = ipagV * neppV + ieppV;
