@@ -36,6 +36,7 @@ namespace mg5amcCpu
     , m_denominators( nevt )
 #endif
   {
+    //std::cout << "MatrixElementKernelHost::ctor " << this << std::endl;
     if( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
     if( m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: matrixElements must be a host array" );
     if( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "MatrixElementKernelHost: nevt mismatch with momenta" );
@@ -54,6 +55,13 @@ namespace mg5amcCpu
     // [NB: SIMD vectorization in mg5amc C++ code is only used in the ME calculation below MatrixElementKernelHost!]
     if( !MatrixElementKernelHost::hostSupportsSIMD() )
       throw std::runtime_error( "Host does not support the SIMD implementation of MatrixElementKernelsHost" );
+  }
+
+  //--------------------------------------------------------------------------
+
+  MatrixElementKernelHost::~MatrixElementKernelHost()
+  {
+    //std::cout << "MatrixElementKernelHost::dtor " << this << std::endl;
   }
 
   //--------------------------------------------------------------------------
@@ -177,6 +185,7 @@ namespace mg5amcGpu
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
+    //std::cout << "MatrixElementKernelDevice::ctor " << this << std::endl;
     if( !m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: momenta must be a device array" );
     if( !m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: matrixElements must be a device array" );
     if( m_gpublocks == 0 ) throw std::runtime_error( "MatrixElementKernelDevice: gpublocks must be > 0" );
@@ -192,6 +201,13 @@ namespace mg5amcGpu
       sstr << "MatrixElementKernelHost: gputhreads should be a multiple of neppM=" << neppM;
       throw std::runtime_error( sstr.str() );
     }
+  }
+
+  //--------------------------------------------------------------------------
+
+  MatrixElementKernelDevice::~MatrixElementKernelDevice()
+  {
+    //std::cout << "MatrixElementKernelDevice::dtor " << this << std::endl;
   }
 
   //--------------------------------------------------------------------------

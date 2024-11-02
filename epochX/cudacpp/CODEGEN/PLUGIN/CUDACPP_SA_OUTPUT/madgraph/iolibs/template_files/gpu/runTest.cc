@@ -18,6 +18,8 @@
 #include "RandomNumberKernels.h"
 #include "epoch_process_id.h"
 
+#include <memory>
+
 #ifdef MGONGPUCPP_GPUIMPL
 using namespace mg5amcGpu;
 #else
@@ -51,6 +53,7 @@ struct CPUTest : public CUDA_CPU_TestBase
   HostBufferSelectedHelicity hstSelHel;
   HostBufferSelectedColor hstSelCol;
   HostBufferHelicityMask hstIsGoodHel;
+  std::unique_ptr<MatrixElementKernelHost> pMEK;
 
   // Create a process object
   // Read param_card and set parameters
@@ -70,6 +73,7 @@ struct CPUTest : public CUDA_CPU_TestBase
     , hstSelHel( nevt )
     , hstSelCol( nevt )
     , hstIsGoodHel( CPPProcess::ncomb )
+    , pMEK( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) )
   {
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton?
@@ -99,10 +103,9 @@ struct CPUTest : public CUDA_CPU_TestBase
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
-    MatrixElementKernelHost mek( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt );
-    if( iiter == 0 ) mek.computeGoodHelicities();
+    if( iiter == 0 ) pMEK->computeGoodHelicities();
     constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
-    mek.computeMatrixElements( channelId );
+    pMEK->computeMatrixElements( channelId );
   }
 
   fptype getMomentum( std::size_t ievt, unsigned int ipar, unsigned int ip4 ) const override
@@ -155,6 +158,7 @@ struct CUDATest : public CUDA_CPU_TestBase
   DeviceBufferSelectedHelicity devSelHel;
   DeviceBufferSelectedColor devSelCol;
   DeviceBufferHelicityMask devIsGoodHel;
+  std::unique_ptr<MatrixElementKernelDevice> pMEK;
 
   // Create a process object
   // Read param_card and set parameters
@@ -184,6 +188,7 @@ struct CUDATest : public CUDA_CPU_TestBase
     , devSelHel( nevt )
     , devSelCol( nevt )
     , devIsGoodHel( CPPProcess::ncomb )
+    , pMEK( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) )
   {
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton?
@@ -219,10 +224,9 @@ struct CUDATest : public CUDA_CPU_TestBase
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     for( unsigned int i = 0; i < nevt; ++i ) hstGs[i] = fixedG;
     copyDeviceFromHost( devGs, hstGs ); // BUG FIX #566
-    MatrixElementKernelDevice mek( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads );
-    if( iiter == 0 ) mek.computeGoodHelicities();
+    if( iiter == 0 ) pMEK->computeGoodHelicities();
     constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in runTest.exe #466
-    mek.computeMatrixElements( channelId );
+    pMEK->computeMatrixElements( channelId );
     copyHostFromDevice( hstMatrixElements, devMatrixElements );
   }
 
