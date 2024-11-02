@@ -407,10 +407,10 @@ namespace mg5amcCpu
       // *** STORE THE RESULTS ***
 
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-      fptype_sv& MEs_sv = E_ACCESS::kernelAccessIhel( MEs, ihel );
+      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv += deltaMEs; // fix #435
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      fptype_sv& MEs_sv_previous = E_ACCESS::kernelAccessIhel( MEs_previous, ihel );
+      fptype_sv& MEs_sv_previous = E_ACCESS::kernelAccess( MEs_previous );
       MEs_sv_previous += deltaMEs_previous;
 #endif
       /*
@@ -849,11 +849,8 @@ namespace mg5amcCpu
     {
       const int ievt0 = ipagV * neppV;
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
-      for( int ihel = 0; ihel < ncomb + 1; ihel++ ) // initialise also the sum of MEs for all ihel (element ihel=ncomb)
-      {
-        fptype_sv& MEs_sv = E_ACCESS::kernelAccessIhel( MEs, ihel );
-        MEs_sv = fptype_sv{ 0 };
-      }
+      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
+      MEs_sv = fptype_sv{ 0 };
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
@@ -972,9 +969,9 @@ namespace mg5amcCpu
 #else
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
 #endif
-        MEs_ighel[ighel] = E_ACCESS::kernelAccessIhel( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ), ihel );
+        MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        MEs_ighel2[ighel] = E_ACCESS::kernelAccessIhel( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ), ihel );
+        MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
       }
       // Event-by-event random choice of helicity #403
@@ -1074,7 +1071,7 @@ namespace mg5amcCpu
 
 #endif // CUDA or C++
 
-    // === PART 2 - FINALISATION (after calculate_wavefunctions) ===
+    // PART 2 - FINALISATION (after calculate_wavefunctions)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
@@ -1090,23 +1087,18 @@ namespace mg5amcCpu
     {
       const int ievt0 = ipagV * neppV;
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
-      fptype_sv& MEsTot_sv = E_ACCESS::kernelAccessIhel( MEs, ncomb );
-      for( int ihel = 0; ihel < ncomb; ihel++ )
-      {
-        fptype_sv& MEs_sv = E_ACCESS::kernelAccessIhel( MEs, ihel );
-        MEs_sv /= helcolDenominators[0];
+      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
+      MEs_sv /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        if( channelId > 0 )
-        {
-          fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
-          fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
-          fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
-          fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-          MEs_sv *= numerators_sv / denominators_sv;
-        }
-#endif
-        MEsTot_sv += MEs_sv;
+      if( channelId > 0 )
+      {
+        fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+        fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+        fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+        fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
+        MEs_sv *= numerators_sv / denominators_sv;
       }
+#endif
       //for( int ieppV = 0; ieppV < neppV; ieppV++ )
       //{
       //  const unsigned int ievt = ipagV * neppV + ieppV;

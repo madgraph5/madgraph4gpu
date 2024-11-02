@@ -34,7 +34,6 @@ namespace mg5amcCpu
     static constexpr size_t nparf = CPPProcess::nparf;
     static constexpr size_t npar = CPPProcess::npar;
     static constexpr size_t ndcoup = Parameters_sm_dependentCouplings::ndcoup;
-    static constexpr size_t ncomb = CPPProcess::ncomb;
   }
 
   //--------------------------------------------------------------------------
@@ -369,7 +368,7 @@ namespace mg5amcCpu
   typedef BufferBase<fptype> BufferMatrixElements;
 
   // The size (number of elements) per event in a memory buffer for matrix elements
-  constexpr size_t sizePerEventMatrixElements = MemoryBuffers::ncomb + 1; // one per (good or bad) helicity, plus total
+  constexpr size_t sizePerEventMatrixElements = 1;
 
 #ifndef MGONGPUCPP_GPUIMPL
   // A class encapsulating a C++ host buffer for matrix elements

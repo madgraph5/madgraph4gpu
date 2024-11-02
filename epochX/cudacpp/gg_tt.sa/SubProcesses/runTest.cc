@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Hageboeck (Nov 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
 //----------------------------------------------------------------------------
 // Use ./runTest.exe --gtest_filter=*xxx to run only testxxx.cc tests
 //----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ struct CPUTest : public CUDA_CPU_TestBase
 
   fptype getMatrixElement( std::size_t ievt ) const override
   {
-    return MemoryAccessMatrixElements::ieventAccessIhelConst( hstMatrixElements.data(), ievt, CPPProcess::ncomb );
+    return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 };
 #endif
@@ -235,7 +235,7 @@ struct CUDATest : public CUDA_CPU_TestBase
 
   fptype getMatrixElement( std::size_t ievt ) const override
   {
-    return MemoryAccessMatrixElements::ieventAccessIhelConst( hstMatrixElements.data(), ievt, CPPProcess::ncomb );
+    return MemoryAccessMatrixElements::ieventAccessConst( hstMatrixElements.data(), ievt );
   }
 };
 #endif /* clang-format off */

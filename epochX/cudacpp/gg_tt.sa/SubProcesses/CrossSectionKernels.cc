@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2023 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
 
 #include "CrossSectionKernels.h"
 
@@ -121,7 +121,7 @@ namespace mg5amcCpu
     // FIRST PASS: COUNT ALL/ABN/ZERO EVENTS, COMPUTE MIN/MAX, COMPUTE REFS AS MEANS OF SIMPLE SUMS
     for( size_t ievt = 0; ievt < nevt(); ++ievt ) // Loop over all events in this iteration
     {
-      const fptype& me = MemoryAccessMatrixElements::ieventAccessIhelConst( m_matrixElements.data(), ievt, MemoryBuffers::ncomb );
+      const fptype& me = MemoryAccessMatrixElements::ieventAccessConst( m_matrixElements.data(), ievt );
       const fptype& wg = MemoryAccessWeights::ieventAccessConst( m_samplingWeights.data(), ievt );
       const size_t ievtALL = m_iter * nevt() + ievt;
       // The following events are abnormal in a run with "-p 2048 256 12 -d"
@@ -156,7 +156,7 @@ namespace mg5amcCpu
     // SECOND PASS: IMPROVE MEANS FROM SUMS OF DIFFS TO PREVIOUS REF, UPDATE REF
     for( size_t ievt = 0; ievt < nevt(); ++ievt ) // Loop over all events in this iteration
     {
-      const fptype& me = MemoryAccessMatrixElements::ieventAccessIhelConst( m_matrixElements.data(), ievt, MemoryBuffers::ncomb );
+      const fptype& me = MemoryAccessMatrixElements::ieventAccessConst( m_matrixElements.data(), ievt );
       const fptype& wg = MemoryAccessWeights::ieventAccessConst( m_samplingWeights.data(), ievt );
       if( fp_is_abnormal( me ) ) continue;
       stats.sumMEdiff += ( me - stats.refME );
@@ -169,7 +169,7 @@ namespace mg5amcCpu
     // THIRD PASS: COMPUTE STDDEV FROM SQUARED SUMS OF DIFFS TO REF
     for( size_t ievt = 0; ievt < nevt(); ++ievt ) // Loop over all events in this iteration
     {
-      const fptype& me = MemoryAccessMatrixElements::ieventAccessIhelConst( m_matrixElements.data(), ievt, MemoryBuffers::ncomb );
+      const fptype& me = MemoryAccessMatrixElements::ieventAccessConst( m_matrixElements.data(), ievt );
       const fptype& wg = MemoryAccessWeights::ieventAccessConst( m_samplingWeights.data(), ievt );
       if( fp_is_abnormal( me ) ) continue;
       stats.sqsMEdiff += std::pow( me - stats.refME, 2 );
