@@ -172,7 +172,8 @@ namespace mg5amcGpu
     , m_numerators( this->nevt() )
     , m_denominators( this->nevt() )
 #endif
-    , m_pMatrixElementsAux()
+    , m_pHelSelAux()
+    , m_pColSelAux()
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
@@ -206,7 +207,8 @@ namespace mg5amcGpu
 
   int MatrixElementKernelDevice::computeGoodHelicities()
   {
-    constexpr int ncomb = CPPProcess::ncomb; // the number of helicity combinations
+    constexpr int ncomb = CPPProcess::ncomb;   // the number of helicity combinations
+    constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask (a host variable) on the device
     computeDependentCouplings<<<m_gpublocks, m_gputhreads>>>( m_gs.data(), m_couplings.data() );
@@ -218,8 +220,10 @@ namespace mg5amcGpu
 #endif
     // ... 0d3. Set good helicity list in host static memory    
     int nGoodHel = sigmaKin_setGoodHel( hstIsGoodHel.data() );
-    // ... Create the auxiliary buffer for matrix element sums up to each good helicity 
-    m_pMatrixElementsAux.reset( new DeviceBufferMatrixElements( nevt * nGoodHel ) ); // API abuse (avoid dedicated accessors for MEs[nGoodHel][nevt])
+    // ... Create the auxiliary buffer for helicity selection (for each event: matrix element sum up to each good helicity)
+    m_pHelSelAux.reset( new DeviceBufferSimple( nevt * nGoodHel ) );
+    // ... Create the auxiliary buffer for helicity selection (for each event: matrix element sum up to each color)
+    m_pColSelAux.reset( new DeviceBufferSimple( nevt * ncolor ) );
     // Return the number of good helicities
     return nGoodHel;
   }
@@ -229,13 +233,13 @@ namespace mg5amcGpu
   void MatrixElementKernelDevice::computeMatrixElements( const unsigned int channelId )
   {
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
-    checkGpu( gpuPeekAtLastError() ); // needed?
-    checkGpu( gpuDeviceSynchronize() ); // needed?
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads, m_pMatrixElementsAux->data() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads, m_pHelSelAux->data(), m_pColSelAux->data() );
 #else
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads, m_pMatrixElementsAux->data() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads, m_pHelSelAux->data(), m_pColSelAux->data() );
 #endif
+    checkGpu( gpuPeekAtLastError() ); // is this needed?
+    checkGpu( gpuDeviceSynchronize() ); // probably not needed? but it avoids errors in sigmaKin above from appearing later on in random places...
   }
 
   //--------------------------------------------------------------------------

@@ -177,8 +177,11 @@ namespace mg5amcCpu
     DeviceBufferDenominators m_denominators;
 #endif
 
-    // The auxiliary buffer for matrix element sums up to each good helicity
-    std::unique_ptr<BufferMatrixElements> m_pMatrixElementsAux;
+    // The auxiliary buffer for helicity selection
+    std::unique_ptr<DeviceBufferSimple> m_pHelSelAux;
+
+    // The auxiliary buffer for color selection
+    std::unique_ptr<DeviceBufferSimple> m_pColSelAux;
 
     // The number of blocks in the GPU grid
     size_t m_gpublocks;

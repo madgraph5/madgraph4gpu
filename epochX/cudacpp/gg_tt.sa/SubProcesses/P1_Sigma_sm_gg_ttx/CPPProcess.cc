@@ -51,18 +51,16 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  constexpr int nw6 = CPPProcess::nw6;     // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
-  constexpr int npar = CPPProcess::npar;   // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-  constexpr int ncomb = CPPProcess::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+  constexpr int nw6 = CPPProcess::nw6;       // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  constexpr int npar = CPPProcess::npar;     // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  constexpr int ncomb = CPPProcess::ncomb;   // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+  constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
 
   // [NB: I am currently unable to get the right value of nwf in CPPProcess.h - will hardcode it in CPPProcess.cc instead (#644)]
   //using CPPProcess::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
   using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
-
-  // The number of colors
-  constexpr int ncolor = 2;
 
   // The number of SIMD vectors of events processed by calculate_wavefunction
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
@@ -116,9 +114,11 @@ namespace mg5amcCpu
                            fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
                            fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                           fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
-#ifndef MGONGPUCPP_GPUIMPL
-                           , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                           fptype_sv* jamp2_sv,           // output: jamp2[nParity][ncolor][neppV] or [ncolor][nevt] for color choice (nullptr if disabled)
+#ifdef MGONGPUCPP_GPUIMPL
+                           const int nevt                 // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#else
+                           const int ievt00               // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -149,9 +149,11 @@ namespace mg5amcCpu
 #endif
 #endif /* clang-format on */
     mgDebug( 0, __FUNCTION__ );
-    //printf( "calculate_wavefunctions: ihel=%2d\n", ihel );
 #ifndef MGONGPUCPP_GPUIMPL
-    //printf( "calculate_wavefunctions: ievt00=%d\n", ievt00 );
+    //printf( "calculate_wavefunctions: ievt00=%d ihel=%2d\n", ievt00, ihel );
+#else
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // FOR DEBUGGING ONLY! FIXME: NEED A KERNEL ACCESS FOR JAMP2?...
+    //if( ievt == 0 ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d\n", ievt, ihel );
 #endif
 
     // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
@@ -284,9 +286,17 @@ namespace mg5amcCpu
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
       if( jamp2_sv ) // disable color choice if nullptr
+      {
         for( int icolC = 0; icolC < ncolor; icolC++ )
+        {
+#ifndef MGONGPUCPP_GPUIMPL
           jamp2_sv[ncolor * iParity + icolC] += cxabs2( jamp_sv[icolC] );
-
+#else
+          jamp2_sv[(ncolor * iParity + icolC) * nevt + ievt] += cxabs2( jamp_sv[icolC] );
+#endif
+        }
+      }
+      
       // *** COLOR MATRIX BELOW ***
       // (This method used to be called CPPProcess::matrix_1_gg_ttx()?)
 
@@ -665,9 +675,9 @@ namespace mg5amcCpu
       constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
-      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
+      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, gpublocks * gputhreads );
 #else
-      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
+      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, jamp2_sv, gpublocks * gputhreads );
 #endif
       checkGpu( cudaMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), cudaMemcpyDeviceToHost ) );
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
@@ -833,7 +843,8 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
             const int gpublocks,           // input: cuda gpublocks
             const int gputhreads,          // input: cuda gputhreads
-            fptype* allMEs_ighel           // tmp: allMEs_ighel[nGoodHel][nevt], |M|^2 running_sum_over_helicities
+            fptype* allMEs_ighel,          // tmp: allMEs_ighel[nGoodHel][nevt], |M|^2 running_sum_over_helicities
+            fptype* jamp2_sv               // tmp: allJamp2s_icol[ncolor][nevt], |M|^2 running_sum_over_colors
 #else
             const int nevt                 // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
@@ -903,14 +914,13 @@ namespace mg5amcCpu
     // *** START OF PART 1a - CUDA (one event per CPU thread) ***
     // Running sum of partial amplitudes squared for event by event color selection (#402)
     // (for the single event processed in calculate_wavefunctions)
-    fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
+      calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, gpublocks * gputhreads );
 #else
-      calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
+      calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, gpublocks * gputhreads );
 #endif
       checkGpu( cudaMemcpy( &( allMEs_ighel[ighel*nevt] ), allMEs, nevt * sizeof( fptype ), cudaMemcpyDeviceToDevice ) );
     }
