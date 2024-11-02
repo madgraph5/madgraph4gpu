@@ -800,6 +800,27 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+  __global__ void
+  normalise_output( fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                    const fptype* allNumerators,   // output: multichannel numerators[nevt], running_sum_over_helicities
+                    const fptype* allDenominators, // output: multichannel denominators[nevt], running_sum_over_helicities
+                    const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
+#endif
+                    const fptype globaldenom ) /* clang-format on */
+  {
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
+    allMEs[ievt] /= globaldenom;
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
+#endif
+    return;
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
 #ifdef MGONGPUCPP_GPUIMPL
   __global__ void
   select_hel( int* allselhel,             // output: helicity selection[nevt]
@@ -1140,27 +1161,6 @@ namespace mg5amcCpu
 #endif
     mgDebugFinalise();
   }
-
-  //--------------------------------------------------------------------------
-
-#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
-  __global__ void
-  normalise_output( fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                    const fptype* allNumerators,   // output: multichannel numerators[nevt], running_sum_over_helicities
-                    const fptype* allDenominators, // output: multichannel denominators[nevt], running_sum_over_helicities
-                    const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-#endif
-                    const fptype globaldenom ) /* clang-format on */
-  {
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
-    allMEs[ievt] /= globaldenom;
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelId > 0 ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // FIXME (#343): assume nprocesses == 1
-#endif
-    return;
-  }
-#endif
 
   //--------------------------------------------------------------------------
 
