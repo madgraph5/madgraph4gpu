@@ -166,7 +166,8 @@ namespace mg5amcCpu
             int* allselhel,                // output: helicity selection[nevt]
             int* allselcol,                // output: helicity selection[nevt]
             const int gpublocks,           // input: cuda gpublocks
-            const int gputhreads );        // input: cuda gputhreads
+            const int gputhreads,          // input: cuda gputhreads
+            fptype* allMEs_ighel );        // tmp: allMEs_ighel[nGoodHel][nevt], |M|^2 running_sum_over_helicities
 #else
   void
   sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]

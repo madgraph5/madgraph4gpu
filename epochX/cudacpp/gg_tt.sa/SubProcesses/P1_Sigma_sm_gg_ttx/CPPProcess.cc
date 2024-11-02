@@ -91,6 +91,8 @@ namespace mg5amcCpu
   // Helicity combinations (and filtering of "good" helicity combinations)
 #ifdef MGONGPUCPP_GPUIMPL
   __device__ __constant__ short cHel[ncomb][npar];
+  __device__ __constant__ int dcNGoodHel;
+  __device__ __constant__ int dcGoodHel[ncomb];
 #else
   static short cHel[ncomb][npar];
 #endif
@@ -777,10 +779,40 @@ namespace mg5amcCpu
         nGoodHel++;
       }
     }
+#ifdef MGONGPUCPP_GPUIMPL
+    gpuMemcpyToSymbol( dcNGoodHel, &nGoodHel, sizeof( int ) );
+    gpuMemcpyToSymbol( dcGoodHel, goodHel, ncomb * sizeof( int ) );
+#endif
     cNGoodHel = nGoodHel;
     for( int ihel = 0; ihel < ncomb; ihel++ ) cGoodHel[ihel] = goodHel[ihel];
     return nGoodHel;
   }
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL
+  __global__ void
+  select_hel( int* allselhel,             // output: helicity selection[nevt]
+              const fptype* allrndhel,    // input: random numbers[nevt] for helicity selection
+              const fptype* allMEs_ighel, // input: allMEs_ighel[nGoodHel][nevt], |M|^2 running_sum_over_helicities
+              const int nevt )            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  {
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
+    // Event-by-event random choice of helicity #403
+    //printf( "select_hel: ievt=%4d rndhel=%f\n", ievt, allrndhel[ievt] );
+    for( int ighel = 0; ighel < dcNGoodHel; ighel++ )
+    {
+      if( allrndhel[ievt] < ( allMEs_ighel[ighel*nevt + ievt] / allMEs_ighel[(dcNGoodHel-1)*nevt + ievt] ) )
+      {
+        const int ihelF = dcGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
+        allselhel[ievt] = ihelF;
+        //printf( "select_hel: ievt=%4d ihel=%4d\n", ievt, ihelF );
+        break;
+      }
+    }
+    return;
+  }
+#endif
 
   //--------------------------------------------------------------------------
   // Evaluate |M|^2, part independent of incoming flavour
@@ -800,7 +832,8 @@ namespace mg5amcCpu
             int* allselcol,                // output: helicity selection[nevt]
 #ifdef MGONGPUCPP_GPUIMPL
             const int gpublocks,           // input: cuda gpublocks
-            const int gputhreads           // input: cuda gputhreads
+            const int gputhreads,          // input: cuda gputhreads
+            fptype* allMEs_ighel           // tmp: allMEs_ighel[nGoodHel][nevt], |M|^2 running_sum_over_helicities
 #else
             const int nevt                 // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
@@ -871,7 +904,6 @@ namespace mg5amcCpu
     // Running sum of partial amplitudes squared for event by event color selection (#402)
     // (for the single event processed in calculate_wavefunctions)
     fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
-    fptype MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for this event)
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
@@ -880,20 +912,10 @@ namespace mg5amcCpu
 #else
       calculate_wavefunctions<<<gpublocks, gputhreads>>>( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
 #endif
-      MEs_ighel[ighel] = allMEs[ievt];
+      checkGpu( cudaMemcpy( &( allMEs_ighel[ighel*nevt] ), allMEs, nevt * sizeof( fptype ), cudaMemcpyDeviceToDevice ) );
     }
     // Event-by-event random choice of helicity #403
-    //printf( "sigmaKin: ievt=%4d rndhel=%f\n", ievt, allrndhel[ievt] );
-    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
-    {
-      if( allrndhel[ievt] < ( MEs_ighel[ighel] / MEs_ighel[cNGoodHel - 1] ) )
-      {
-        const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
-        allselhel[ievt] = ihelF;
-        //printf( "sigmaKin: ievt=%4d ihel=%4d\n", ievt, ihelF );
-        break;
-      }
-    }
+    select_hel<<<gpublocks, gputhreads>>>( allselhel, allrndhel, allMEs_ighel, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
@@ -1078,9 +1100,9 @@ namespace mg5amcCpu
     // (TODO OM: see how to handle the renormalization here... dedicated kernel or move it within each calculate_wavefunctions?)
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    normalise_output<<<gpublocks, gputhreads>>>( allMEs, allNumerators, allDenominators, channelId, denominators[0] );
+    normalise_output<<<gpublocks, gputhreads>>>( allMEs, allNumerators, allDenominators, channelId, helcolDenominators[0] );
 #else
-    normalise_output<<<gpublocks, gputhreads>>>( allMEs, denominators[0] );
+    normalise_output<<<gpublocks, gputhreads>>>( allMEs, helcolDenominators[0] );
 #endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -1111,7 +1133,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__ /* clang-format off */
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   __global__ void
   normalise_output( fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL

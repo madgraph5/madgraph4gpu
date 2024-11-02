@@ -10,6 +10,8 @@
 
 #include "MemoryBuffers.h"
 
+#include <memory>
+
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
@@ -174,6 +176,9 @@ namespace mg5amcCpu
     // The buffer for the event-by-event denominators of multichannel factors
     DeviceBufferDenominators m_denominators;
 #endif
+
+    // The auxiliary buffer for matrix element sums up to each good helicity
+    std::unique_ptr<BufferMatrixElements> m_pMatrixElementsAux;
 
     // The number of blocks in the GPU grid
     size_t m_gpublocks;

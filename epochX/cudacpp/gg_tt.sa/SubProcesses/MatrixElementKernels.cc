@@ -172,6 +172,7 @@ namespace mg5amcGpu
     , m_numerators( this->nevt() )
     , m_denominators( this->nevt() )
 #endif
+    , m_pMatrixElementsAux()
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
@@ -215,8 +216,12 @@ namespace mg5amcGpu
 #else
     sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt );
 #endif
-    // ... 0d3. Set good helicity list in host static memory
-    return sigmaKin_setGoodHel( hstIsGoodHel.data() );
+    // ... 0d3. Set good helicity list in host static memory    
+    int nGoodHel = sigmaKin_setGoodHel( hstIsGoodHel.data() );
+    // ... Create the auxiliary buffer for matrix element sums up to each good helicity 
+    m_pMatrixElementsAux.reset( new DeviceBufferMatrixElements( nevt * nGoodHel ) ); // API abuse (avoid dedicated accessors for MEs[nGoodHel][nevt])
+    // Return the number of good helicities
+    return nGoodHel;
   }
 
   //--------------------------------------------------------------------------
@@ -227,9 +232,9 @@ namespace mg5amcGpu
     checkGpu( gpuPeekAtLastError() ); // needed?
     checkGpu( gpuDeviceSynchronize() ); // needed?
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), channelId, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads, m_pMatrixElementsAux->data() );
 #else
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads, m_pMatrixElementsAux->data() );
 #endif
   }
 
