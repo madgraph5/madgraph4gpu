@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Nov 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi, Z. Wettersten (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Roiser, A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MGONGPUVECTORS_H
 #define MGONGPUVECTORS_H 1
@@ -104,8 +104,9 @@ namespace mg5amcCpu
 #ifdef MGONGPU_HAS_CPPCXTYPEV_BRK
     // NB: THIS IS THE FUNDAMENTAL DIFFERENCE BETWEEN MGONGPU_HAS_CPPCXTYPEV_BRK DEFINED AND NOT DEFINED
     // NB: the alternative "clang" implementation is simpler: it simply does not have any bracket operator[]
-    // NB: ** do NOT implement operator[] to return a value: it does not fail the build (why?) and gives unexpected results! **
-    cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); }
+    //cxtype_ref operator[]( size_t i ) const { return cxtype_ref( m_real[i], m_imag[i] ); } // gcc14.2 build fails #1004
+    cxtype_ref operator[]( size_t i ) { return cxtype_ref( m_real[i], m_imag[i] ); }
+    cxtype operator[]( size_t i ) const { return cxtype( m_real[i], m_imag[i] ); }
 #endif
     const fptype_v& real() const
     {
@@ -118,12 +119,14 @@ namespace mg5amcCpu
 
   // --- Type definition (using vector compiler extensions: need -march=...)
 #ifdef __clang__ // https://clang.llvm.org/docs/LanguageExtensions.html#vectors-and-extended-vectors
+  typedef unsigned int uint_v __attribute__( ( ext_vector_type( neppV ) ) );
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( ext_vector_type( neppV ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT
   typedef int bool_v __attribute__( ( ext_vector_type( neppV ) ) );                         // bbbb
 #endif
 #else // gcc
+  typedef unsigned int uint_v __attribute__( ( vector_size( neppV * sizeof( unsigned int ) ) ) );
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( vector_size( neppV * sizeof( long int ) ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -197,6 +200,17 @@ namespace mg5amcCpu
   }
 #endif
 
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+  inline std::ostream&
+  operator<<( std::ostream& out, const fptype2_v& v )
+  {
+    out << "{ " << v[0];
+    for( int i = 1; i < neppV2; i++ ) out << ", " << v[i];
+    out << " }";
+    return out;
+  }
+#endif
+
 #ifdef MGONGPU_CPPSIMD
   inline std::ostream&
   operator<<( std::ostream& out, const cxtype_v& v )
@@ -208,6 +222,17 @@ namespace mg5amcCpu
     out << "{ " << cxmake( v.real()[0], v.imag()[0] );
     for( int i = 1; i < neppV; i++ ) out << ", " << cxmake( v.real()[i], v.imag()[i] );
 #endif
+    out << " }";
+    return out;
+  }
+#endif
+
+#ifdef MGONGPU_CPPSIMD
+  inline std::ostream&
+  operator<<( std::ostream& out, const uint_v& v )
+  {
+    out << "{ " << v[0];
+    for( int i = 1; i < neppV; i++ ) out << ", " << v[i];
     out << " }";
     return out;
   }
@@ -862,18 +887,21 @@ namespace mg5amcCpu
   typedef bool bool_sv;
   typedef fptype fptype_sv;
   typedef fptype2 fptype2_sv;
+  typedef unsigned int uint_sv;
   typedef cxtype cxtype_sv;
   typedef cxtype_ref cxtype_sv_ref;
 #elif defined MGONGPU_CPPSIMD
   typedef bool_v bool_sv;
   typedef fptype_v fptype_sv;
   typedef fptype2_v fptype2_sv;
+  typedef uint_v uint_sv;
   typedef cxtype_v cxtype_sv;
   typedef cxtype_v_ref cxtype_sv_ref;
 #else
   typedef bool bool_sv;
   typedef fptype fptype_sv;
   typedef fptype2 fptype2_sv;
+  typedef unsigned int uint_sv;
   typedef cxtype cxtype_sv;
   typedef cxtype_ref cxtype_sv_ref;
 #endif

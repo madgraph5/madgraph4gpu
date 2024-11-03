@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Dec 2021, based on earlier work by S. Hageboeck) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Roiser, J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Roiser, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MemoryBuffers_H
 #define MemoryBuffers_H 1
@@ -454,6 +454,24 @@ namespace mg5amcCpu
   typedef PinnedHostBuffer<fptype, sizePerEventRndNumColor> PinnedHostBufferRndNumColor;
   // A class encapsulating a CUDA device buffer for color random numbers
   typedef DeviceBuffer<fptype, sizePerEventRndNumColor> DeviceBufferRndNumColor;
+#endif
+
+  //--------------------------------------------------------------------------
+
+  // A base class encapsulating a memory buffer for channel ids
+  typedef BufferBase<unsigned int> BufferChannelIds;
+
+  // The size (number of elements) per event in a memory buffer for channel ids
+  constexpr size_t sizePerEventChannelId = 1;
+
+#ifndef MGONGPUCPP_GPUIMPL // fix #893 (not __CUDACC__)
+  // A class encapsulating a C++ host buffer for channel ids
+  typedef HostBuffer<unsigned int, sizePerEventChannelId, HostBufferALIGNED> HostBufferChannelIds;
+#else
+  // A class encapsulating a CUDA pinned host buffer for channel ids
+  typedef PinnedHostBuffer<unsigned int, sizePerEventChannelId> PinnedHostBufferChannelIds;
+  // A class encapsulating a CUDA device buffer for channel ids
+  typedef DeviceBuffer<unsigned int, sizePerEventChannelId> DeviceBufferChannelIds;
 #endif
 
   //--------------------------------------------------------------------------

@@ -1,10 +1,10 @@
 ! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 ! Created by: J. Alwall (Jul 2010) for the MG5aMC CPP backend.
 !==========================================================================
-! Copyright (C) 2020-2023 CERN and UCLouvain.
+! Copyright (C) 2020-2024 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-! Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+! Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -40,6 +40,13 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
+  constexpr int nIPD = %(nipd)i; // SM independent parameters used in this CPPProcess.cc (FIXME? rename as sm_IndepParam?)
+  // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
+  // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
+  constexpr int nIPC = %(nipc)i; // SM independent couplings used in this CPPProcess.cc (FIXME? rename as sm_IndepCoupl?)
+  static_assert( nIPC <= nicoup );
+  static_assert( nIPD >= 0 ); // Hack to avoid build warnings when nIPD==0 is unused
+  static_assert( nIPC >= 0 ); // Hack to avoid build warnings when nIPC==0 is unused
 #ifdef MGONGPU_HARDCODE_PARAM
   %(cipdhrdcod)s
   %(cipchrdcod)s
@@ -50,6 +57,31 @@ namespace mg5amcCpu
 #else
   %(cipdstatic)s
   %(cipcstatic)s
+#endif
+#endif
+
+  // AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
+  // The problem is that nBsm is determined when generating Parameters.h, which happens after CPPProcess.cc has already been generated
+  // For simplicity, keep this code hardcoded also for SM processes (a nullptr is needed as in the case nBsm == 0)
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+#ifdef MGONGPU_HARDCODE_PARAM
+  __device__ const double* bsmIndepParam = Parameters_%(model_name)s::mdl_bsmIndepParam;
+#else
+#ifdef MGONGPUCPP_GPUIMPL
+  __device__ __constant__ double bsmIndepParam[Parameters_%(model_name)s::nBsmIndepParam];
+#else
+  static double bsmIndepParam[Parameters_%(model_name)s::nBsmIndepParam];
+#endif
+#endif
+#else
+#ifdef MGONGPU_HARDCODE_PARAM
+  __device__ const double* bsmIndepParam = nullptr;
+#else
+#ifdef MGONGPUCPP_GPUIMPL
+  __device__ __constant__ double* bsmIndepParam = nullptr;
+#else
+  static double* bsmIndepParam = nullptr;
+#endif
 #endif
 #endif
 
@@ -85,6 +117,7 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
+    fpeEnable(); // enable SIGFPE traps for Floating Point Exceptions
   }
 
   //--------------------------------------------------------------------------
@@ -120,10 +153,19 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
     %(cipd2tipdSym)s
     %(cipc2tipcSym)s
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_%(model_name)s::nBsmIndepParam > 0 )
+      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_%(model_name)s::nBsmIndepParam * sizeof( double ) );
+#endif
 #else
     %(cipd2tipd)s
     %(cipc2tipc)s
+#ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
+    if( Parameters_%(model_name)s::nBsmIndepParam > 0 )
+      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_%(model_name)s::nBsmIndepParam * sizeof( double ) );
+#endif
 #endif%(cipddump)s%(cipcdump)s
+    //for ( int i=0; i<Parameters_%(model_name)s::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)
@@ -149,6 +191,18 @@ namespace mg5amcCpu
   CPPProcess::getCompiler()
   {
     std::stringstream out;
+    // HIP version (HIPCC)
+    // [Use __HIPCC__ instead of MGONGPUCPP_GPUIMPL here!]
+    // [This tests if 'hipcc' was used even to build a .cc file, even if not necessarily 'nvcc -x cu' for a .cu file]
+    // [Check 'hipcc -dM -E -x hip -I ../../src CPPProcess.cc | grep HIP']
+#ifdef __HIPCC__
+#if defined HIP_VERSION_MAJOR && defined HIP_VERSION_MINOR && defined HIP_VERSION_PATCH
+    out << "hipcc " << HIP_VERSION_MAJOR << "." << HIP_VERSION_MINOR << "." << HIP_VERSION_PATCH;
+#else
+    out << "hipcc UNKNOWN";
+#endif
+    out << " (";
+#endif
     // CUDA version (NVCC)
     // [Use __NVCC__ instead of MGONGPUCPP_GPUIMPL here!]
     // [This tests if 'nvcc' was used even to build a .cc file, even if not necessarily 'nvcc -x cu' for a .cu file]
@@ -210,7 +264,7 @@ namespace mg5amcCpu
     out << "gcc UNKNOWKN";
 #endif
 #endif
-#if defined __NVCC__ or defined __INTEL_LLVM_COMPILER
+#if defined __HIPCC__ or defined __NVCC__ or defined __INTEL_LLVM_COMPILER
     out << ")";
 #endif
     return out.str();
@@ -230,7 +284,7 @@ namespace mg5amcCpu
     using namespace mg5amcGpu;
     using G_ACCESS = DeviceAccessGs;
     using C_ACCESS = DeviceAccessCouplings;
-    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings );
+    G2COUP<G_ACCESS, C_ACCESS>( allgs, allcouplings, bsmIndepParam );
 #else
     using namespace mg5amcCpu;
     using G_ACCESS = HostAccessGs;
@@ -240,7 +294,7 @@ namespace mg5amcCpu
       const int ievt0 = ipagV * neppV;
       const fptype* gs = MemoryAccessGs::ieventAccessRecordConst( allgs, ievt0 );
       fptype* couplings = MemoryAccessCouplings::ieventAccessRecord( allcouplings, ievt0 );
-      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings );
+      G2COUP<G_ACCESS, C_ACCESS>( gs, couplings, bsmIndepParam );
     }
 #endif
   }
@@ -266,7 +320,7 @@ namespace mg5amcCpu
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
+      constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
 #else
       calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
@@ -330,7 +384,7 @@ namespace mg5amcCpu
         constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
         //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        constexpr unsigned int channelId = 0; // disable single-diagram channel enhancement
+        constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
@@ -387,20 +441,20 @@ namespace mg5amcCpu
   // Evaluate |M|^2, part independent of incoming flavour
 
   __global__ void /* clang-format off */
-  sigmaKin( const fptype* allmomenta,      // input: momenta[nevt*npar*4]
-            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-            const fptype* allrndhel,       // input: random numbers[nevt] for helicity selection
-            const fptype* allrndcol,       // input: random numbers[nevt] for color selection
-            fptype* allMEs,                // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+  sigmaKin( const fptype* allmomenta,           // input: momenta[nevt*npar*4]
+            const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
+            const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
+            const fptype* allrndcol,            // input: random numbers[nevt] for color selection
+            fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            const unsigned int channelId,  // input: multichannel channel id (1 to #diagrams); 0 to disable channel enhancement
-            fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
+            const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
+            fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-            int* allselhel,                // output: helicity selection[nevt]
-            int* allselcol                 // output: helicity selection[nevt]
+            int* allselhel,                     // output: helicity selection[nevt]
+            int* allselcol                      // output: helicity selection[nevt]
 #ifndef MGONGPUCPP_GPUIMPL
-            , const int nevt               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+            , const int nevt                    // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
             ) /* clang-format on */
   {
@@ -422,6 +476,9 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
     // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    using CID_ACCESS = DeviceAccessChannelIds; // non-trivial access: buffer includes all events
+#endif
 #else
     //assert( (size_t)(allmomenta) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
     //assert( (size_t)(allMEs) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
@@ -429,6 +486,7 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;   // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators; // non-trivial access: buffer includes all events
+    using CID_ACCESS = HostAccessChannelIds;   // non-trivial access: buffer includes all events
 #endif
 #endif
 

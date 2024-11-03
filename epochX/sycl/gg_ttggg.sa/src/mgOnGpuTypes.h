@@ -1,3 +1,8 @@
+// Copyright (C) 2021-2023 Argonne National Laboratory.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: N. Nichols (Dec 2022) for the MG5aMC SYCL plugin.
+// Further modified by: N. Nichols (2022-2023) for the MG5aMC SYCL plugin.
+
 #ifndef MGONGPUTYPES_H
 #define MGONGPUTYPES_H 1
 
@@ -21,6 +26,10 @@
 
 #ifdef MGONGPU_COMPLEX_CUCOMPLEX
     #include <cuComplex.h>
+#endif
+
+#ifdef MGONGPU_COMPLEX_SYCLCPLX
+    #include "sycl_ext_complex.hpp"
 #endif
 
 #include "mgOnGpuConfig.h"
@@ -56,6 +65,10 @@ namespace mgOnGpu
       #elif defined MGONGPU_FPTYPE_FLOAT
           typedef cuFloatComplex cxtype;
       #endif
+  #endif
+
+  #ifdef MGONGPU_COMPLEX_SYCLCPLX
+      typedef sycl::ext::cplx::complex<fptype> cxtype;
   #endif
 
   // The number of floating point types in a complex type (real, imaginary)

@@ -29,9 +29,7 @@
 
 #include <algorithm>
 #include <array>
-#include <cfenv> // for feenableexcept
 #include <cmath>
-#include <csignal> // for signal and SIGFPE
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -76,23 +74,6 @@ usage( char* argv0, int ret = 1 )
   return ret;
 }
 
-#ifdef MGONGPUCPP_GPUIMPL
-namespace mg5amcGpu
-#else
-namespace mg5amcCpu
-#endif
-{
-  inline void FPEhandler( int sig )
-  {
-#ifdef MGONGPUCPP_GPUIMPL
-    std::cerr << "Floating Point Exception (GPU)" << std::endl;
-#else
-    std::cerr << "Floating Point Exception (CPU)" << std::endl;
-#endif
-    exit( 0 );
-  }
-}
-
 int
 main( int argc, char** argv )
 {
@@ -101,18 +82,6 @@ main( int argc, char** argv )
   using namespace mg5amcGpu;
 #else
   using namespace mg5amcCpu;
-#endif
-
-  // Enable FPEs (test #701 and #733 - except on MacOS where feenableexcept is not defined #730)
-#ifndef __APPLE__
-  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
-  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
-  if( enableFPE )
-  {
-    std::cout << "WARNING! CUDACPP_RUNTIME_ENABLEFPE is set: enable Floating Point Exceptions" << std::endl;
-    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
-    signal( SIGFPE, FPEhandler );
-  }
 #endif
 
   // DEFAULTS FOR COMMAND LINE ARGUMENTS
@@ -136,7 +105,7 @@ main( int argc, char** argv )
     HiprandHost = -2,
     HiprandDevice = 2
   };
-#if defined __CUDACC__
+#if defined __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #ifndef MGONGPU_HAS_NO_CURAND
   RandomNumberMode rndgen = RandomNumberMode::CurandDevice; // default on NVidia GPU if build has curand
 #else
@@ -193,7 +162,7 @@ main( int argc, char** argv )
     }
     else if( arg == "--curdev" )
     {
-#ifndef __CUDACC__
+#ifndef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
       throw std::runtime_error( "CurandDevice is not supported on CPUs or non-NVidia GPUs" );
 #elif defined MGONGPU_HAS_NO_CURAND
       throw std::runtime_error( "CurandDevice is not supported because this application was built without Curand support" );
@@ -329,13 +298,6 @@ main( int argc, char** argv )
 #endif
 #endif
 
-#ifndef MGONGPUCPP_GPUIMPL
-  // Fail gently and avoid "Illegal instruction (core dumped)" if the host does not support the SIMD used in the ME calculation
-  // Note: this prevents a crash on pmpe04 but not on some github CI nodes?
-  // [NB: SIMD vectorization in mg5amc C++ code is only used in the ME calculation below MatrixElementKernelHost!]
-  if( !MatrixElementKernelHost::hostSupportsSIMD() ) return 1;
-#endif
-
   const unsigned int ndim = gpublocks * gputhreads; // number of threads in one GPU grid
   const unsigned int nevt = ndim;                   // number of events in one iteration == number of GPU threads
 
@@ -407,11 +369,24 @@ main( int argc, char** argv )
   DeviceBufferGs devGs( nevt );
 #endif
 
+  // Memory buffer for channelIDs
+  // [AV: channelId arrays are needed to keep a simpler signature for MatrixElementKernel constructors]
+  // [but they are not used internally (fix #892) as long as check.exe uses no-multichannel (see #896)]
+#ifndef MGONGPUCPP_GPUIMPL
+  HostBufferChannelIds hstChannelIds( nevt );
+#else
+  PinnedHostBufferChannelIds hstChannelIds( nevt );
+  DeviceBufferChannelIds devChannelIds( nevt );
+#endif
+
   // Hardcode Gs for now (eventually they should come from Fortran MadEvent)
+  // Hardcode channelID to 0
+  //constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in check.exe and gcheck.exe #466
   for( unsigned int i = 0; i < nevt; ++i )
   {
     constexpr fptype fixedG = 1.2177157847767195; // fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
     hstGs[i] = fixedG;
+    //hstChannelIds[i] = channelId; // AV ChannelId arrays are not needed in check.exe (fix #892) as long as check.exe uses no-multichannel (see #896)
     //if ( i > 0 ) hstGs[i] = 0; // try hardcoding G only for event 0
     //hstGs[i] = i;
   }
@@ -483,14 +458,14 @@ main( int argc, char** argv )
   }
   else if( rndgen == RandomNumberMode::CurandDevice )
   {
-#ifdef MGONGPU_HAS_NO_CURAND
+#ifdef MGONGPU_HAS_NO_CURAND /* clang-format off */
     throw std::runtime_error( "INTERNAL ERROR! CurandDevice is not supported because this application was built without Curand support" ); // INTERNAL ERROR (no path to this statement)
-#elif defined __CUDACC__
+#elif defined __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
     const bool onDevice = true;
     prnk.reset( new CurandRandomNumberKernel( devRndmom, onDevice ) );
 #else
     throw std::logic_error( "INTERNAL ERROR! CurandDevice is not supported on CPUs or non-NVidia GPUs" );  // INTERNAL ERROR (no path to this statement)
-#endif
+#endif /* clang-format on */
   }
   else if( rndgen == RandomNumberMode::HiprandHost )
   {
@@ -535,17 +510,17 @@ main( int argc, char** argv )
   if( !bridge )
   {
 #ifdef MGONGPUCPP_GPUIMPL
-    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) );
+    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devChannelIds, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstChannelIds, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
 #endif
   }
   else
   {
 #ifdef MGONGPUCPP_GPUIMPL
-    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, gpublocks, gputhreads ) );
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstRndHel, hstRndCol, hstChannelIds, hstMatrixElements, hstSelHel, hstSelCol, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstChannelIds, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
 #endif
   }
   int nGoodHel = 0; // the number of good helicities (out of ncomb)
@@ -685,8 +660,8 @@ main( int argc, char** argv )
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
-    constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in check.exe and gcheck.exe #466
-    pmek->computeMatrixElements( channelId );
+    constexpr bool useChannelIds = false; // TEMPORARY? disable multi-channel in check.exe and gcheck.exe #466
+    pmek->computeMatrixElements( useChannelIds );
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only
@@ -837,7 +812,7 @@ main( int argc, char** argv )
     rndgentxt = "ROCRAND HOST";
   else if( rndgen == RandomNumberMode::HiprandDevice )
     rndgentxt = "ROCRAND DEVICE";
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
   rndgentxt += " (CUDA code)";
 #elif defined __HIPCC__
   rndgentxt += " (HIP code)";
@@ -848,7 +823,7 @@ main( int argc, char** argv )
   // Workflow description summary
   std::string wrkflwtxt;
   // -- CUDA or HIP or C++?
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
   wrkflwtxt += "CUD:";
 #elif defined __HIPCC__
   wrkflwtxt += "HIP:";
@@ -866,7 +841,7 @@ main( int argc, char** argv )
   wrkflwtxt += "???+"; // no path to this statement
 #endif
   // -- CUCOMPLEX or THRUST or STD or CXSIMPLE complex numbers?
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #if defined MGONGPU_CUCXTYPE_CUCOMPLEX
   wrkflwtxt += "CUX:";
 #elif defined MGONGPU_CUCXTYPE_THRUST
@@ -986,7 +961,7 @@ main( int argc, char** argv )
 #endif
     // Dump all configuration parameters and all results
     std::cout << std::string( SEP79, '*' ) << std::endl
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
               << "Process                     = " << XSTRINGIFY( MG_EPOCH_PROCESS_ID ) << "_CUDA"
 #elif defined __HIPCC__
               << "Process                     = " << XSTRINGIFY( MG_EPOCH_PROCESS_ID ) << "_HIP"

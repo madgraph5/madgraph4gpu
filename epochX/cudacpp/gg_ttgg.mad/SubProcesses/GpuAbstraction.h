@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: J. Teig (Jul 2023) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MG5AMC_GPUABSTRACTION_H
 #define MG5AMC_GPUABSTRACTION_H 1
@@ -10,7 +10,7 @@
 
 //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 
 #define gpuError_t cudaError_t
 #define gpuPeekAtLastError cudaPeekAtLastError

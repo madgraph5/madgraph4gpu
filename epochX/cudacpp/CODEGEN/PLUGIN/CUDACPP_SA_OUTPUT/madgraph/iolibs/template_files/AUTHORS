@@ -1,4 +1,4 @@
-Copyright (C) 2020-2023 CERN and UCLouvain.
+Copyright (C) 2020-2024 CERN and UCLouvain.
 Licensed under the GNU Lesser General Public License (version 3 or later).
 All rights not expressly granted are reserved.
 
@@ -8,6 +8,7 @@ The development team of the MG5aMC CUDACPP plugin and of the code that it
 generates includes the following authors:
 
   Stephan Hageboeck (CERN)
+  Daniele Massaro (CERN)
   Olivier Mattelaer (Universite Catholique de Louvain, original author)
   Stefan Roiser (CERN, original author)
   Jorgen Teig (CERN)
@@ -25,6 +26,7 @@ acknowledged collaboration with the following collaborators:
   Laurence Field (CERN)
   Walter Hopkins (Argonne National Laboratory)
   Nathan S. Nichols (Argonne National Laboratory)
+  Filip Optolowicz (CERN)
   Andreas Reepschlaeger (CERN)
   Taran Singhania (PES University Bangalore)
   David Smith (CERN)

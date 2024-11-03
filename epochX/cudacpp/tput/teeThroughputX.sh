@@ -1,7 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
@@ -9,7 +10,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggh]> [-sa] [-noalpaka] [-flt|-fltonly|-mix|-mixonly] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-nofpe] [-dlp <dyld_library_path>]"
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocuda] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -20,17 +21,21 @@ ggttg=
 ggttgg=
 ggttggg=
 gqttq=
-heftggh=
+heftggbb=
+susyggtt=
+susyggt1t1=
+smeftggtttt=
+bldall=-bldall
 suffs="mad" # DEFAULT code base: madevent + cudacpp as 2nd exporter (logs_*_mad)
 alpaka=
-fptypes="d"
+fptypes="m" # new default #995 (was "d")
 helinls="0"
 hrdcods="0"
 rndgen=
 rmbsmp=
 steps="make test"
 makej=
-nofpe=
+###nofpe=
 dlp=
 dlpset=0
 
@@ -58,25 +63,38 @@ for arg in $*; do
   elif [ "$arg" == "-gqttq" ]; then
     if [ "$gqttq" == "" ]; then procs+=${procs:+ }${arg}; fi
     gqttq=$arg
-  elif [ "$arg" == "-heftggh" ]; then
-    if [ "$heftggh" == "" ]; then procs+=${procs:+ }${arg}; fi
-    heftggh=$arg
+  elif [ "$arg" == "-heftggbb" ]; then
+    if [ "$heftggbb" == "" ]; then procs+=${procs:+ }${arg}; fi
+    heftggbb=$arg
+  elif [ "$arg" == "-susyggtt" ]; then
+    if [ "$susyggtt" == "" ]; then procs+=${procs:+ }${arg}; fi
+    susyggtt=$arg
+  elif [ "$arg" == "-susyggt1t1" ]; then
+    if [ "$susyggt1t1" == "" ]; then procs+=${procs:+ }${arg}; fi
+    susyggt1t1=$arg
+  elif [ "$arg" == "-smeftggtttt" ]; then
+    if [ "$smeftggtttt" == "" ]; then procs+=${procs:+ }${arg}; fi
+    smeftggtttt=$arg
+  elif [ "$arg" == "-cpponly" ]; then
+    bldall=-cpponly
+  elif [ "$arg" == "-nocuda" ]; then
+    bldall=-nocuda
   elif [ "$arg" == "-sa" ]; then
     suffs="sa" # standalone_cudacpp code base (logs_*_sa)
   elif [ "$arg" == "-noalpaka" ]; then
     alpaka=$arg
-  elif [ "$arg" == "-flt" ]; then
-    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
-    fptypes="d f"
+  elif [ "$arg" == "-dblonly" ]; then
+    if [ "${fptypes}" != "m" ] && [ "${fptypes}" != "d" ]; then echo "ERROR! Options -dblonly, -fltonly, -d_f and -dmf are incompatible"; usage; fi
+    fptypes="d"
   elif [ "$arg" == "-fltonly" ]; then
-    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "f" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
+    if [ "${fptypes}" != "m" ] && [ "${fptypes}" != "f" ]; then echo "ERROR! Options -dblonly, -fltonly, -d_f and -dmf are incompatible"; usage; fi
     fptypes="f"
-  elif [ "$arg" == "-mix" ]; then
-    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "d f m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
-    fptypes="d f m"
-  elif [ "$arg" == "-mixonly" ]; then
-    if [ "${fptypes}" != "d" ] && [ "${fptypes}" != "m" ]; then echo "ERROR! Options -flt, -fltonly, -mix and -mixonly are incompatible"; usage; fi
-    fptypes="m"
+  elif [ "$arg" == "-d_f" ]; then
+    if [ "${fptypes}" != "m" ] && [ "${fptypes}" != "d f" ]; then echo "ERROR! Options -dblonly, -fltonly, -d_f and -dmf are incompatible"; usage; fi
+    fptypes="d f"
+  elif [ "$arg" == "-dmf" ]; then
+    if [ "${fptypes}" != "m" ] && [ "${fptypes}" != "d m f" ]; then echo "ERROR! Options -dblonly, -fltonly, -d_f and -dmf are incompatible"; usage; fi
+    fptypes="d m f"
   elif [ "$arg" == "-inl" ]; then
     if [ "${helinls}" == "1" ]; then echo "ERROR! Options -inl and -inlonly are incompatible"; usage; fi
     helinls="0 1"
@@ -93,8 +111,8 @@ for arg in $*; do
     rndgen=$arg
   elif [ "$arg" == "-curhst" ]; then
     rndgen=$arg
-  elif [ "$arg" == "-rorhst" ]; then
-    rndgen=$arg
+  ###elif [ "$arg" == "-hirhst" ]; then
+  ###  rndgen=$arg
   elif [ "$arg" == "-rmbhst" ]; then
     rmbsmp=$arg
   elif [ "$arg" == "-bridge" ]; then
@@ -113,17 +131,12 @@ for arg in $*; do
     fi
   elif [ "$arg" == "-makej" ]; then
     makej=-makej
-  elif [ "$arg" == "-nofpe" ]; then
-    nofpe=-nofpe
+  ###elif [ "$arg" == "-nofpe" ]; then
+  ###  nofpe=-nofpe
   else
     echo "ERROR! Invalid option '$arg'"; usage
   fi  
 done
-
-# Check that heftggh does not run in .mad mode
-if [ "${heftggh}" != "" ] && [ "${suffs/mad}" != "${suffs}" ]; then
-  echo "ERROR! Invalid option -heftggh for .mad directories"; exit 1
-fi
 
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
 if [ "${dlpset}" == "1" ]; then usage; fi
@@ -153,7 +166,7 @@ for step in $steps; do
     for suff in $suffs; do
       sa=; if [ "${suff}" == "sa" ]; then sa=" -sa"; sufflog=sa; else sufflog=${suff}; fi
       for fptype in $fptypes; do
-        flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; elif [ "${fptype}" == "m" ]; then flt=" -mixonly"; fi
+        flt=; if [ "${fptype}" == "f" ]; then flt=" -fltonly"; elif [ "${fptype}" == "d" ]; then flt=" -dblonly"; fi
         for helinl in $helinls; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           for hrdcod in $hrdcods; do
@@ -162,8 +175,8 @@ for step in $steps; do
             args="${args} ${alpaka}" # optionally disable alpaka tests
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
-            args="${args} ${nofpe}" # optionally disable FPEs
-            args="${args} -avxall" # avx, fptype, helinl and hrdcod are now supported for all processes
+            ###args="${args} ${nofpe}" # optionally disable FPEs
+            args="${args} ${bldall}" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./throughputX.sh -makecleanonly $args"

@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 set -e # immediate exit on error
 
@@ -50,7 +50,7 @@ touch ${dir}/Events/.keep # this file should already be present (mg5amcnlo copie
 if [ "${patchlevel}" == "2" ]; then
   cd ${dir}
   echo "DEBUG: cd ${PWD}; patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common"
-  if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi  
+  if ! patch -p4 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.common; then status=1; fi
   \rm -f Source/*.orig
   \rm -f bin/internal/*.orig
   cd - > /dev/null
@@ -62,7 +62,7 @@ for p1dir in ${dir}/SubProcesses/P*; do
   #cp -pr ${scrdir}/MG5aMC_patches/${dir_patches}/ompnumthreads.cc . # new file
   if [ "${patchlevel}" == "2" ]; then
     echo "DEBUG: cd ${PWD}; patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1"
-    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi      
+    if ! patch -p6 -i ${scrdir}/MG5aMC_patches/${dir_patches}/patch.P1; then status=1; fi
   fi
   \rm -f *.orig
   cd - > /dev/null

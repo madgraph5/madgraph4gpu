@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022, based on earlier work by D. Smith) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MGONGPUCXTYPES_H
 #define MGONGPUCXTYPES_H 1
@@ -19,7 +19,7 @@
 #include <complex>
 
 // Complex type in cuda: thrust or cucomplex or cxsmpl
-#ifdef __CUDACC__ // this must be __CUDAC__ (not MGONGPUCPP_GPUIMPL)
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #if defined MGONGPU_CUCXTYPE_THRUST
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wtautological-compare" // for icpx2021/clang13 (https://stackoverflow.com/a/15864661)
@@ -41,6 +41,69 @@
 #include <cmath>
 #elif not defined MGONGPU_CPPCXTYPE_CXSMPL
 #error You must CHOOSE (ONE AND) ONLY ONE of MGONGPU_CPPCXTYPE_STDCOMPLEX or MGONGPU_CPPCXTYPE_CXSMPL
+#endif
+#endif
+
+//==========================================================================
+// COMPLEX TYPES: INSTRUMENTED CUCOMPLEX CLASS (cucomplex)
+//==========================================================================
+
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#if defined MGONGPU_CUCXTYPE_CUCOMPLEX
+namespace mg5amcGpu
+{
+#if defined MGONGPU_FPTYPE_DOUBLE
+  class cucomplex
+  {
+  public:
+    __host__ __device__ cucomplex( const double& r = 0, const double& i = 0 )
+      : m_ri( make_cuDoubleComplex( r, i ) ) {}
+    __host__ __device__ constexpr cucomplex( const cuDoubleComplex& ri )
+      : m_ri( ri ) {}
+    //__host__ __device__ operator cuDoubleComplex&() { return m_ri; }
+    __host__ __device__ constexpr operator cuDoubleComplex() const { return m_ri; }
+    __host__ __device__ double real() const { return cuCreal( m_ri ); }
+    __host__ __device__ double imag() const { return cuCimag( m_ri ); }
+    inline __host__ __device__ cucomplex& operator+=( const cucomplex& c )
+    {
+      m_ri = cuCadd( m_ri, c );
+      return *this;
+    }
+    inline __host__ __device__ cucomplex& operator-=( const cucomplex& c )
+    {
+      m_ri = cuCsub( m_ri, c );
+      return *this;
+    }
+  private:
+    cuDoubleComplex m_ri;
+  };
+#elif defined MGONGPU_FPTYPE_FLOAT
+  class cucomplex
+  {
+  public:
+    __host__ __device__ cucomplex( const float& r = 0, const float& i = 0 )
+      : m_ri( make_cuFloatComplex( r, i ) ) {}
+    __host__ __device__ constexpr cucomplex( const cuFloatComplex& ri )
+      : m_ri( ri ) {}
+    //__host__ __device__ operator cuFloatComplex&() { return m_ri; }
+    __host__ __device__ constexpr operator cuFloatComplex() const { return m_ri; }
+    __host__ __device__ float real() const { return cuCrealf( m_ri ); }
+    __host__ __device__ float imag() const { return cuCimagf( m_ri ); }
+    inline __host__ __device__ cucomplex& operator+=( const cucomplex& c )
+    {
+      m_ri = cuCaddf( m_ri, c );
+      return *this;
+    }
+    inline __host__ __device__ cucomplex& operator-=( const cucomplex& c )
+    {
+      m_ri = cuCsubf( m_ri, c );
+      return *this;
+    }
+  private:
+    cuFloatComplex m_ri;
+  };
+#endif
+}
 #endif
 #endif
 
@@ -70,13 +133,25 @@ namespace mgOnGpu /* clang-format off */
     __host__ __device__ constexpr cxsmpl& operator-=( const cxsmpl& c ) { m_real -= c.real(); m_imag -= c.imag(); return *this; }
     __host__ __device__ constexpr const FP& real() const { return m_real; }
     __host__ __device__ constexpr const FP& imag() const { return m_imag; }
-    //constexpr operator std::complex<FP>() const { return std::complex( m_real, m_imag ); } // cxsmpl to std::complex (float-to-float or double-to-double)
+    template<typename FP2> __host__ __device__ constexpr operator cxsmpl<FP2>() const { return cxsmpl<FP2>( m_real, m_imag ); }
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#ifdef MGONGPU_CUCXTYPE_THRUST
+    template<typename FP2> __host__ __device__ constexpr operator thrust::complex<FP2>() const { return thrust::complex<FP2>( m_real, m_imag ); }
+#elif defined MGONGPU_CUCXTYPE_CUCOMPLEX 
+    __host__ __device__ constexpr operator mg5amcGpu::cucomplex() const { return mg5amcGpu::cucomplex( m_real, m_imag ); }
+#endif
+#else
+#ifdef MGONGPU_CPPCXTYPE_STDCOMPLEX
+    template<typename FP2> __host__ __device__ constexpr operator std::complex<FP2>() const { return std::complex<FP2>( m_real, m_imag ); }
+#endif
+#endif
   private:
     FP m_real, m_imag; // RI
   };
 
   template<typename FP>
-  inline __host__ __device__ cxsmpl<FP> // (NB: cannot be constexpr as a constexpr function cannot have a nonliteral return type "mgOnGpu::cxsmpl")
+  constexpr // (NB: now valid code? in the past this failed as "a constexpr function cannot have a nonliteral return type mgOnGpu::cxsmpl")
+  inline __host__ __device__ cxsmpl<FP>
   conj( const cxsmpl<FP>& c )
   {
     return cxsmpl<FP>( c.real(), -c.imag() );
@@ -97,7 +172,8 @@ namespace mg5amcCpu
   inline __host__ std::ostream&
   operator<<( std::ostream& out, const cxsmpl<FP>& c )
   {
-    out << std::complex<FP>( c.real(), c.imag() );
+    //out << std::complex<FP>( c.real(), c.imag() );
+    out << "(" << c.real() << ", " << c.imag() << ")"; // add a space after the comma
     return out;
   }
 
@@ -227,15 +303,11 @@ namespace mg5amcCpu
 #endif
 {
   // --- Type definitions (complex type: cxtype)
-#ifdef __CUDACC__ // this must be __CUDAC__ (not MGONGPUCPP_GPUIMPL)
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #if defined MGONGPU_CUCXTYPE_THRUST
   typedef thrust::complex<fptype> cxtype;
 #elif defined MGONGPU_CUCXTYPE_CUCOMPLEX
-#if defined MGONGPU_FPTYPE_DOUBLE
-  typedef cuDoubleComplex cxtype;
-#elif defined MGONGPU_FPTYPE_FLOAT
-  typedef cuFloatComplex cxtype;
-#endif
+  typedef cucomplex cxtype;
 #else
   typedef cxsmpl<fptype> cxtype;
 #endif
@@ -312,7 +384,7 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust (this must be __CUDAC__ and not MGONGPUCPP_GPUIMPL)
+#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_THRUST // cuda + thrust (this must be __CUDACC__ and not MGONGPUCPP_GPUIMPL)
 
   //------------------------------
   // CUDA - using thrust::complex
@@ -352,7 +424,7 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex (this must be __CUDAC__ and not MGONGPUCPP_GPUIMPL)
+#if defined __CUDACC__ and defined MGONGPU_CUCXTYPE_CUCOMPLEX // cuda + cucomplex (this must be __CUDACC__ and not MGONGPUCPP_GPUIMPL)
 
   //------------------------------
   // CUDA - using cuComplex
@@ -388,24 +460,10 @@ namespace mg5amcCpu
     return cuCadd( a, b );
   }
 
-  inline __host__ __device__ cxtype&
-  operator+=( cxtype& a, const cxtype& b )
-  {
-    a = cuCadd( a, b );
-    return a;
-  }
-
   inline __host__ __device__ cxtype
   operator-( const cxtype& a, const cxtype& b )
   {
     return cuCsub( a, b );
-  }
-
-  inline __host__ __device__ cxtype&
-  operator-=( cxtype& a, const cxtype& b )
-  {
-    a = cuCsub( a, b );
-    return a;
   }
 
   inline __host__ __device__ cxtype
@@ -418,6 +476,14 @@ namespace mg5amcCpu
   operator/( const cxtype& a, const cxtype& b )
   {
     return cuCdiv( a, b );
+  }
+
+  inline __host__ std::ostream&
+  operator<<( std::ostream& out, const cxtype& c )
+  {
+    //out << std::complex<double>( cxreal( c ), cximag( c ) );
+    out << "(" << cxreal( c ) << ", " << cximag( c ) << ")"; // add a space after the comma
+    return out;
   }
 
 #elif defined MGONGPU_FPTYPE_FLOAT // cuda + cucomplex + float
@@ -450,24 +516,10 @@ namespace mg5amcCpu
     return cuCaddf( a, b );
   }
 
-  inline __host__ __device__ cxtype&
-  operator+=( cxtype& a, const cxtype& b )
-  {
-    a = cuCaddf( a, b );
-    return a;
-  }
-
   inline __host__ __device__ cxtype
   operator-( const cxtype& a, const cxtype& b )
   {
     return cuCsubf( a, b );
-  }
-
-  inline __host__ __device__ cxtype&
-  operator-=( cxtype& a, const cxtype& b )
-  {
-    a = cuCsubf( a, b );
-    return a;
   }
 
   inline __host__ __device__ cxtype
@@ -486,6 +538,14 @@ namespace mg5amcCpu
   cxmake( const std::complex<double>& c ) // std::complex to cucomplex (cast double-to-float)
   {
     return cxmake( (fptype)c.real(), (fptype)c.imag() );
+  }
+
+  inline __host__ std::ostream&
+  operator<<( std::ostream& out, const cxtype& c )
+  {
+    //out << std::complex<float>( cxreal( c ), cximag( c ) );
+    out << "(" << cxreal( c ) << ", " << cximag( c ) << ")"; // add a space after the comma
+    return out;
   }
 
 #endif
@@ -571,7 +631,7 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-#if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX // c++/hip + stdcomplex (this must be __CUDAC__ and not MGONGPUCPP_GPUIMPL)
+#if not defined __CUDACC__ and defined MGONGPU_CPPCXTYPE_STDCOMPLEX // c++/hip + stdcomplex (this must be __CUDACC__ and not MGONGPUCPP_GPUIMPL)
 
   //------------------------------
   // C++ - using std::complex
@@ -644,7 +704,7 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  // The cxtype_ref class (a non-const reference to two fp variables) was originally designed for cxtype_v::operator[]
+  // The cxtype_ref class (a const reference to two non-const fp variables) was originally designed for cxtype_v::operator[]
   // It used to be included in the code only when MGONGPU_HAS_CPPCXTYPEV_BRK (originally MGONGPU_HAS_CPPCXTYPE_REF) is defined
   // It is now always included in the code because it is needed also to access an fptype wavefunction buffer as a cxtype
   class cxtype_ref
@@ -652,9 +712,9 @@ namespace mg5amcCpu
   public:
     cxtype_ref() = delete;
     cxtype_ref( const cxtype_ref& ) = delete;
-    cxtype_ref( cxtype_ref&& ) = default; // copy refs
+    cxtype_ref( cxtype_ref&& ) = default; // copy const refs
     __host__ __device__ cxtype_ref( fptype& r, fptype& i )
-      : m_preal( &r ), m_pimag( &i ) {} // copy refs
+      : m_preal( &r ), m_pimag( &i ) {} // copy (create from) const refs
     cxtype_ref& operator=( const cxtype_ref& ) = delete;
     //__host__ __device__ cxtype_ref& operator=( cxtype_ref&& c ) {...} // REMOVED! Should copy refs or copy values? No longer needed in cxternary
     __host__ __device__ cxtype_ref& operator=( const cxtype& c )
@@ -662,10 +722,11 @@ namespace mg5amcCpu
       *m_preal = cxreal( c );
       *m_pimag = cximag( c );
       return *this;
-    } // copy values
+    } // copy (assign) non-const values
     __host__ __device__ operator cxtype() const { return cxmake( *m_preal, *m_pimag ); }
   private:
-    fptype *m_preal, *m_pimag; // RI
+    fptype* const m_preal; // const pointer to non-const fptype R
+    fptype* const m_pimag; // const pointer to non-const fptype I
   };
 
   // Printout to stream for user defined types

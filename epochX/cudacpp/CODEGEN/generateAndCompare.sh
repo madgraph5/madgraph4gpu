@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2023 CERN and UCLouvain.
+# Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 set -e # fail on error
 
@@ -106,6 +106,10 @@ function codeGenAndDiff()
       generate p p > t t~ z @0
       add process p p > t t~ z j @1"
       ;;
+    nobm_gu_ttxwpd)
+      cmd="import model sm-no_b_mass
+      generate g u > t t~ w+ d"
+      ;;
     nobm_pp_eejjj)
       cmd="import model sm-no_b_mass
       define p = p b b~
@@ -149,11 +153,51 @@ function codeGenAndDiff()
     heft_gg_h)
       cmd="set auto_convert_model T; import model heft; generate g g > h"
       ;;
+    gg_bb)
+      cmd="generate g g > b b~" # for comparison: 3 SM diagrams
+      ;;
+    heft_gg_bb)
+      ###cmd="set auto_convert_model T; import model heft; generate g g > b b~" # 3 SM diagrams (as in SM gg_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > b b~ HIW<=1" # 4 diagrams (3 SM plus 1 HEFT): fix #828
+      ;;
+    heft_gg_h_bb)
+      cmd="set auto_convert_model T; import model heft; generate g g > h > b b~" # 1 HEFT diagram
+      ;;
     smeft_gg_tttt)
       cmd="set auto_convert_model T; import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t; generate g g > t t~ t t~"
       ;;
     susy_gg_tt)
       cmd="import model MSSM_SLHA2; generate g g > t t~"
+      ;;
+    susy_gg_tttt)
+      cmd="import model MSSM_SLHA2; generate g g > t t~ t t~"
+      ;;
+    susy_gq_ttq)
+      cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ q"
+      ;;
+    susy_gq_ttllq)
+      cmd="import model MSSM_SLHA2; define q = u c d s u~ c~ d~ s~; generate g q > t t~ l- l+ q"
+      ;;
+    ###susy_gu_ttllu)
+    ###  cmd="import model MSSM_SLHA2; generate g u > t t~ l- l+ u"
+    ###  ;;
+    ###susy_gux_ttllux)
+    ###  cmd="import model MSSM_SLHA2; generate g u~ > t t~ l- l+ u~"
+    ###  ;;
+    ###susy_gd_ttlld)
+    ###  cmd="import model MSSM_SLHA2; generate g d > t t~ l- l+ d"
+    ###  ;;
+    ###susy_gdx_ttlldx)
+    ###  cmd="import model MSSM_SLHA2; generate g d~ > t t~ l- l+ d~"
+    ###  ;;
+    susy_gg_gogo)
+      cmd="import model MSSM_SLHA2; generate g g > go go"
+      ;;
+    susy_gg_t1t1)
+      cmd="import model MSSM_SLHA2; generate g g > t1 t1~"
+      ;;
+    susy_gg_ulul)
+      cmd="import model MSSM_SLHA2; generate g g > ul ul~"
       ;;
     atlas)
       cmd="import model sm-no_b_mass
@@ -243,8 +287,11 @@ function codeGenAndDiff()
     echo "--------------------------------------------------"
     cat ${outproc}.mg
     echo -e "--------------------------------------------------\n"
-    ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC ${outproc}.mg ; } >& ${outproc}_log.txt
-    { time python3 ./bin/mg5_aMC ${outproc}.mg || true ; } >& ${outproc}_log.txt
+    PYTHONPATHOLD=$PYTHONPATH
+    export PYTHONPATH=..:$PYTHONPATHOLD
+    ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC -m CUDACPP_OUTPUT ${outproc}.mg ; } >& ${outproc}_log.txt
+    { time python3 ./bin/mg5_aMC -m CUDACPP_OUTPUT ${outproc}.mg || true ; } >& ${outproc}_log.txt
+    export PYTHONPATH=$PYTHONPATHOLD
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
@@ -261,12 +308,25 @@ function codeGenAndDiff()
     echo "*** ERROR! Code generation failed"
     exit 1
   fi
+  # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)
+  # (NEW SEP2024: move this _before_ `madevent treatcards param` as otherwise param_card.inc changes during the build of the code)
+  if [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
+    cat ${outproc}/Cards/ident_card.dat | head -3 > ${outproc}/Cards/ident_card.dat.new
+    cat ${outproc}/Cards/ident_card.dat | tail -n+4 | sort >> ${outproc}/Cards/ident_card.dat.new
+    \mv ${outproc}/Cards/ident_card.dat.new ${outproc}/Cards/ident_card.dat
+  fi
   # Patches moved here from patchMad.sh after Olivier's PR #764 (THIS IS ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)  
   if [ "${OUTBCK}" == "mad" ]; then
     # Force the use of strategy SDE=1 in multichannel mode (see #419)
     sed -i 's/2  = sde_strategy/1  = sde_strategy/' ${outproc}/Cards/run_card.dat
-    # Force the use of VECSIZE_MEMMAX=16384
-    sed -i 's/16 = vector_size/16384 = vector_size/' ${outproc}/Cards/run_card.dat
+    # Force the use of VECSIZE_MEMMAX=16384 (OLD CODE BEFORE JUNE24 WARP_SIZE)
+    ###sed -i 's/16 = vector_size/16384 = vector_size/' ${outproc}/Cards/run_card.dat 
+    # Force the use of WARP_SIZE=32 and NB_WARP=512 i.e. VECSIZE_MEMMAX=16384 (NEW CODE AFTER JUNE24 WARP_SIZE: NEEDS FIX FOR CRASH #885)
+    sed -i 's/16 = vector_size/32 = vector_size/' ${outproc}/Cards/run_card.dat 
+    sed -i 's/1 = nb_warp/512 = nb_warp/' ${outproc}/Cards/run_card.dat 
+    # Force the use of WARP_SIZE=32 and NB_WARP=2 i.e. VECSIZE_MEMMAX=64 is identical to (TEMPORARY) VECSIZE_USED=64 in tmad tests (workaround for crash #885)
+    ###sed -i 's/16 = vector_size/32 = vector_size/' ${outproc}/Cards/run_card.dat 
+    ###sed -i 's/1 = nb_warp/2 = nb_warp/' ${outproc}/Cards/run_card.dat 
     # Force the use of fast-math in Fortran builds
     sed -i 's/-O = global_flag.*/-O3 -ffast-math -fbounds-check = global_flag ! build flags for all Fortran code (for a fair comparison to cudacpp; default is -O)/' ${outproc}/Cards/run_card.dat
     # Generate run_card.inc and param_card.inc (include stdout and stderr in the code generation log which is later checked for errors)
@@ -274,6 +334,34 @@ function codeGenAndDiff()
     # Note: treatcards run also regenerates vector.inc if vector_size has changed in the runcard
     ${outproc}/bin/madevent treatcards run >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
     ${outproc}/bin/madevent treatcards param >> ${outproc}_log.txt 2>&1 # AV BUG! THIS MAY SILENTLY FAIL (check if output contains "Please report this bug")
+    # Generate matrix*.pdf files using ps2pdf and remove the original matrix*.ps (NB: this only works if ghostscript is installed)
+    if which ps2pdf > /dev/null 2>&1; then
+      for matrixps in ${outproc}/SubProcesses/P*/matrix*.ps; do
+        matrixpdf=$(dirname $matrixps)/$(basename $matrixps .ps).pdf
+        if ps2pdf $matrixps $matrixpdf; then
+          ###\rm -f $matrixps # keep also the .ps file as suggested by Olivier #854
+          # Strip PDF metadata from ps2pdf to make the file reproducible (use binary 'grep -a' for tests)
+          # Alternatively I tried pdftk (https://stackoverflow.com/questions/60738960) but this did not remove PdfID0/PdfID1 or XMP metadata
+          # Use 'pdftk <file.pdf> dump_data' to inspect the PDF metadata (but this does not include XMP metadata!)
+          # Use 'xxd -c256 <file.pdf>' to view the binary content in text format
+          cat $matrixpdf \
+            | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/ModDate\\().*(\\)>>endobj$)","\\1"date"\\2","g")}' \
+            | awk -vdate="D:20240301000000+01'00'" '{print gensub("(^/CreationDate\\().*(\\)$)","\\1"date"\\2","g")}' \
+            | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("(^/ID \\[<).*><.*(>\\]$)","\\1"id"><"id"\\2","g")}' \
+            | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("(^/ID \\[\\().*\\)\\(.*(\\)\\]$)","\\1"id")("id"\\2","g")}' \
+            | awk -vid="0123456789abcdef0123456789abcdef" '{print gensub("\\("id"\\)","<"id">","g")}' \
+            | awk -vdate="2024-03-01T00:00:00+01:00" '{print gensub("(<xmp:ModifyDate>).*(</xmp:ModifyDate>)","\\1"date"\\2","g")}' \
+            | awk -vdate="2024-03-01T00:00:00+01:00" '{print gensub("(<xmp:CreateDate>).*(</xmp:CreateDate>)","\\1"date"\\2","g")}' \
+            | awk -vuuid="'uuid=01234567-89ab-cdef-0123-456789abcdef'" '{print gensub("(xapMM:DocumentID=).*(/>$)","\\1"uuid"\\2","g")}' \
+            > ${matrixpdf}.new
+          \mv ${matrixpdf}.new $matrixpdf
+        fi
+      done
+    fi
+    # Remove card.jpg, diagrams.html and matrix*.jpg files (NB: these are only created if ghostscript is installed)
+    \rm -f ${outproc}/SubProcesses/P*/card.jpg
+    \rm -f ${outproc}/SubProcesses/P*/diagrams.html
+    \rm -f ${outproc}/SubProcesses/P*/matrix*jpg
     # Cleanup
     \rm -f ${outproc}/crossx.html
     \rm -f ${outproc}/index.html
@@ -343,12 +431,6 @@ function codeGenAndDiff()
   ###  dir_patches=PROD
   ###  $SCRDIR/patchMad.sh ${OUTDIR}/${proc}.${autosuffix} ${vecsize} ${dir_patches} ${PATCHLEVEL}
   ###fi
-  # Add a workaround for https://github.com/oliviermattelaer/mg5amc_test/issues/2 (these are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO)
-  if [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
-    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | head -3 > ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
-    cat ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat | tail -n+4 | sort >> ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new
-    \mv ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat.new ${OUTDIR}/${proc}.${autosuffix}/Cards/ident_card.dat
-  fi
   # Additional patches that are ONLY NEEDED IN THE MADGRAPH4GPU GIT REPO
   cat << EOF > ${OUTDIR}/${proc}.${autosuffix}/.gitignore
 crossx.html
@@ -434,6 +516,7 @@ function usage()
 
 #--------------------------------------------------------------------------------------
 
+# Clean up MG5AMC/mg5amcnlo
 function cleanup_MG5AMC_HOME()
 {
   # Remove MG5aMC fragments from previous runs
@@ -445,13 +528,15 @@ function cleanup_MG5AMC_HOME()
   rm -rf $(find ${MG5AMC_HOME} -name '*~')
 }
 
-#function cleanup_MG5AMC_PLUGIN()
-#{
-#  # Remove and recreate MG5AMC_HOME/PLUGIN
-#  rm -rf ${MG5AMC_HOME}/PLUGIN
-#  mkdir ${MG5AMC_HOME}/PLUGIN
-#  touch ${MG5AMC_HOME}/PLUGIN/__init__.py
-#}
+# Clean up MG5AMC/mg5amcnlo/PLUGIN
+# (NB: as of PR #1008, this is needed before code generation, to ensure that the only plugin is MG5AMC/MG5AMC_PLUGIN)
+function cleanup_MG5AMC_PLUGIN()
+{
+  # Remove and recreate MG5AMC_HOME/PLUGIN
+  rm -rf ${MG5AMC_HOME}/PLUGIN
+  mkdir ${MG5AMC_HOME}/PLUGIN
+  touch ${MG5AMC_HOME}/PLUGIN/__init__.py
+}
 
 #--------------------------------------------------------------------------------------
 
@@ -613,9 +698,13 @@ cd - > /dev/null
 ###  echo -e "Copy MG5aMC_patches/${dir_patches} patches... done\n"
 ###fi
 
-# Clean up before code generation
+# Clean up MG5AMC/mg5amcnlo before code generation
 cleanup_MG5AMC_HOME
-###cleanup_MG5AMC_PLUGIN
+
+# Clean up MG5AMC/mg5amcnlo/PLUGIN before code generation
+# (NB: between PR #766 and PR #1008, this was removed because cudacpp was a symlink in MG5AMC/mg5amcnlo/PLUGIN)
+# (NB: as of PR #1008, this is needed again to ensure that the only plugin is MG5AMC/MG5AMC_PLUGIN)
+cleanup_MG5AMC_PLUGIN
 
 # Print differences in MG5AMC with respect to git after copying ad-hoc patches
 if [ "$QUIET" != "1" ]; then
@@ -656,8 +745,12 @@ SECONDS=0 # bash built-in
 export CUDACPP_CODEGEN_PATCHLEVEL=${PATCHLEVEL}
 codeGenAndDiff $proc "$cmd"
 
-# Clean up after code generation
+# Clean up MG5AMC/mg5amcnlo after code generation
 cleanup_MG5AMC_HOME
+
+# Clean up MG5AMC/mg5amcnlo/PLUGIN after code generation
+# (NB: between PR #766 and PR #1008, this was removed because cudacpp was a symlink in MG5AMC/mg5amcnlo/PLUGIN)
+# (NB: as of PR #1008, this remains unnecessary because MG5AMC/mg5amcnlo/PLUGIN is not modified by generateAndCompare.sh)
 ###cleanup_MG5AMC_PLUGIN
 
 # Check formatting in the auto-generated code

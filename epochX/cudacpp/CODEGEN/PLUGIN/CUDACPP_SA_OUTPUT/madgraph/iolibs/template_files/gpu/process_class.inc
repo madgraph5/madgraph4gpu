@@ -1,10 +1,10 @@
 ! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 ! Created by: J. Alwall (Jul 2010) for the MG5aMC CPP backend.
 !==========================================================================
-! Copyright (C) 2020-2023 CERN and UCLouvain.
+! Copyright (C) 2020-2024 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-! Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+! Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 !==========================================================================
   //==========================================================================
   // A class for calculating the matrix elements for
@@ -49,6 +49,7 @@
     static constexpr int nparf = %(noutcoming)d; // #particles in the final state (outgoing): e.g. 2 (mu+ mu-) for e+ e- -> mu+ mu-
     static constexpr int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
     static constexpr int ncomb = %(nbhel)d; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+    static constexpr int ndiagrams = %(ndiagrams)d; // #Feynman diagrams: e.g. 3 for e+ e- -> mu+ mu-
 
     // Hardcoded parameters for this process (constant class variables)
     // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]

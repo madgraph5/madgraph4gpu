@@ -1,7 +1,7 @@
-C Copyright (C) 2020-2023 CERN and UCLouvain.
+C Copyright (C) 2020-2024 CERN and UCLouvain.
 C Licensed under the GNU Lesser General Public License (version 3 or later).
 C Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
-C Further modified by: A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+C Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
       PROGRAM FCHECK_SA
       IMPLICIT NONE
@@ -63,7 +63,7 @@ C
           GS(IEVT) = 1.2177157847767195 ! fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
         END DO
         CALL FBRIDGESEQUENCE_NOMULTICHANNEL(BRIDGE, MOMENTA, GS, ! TEMPORARY? disable multi-channel in fcheck.exe and fgcheck.exe #466
-     &    RNDHEL, RNDCOL, MES, SELHEL, SELCOL)
+     &    RNDHEL, RNDCOL, MES, SELHEL, SELCOL, .FALSE.) ! do not quit after computing helicities
         DO IEVT = 1, NEVT
 c         DO IEXTERNAL = 1, NEXTERNAL
 c           WRITE(6,*) 'MOMENTA', IEVT, IEXTERNAL,

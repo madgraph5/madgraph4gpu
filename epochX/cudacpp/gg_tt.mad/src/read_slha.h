@@ -1,10 +1,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Sep 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: O. Mattelaer, S. Roiser, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 
 #ifndef READ_SLHA_H
@@ -38,6 +38,7 @@ public:
   {
     if( file_name != "" ) read_slha_file( file_name, verbose );
   }
+  static std::string get_exe_path();
   void read_slha_file( std::string file_name, bool verbose );
   double get_block_entry( std::string block_name, std::vector<int> indices, double def_val = 0 );
   double get_block_entry( std::string block_name, int index, double def_val = 0 );

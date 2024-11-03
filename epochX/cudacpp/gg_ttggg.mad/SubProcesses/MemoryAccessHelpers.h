@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MemoryAccessHelpers_H
 #define MemoryAccessHelpers_H 1
@@ -13,7 +13,7 @@
 //----------------------------------------------------------------------------
 
 // A templated helper class that includes the boilerplate code for MemoryAccess classes
-template<class T>
+template<class T, typename FT = fptype>
 class MemoryAccessHelper
 {
 public:
@@ -28,11 +28,11 @@ public:
 
   // Locate an event record (output) in a memory buffer (input) from the given event number (input)
   // [Signature (const) ===> const fptype* ieventAccessRecordConst( const fptype* buffer, const int ievt ) <===]
-  static __host__ __device__ inline const fptype*
-  ieventAccessRecordConst( const fptype* buffer,
+  static __host__ __device__ inline const FT*
+  ieventAccessRecordConst( const FT* buffer,
                            const int ievt )
   {
-    return ieventAccessRecord( const_cast<fptype*>( buffer ), ievt );
+    return ieventAccessRecord( const_cast<FT*>( buffer ), ievt );
   }
 
   //--------------------------------------------------------------------------
@@ -46,11 +46,11 @@ public:
   // Locate a field (output) of an event record (input) from the given field indexes (input)
   // [Signature (const) ===> const fptype& decodeRecordConst( const fptype* buffer, Ts... args ) <===]
   template<class... Ts>
-  static __host__ __device__ inline const fptype&
-  decodeRecordConst( const fptype* buffer,
+  static __host__ __device__ inline const FT&
+  decodeRecordConst( const FT* buffer,
                      Ts... args ) // variadic template
   {
-    return T::decodeRecord( const_cast<fptype*>( buffer ), args... );
+    return T::decodeRecord( const_cast<FT*>( buffer ), args... );
   }
 
   //--------------------------------------------------------------------------
@@ -58,8 +58,8 @@ public:
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
   // [Signature (non-const) ===> fptype& ieventAccessField( fptype* buffer, const ievt, Ts... args ) <===]
   template<class... Ts>
-  static __host__ __device__ inline fptype&
-  ieventAccessField( fptype* buffer,
+  static __host__ __device__ inline FT&
+  ieventAccessField( FT* buffer,
                      const int ievt,
                      Ts... args ) // variadic template
   {
@@ -73,20 +73,20 @@ public:
   // Locate a field (output) in a memory buffer (input) from the given event number (input) and the given field indexes (input)
   // [Signature (const) ===> const fptype& ieventAccessFieldConst( const fptype* buffer, const ievt, Ts... args ) <===]
   template<class... Ts>
-  static __host__ __device__ inline const fptype&
-  ieventAccessFieldConst( const fptype* buffer,
+  static __host__ __device__ inline const FT&
+  ieventAccessFieldConst( const FT* buffer,
                           const int ievt,
                           Ts... args ) // variadic template
   {
-    return ieventAccessField( const_cast<fptype*>( buffer ), ievt, args... );
+    return ieventAccessField( const_cast<FT*>( buffer ), ievt, args... );
   }
 };
 
 //----------------------------------------------------------------------------
 
 // A templated helper class that includes the boilerplate code for KernelAccess classes
-template<class T, bool onDevice>
-class KernelAccessHelper : public MemoryAccessHelper<T>
+template<class T, bool onDevice, typename FT = fptype>
+class KernelAccessHelper : public MemoryAccessHelper<T, FT>
 {
 public:
 
@@ -94,8 +94,8 @@ public:
 
   // Locate an event record (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
   // [Signature (non-const) ===> fptype* kernelAccessRecord( fptype* buffer ) <===]
-  static __host__ __device__ inline fptype*
-  kernelAccessRecord( fptype* buffer )
+  static __host__ __device__ inline FT*
+  kernelAccessRecord( FT* buffer )
   {
     if constexpr( !onDevice ) // requires c++17 also in CUDA (#333)
     {
@@ -119,10 +119,10 @@ public:
 
   // Locate an event record (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal)
   // [Signature (const) ===> const fptype* kernelAccessRecordConst( const fptype* buffer ) <===]
-  static __host__ __device__ inline const fptype*
-  kernelAccessRecordConst( const fptype* buffer )
+  static __host__ __device__ inline const FT*
+  kernelAccessRecordConst( const FT* buffer )
   {
-    return kernelAccessRecord( const_cast<fptype*>( buffer ) );
+    return kernelAccessRecord( const_cast<FT*>( buffer ) );
   }
 
   //--------------------------------------------------------------------------
@@ -130,8 +130,8 @@ public:
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (non-const) ===> fptype& kernelAccessField( fptype* buffer, Ts... args ) <===]
   template<class... Ts>
-  static __host__ __device__ inline fptype&
-  kernelAccessField( fptype* buffer,
+  static __host__ __device__ inline FT&
+  kernelAccessField( FT* buffer,
                      Ts... args ) // variadic template
   {
     // NB all KernelLaunchers assume that memory access can be decomposed as "accessField = decodeRecord( accessRecord )"
@@ -144,11 +144,11 @@ public:
   // Locate a field (output) in a memory buffer (input) from a kernel event-indexing mechanism (internal) and the given field indexes (input)
   // [Signature (const) ===> const fptype& kernelAccessFieldConst( const fptype* buffer, Ts... args ) <===]
   template<class... Ts>
-  static __host__ __device__ inline const fptype&
-  kernelAccessFieldConst( const fptype* buffer,
+  static __host__ __device__ inline const FT&
+  kernelAccessFieldConst( const FT* buffer,
                           Ts... args ) // variadic template
   {
-    return kernelAccessField( const_cast<fptype*>( buffer ), args... );
+    return kernelAccessField( const_cast<FT*>( buffer ), args... );
   }
 
   //--------------------------------------------------------------------------

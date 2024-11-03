@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 //----------------------------------------------------------------------------
 // Use ./runTest.exe --gtest_filter=*xxx to run only testxxx.cc tests
 //----------------------------------------------------------------------------
@@ -19,7 +19,7 @@
 
 #include <array>
 #include <cassert>
-#include <cfenv> // debug #701 (see https://stackoverflow.com/a/17473528)
+#include <cfenv> // for signal and SIGFPE (see https://stackoverflow.com/a/17473528)
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -38,14 +38,14 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  std::string FPEhandlerMessage = "unknown";
-  int FPEhandlerIevt = -1;
-  inline void FPEhandler( int sig )
+  std::string fpeHandlerMessage = "unknown";
+  int fpeHandlerIevt = -1;
+  inline void fpeHandlerTestxxx( int /*sig*/ )
   {
 #ifdef MGONGPUCPP_GPUIMPL
-    std::cerr << "Floating Point Exception (GPU): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
+    std::cerr << "Floating Point Exception (GPU): '" << fpeHandlerMessage << "' ievt=" << fpeHandlerIevt << std::endl;
 #else
-    std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << FPEhandlerMessage << "' ievt=" << FPEhandlerIevt << std::endl;
+    std::cerr << "Floating Point Exception (CPU neppV=" << neppV << "): '" << fpeHandlerMessage << "' ievt=" << fpeHandlerIevt << std::endl;
 #endif
     exit( 1 );
   }
@@ -59,13 +59,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   using namespace mg5amcCpu;
 #endif
 #ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
-  const char* enableFPEc = getenv( "CUDACPP_RUNTIME_ENABLEFPE" );
-  const bool enableFPE = ( enableFPEc != 0 ) && ( std::string( enableFPEc ) != "" );
-  if( enableFPE )
-  {
-    feenableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
-    signal( SIGFPE, FPEhandler );
-  }
+  auto fpeHandlerDefault = signal( SIGFPE, fpeHandlerTestxxx );
 #endif
   constexpr bool dumpEvents = false;       // dump the expected output of the test?
   constexpr bool testEvents = !dumpEvents; // run the test?
@@ -159,10 +153,10 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   if( dumpEvents )
   {
     dumpFile.open( dumpFileName, std::ios::trunc );
-    dumpFile << "  // Copyright (C) 2020-2023 CERN and UCLouvain." << std::endl
+    dumpFile << "  // Copyright (C) 2020-2024 CERN and UCLouvain." << std::endl
              << "  // Licensed under the GNU Lesser General Public License (version 3 or later)." << std::endl
              << "  // Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin." << std::endl
-             << "  // Further modified by: A. Valassi (2021-2023) for the MG5aMC CUDACPP plugin." << std::endl;
+             << "  // Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin." << std::endl;
   }
   // Lambda function for dumping wavefunctions
   auto dumpwf6 = [&]( std::ostream& out, const cxtype_sv wf[6], const char* xxx, int ievt, int nsp, fptype mass )
@@ -294,8 +288,8 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
   {
     if( debug ) std::cout << "Prepare test " << xxx << " ievt=" << ievt << std::endl;
     resetHstMomentaToPar0();
-    FPEhandlerMessage = xxx;
-    FPEhandlerIevt = ievt;
+    fpeHandlerMessage = xxx;
+    fpeHandlerIevt = ievt;
     if( std::string( xxx ) == "ipzxxx" || std::string( xxx ) == "opzxxx" || std::string( xxx ) == "imzxxx" || std::string( xxx ) == "omzxxx" || std::string( xxx ) == "ixzxxx" || std::string( xxx ) == "oxzxxx" )
     {
       // Modify hstMomenta so that ALL events have the momenta of a single ievt
@@ -428,12 +422,34 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
     dumpFile.close();
     std::cout << "INFO: New reference data dumped to file '" << dumpFileName << "'" << std::endl;
   }
-#ifndef __APPLE__ // test #701 (except on MacOS where fedisableexcept is not defined #730)
-  if( enableFPE )
-  {
-    fedisableexcept( FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW ); // debug #701
-  }
+#ifndef __APPLE__ // test #701 (except on MacOS where feenableexcept is not defined #730)
+  signal( SIGFPE, fpeHandlerDefault );
 #endif
 }
 
 //==========================================================================
+
+// Reset the GPU after ALL tests have gone out of scope
+// (This was needed to avoid leaks in profilers, but compute-sanitizer reports no leaks, is it STILL needed?)
+// ========= NB: resetting the GPU too early causes segfaults that are very difficult to debug #907 =========
+// Try to use atexit (https://stackoverflow.com/a/14610501) but this still crashes!
+// ********* FIXME? avoid CUDA API calls in destructors? (see https://stackoverflow.com/a/16982503) *********
+void
+myexit()
+{
+#ifdef MGONGPUCPP_GPUIMPL
+  //checkGpu( gpuDeviceReset() ); // FIXME??? this still crashes! should systematically avoid CUDA calls in all destructors?
+#endif
+}
+
+// Main function (see https://google.github.io/googletest/primer.html#writing-the-main-function)
+// (NB: the test executables are now separate for C++ and CUDA, therefore main must be included all the time)
+// (NB: previously, '#ifndef MGONGPUCPP_GPUIMPL' was ensuring that main was only included once while linking both C++ and CUDA tests)
+int
+main( int argc, char** argv )
+{
+  atexit( myexit );
+  testing::InitGoogleTest( &argc, argv );
+  int status = RUN_ALL_TESTS();
+  return status;
+}

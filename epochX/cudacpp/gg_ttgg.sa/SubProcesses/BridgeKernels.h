@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2023 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2023) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef BRIDGEKERNELS_H
 #define BRIDGEKERNELS_H 1
@@ -30,6 +30,7 @@ namespace mg5amcCpu
                       const BufferGs& gs,                   // input: gs for alphaS
                       const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                       const BufferRndNumColor& rndcol,      // input: random numbers for color selection
+                      const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       BufferSelectedHelicity& selhel,       // output: helicity selection
                       BufferSelectedColor& selcol,          // output: color selection
@@ -60,6 +61,7 @@ namespace mg5amcCpu
                       const BufferGs& gs,                   // input: gs for alphaS
                       const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                       const BufferRndNumColor& rndcol,      // input: random numbers for color selection
+                      const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       BufferSelectedHelicity& selhel,       // output: helicity selection
                       BufferSelectedColor& selcol,          // output: color selection
@@ -75,7 +77,7 @@ namespace mg5amcCpu
     int computeGoodHelicities() override final;
 
     // Compute matrix elements
-    void computeMatrixElements( const unsigned int channelId ) override final;
+    void computeMatrixElements( const bool useChannelIds ) override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
@@ -100,6 +102,7 @@ namespace mg5amcCpu
                         const BufferGs& gs,                   // input: gs for alphaS
                         const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                         const BufferRndNumColor& rndcol,      // input: random numbers for color selection
+                        const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                         BufferMatrixElements& matrixElements, // output: matrix elements
                         BufferSelectedHelicity& selhel,       // output: helicity selection
                         BufferSelectedColor& selcol,          // output: color selection
@@ -116,7 +119,7 @@ namespace mg5amcCpu
     int computeGoodHelicities() override final;
 
     // Compute matrix elements
-    void computeMatrixElements( const unsigned int channelId ) override final;
+    void computeMatrixElements( const bool useChannelIds ) override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return true; }

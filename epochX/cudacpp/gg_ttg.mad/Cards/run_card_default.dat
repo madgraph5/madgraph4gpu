@@ -77,7 +77,7 @@
 #*********************************************************************
    0  = nhel          ! using helicities importance sampling or not.
                              ! 0: sum over helicity, 1: importance sampling
-   2  = sde_strategy  ! default integration strategy (hep-ph/2021.00773)
+   1  = sde_strategy  ! default integration strategy (hep-ph/2021.00773)
                              ! 1 is old strategy (using amp square)
 			     ! 2 is new strategy (using only the denominator)
 #*********************************************************************
@@ -96,6 +96,7 @@
    --fast-math  = aloha_flag ! fortran optimization flag for aloha function. Suggestions: '-ffast-math'
    -O3 = matrix_flag ! fortran optimization flag for matrix.f function. Suggestions: '-O3'
    16 = vector_size ! size of fortran arrays allocated in the multi-event API for SIMD/GPU (VECSIZE_MEMMAX)
+   1 = nb_warp ! total number of warp/frontwave
 			     
 #*********************************************************************
 # Customization (custom cuts/scale/bias/...)                         *
@@ -159,10 +160,9 @@
 systematics = systematics_program ! none, systematics [python], SysCalc [depreceted, C++]
 ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset'] = systematics_arguments ! see: https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule
 
+
 #***********************************************************************
 # SIMD/GPU configuration for the CUDACPP plugin
 #************************************************************************
- d = floating_type ! floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)
- auto = avx_level ! SIMD vectorization level: none, sse4, avx2, 512y, 512z, auto
- CPP = cudacpp_backend ! CUDACPP backend: FORTRAN, CPP, CUDA
+ cpp = cudacpp_backend ! CUDACPP backend: fortran, cuda, hip, cpp, cppnone, cppsse4, cppavx2, cpp512y, cpp512z, cppauto
 
