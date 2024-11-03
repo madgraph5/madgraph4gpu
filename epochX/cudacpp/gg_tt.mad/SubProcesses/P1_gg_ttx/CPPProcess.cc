@@ -812,7 +812,7 @@ namespace mg5amcCpu
       const int gpublocks = 1;
       const int gputhreads = maxtry;
       // NEW IMPLEMENTATION OF GETGOODHEL (#630): RESET THE RUNNING SUM OVER HELICITIES TO 0 BEFORE ADDING A NEW HELICITY
-      cudaMemset( allMEs, 0, maxtry * sizeof( fptype ) );
+      gpuMemset( allMEs, 0, maxtry * sizeof( fptype ) );
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       constexpr fptype_sv* allJamp2s = nullptr; // no need for color selection during helicity filtering
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -821,7 +821,7 @@ namespace mg5amcCpu
 #else
       gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, allJamp2s, gpublocks * gputhreads );
 #endif
-      checkGpu( cudaMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), cudaMemcpyDeviceToHost ) );
+      gpuMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), gpuMemcpyDeviceToHost );
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
       for( int ievt = 0; ievt < maxtry; ++ievt )
       {
@@ -1117,11 +1117,11 @@ namespace mg5amcCpu
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
 #ifdef MGONGPUCPP_GPUIMPL
     const int nevt = gpublocks * gputhreads;
-    cudaMemset( allMEs, 0, nevt * sizeof( fptype ) );
+    gpuMemset( allMEs, 0, nevt * sizeof( fptype ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    cudaMemset( allJamp2s, 0, nevt * ncolor * sizeof( fptype ) );
-    cudaMemset( allNumerators, 0, nevt * sizeof( fptype ) );
-    cudaMemset( allDenominators, 0, nevt * sizeof( fptype ) );
+    gpuMemset( allJamp2s, 0, nevt * ncolor * sizeof( fptype ) );
+    gpuMemset( allNumerators, 0, nevt * sizeof( fptype ) );
+    gpuMemset( allDenominators, 0, nevt * sizeof( fptype ) );
 #endif
 #else
     const int npagV = nevt / neppV;
@@ -1158,7 +1158,7 @@ namespace mg5amcCpu
 #else
       gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, allJamp2s, gpublocks * gputhreads );
 #endif
-      checkGpu( cudaMemcpy( &( allMEs_ighel[ighel * nevt] ), allMEs, nevt * sizeof( fptype ), cudaMemcpyDeviceToDevice ) );
+      gpuMemcpy( &( allMEs_ighel[ighel * nevt] ), allMEs, nevt * sizeof( fptype ), gpuMemcpyDeviceToDevice );
     }
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
     // Event-by-event random choice of helicity #403
