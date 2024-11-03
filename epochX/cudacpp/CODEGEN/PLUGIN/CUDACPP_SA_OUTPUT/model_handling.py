@@ -1311,7 +1311,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // In CUDA, this device function computes the ME for a single event
   // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
   // *** NB: calculate_wavefunction accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898 ***
-  __device__ INLINE void /* clang-format off */
+  __global__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
                            const fptype* allmomenta,      // input: momenta[nevt*npar*4]
                            const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
@@ -1321,9 +1321,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                            fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
                            fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                           fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
-#ifndef MGONGPUCPP_GPUIMPL
-                           , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                           fptype_sv* jamp2_sv,           // output: jamp2[nParity][ncolor][neppV] or [ncolor][nevt] for color choice (nullptr if disabled)
+#ifdef MGONGPUCPP_GPUIMPL
+                           const int nevt                 // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#else
+                           const int ievt00               // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -1352,14 +1354,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
 #endif
-#endif /* clang-format on */
+#endif
     mgDebug( 0, __FUNCTION__ );
     //bool debug = true;
 #ifndef MGONGPUCPP_GPUIMPL
     //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
-    //if( debug ) printf( "calculate_wavefunctions: ievt00=%d\\n", ievt00 );
-#endif
-    //if( debug ) printf( "calculate_wavefunctions: ihel=%d\\n", ihel );""")
+    //if( debug ) printf( "calculate_wavefunctions: ievt00=%d ihel=%2d\\n", ievt00, ihel );
+#else
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // FIXME: NEED A KERNEL ACCESS FOR JAMP2? (THIS SHOULD BE FOR DEBUGGING ONLY!)
+    //debug = ( ievt == 0 );
+    //if( debug ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d\\n", ievt, ihel );
+#endif /* clang-format on */""")
             nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
             ret_lines.append("""
     // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here

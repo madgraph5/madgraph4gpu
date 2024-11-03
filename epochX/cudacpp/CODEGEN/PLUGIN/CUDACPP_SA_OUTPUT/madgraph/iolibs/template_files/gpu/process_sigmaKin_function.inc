@@ -6,16 +6,16 @@
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 ! Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 !==========================================================================
-
 #include "GpuAbstraction.h"
 
     // === PART 0 - INITIALISATION (before calculate_wavefunctions) ===
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
 #ifdef MGONGPUCPP_GPUIMPL
-    allMEs[ievt] = 0;
+    const int nevt = gpublocks * gputhreads;
+    cudaMemset( allMEs, 0, nevt * sizeof( fptype ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    allNumerators[ievt] = 0;
-    allDenominators[ievt] = 0;
+    cudaMemset( allNumerators, 0, nevt * sizeof( fptype ) );
+    cudaMemset( allDenominators, 0, nevt * sizeof( fptype ) );
 #endif
 #else
     const int npagV = nevt / neppV;
@@ -57,30 +57,18 @@
 #endif
     // Running sum of partial amplitudes squared for event by event color selection (#402)
     // (for the single event processed in calculate_wavefunctions)
-    fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
-    fptype MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for this event)
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
+      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, gpublocks * gputhreads );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
+      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, jamp2_sv, gpublocks * gputhreads );
 #endif
-      MEs_ighel[ighel] = allMEs[ievt];
+      checkGpu( cudaMemcpy( &( allMEs_ighel[ighel * nevt] ), allMEs, nevt * sizeof( fptype ), cudaMemcpyDeviceToDevice ) );
     }
     // Event-by-event random choice of helicity #403
-    //printf( "sigmaKin: ievt=%%4d rndhel=%%f\n", ievt, allrndhel[ievt] );
-    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
-    {
-      if( allrndhel[ievt] < ( MEs_ighel[ighel] / MEs_ighel[cNGoodHel - 1] ) )
-      {
-        const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
-        allselhel[ievt] = ihelF;
-        //printf( "sigmaKin: ievt=%%4d ihel=%%4d\n", ievt, ihelF );
-        break;
-      }
-    }
+    gpuLaunchKernel( select_hel, gpublocks, gputhreads, allselhel, allrndhel, allMEs_ighel, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
@@ -353,14 +341,16 @@
 
 #endif // CUDA or C++
 
-    // === PART 2 - FINALISATION (after calculate_wavefunctions) ===
+    // PART 2 - FINALISATION (after calculate_wavefunctions)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
+    // (TODO OM: see how to handle the renormalization here... dedicated kernel or move it within each calculate_wavefunctions?)
 #ifdef MGONGPUCPP_GPUIMPL
-    allMEs[ievt] /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( allChannelIds != nullptr ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // fix segfault #892 (not 'channelIds[0] != 0')
+    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, allNumerators, allDenominators, allChannelIds, helcolDenominators[0] );
+#else
+    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, helcolDenominators[0] );
 #endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
