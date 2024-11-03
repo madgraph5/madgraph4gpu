@@ -176,27 +176,56 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#ifdef MGONGPUCPP_GPUIMPL
+  __device__ INLINE unsigned int
+  gpu_channelId( const unsigned int* allChannelIds )
+  {
+    unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    using CID_ACCESS = DeviceAccessChannelIds; // non-trivial access: buffer includes all events
+    // SCALAR channelId for the current event (CUDA)
+    if( allChannelIds != nullptr )
+    {
+      const unsigned int* channelIds = allChannelIds;                            // fix #899 (distinguish channelIds and allChannelIds)
+      const uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895 (compute this only once for all diagrams)
+      // NB: channelIds_sv is a scalar in CUDA
+      channelId = channelIds_sv;
+      assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
+    }
+#endif
+    return channelId;
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
-  // In CUDA, this device function computes the ME for a single event
+  // In CUDA, this function computes the ME for a single event
+  // ** NB1: NEW Nov2024! In CUDA this is now a kernel function (it used to be a device function)
+  // ** NB2: NEW Nov2024! in CUDA this now takes a channelId array as input (it used to take a scalar channelId as input) 
   // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
-  // *** NB: calculate_wavefunction accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898 ***
+  // *** NB: in C++, calculate_wavefunction accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
   __global__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta,      // input: momenta[nevt*npar*4]
-                           const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           const fptype* allmomenta,          // input: momenta[nevt*npar*4]
+                           const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
+                           fptype* allMEs,                    // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           const unsigned int channelId,  // input: multichannel SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
-                           fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
-                           fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
-#endif
-                           fptype_sv* jamp2_sv,           // output: jamp2[nParity][ncolor][neppV] or [ncolor][nevt] for color choice (nullptr if disabled)
 #ifdef MGONGPUCPP_GPUIMPL
-                           const int nevt                 // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                           const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
 #else
-                           const int ievt00               // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                           const unsigned int channelId,      // input: multichannel SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
+#endif
+                           fptype* allNumerators,             // output: multichannel numerators[nevt], running_sum_over_helicities
+                           fptype* allDenominators,           // output: multichannel denominators[nevt], running_sum_over_helicities
+#endif
+                           fptype_sv* jamp2_sv,               // output: jamp2[nParity][ncolor][neppV] or [ncolor][nevt] for color choice (nullptr if disabled)
+#ifdef MGONGPUCPP_GPUIMPL
+                           const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#else
+                           const int ievt00                   // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -317,6 +346,10 @@ namespace mg5amcCpu
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#ifdef MGONGPUCPP_GPUIMPL
+      // SCALAR channelId for the current event (CUDA)
+      unsigned int channelId = gpu_channelId( allChannelIds );
+#endif
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
       fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
@@ -784,8 +817,8 @@ namespace mg5amcCpu
       // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
       constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
-      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, gpublocks * gputhreads );
+      constexpr unsigned int* allChannelIds = nullptr; // disable multichannel single-diagram enhancement
+      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, allChannelIds, allNumerators, allDenominators, jamp2_sv, gpublocks * gputhreads );
 #else
       gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, jamp2_sv, gpublocks * gputhreads );
 #endif
@@ -956,126 +989,19 @@ namespace mg5amcCpu
 #endif
 
   //--------------------------------------------------------------------------
-  // Evaluate |M|^2, part independent of incoming flavour
 
-  void /* clang-format off */
-  sigmaKin( const fptype* allmomenta,           // input: momenta[nevt*npar*4]
-            const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
-            const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
-            const fptype* allrndcol,            // input: random numbers[nevt] for color selection
-            fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
-            fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
-#endif
-            int* allselhel,                     // output: helicity selection[nevt]
-            int* allselcol,                     // output: helicity selection[nevt]
 #ifdef MGONGPUCPP_GPUIMPL
-            const int gpublocks,                // input: cuda gpublocks
-            const int gputhreads,               // input: cuda gputhreads
-            fptype* allMEs_ighel,               // tmp: allMEs_ighel[nGoodHel][nevt], |M|^2 running_sum_over_helicities
-            fptype* jamp2_sv                    // tmp: allJamp2s_icol[ncolor][nevt], |M|^2 running_sum_over_colors
-#else
-            const int nevt                      // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
-#endif
-            ) /* clang-format on */
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  __global__ void
+  select_col( int* allselcol,                    // output: color selection[nevt]
+              const fptype* allrndcol,           // input: random numbers[nevt] for color selection
+              const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
+              const fptype_sv* jamp2_sv,         // input: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
+              const int nevt )                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
-    mgDebugInitialise();
-
-    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619, #626, #360, #396 and #754)
-    // These variable are not used anywhere else in the code and their scope is limited to this sanity check
-    {
-      // nprocesses == 2 may happen for "mirror processes" such as P0_uux_ttx within pp_tt012j (see PR #754)
-      constexpr int nprocesses = 1;
-      static_assert( nprocesses == 1 || nprocesses == 2, "Assume nprocesses == 1 or 2" );
-      constexpr int process_id = 1; // code generation source: standalone_cudacpp
-      static_assert( process_id == 1, "Assume process_id == 1" );
-    }
-
-    // Denominators: spins, colors and identical particles
-    constexpr int helcolDenominators[1] = { 256 }; // assume nprocesses == 1 (#272 and #343)
-
-#ifdef MGONGPUCPP_GPUIMPL
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    using CID_ACCESS = DeviceAccessChannelIds; // non-trivial access: buffer includes all events
-#endif
-#else
-    //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
-    //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
-    using E_ACCESS = HostAccessMatrixElements; // non-trivial access: buffer includes all events
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    using NUM_ACCESS = HostAccessNumerators;   // non-trivial access: buffer includes all events
-    using DEN_ACCESS = HostAccessDenominators; // non-trivial access: buffer includes all events
-    using CID_ACCESS = HostAccessChannelIds;   // non-trivial access: buffer includes all events
-#endif
-#endif
-
-    // Start sigmaKin_lines
-#include "GpuAbstraction.h"
-
-    // === PART 0 - INITIALISATION (before calculate_wavefunctions) ===
-    // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
-#ifdef MGONGPUCPP_GPUIMPL
-    const int nevt = gpublocks * gputhreads;
-    cudaMemset( allMEs, 0, nevt * sizeof( fptype ) );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    cudaMemset( allNumerators, 0, nevt * sizeof( fptype ) );
-    cudaMemset( allDenominators, 0, nevt * sizeof( fptype ) );
-#endif
-#else
-    const int npagV = nevt / neppV;
-    for( int ipagV = 0; ipagV < npagV; ++ipagV )
-    {
-      const int ievt0 = ipagV * neppV;
-      fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
-      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
-      MEs_sv = fptype_sv{ 0 };
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
-      fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
-      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
-      fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-      numerators_sv = fptype_sv{ 0 };
-      denominators_sv = fptype_sv{ 0 };
-#endif
-    }
-#endif
-
-    // === PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS ===
-    // (in both CUDA and C++, using precomputed good helicities)
-
-#ifdef MGONGPUCPP_GPUIMPL // CUDA OR C++
-
-    // *** START OF PART 1a - CUDA (one event per GPU thread) ***
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // SCALAR channelId for the current event (CUDA) or for the whole SIMD event page (C++)
-    // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a SIMD event page
-    unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
-    if( allChannelIds != nullptr )
-    {
-      const unsigned int* channelIds = allChannelIds;                            // fix #899 (distinguish channelIds and allChannelIds)
-      const uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895 (compute this only once for all diagrams)
-      // NB: channelIds_sv is a scalar in CUDA
-      channelId = channelIds_sv;
-      assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
-    }
-#endif
-    // Running sum of partial amplitudes squared for event by event color selection (#402)
-    // (for the single event processed in calculate_wavefunctions)
-    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
-    {
-      const int ihel = cGoodHel[ighel];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, gpublocks * gputhreads );
-#else
-      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, jamp2_sv, gpublocks * gputhreads );
-#endif
-      checkGpu( cudaMemcpy( &( allMEs_ighel[ighel * nevt] ), allMEs, nevt * sizeof( fptype ), cudaMemcpyDeviceToDevice ) );
-    }
-    // Event-by-event random choice of helicity #403
-    gpuLaunchKernel( select_hel, gpublocks, gputhreads, allselhel, allrndhel, allMEs_ighel, gpublocks * gputhreads );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
+    // SCALAR channelId for the current event (CUDA)
+    unsigned int channelId = gpu_channelId( allChannelIds );
     // Event-by-event random choice of color #402
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
@@ -1123,6 +1049,117 @@ namespace mg5amcCpu
     {
       allselcol[ievt] = 0; // no color selected in Fortran range [1,ncolor] if channelId == 0 (see #931)
     }
+    return;
+  }
+#endif
+#endif
+
+  //--------------------------------------------------------------------------
+  // Evaluate |M|^2, part independent of incoming flavour
+
+  void /* clang-format off */
+  sigmaKin( const fptype* allmomenta,           // input: momenta[nevt*npar*4]
+            const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
+            const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
+            const fptype* allrndcol,            // input: random numbers[nevt] for color selection
+            fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+            const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
+            fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
+#endif
+            int* allselhel,                     // output: helicity selection[nevt]
+            int* allselcol,                     // output: color selection[nevt]
+#ifdef MGONGPUCPP_GPUIMPL
+            const int gpublocks,                // input: cuda gpublocks
+            const int gputhreads,               // input: cuda gputhreads
+            fptype* allMEs_ighel,               // tmp: allMEs_ighel[nGoodHel][nevt], |M|^2 running_sum_over_helicities
+            fptype* jamp2_sv                    // tmp: allJamp2s_icol[ncolor][nevt], |M|^2 running_sum_over_colors
+#else
+            const int nevt                      // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#endif
+            ) /* clang-format on */
+  {
+    mgDebugInitialise();
+
+    // SANITY CHECKS for cudacpp code generation (see issues #272 and #343 and PRs #619, #626, #360, #396 and #754)
+    // These variable are not used anywhere else in the code and their scope is limited to this sanity check
+    {
+      // nprocesses == 2 may happen for "mirror processes" such as P0_uux_ttx within pp_tt012j (see PR #754)
+      constexpr int nprocesses = 1;
+      static_assert( nprocesses == 1 || nprocesses == 2, "Assume nprocesses == 1 or 2" );
+      constexpr int process_id = 1; // code generation source: standalone_cudacpp
+      static_assert( process_id == 1, "Assume process_id == 1" );
+    }
+
+    // Denominators: spins, colors and identical particles
+    constexpr int helcolDenominators[1] = { 256 }; // assume nprocesses == 1 (#272 and #343)
+
+#ifndef MGONGPUCPP_GPUIMPL
+    //assert( (size_t)(allmomenta) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    //assert( (size_t)(allMEs) % mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
+    using E_ACCESS = HostAccessMatrixElements; // non-trivial access: buffer includes all events
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    using NUM_ACCESS = HostAccessNumerators;   // non-trivial access: buffer includes all events
+    using DEN_ACCESS = HostAccessDenominators; // non-trivial access: buffer includes all events
+    using CID_ACCESS = HostAccessChannelIds;   // non-trivial access: buffer includes all events
+#endif
+#endif
+
+    // Start sigmaKin_lines
+#include "GpuAbstraction.h"
+
+    // === PART 0 - INITIALISATION (before calculate_wavefunctions) ===
+    // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
+#ifdef MGONGPUCPP_GPUIMPL
+    const int nevt = gpublocks * gputhreads;
+    cudaMemset( allMEs, 0, nevt * sizeof( fptype ) );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    cudaMemset( allNumerators, 0, nevt * sizeof( fptype ) );
+    cudaMemset( allDenominators, 0, nevt * sizeof( fptype ) );
+#endif
+#else
+    const int npagV = nevt / neppV;
+    for( int ipagV = 0; ipagV < npagV; ++ipagV )
+    {
+      const int ievt0 = ipagV * neppV;
+      fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
+      fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
+      MEs_sv = fptype_sv{ 0 };
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+      fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+      fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
+      numerators_sv = fptype_sv{ 0 };
+      denominators_sv = fptype_sv{ 0 };
+#endif
+    }
+#endif
+
+    // === PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS ===
+    // (in both CUDA and C++, using precomputed good helicities)
+
+#ifdef MGONGPUCPP_GPUIMPL // CUDA OR C++
+
+    // *** START OF PART 1a - CUDA (one event per GPU thread) ***
+    // Running sum of partial amplitudes squared for event by event color selection (#402)
+    // (for the single event processed in calculate_wavefunctions)
+    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+    {
+      const int ihel = cGoodHel[ighel];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, allChannelIds, allNumerators, allDenominators, jamp2_sv, gpublocks * gputhreads );
+#else
+      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, jamp2_sv, gpublocks * gputhreads );
+#endif
+      checkGpu( cudaMemcpy( &( allMEs_ighel[ighel * nevt] ), allMEs, nevt * sizeof( fptype ), cudaMemcpyDeviceToDevice ) );
+    }
+    // Event-by-event random choice of helicity #403
+    gpuLaunchKernel( select_hel, gpublocks, gputhreads, allselhel, allrndhel, allMEs_ighel, gpublocks * gputhreads );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    // Event-by-event random choice of color #402
+    gpuLaunchKernel( select_col, gpublocks, gputhreads, allselcol, allrndcol, allChannelIds, jamp2_sv, gpublocks * gputhreads );
 #endif
     // *** END OF PART 1a - CUDA (one event per GPU thread) ***
 
