@@ -189,7 +189,6 @@ namespace mg5amcCpu
 #endif /* clang-format on */
 
   //--------------------------------------------------------------------------
-
 }
 
 #endif // MG5_Sigma_sm_gg_ttx_H

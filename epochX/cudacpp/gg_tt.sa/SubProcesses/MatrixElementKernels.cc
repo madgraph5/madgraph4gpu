@@ -377,7 +377,7 @@ namespace mg5amcGpu
 #else
     sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt );
 #endif
-    // ... 0d3. Set good helicity list in host static memory    
+    // ... 0d3. Set good helicity list in host static memory
     int nGoodHel = sigmaKin_setGoodHel( hstIsGoodHel.data() );
     // ... Create the auxiliary buffer for helicity selection (for each event: matrix element sum up to each good helicity)
     m_pHelSelAux.reset( new DeviceBufferSimple( nevt * nGoodHel ) );
@@ -405,7 +405,7 @@ namespace mg5amcGpu
     const unsigned int* pHstChannelIds = ( useChannelIds ? m_hstChannelIds.data() : nullptr );
     MatrixElementKernelBase::updateNevtProcessedByChannel( pHstChannelIds, nevt() );
 #endif
-    checkGpu( gpuPeekAtLastError() ); // is this needed?
+    checkGpu( gpuPeekAtLastError() );   // is this needed?
     checkGpu( gpuDeviceSynchronize() ); // probably not needed? but it avoids errors in sigmaKin above from appearing later on in random places...
   }
 
