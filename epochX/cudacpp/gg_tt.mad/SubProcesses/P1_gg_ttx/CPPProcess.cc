@@ -204,7 +204,7 @@ namespace mg5amcCpu
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
   // In CUDA, this function computes the ME for a single event
   // ** NB1: NEW Nov2024! In CUDA this is now a kernel function (it used to be a device function)
-  // ** NB2: NEW Nov2024! in CUDA this now takes a channelId array as input (it used to take a scalar channelId as input) 
+  // ** NB2: NEW Nov2024! in CUDA this now takes a channelId array as input (it used to take a scalar channelId as input)
   // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
   // *** NB: in C++, calculate_wavefunction accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
   __global__ INLINE void /* clang-format off */
@@ -995,7 +995,7 @@ namespace mg5amcCpu
   select_col( int* allselcol,                    // output: color selection[nevt]
               const fptype* allrndcol,           // input: random numbers[nevt] for color selection
               const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
-              const fptype_sv* jamp2_sv,         // input: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
+              const fptype_sv* allJamp2s,        // input: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
               const int nevt )                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
@@ -1009,6 +1009,11 @@ namespace mg5amcCpu
         printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d which is greater than nchannels=%d\n", channelId, mgOnGpu::nchannels );
         assert( channelId <= mgOnGpu::nchannels ); // SANITY CHECK #919 #910
       }
+      // Determine the jamp2 for this event (TEMPORARY? could do this with a dedicated memory accessor instead...)
+      fptype_sv jamp2_sv[ncolor] = { 0 };
+      assert( allJamp2s != nullptr ); // sanity check
+      for( int icolC = 0; icolC < ncolor; icolC++ )
+        jamp2_sv[icolC] = allJamp2s[icolC * nevt + ievt];
       // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
       // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
       const int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
