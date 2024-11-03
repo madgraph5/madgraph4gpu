@@ -12,10 +12,11 @@
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
 #ifdef MGONGPUCPP_GPUIMPL
     const int nevt = gpublocks * gputhreads;
-    cudaMemset( allMEs, 0, nevt * sizeof( fptype ) );
+    gpuMemset( allMEs, 0, nevt * sizeof( fptype ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    cudaMemset( allNumerators, 0, nevt * sizeof( fptype ) );
-    cudaMemset( allDenominators, 0, nevt * sizeof( fptype ) );
+    gpuMemset( allJamp2s, 0, nevt * ncolor * sizeof( fptype ) );
+    gpuMemset( allNumerators, 0, nevt * sizeof( fptype ) );
+    gpuMemset( allDenominators, 0, nevt * sizeof( fptype ) );
 #endif
 #else
     const int npagV = nevt / neppV;
@@ -42,81 +43,24 @@
 #ifdef MGONGPUCPP_GPUIMPL // CUDA OR C++
 
     // *** START OF PART 1a - CUDA (one event per GPU thread) ***
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // SCALAR channelId for the current event (CUDA) or for the whole SIMD event page (C++)
-    // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a SIMD event page
-    unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
-    if( allChannelIds != nullptr )
-    {
-      const unsigned int* channelIds = allChannelIds;                            // fix #899 (distinguish channelIds and allChannelIds)
-      const uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895 (compute this only once for all diagrams)
-      // NB: channelIds_sv is a scalar in CUDA
-      channelId = channelIds_sv;
-      assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
-    }
-#endif
     // Running sum of partial amplitudes squared for event by event color selection (#402)
     // (for the single event processed in calculate_wavefunctions)
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, gpublocks * gputhreads );
+      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, allChannelIds, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
 #else
-      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, jamp2_sv, gpublocks * gputhreads );
+      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, allJamp2s, gpublocks * gputhreads );
 #endif
-      checkGpu( cudaMemcpy( &( allMEs_ighel[ighel * nevt] ), allMEs, nevt * sizeof( fptype ), cudaMemcpyDeviceToDevice ) );
+      gpuMemcpy( &( allMEs_ighel[ighel * nevt] ), allMEs, nevt * sizeof( fptype ), gpuMemcpyDeviceToDevice );
     }
+    checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
     // Event-by-event random choice of helicity #403
     gpuLaunchKernel( select_hel, gpublocks, gputhreads, allselhel, allrndhel, allMEs_ighel, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
-    if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
-    {
-      if( channelId > mgOnGpu::nchannels )
-      {
-        printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which is greater than nchannels=%%d\n", channelId, mgOnGpu::nchannels );
-        assert( channelId <= mgOnGpu::nchannels ); // SANITY CHECK #919 #910
-      }
-      // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
-      // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
-      const int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
-      if( iconfig <= 0 )
-      {
-        printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which has no associated SDE iconfig\n", channelId );
-        assert( iconfig > 0 ); // SANITY CHECK #917
-      }
-      else if( iconfig > (int)mgOnGpu::nconfigSDE )
-      {
-        printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d (invalid SDE iconfig=%%d\n > nconfig=%%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
-        assert( iconfig <= (int)mgOnGpu::nconfigSDE ); // SANITY CHECK #917
-      }
-      fptype targetamp[ncolor] = { 0 };
-      // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
-      for( int icolC = 0; icolC < ncolor; icolC++ )
-      {
-        if( icolC == 0 )
-          targetamp[icolC] = 0;
-        else
-          targetamp[icolC] = targetamp[icolC - 1];
-        // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
-        if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
-      }
-      //printf( "sigmaKin: ievt=%%4d rndcol=%%f\n", ievt, allrndcol[ievt] );
-      for( int icolC = 0; icolC < ncolor; icolC++ )
-      {
-        if( allrndcol[ievt] < ( targetamp[icolC] / targetamp[ncolor - 1] ) )
-        {
-          allselcol[ievt] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
-          //printf( "sigmaKin: ievt=%%d icol=%%d\n", ievt, icolC+1 );
-          break;
-        }
-      }
-    }
-    else
-    {
-      allselcol[ievt] = 0; // no color selected in Fortran range [1,ncolor] if channelId == 0 (see #931)
-    }
+    gpuLaunchKernel( select_col, gpublocks, gputhreads, allselcol, allrndcol, allChannelIds, allJamp2s, gpublocks * gputhreads );
 #endif
     // *** END OF PART 1a - CUDA (one event per GPU thread) ***
 

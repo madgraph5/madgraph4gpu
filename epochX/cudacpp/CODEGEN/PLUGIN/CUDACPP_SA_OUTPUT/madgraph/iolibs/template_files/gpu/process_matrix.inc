@@ -9,17 +9,15 @@
 
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
-      if( jamp2_sv ) // disable color choice if nullptr
-      {
-        for( int icol = 0; icol < ncolor; icol++ )
-        {
 #ifndef MGONGPUCPP_GPUIMPL
+      if( jamp2_sv ) // disable color choice if nullptr
+        for( int icol = 0; icol < ncolor; icol++ )
           jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] ); // may underflow #831
 #else
-          jamp2_sv[( ncolor * iParity + icol ) * nevt + ievt] += cxabs2( jamp_sv[icol] );
+      if( allJamp2s ) // disable color choice if nullptr
+        for( int icol = 0; icol < ncolor; icol++ )
+          allJamp2s[( ncolor * iParity + icol ) * nevt + ievt] += cxabs2( jamp_sv[icol] );
 #endif
-        }
-      }
 
       // *** COLOR MATRIX BELOW ***
       // (This method used to be called %(process_class_name)s::matrix_%(proc_name)s(%(matrix_args)s)?)

@@ -1308,24 +1308,31 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // Evaluate |M|^2 for each subprocess
   // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
   // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
-  // In CUDA, this device function computes the ME for a single event
+  // In CUDA, this function computes the ME for a single event
+  // ** NB1: NEW Nov2024! In CUDA this is now a kernel function (it used to be a device function)
+  // ** NB2: NEW Nov2024! in CUDA this now takes a channelId array as input (it used to take a scalar channelId as input)
   // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
-  // *** NB: calculate_wavefunction accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898 ***
+  // *** NB: in C++, calculate_wavefunction accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
   __global__ INLINE void /* clang-format off */
   calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta,      // input: momenta[nevt*npar*4]
-                           const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+                           const fptype* allmomenta,          // input: momenta[nevt*npar*4]
+                           const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
+                           fptype* allMEs,                    // output: allMEs[nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           const unsigned int channelId,  // input: multichannel SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
-                           fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
-                           fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
-#endif
-                           fptype_sv* jamp2_sv,           // output: jamp2[nParity][ncolor][neppV] or [ncolor][nevt] for color choice (nullptr if disabled)
 #ifdef MGONGPUCPP_GPUIMPL
-                           const int nevt                 // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                           const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
 #else
-                           const int ievt00               // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                           const unsigned int channelId,      // input: multichannel SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
+#endif
+                           fptype* allNumerators,             // output: multichannel numerators[nevt], running_sum_over_helicities
+                           fptype* allDenominators,           // output: multichannel denominators[nevt], running_sum_over_helicities
+#endif
+#ifdef MGONGPUCPP_GPUIMPL
+                           fptype_sv* allJamp2s,              // output: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
+                           const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#else
+                           fptype_sv* jamp2_sv,               // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
+                           const int ievt00                   // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
@@ -1930,6 +1937,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#ifdef MGONGPUCPP_GPUIMPL
+      // SCALAR channelId for the current event (CUDA)
+      unsigned int channelId = gpu_channelId( allChannelIds );
+#endif
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
       fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
