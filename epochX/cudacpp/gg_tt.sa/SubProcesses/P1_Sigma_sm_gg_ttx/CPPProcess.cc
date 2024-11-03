@@ -995,8 +995,6 @@ namespace mg5amcCpu
     constexpr int helcolDenominators[1] = { 256 }; // assume nprocesses == 1 (#272 and #343)
 
 #ifdef MGONGPUCPP_GPUIMPL
-    // Remember: in CUDA this is a kernel for one event, in c++ this processes n events
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using CID_ACCESS = DeviceAccessChannelIds; // non-trivial access: buffer includes all events
 #endif
