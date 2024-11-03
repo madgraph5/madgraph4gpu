@@ -21,8 +21,10 @@
 #define gpuMalloc( ptr, size ) checkGpu( cudaMalloc( ptr, size ) )
 
 #define gpuMemcpy( dstData, srcData, srcBytes, func ) checkGpu( cudaMemcpy( dstData, srcData, srcBytes, func ) )
+#define gpuMemset( data, value, bytes ) checkGpu( cudaMemset( data, value, bytes ) )
 #define gpuMemcpyHostToDevice cudaMemcpyHostToDevice
 #define gpuMemcpyDeviceToHost cudaMemcpyDeviceToHost
+#define gpuMemcpyDeviceToDevice cudaMemcpyDeviceToDevice
 #define gpuMemcpyToSymbol( type1, type2, size ) checkGpu( cudaMemcpyToSymbol( type1, type2, size ) )
 
 #define gpuFree( ptr ) checkGpu( cudaFree( ptr ) )
@@ -48,8 +50,10 @@
 #define gpuMalloc( ptr, size ) checkGpu( hipMalloc( ptr, size ) )
 
 #define gpuMemcpy( dstData, srcData, srcBytes, func ) checkGpu( hipMemcpy( dstData, srcData, srcBytes, func ) )
+#define gpuMemset( data, value, bytes ) checkGpu( hipMemset( data, value, bytes ) )
 #define gpuMemcpyHostToDevice hipMemcpyHostToDevice
 #define gpuMemcpyDeviceToHost hipMemcpyDeviceToHost
+#define gpuMemcpyDeviceToDevice hipMemcpyDeviceToDevice
 #define gpuMemcpyToSymbol( type1, type2, size ) checkGpu( hipMemcpyToSymbol( type1, type2, size ) )
 
 #define gpuFree( ptr ) checkGpu( hipFree( ptr ) )

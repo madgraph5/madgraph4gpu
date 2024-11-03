@@ -76,6 +76,7 @@ namespace mg5amcCpu
     static constexpr int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
     static constexpr int ncomb = 48; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
     static constexpr int ndiagrams = 2; // #Feynman diagrams: e.g. 3 for e+ e- -> mu+ mu-
+    static constexpr int ncolor = 2; // the number of leading colors: e.g. 1 for e+ e- -> mu+ mu-
 
     // Hardcoded parameters for this process (constant class variables)
     // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]
@@ -123,7 +124,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
-  __global__ void
+  void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
@@ -131,9 +132,10 @@ namespace mg5amcCpu
                        fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
                        fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                       bool* isGoodHel );          // output: isGoodHel[ncomb] - device array (CUDA implementation)
+                       bool* isGoodHel,            // output: isGoodHel[ncomb] - device array (GPU device implementation)
+                       const int nevt );           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
-  __global__ void
+  void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
@@ -153,7 +155,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
-  __global__ void
+  void
   sigmaKin( const fptype* allmomenta,           // input: momenta[nevt*npar*4]
             const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
@@ -165,10 +167,13 @@ namespace mg5amcCpu
             fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
             int* allselhel,                     // output: helicity selection[nevt]
-            int* allselcol                      // output: helicity selection[nevt]
-            );
+            int* allselcol,                     // output: helicity selection[nevt]
+            const int gpublocks,                // input: cuda gpublocks
+            const int gputhreads,               // input: cuda gputhreads
+            fptype* allMEs_ighel,               // tmp: allMEs_ighel[nGoodHel][nevt], |M|^2 running_sum_over_helicities
+            fptype* jamp2_sv );                 // tmp: allJamp2s_icol[ncolor][nevt], |M|^2 running_sum_over_colors
 #else
-  __global__ void
+  void
   sigmaKin( const fptype* allmomenta,           // input: momenta[nevt*npar*4]
             const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection

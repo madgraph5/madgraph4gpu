@@ -69,8 +69,8 @@ namespace mg5amcCpu
   protected:
     BufferBase( const size_t size, const bool onDevice )
       : m_size( size ), m_data( nullptr ), m_isOnDevice( onDevice ) {}
-    virtual ~BufferBase() {}
   public:
+    virtual ~BufferBase() {}
     T* data() { return m_data; }
     const T* data() const { return m_data; }
     T& operator[]( const size_t index ) { return m_data[index]; }
@@ -203,6 +203,13 @@ namespace mg5amcCpu
     virtual ~DeviceBuffer() {}
     virtual size_t nevt() const override final { return NumberOfEvents::nevt(); }
   };
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL
+  // A class encapsulating a simple CUDA device buffer managed on an ad-hoc basis
+  typedef DeviceBuffer<fptype, 1> DeviceBufferSimple;
 #endif
 
   //--------------------------------------------------------------------------

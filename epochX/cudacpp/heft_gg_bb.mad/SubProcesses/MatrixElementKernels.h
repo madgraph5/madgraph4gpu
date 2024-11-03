@@ -11,6 +11,7 @@
 #include "MemoryBuffers.h"
 
 #include <map>
+#include <memory>
 
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
@@ -198,6 +199,12 @@ namespace mg5amcCpu
     // The buffer for the event-by-event denominators of multichannel factors
     DeviceBufferDenominators m_denominators;
 #endif
+
+    // The auxiliary buffer for helicity selection
+    std::unique_ptr<DeviceBufferSimple> m_pHelSelAux;
+
+    // The auxiliary buffer for color selection
+    std::unique_ptr<DeviceBufferSimple> m_pColSelAux;
 
 #ifdef MGONGPU_CHANNELID_DEBUG
     // The **host** buffer for the channelId array
