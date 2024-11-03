@@ -1119,6 +1119,7 @@ namespace mg5amcCpu
     const int nevt = gpublocks * gputhreads;
     cudaMemset( allMEs, 0, nevt * sizeof( fptype ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    cudaMemset( allJamp2s, 0, nevt * ncolor * sizeof( fptype ) );
     cudaMemset( allNumerators, 0, nevt * sizeof( fptype ) );
     cudaMemset( allDenominators, 0, nevt * sizeof( fptype ) );
 #endif
