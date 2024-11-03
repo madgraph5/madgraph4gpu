@@ -1159,6 +1159,7 @@ namespace mg5amcCpu
 #endif
       checkGpu( cudaMemcpy( &( allMEs_ighel[ighel * nevt] ), allMEs, nevt * sizeof( fptype ), cudaMemcpyDeviceToDevice ) );
     }
+    checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
     // Event-by-event random choice of helicity #403
     gpuLaunchKernel( select_hel, gpublocks, gputhreads, allselhel, allrndhel, allMEs_ighel, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
