@@ -7,6 +7,7 @@
 ! Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // *** COLOR CHOICE BELOW ***
       // Store the leading color flows for choice of color
 #ifndef MGONGPUCPP_GPUIMPL
@@ -17,6 +18,7 @@
       if( allJamp2s ) // disable color choice if nullptr
         for( int icol = 0; icol < ncolor; icol++ )
           allJamp2s[( ncolor * iParity + icol ) * nevt + ievt] += cxabs2( jamp_sv[icol] );
+#endif
 #endif
 
       // *** COLOR MATRIX BELOW ***

@@ -1328,10 +1328,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                            fptype* allDenominators,           // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
 #ifdef MGONGPUCPP_GPUIMPL
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                            fptype_sv* allJamp2s,              // output: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
+#endif
                            const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                            fptype_sv* jamp2_sv,               // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
+#endif
                            const int ievt00                   // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
                            )
@@ -1368,7 +1372,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
     //if( debug ) printf( "calculate_wavefunctions: ievt00=%d ihel=%2d\\n", ievt00, ihel );
 #else
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // FIXME: NEED A KERNEL ACCESS FOR JAMP2? (THIS SHOULD BE FOR DEBUGGING ONLY!)
+#endif
     //debug = ( ievt == 0 );
     //if( debug ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d\\n", ievt, ihel );
 #endif /* clang-format on */""")
