@@ -203,8 +203,10 @@ namespace mg5amcCpu
     // The auxiliary buffer for helicity selection
     std::unique_ptr<DeviceBufferSimple> m_pHelSelAux;
 
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // The auxiliary buffer for color selection
     std::unique_ptr<DeviceBufferSimple> m_pColSelAux;
+#endif
 
 #ifdef MGONGPU_CHANNELID_DEBUG
     // The **host** buffer for the channelId array
