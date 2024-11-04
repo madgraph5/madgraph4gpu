@@ -538,7 +538,7 @@ class Banner(dict):
             return self.param_card
         elif tag == 'mgruncard':
             with misc.TMP_variable(RunCard, 'allow_scan', True):
-                self.run_card = RunCard(self[tag], consistency=False, unknow_warning=False)
+                self.run_card = RunCard(self[tag], consistency=False, unknown_warning=False)
             return self.run_card
         elif tag == 'mg5proccard':
             proc_card = self[tag].split('\n')
@@ -1006,18 +1006,10 @@ class ConfigFile(dict):
         self.allowed_value = {}
         
         self.default_setup()
-        self.plugin_input(finput)
-        
 
         # if input is define read that input
         if isinstance(finput, (file, str, StringIO.StringIO)):
             self.read(finput, **opt)
-        
-
-
-
-    def plugin_input(self, finput=None):
-        pass
 
 
     def default_setup(self):
@@ -1898,7 +1890,7 @@ class PY8Card(ConfigFile):
         
         # Visible parameters
         # ==================
-        self.add_param("Main:numberOfEvents", -1)
+        self.add_param("Main:numberOfEvents", 0)
         # for MLM merging
         # -1.0 means that it will be set automatically by MadGraph5_aMC@NLO
         self.add_param("JetMatching:qCut", -1.0, always_write_to_card=False)
@@ -2654,26 +2646,6 @@ class RunCard(ConfigFile):
     donewarning = []
     include_as_parameter = []
 
-    def plugin_input(self, finput):
-
-        if not finput and not MADEVENT:
-            return
-        curr_dir = None
-        if isinstance(finput, file):
-            # expected path to be like "XXXX/Cards/run_card.dat"
-            curr_dir = os.path.dirname(os.path.dirname(finput.name))
-        elif isinstance(finput, str):
-            curr_dir = os.path.dirname(os.path.dirname(finput))
-        
-        if curr_dir:
-            if os.path.exists(pjoin(curr_dir, 'bin', 'internal', 'plugin_run_card')):
-                # expected format {} passing everything as optional argument
-                for line in open(pjoin(curr_dir, 'bin', 'internal', 'plugin_run_card')):
-                    if line.startswith('#'):
-                        continue
-                    opts = dict(eval(line))
-                    self.add_param(**opts)
-        
     @classmethod
     def fill_post_set_from_blocks(cls):
         """set the post_set function for any parameter defined in a run_block"""
@@ -2966,8 +2938,8 @@ class RunCard(ConfigFile):
 
 
     def reset_simd(self, old_value, new_value, name, *args, **opts):
-        #return
-        raise Exception('pass in reset simd')
+        return
+        #raise Exception('pass in reset simd')
 
     def make_clean(self,old_value, new_value, name, dir):
         raise Exception('pass make clean for ', dir)
@@ -4346,7 +4318,7 @@ class RunCardLO(RunCard):
         self.add_param("pdgs_for_merging_cut", [21, 1, 2, 3, 4, 5, 6], hidden=True)
         self.add_param("maxjetflavor", 4)
         self.add_param("xqcut", 0.0, cut=True)
-        self.add_param("use_syst", True)
+        self.add_param("use_syst", True, comment='Add in the lhef file information needed for the computation of systematic uncertainty (scale variation and pdf)')
         self.add_param('systematics_program', 'systematics', include=False, hidden=True, comment='Choose which program to use for systematics computation: none, systematics, syscalc')
         self.add_param('systematics_arguments', ['--mur=0.5,1,2', '--muf=0.5,1,2', '--pdf=errorset'], include=False, hidden=True, comment='Choose the argment to pass to the systematics command. like --mur=0.25,1,4. Look at the help of the systematics function for more details.')
         
@@ -4916,22 +4888,32 @@ class RunCardLO(RunCard):
             #for pure lepton final state go back to sde_strategy=1
             pure_lepton=True
             proton_initial=True
+            no_qcd=True
             for proc in proc_def:
-                if any(abs(j.get('id')) not in [11,12,13,14,15,16] for j in proc[0]['legs'][2:]):
+                if 'QCD' not in proc[0].get('orders'):
+                    no_qcd = False
+                elif proc[0].get('orders')['QCD'] != 0:
+                    no_qcd = False 
+                #misc.sprint(proc.get_order())
+                if any(abs(j.get('id')) not in [11,12,13,14,15,16,22] for j in proc[0]['legs'][2:]):
                     pure_lepton = False
                 if any(abs(j.get('id')) not in jet_id for j in proc[0]['legs'][:2]):
                     proton_initial = False
             if pure_lepton and proton_initial:
                 self['sde_strategy'] = 1
-        else:
-            # check if  multi-jet j 
-            is_multijet = True
-            for proc in proc_def:
-                if any(abs(j.get('id')) not in jet_id for j in proc[0]['legs']):
-                    is_multijet = False
-                    break
-            if is_multijet:
-                self['sde_strategy'] = 2
+            elif not no_qcd:
+                self['sde_strategy'] = 1 
+
+
+        #else:
+        #    # check if  multi-jet j 
+        #    is_multijet = True
+        #    for proc in proc_def:
+        #        if any(abs(j.get('id')) not in jet_id for j in proc[0]['legs']):
+        #            is_multijet = False
+        #            break
+        #    if is_multijet:
+        #        self['sde_strategy'] = 2
             
         # if polarization is used, set the choice of the frame in the run_card
         # But only if polarization is used for massive particles

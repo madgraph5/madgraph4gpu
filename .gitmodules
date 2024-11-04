@@ -1,8 +1,6 @@
 [submodule "MG5aMC/mg5amcnlo"]
 	path = MG5aMC/mg5amcnlo
-	url = https://github.com/zeniheisser/mg5amcnlo/
-	branch = gpucpp
-[submodule "MG5aMC/"]
-	url = git@github.com:zeniheisser/mg5amcnlo.git
-[submodule "MG5aMC"]
-	url = git@github.com:zeniheisser/mg5amcnlo.git
+	url = https://github.com/mg5amcnlo/mg5amcnlo
+	branch = 3.6.1
+        # See https://git-scm.com/docs/gitmodules#Documentation/gitmodules.txt-submoduleltnamegtignore
+        ignore = untracked

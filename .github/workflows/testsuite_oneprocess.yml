@@ -96,7 +96,11 @@ jobs:
   #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   codegen:
-    runs-on: ubuntu-latest
+    ###runs-on: ubuntu-latest
+    # Temporarely dowgrade ubuntu-latest to ubuntu-22.04 in codegen step because clang-format-18 is not yet supported (#1022)
+    # See https://github.com/actions/runner-images/issues/5490
+    # See https://github.com/actions/runner-images/issues/10636
+    runs-on: ubuntu-22.04
     needs: cleanup
 
     steps:

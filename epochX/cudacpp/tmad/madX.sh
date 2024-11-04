@@ -34,7 +34,7 @@ export CUDACPP_RUNTIME_VECSIZEUSED=${NLOOP}
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-hip] [-fltonly|-mixonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gguu][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-d] [-hip] [-dblonly|-fltonly] [-makeonly|-makeclean|-makecleanonly] [-rmrdat] [+10x] [-checkonly] [-nocleanup][-iconfig <iconfig>]" > /dev/stderr
   echo "(NB: OMP_NUM_THREADS is taken as-is from the caller's environment)"
   exit 1
 }
@@ -59,7 +59,7 @@ smeftggtttt=0
 
 hip=0
 
-fptype="d"
+fptype="m" # new default #995 (was "d")
 
 maketype=
 ###makej=
@@ -114,17 +114,17 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-hip" ]; then
     hip=1
     shift
+  elif [ "$1" == "-dblonly" ]; then
+    if [ "${fptype}" != "m" ] && [ "${fptype}" != "$1" ]; then
+      echo "ERROR! Options -fltonly and -dblonly are incompatible"; usage
+    fi
+    fptype="d"
+    shift
   elif [ "$1" == "-fltonly" ]; then
-    if [ "${fptype}" != "d" ] && [ "${fptype}" != "$1" ]; then
-      echo "ERROR! Options -fltonly and -mixonly are incompatible"; usage
+    if [ "${fptype}" != "m" ] && [ "${fptype}" != "$1" ]; then
+      echo "ERROR! Options -fltonly and -dblonly are incompatible"; usage
     fi
     fptype="f"
-    shift
-  elif [ "$1" == "-mixonly" ]; then
-    if [ "${fptype}" != "d" ] && [ "${fptype}" != "$1" ]; then
-      echo "ERROR! Options -fltonly and -mixonly are incompatible"; usage
-    fi
-    fptype="m"
     shift
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
@@ -166,9 +166,11 @@ if [ "${fptype}" == "f" ]; then
   xsecthr="4E-4"
 elif [ "${fptype}" == "m" ]; then
   xsecthr="2E-4" # FIXME #537 (AV: by "fixme" I probably meant a stricter tolerance could be used, maybe E-5?)
-else
+elif [ "${fptype}" == "d" ]; then
   ###xsecthr="2E-14" # fails when updating gpucpp in PR #811
   xsecthr="3E-14"
+else
+  echo "INTERNAL ERROR! Unknown FPTYPE='${fptype}'" > /dev/stderr; exit 1
 fi
 
 # Determine the working directory below topdir based on suff, bckend and <process>

@@ -27,8 +27,12 @@ ifeq ($(BACKEND),gpucpp)
 endif
 
 # Set the default FPTYPE (floating point type) choice
+# NB: this only affects manual 'make' builds (madevent 'launch' builds are controlled by floating_type in run_card.dat)
 ifeq ($(FPTYPE),)
-  override FPTYPE = d
+  # OLD DEFAULT UP TO v1.00.00 INCLUDED (inconsistent with default floating_type='m' in run_card.dat)
+  ###override FPTYPE = d
+  # NEW DEFAULT (#995) AS OF v1.00.01 (now consistent with default floating_type='m' in run_card.dat)
+  override FPTYPE = m
 endif
 
 # Set the default HELINL (inline helicities?) choice

@@ -2959,6 +2959,7 @@ Beware that MG5aMC now changes your runtime options to a multi-core mode with on
         param_card_file.close()
 
         decay_lines = []
+        comment = collections.defaultdict(str)
         line_number = 0
         # Read and remove all decays from the param_card                     
         while line_number < len(param_card):
@@ -2968,6 +2969,7 @@ Beware that MG5aMC now changes your runtime options to a multi-core mode with on
                 # DECAY  6   1.455100e+00                                    
                 line = param_card.pop(line_number)
                 line = line.split()
+                comment[int(line[1])] = ' '.join(line).split('#',1)[1] if '#' in line else ''
                 particle = 0
                 if int(line[1]) not in decay_info:
                     try: # If formatting is wrong, don't want this particle
@@ -3013,7 +3015,7 @@ Beware that MG5aMC now changes your runtime options to a multi-core mode with on
         for key in sorted(decay_info.keys()):
             width = sum([r for p,r in decay_info[key]])
             param_card.append("#\n#      PDG        Width")
-            param_card.append("DECAY  %i   %e" % (key, width.real))
+            param_card.append("DECAY  %i   %e # %s" % (key, width.real, comment[int(key)]))
             if not width:
                 continue
             if decay_info[key][0][0]:
@@ -3721,6 +3723,10 @@ Beware that this can be dangerous for local multicore runs.""")
                                 '%s_%s_banner.txt' % (self.run_name, tag)))
         
 
+        if self.run_card['gridpack']:
+            return 
+        
+        
         get_wgt = lambda event: event.wgt            
         AllEvent = lhe_parser.MultiEventFile()
         AllEvent.banner = self.banner
@@ -4225,6 +4231,10 @@ Beware that this can be dangerous for local multicore runs.""")
         HepMC_event_output = None
         tag = self.run_tag
         
+        if self.options ['run_mode'] == 0 :
+            if hasattr(self, 'run_card') and PY8_Card['Main:numberOfEvents'] in [0,-1]:
+                PY8_Card.userSet('Main:numberOfEvents', self.run_card['nevents'])
+
         PY8_Card.subruns[0].systemSet('Beams:LHEF',"unweighted_events.lhe.gz")
 
         hepmc_format = PY8_Card['HEPMCoutput:file'].lower()
@@ -6875,11 +6885,15 @@ class GridPackCmd(MadEventCmd):
                 self.exec_cmd('systematics %s --from_card' % self.run_name,
                                                postcmd=False,printcmd=False)
             self.exec_cmd('decay_events -from_cards', postcmd=False)
-        elif self.run_card['use_syst'] and self.run_card['systematics_program'] == 'systematics':
-            self.options['nb_core']  = 1
-            self.exec_cmd('systematics %s --from_card' % 
-                          pjoin('Events', self.run_name, 'unweighted_events.lhe.gz'),
-                                               postcmd=False,printcmd=False)
+            if self.run_card['time_of_flight']>=0:
+                    self.exec_cmd("add_time_of_flight --threshold=%s" % self.run_card['time_of_flight'] ,postcmd=False)
+        else:
+            path = pjoin('Events', self.run_name, 'unweighted_events.lhe.gz')
+            if self.run_card['use_syst'] and self.run_card['systematics_program'] == 'systematics':
+                self.options['nb_core']  = 1
+                self.exec_cmd('systematics %s --from_card' % path, postcmd=False, printcmd=False)
+            if self.run_card['time_of_flight']>=0:
+                self.exec_cmd("add_time_of_flight %s --threshold=%s" % (path, self.run_card['time_of_flight']) ,postcmd=False)
             
 
     def refine4grid(self, nb_event):
@@ -7037,7 +7051,10 @@ class GridPackCmd(MadEventCmd):
                 sum_axsec += result.get('axsec')*gscalefact[Gdir]
                 
                 if len(AllEvent) >= 80: #perform a partial unweighting
-                    nb_event = min(abs(1.01*self.nb_event*sum_axsec/self.results.current['cross']),self.run_card['nevents'])
+                    if self.results.current['cross'] == 0 and self.run_card['gridpack']:
+                        nb_event= self.nb_event
+                    else:
+                        nb_event = min(abs(1.01*self.nb_event*sum_axsec/self.results.current['cross']),self.run_card['nevents'])
                     AllEvent.unweight(pjoin(outdir, self.run_name, "partials%s.lhe.gz" % partials),
                           get_wgt, log_level=5,  trunc_error=1e-2, event_target=nb_event)
                     AllEvent = lhe_parser.MultiEventFile()

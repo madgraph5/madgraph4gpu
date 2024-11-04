@@ -2,6 +2,7 @@
 This version is intended for development/beta testing and NOT for production.
 This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
 Running MG5 in debug mode
+Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -14,7 +15,7 @@ Running MG5 in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0_lo_vect         2024-06-17         *
+*         VERSION 3.6.0                 2024-09-30         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -57,7 +58,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005770444869995117 [0m
+[1;32mDEBUG: model prefixing  takes 0.00611424446105957 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -158,20 +159,17 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=3: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g WEIGHTED<=3 @2  
 INFO: Process has 16 diagrams 
-1 processes with 16 diagrams generated in 0.020 s
+1 processes with 16 diagrams generated in 0.019 s
 Total: 2 processes with 19 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_gg_tt01g --hel_recycling=False --vector_size=32
-Load PLUGIN.CUDACPP_OUTPUT
-[1;34mPlugin PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.6.0_lo_vect. 
-It has been validated for the last time with version: 3.5.2[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4334][0m [0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 165][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 171][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_gg_tt01g 
 INFO: remove old information in CODEGEN_mad_gg_tt01g 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 170][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 176][0m [0m
 [1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g [0m
 INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g 
 [1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/Cards [0m
@@ -182,44 +180,43 @@ INFO: Processing color information for process: g g > t t~ g @2
 INFO: Generating Helas calls for process: g g > t t~ WEIGHTED<=2 @1 
 INFO: Processing color information for process: g g > t t~ @1 
 INFO: Creating files in directory P2_gg_ttxg 
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1152][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g g > t t~ g WEIGHTED<=3 @2 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxg 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 15 [1;30m[model_handling.py at line 1523][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1548][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 15 [1;30m[model_handling.py at line 1527][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1551][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1552][0m [0m
 INFO: Creating files in directory P1_gg_ttx 
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1152][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g g > t t~ WEIGHTED<=2 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttx 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 3 [1;30m[model_handling.py at line 1523][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1548][0m [0m
-Generated helas calls for 2 subprocesses (19 diagrams) in 0.044 s
-Wrote files for 46 helas calls in 0.194 s
-[1;32mDEBUG:  self.vector_size = [0m 32 [1;30m[export_v4.py at line 7023][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 3 [1;30m[model_handling.py at line 1527][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1551][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1552][0m [0m
+Generated helas calls for 2 subprocesses (19 diagrams) in 0.043 s
+Wrote files for 46 helas calls in 0.184 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 5 routines in  0.332 s
+ALOHA: aloha creates 5 routines in  0.322 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 10 routines in  0.319 s
+ALOHA: aloha creates 10 routines in  0.311 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -229,12 +226,12 @@ ALOHA: aloha creates 10 routines in  0.319 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV3
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV4
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/src/./HelAmps_sm.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/src/./HelAmps_sm.h
 INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/src/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/src/./Parameters_sm.h
-FileWriter <class 'PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/src/./Parameters_sm.cc
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/src/./Parameters_sm.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/src/. 
 The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
@@ -248,28 +245,21 @@ DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01
 patching file SubProcesses/makefile
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/SubProcesses/P1_gg_ttx; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
-Hunk #2 succeeded at 227 (offset 13 lines).
 DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/SubProcesses/P2_gg_ttxg; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
 patching file driver.f
-Hunk #1 succeeded at 76 (offset 2 lines).
-Hunk #2 succeeded at 280 (offset 8 lines).
-Hunk #3 succeeded at 489 (offset 13 lines).
 patching file matrix1.f
-Hunk #2 succeeded at 243 (offset 29 lines).
-[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 258][0m [0m
+Hunk #2 succeeded at 243 (offset 16 lines).
+[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 263][0m [0m
 Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g done.
 Type "launch" to generate events from this process, or see
 /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt01g/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.887s
-user	0m2.344s
-sys	0m0.296s
+real	0m2.583s
+user	0m2.278s
+sys	0m0.302s
 Code generation completed in 3 seconds
 ************************************************************
 *                                                          *
@@ -283,7 +273,7 @@ Code generation completed in 3 seconds
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0_lo_vect                            *
+*         VERSION 3.6.0                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -313,7 +303,7 @@ launch in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0_lo_vect                            *
+*         VERSION 3.6.0                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
