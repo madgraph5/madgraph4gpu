@@ -15,9 +15,11 @@
         for( int icol = 0; icol < ncolor; icol++ )
           jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] ); // may underflow #831
 #else
+      assert( iParity == 0 ); // sanity check for J_ACCESS
+      using J_ACCESS = DeviceAccessJamp2;
       if( allJamp2s ) // disable color choice if nullptr
         for( int icol = 0; icol < ncolor; icol++ )
-          allJamp2s[( ncolor * iParity + icol ) * nevt + ievt] += cxabs2( jamp_sv[icol] );
+          J_ACCESS::kernelAccessIcol( allJamp2s, icol ) += cxabs2( jamp_sv[icol] );
 #endif
 #endif
 
