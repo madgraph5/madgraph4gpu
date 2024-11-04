@@ -177,6 +177,29 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL
+  class DeviceAccessJamp2
+  {
+  public:
+    static __device__ inline fptype&
+    kernelAccessIcol( fptype* buffer, const int icol )
+    {
+      const int nevt = gridDim.x * blockDim.x;
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+      return buffer[icol * nevt + ievt];
+    }
+    static __device__ inline const fptype&
+    kernelAccessIcolConst( const fptype* buffer, const int icol )
+    {
+      const int nevt = gridDim.x * blockDim.x;
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+      return buffer[icol * nevt + ievt];
+    }
+  };
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL
   __device__ INLINE unsigned int
   gpu_channelId( const unsigned int* allChannelIds )
   {
@@ -266,9 +289,7 @@ namespace mg5amcCpu
     //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
     //if( debug ) printf( "calculate_wavefunctions: ievt00=%d ihel=%2d\n", ievt00, ihel );
 #else
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // FIXME: NEED A KERNEL ACCESS FOR JAMP2? (THIS SHOULD BE FOR DEBUGGING ONLY!)
-#endif
+    //const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
     //debug = ( ievt == 0 );
     //if( debug ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d\n", ievt, ihel );
 #endif /* clang-format on */
@@ -415,9 +436,11 @@ namespace mg5amcCpu
         for( int icol = 0; icol < ncolor; icol++ )
           jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] ); // may underflow #831
 #else
+      assert( iParity == 0 ); // sanity check for J_ACCESS
+      using J_ACCESS = DeviceAccessJamp2;
       if( allJamp2s ) // disable color choice if nullptr
         for( int icol = 0; icol < ncolor; icol++ )
-          allJamp2s[( ncolor * iParity + icol ) * nevt + ievt] += cxabs2( jamp_sv[icol] );
+          J_ACCESS::kernelAccessIcol( allJamp2s, icol ) += cxabs2( jamp_sv[icol] );
 #endif
 #endif
 
@@ -1017,8 +1040,9 @@ namespace mg5amcCpu
       // Determine the jamp2 for this event (TEMPORARY? could do this with a dedicated memory accessor instead...)
       fptype_sv jamp2_sv[ncolor] = { 0 };
       assert( allJamp2s != nullptr ); // sanity check
+      using J_ACCESS = DeviceAccessJamp2;
       for( int icolC = 0; icolC < ncolor; icolC++ )
-        jamp2_sv[icolC] = allJamp2s[icolC * nevt + ievt];
+        jamp2_sv[icolC] = J_ACCESS::kernelAccessIcolConst( allJamp2s, icolC );
       // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
       // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
       const int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)

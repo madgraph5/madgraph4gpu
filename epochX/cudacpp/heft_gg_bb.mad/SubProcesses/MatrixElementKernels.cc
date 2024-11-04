@@ -222,7 +222,7 @@ namespace mg5amcCpu
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), nevt() );
 #else
     assert( useChannelIds == false );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), nevt() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), nevt() );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     //std::cout << "DEBUG: MatrixElementKernelHost::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
@@ -318,7 +318,9 @@ namespace mg5amcGpu
     , m_denominators( this->nevt() )
 #endif
     , m_pHelSelAux()
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     , m_pColSelAux()
+#endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     , m_hstChannelIds( this->nevt() )
 #endif
@@ -366,8 +368,7 @@ namespace mg5amcGpu
 
   int MatrixElementKernelDevice::computeGoodHelicities()
   {
-    constexpr int ncomb = CPPProcess::ncomb;   // the number of helicity combinations
-    constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
+    constexpr int ncomb = CPPProcess::ncomb; // the number of helicity combinations
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
     // ... 0d1. Compute good helicity mask (a host variable) on the device
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
@@ -381,8 +382,11 @@ namespace mg5amcGpu
     int nGoodHel = sigmaKin_setGoodHel( hstIsGoodHel.data() );
     // ... Create the auxiliary buffer for helicity selection (for each event: matrix element sum up to each good helicity)
     m_pHelSelAux.reset( new DeviceBufferSimple( nevt * nGoodHel ) );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // ... Create the auxiliary buffer for helicity selection (for each event: matrix element sum up to each color)
+    constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
     m_pColSelAux.reset( new DeviceBufferSimple( nevt * ncolor ) );
+#endif
     // Return the number of good helicities
     return nGoodHel;
   }
@@ -397,7 +401,7 @@ namespace mg5amcGpu
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads, m_pHelSelAux->data(), m_pColSelAux->data() );
 #else
     assert( useChannelIds == false );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads, m_pHelSelAux->data(), m_pColSelAux->data() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_gpublocks, m_gputhreads, m_pHelSelAux->data() );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     //std::cout << "DEBUG: MatrixElementKernelDevice::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
