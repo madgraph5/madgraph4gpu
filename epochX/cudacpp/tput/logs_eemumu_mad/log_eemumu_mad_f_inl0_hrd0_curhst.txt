@@ -40,7 +40,7 @@ make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum'
 
-DATE: 2024-11-03_23:26:22
+DATE: 2024-11-05_10:39:47
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
@@ -49,15 +49,15 @@ INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: 
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURHST+RMBDEV+MESDEV/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 1.313532e+08                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 6.920577e+08                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 9.363632e+08                 )  sec^-1
-MeanMatrixElemValue         = ( 2.143260e-04 +- 5.109719e-08 )  GeV^0
-TOTAL       :     0.847783 sec
+EvtsPerSec[Rmb+ME]     (23) = ( 1.308703e+08                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 6.910861e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.364736e+08                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371687e-02 +- 3.270220e-06 )  GeV^0
+TOTAL       :     0.884115 sec
 INFO: No Floating Point Exceptions have been reported
-     3,210,210,887      cycles                           #    2.994 GHz                    
-     6,517,080,872      instructions                     #    2.03  insn per cycle         
-       1.129259798 seconds time elapsed
+     3,129,045,672      cycles                           #    2.824 GHz                    
+     6,445,330,533      instructions                     #    2.06  insn per cycle         
+       1.166703286 seconds time elapsed
 runNcu /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.cuda_f_inl0_hrd0/check_cuda.exe -p 2048 256 1 --curhst
 ==WARNING== No kernels were profiled.
    launch__registers_per_thread N/A
@@ -65,13 +65,7 @@ runNcu /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProces
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.cuda_f_inl0_hrd0/runTest_cuda.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_GPU_NOMULTICHANNEL.compareMomAndME (10 ms)
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_GPU_MULTICHANNEL.compareMomAndME (7 ms)
-[  PASSED  ] 2 tests.
-[  FAILED  ] 2 tests, listed below:
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_GPU_NOMULTICHANNEL.compareMomAndME
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_GPU_MULTICHANNEL.compareMomAndME
- 2 FAILED TESTS
+[  PASSED  ] 4 tests.
 DEBUG: MEK (no multichannel) processed 512 events across 2 channels { no-multichannel : 512 }
 INFO: No Floating Point Exceptions have been reported
 DEBUG: MEK (channelid array) processed 512 events across 2 channels { 1 : 256, 2 : 256 }
@@ -79,9 +73,9 @@ INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.cuda_f_inl0_hrd0/check_cuda.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.cuda_f_inl0_hrd0/fcheck_cuda.exe 2 64 2
-Avg ME (C++/GPU)   = 2.004379e-04
-Avg ME (F77/GPU)   = 2.0043925195523116E-004
-Relative difference = 6.745007960917992e-06
+Avg ME (C++/GPU)   = 1.282802e-02
+Avg ME (F77/GPU)   = 1.2828112125134794E-002
+Relative difference = 7.1815552823662555e-06
 OK (relative difference <= 5E-3)
 =========================================================================
 Not found: /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.hip_f_inl0_hrd0/check_hip.exe
@@ -92,26 +86,20 @@ Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.3.1] [inlineHel=0
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 1.120315e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.323421e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.323421e+06                 )  sec^-1
-MeanMatrixElemValue         = ( 2.143293e-04 +- 5.109963e-08 )  GeV^0
-TOTAL       :     5.972727 sec
+EvtsPerSec[Rmb+ME]     (23) = ( 1.051457e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.241312e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.241312e+06                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371707e-02 +- 3.270376e-06 )  GeV^0
+TOTAL       :     6.366009 sec
 INFO: No Floating Point Exceptions have been reported
-    18,228,384,874      cycles                           #    3.050 GHz                    
-    45,005,005,243      instructions                     #    2.47  insn per cycle         
-       5.978252073 seconds time elapsed
+    18,224,633,422      cycles                           #    2.861 GHz                    
+    45,006,070,576      instructions                     #    2.47  insn per cycle         
+       6.371391521 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4:  411) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.none_f_inl0_hrd0/runTest_cpp.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_NOMULTICHANNEL.compareMomAndME (7 ms)
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_MULTICHANNEL.compareMomAndME (7 ms)
-[  PASSED  ] 2 tests.
-[  FAILED  ] 2 tests, listed below:
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_NOMULTICHANNEL.compareMomAndME
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_MULTICHANNEL.compareMomAndME
- 2 FAILED TESTS
+[  PASSED  ] 4 tests.
 DEBUG: MEK (no multichannel) processed 512 events across 2 channels { no-multichannel : 512 }
 INFO: No Floating Point Exceptions have been reported
 DEBUG: MEK (channelid array) processed 512 events across 2 channels { 1 : 256, 2 : 256 }
@@ -119,9 +107,9 @@ INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.none_f_inl0_hrd0/check_cpp.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.none_f_inl0_hrd0/fcheck_cpp.exe 2 64 2
-Avg ME (C++/C++)    = 2.004381e-04
-Avg ME (F77/C++)    = 2.0043812273229378E-004
-Relative difference = 1.1341303762264545e-07
+Avg ME (C++/C++)    = 1.282804e-02
+Avg ME (F77/C++)    = 1.2828039854866802E-002
+Relative difference = 1.1313746984080878e-08
 OK (relative difference <= 5E-3)
 =========================================================================
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.sse4_f_inl0_hrd0/check_cpp.exe -p 2048 256 12 --curhst OMP=
@@ -130,26 +118,20 @@ Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.3.1] [inlineHel=0
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[4] ('sse4': SSE4.2, 128bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.322775e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 3.543522e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 3.543522e+06                 )  sec^-1
-MeanMatrixElemValue         = ( 2.143293e-04 +- 5.109962e-08 )  GeV^0
-TOTAL       :     3.071225 sec
+EvtsPerSec[Rmb+ME]     (23) = ( 2.211435e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 3.372213e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.372213e+06                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371707e-02 +- 3.270376e-06 )  GeV^0
+TOTAL       :     3.228268 sec
 INFO: No Floating Point Exceptions have been reported
-     9,332,210,330      cycles                           #    3.035 GHz                    
-    22,277,723,378      instructions                     #    2.39  insn per cycle         
-       3.076338153 seconds time elapsed
+     9,296,430,389      cycles                           #    2.876 GHz                    
+    22,273,928,832      instructions                     #    2.40  insn per cycle         
+       3.233726427 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4: 1954) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.sse4_f_inl0_hrd0/runTest_cpp.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_NOMULTICHANNEL.compareMomAndME (7 ms)
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_MULTICHANNEL.compareMomAndME (7 ms)
-[  PASSED  ] 2 tests.
-[  FAILED  ] 2 tests, listed below:
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_NOMULTICHANNEL.compareMomAndME
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_MULTICHANNEL.compareMomAndME
- 2 FAILED TESTS
+[  PASSED  ] 4 tests.
 DEBUG: MEK (no multichannel) processed 512 events across 2 channels { no-multichannel : 512 }
 INFO: No Floating Point Exceptions have been reported
 DEBUG: MEK (channelid array) processed 512 events across 2 channels { 1 : 256, 2 : 256 }
@@ -157,9 +139,9 @@ INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.sse4_f_inl0_hrd0/check_cpp.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.sse4_f_inl0_hrd0/fcheck_cpp.exe 2 64 2
-Avg ME (C++/C++)    = 2.004381e-04
-Avg ME (F77/C++)    = 2.0043811375103360E-004
-Relative difference = 6.860488897222586e-08
+Avg ME (C++/C++)    = 1.282804e-02
+Avg ME (F77/C++)    = 1.2828039280066150E-002
+Relative difference = 5.612189004572479e-08
 OK (relative difference <= 5E-3)
 =========================================================================
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.avx2_f_inl0_hrd0/check_cpp.exe -p 2048 256 12 --curhst OMP=
@@ -168,26 +150,20 @@ Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.3.1] [inlineHel=0
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[8] ('avx2': AVX2, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.504661e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 3.847003e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 3.847003e+06                 )  sec^-1
-MeanMatrixElemValue         = ( 2.143291e-04 +- 5.109908e-08 )  GeV^0
-TOTAL       :     2.871458 sec
+EvtsPerSec[Rmb+ME]     (23) = ( 2.425567e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 3.700884e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.700884e+06                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270341e-06 )  GeV^0
+TOTAL       :     2.973566 sec
 INFO: No Floating Point Exceptions have been reported
-     8,407,039,867      cycles                           #    2.923 GHz                    
-    15,752,169,167      instructions                     #    1.87  insn per cycle         
-       2.876896688 seconds time elapsed
+     8,404,549,927      cycles                           #    2.822 GHz                    
+    15,757,099,435      instructions                     #    1.87  insn per cycle         
+       2.978692522 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2: 2565) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.avx2_f_inl0_hrd0/runTest_cpp.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_NOMULTICHANNEL.compareMomAndME (7 ms)
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_MULTICHANNEL.compareMomAndME (7 ms)
-[  PASSED  ] 2 tests.
-[  FAILED  ] 2 tests, listed below:
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_NOMULTICHANNEL.compareMomAndME
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_MULTICHANNEL.compareMomAndME
- 2 FAILED TESTS
+[  PASSED  ] 4 tests.
 DEBUG: MEK (no multichannel) processed 512 events across 2 channels { no-multichannel : 512 }
 INFO: No Floating Point Exceptions have been reported
 DEBUG: MEK (channelid array) processed 512 events across 2 channels { 1 : 256, 2 : 256 }
@@ -195,9 +171,9 @@ INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.avx2_f_inl0_hrd0/check_cpp.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.avx2_f_inl0_hrd0/fcheck_cpp.exe 2 64 2
-Avg ME (C++/C++)    = 2.004383e-04
-Avg ME (F77/C++)    = 2.0043833211502715E-004
-Relative difference = 1.6022400490930068e-07
+Avg ME (C++/C++)    = 1.282805e-02
+Avg ME (F77/C++)    = 1.2828053255361738E-002
+Relative difference = 2.5376902468575066e-07
 OK (relative difference <= 5E-3)
 =========================================================================
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512y_f_inl0_hrd0/check_cpp.exe -p 2048 256 12 --curhst OMP=
@@ -206,26 +182,20 @@ Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.3.1] [inlineHel=0
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[8] ('512y': AVX512, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.548907e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 3.939413e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 3.939413e+06                 )  sec^-1
-MeanMatrixElemValue         = ( 2.143291e-04 +- 5.109908e-08 )  GeV^0
-TOTAL       :     2.826195 sec
+EvtsPerSec[Rmb+ME]     (23) = ( 2.457288e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 3.772035e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.772035e+06                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270341e-06 )  GeV^0
+TOTAL       :     2.930106 sec
 INFO: No Floating Point Exceptions have been reported
-     8,310,569,795      cycles                           #    2.936 GHz                    
-    15,588,784,168      instructions                     #    1.88  insn per cycle         
-       2.831463159 seconds time elapsed
+     8,249,424,107      cycles                           #    2.811 GHz                    
+    15,588,000,333      instructions                     #    1.89  insn per cycle         
+       2.935643909 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2: 2462) (512y:   12) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512y_f_inl0_hrd0/runTest_cpp.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_NOMULTICHANNEL.compareMomAndME (7 ms)
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_MULTICHANNEL.compareMomAndME (7 ms)
-[  PASSED  ] 2 tests.
-[  FAILED  ] 2 tests, listed below:
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_NOMULTICHANNEL.compareMomAndME
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_MULTICHANNEL.compareMomAndME
- 2 FAILED TESTS
+[  PASSED  ] 4 tests.
 DEBUG: MEK (no multichannel) processed 512 events across 2 channels { no-multichannel : 512 }
 INFO: No Floating Point Exceptions have been reported
 DEBUG: MEK (channelid array) processed 512 events across 2 channels { 1 : 256, 2 : 256 }
@@ -233,9 +203,9 @@ INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512y_f_inl0_hrd0/check_cpp.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512y_f_inl0_hrd0/fcheck_cpp.exe 2 64 2
-Avg ME (C++/C++)    = 2.004383e-04
-Avg ME (F77/C++)    = 2.0043833211502715E-004
-Relative difference = 1.6022400490930068e-07
+Avg ME (C++/C++)    = 1.282805e-02
+Avg ME (F77/C++)    = 1.2828053255361738E-002
+Relative difference = 2.5376902468575066e-07
 OK (relative difference <= 5E-3)
 =========================================================================
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512z_f_inl0_hrd0/check_cpp.exe -p 2048 256 12 --curhst OMP=
@@ -244,26 +214,20 @@ Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.3.1] [inlineHel=0
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[16] ('512z': AVX512, 512bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.570625e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 3.952786e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 3.952786e+06                 )  sec^-1
-MeanMatrixElemValue         = ( 2.143291e-04 +- 5.109909e-08 )  GeV^0
-TOTAL       :     2.812608 sec
+EvtsPerSec[Rmb+ME]     (23) = ( 2.444718e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 3.732363e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.732363e+06                 )  sec^-1
+MeanMatrixElemValue         = ( 1.371706e-02 +- 3.270342e-06 )  GeV^0
+TOTAL       :     2.944503 sec
 INFO: No Floating Point Exceptions have been reported
-     6,639,817,007      cycles                           #    2.357 GHz                    
-    12,863,042,985      instructions                     #    1.94  insn per cycle         
-       2.818002599 seconds time elapsed
+     6,653,935,385      cycles                           #    2.257 GHz                    
+    12,864,152,371      instructions                     #    1.93  insn per cycle         
+       2.949767353 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2: 1698) (512y:   16) (512z: 1440)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512z_f_inl0_hrd0/runTest_cpp.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_NOMULTICHANNEL.compareMomAndME (7 ms)
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_MULTICHANNEL.compareMomAndME (7 ms)
-[  PASSED  ] 2 tests.
-[  FAILED  ] 2 tests, listed below:
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_NOMULTICHANNEL.compareMomAndME
-[  FAILED  ] SIGMA_SM_EPEM_MUPMUM_CPU_MULTICHANNEL.compareMomAndME
- 2 FAILED TESTS
+[  PASSED  ] 4 tests.
 DEBUG: MEK (no multichannel) processed 512 events across 2 channels { no-multichannel : 512 }
 INFO: No Floating Point Exceptions have been reported
 DEBUG: MEK (channelid array) processed 512 events across 2 channels { 1 : 256, 2 : 256 }
@@ -271,9 +235,9 @@ INFO: No Floating Point Exceptions have been reported
 -------------------------------------------------------------------------
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512z_f_inl0_hrd0/check_cpp.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum/build.512z_f_inl0_hrd0/fcheck_cpp.exe 2 64 2
-Avg ME (C++/C++)    = 2.004383e-04
-Avg ME (F77/C++)    = 2.0043832165583808E-004
-Relative difference = 1.0804241551052471e-07
+Avg ME (C++/C++)    = 1.282805e-02
+Avg ME (F77/C++)    = 1.2828052585973637E-002
+Relative difference = 2.0158743040564767e-07
 OK (relative difference <= 5E-3)
 =========================================================================
 
