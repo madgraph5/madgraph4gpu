@@ -17,6 +17,7 @@
 
 #include "mgOnGpuVectors.h"
 
+#include "GpuAbstraction.h"
 #include "Parameters_%(model_name)s.h"
 
 #include <vector>
@@ -96,6 +97,7 @@ namespace mg5amcCpu
 #endif
             const int gpublocks,                // input: cuda gpublocks
             const int gputhreads,               // input: cuda gputhreads
+            gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
             fptype* allMEs_ighel                // tmp: allMEs_ighel[nGoodHel][nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             , fptype* jamp2_sv                  // tmp: allJamp2s_icol[ncolor][nevt], |M|^2 running_sum_over_colors
