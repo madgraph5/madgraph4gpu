@@ -8,6 +8,8 @@
 
 #include "mgOnGpuConfig.h"
 
+#include "CPPProcess.h"
+#include "GpuAbstraction.h"
 #include "MemoryBuffers.h"
 
 #include <map>
@@ -199,6 +201,9 @@ namespace mg5amcCpu
     // The buffer for the event-by-event denominators of multichannel factors
     DeviceBufferDenominators m_denominators;
 #endif
+
+    // The array of GPU streams (one for each good helicity)
+    gpuStream_t m_helStreams[CPPProcess::ncomb]; // reserve ncomb streams (but only nGoodHel <= ncomb will be used)
 
     // The auxiliary buffer for helicity selection
     std::unique_ptr<DeviceBufferSimple> m_pHelSelAux;

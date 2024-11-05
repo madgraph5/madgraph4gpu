@@ -1170,6 +1170,7 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
             const int gpublocks,                // input: cuda gpublocks
             const int gputhreads,               // input: cuda gputhreads
+            gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
             fptype* allMEs_ighel                // tmp: allMEs_ighel[nGoodHel][nevt], |M|^2 running_sum_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             , fptype* allJamp2s                 // tmp: allJamp2s_icol[ncolor][nevt], |M|^2 running_sum_over_colors
@@ -1249,9 +1250,9 @@ namespace mg5amcCpu
     {
       const int ihel = cGoodHel[ighel];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, allChannelIds, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
+      gpuLaunchKernelStream( calculate_wavefunctions, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, allMEs, allChannelIds, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
 #else
-      gpuLaunchKernel( calculate_wavefunctions, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allMEs, gpublocks * gputhreads );
+      gpuLaunchKernelStream( calculate_wavefunctions, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, allMEs, gpublocks * gputhreads );
 #endif
       gpuMemcpy( &( allMEs_ighel[ighel * nevt] ), allMEs, nevt * sizeof( fptype ), gpuMemcpyDeviceToDevice );
     }

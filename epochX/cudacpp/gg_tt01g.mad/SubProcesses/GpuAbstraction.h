@@ -35,7 +35,12 @@
 #define gpuDeviceReset cudaDeviceReset
 
 #define gpuLaunchKernel( kernel, blocks, threads, ... ) kernel<<<blocks, threads>>>( __VA_ARGS__ )
-#define gpuLaunchKernelSharedMem( kernel, blocks, threads, sharedMem, ... ) kernel<<<blocks, threads, sharedMem>>>( __VA_ARGS__ )
+//#define gpuLaunchKernelSharedMem( kernel, blocks, threads, sharedMem, ... ) kernel<<<blocks, threads, sharedMem>>>( __VA_>
+#define gpuLaunchKernelStream( kernel, blocks, threads, stream, ... ) kernel<<<blocks, threads, 0, stream>>>( __VA_ARGS__ )
+
+#define gpuStream_t cudaStream_t
+#define gpuStreamCreate cudaStreamCreate
+#define gpuStreamDestroy cudaStreamDestroy
 
 //--------------------------------------------------------------------------
 
@@ -64,7 +69,12 @@
 #define gpuDeviceReset hipDeviceReset
 
 #define gpuLaunchKernel( kernel, blocks, threads, ... ) kernel<<<blocks, threads>>>( __VA_ARGS__ )
-#define gpuLaunchKernelSharedMem( kernel, blocks, threads, sharedMem, ... ) kernel<<<blocks, threads, sharedMem>>>( __VA_ARGS__ )
+//#define gpuLaunchKernelSharedMem( kernel, blocks, threads, sharedMem, ... ) kernel<<<blocks, threads, sharedMem>>>( __VA_>
+#define gpuLaunchKernelStream( kernel, blocks, threads, stream, ... ) kernel<<<blocks, threads, 0, stream>>>( __VA_ARGS__ )
+
+#define gpuStream_t hipStream_t
+#define gpuStreamCreate hipStreamCreate
+#define gpuStreamDestroy hipStreamDestroy
 
 //--------------------------------------------------------------------------
 

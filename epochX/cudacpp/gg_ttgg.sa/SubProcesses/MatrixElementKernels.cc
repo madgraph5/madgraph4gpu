@@ -317,6 +317,7 @@ namespace mg5amcGpu
     , m_numerators( this->nevt() )
     , m_denominators( this->nevt() )
 #endif
+    , m_helStreams()
     , m_pHelSelAux()
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     , m_pColSelAux()
@@ -352,6 +353,8 @@ namespace mg5amcGpu
   MatrixElementKernelDevice::~MatrixElementKernelDevice()
   {
     //std::cout << "DEBUG: MatrixElementKernelDevice::dtor " << this << std::endl;
+    for( int ihel = 0; ihel < CPPProcess::ncomb; ihel++ )
+      if( m_helStreams[ihel] ) cudaStreamDestroy( m_helStreams[ihel] ); // do not destroy if nullptr
   }
 
   //--------------------------------------------------------------------------
@@ -380,10 +383,13 @@ namespace mg5amcGpu
 #endif
     // ... 0d3. Set good helicity list in host static memory
     int nGoodHel = sigmaKin_setGoodHel( hstIsGoodHel.data() );
+    // Create one GPU stream for each good helicity
+    for( int ighel = 0; ighel < nGoodHel; ighel++ )
+      cudaStreamCreate( &m_helStreams[ighel] );
     // ... Create the auxiliary buffer for helicity selection (for each event: matrix element sum up to each good helicity)
     m_pHelSelAux.reset( new DeviceBufferSimple( nevt * nGoodHel ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // ... Create the auxiliary buffer for helicity selection (for each event: matrix element sum up to each color)
+    // ... Create the auxiliary buffer for color selection (for each event: matrix element sum up to each color)
     constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
     m_pColSelAux.reset( new DeviceBufferSimple( nevt * ncolor ) );
 #endif
@@ -398,10 +404,10 @@ namespace mg5amcGpu
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads, m_pHelSelAux->data(), m_pColSelAux->data() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), m_gpublocks, m_gputhreads, m_helStreams, m_pHelSelAux->data(), m_pColSelAux->data() );
 #else
     assert( useChannelIds == false );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_gpublocks, m_gputhreads, m_pHelSelAux->data() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_gpublocks, m_gputhreads, m_helStreams, m_pHelSelAux->data() );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     //std::cout << "DEBUG: MatrixElementKernelDevice::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
