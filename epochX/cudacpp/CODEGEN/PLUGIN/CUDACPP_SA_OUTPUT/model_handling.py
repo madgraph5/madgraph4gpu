@@ -1324,12 +1324,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #else
                            const unsigned int channelId,      // input: multichannel SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
 #endif
-                           fptype* allNumerators,             // output: multichannel numerators[nevt], running_sum_over_helicities
-                           fptype* allDenominators,           // output: multichannel denominators[nevt], running_sum_over_helicities
+                           fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
+                           fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
 #endif
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           fptype_sv* allJamp2s,              // output: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
+                           fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, runsum over colors and helicities (nullptr if disabled)
 #endif
                            const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else

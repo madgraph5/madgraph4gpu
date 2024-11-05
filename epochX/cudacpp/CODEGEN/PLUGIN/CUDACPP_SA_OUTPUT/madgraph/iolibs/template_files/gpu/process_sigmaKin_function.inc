@@ -14,10 +14,11 @@
     const int nevt = gpublocks * gputhreads;
     gpuMemset( allMEs, 0, nevt * sizeof( fptype ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    gpuMemset( allJamp2s, 0, nevt * ncolor * sizeof( fptype ) );
-    gpuMemset( allNumerators, 0, nevt * sizeof( fptype ) );
-    gpuMemset( allDenominators, 0, nevt * sizeof( fptype ) );
+    gpuMemset( colAllJamp2s, 0, ncolor * nevt * sizeof( fptype ) );
+    gpuMemset( ghelAllNumerators, 0, cNGoodHel * nevt * sizeof( fptype ) );
+    gpuMemset( ghelAllDenominators, 0, cNGoodHel * nevt * sizeof( fptype ) );
 #endif
+    gpuMemset( ghelAllMEs, 0, cNGoodHel * nevt * sizeof( fptype ) );
 #else
     const int npagV = nevt / neppV;
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
@@ -49,23 +50,22 @@
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
+      fptype* hAllMEs = ghelAllMEs + ighel * nevt;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      gpuLaunchKernelStream( calculate_wavefunctions, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, allMEs, allChannelIds, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
+      fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
+      fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
+      gpuLaunchKernelStream( calculate_wavefunctions, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllMEs, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
 #else
-      gpuLaunchKernelStream( calculate_wavefunctions, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, allMEs, gpublocks * gputhreads );
+      gpuLaunchKernelStream( calculate_wavefunctions, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllMEs, nevt );
 #endif
     }
-    // Defer memcpy after launching all helicities (otherwise this would block after each helicity, even if cudaMemcpyAsync is used)
-    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
-    {
-      gpuMemcpy( &( allMEs_ighel[ighel * nevt] ), allMEs, nevt * sizeof( fptype ), gpuMemcpyDeviceToDevice );
-    }
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
+    // Compute the sum of MEs over all good helicities (defer this after the helicity loop to avoid breaking streams parall>
     // Event-by-event random choice of helicity #403
-    gpuLaunchKernel( select_hel, gpublocks, gputhreads, allselhel, allrndhel, allMEs_ighel, gpublocks * gputhreads );
+    gpuLaunchKernel( add_and_select_hel, gpublocks, gputhreads, allselhel, allrndhel, ghelAllMEs, allMEs, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
-    gpuLaunchKernel( select_col, gpublocks, gputhreads, allselcol, allrndcol, allChannelIds, allJamp2s, gpublocks * gputhreads );
+    gpuLaunchKernel( select_col, gpublocks, gputhreads, allselcol, allrndcol, allChannelIds, colAllJamp2s, gpublocks * gputhreads );
 #endif
     // *** END OF PART 1a - CUDA (one event per GPU thread) ***
 
@@ -152,7 +152,7 @@
         // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
         calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
+        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, ievt00 );
 #endif
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
@@ -294,10 +294,9 @@
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-    // (TODO OM: see how to handle the renormalization here... dedicated kernel or move it within each calculate_wavefunctions?)
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, allNumerators, allDenominators, allChannelIds, helcolDenominators[0] );
+    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, ghelAllNumerators, ghelAllDenominators, allChannelIds, helcolDenominators[0] );
 #else
     gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, helcolDenominators[0] );
 #endif
