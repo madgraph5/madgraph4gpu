@@ -45,6 +45,7 @@
     // *** START OF PART 1a - CUDA (one event per GPU thread) ***
     // Running sum of partial amplitudes squared for event by event color selection (#402)
     // (for the single event processed in calculate_wavefunctions)
+    // Use CUDA/HIP streams to process different helicities in parallel (one good helicity per stream)
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
@@ -53,6 +54,10 @@
 #else
       gpuLaunchKernelStream( calculate_wavefunctions, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, allMEs, gpublocks * gputhreads );
 #endif
+    }
+    // Defer memcpy after launching all helicities (otherwise this would block after each helicity, even if cudaMemcpyAsync is used)
+    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+    {
       gpuMemcpy( &( allMEs_ighel[ighel * nevt] ), allMEs, nevt * sizeof( fptype ), gpuMemcpyDeviceToDevice );
     }
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
