@@ -3342,7 +3342,7 @@ namespace mg5amcCpu
             , fptype* allJamp2s                 // tmp: allJamp2s_icol[ncolor][nevt], |M|^2 running_sum_over_colors
 #endif
 #else
-            , const int nevt                    // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+            const int nevt                      // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
             ) /* clang-format on */
   {
