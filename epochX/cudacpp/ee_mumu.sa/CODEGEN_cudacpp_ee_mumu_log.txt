@@ -58,7 +58,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006481170654296875 [0m
+[1;32mDEBUG: model prefixing  takes 0.006520509719848633 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -175,7 +175,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 4 routines in  0.282 s
+ALOHA: aloha creates 4 routines in  0.278 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -194,7 +194,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. 
 quit
 
-real	0m1.778s
-user	0m0.636s
-sys	0m0.048s
-Code generation completed in 2 seconds
+real	0m0.697s
+user	0m0.634s
+sys	0m0.057s
+Code generation completed in 1 seconds

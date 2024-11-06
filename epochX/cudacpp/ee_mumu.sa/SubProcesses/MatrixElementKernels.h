@@ -194,23 +194,18 @@ namespace mg5amcCpu
     // The buffer for the event-by-event couplings that depends on alphas QCD
     DeviceBufferCouplings m_couplings;
 
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // The buffer for the event-by-event numerators of multichannel factors
-    DeviceBufferNumerators m_numerators;
-
-    // The buffer for the event-by-event denominators of multichannel factors
-    DeviceBufferDenominators m_denominators;
-#endif
-
-    // The array of GPU streams (one for each good helicity)
-    gpuStream_t m_helStreams[CPPProcess::ncomb]; // reserve ncomb streams (but only nGoodHel <= ncomb will be used)
-
-    // The auxiliary buffer for helicity selection
-    std::unique_ptr<DeviceBufferSimple> m_pHelSelAux;
+    // The super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelMEs;
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // The auxiliary buffer for color selection
-    std::unique_ptr<DeviceBufferSimple> m_pColSelAux;
+    // The super-buffer of nGoodHel numerator buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelNumerators;
+
+    // The super-buffer of nGoodHel denominator buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelDenominators;
+
+    // The super-buffer of ncolor jamp2 buffers
+    DeviceBufferSimple m_colJamp2s;
 #endif
 
 #ifdef MGONGPU_CHANNELID_DEBUG
@@ -218,6 +213,9 @@ namespace mg5amcCpu
     // FIXME? MEKD should accept a host buffer as an argument instead of a device buffer, so that a second copy can be avoided?
     PinnedHostBufferChannelIds m_hstChannelIds;
 #endif
+
+    // The array of GPU streams (one for each good helicity)
+    gpuStream_t m_helStreams[CPPProcess::ncomb]; // reserve ncomb streams (but only nGoodHel <= ncomb will be used)
 
     // The number of blocks in the GPU grid
     size_t m_gpublocks;

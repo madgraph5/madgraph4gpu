@@ -162,24 +162,20 @@ namespace mg5amcCpu
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
+            const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
 #endif
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
-            fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
-#endif
             int* allselhel,                     // output: helicity selection[nevt]
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             int* allselcol,                     // output: helicity selection[nevt]
+            fptype* colAllJamp2s,               // tmp: allJamp2s super-buffer for ncolor individual colors, running sum over colors and helicities
+            fptype* ghelAllNumerators,          // tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            fptype* ghelAllDenominators,        // tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
 #endif
-            const int gpublocks,                // input: cuda gpublocks
-            const int gputhreads,               // input: cuda gputhreads
+            fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
-            fptype* allMEs_ighel                // tmp: allMEs_ighel[nGoodHel][nevt], |M|^2 running_sum_over_helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            , fptype* jamp2_sv                  // tmp: allJamp2s_icol[ncolor][nevt], |M|^2 running_sum_over_colors
-#endif
+            const int gpublocks,                // input: cuda gpublocks
+            const int gputhreads                // input: cuda gputhreads
             );
 #else
   void
@@ -188,16 +184,14 @@ namespace mg5amcCpu
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
+            const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899)
 #endif
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-            const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899)
-            fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
-#endif
             int* allselhel,                     // output: helicity selection[nevt]
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             int* allselcol,                     // output: helicity selection[nevt]
+            fptype* allNumerators,              // tmp: multichannel numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,            // tmp: multichannel denominators[nevt], running_sum_over_helicities
 #endif
             const int nevt );                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif /* clang-format on */
