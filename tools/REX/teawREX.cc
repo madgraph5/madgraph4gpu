@@ -507,11 +507,14 @@ namespace REX::teaw
             if( this->ampNorm != 0.0 ){ return; }
             auto xSecLines = this->lheFile->getInit()->getLines();
             if( xSecLines.size() > 1 ){
-                std::cout << "\n\033[1;33mWarning: Multiple cross-section lines found in LHE file.\nteawREX only supports single (inclusive) process reweighting.\nWill proceed assuming all events belong to first process type.\033[0m\n";
+                std::cout << "\n\033[1;33mWarning: Multiple cross-section lines found in LHE file.\nAssuming total cross section given by sum of all cross sections.\033[0m\n";
             }
             if( xSecLines.size() == 0 )
                 throw std::runtime_error( "No cross-section information found in LHE file." );
-            auto xSec = std::stod(std::string(xSecLines[0]->xsecup));
+            double xSec = 0.0;
+            for( size_t k = 0 ; k < xSecLines.size() ; ++k ){
+                xSec += std::stod(std::string(xSecLines[k]->xsecup));
+            }
             double div = 0.0;
             bool sameWeight = true;
             for( size_t k = 1 ; k < this->flatWgts->size() - 1 ; k += size_t(flatWgts->size()/21) ){
@@ -658,8 +661,13 @@ namespace REX::teaw
             double invN = 1. / double(reWgts->at(0)->size());
             double sqrtInvN = std::sqrt( invN );
             auto xSecLines = this->lheFile->getInit()->getLines();
-            double xSec = std::stod(std::string(xSecLines[0]->xsecup));
-            double xErr = std::stod(std::string(xSecLines[0]->xerrup));
+            double xSec = 0.0;
+            double xErr = 0.0;
+            for( size_t k = 0 ; k < xSecLines.size() ; ++k ){
+                xSec += std::stod(std::string(xSecLines[k]->xsecup));
+                xErr += std::pow(std::stod(std::string(xSecLines[k]->xerrup)),2);
+            }
+            xErr = std::sqrt( xErr );
             for( size_t k = 0 ; k < reWgts->size() ; ++k ){
                 double xSecCurr = normXSecs->at(k);
                 auto locWgts = reWgts->at(k);

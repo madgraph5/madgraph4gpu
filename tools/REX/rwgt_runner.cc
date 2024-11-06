@@ -21,6 +21,16 @@
 namespace %(process_namespace)s{
 //namespace dummy{
 
+    std::vector<std::vector<std::string_view>> getInitPrts(){
+        static std::vector<std::vector<std::string_view>> initPrts = {%(init_prt_ids)s};
+        return initPrts;
+    }
+
+    std::vector<std::vector<std::string_view>> getFinPrts(){
+        static std::vector<std::vector<std::string_view>> finPrts = {%(fin_prt_ids)s};
+        return finPrts;
+    }
+
     std::shared_ptr<std::vector<FORTRANFPTYPE>> amp( int& nEvt, int& nPar, int& nMom, std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS, std::vector<FORTRANFPTYPE>& rndHel, std::vector<FORTRANFPTYPE>& rndCol, std::vector<int>& selHel, std::vector<int>& selCol, unsigned int& chanId, bool& goodHel ){
         CppObjectInFortran *bridgeInst;
         auto evalScatAmps = std::make_shared<std::vector<FORTRANFPTYPE>>( nEvt );
@@ -45,8 +55,8 @@ namespace %(process_namespace)s{
     }
 
     std::shared_ptr<std::vector<size_t>> procSort( std::string_view status, std::vector<std::string_view> arguments, size_t index ){
-        std::vector<std::vector<std::string_view>> initPrts = {%(init_prt_ids)s};
-        std::vector<std::vector<std::string_view>> finPrts = {%(fin_prt_ids)s};
+        std::vector<std::vector<std::string_view>> initPrts = getInitPrts();
+        std::vector<std::vector<std::string_view>> finPrts = getFinPrts();
         std::shared_ptr<std::vector<size_t>> refOrder;
     if( index == REX::npos ){
 	if( status == "-1" ){
@@ -81,11 +91,13 @@ namespace %(process_namespace)s{
 
     bool checkProc( REX::event& process, std::vector<std::string>& relStats ){
         size_t no_evts = %(no_events)s;
+        auto finPrts = getFinPrts();
         for( size_t k = 0 ; k < no_evts ; ++k ){
             REX::statSort locSort = [ind = k](std::string_view status, std::vector<std::string_view> arguments){
                 return procSort( status, arguments, ind );
             };
             auto order = process.getProcOrder( locSort );
+            if( order.at("1").size() != finPrts[k].size() ){ continue; }
             for( size_t j = 0 ; j < relStats.size() ; ++j ){
                 auto currPts = order.at( relStats[j] );
                 if( std::find(currPts.begin(), currPts.end(), REX::npos) != currPts.end() ){ break; }

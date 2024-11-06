@@ -656,8 +656,9 @@ class TREX_ReweightInterface(rwgt_interface.ReweightInterface):
             for line in self.banner['init'].split('\n'):
                 split = line.split()
                 if len(split) == 4:
-                    cross, error = float(split[0]), float(split[1])
-        
+                    cross += float(split[0])
+                    error += float(split[1])**2
+            error = error**0.5
         if not self.multicore == 'create':
             # No print of results for the multicore mode for the one printed on screen
             if 'orig' not in self.all_cross_section:
