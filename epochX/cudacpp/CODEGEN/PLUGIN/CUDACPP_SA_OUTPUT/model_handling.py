@@ -1318,22 +1318,21 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                            const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                            const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
                            fptype* allMEs,                    // output: allMEs[nevt], |M|^2 running_sum_over_helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+
 #ifdef MGONGPUCPP_GPUIMPL
-                           const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
-#else
-                           const unsigned int channelId,      // input: multichannel SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
-#endif
+                           fptype_sv* allJamps,               // output: jamp[ncolor*2*nevt] _for this specific ihel_
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                           const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE (#899/#911)
                            fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                            fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
-#endif
-#ifdef MGONGPUCPP_GPUIMPL
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, runsum over colors and helicities (nullptr if disabled)
+                           fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
 #endif
                            const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                           const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
+                           fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
+                           fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
                            fptype_sv* jamp2_sv,               // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #endif
                            const int ievt00                   // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)

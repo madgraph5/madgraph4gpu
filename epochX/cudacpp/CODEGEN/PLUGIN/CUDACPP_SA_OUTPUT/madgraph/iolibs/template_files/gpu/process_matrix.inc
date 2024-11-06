@@ -15,12 +15,12 @@
         for( int icol = 0; icol < ncolor; icol++ )
           jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] ); // may underflow #831
 #else
-      assert( iParity == 0 ); // sanity check for J_ACCESS
-      using J_ACCESS = DeviceAccessJamp2;
+      assert( iParity == 0 ); // sanity check for J2_ACCESS
+      using J2_ACCESS = DeviceAccessJamp2;
       if( colAllJamp2s ) // disable color choice if nullptr
         for( int icol = 0; icol < ncolor; icol++ )
           // NB: atomicAdd is needed after moving to cuda streams with one helicity per stream!
-          atomicAdd( &J_ACCESS::kernelAccessIcol( colAllJamp2s, icol ), cxabs2( jamp_sv[icol] ) );
+          atomicAdd( &J2_ACCESS::kernelAccessIcol( colAllJamp2s, icol ), cxabs2( jamp_sv[icol] ) );
 #endif
 #endif
 
