@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2024) for the MG5aMC CUDACPP plugin.
 
 #include "MatrixElementKernels.h"
 
@@ -60,7 +60,9 @@ namespace mg5amcCpu
 #ifdef MGONGPU_CHANNELID_DEBUG
     MatrixElementKernelBase::dumpNevtProcessedByChannel();
 #endif
-   // MatrixElementKernelBase::dumpSignallingFPEs();
+#ifdef MGONGPU_VERBOSE_FPES
+    MatrixElementKernelBase::dumpSignallingFPEs();
+#endif
   }
 
   //--------------------------------------------------------------------------
@@ -130,7 +132,9 @@ namespace mg5amcCpu
     if( std::fetestexcept( FE_OVERFLOW ) ) fpes += " FE_OVERFLOW";
     if( std::fetestexcept( FE_UNDERFLOW ) ) fpes += " FE_UNDERFLOW";
     //if( std::fetestexcept( FE_INEXACT ) ) fpes += " FE_INEXACT"; // do not print this out: this would almost always signal!
-    if( fpes != "" )
+    if( fpes == "" )
+      std::cout << "INFO: No Floating Point Exceptions have been reported" << std::endl;
+    else
       std::cerr << "INFO: The following Floating Point Exceptions have been reported:" << fpes << std::endl;
   }
 
@@ -272,13 +276,14 @@ namespace mg5amcCpu
 #endif
     if( verbose )
     {
-      if( tag != "none" ){
-        //std::cout << "INFO: The application does not require the host to support any AVX feature" << std::endl;
-      if( ok && !known )
+      if( tag == "none" )
+        std::cout << "INFO: The application does not require the host to support any AVX feature" << std::endl;
+      else if( ok && known )
+        std::cout << "INFO: The application is built for " << tag << " and the host supports it" << std::endl;
+      else if( ok )
         std::cout << "WARNING: The application is built for " << tag << " but it is unknown if the host supports it" << std::endl;
-      else if ( !ok && known )
+      else
         std::cout << "ERROR! The application is built for " << tag << " but the host does not support it" << std::endl;
-    }
     }
     return ok;
   }

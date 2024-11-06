@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Roiser (Nov 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Roiser, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2021-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef BRIDGE_H
 #define BRIDGE_H 1
@@ -255,19 +255,22 @@ namespace mg5amcCpu
         throw std::logic_error( "Bridge constructor: FIXME! cannot choose gputhreads" ); // this should never happen!
       m_gpublocks = m_nevt / m_gputhreads;
     }
-    //std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
-    //          << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
+#ifdef MGONGPU_VERBOSE_BRIDGE
+    std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
+              << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
+#endif
     m_pmek.reset( new MatrixElementKernelDevice( m_devMomentaC, m_devGs, m_devRndHel, m_devRndCol, m_devChannelIds, m_devMEs, m_devSelHel, m_devSelCol, m_gpublocks, m_gputhreads ) );
 #else
-    //std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
+#ifdef MGONGPU_VERBOSE_BRIDGE
+    std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
+#endif
     m_pmek.reset( new MatrixElementKernelHost( m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstChannelIds, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
 #endif // MGONGPUCPP_GPUIMPL
     // Create a process object, read param card and set parameters
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton? what if fbridgecreate is called from several Fortran threads?
     CPPProcess process( /*verbose=*/false );
-    std::string paramCard = "../../Cards/param_card.dat";
-    std::string paramCardTrex = "../Cards/param_card.dat";
+    std::string paramCard = "../Cards/param_card.dat"; // ZW: change default param_card.dat location to one dir down
     /*
 #ifdef __HIPCC__
     if( !std::experimental::filesystem::exists( paramCard ) ) paramCard = "../" + paramCard;
@@ -279,8 +282,12 @@ namespace mg5amcCpu
     //if( !( stat( paramCard.c_str(), &dummyBuffer ) == 0 ) ) paramCard = "../" + paramCard; //
     auto fileExists = []( std::string& fileName )
     { struct stat buffer; return stat( fileName.c_str(), &buffer ) == 0; };
-    if( fileExists( paramCardTrex ) ) paramCard = paramCardTrex; // ZW: override param_card.dat to be one dir down since trex runs from the SubProcesses dir directory
-    if( !fileExists( paramCard ) ) paramCard = "../" + paramCard; // bypass std::filesystem #803
+    size_t paramCardCheck = 2; // ZW: check for paramCard up to 2 directories up
+    for( size_t k = 0 ; k < paramCardCheck ; ++k )
+    {
+      if( fileExists( paramCard ) ) break;  // bypass std::filesystem #803
+      paramCard = "../" + paramCard;
+    }
     process.initProc( paramCard );
   }
 
@@ -349,7 +356,9 @@ namespace mg5amcCpu
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( useChannelIds );
     copyHostFromDevice( m_hstMEs, m_devMEs );
-    //flagAbnormalMEs( m_hstMEs.data(), m_nevt );
+#ifdef MGONGPU_VERBOSE_BRIDGE
+    flagAbnormalMEs( m_hstMEs.data(), m_nevt );
+#endif
     copyHostFromDevice( m_hstSelHel, m_devSelHel );
     copyHostFromDevice( m_hstSelCol, m_devSelCol );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
@@ -402,7 +411,9 @@ namespace mg5amcCpu
     }
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( useChannelIds );
-    //flagAbnormalMEs( m_hstMEs.data(), m_nevt );
+#ifdef MGONGPU_VERBOSE_BRIDGE
+    flagAbnormalMEs( m_hstMEs.data(), m_nevt );
+#endif
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {
       memcpy( mes, m_hstMEs.data(), m_hstMEs.bytes() );

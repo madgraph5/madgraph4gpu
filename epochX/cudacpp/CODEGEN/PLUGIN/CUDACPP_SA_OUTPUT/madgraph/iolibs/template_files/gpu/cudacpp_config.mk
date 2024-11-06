@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Mar 2024) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi, Z. Wettersten (2024) for the MG5aMC CUDACPP plugin.
 
 #-------------------------------------------------------------------------------
 
@@ -13,7 +13,8 @@ ifeq ($(BACKEND),)
   override BACKEND = gpucpp
 endif
 
-# Stop immediately if BACKEND=cuda but nvcc is missing
+# ZW: gpucpp backend checks if there is a GPU backend available before going to SIMD
+# prioritises CUDA over HIP
 ifeq ($(BACKEND),gpucpp)
   ifeq ($(shell which nvcc 2>/dev/null),)
     ifeq ($(shell which hipcc 2>/dev/null),)

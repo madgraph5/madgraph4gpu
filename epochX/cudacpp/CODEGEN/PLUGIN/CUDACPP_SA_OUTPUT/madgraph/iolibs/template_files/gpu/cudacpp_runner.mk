@@ -552,6 +552,7 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): C++ rwgt libraries
+# ZW: the -Bsymbolic flag ensures that function calls will be handled internally by the library, rather than going to global context
 cxx_rwgtfiles := $(BUILDDIR)/rwgt_runner_cpp.o $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(BUILDDIR)/fbridge_cpp.o $(cxx_objects_lib) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o
 $(cxx_rwgtlib): LIBFLAGS += $(CXXLIBFLAGSRPATH)
 $(cxx_rwgtlib): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_rwgtfiles) $(cxx_objects_lib)

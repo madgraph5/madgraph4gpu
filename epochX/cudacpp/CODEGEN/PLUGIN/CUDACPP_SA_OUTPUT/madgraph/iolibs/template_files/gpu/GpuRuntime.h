@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: J. Teig (Jun 2023, based on earlier work by S. Roiser) for the MG5aMC CUDACPP plugin.
-// Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef MG5AMC_GPURUNTIME_H
 #define MG5AMC_GPURUNTIME_H 1
@@ -38,7 +38,7 @@ namespace mg5amcGpu
   // *** FIXME! This will all need to be designed differently when going to multi-GPU nodes! ***
   struct GpuRuntime final
   {
-    GpuRuntime( const bool debug = false )
+    GpuRuntime( const bool debug = false ) // ZW: default debug to false
       : m_debug( debug ) { setUp( m_debug ); }
     ~GpuRuntime() { tearDown( m_debug ); }
     GpuRuntime( const GpuRuntime& ) = delete;
@@ -50,7 +50,7 @@ namespace mg5amcGpu
     // Set up CUDA application
     // ** NB: strictly speaking this is not needed when using the CUDA runtime API **
     // Calling cudaSetDevice on startup is useful to properly book-keep the time spent in CUDA initialization
-    static void setUp( const bool debug = false )
+    static void setUp( const bool debug = false ) // ZW: default debug to false
     {
       // ** NB: it is useful to call cudaSetDevice, or cudaFree, to properly book-keep the time spent in CUDA initialization
       // ** NB: otherwise, the first CUDA operation (eg a cudaMemcpyToSymbol in CPPProcess ctor) appears to take much longer!
@@ -71,7 +71,7 @@ namespace mg5amcGpu
     // ** NB: strictly speaking this is not needed when using the CUDA runtime API **
     // Calling cudaDeviceReset on shutdown is only needed for checking memory leaks in cuda-memcheck
     // See https://docs.nvidia.com/cuda/cuda-memcheck/index.html#leak-checking
-    static void tearDown( const bool debug = false )
+    static void tearDown( const bool debug = false ) // ZW: default debug to false
     {
       if( debug ) std::cout << "__GpuRuntime: calling GpuDeviceReset()" << std::endl;
       checkGpu( gpuDeviceReset() );

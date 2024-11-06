@@ -11,8 +11,8 @@
 // A class for reweighting matrix elements for
 %(process_lines)s
 //--------------------------------------------------------------------------
-#ifndef _LIBCOMP_
-#define _LIBCOMP_
+#ifndef _TREX_
+#define _TREX_
 #endif
 #include "rwgt_instance.h"
 #include "fbridge.h"

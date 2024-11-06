@@ -134,7 +134,7 @@ namespace mg5amcCpu
 
     // Does this host system support the SIMD used in the matrix element calculation?
     // [NB: this is private, SIMD vectorization in mg5amc C++ code is currently only used in the ME calculations below MatrixElementKernelHost!]
-    static bool hostSupportsSIMD( const bool verbose = true );
+    static bool hostSupportsSIMD( const bool verbose = false ); // ZW: set verbose to false by default
 
   private:
 
