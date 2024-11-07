@@ -12,7 +12,7 @@
 
 #include "CPPProcess.h"
 #include "GpuRuntime.h"
-#include "Parameters_sm.h"
+#include "Parameters_sm_no_b_mass.h"
 
 #include <sstream>
 
@@ -33,7 +33,7 @@ namespace mg5amcCpu
     // Process-dependent compile-time constants
     static constexpr size_t nparf = CPPProcess::nparf;
     static constexpr size_t npar = CPPProcess::npar;
-    static constexpr size_t ndcoup = Parameters_sm_dependentCouplings::ndcoup;
+    static constexpr size_t ndcoup = Parameters_sm_no_b_mass_dependentCouplings::ndcoup;
     static constexpr size_t ncolor = CPPProcess::ncolor;
   }
 
