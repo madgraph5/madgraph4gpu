@@ -50,7 +50,7 @@ namespace REX
 {
 
 
-    // ZW: index sorting function, which returs vector
+    // ZW: index sorting function, which returns vector
     // of the indices of the original vector sorted 
     // by default in ascending order
     // ie, for [5.0, 0.25, 2.0, 9.2] returns [1, 2, 0, 3]
@@ -85,6 +85,8 @@ namespace REX
     // based on their order in a reference vector reference
     // Elements not found in reference are represented by npos,
     // including if to_sort is longer than reference
+    // Note: If reference is longer than to_sort, the ordering does not
+    // respect the length of to_sort (may yield out_of_bounds errors or unexpected results)
     template <typename T>
     std::shared_ptr<std::vector<size_t>> getRefOrder(const std::vector<T>& reference, const std::vector<T>& to_sort) {
         std::unordered_map<T, std::queue<size_t>> indexMap;
@@ -95,7 +97,6 @@ namespace REX
         }
 
         auto order = std::make_shared<std::vector<size_t>>(std::vector<size_t>(to_sort.size(), npos));
-        //order->reserve(to_sort.size()); // Pre-allocate memory
         size_t pos = 0;
         for (const auto& elem : to_sort) {
             auto it = indexMap.find(elem);
@@ -103,7 +104,7 @@ namespace REX
                 order->at(pos) = (it->second.front());
                 it->second.pop();
             } else {
-                // Element in vec2 not found in vec1
+                // Element in to_sort not found in reference
                 order->at(pos) = npos;
             }
             ++pos;
@@ -114,7 +115,7 @@ namespace REX
     template std::shared_ptr<std::vector<size_t>> getRefOrder<std::string_view>(const std::vector<std::string_view>& reference, const std::vector<std::string_view>& to_sort);
 
     // ZW: minimal fcn for counting the amount of times
-    // a given search term appears in a string
+    // a given searchTerm appears in searchString
     int strCount( std::string_view searchString, std::string_view searchTerm )
     {
         int count = 0;
@@ -128,12 +129,12 @@ namespace REX
 
     // ZW: fcn for finding the location of each
     // entry of seachTerm in the given string textFile
-    // Pre-allocates vector memory using strCount
     std::shared_ptr<std::vector<size_t>> findEach( std::string_view textFile, std::string_view searchTerm )
     {
         auto eachPos = std::make_shared<std::vector<size_t>>();
-        eachPos->reserve( strCount(textFile, searchTerm) );
+        //eachPos->reserve( strCount(textFile, searchTerm) );
         eachPos->push_back( textFile.find( searchTerm ) );
+        if( eachPos->at(0) == npos ){ return eachPos; }
         size_t currPos = textFile.find( searchTerm, eachPos->at(0) + 1 );
         while( currPos != npos )
         {
@@ -311,7 +312,7 @@ namespace REX
     size_t nodeEndFind( std::string_view parseFile, size_t strtPos )
     { 
         auto retPtr = parseFile.find("<", strtPos); 
-        while( parseFile[retPtr + 1] != '/' ){ 
+        while( parseFile[retPtr + 1] != '/' && retPtr != npos ){ 
             retPtr = parseFile.find("<", retPtr +1);
         } 
         return retPtr;
@@ -381,7 +382,7 @@ namespace REX
                 return;
             }
             auto stEnd = file.find(">", start);
-            if( file.compare(stEnd - 1, 1, "/" ) == 0 ) {
+            if( file.compare(stEnd - 1, 1, "/" ) == 0 ) { // ZW: self-closing tag (assuming no whitespace between / and >)
                 end = file.find_first_not_of(" \n\r\f\t\v", stEnd + 1); 
                 contSt = npos;
                 contEnd = npos;
@@ -459,7 +460,8 @@ namespace REX
             end = structure.getEnd();
             size_t trueStart = xmlFile.find_first_not_of("< \n\r\f\t\v", start+1);
             name = xmlFile.substr( trueStart, xmlFile.find_first_of(">/ \n\r\f\t\v", trueStart) - trueStart );
-            content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() );
+            auto contPts = structure.getCont();
+            content = xmlFile.substr( contPts.first, contPts.second );
             for( auto child : *structure.getChildren() ){
                 children.push_back( std::make_shared<xmlNode>(*child) );
             }
@@ -477,12 +479,14 @@ namespace REX
             end = structure.getEnd(); 
             size_t trueStart = xmlFile.find_first_not_of("< \n\r\f\t\v", start); 
             name = xmlFile.substr( trueStart, xmlFile.find_first_of(">/ \n\r\f\t\v", trueStart) - trueStart );
-            auto possTags = xmlFile.substr(trueStart + name.size(), structure.getContStart() - trueStart - name.size() );
+            auto headPts = structure.getHeader();
+            auto contPts = structure.getCont();
+            auto possTags = xmlFile.substr(headPts.first + name.size(), headPts.second - name.size());
             if( possTags.find("=") != npos ){ 
                 size_t eqSgn = possTags.find("="); 
                 while( eqSgn < possTags.size() ){ tags.push_back( xmlTagParser( possTags, eqSgn ) ); } 
             }
-            content = xmlFile.substr( structure.getContStart(), structure.getContEnd() - structure.getContStart() ); 
+            content = xmlFile.substr( contPts.first, contPts.second ); 
             for( auto& child : *(structure.getChildren()) ){ 
                 children.push_back( std::make_shared<xmlNode>( *child ) ); 
             } 

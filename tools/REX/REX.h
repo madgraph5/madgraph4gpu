@@ -110,6 +110,12 @@ namespace REX
         size_t getEnd(){ return end; }
         size_t getContStart(){ return contSt; }
         size_t getContEnd(){ return contEnd; }
+        std::pair<size_t, size_t> getCont(){ if (contSt == npos || contEnd == npos){ return {0,0}; } return {contSt, contEnd - contSt}; }
+        std::pair<size_t, size_t> getHeader(){ // ZW: pointers to beginning and end of node header, with some safety checks
+            if( start == npos || end == npos || faux ){ return {0,0}; }
+            if( contSt == npos ){ return {start, end - start }; }
+            return {start, contSt - start};
+        }
         bool isFaux(){ return faux; }
         bool isInit(){ return initialised; }
         bool hasChildren(){ return children->size() > 0; }
