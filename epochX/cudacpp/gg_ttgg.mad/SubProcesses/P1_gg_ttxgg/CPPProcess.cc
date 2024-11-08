@@ -206,6 +206,22 @@ namespace mg5amcCpu
     { 62, 71, -10, 80, -1, 8, -28, 62, 62, -10, -10, -1, -1, 8, -10, -1, -64, 8, 8, -64, 80, 8, 512, -64 },
     { -28, 62, 62, -10, -10, -1, 62, 71, -10, 80, -1, 8, -10, -1, -1, 8, 8, -64, 80, 8, 8, -64, -64, 512 } }; // 2-D array[24][24]
   
+#ifdef MGONGPUCPP_GPUIMPL
+  // The normalized color matrix (divide each column by denom)
+  template<typename T>
+  struct NormalizedColorMatrix
+  {
+    constexpr __device__ NormalizedColorMatrix() : value()
+    {
+      for( int icol = 0; icol < ncolor; icol++ )
+        for( int jcol = 0; jcol < ncolor; jcol++ )
+          value[icol * ncolor + jcol] = colorMatrix[icol][jcol] / colorDenom[icol];
+    }
+    T value[ncolor * ncolor];
+  };
+  static constexpr __device__ NormalizedColorMatrix<fptype2> normalizedColorMatrix;
+#endif
+
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL
@@ -2730,10 +2746,10 @@ namespace mg5amcCpu
       {
         fptype2_sv jampRj_sv = cxreal( jamp_sv[jcol] );
         fptype2_sv jampIj_sv = cximag( jamp_sv[jcol] );
-        ztempR_sv += colorMatrix[icol][jcol] * jampRj_sv;
-        ztempI_sv += colorMatrix[icol][jcol] * jampIj_sv;
+        ztempR_sv += normalizedColorMatrix.value[icol * ncolor + jcol] * jampRj_sv;
+        ztempI_sv += normalizedColorMatrix.value[icol * ncolor + jcol] * jampIj_sv;
       }
-      deltaMEs += ( ztempR_sv * cxreal( jamp_sv[icol] ) + ztempI_sv * cximag( jamp_sv[icol] ) ) / colorDenom[icol];
+      deltaMEs += ( ztempR_sv * cxreal( jamp_sv[icol] ) + ztempI_sv * cximag( jamp_sv[icol] ) );
     }
     // === CUDA END ===
 
