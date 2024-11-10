@@ -511,6 +511,9 @@ if [ "${maketype}" == "-makeonly" ]; then printf "\nMAKE COMPLETED\n"; exit 0; f
 # PART 2 - run madevent
 ##########################################################################
 
+export CUDACPP_RUNTIME_BLASCOLORSUM=1
+printf "\nCUDACPP_RUNTIME_BLASCOLORSUM=$CUDACPP_RUNTIME_BLASCOLORSUM\n"
+
 printf "\nOMP_NUM_THREADS=$OMP_NUM_THREADS\n"
 
 printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"

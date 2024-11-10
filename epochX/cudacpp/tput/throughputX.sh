@@ -497,6 +497,9 @@ if [ "${maketype}" != "-dryrun" ]; then
   printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 fi
 
+export CUDACPP_RUNTIME_BLASCOLORSUM=1
+echo CUDACPP_RUNTIME_BLASCOLORSUM=${CUDACPP_RUNTIME_BLASCOLORSUM}
+
 function runExe() {
   exe1=$1
   args="$2"
