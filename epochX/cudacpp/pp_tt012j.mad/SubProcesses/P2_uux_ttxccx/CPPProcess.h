@@ -185,6 +185,8 @@ namespace mg5amcCpu
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: allJamps super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            fptype* ghelAllBlasTmp,             // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            gpuBlasHandle_t* ghelBlasHandles,   // input: cuBLAS/hipBLAS handles (index is ighel: only the first nGoodHel <= ncomb are non-null)
             gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
             const int gpublocks,                // input: cuda gpublocks
             const int gputhreads );             // input: cuda gputhreads

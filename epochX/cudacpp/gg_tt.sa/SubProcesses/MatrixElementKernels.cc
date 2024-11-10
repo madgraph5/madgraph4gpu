@@ -322,6 +322,11 @@ namespace mg5amcGpu
 #ifdef MGONGPU_CHANNELID_DEBUG
     , m_hstChannelIds( this->nevt() )
 #endif
+#ifndef MGONGPU_HAS_NO_BLAS
+    , m_blasColorSum( false )
+    , m_pHelBlasTmp()
+    , m_helBlasHandles()
+#endif
     , m_helStreams()
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
@@ -351,6 +356,11 @@ namespace mg5amcGpu
     m_pHelNumerators.reset( new DeviceBufferSimple( this->nevt() ) );
     m_pHelDenominators.reset( new DeviceBufferSimple( this->nevt() ) );
 #endif
+#ifndef MGONGPU_HAS_NO_BLAS
+    // Decide at runtime whether to use BLAS for color sums
+    const char* blasEnv = getenv( "CUDACPP_RUNTIME_BLASCOLORSUM" );
+    if( blasEnv ) m_blasColorSum = true; // fixme? eventually set default=true and decode "Y" and "N" choices?
+#endif
   }
 
   //--------------------------------------------------------------------------
@@ -359,7 +369,12 @@ namespace mg5amcGpu
   {
     //std::cout << "DEBUG: MatrixElementKernelDevice::dtor " << this << std::endl;
     for( int ihel = 0; ihel < CPPProcess::ncomb; ihel++ )
-      if( m_helStreams[ihel] ) cudaStreamDestroy( m_helStreams[ihel] ); // do not destroy if nullptr
+    {
+#ifndef MGONGPU_HAS_NO_BLAS
+      if( m_helBlasHandles[ihel] ) gpuBlasDestroy( m_helBlasHandles[ihel] );
+#endif
+      if( m_helStreams[ihel] ) gpuStreamDestroy( m_helStreams[ihel] ); // do not destroy if nullptr
+    }
   }
 
   //--------------------------------------------------------------------------
@@ -390,7 +405,17 @@ namespace mg5amcGpu
     assert( nGoodHel > 0 ); // SANITY CHECK: there should be at least one good helicity
     // Create one GPU stream for each good helicity
     for( int ighel = 0; ighel < nGoodHel; ighel++ )
-      cudaStreamCreate( &m_helStreams[ighel] );
+      gpuStreamCreate( &m_helStreams[ighel] );
+#ifndef MGONGPU_HAS_NO_BLAS
+    // Create one cuBLAS/hipBLAS handle for each good helicity
+    // Attach a different stream to each cuBLAS/hipBLAS handle
+    if( m_blasColorSum )
+      for( int ighel = 0; ighel < nGoodHel; ighel++ )
+      {
+        checkGpuBlas( gpuBlasCreate( &m_helBlasHandles[ighel] ) );
+        checkGpuBlas( gpuBlasSetStream( m_helBlasHandles[ighel], m_helStreams[ighel] ) );
+      }
+#endif
     // ... Create the "many-helicity" super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)
     m_pHelMEs.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
     // ... Create the "many-helicity" super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)
@@ -402,6 +427,10 @@ namespace mg5amcGpu
     m_pHelNumerators.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
     m_pHelDenominators.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
 #endif
+#ifndef MGONGPU_HAS_NO_BLAS
+    // Create the "many-helicity" super-buffers of real/imag ncolor*nevt temporary buffers for cuBLAS/hipBLAS intermediate results in color_sum_blas
+    if( m_blasColorSum ) m_pHelBlasTmp.reset( new DeviceBufferSimple( nGoodHel * CPPProcess::ncolor * mgOnGpu::nx2 * nevt ) );
+#endif
     // Return the number of good helicities
     return nGoodHel;
   }
@@ -411,12 +440,19 @@ namespace mg5amcGpu
   void MatrixElementKernelDevice::computeMatrixElements( const bool useChannelIds )
   {
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
+#ifndef MGONGPU_HAS_NO_BLAS
+    fptype* ghelAllBlasTmp = ( m_blasColorSum ? m_pHelBlasTmp->data() : nullptr );
+    gpuBlasHandle_t* ghelBlasHandles = ( m_blasColorSum ? m_helBlasHandles : nullptr );
+#else
+    fptype* ghelAllBlasTmp = nullptr;
+    gpuBlasHandle_t* ghelBlasHandles = nullptr;
+#endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_colJamp2s.data(), m_pHelNumerators->data(), m_pHelDenominators->data(), m_pHelMEs->data(), m_pHelJamps->data(), m_helStreams, m_gpublocks, m_gputhreads );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_colJamp2s.data(), m_pHelNumerators->data(), m_pHelDenominators->data(), m_pHelMEs->data(), m_pHelJamps->data(), ghelAllBlasTmp, ghelBlasHandles, m_helStreams, m_gpublocks, m_gputhreads );
 #else
     assert( useChannelIds == false );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_pHelMEs->data(), m_pHelJamps->data(), m_helStreams, m_gpublocks, m_gputhreads );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_pHelMEs->data(), m_pHelJamps->data(), ghelAllBlasTmp, ghelBlasHandles, m_helStreams, m_gpublocks, m_gputhreads );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     //std::cout << "DEBUG: MatrixElementKernelDevice::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
