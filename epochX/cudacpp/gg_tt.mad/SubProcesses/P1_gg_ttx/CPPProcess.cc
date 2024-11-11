@@ -335,10 +335,6 @@ namespace mg5amcCpu
     fptype* amp_fp;
     amp_fp = reinterpret_cast<fptype*>( amp_sv );
 
-    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
-    // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
-    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
-
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
 
@@ -387,8 +383,19 @@ namespace mg5amcCpu
 #endif
 #endif
 
+#ifdef MGONGPUCPP_GPUIMPL
+      // In CUDA, write jamps directly to the output global-memory allJamps passed as argument
+      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
+      using J_ACCESS = DeviceAccessJamp;
+#else
+      // In C++, write jamps directly to the output array passed as argument
+      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
+      using J_ACCESS = HostAccessJamp;
+      cxtype_sv* allJamps = ( iParity == 0 ? allJamp_sv : &( allJamp_sv[ncolor] ) );
+#endif
+      
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
-      for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
+      for( int i = 0; i < ncolor; i++ ) { J_ACCESS::kernelAccessIcol( allJamps, i ) = cxzero_sv(); }
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #ifdef MGONGPUCPP_GPUIMPL
@@ -419,8 +426,8 @@ namespace mg5amcCpu
       if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-      jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
+      J_ACCESS::kernelAccessIcol( allJamps, 0 ) += cxtype( 0, 1 ) * amp_sv[0];
+      J_ACCESS::kernelAccessIcol( allJamps, 1 ) -= cxtype( 0, 1 ) * amp_sv[0];
 
       // *** DIAGRAM 2 OF 3 ***
 
@@ -433,7 +440,7 @@ namespace mg5amcCpu
       if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[0] -= amp_sv[0];
+      J_ACCESS::kernelAccessIcol( allJamps, 0 ) -= amp_sv[0];
 
       // *** DIAGRAM 3 OF 3 ***
 
@@ -446,7 +453,7 @@ namespace mg5amcCpu
       if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
       if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-      jamp_sv[1] -= amp_sv[0];
+      J_ACCESS::kernelAccessIcol( allJamps, 1 ) -= amp_sv[0];
 
       // *** COLOR CHOICE BELOW ***
 
@@ -456,7 +463,7 @@ namespace mg5amcCpu
       if( jamp2_sv ) // disable color choice if nullptr
       {
         for( int icol = 0; icol < ncolor; icol++ )
-          jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] ); // may underflow #831
+          jamp2_sv[ncolor * iParity + icol] += cxabs2( J_ACCESS::kernelAccessIcol( allJamps, icol ) ); // may underflow #831
       }
 #else
       assert( iParity == 0 ); // sanity check for J2_ACCESS
@@ -465,22 +472,10 @@ namespace mg5amcCpu
       {
         for( int icol = 0; icol < ncolor; icol++ )
           // NB: atomicAdd is needed after moving to cuda streams with one helicity per stream!
-          atomicAdd( &J2_ACCESS::kernelAccessIcol( colAllJamp2s, icol ), cxabs2( jamp_sv[icol] ) );
+          atomicAdd( &J2_ACCESS::kernelAccessIcol( colAllJamp2s, icol ), cxabs2( J_ACCESS::kernelAccessIcol( allJamps, icol ) ) );
       }
 #endif
 #endif
-
-      // *** PREPARE OUTPUT JAMPS ***
-#ifdef MGONGPUCPP_GPUIMPL
-      // In CUDA, copy the local jamp to the output global-memory jamp
-      using J_ACCESS = DeviceAccessJamp;
-#else
-      // In C++, copy the local jamp to the output array passed as function argument
-      using J_ACCESS = HostAccessJamp;
-      cxtype_sv* allJamps = ( iParity == 0 ? allJamp_sv : &( allJamp_sv[ncolor] ) );
-#endif
-      for( int icol = 0; icol < ncolor; icol++ )
-        J_ACCESS::kernelAccessIcol( allJamps, icol ) = jamp_sv[icol];
     }
     // END LOOP ON IPARITY
 

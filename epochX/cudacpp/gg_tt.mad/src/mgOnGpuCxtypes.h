@@ -717,12 +717,24 @@ namespace mg5amcCpu
       : m_preal( &r ), m_pimag( &i ) {} // copy (create from) const refs
     cxtype_ref& operator=( const cxtype_ref& ) = delete;
     //__host__ __device__ cxtype_ref& operator=( cxtype_ref&& c ) {...} // REMOVED! Should copy refs or copy values? No longer needed in cxternary
-    __host__ __device__ cxtype_ref& operator=( const cxtype& c )
+    __host__ __device__ cxtype_ref& operator=( const cxtype& c ) // copy (assign) const values
     {
       *m_preal = cxreal( c );
       *m_pimag = cximag( c );
       return *this;
-    } // copy (assign) non-const values
+    }
+    __host__ __device__ cxtype_ref& operator+=( const cxtype& c )
+    {
+      *m_preal += cxreal( c );
+      *m_pimag += cximag( c );
+      return *this;
+    }
+    __host__ __device__ cxtype_ref& operator-=( const cxtype& c )
+    {
+      *m_preal -= cxreal( c );
+      *m_pimag -= cximag( c );
+      return *this;
+    }
     __host__ __device__ operator cxtype() const { return cxmake( *m_preal, *m_pimag ); }
   private:
     fptype* const m_preal; // const pointer to non-const fptype R
