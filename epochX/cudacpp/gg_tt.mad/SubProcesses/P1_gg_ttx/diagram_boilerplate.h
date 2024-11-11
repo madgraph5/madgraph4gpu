@@ -55,6 +55,7 @@
     assert( denominators == nullptr );
 #endif
 
-    // Proof of concept for using fptype* in the interface
-    cxtype_sv* amp_sv;
-    amp_sv = reinterpret_cast<cxtype_sv*>( amp_fp );
+    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
+    fptype* amp_fp;      // proof of concept for using fptype* in the interface
+    amp_fp = reinterpret_cast<fptype*>( amp_sv );

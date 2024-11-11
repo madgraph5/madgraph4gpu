@@ -260,7 +260,6 @@ namespace mg5amcCpu
 
   __device__ INLINE void
   diagram1( fptype** w_fp,                  // input/output wavefunctions 'fptype* w_fp[nwf]'
-            fptype* amp_fp,                 // output amplitude
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
@@ -298,7 +297,6 @@ namespace mg5amcCpu
 
   __device__ INLINE void
   diagram2( fptype** w_fp,                  // input/output wavefunctions 'fptype* w_fp[nwf]'
-            fptype* amp_fp,                 // output amplitude
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
@@ -324,7 +322,6 @@ namespace mg5amcCpu
 
   __device__ INLINE void
   diagram3( fptype** w_fp,                  // input/output wavefunctions 'fptype* w_fp[nwf]'
-            fptype* amp_fp,                 // output amplitude
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
@@ -408,18 +405,16 @@ namespace mg5amcCpu
     //if( debug ) printf( "calculate_jamps: ievt=%6d ihel=%2d\n", ievt, ihel );
 #endif /* clang-format on */
 
+#ifndef MGONGPUCPP_GPUIMPL
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
-    // ** NB: in other words, amplitudes and wavefunctions still have TRIVIAL ACCESS: there is currently no need
-    // ** NB: to have large memory structurs for wavefunctions/amplitudes in all events (no kernel splitting yet)!
-    cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
-    fptype* amp_fp;      // proof of concept for using fptype* in the interface
-    amp_fp = reinterpret_cast<fptype*>( amp_sv );
-#ifndef MGONGPUCPP_GPUIMPL
+    // ** NB: wavefunctions only need TRIVIAL ACCESS in C++ code
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     fptype* w_fp[nwf];        // proof of concept for using fptype* in the interface
     for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
 #else
+    // Global-memory variables for a subset of Feynman diagrams in the given CUDA event (ievt)
+    // ** NB: wavefunctions need non-trivial access in CUDA code because of kernel splitting
     // Buffer allWfs for one helicity is a DeviceBufferSimple with ( nwf * nevt * nw6 * nx2 ) fptypes
     // The striding between the nwf wavefunction buffers is ( nevt * nw6 * nx2 ) fptypes
     // The diagram1 API receives an 'fptype** w_fp'
@@ -514,10 +509,9 @@ namespace mg5amcCpu
 #endif
 
       // *** DIAGRAMS 1 TO 3 ***
-      diagram1( w_fp, amp_fp, allJamps, channelIds, numerators, denominators, COUPs, momenta, ihel );
-      diagram2( w_fp, amp_fp, allJamps, channelIds, numerators, denominators, COUPs );
-      diagram3( w_fp, amp_fp, allJamps, channelIds, numerators, denominators, COUPs );
-
+      diagram1( w_fp, allJamps, channelIds, numerators, denominators, COUPs, momenta, ihel );
+      diagram2( w_fp, allJamps, channelIds, numerators, denominators, COUPs );
+      diagram3( w_fp, allJamps, channelIds, numerators, denominators, COUPs );
     }
     // END LOOP ON IPARITY
 
