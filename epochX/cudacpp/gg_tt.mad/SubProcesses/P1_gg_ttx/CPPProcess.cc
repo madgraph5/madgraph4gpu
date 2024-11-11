@@ -394,17 +394,10 @@ namespace mg5amcCpu
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
 #endif
 #endif
-    mgDebug( 0, __FUNCTION__ );
-    //bool debug = true;
-#ifndef MGONGPUCPP_GPUIMPL
-    //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
-    //if( debug ) printf( "calculate_jamps: ievt00=%d ihel=%2d\n", ievt00, ihel );
-#else
-    //const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-    //debug = ( ievt == 0 );
-    //if( debug ) printf( "calculate_jamps: ievt=%6d ihel=%2d\n", ievt, ihel );
-#endif /* clang-format on */
 
+    // ----------------------------
+    // --- WAVEFUNCTION BUFFERS ---
+    // ----------------------------
 #ifndef MGONGPUCPP_GPUIMPL
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
@@ -431,50 +424,60 @@ namespace mg5amcCpu
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
 
-    // START LOOP ON IPARITY
+    // *****************************
+    // *** START LOOP ON IPARITY ***
+    // *****************************
     for( int iParity = 0; iParity < nParity; ++iParity )
     {
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
 #endif
-      //constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
-      constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
+
+      // -----------------
+      // --- COUPLINGS ---
+      // -----------------
+      constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823: nIPC instead of nicoup)
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
 #endif
+      // Dependent couplings, vary event-by-event
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
-        allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
-      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )                             // BUG #823
-      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )                                 // FIX #823
-        allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
-#ifdef MGONGPUCPP_GPUIMPL
+        allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup );
+      // Independent couplings, fixed for all events
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // (FIX #823: nIPC instead of nicoup)
+        allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup );
 #ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic pop
 #endif
-      // CUDA kernels take input/output buffers with momenta/MEs for all events
-      const fptype* momenta = allmomenta;
+#ifdef MGONGPUCPP_GPUIMPL
       const fptype* COUPs[nxcoup];
       for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* numerators = allNumerators;
-      fptype* denominators = allDenominators;
+#else
+      const fptype* COUPs[nxcoup];
+      // Dependent couplings, vary event-by-event
+      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
+        COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 );
+      // Independent couplings, fixed for all events
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // (FIX #823: nIPC instead of nicoup)
+        COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup];
 #endif
+
+      // ---------------
+      // --- MOMENTA ---
+      // ---------------
+#ifdef MGONGPUCPP_GPUIMPL
+      // CUDA kernels take input/output buffers with momenta/MEs for all events
+      const fptype* momenta = allmomenta;
 #else
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
-      const fptype* COUPs[nxcoup];
-      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
-        COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
-      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )     // FIX #823 (nIPC instead of nicoup)
-        COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
-      fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
-#endif
 #endif
 
+      // -------------
+      // --- JAMPS ---
+      // -------------
 #ifdef MGONGPUCPP_GPUIMPL
       // In CUDA, write jamps directly to the output global-memory allJamps passed as argument
       // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
@@ -485,10 +488,12 @@ namespace mg5amcCpu
       using J_ACCESS = HostAccessJamp;
       fptype* allJamps = reinterpret_cast<fptype*>( iParity == 0 ? allJamp_sv : &( allJamp_sv[ncolor] ) );
 #endif
-      
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i = 0; i < ncolor; i++ ) { J_ACCESS::kernelAccessIcol( allJamps, i ) = cxzero_sv(); }
-
+      
+      // ------------------
+      // --- CHANNELIDS ---
+      // ------------------
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #ifdef MGONGPUCPP_GPUIMPL
       // SCALAR channelId for the current event (CUDA)
@@ -497,25 +502,42 @@ namespace mg5amcCpu
 #else
       const unsigned int* channelIds = &channelId;
 #endif
-      // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
-      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
-      fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
 #else
       // A uniform interface including channelIDs, numerators and denominators is used for diagramXXX functions also #ifndef GONGPU_SUPPORTS_MULTICHANNEL
       // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
       const unsigned int* channelIds = nullptr;
+#endif
+
+      // -------------------------------
+      // --- NUMERATORS/DENOMINATORS ---
+      // -------------------------------
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#ifdef MGONGPUCPP_GPUIMPL
+      fptype* numerators = allNumerators;
+      fptype* denominators = allDenominators;
+#else
+      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+      fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+#endif
+#else
+      // A uniform interface including channelIDs, numerators and denominators is used for diagramXXX functions also #ifndef GONGPU_SUPPORTS_MULTICHANNEL
+      // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
       fptype* numerators = nullptr;
       fptype* denominators = nullptr;
 #endif
-
+      
+      // ------------------------
+      // --- FEYNMAN DIAGRAMS ---
+      // ------------------------
       // *** DIAGRAMS 1 TO 3 ***
       diagram1( w_fp, allJamps, channelIds, numerators, denominators, COUPs, momenta, ihel );
       diagram2( w_fp, allJamps, channelIds, numerators, denominators, COUPs );
       diagram3( w_fp, allJamps, channelIds, numerators, denominators, COUPs );
     }
-    // END LOOP ON IPARITY
+    // *****************************
+    // *** END LOOP ON IPARITY ***
+    // *****************************
 
-    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
