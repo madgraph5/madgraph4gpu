@@ -474,22 +474,18 @@ namespace mg5amcCpu
       // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
 #endif
-
       // -------------
       // --- JAMPS ---
       // -------------
+      // (Note: no need to 'reset color flows' i.e. zero allJamps, this is done in sigmaKin and sigmaKin_getGoodHel)
 #ifdef MGONGPUCPP_GPUIMPL
       // In CUDA, write jamps directly to the output global-memory allJamps passed as argument
       // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
-      using J_ACCESS = DeviceAccessJamp;
 #else
       // In C++, write jamps directly to the output array passed as argument
       // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
-      using J_ACCESS = HostAccessJamp;
       fptype* allJamps = reinterpret_cast<fptype*>( iParity == 0 ? allJamp_sv : &( allJamp_sv[ncolor] ) );
 #endif
-      // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
-      for( int i = 0; i < ncolor; i++ ) { J_ACCESS::kernelAccessIcol( allJamps, i ) = cxzero_sv(); }
       
       // ------------------
       // --- CHANNELIDS ---
@@ -951,6 +947,7 @@ namespace mg5amcCpu
       const int gputhreads = maxtry;
       // NEW IMPLEMENTATION OF GETGOODHEL (#630): RESET THE RUNNING SUM OVER HELICITIES TO 0 BEFORE ADDING A NEW HELICITY
       gpuMemset( allMEs, 0, maxtry * sizeof( fptype ) );
+      gpuMemset( allJamps, 0, maxtry * ncolor * mgOnGpu::nx2 * sizeof( fptype ) );
       // NB: color_sum ADDS |M|^2 for one helicity to the running sum of |M|^2 over helicities for the given event(s)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int* allChannelIds = nullptr; // disable multichannel single-diagram enhancement
