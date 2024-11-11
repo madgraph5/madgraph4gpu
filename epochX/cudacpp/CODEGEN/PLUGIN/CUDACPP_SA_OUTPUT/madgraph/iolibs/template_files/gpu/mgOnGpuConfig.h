@@ -74,6 +74,7 @@
 #define MGONGPU_FPTYPE2_DOUBLE 1 // default
 //#define MGONGPU_FPTYPE2_FLOAT 1 // 2x faster
 #endif
+
 // Choose whether to inline all HelAmps functions
 // This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
 // By default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
@@ -106,6 +107,19 @@
 #else
 //#define MGONGPU_CPPCXTYPE_STDCOMPLEX 1 // ~8 percent slower on float, same on double (5.1E6/double, 9.4E6/float)
 #define MGONGPU_CPPCXTYPE_CXSMPL 1 // new default (5.1E6/double, 10.2E6/float)
+#endif
+
+// Choose if cuBLAS and hipBLAS are supported for generating random numbers
+// For both CUDA and HIP, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_BLAS
+// (there may exist CUDA/HIP installations, e.g. using the HPC package, which do not include cuBLAS/hipBLAS?)
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+//#undef MGONGPU_HAS_NO_BLAS // default
+////#define MGONGPU_HAS_NO_BLAS 1
+#elif defined __HIPCC__
+//#undef MGONGPU_HAS_NO_BLAS // default
+////#define MGONGPU_HAS_NO_BLAS 1
+#else
+#define MGONGPU_HAS_NO_BLAS 1
 #endif
 
 // CUDA nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation

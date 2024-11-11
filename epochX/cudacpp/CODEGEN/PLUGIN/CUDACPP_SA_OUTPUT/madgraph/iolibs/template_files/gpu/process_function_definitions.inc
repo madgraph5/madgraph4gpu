@@ -105,14 +105,32 @@ namespace mg5amcCpu
     {
       const int nevt = gridDim.x * blockDim.x;
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-      return cxtype_ref( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] );
+#ifndef MGONGPU_HAS_NO_BLAS
+      // New stridings for cuBLAS: two separate ncolor*nevt matrices for each of real and imag
+      // This is now used by default also for CUDA kernels (unless HASBLAS=hasNoBlas is set at runtime)
+      // Striding 'new1' might offer better performance, but would require changes in the BLAS code (to transpose Jamp before calling gemm)
+      //return cxtype_ref( buffer[0 * ncolor * nevt + icol * nevt + ievt], buffer[1 * ncolor * nevt + icol * nevt + ievt] ); // new1
+      // Striding 'new2' ensures that the current cuBLAS code is fully functional, but gives overall slower throughputs in both cuBLAS and kernels
+      return cxtype_ref( buffer[0 * nevt * ncolor + ievt * ncolor + icol], buffer[1 * nevt * ncolor + ievt * ncolor + icol] ); // new2 transpose
+#else
+      // Old striding for CUDA kernels: ncolor separate 2*nevt matrices for each color
+      // This is now used for CUDA kernels only if HASBLAS=hasNoBlas is set at build time
+      return cxtype_ref( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // OLD
+#endif
     }
     static __device__ inline const cxtype
     kernelAccessIcolConst( const fptype* buffer, const int icol )
     {
       const int nevt = gridDim.x * blockDim.x;
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+#ifndef MGONGPU_HAS_NO_BLAS
+      // New stridings for cuBLAS: two separate ncolor*nevt matrices for each of real and imag
+      //return cxtype( buffer[0 * ncolor * nevt + icol * nevt + ievt], buffer[1 * ncolor * nevt + icol * nevt + ievt] ); // new1
+      return cxtype( buffer[0 * nevt * ncolor + ievt * ncolor + icol], buffer[1 * nevt * ncolor + ievt * ncolor + icol] ); // new2 transpose
+#else
+      // Old striding for CUDA kernels: ncolor separate 2*nevt matrices for each color
       return cxtype( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] );
+#endif
     }
   };
 #endif
@@ -176,6 +194,9 @@ namespace mg5amcCpu
 #endif
     , m_masses()
   {
+    // Enable SIGFPE traps for Floating Point Exceptions
+    fpeEnable();
+
     // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
     // *** NB There is no automatic check yet that these are in the same order as Fortran! #569 ***
 %(all_helicities)s
@@ -184,7 +205,6 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
-    fpeEnable(); // enable SIGFPE traps for Floating Point Exceptions
   }
 
   //--------------------------------------------------------------------------
@@ -399,7 +419,7 @@ namespace mg5amcCpu
 #else
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, gpublocks * gputhreads );
 #endif
-      gpuLaunchKernel( color_sum, gpublocks, gputhreads, allMEs, allJamps );
+      color_sum_gpu( allMEs, allJamps, nullptr, nullptr, nullptr, gpublocks, gputhreads );
       gpuMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), gpuMemcpyDeviceToHost );
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
       for( int ievt = 0; ievt < maxtry; ++ievt )
@@ -476,7 +496,7 @@ namespace mg5amcCpu
 #else
         calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 ); //maxtry?
 #endif /* clang-format on */
-        color_sum( allMEs, jamp_sv, ievt00 );
+        color_sum_cpu( allMEs, jamp_sv, ievt00 );
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
@@ -686,6 +706,8 @@ namespace mg5amcCpu
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: allJamps super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            fptype* ghelAllBlasTmp,             // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            gpuBlasHandle_t* ghelBlasHandles,   // input: cuBLAS/hipBLAS handles (index is ighel: only the first nGoodHel <= ncomb are non-null)
             gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
             const int gpublocks,                // input: cuda gpublocks
             const int gputhreads                // input: cuda gputhreads
