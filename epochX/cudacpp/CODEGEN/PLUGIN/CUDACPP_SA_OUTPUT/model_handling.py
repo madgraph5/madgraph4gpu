@@ -1372,11 +1372,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     //debug = ( ievt == 0 );
     //if( debug ) printf( \"calculate_jamps: ievt=%6d ihel=%2d\\n\", ievt, ihel );
 #endif /* clang-format on */""")
-            nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
-            ret_lines.append("""
-    // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
-    // It is hardcoded here because various attempts to hardcode it in CPPProcess.h at generation time gave the wrong result...
-    static const int nwf = %i; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)"""%nwavefuncs )
+            self.nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions() # this was used to write nwf in CPPProcess.cc: now keep it for CPPProcess.h
             ret_lines.append("""
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
@@ -1446,8 +1442,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_CMakeLists()
         self.edit_check_sa()
         self.edit_mgonGPU()
-        self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
-        
+        self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)        
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
@@ -1467,6 +1462,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 PLUGIN_export_cpp.cp( ref, self.path + '/../../test/ref' )
             ###else:
                 ###misc.sprint( 'Test reference file does not exist and will not be copied: ', ref )
+        # Set the value of nwf in CPPProcess.h after generating CPPProcess.cc (workaround for #644)
+        cppprocess_h = os.path.join(self.path, self.include_dir, '%s.h' % self.process_class)
+        with open(cppprocess_h, 'r') as file: data = file.read().replace('__NWF__', '%d'%self.nwavefuncs) 
+        with open(cppprocess_h, 'w') as file: file.write(data)
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
