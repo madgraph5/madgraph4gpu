@@ -193,6 +193,16 @@ namespace mg5amcCpu
       return cxtype( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] );
     }
   };
+#else
+  class HostAccessJamp
+  {
+  public:
+    static inline cxtype_sv&
+    kernelAccessIcol( cxtype_sv* buffer, const int icol )
+    {
+      return buffer[icol];
+    }
+  };
 #endif
 
   //--------------------------------------------------------------------------
@@ -464,13 +474,13 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
       // In CUDA, copy the local jamp to the output global-memory jamp
       using J_ACCESS = DeviceAccessJamp;
-      for( int icol = 0; icol < ncolor; icol++ )
-        J_ACCESS::kernelAccessIcol( allJamps, icol ) = jamp_sv[icol];
 #else
       // In C++, copy the local jamp to the output array passed as function argument
-      for( int icol = 0; icol < ncolor; icol++ )
-        allJamp_sv[iParity * ncolor + icol] = jamp_sv[icol];
+      using J_ACCESS = HostAccessJamp;
+      cxtype_sv* allJamps = ( iParity == 0 ? allJamp_sv : &( allJamp_sv[ncolor] ) );
 #endif
+      for( int icol = 0; icol < ncolor; icol++ )
+        J_ACCESS::kernelAccessIcol( allJamps, icol ) = jamp_sv[icol];
     }
     // END LOOP ON IPARITY
 
