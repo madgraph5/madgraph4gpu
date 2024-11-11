@@ -202,6 +202,11 @@ namespace mg5amcCpu
     {
       return buffer[icol];
     }
+    static inline cxtype_sv&
+    kernelAccessIcol( fptype* buffer, const int icol )
+    {
+      return reinterpret_cast<cxtype_sv*>( buffer )[icol];
+    }
   };
 #endif
 
@@ -389,7 +394,7 @@ namespace mg5amcCpu
       // In C++, write jamps directly to the output array passed as argument
       // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
       using J_ACCESS = HostAccessJamp;
-      cxtype_sv* allJamps = ( iParity == 0 ? allJamp_sv : &( allJamp_sv[ncolor] ) );
+      fptype* allJamps = reinterpret_cast<fptype*>( iParity == 0 ? allJamp_sv : &( allJamp_sv[ncolor] ) );
 #endif
       
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
