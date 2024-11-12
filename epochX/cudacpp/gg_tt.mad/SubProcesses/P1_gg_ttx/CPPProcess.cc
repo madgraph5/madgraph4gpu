@@ -451,9 +451,17 @@ namespace mg5amcCpu
       // Dependent couplings, vary event-by-event
       for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
         allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup );
+#ifdef MGONGPUCPP_GPUIMPL
+      // Independent couplings, fixed for all events
+      fptype* hcIPC = nullptr;
+      gpuGetSymbolAddress( (void**)&hcIPC, cIPC );
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // (FIX #823: nIPC instead of nicoup)
+        allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( hcIPC, iicoup );
+#else
       // Independent couplings, fixed for all events
       for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // (FIX #823: nIPC instead of nicoup)
         allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup );
+#endif
 #ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic pop
 #endif

@@ -30,6 +30,8 @@
 #define gpuFree( ptr ) checkGpu( cudaFree( ptr ) )
 #define gpuFreeHost( ptr ) checkGpu( cudaFreeHost( ptr ) )
 
+#define gpuGetSymbolAddress( devPtr, symbol ) checkGpu( cudaGetSymbolAddress( devPtr, symbol ) )
+
 #define gpuSetDevice cudaSetDevice
 #define gpuDeviceSynchronize cudaDeviceSynchronize
 #define gpuDeviceReset cudaDeviceReset
@@ -63,6 +65,8 @@
 
 #define gpuFree( ptr ) checkGpu( hipFree( ptr ) )
 #define gpuFreeHost( ptr ) checkGpu( hipHostFree( ptr ) )
+
+#define gpuGetSymbolAddress( devPtr, symbol ) checkGpu( hipGetSymbolAddress( devPtr, symbol ) )
 
 #define gpuSetDevice hipSetDevice
 #define gpuDeviceSynchronize hipDeviceSynchronize
