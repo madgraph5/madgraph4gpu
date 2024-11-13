@@ -222,7 +222,7 @@ namespace mg5amcCpu
     bool m_blasColorSum;
 
     // The super-buffer of nGoodHel cuBLAS/hipBLAS temporary buffers
-    std::unique_ptr<DeviceBufferSimple> m_pHelBlasTmp;
+    std::unique_ptr<DeviceBufferSimple2> m_pHelBlasTmp;
 
     // The array of cuBLAS/hipBLAS handles (one for each good helicity)
     gpuBlasHandle_t m_helBlasHandles[CPPProcess::ncomb]; // reserve ncomb streams (but only nGoodHel <= ncomb will be used)
