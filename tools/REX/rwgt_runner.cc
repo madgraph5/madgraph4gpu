@@ -21,13 +21,13 @@
 namespace %(process_namespace)s{
 //namespace dummy{
 
-    std::vector<std::vector<std::string_view>> getInitPrts(){
-        static std::vector<std::vector<std::string_view>> initPrts = {%(init_prt_ids)s};
+    std::vector<std::vector<int>> getInitPrts(){
+        static std::vector<std::vector<int>> initPrts = {%(init_prt_ids)s};
         return initPrts;
     }
 
-    std::vector<std::vector<std::string_view>> getFinPrts(){
-        static std::vector<std::vector<std::string_view>> finPrts = {%(fin_prt_ids)s};
+    std::vector<std::vector<int>> getFinPrts(){
+        static std::vector<std::vector<int>> finPrts = {%(fin_prt_ids)s};
         return finPrts;
     }
 
@@ -54,50 +54,50 @@ namespace %(process_namespace)s{
         return constrBridge;
     }
 
-    std::shared_ptr<std::vector<size_t>> procSort( std::string_view status, std::vector<std::string_view> arguments, size_t index ){
-        std::vector<std::vector<std::string_view>> initPrts = getInitPrts();
-        std::vector<std::vector<std::string_view>> finPrts = getFinPrts();
+    std::shared_ptr<std::vector<size_t>> procSort( int status, std::vector<int> arguments, size_t index ){
+        std::vector<std::vector<int>> initPrts = getInitPrts();
+        std::vector<std::vector<int>> finPrts = getFinPrts();
         std::shared_ptr<std::vector<size_t>> refOrder;
     if( index == REX::npos ){
-	if( status == "-1" ){
+	if( status == -1 ){
             for( auto& prts : initPrts ){
                 refOrder = REX::getRefOrder( prts, arguments );
                 if( std::find(refOrder->begin(), refOrder->end(), REX::npos) == refOrder->end() ){ break; }
             }
             return refOrder;
         }
-        else if( status == "1" ){
+        else if( status == 1 ){
             for( auto& prts : finPrts ){
                 refOrder = REX::getRefOrder( prts, arguments );
                 if( std::find(refOrder->begin(), refOrder->end(), REX::npos) == refOrder->end() ){ break; }
             }
             return refOrder;
         }
-        return REX::stoiSort( arguments );
+        return REX::indSort( arguments );
     }
     else{
         if( index >= initPrts.size() || index >= finPrts.size() ) throw std::runtime_error( "procSort called for out-of-bounds event." );
-        if( status == "-1" ){
+        if( status == -1 ){
             refOrder = REX::getRefOrder( initPrts.at(index), arguments );
             return refOrder;
         }
-        else if( status == "1" ){
+        else if( status == 1 ){
             refOrder = REX::getRefOrder( finPrts.at(index), arguments );
             return refOrder;
         }
-        return REX::stoiSort( arguments );
+        return REX::indSort( arguments );
     }
     }
 
-    bool checkProc( REX::event& process, std::vector<std::string>& relStats ){
+    bool checkProc( REX::event& process, std::vector<int>& relStats ){
         size_t no_evts = %(no_events)s;
         auto finPrts = getFinPrts();
         for( size_t k = 0 ; k < no_evts ; ++k ){
-            REX::statSort locSort = [ind = k](std::string_view status, std::vector<std::string_view> arguments){
+            REX::statSort locSort = [ind = k](int status, std::vector<int> arguments){
                 return procSort( status, arguments, ind );
             };
             auto order = process.getProcOrder( locSort );
-            if( order.at("1").size() != finPrts[k].size() ){ continue; }
+            if( order.at(1).size() != finPrts[k].size() ){ continue; }
             for( size_t j = 0 ; j < relStats.size() ; ++j ){
                 auto currPts = order.at( relStats[j] );
                 if( std::find(currPts.begin(), currPts.end(), REX::npos) != currPts.end() ){ break; }
@@ -115,7 +115,7 @@ namespace %(process_namespace)s{
     }
 
     REX::eventSet getEventSet(){
-        std::vector<std::vector<std::pair<std::string,std::string>>> eventVec = {%(process_events)s};
+        std::vector<std::vector<std::pair<int,int>>> eventVec = {%(process_events)s};
         std::vector<REX::event> process;
         for( auto ev : eventVec ){
             process.push_back( REX::event( ev ) );

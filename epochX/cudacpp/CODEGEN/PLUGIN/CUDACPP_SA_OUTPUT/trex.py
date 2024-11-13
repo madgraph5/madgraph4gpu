@@ -60,7 +60,7 @@ class TREX_OneProcessExporter(model_handling.PLUGIN_OneProcessExporter):
     # ZW - rwgt functions
     def get_rwgt_legs(self, process):
         """Return string with particle ids and status in the REX std::pair format"""
-        return ",".join(["{\"%i\",\"%i\"}" % (leg.get('state'), leg.get('id')) \
+        return ",".join(["{%i,%i}" % (leg.get('state'), leg.get('id')) \
             for leg in process.get('legs')]).replace('0', '-1')
     
     def get_rwgt_legs_vec(self, processes):
@@ -72,7 +72,7 @@ class TREX_OneProcessExporter(model_handling.PLUGIN_OneProcessExporter):
         
     def get_init_prts_vec(self, process):
         """Return string with initial state particle ids for use in REX event sorting"""
-        prts = ",".join(["\"%i\"" % leg.get('id') for leg in process.get('legs') if leg.get('state') == 0])
+        prts = ",".join(["%i" % leg.get('id') for leg in process.get('legs') if leg.get('state') == 0])
         return "{" + prts + "}"
     
     def get_init_prts_vecs(self, processes):
@@ -84,7 +84,7 @@ class TREX_OneProcessExporter(model_handling.PLUGIN_OneProcessExporter):
     
     def get_fin_prts_vec(self, process):
         """Return string with final state particle ids for use in REX event sorting"""
-        prts = ",".join(["\"%i\"" % leg.get('id') for leg in process.get('legs') if leg.get('state') == 1])
+        prts = ",".join(["%i" % leg.get('id') for leg in process.get('legs') if leg.get('state') == 1])
         return "{" + prts + "}"
     
     def get_fin_prts_vecs(self, processes):
@@ -97,13 +97,13 @@ class TREX_OneProcessExporter(model_handling.PLUGIN_OneProcessExporter):
     def get_rwgt_procMap(self, process):
         """Return string with particle states and order in the REX procMap format"""
         currState = False
-        retString = "thisProc{{\"-1\",{"
+        retString = "thisProc{{-1,{"
         for leg in process.get('legs'):
             if currState == leg.get('state'):
-                retString += "\"%i\"," % leg.get('id')
+                retString += "%i," % leg.get('id')
             else:
                 currState = leg.get('state')
-                retString += "}},{\"1\",{\"%i,\"" % leg.get('id')
+                retString += "}},{1,{%i," % leg.get('id')
         retString = retString[:-1] + "}}}"
         return retString
     

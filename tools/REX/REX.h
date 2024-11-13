@@ -39,6 +39,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <queue>
+#include <charconv>
 
 // ZW: all fcns within the REX standard sit in the
 // namespace REX
@@ -52,8 +53,23 @@ namespace REX
     #define UNUSED(x) (void)(x)
     //#pragma warning( pop ) 
 
-    using sortFcn = std::function<std::shared_ptr<std::vector<size_t>>(std::vector<std::string_view>)>;
-    using statSort = std::function<std::shared_ptr<std::vector<size_t>>(std::string_view, std::vector<std::string_view>)>;
+    using sortFcn = std::function<std::shared_ptr<std::vector<size_t>>(std::vector<int>)>;
+    using statSort = std::function<std::shared_ptr<std::vector<size_t>>(int, std::vector<int>)>;
+
+    // ZW: index sorting function, which returns vector
+    // of the indices of the original vector sorted 
+    // by default in ascending order
+    // ie, for [5.0, 0.25, 2.0, 9.2] returns [1, 2, 0, 3]
+    template <typename T>
+    std::shared_ptr<std::vector<size_t>> indSort(const std::vector<T> &vector, std::function<bool(const T&, const T&)> comp = std::less<T>())
+    {
+        auto sorted = std::make_shared<std::vector<size_t>>(vector.size());
+        std::iota(sorted->begin(), sorted->end(), 0);
+        std::stable_sort(sorted->begin(), sorted->end(), [&](size_t i, size_t j) { return comp(vector[i], vector[j]); });
+        return sorted;
+    }
+    template std::shared_ptr<std::vector<size_t>> indSort<int>(const std::vector<int> &vector, std::function<bool(const int&, const int&)> comp = std::less<int>());
+    template std::shared_ptr<std::vector<size_t>> indSort<double>(const std::vector<double> &vector, std::function<bool(const double&, const double&)> comp = std::less<double>());
 
     template <typename T>
     std::shared_ptr<std::vector<size_t>> stoiSort(const std::vector<T> &vector);
@@ -199,45 +215,46 @@ namespace REX
     public:
         std::string_view getLine();
         std::string_view getComment();
-        std::vector<std::string_view> getMom();
-        std::string_view getE();
-        std::string_view getMass();
-        std::string_view getVTim();
-        std::string_view getSpin();
-        std::string_view getPDG();
-        std::string_view getStatus();
-        std::vector<std::string_view> getMothers();
-        std::vector<std::string_view> getColor();
+        std::vector<double> getMom();
+        double getE();
+        double getMass();
+        double getVTim();
+        double getSpin();
+        int getPDG();
+        int getStatus();
+        std::vector<int> getMothers();
+        std::vector<int> getColor();
         void setComment( std::string_view nuCom );
-        void setMom( std::vector<std::string_view> nuMom );
-        void setEnergy( std::string_view nuE );
-        void setMass( std::string_view nuM );
-        void setVTim( std::string_view nuVTim );
-        void setSpin( std::string_view nuSpin );
-        void setPDG( std::string_view nuPDG );
-        void setStatus( std::string_view nuSt );
-        void setMothers( std::vector<std::string_view> nuMum );
-        void setColors( std::vector<std::string_view> nuCol );
+        void setMom( std::vector<double> nuMom );
+        void setEnergy( double nuE );
+        void setMass( double nuM );
+        void setVTim( double nuVTim );
+        void setSpin( double nuSpin );
+        void setPDG( int nuPDG );
+        void setStatus( int nuSt );
+        void setMothers( std::vector<int> nuMum );
+        void setColors( std::vector<int> nuCol );
         bool isModded();
         bool isWritten();
         std::shared_ptr<std::string> getContent();
         lhePrt();
         lhePrt( std::pair<int,int>& prtInfo );
+        lhePrt( int idup, int istup, int moth1, int moth2, int icol1, int icol2, double px, double py, double pz, double e, double m, double vt, double sp );
         lhePrt( std::pair<std::string,std::string>& prtInfo );
         lhePrt( const std::string_view originFile, const size_t& beginLine = 0, const size_t& endLine = npos );
     protected:
         std::shared_ptr<std::string> content;
         std::string_view sourceFile;
         std::string_view comment;
-        std::string_view mom[3];
-        std::string_view energy;
-        std::string_view mass;
-        std::string_view vtim;
-        std::string_view spin;
-        std::string_view pdg;
-        std::string_view status;
-        std::string_view mothers[2];
-        std::string_view icol[2];
+        double mom[3];
+        double energy;
+        double mass;
+        double vtim;
+        double spin;
+        int pdg;
+        int status;
+        int mothers[2];
+        int icol[2];
         bool modded = false;
         bool written = false;
         void writer();
@@ -246,22 +263,21 @@ namespace REX
     struct evHead {
     public:
         std::string_view getComment();
-        std::string_view getWeight();
-        std::string_view getScale();
-        std::string_view getAQED();
-        std::string_view getAQCD();
-        std::string_view getNprt();
-        std::string_view getProcID();
+        double getWeight();
+        double getScale();
+        double getAQED();
+        double getAQCD();
+        int getNprt();
+        int getProcID();
         bool isModded();
         bool isWritten();
         void setComment( std::string_view nuCom );
-        void setWeight( std::string_view nuWgt );
-        void setScale( std::string_view nuScale );
-        void setAQED( std::string_view nuAQED );
-        void setAQCD( std::string_view nuAQCD );
-        void setNprt( std::string_view nuNprt );
+        void setWeight( double nuWgt );
+        void setScale( double nuScale );
+        void setAQED( double nuAQED );
+        void setAQCD( double nuAQCD );
         void setNprt( int nuNprt );
-        void setProcID( std::string_view nuProcID );
+        void setProcID( int nuProcID );
         std::shared_ptr<std::string> getContent();
         evHead();
         evHead( const std::string_view originFile, size_t beginLine = 0, size_t endLine = npos );
@@ -269,14 +285,14 @@ namespace REX
         std::shared_ptr<std::string> content;
         std::string_view sourceFile;
         std::string_view comment;
-        std::string_view weight;
-        std::string_view scale;
-        std::string_view aqed;
-        std::string_view aqcd;
-        std::string_view nprt;
-        int nprtint;
-        std::string nprtstr;
-        std::string_view procid;
+        double weight;
+        double scale;
+        double aqed;
+        double aqcd;
+        int nprt;
+        //int nprtint;
+        //std::string nprtstr;
+        int procid;
         bool modded = false;
         bool written = false;
         void writer();
@@ -365,10 +381,13 @@ namespace REX
         evHead header;
         bool hasBeenProc = false;
         std::vector<std::shared_ptr<lhePrt>> prts;
-        std::map<std::string_view, std::vector<std::string_view>> procMap;
-        std::map<std::string_view, std::vector<size_t>> procOrder;
-        sortFcn eventSort = []( std::vector<std::string_view> vec ){ return stoiSort( vec ); };
-        statSort specSort = []( std::string_view stat, std::vector<std::string_view> vec ){ UNUSED(stat); return stoiSort( vec ); };
+        std::map<int, std::vector<int>> procMap;
+        std::map<int, std::vector<size_t>> procOrder;
+        sortFcn eventSort = []( std::vector<int> vec ){ return indSort( vec ); };
+        statSort specSort = []( int stat, std::vector<int> vec ){ 
+            UNUSED(stat); 
+            return indSort( vec ); 
+        };
         bool specSorted = false;
         bool initProcMap(bool hard = false);
         bool initProcMap( sortFcn sorter, bool hard = false );
@@ -387,26 +406,26 @@ namespace REX
     public:
         std::shared_ptr<std::string> nodeWriter() override;
         std::shared_ptr<std::string> nodeWriter( bool recursive );
-        std::map<std::string_view, std::vector<std::string_view>> &getProc( bool hard = false );
-        std::map<std::string_view, std::vector<size_t>> &getProcOrder( bool hard = false );
-        std::map<std::string_view, std::vector<std::string_view>> getProc() const;
-        std::map<std::string_view, std::vector<size_t>> getProcOrder() const;
-        std::map<std::string_view, std::vector<std::string_view>> &getProc(sortFcn sorter, bool hard = true);
-        std::map<std::string_view, std::vector<size_t>> &getProcOrder(sortFcn sorter, bool hard = true);
-        std::map<std::string_view, std::vector<std::string_view>> &getProc(statSort sorter, bool hard = true);
-        std::map<std::string_view, std::vector<size_t>> &getProcOrder(statSort sorter, bool hard = true);
+        std::map<int, std::vector<int>> &getProc( bool hard = false );
+        std::map<int, std::vector<size_t>> &getProcOrder( bool hard = false );
+        std::map<int, std::vector<int>> getProc() const;
+        std::map<int, std::vector<size_t>> getProcOrder() const;
+        std::map<int, std::vector<int>> &getProc(sortFcn sorter, bool hard = true);
+        std::map<int, std::vector<size_t>> &getProcOrder(sortFcn sorter, bool hard = true);
+        std::map<int, std::vector<int>> &getProc(statSort sorter, bool hard = true);
+        std::map<int, std::vector<size_t>> &getProcOrder(statSort sorter, bool hard = true);
     };
 
-    using eventComparison = std::function<bool(event&, event&, std::vector<std::string>&)>;
+    using eventComparison = std::function<bool(event&, event&, std::vector<int>&)>;
 
-    using eventSetComp = std::function<bool(event&, std::vector<std::string>&)>;
+    using eventSetComp = std::function<bool(event&, std::vector<int>&)>;
 
     struct eventSet{
         eventSet();
         eventSet( const eventSet& nuEvents );
         eventSet( std::vector<event>& nuEvents );
         eventSet( std::vector<std::shared_ptr<event>>& nuEvents );
-        void setRelStats( std::vector<std::string>& nuStats );
+        void setRelStats( std::vector<int>& nuStats );
         void addEvent( event& nuEvent );
         void addEvent( std::shared_ptr<event> nuEvent );
         void addEvent( std::vector<event>& nuEvents );
@@ -416,7 +435,7 @@ namespace REX
         bool belongs( std::shared_ptr<event> nuEvent );
     protected:
         std::vector<event> events;
-        std::vector<std::string> relStats = {"-1", "1"};
+        std::vector<int> relStats = {-1, 1};
         eventSetComp comp;
     };
 
@@ -747,8 +766,8 @@ namespace REX
         std::shared_ptr<lheHead> header =  std::make_shared<lheHead>(xmlFile, start);
         std::shared_ptr<initNode> init = std::make_shared<initNode>(xmlFile, start);
         std::vector<std::string_view> relStat = {"-1", "1"};
-        sortFcn particleSort = []( std::vector<std::string_view> prts ){ return stoiSort(prts); };
-        statSort statParticleSort = []( std::string_view dummy, std::vector<std::string_view> prts ){ UNUSED(dummy); return stoiSort(prts); };
+        sortFcn particleSort = []( std::vector<int> prts ){ return indSort(prts); };
+        statSort statParticleSort = []( int dummy, std::vector<int> prts ){ UNUSED(dummy); return indSort(prts); };
         virtual void headerWriter();
         virtual void initWriter();
         virtual void eventWriter();
@@ -760,36 +779,36 @@ namespace REX
 
     struct evtInfo {
     public:
-        std::vector<std::string_view> wgts;
-        std::vector<std::string_view> scales;
-        std::vector<std::string_view> aQEDs;
-        std::vector<std::string_view> aQCDs;
-        std::vector<std::string_view> nprts;
+        std::vector<double> wgts;
+        std::vector<double> scales;
+        std::vector<double> aQEDs;
+        std::vector<double> aQCDs;
+        std::vector<int> nprts;
         std::vector<size_t> relNPrts;
-        std::vector<std::string_view> procIDs;
+        std::vector<int> procIDs;
         evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile = {} );
-        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec );
-        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec, 
+        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<int>& statVec );
+        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<int>& statVec, 
         sortFcn sorter );
-        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec, 
+        evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<int>& statVec, 
         statSort sorter );
     };
 
     struct  prtInfo {
     public:
-        std::vector<std::string_view> moms;
-        std::vector<std::string_view> masses;
-        std::vector<std::string_view> vtims;
-        std::vector<std::string_view> spins;
-        std::vector<std::string_view> statuses;
-        std::vector<std::string_view> mothers;
-        std::vector<std::string_view> icols;
-        std::vector<std::string_view> pdgs;
+        std::vector<double> moms;
+        std::vector<double> masses;
+        std::vector<double> vtims;
+        std::vector<double> spins;
+        std::vector<int> statuses;
+        std::vector<int> mothers;
+        std::vector<int> icols;
+        std::vector<int> pdgs;
         prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile = {}, const int nPrt = 8 );
-        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec );
-        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec, 
+        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<int>& statVec );
+        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<int>& statVec, 
         sortFcn sorter );
-        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec, 
+        prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<int>& statVec, 
         statSort sorter );
     };
 
@@ -810,13 +829,13 @@ namespace REX
         prtInfo evtsData;
         std::shared_ptr<event> process;
         transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile = {}, const int nPrt = 8 );
-        transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, const std::vector<std::string_view>& statVec );
+        transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, const std::vector<int>& statVec );
         transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, 
         sortFcn sorter,
-        std::vector<std::string_view> statVec = { "-1", "1" } );
+        std::vector<int> statVec = { -1, 1 } );
         transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, 
         statSort sorter,
-        std::vector<std::string_view> statVec = { "-1", "1" } );
+        std::vector<int> statVec = { -1, 1 } );
         transMonoLHE( const transMonoLHE& lheFile );
     };
 
@@ -832,11 +851,11 @@ namespace REX
         transLHE( lheNode& lheFile );
         transLHE( lheNode& lheFile, 
         sortFcn sorter, 
-        const std::vector<std::string_view>& statVec = { "-1", "1" } );
+        const std::vector<int>& statVec = { -1, 1 } );
         transLHE( lheNode& lheFile, 
         statSort sorter, 
-        const std::vector<std::string_view>& statVec = { "-1", "1" } );
-        transLHE( lheNode& lheFile, const std::vector<std::string_view>& statVec );
+        const std::vector<int>& statVec = { -1, 1 } );
+        transLHE( lheNode& lheFile, const std::vector<int>& statVec );
         transLHE( transSkel& skeleton );
         transLHE( const transLHE& lheFile );
         std::shared_ptr<std::vector<double>> vectorFlat( std::vector<std::shared_ptr<std::vector<double>>> vecVec );
@@ -883,7 +902,7 @@ namespace REX
     struct eventComp{
         bool operator()( event& firstEv, event& secEv);
         bool operator()( const event& firstEv, const event& secEv) const;
-        bool operator()(event& firstEv, event& secEv, std::vector<std::string_view> statVec);
+        bool operator()(event& firstEv, event& secEv, std::vector<int> statVec);
     };
 
 

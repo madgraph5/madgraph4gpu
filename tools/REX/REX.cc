@@ -48,19 +48,32 @@
 // referred to as strings unless the difference is relevant
 namespace REX
 {
-
-
-    // ZW: index sorting function, which returns vector
-    // of the indices of the original vector sorted 
-    // by default in ascending order
-    // ie, for [5.0, 0.25, 2.0, 9.2] returns [1, 2, 0, 3]
-    template <typename T>
-    std::shared_ptr<std::vector<size_t>> indSort(const std::vector<T> &vector, std::function<bool(const T&, const T&)> comp = std::less<T>())
+    // ZW: generic fcn for converting string-like objects to integers
+    // Assumes input has no leading blankspace to check for a leading +,
+    // but should not fail as long as there is no + even if there is blankspace
+    // Note that Str needs to have a .compare(), .data() and .size() method
+    template <typename Str>
+    int ctoi(  Str str )
     {
-        auto sorted = std::make_shared<std::vector<size_t>>(vector.size());
-        std::iota(sorted->begin(), sorted->end(), 0);
-        std::stable_sort(sorted->begin(), sorted->end(), [&](size_t i, size_t j) { return comp(vector[i], vector[j]); });
-        return sorted;
+        int ret;
+        if ( str.compare(0, 1, "+") == 0 ){ str = str.substr(1); }
+        auto result = std::from_chars( str.data(), str.data() + str.size(), ret );
+        if( result.ec != std::errc() ){ throw std::invalid_argument("Invalid string-like object to convert to int"); }
+        return ret;
+    }
+
+    // ZW: generic fcn for converting string-like objects to doubles
+    // Assumes input has no leading blankspace to check for a leading +,
+    // but should not fail as long as there is no + even if there is blankspace
+    // Note that Str needs to have a .compare(), .data() and .size() method
+    template <typename Str>
+    double ctod( Str str )
+    {
+        double ret;
+        if ( str.compare(0, 1, "+") == 0 ){ str = str.substr(1); }
+        auto result = std::from_chars( str.data(), str.data() + str.size(), ret );
+        if( result.ec != std::errc() ){ throw std::invalid_argument("Invalid string-like object to convert to double"); }
+        return ret;
     }
 
     // ZW: wrapper for indSort for comparing string-type arguments representing integers
@@ -113,6 +126,7 @@ namespace REX
         return order;
     }
     template std::shared_ptr<std::vector<size_t>> getRefOrder<std::string_view>(const std::vector<std::string_view>& reference, const std::vector<std::string_view>& to_sort);
+    template std::shared_ptr<std::vector<size_t>> getRefOrder<int>(const std::vector<int>& reference, const std::vector<int>& to_sort);
 
     // ZW: minimal fcn for counting the amount of times
     // a given searchTerm appears in searchString
@@ -1133,22 +1147,21 @@ namespace REX
     // ZW: struct for handling the first line of
     // LHE format event block
         std::string_view evHead::getComment(){ return comment; }
-        std::string_view evHead::getWeight(){ return weight; }
-        std::string_view evHead::getScale(){ return scale; }
-        std::string_view evHead::getAQED(){ return aqed; }
-        std::string_view evHead::getAQCD(){ return aqcd; }
-        std::string_view evHead::getNprt(){ return nprt; }
-        std::string_view evHead::getProcID(){ return procid; }
+        double evHead::getWeight(){ return weight; }
+        double evHead::getScale(){ return scale; }
+        double evHead::getAQED(){ return aqed; }
+        double evHead::getAQCD(){ return aqcd; }
+        int evHead::getNprt(){ return nprt; }
+        int evHead::getProcID(){ return procid; }
         bool evHead::isModded(){ return modded; }
         bool evHead::isWritten(){ return written; }
         void evHead::setComment( std::string_view nuCom ){ modded = true; comment = nuCom; }
-        void evHead::setWeight( std::string_view nuWgt ){ modded = true; weight = nuWgt; }
-        void evHead::setScale( std::string_view nuScale ){ modded = true; scale = nuScale; }
-        void evHead::setAQED( std::string_view nuAQED ){ modded = true; aqed = nuAQED; }
-        void evHead::setAQCD( std::string_view nuAQCD ){ modded = true; aqcd = nuAQCD; }
-        void evHead::setNprt( std::string_view nuNprt ){ modded = true; nprt = nuNprt; }
-        void evHead::setNprt( int nuNprt ){ modded = true; nprtint = nuNprt; nprtstr = std::to_string(nuNprt); nprt = nprtstr;}
-        void evHead::setProcID( std::string_view nuProcID ){ modded = true; procid = nuProcID; }
+        void evHead::setWeight( double nuWgt ){ modded = true; weight = nuWgt; }
+        void evHead::setScale( double nuScale ){ modded = true; scale = nuScale; }
+        void evHead::setAQED( double nuAQED ){ modded = true; aqed = nuAQED; }
+        void evHead::setAQCD( double nuAQCD ){ modded = true; aqcd = nuAQCD; }
+        void evHead::setNprt( int nuNprt ){ modded = true; nprt = nuNprt; }
+        void evHead::setProcID( int nuProcID ){ modded = true; procid = nuProcID; }
         std::shared_ptr<std::string> evHead::getContent(){
             if( !isWritten() || isModded() ){ writer(); }
             return content;
@@ -1161,20 +1174,21 @@ namespace REX
             if( endLine == npos ){ endLine = originFile.find("\n", beginLine ) + 1; }
             sourceFile = originFile.substr( beginLine, endLine - beginLine );
             auto evLine = blankSplitter( sourceFile );
-            nprt = evLine->at(0) ;
-            procid = evLine->at(1);
-            weight = evLine->at(2);
-            scale = evLine->at(3);
-            aqed = evLine->at(4);
-            aqcd = evLine->at(5);
+            nprt = ctoi(evLine->at(0));
+            procid = ctoi(evLine->at(1));
+            weight = ctod(evLine->at(2));
+            scale = ctod(evLine->at(3));
+            aqed = ctod(evLine->at(4));
+            aqcd = ctod(evLine->at(5));
          }
         void evHead::writer(){
             if( isWritten() && !isModded() ){ return; }
             if( !isModded() ){ content = std::make_shared<std::string>( sourceFile ); return; }
             auto retText = std::make_shared<std::string>( " " );
-            *content = " " + std::string( nprt );
-            for( size_t k = 0 ; k < 8 - procid.length() ; ++k ){ *content += " "; }
-            *content +=  std::string( procid ) + " " + std::string( weight ) + " " + std::string( scale ) + " " + std::string( aqed ) + " " + std::string( aqcd );
+            *content = " " + std::to_string( nprt );
+            auto procIdStr = std::to_string( procid );
+            for( size_t k = 0 ; k < 8 - procIdStr.size() ; ++k ){ *content += " "; }
+            *content +=  std::to_string( procid ) + " " + std::to_string( weight ) + " " + std::to_string( scale ) + " " + std::to_string( aqed ) + " " + std::to_string( aqcd );
             if( comment != "" ){ *content += " # " + std::string( comment ); }
             *content += "\n";
             modded = false;
@@ -1185,25 +1199,25 @@ namespace REX
     // in LHE format event block
         std::string_view lhePrt::getLine(){ return sourceFile; }
         std::string_view lhePrt::getComment(){ return comment; }
-        std::vector<std::string_view> lhePrt::getMom(){ return std::vector<std::string_view>( std::begin( mom ), std::end( mom ) ); }
-        std::string_view lhePrt::getE(){ return energy; }
-        std::string_view lhePrt::getMass(){ return mass; }
-        std::string_view lhePrt::getVTim(){ return vtim; }
-        std::string_view lhePrt::getSpin(){ return spin; }
-        std::string_view lhePrt::getPDG(){ return pdg; }
-        std::string_view lhePrt::getStatus(){ return status; }
-        std::vector<std::string_view> lhePrt::getMothers(){ return std::vector<std::string_view>( std::begin( mothers ), std::end( mothers ) ); }
-        std::vector<std::string_view> lhePrt::getColor(){ return std::vector<std::string_view>( std::begin( icol ), std::end( icol ) ); }
+        std::vector<double> lhePrt::getMom(){ return std::vector<double>( std::begin( mom ), std::end( mom ) ); }
+        double lhePrt::getE(){ return energy; }
+        double lhePrt::getMass(){ return mass; }
+        double lhePrt::getVTim(){ return vtim; }
+        double lhePrt::getSpin(){ return spin; }
+        int lhePrt::getPDG(){ return pdg; }
+        int lhePrt::getStatus(){ return status; }
+        std::vector<int> lhePrt::getMothers(){ return std::vector<int>( std::begin( mothers ), std::end( mothers ) ); }
+        std::vector<int> lhePrt::getColor(){ return std::vector<int>( std::begin( icol ), std::end( icol ) ); }
         void lhePrt::setComment( std::string_view nuCom ){ modded = true; comment = nuCom; }
-        void lhePrt::setMom( std::vector<std::string_view> nuMom ){ modded = true; mom[0] = nuMom[0]; mom[1] = nuMom[1]; mom[2] = nuMom[2]; }
-        void lhePrt::setEnergy( std::string_view nuE ){ modded = true; energy = nuE; }
-        void lhePrt::setMass( std::string_view nuM ){ modded = true; mass = nuM; }
-        void lhePrt::setVTim( std::string_view nuVTim ){ modded = true; vtim = nuVTim; }
-        void lhePrt::setSpin( std::string_view nuSpin ){ modded = true; spin = nuSpin; }
-        void lhePrt::setPDG( std::string_view nuPDG ){ modded = true; pdg = nuPDG; }
-        void lhePrt::setStatus( std::string_view nuSt ){ modded = true; status = nuSt; }
-        void lhePrt::setMothers( std::vector<std::string_view> nuMum ){ modded = true; mothers[0] = nuMum[0]; mothers[1] = nuMum[1]; }
-        void lhePrt::setColors( std::vector<std::string_view> nuCol ){ modded = true; icol[0] = nuCol[0]; icol[1] = nuCol[1]; }
+        void lhePrt::setMom( std::vector<double> nuMom ){ modded = true; mom[0] = nuMom[0]; mom[1] = nuMom[1]; mom[2] = nuMom[2]; }
+        void lhePrt::setEnergy( double nuE ){ modded = true; energy = nuE; }
+        void lhePrt::setMass( double nuM ){ modded = true; mass = nuM; }
+        void lhePrt::setVTim( double nuVTim ){ modded = true; vtim = nuVTim; }
+        void lhePrt::setSpin( double nuSpin ){ modded = true; spin = nuSpin; }
+        void lhePrt::setPDG( int nuPDG ){ modded = true; pdg = nuPDG; }
+        void lhePrt::setStatus( int nuSt ){ modded = true; status = nuSt; }
+        void lhePrt::setMothers( std::vector<int> nuMum ){ modded = true; mothers[0] = nuMum[0]; mothers[1] = nuMum[1]; }
+        void lhePrt::setColors( std::vector<int> nuCol ){ modded = true; icol[0] = nuCol[0]; icol[1] = nuCol[1]; }
         bool lhePrt::isModded(){ return modded; }
         bool lhePrt::isWritten(){ return written; }
         std::shared_ptr<std::string> lhePrt::getContent(){
@@ -1212,40 +1226,41 @@ namespace REX
         }
         lhePrt::lhePrt(){ return; }
         lhePrt::lhePrt( std::pair<int,int>& prtInfo ){
-            status = std::to_string( prtInfo.first );
-            pdg = std::to_string( prtInfo.second );
+            status = prtInfo.first;
+            pdg = prtInfo.second;
         }
         lhePrt::lhePrt( std::pair<std::string,std::string>& prtInfo ){
-            status = std::string_view( prtInfo.first );
-            pdg = std::string_view( prtInfo.second );
+            status = ctoi(prtInfo.first);
+            pdg = ctoi( prtInfo.second );
         }
         lhePrt::lhePrt( const std::string_view originFile, const size_t& beginLine, const size_t& endLine )
         {
             sourceFile = originFile.substr( beginLine, endLine - beginLine );
             auto evLine = blankSplitter( sourceFile );
-            pdg = evLine->at(0);
-            status = evLine->at(1);
-            mothers[0] = evLine->at(2); mothers[1] = evLine->at(3);
-            icol[0] = evLine->at(4); icol[1] = evLine->at(5);
+            pdg = ctoi(evLine->at(0));
+            status = ctoi(evLine->at(1));
+            mothers[0] = ctoi(evLine->at(2)); mothers[1] = ctoi(evLine->at(3));
+            icol[0] = ctoi(evLine->at(4)); icol[1] = ctoi(evLine->at(5));
             for( int k = 6 ; k < 9 ; ++k){
-                mom[k-6] = evLine->at(k);
+                mom[k-6] = ctod(evLine->at(k));
             }
-            energy = evLine->at(9);
-            mass = evLine->at(10);
-            vtim = evLine->at(11);
-            spin = evLine->at(12);
-            if( evLine->size() > 13 ){ comment = sourceFile.substr( sourceFile.find( "#" ) ); }
+            energy = ctod(evLine->at(9));
+            mass = ctod(evLine->at(10));
+            vtim = ctod(evLine->at(11));
+            spin = ctod(evLine->at(12));
+            if( evLine->size() > 13 ){ comment = sourceFile.substr( sourceFile.find( "#" ) + 1 ); }
         }
         void lhePrt::writer(){
             if( isWritten() && !isModded() ){ return; }
             if( !isModded() ){ content = std::make_shared<std::string>( sourceFile ); return; }
             *content = "";
-            for( size_t k = 0; k < 10 - pdg.length() ; ++k ){ *content += " "; }
-            *content += std::string(pdg) + " " + std::string(status);
-            for( auto mum : mothers ){ *content += "    " + std::string( mum ); }
-            for( auto col : icol ){ *content += "  " + std::string( col ); }
-            for( auto pval : mom ){ *content += " " + std::string(pval); }
-            *content += " " + std::string( energy ) + " " + std::string( mass ) + " " + std::string( vtim ) + " " + std::string( spin );
+            std::string pdgStr = std::to_string( this->pdg );
+            for( size_t k = 0; k < 10 - pdgStr.length() ; ++k ){ *content += " "; }
+            *content += pdgStr + " " + std::to_string(status);
+            for( auto mum : mothers ){ *content += "    " + std::to_string( mum ); }
+            for( auto col : icol ){ *content += "  " + std::to_string( col ); }
+            for( auto pval : mom ){ *content += " " + std::to_string(pval); }
+            *content += " " + std::to_string( energy ) + " " + std::to_string( mass ) + " " + std::to_string( vtim ) + " " + std::to_string( spin );
             if( comment != "" ){ *content += " # " + std::string( comment ); }
             *content += "\n";
             modded = false;
@@ -1278,7 +1293,7 @@ namespace REX
         }
         event::event(){ return; }
         event::event( std::vector<std::pair<int,int>>& prtInfo ){
-            header.setNprt( std::to_string( prtInfo.size() ) );
+            header.setNprt( prtInfo.size() );
             for( auto& prt : prtInfo ){
                 prts.push_back( std::make_shared<lhePrt>( prt ) );
             }
@@ -1290,7 +1305,7 @@ namespace REX
             }
         }
         event::event( std::vector<std::shared_ptr<lhePrt>> prtInfo ){
-            header.setNprt( std::to_string( prtInfo.size() ) );
+            header.setNprt( prtInfo.size() );
             prts = prtInfo;
         }
         event::event( const std::string_view originFile, const size_t& begin, const std::vector<std::shared_ptr<xmlNode>>& childs ) 
@@ -1300,7 +1315,7 @@ namespace REX
             auto vals = lineFinder( originFile.substr( trueStart, originFile.find("<", trueStart +  3 ) - trueStart + 3 ));
             header = evHead(originFile, vals->at(0) + trueStart, vals->at(1) + trueStart + 1 );
             prts.reserve(vals->size());
-            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            for( int k = 1 ; k < header.getNprt() + 1; ++k)
             {
                 prts.push_back( std::make_shared<lhePrt>(originFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart + 1) );
             }
@@ -1311,7 +1326,7 @@ namespace REX
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
             header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
             prts.reserve(vals->size());
-            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            for( int k = 1 ; k < header.getNprt() + 1; ++k)
             {
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
@@ -1322,7 +1337,7 @@ namespace REX
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
             header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
             prts.reserve(vals->size());
-            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            for( int k = 1 ; k < header.getNprt() + 1; ++k)
             {
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
@@ -1333,7 +1348,7 @@ namespace REX
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
             header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
             prts.reserve(vals->size());
-            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            for( int k = 1 ; k < header.getNprt() + 1; ++k)
             {
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
@@ -1344,7 +1359,7 @@ namespace REX
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
             header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
             prts.reserve(vals->size());
-            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            for( int k = 1 ; k < header.getNprt() + 1; ++k)
             {
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
@@ -1355,7 +1370,7 @@ namespace REX
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
             header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
             prts.reserve(vals->size());
-            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            for( int k = 1 ; k < header.getNprt() + 1; ++k)
             {
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
@@ -1366,7 +1381,7 @@ namespace REX
             auto vals = lineFinder( xmlFile.substr( trueStart, xmlFile.find("<", trueStart +  3 ) - trueStart + 3 ));
             header = evHead(xmlFile, vals->at(0) + trueStart, vals->at(1) + trueStart );
             prts.reserve(vals->size());
-            for( int k = 1 ; k < std::stoi(std::string(header.getNprt())) + 1; ++k)
+            for( int k = 1 ; k < header.getNprt() + 1; ++k)
             {
                 prts.push_back( std::make_shared<lhePrt>(xmlFile, vals->at(k) + trueStart + 1, vals->at(k+1) + trueStart) );
             }
@@ -1407,14 +1422,14 @@ namespace REX
             procMap.clear();
             procOrder.clear();
             for( auto prt : prts ){
-                procMap.insert({prt->getStatus(), std::vector<std::string_view>()});
+                procMap.insert({prt->getStatus(), std::vector<int>()});
                 procOrder.insert({prt->getStatus(), std::vector<size_t>()});
             }
             for( auto prt : prts ){
                 procMap[prt->getStatus()].push_back( prt->getPDG() );
             }
             for( auto stat = procMap.begin(); stat!= procMap.end(); ++stat ){
-                procOrder[stat->first] = *stoiSort( stat->second );
+                procOrder[stat->first] = *indSort( stat->second );
             }
             hasBeenProc = true;
             return true;
@@ -1427,7 +1442,7 @@ namespace REX
             specSorted = false;
             eventSort = sorter;
             for( auto prt : prts ){
-                procMap.insert({prt->getStatus(), std::vector<std::string_view>()});
+                procMap.insert({prt->getStatus(), std::vector<int>()});
                 procOrder.insert({prt->getStatus(), std::vector<size_t>()});
             }
             for( auto prt : prts ){
@@ -1447,7 +1462,7 @@ namespace REX
             specSorted = true;
             specSort = sorter;
             for( auto prt : prts ){
-                procMap.insert({prt->getStatus(), std::vector<std::string_view>()});
+                procMap.insert({prt->getStatus(), std::vector<int>()});
                 procOrder.insert({prt->getStatus(), std::vector<size_t>()});
             }
             for( auto prt : prts ){
@@ -1554,35 +1569,35 @@ namespace REX
             if( addedWgt ){ appendWgts(); }
             return writtenSelf;
         }
-        std::map<std::string_view, std::vector<std::string_view>> &event::getProc( bool hard ){
+        std::map<int, std::vector<int>> &event::getProc( bool hard ){
             if( initProcMap(hard) ){ return procMap; }
             else throw std::runtime_error("Error while parsing event node.");
         }
-        std::map<std::string_view, std::vector<size_t>> &event::getProcOrder( bool hard ){
+        std::map<int, std::vector<size_t>> &event::getProcOrder( bool hard ){
             if( initProcMap(hard) ){ return procOrder; }
             else throw std::runtime_error("Error while parsing event node.");
         }
-        std::map<std::string_view, std::vector<std::string_view>> event::getProc() const {
+        std::map<int, std::vector<int>> event::getProc() const {
             if ( hasBeenProc ){ return procMap; }
             else throw std::runtime_error("Const declaration of event node before it has been procesed.");
         }
-        std::map<std::string_view, std::vector<size_t>> event::getProcOrder() const {
+        std::map<int, std::vector<size_t>> event::getProcOrder() const {
             if ( hasBeenProc ){ return procOrder; }
             else throw std::runtime_error("Const declaration of event node before it has been procesed.");
         }
-        std::map<std::string_view, std::vector<std::string_view>> &event::getProc(sortFcn sorter, bool hard){
+        std::map<int, std::vector<int>> &event::getProc(sortFcn sorter, bool hard){
             if( initProcMap(sorter, hard) ){ return procMap; }
             else throw std::runtime_error("Error while parsing event node.");
         }
-        std::map<std::string_view, std::vector<size_t>> &event::getProcOrder(sortFcn sorter, bool hard){
+        std::map<int, std::vector<size_t>> &event::getProcOrder(sortFcn sorter, bool hard){
             if( initProcMap(sorter, hard) ){ return procOrder; }
             else throw std::runtime_error("Error while parsing event node.");
         }
-        std::map<std::string_view, std::vector<std::string_view>> &event::getProc(statSort sorter, bool hard){
+        std::map<int, std::vector<int>> &event::getProc(statSort sorter, bool hard){
             if( initProcMap(sorter, hard) ){ return procMap; }
             else throw std::runtime_error("Error while parsing event node.");
         }
-        std::map<std::string_view, std::vector<size_t>> &event::getProcOrder(statSort sorter, bool hard){
+        std::map<int, std::vector<size_t>> &event::getProcOrder(statSort sorter, bool hard){
             if( initProcMap(sorter, hard) ){ return procOrder; }
             else throw std::runtime_error("Error while parsing event node.");
         }
@@ -1607,7 +1622,7 @@ namespace REX
             events.push_back( *ev );
         }
     }
-    void eventSet::setRelStats( std::vector<std::string>& nuStats ){
+    void eventSet::setRelStats( std::vector<int>& nuStats ){
         relStats = nuStats;
     }
     void eventSet::addEvent( event& nuEvent ){
@@ -2313,54 +2328,54 @@ namespace REX
     // ZW: struct for treating individual HEP
     // processes, formatted based on PDG codes
     // and the LHE particle status standard 
-    struct lheProc {
-    public:
-        std::vector<std::string_view> minusOne;
-        std::vector<std::string_view> plusOne;
-        std::vector<std::string_view> minusTwo;
-        std::vector<std::string_view> plusTwo;
-        std::vector<std::string_view> plusThree;
-        std::vector<std::string_view> minusNine;
-        std::vector<size_t> orderMOne;
-        std::vector<size_t> orderOne;
-        std::vector<size_t> orderMTwo;
-        std::vector<size_t> orderTwo;
-        std::vector<size_t> orderThree;
-        std::vector<size_t> orderNine;
-        std::map<std::string_view,std::vector<std::string_view>> valVecs{{"-1", minusOne}, {"1", plusOne}, {"-2", minusTwo}, {"2", plusTwo}, {"3", plusThree}, {"-9", minusNine}};
-        std::map<std::string_view,std::vector<size_t>> orderVecs{{"-1", orderMOne}, {"1", orderOne}, {"-2", orderMTwo}, {"2", orderTwo}, {"3", orderThree}, {"9",orderNine}};
-        lheProc( event& eventNode )
-        {
-            for( auto prt : eventNode.getPrts() )
-            {
-                valVecs[prt->getStatus()].push_back(prt->getPDG());
-            }
-            for( auto valVec = valVecs.begin() ; valVec!= valVecs.end() ; ++valVec ){
-                if( valVec->second.size() == 0 ){ continue; }
-                orderVecs[valVec->first] = *stoiSort( valVec->second );
-            }
-        }
-        std::shared_ptr<std::string> writer(){
-            auto written = std::make_shared<std::string>();
-            for( auto inits : valVecs["-1"] ){
-                written->append(inits);
-                written->append(" ");
-            }
-            if( valVecs["2"].size() > 0 ){
-                written->append("> ");
-                for( auto inits : valVecs["2"] ){
-                    written->append(inits);
-                    written->append(" ");
-                }
-            }
-            written->append("> ");
-            for( auto inits : valVecs["1"] ){
-                written->append(inits);
-                written->append(" ");
-            }
-            return written;
-        }
-    };
+    // struct lheProc {
+    // public:
+    //     std::vector<std::string_view> minusOne;
+    //     std::vector<std::string_view> plusOne;
+    //     std::vector<std::string_view> minusTwo;
+    //     std::vector<std::string_view> plusTwo;
+    //     std::vector<std::string_view> plusThree;
+    //     std::vector<std::string_view> minusNine;
+    //     std::vector<size_t> orderMOne;
+    //     std::vector<size_t> orderOne;
+    //     std::vector<size_t> orderMTwo;
+    //     std::vector<size_t> orderTwo;
+    //     std::vector<size_t> orderThree;
+    //     std::vector<size_t> orderNine;
+    //     std::map<std::string_view,std::vector<std::string_view>> valVecs{{"-1", minusOne}, {"1", plusOne}, {"-2", minusTwo}, {"2", plusTwo}, {"3", plusThree}, {"-9", minusNine}};
+    //     std::map<std::string_view,std::vector<size_t>> orderVecs{{"-1", orderMOne}, {"1", orderOne}, {"-2", orderMTwo}, {"2", orderTwo}, {"3", orderThree}, {"9",orderNine}};
+    //     lheProc( event& eventNode )
+    //     {
+    //         for( auto prt : eventNode.getPrts() )
+    //         {
+    //             valVecs[prt->getStatus()].push_back(prt->getPDG());
+    //         }
+    //         for( auto valVec = valVecs.begin() ; valVec!= valVecs.end() ; ++valVec ){
+    //             if( valVec->second.size() == 0 ){ continue; }
+    //             orderVecs[valVec->first] = *stoiSort( valVec->second );
+    //         }
+    //     }
+    //     std::shared_ptr<std::string> writer(){
+    //         auto written = std::make_shared<std::string>();
+    //         for( auto inits : valVecs["-1"] ){
+    //             written->append(inits);
+    //             written->append(" ");
+    //         }
+    //         if( valVecs["2"].size() > 0 ){
+    //             written->append("> ");
+    //             for( auto inits : valVecs["2"] ){
+    //                 written->append(inits);
+    //                 written->append(" ");
+    //             }
+    //         }
+    //         written->append("> ");
+    //         for( auto inits : valVecs["1"] ){
+    //             written->append(inits);
+    //             written->append(" ");
+    //         }
+    //         return written;
+    //     }
+    // };
 
     // ZW: fcn for uploading text files to the program
     std::shared_ptr<std::string> filePuller( const std::string& fileLoc )
@@ -2387,9 +2402,9 @@ namespace REX
 
     // ZW: fcn for extracting the full
     // process information from an LHE event
-    std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>> pdgXtract( event& currEv )
+    std::shared_ptr<std::map<int, std::vector<int>>> pdgXtract( event& currEv )
     {
-        auto currProc = std::make_shared<std::map<std::string_view, std::vector<std::string_view>>>();
+        auto currProc = std::make_shared<std::map<int, std::vector<int>>>();
         auto &useProc = *currProc;
         for( auto prt : currEv.getPrts() )
         {
@@ -2434,17 +2449,17 @@ namespace REX
     }
 
     // ZW: fcn for processes in the lheProc struct format
-    bool procComp( lheProc& firstProc, lheProc& secProc,  std::vector<std::string_view> statVec )
-    {
-        for( auto stat : statVec )
-        {
-            if( firstProc.valVecs.at(stat).size() != secProc.valVecs.at(stat).size() ){ return false; }
-            if( !chaoticVecComp( firstProc.valVecs[stat], firstProc.orderVecs[stat], secProc.valVecs[stat], secProc.orderVecs[stat] ) ){ return false; }
-        }
-        return true;
-    }
+    // bool procComp( lheProc& firstProc, lheProc& secProc,  std::vector<std::string_view> statVec )
+    // {
+    //     for( auto stat : statVec )
+    //     {
+    //         if( firstProc.valVecs.at(stat).size() != secProc.valVecs.at(stat).size() ){ return false; }
+    //         if( !chaoticVecComp( firstProc.valVecs[stat], firstProc.orderVecs[stat], secProc.valVecs[stat], secProc.orderVecs[stat] ) ){ return false; }
+    //     }
+    //     return true;
+    // }
 
-    bool evProcComp( event& firstEv, event& secEv, std::vector<std::string_view> statVec = {"-1", "1"} )
+    bool evProcComp( event& firstEv, event& secEv, std::vector<int> statVec = {-1, 1} )
     {
         for( auto stat : statVec )
         {
@@ -2455,7 +2470,7 @@ namespace REX
         return true;
     }
 
-    bool evProcComp( event& firstEv, event& secEv, std::vector<std::string_view> statVec, 
+    bool evProcComp( event& firstEv, event& secEv, std::vector<int> statVec, 
     sortFcn sorter )
     {
         for( auto stat : statVec )
@@ -2467,7 +2482,7 @@ namespace REX
         return true;
     }
 
-    bool evProcComp( event& firstEv, event& secEv, std::vector<std::string_view> statVec, 
+    bool evProcComp( event& firstEv, event& secEv, std::vector<int> statVec, 
     statSort sorter )
     {
         for( auto stat : statVec )
@@ -2479,7 +2494,7 @@ namespace REX
         return true;
     }
 
-    bool evProcComp( const event& firstEv, const event& secEv, std::vector<std::string_view> statVec = {"-1", "1"} )
+    bool evProcComp( const event& firstEv, const event& secEv, std::vector<int> statVec = {-1, 1} )
     {
         for( auto stat : statVec )
         {
@@ -2490,7 +2505,7 @@ namespace REX
         return true;
     }
 
-    bool evProcComp( const event& firstEv, const event& secEv, std::vector<std::string_view> statVec, 
+    bool evProcComp( const event& firstEv, const event& secEv, std::vector<int> statVec, 
     sortFcn sorter )
     {
         for( auto stat : statVec )
@@ -2502,7 +2517,7 @@ namespace REX
         return true;
     }
 
-    bool evProcComp( const event& firstEv, const event& secEv, std::vector<std::string_view> statVec, 
+    bool evProcComp( const event& firstEv, const event& secEv, std::vector<int> statVec, 
     statSort sorter )
     {
         for( auto stat : statVec )
@@ -2515,14 +2530,14 @@ namespace REX
     }
 
         bool eventComp::operator()( event& firstEv, event& secEv){
-            if( firstEv.isSpecSort() ) {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getStatSort());}
-            else {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getSortFcn() );}
+            if( firstEv.isSpecSort() ) {return evProcComp( firstEv, secEv, {-1, 1}, firstEv.getStatSort());}
+            else {return evProcComp( firstEv, secEv, {-1, 1}, firstEv.getSortFcn() );}
         }
         bool eventComp::operator()( const event& firstEv, const event& secEv) const {
-            if( firstEv.isSpecSort() ) {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getStatSort());}
-            else {return evProcComp( firstEv, secEv, {"-1", "1"}, firstEv.getSortFcn() );}
+            if( firstEv.isSpecSort() ) {return evProcComp( firstEv, secEv, {-1, 1}, firstEv.getStatSort());}
+            else {return evProcComp( firstEv, secEv, {-1, 1}, firstEv.getSortFcn() );}
         }
-        bool eventComp::operator()(event& firstEv, event& secEv, std::vector<std::string_view> statVec){
+        bool eventComp::operator()(event& firstEv, event& secEv, std::vector<int> statVec){
             if( firstEv.isSpecSort() ) {return evProcComp( firstEv, secEv, statVec, firstEv.getStatSort());}
             else {return evProcComp( firstEv, secEv, statVec, firstEv.getSortFcn() );}
         }
@@ -2541,18 +2556,18 @@ namespace REX
 
     // ZW: fcn for checking whether a vector of lheProc structs
     // procList contains a given lheProc nuProc
-    bool procListComp( const std::vector<std::shared_ptr<lheProc>>& procList, lheProc& nuProc, std::vector<std::string_view> statVec )
-    {
-        if( procList.size() != 0 ){
-            for(auto proc : procList )
-            {
-                if( procComp( *proc, nuProc, statVec ) ){ return true; }
-            }
-        }
-        return false;
-    }
+    // bool procListComp( const std::vector<std::shared_ptr<lheProc>>& procList, lheProc& nuProc, std::vector<std::string_view> statVec )
+    // {
+    //     if( procList.size() != 0 ){
+    //         for(auto proc : procList )
+    //         {
+    //             if( procComp( *proc, nuProc, statVec ) ){ return true; }
+    //         }
+    //     }
+    //     return false;
+    // }
 
-    bool evProcListComp( std::vector<std::shared_ptr<event>>& procList, event& nuEv, std::vector<std::string_view> statVec )
+    bool evProcListComp( std::vector<std::shared_ptr<event>>& procList, event& nuEv, std::vector<int> statVec )
     {
         if( procList.size()!= 0 ){
             for( auto ev : procList )
@@ -2563,7 +2578,7 @@ namespace REX
         return false;
     }
 
-    bool evProcListComp( std::vector<std::shared_ptr<event>>& procList, event& nuEv, std::vector<std::string_view> statVec, 
+    bool evProcListComp( std::vector<std::shared_ptr<event>>& procList, event& nuEv, std::vector<int> statVec, 
     sortFcn sorter )
     {
         if( procList.size()!= 0 ){
@@ -2575,7 +2590,7 @@ namespace REX
         return false;
     }
 
-    bool evProcListComp( std::vector<std::shared_ptr<event>>& procList, event& nuEv, std::vector<std::string_view> statVec, 
+    bool evProcListComp( std::vector<std::shared_ptr<event>>& procList, event& nuEv, std::vector<int> statVec, 
     statSort sorter )
     {
         if( procList.size()!= 0 ){
@@ -2589,36 +2604,36 @@ namespace REX
 
     // ZW: fcn for extracting the different processes
     // in a given REX format LHE file in the pdgXtract format
-    std::vector<std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>>> procExtractor( lheNode& lheFile )
-    {
-        std::vector<std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>>> procList;
-        const static std::vector<std::string_view> statVec = { "-1", "1", "-2", "2", "3", "-9" };
-        for( auto event : lheFile.getEvents() )
-        {
-            auto currProc = pdgXtract( *event );
-            if( procVecContains( procList, *currProc, statVec ) ){ continue; }
-            procList.push_back(currProc);
-        }
-        return procList;
-    }
+    // std::vector<std::shared_ptr<std::map<int, std::vector<int>>>> procExtractor( lheNode& lheFile )
+    // {
+    //     std::vector<std::shared_ptr<std::map<std::string_view, std::vector<std::string_view>>>> procList;
+    //     const static std::vector<int> statVec = { -1, 1, -2, 2, 3, -9 };
+    //     for( auto event : lheFile.getEvents() )
+    //     {
+    //         auto currProc = pdgXtract( *event );
+    //         if( procVecContains( procList, *currProc, statVec ) ){ continue; }
+    //         procList.push_back(currProc);
+    //     }
+    //     return procList;
+    // }
 
     // ZW: fcn for extracting the different processes
     // in a given REX format LHE file in the lheProc format
-    std::vector<std::shared_ptr<lheProc>> processPull( lheNode& lheFile, 
-    std::vector<std::string_view> statVec = { "-1", "1" } )
-    {
-        //const static std::vector<std::string_view> statVec = { "-1", "1", "-2", "2", "3", "-9" };
-        std::vector<std::shared_ptr<lheProc>> procsList{};
-        for( auto event : lheFile.getEvents() )
-        {
-            auto currProc =  std::make_shared<lheProc>( *event );
-            if( procListComp( procsList, *currProc, statVec ) ){ continue; }
-            procsList.push_back( currProc );
-        }
-        return procsList;
-    }
+    // std::vector<std::shared_ptr<lheProc>> processPull( lheNode& lheFile, 
+    // std::vector<std::string_view> statVec = { "-1", "1" } )
+    // {
+    //     //const static std::vector<std::string_view> statVec = { "-1", "1", "-2", "2", "3", "-9" };
+    //     std::vector<std::shared_ptr<lheProc>> procsList{};
+    //     for( auto event : lheFile.getEvents() )
+    //     {
+    //         auto currProc =  std::make_shared<lheProc>( *event );
+    //         if( procListComp( procsList, *currProc, statVec ) ){ continue; }
+    //         procsList.push_back( currProc );
+    //     }
+    //     return procsList;
+    // }
 
-    std::vector<std::shared_ptr<event>> evProcessPull( lheNode& lheFile, std::vector<std::string_view> statVec = { "-1", "1" } )
+    std::vector<std::shared_ptr<event>> evProcessPull( lheNode& lheFile, std::vector<int> statVec = { -1, 1 } )
     {
         //const static std::vector<std::string_view> statVec = { "-1", "1", "-2", "2", "3", "-9" };
         std::vector<std::shared_ptr<event>> procsList{};
@@ -2632,7 +2647,7 @@ namespace REX
 
     std::vector<std::shared_ptr<event>> evProcessPull( lheNode& lheFile, 
     sortFcn sorter,
-    std::vector<std::string_view> statVec = { "-1", "1" })
+    std::vector<int> statVec = { -1, 1 })
     {
         //const static std::vector<std::string_view> statVec = { "-1", "1", "-2", "2", "3", "-9" };
         std::vector<std::shared_ptr<event>> procsList{};
@@ -2647,7 +2662,7 @@ namespace REX
 
     std::vector<std::shared_ptr<event>> evProcessPull( lheNode& lheFile, 
     statSort sorter,
-    std::vector<std::string_view> statVec = { "-1", "1" })
+    std::vector<int> statVec = { -1, 1 })
     {
         //const static std::vector<std::string_view> statVec = { "-1", "1", "-2", "2", "3", "-9" };
         std::vector<std::shared_ptr<event>> procsList{};
@@ -2662,22 +2677,22 @@ namespace REX
 
     // ZW: fcn for keeping track of subprocess ordering
     // in LHE file
-    size_t procPos( const std::vector<std::shared_ptr<lheProc>>& evtSet, lheProc& currProc, 
-        std::vector<std::string_view>& statVec )
-    {
-        for( size_t k = 0 ; k < evtSet.size() ; ++k )
-        {
-            for( auto stat : statVec )
-            {
-                if( evtSet[k]->valVecs[stat] != currProc.valVecs[stat] ){ break; }   
-            }
-            return k;
-        }
-        return evtSet.size();
-    }
+    // size_t procPos( const std::vector<std::shared_ptr<lheProc>>& evtSet, lheProc& currProc, 
+    //     std::vector<std::string_view>& statVec )
+    // {
+    //     for( size_t k = 0 ; k < evtSet.size() ; ++k )
+    //     {
+    //         for( auto stat : statVec )
+    //         {
+    //             if( evtSet[k]->valVecs[stat] != currProc.valVecs[stat] ){ break; }   
+    //         }
+    //         return k;
+    //     }
+    //     return evtSet.size();
+    // }
 
     size_t evProcPos( const std::vector<std::shared_ptr<event>>& evtSet, event& currEv, 
-        std::vector<std::string_view> statVec = { "-1", "1" } )
+        std::vector<int> statVec = { -1, 1 } )
     {
         for( size_t k = 0 ; k < evtSet.size() ; ++k )
         { 
@@ -2687,7 +2702,7 @@ namespace REX
     }
 
     size_t evProcPos( const std::vector<std::shared_ptr<event>>& evtSet, event& currEv,  
-    sortFcn sorter, std::vector<std::string_view> statVec = {"-1", "1"} )
+    sortFcn sorter, std::vector<int> statVec = {-1, 1} )
     {
         for( size_t k = 0 ; k < evtSet.size() ; ++k )
         { 
@@ -2697,7 +2712,7 @@ namespace REX
     }
 
     size_t evProcPos( const std::vector<std::shared_ptr<event>>& evtSet, event& currEv, 
-    statSort sorter, std::vector<std::string_view> statVec = {"-1", "1"} )
+    statSort sorter, std::vector<int> statVec = {-1, 1} )
     {
         for( size_t k = 0 ; k < evtSet.size() ; ++k )
         { 
@@ -2708,29 +2723,29 @@ namespace REX
 
     // ZW: fcn for extracting the subprocess ordering
     // of LHE file
-    std::vector<std::shared_ptr<std::vector<bool>>> procOrder( lheNode& lheFile, const std::vector<std::shared_ptr<lheProc>>& evtSet,
-        std::vector<std::string_view> statVec = { "-1", "1" } )
-    {
-        //const static std::vector<std::string> statVec = { "-1", "1", "-2", "2", "3", "-9" };
-        std::vector<std::shared_ptr<std::vector<bool>>> eventBools( evtSet.size(), std::make_shared<std::vector<bool>> ( lheFile.getEvents().size() ));
-        //std::vector<std::vector<bool>> pracBools( evtSet.size(), std::vector<bool> ( lheFile.getEvents().size() ));
-        for( auto boolSets : eventBools ){
-            std::fill( boolSets->begin(), boolSets->end(), false );
-        }
-        for( size_t k = 0 ; k < lheFile.getEvents().size() ; ++k )
-        {
-            auto currProc = lheProc(*lheFile.getEvents()[k]);
-            eventBools[ procPos(evtSet, currProc, statVec) ]->at( k ) = true;
-        }
-        //for( size_t k = 0 ; k < eventBools.size() ; ++k )
-        //{
-        //    eventBools[k] = std::make_shared<std::vector<bool>>( pracBools[k] );
-        //}
-        return eventBools; 
-    }
+    // std::vector<std::shared_ptr<std::vector<bool>>> procOrder( lheNode& lheFile, const std::vector<std::shared_ptr<lheProc>>& evtSet,
+    //     std::vector<std::string_view> statVec = { "-1", "1" } )
+    // {
+    //     //const static std::vector<std::string> statVec = { "-1", "1", "-2", "2", "3", "-9" };
+    //     std::vector<std::shared_ptr<std::vector<bool>>> eventBools( evtSet.size(), std::make_shared<std::vector<bool>> ( lheFile.getEvents().size() ));
+    //     //std::vector<std::vector<bool>> pracBools( evtSet.size(), std::vector<bool> ( lheFile.getEvents().size() ));
+    //     for( auto boolSets : eventBools ){
+    //         std::fill( boolSets->begin(), boolSets->end(), false );
+    //     }
+    //     for( size_t k = 0 ; k < lheFile.getEvents().size() ; ++k )
+    //     {
+    //         auto currProc = lheProc(*lheFile.getEvents()[k]);
+    //         eventBools[ procPos(evtSet, currProc, statVec) ]->at( k ) = true;
+    //     }
+    //     //for( size_t k = 0 ; k < eventBools.size() ; ++k )
+    //     //{
+    //     //    eventBools[k] = std::make_shared<std::vector<bool>>( pracBools[k] );
+    //     //}
+    //     return eventBools; 
+    // }
 
     std::vector<std::shared_ptr<std::vector<bool>>> evProcOrder( lheNode& lheFile, const std::vector<std::shared_ptr<event>>& evtSet,
-        std::vector<std::string_view> statVec = { "-1", "1" } )
+        std::vector<int> statVec = { -1, 1 } )
     {
         std::vector<std::shared_ptr<std::vector<bool>>> eventBools;
         eventBools.reserve(evtSet.size());
@@ -2746,7 +2761,7 @@ namespace REX
 
     std::vector<std::shared_ptr<std::vector<bool>>> evProcOrder( lheNode& lheFile, const std::vector<std::shared_ptr<event>>& evtSet, 
     sortFcn sorter,
-        std::vector<std::string_view> statVec = { "-1", "1" } )
+        std::vector<int> statVec = { -1, 1 } )
     {
         std::vector<std::shared_ptr<std::vector<bool>>> eventBools;
         eventBools.reserve(evtSet.size());
@@ -2762,7 +2777,7 @@ namespace REX
 
     std::vector<std::shared_ptr<std::vector<bool>>> evProcOrder( lheNode& lheFile, const std::vector<std::shared_ptr<event>>& evtSet, 
     statSort sorter,
-        std::vector<std::string_view> statVec = { "-1", "1" } )
+        std::vector<int> statVec = { -1, 1 } )
     {
         std::vector<std::shared_ptr<std::vector<bool>>> eventBools;
         eventBools.reserve(evtSet.size());
@@ -2810,21 +2825,21 @@ namespace REX
     }
 
     // ZW: wrapper for eventReOrder
-    std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheReOrder( lheNode& lheFile,
-        std::vector<std::string_view> statVec = { "-1", "1" }  )
-    {
-        auto procSets = processPull( lheFile, statVec ); 
-        auto relProcs = procOrder( lheFile, procSets, statVec ); 
-        std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> ordProcs(procSets.size());
-        for( size_t k = 0 ; k < relProcs.size() ; ++k )
-        { 
-            ordProcs[k] = eventReOrder( lheFile, *relProcs[k] );
-        }
-        return ordProcs;
-    }
+    // std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheReOrder( lheNode& lheFile,
+    //     std::vector<std::string_view> statVec = { "-1", "1" }  )
+    // {
+    //     auto procSets = processPull( lheFile, statVec ); 
+    //     auto relProcs = procOrder( lheFile, procSets, statVec ); 
+    //     std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> ordProcs(procSets.size());
+    //     for( size_t k = 0 ; k < relProcs.size() ; ++k )
+    //     { 
+    //         ordProcs[k] = eventReOrder( lheFile, *relProcs[k] );
+    //     }
+    //     return ordProcs;
+    // }
 
     std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile,
-        std::vector<std::string_view> statVec = { "-1", "1" } )
+        std::vector<int> statVec = { -1, 1 } )
     {
         auto procSets = evProcessPull( lheFile, statVec ); 
         auto relProcs = evProcOrder( lheFile, procSets, statVec ); 
@@ -2838,7 +2853,7 @@ namespace REX
 
     std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile,
         std::vector<std::shared_ptr<event>> procSets, std::vector<std::shared_ptr<std::vector<bool>>> relProcs,
-        std::vector<std::string_view> statVec = { "-1", "1" } )
+        std::vector<int> statVec = { -1, 1 } )
     {
         //auto procSets = evProcessPull( lheFile, statVec ); 
         //auto relProcs = evProcOrder( lheFile, procSets, statVec ); 
@@ -2852,7 +2867,7 @@ namespace REX
 
     std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile, 
     sortFcn sorter,
-    std::vector<std::string_view> statVec = { "-1", "1" } )
+    std::vector<int> statVec = { -1, 1 } )
     {
         auto procSets = evProcessPull( lheFile, sorter, statVec ); 
         auto relProcs = evProcOrder( lheFile, procSets, sorter, statVec ); 
@@ -2866,7 +2881,7 @@ namespace REX
 
     std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile, 
     std::vector<std::shared_ptr<event>> procSets, std::vector<std::shared_ptr<std::vector<bool>>> relProcs,
-    sortFcn sorter, std::vector<std::string_view> statVec = { "-1", "1" } )
+    sortFcn sorter, std::vector<int> statVec = { -1, 1 } )
     {
         //auto procSets = evProcessPull( lheFile, sorter, statVec ); 
         //auto relProcs = evProcOrder( lheFile, procSets, sorter, statVec ); 
@@ -2880,7 +2895,7 @@ namespace REX
 
     std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile, 
     statSort sorter,
-    std::vector<std::string_view> statVec = { "-1", "1" } )
+    std::vector<int> statVec = { -1, 1 } )
     {
         auto procSets = evProcessPull( lheFile, sorter, statVec ); 
         auto relProcs = evProcOrder( lheFile, procSets, sorter, statVec ); 
@@ -2894,7 +2909,7 @@ namespace REX
 
     std::vector<std::shared_ptr<std::vector<std::shared_ptr<event>>>> lheEvReOrder( lheNode& lheFile, 
     std::vector<std::shared_ptr<event>> procSets, std::vector<std::shared_ptr<std::vector<bool>>> relProcs,
-    statSort sorter, std::vector<std::string_view> statVec = { "-1", "1" } )
+    statSort sorter, std::vector<int> statVec = { -1, 1 } )
     {
         //auto procSets = evProcessPull( lheFile, sorter, statVec ); 
         //auto relProcs = evProcOrder( lheFile, procSets, sorter, statVec ); 
@@ -2920,7 +2935,7 @@ namespace REX
                 procIDs.push_back(evt->getHead().getProcID());
             }
         }
-        evtInfo::evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec ){
+        evtInfo::evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<int>& statVec ){
             int nEvt = lheFile.size();
             wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); relNPrts.reserve(nEvt); procIDs.reserve(nEvt);
             for( auto evt : lheFile )
@@ -2935,7 +2950,7 @@ namespace REX
                 procIDs.push_back(evt->getHead().getProcID());
             }
         }
-        evtInfo::evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec, 
+        evtInfo::evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<int>& statVec, 
         sortFcn sorter ){
             int nEvt = lheFile.size();
             wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); relNPrts.reserve(nEvt); procIDs.reserve(nEvt);
@@ -2951,7 +2966,7 @@ namespace REX
                 procIDs.push_back(evt->getHead().getProcID());
             }
         }
-        evtInfo::evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<std::string_view>& statVec, 
+        evtInfo::evtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const std::vector<int>& statVec, 
         statSort sorter ){
             int nEvt = lheFile.size();
             wgts.reserve(nEvt); scales.reserve(nEvt); aQEDs.reserve(nEvt); aQCDs.reserve(nEvt); relNPrts.reserve(nEvt); procIDs.reserve(nEvt);
@@ -2993,7 +3008,7 @@ namespace REX
                 }
             }
         }
-        prtInfo::prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec ){
+        prtInfo::prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<int>& statVec ){
             int nEvt = lheFile.size(); 
             moms.reserve(4*nPrt*nEvt); vtims.reserve(nPrt*nEvt); masses.reserve(nPrt*nEvt); pdgs.reserve(nPrt*nEvt); 
             spins.reserve(nPrt*nEvt); statuses.reserve(nPrt*nEvt); mothers.reserve(2*nPrt*nEvt); icols.reserve(2*nPrt*nEvt);
@@ -3021,7 +3036,7 @@ namespace REX
                 }
             }
         }
-        prtInfo::prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec, 
+        prtInfo::prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<int>& statVec, 
         sortFcn sorter ){
             int nEvt = lheFile.size(); 
             moms.reserve(4*nPrt*nEvt); vtims.reserve(nPrt*nEvt); masses.reserve(nPrt*nEvt); pdgs.reserve(nPrt*nEvt); 
@@ -3050,7 +3065,7 @@ namespace REX
                 }
             }
         }
-        prtInfo::prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<std::string_view>& statVec, 
+        prtInfo::prtInfo( const std::vector<std::shared_ptr<REX::event>>& lheFile, const int nPrt, const std::vector<int>& statVec, 
         statSort sorter ){
             int nEvt = lheFile.size(); 
             moms.reserve(4*nPrt*nEvt); vtims.reserve(nPrt*nEvt); masses.reserve(nPrt*nEvt); pdgs.reserve(nPrt*nEvt); 
@@ -3155,21 +3170,21 @@ namespace REX
             evtsData = prtInfo(lheFile, nPrt);
             process = lheFile[0];
         }
-        transMonoLHE::transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, const std::vector<std::string_view>& statVec ){
+        transMonoLHE::transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, const std::vector<int>& statVec ){
             evtsHead = evtInfo(lheFile, statVec);
             evtsData = prtInfo(lheFile, nPrt, statVec);
             process = lheFile[0];
         }
         transMonoLHE::transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, 
         sortFcn sorter,
-        std::vector<std::string_view> statVec ){
+        std::vector<int> statVec ){
             evtsHead = evtInfo(lheFile, statVec);
             evtsData = prtInfo(lheFile, nPrt, statVec, sorter);
             process = lheFile[0];
         }
         transMonoLHE::transMonoLHE( const std::vector<std::shared_ptr<REX::event>> lheFile, const int nPrt, 
         statSort sorter,
-        std::vector<std::string_view> statVec){
+        std::vector<int> statVec){
             evtsHead = evtInfo(lheFile, statVec);
             evtsData = prtInfo(lheFile, nPrt, statVec, sorter);
             process = lheFile[0];
@@ -3197,7 +3212,7 @@ namespace REX
         }
         transLHE::transLHE( lheNode& lheFile, 
         sortFcn sorter, 
-        const std::vector<std::string_view>& statVec  )
+        const std::vector<int>& statVec  )
         {
             procSets = evProcessPull( lheFile, sorter, statVec ); 
             relProcs = evProcOrder( lheFile, procSets, sorter, statVec );
@@ -3212,7 +3227,7 @@ namespace REX
         }
         transLHE::transLHE( lheNode& lheFile, 
         statSort sorter, 
-        const std::vector<std::string_view>& statVec)
+        const std::vector<int>& statVec)
         {
             procSets = evProcessPull( lheFile, sorter, statVec ); 
             relProcs = evProcOrder( lheFile, procSets, sorter, statVec );
@@ -3225,7 +3240,7 @@ namespace REX
                 subProcs[k] = std::make_shared<transMonoLHE>( *procsOrdered[k], procsOrdered[k]->at(0)->getNprt(), sorter, statVec );
             }
         }
-        transLHE::transLHE( lheNode& lheFile, const std::vector<std::string_view>& statVec )
+        transLHE::transLHE( lheNode& lheFile, const std::vector<int>& statVec )
         {
             procSets = evProcessPull( lheFile, statVec ); 
             relProcs = evProcOrder( lheFile, procSets, statVec );
@@ -3364,10 +3379,10 @@ namespace REX
              ++currInd; } 
         for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
-            if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
-            if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
-            if( boolVec[6] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
-            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
+            if( boolVec[4] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.wgts ) ; ++currInd; }
+            if( boolVec[5] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
                 if( aStogS ){
                     std::transform( lheDs[currInd]->begin(), lheDs[currInd]->end(), lheDs[currInd]->begin(), 
                     []( double alphaS ){
@@ -3377,10 +3392,10 @@ namespace REX
                 }
                 ++currInd;
             }
-            if( boolVec[8] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
-            if( boolVec[9] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
-            if( boolVec[10] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
-            if( boolVec[11] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
         }
 
         return lheDos;
@@ -3398,10 +3413,10 @@ namespace REX
         int currInd = 0;
         for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
-            if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
-            if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
-            if( boolVec[6] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
-            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
+            if( boolVec[4] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
+            if( boolVec[5] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
                 if( aStogS ){
                     std::transform( lheDs[currInd]->begin(), lheDs[currInd]->end(), lheDs[currInd]->begin(), 
                     []( double alphaS ){
@@ -3411,16 +3426,16 @@ namespace REX
                 }
                 ++currInd;
             }
-            if( boolVec[8] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
-            if( boolVec[9] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
-            if( boolVec[10] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
-            if( boolVec[11] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
         }
         return lheDos;
     }
 
     std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles( lheNode& lheFile, 
-    const std::vector<std::string_view>& statVec, lheRetDs vals = lheRetDs() )
+    const std::vector<int>& statVec, lheRetDs vals = lheRetDs() )
     {
         // ZW: hard-setting returning g_S instead of a_S for now
         bool aStogS = true;
@@ -3457,10 +3472,10 @@ namespace REX
              ++currInd; } 
         for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
-            if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
-            if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
-            if( boolVec[6] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
-            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
+            if( boolVec[4] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
+            if( boolVec[5] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
                 if( aStogS ){
                     std::transform( lheDs[currInd]->begin(), lheDs[currInd]->end(), lheDs[currInd]->begin(), 
                     []( double alphaS ){
@@ -3470,10 +3485,10 @@ namespace REX
                 }
                 ++currInd;
             }
-            if( boolVec[8] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
-            if( boolVec[9] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
-            if( boolVec[10] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
-            if( boolVec[11] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
         }
 
         return lheDos;
@@ -3481,7 +3496,7 @@ namespace REX
 
     std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles( lheNode& lheFile, 
     sortFcn sorter, 
-    const std::vector<std::string_view>& statVec = {"-1", "1"}, lheRetDs vals = lheRetDs() )
+    const std::vector<int>& statVec = {-1, 1}, lheRetDs vals = lheRetDs() )
     {
         // ZW: hard-setting returning g_S instead of a_S for now
         bool aStogS = true;
@@ -3518,10 +3533,10 @@ namespace REX
              ++currInd; } 
         for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
-            if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
-            if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
-            if( boolVec[6] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
-            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
+            if( boolVec[4] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
+            if( boolVec[5] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
                 if( aStogS ){
                     std::transform( lheDs[currInd]->begin(), lheDs[currInd]->end(), lheDs[currInd]->begin(), 
                     []( double alphaS ){
@@ -3531,10 +3546,10 @@ namespace REX
                 }
                 ++currInd;
             }
-            if( boolVec[8] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
-            if( boolVec[9] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
-            if( boolVec[10] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
-            if( boolVec[11] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
         }
 
         return lheDos;
@@ -3542,7 +3557,7 @@ namespace REX
 
     std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles( lheNode& lheFile, 
     statSort sorter, 
-    const std::vector<std::string_view>& statVec = {"-1", "1"}, lheRetDs vals = lheRetDs() )
+    const std::vector<int>& statVec = {-1, 1}, lheRetDs vals = lheRetDs() )
     {
         // ZW: hard-setting returning g_S instead of a_S for now
         bool aStogS = true;
@@ -3579,10 +3594,10 @@ namespace REX
              ++currInd; } 
         for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
-            if( boolVec[4] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
-            if( boolVec[5] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
-            if( boolVec[6] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
-            if( boolVec[7] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
+            if( boolVec[4] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.wgts ); ++currInd; }
+            if( boolVec[5] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.scales ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.aQEDs ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsHead.aQCDs ); 
                 if( aStogS ){
                     std::transform( lheDs[currInd]->begin(), lheDs[currInd]->end(), lheDs[currInd]->begin(), 
                     []( double alphaS ){
@@ -3592,10 +3607,10 @@ namespace REX
                 }
                 ++currInd;
             }
-            if( boolVec[8] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
-            if( boolVec[9] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
-            if( boolVec[10] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
-            if( boolVec[11] ){ lheDs[currInd] = vecStoD( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.moms ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.masses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.vtims ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = std::make_shared<std::vector<double>>( lheAOS.subProcs[k]->evtsData.spins ); ++currInd; }
         }
 
         return lheDos;
@@ -3626,17 +3641,17 @@ namespace REX
              ++currInd; }
         for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
-            if( boolVec[6] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
-            if( boolVec[7] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
-            if( boolVec[8] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.pdgs ); ++currInd; }
-            if( boolVec[9] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.statuses ); ++currInd; }
-            if( boolVec[10] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.mothers ); ++currInd; }
-            if( boolVec[11] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.icols ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.pdgs ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.statuses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.mothers ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.icols ); ++currInd; }
         }
         return lheIs;
     }
 
-    std::shared_ptr<std::vector<std::shared_ptr<std::vector<int>>>> lheValInts( lheNode& lheFile, std::vector<std::string_view> statVec,
+    std::shared_ptr<std::vector<std::shared_ptr<std::vector<int>>>> lheValInts( lheNode& lheFile, std::vector<int> statVec,
     lheRetInts vals = lheRetInts() )
     {
         auto boolVec = vals.getBools();
@@ -3660,19 +3675,19 @@ namespace REX
              ++currInd; }
         for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
-            if( boolVec[6] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
-            if( boolVec[7] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
-            if( boolVec[8] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.pdgs ); ++currInd; }
-            if( boolVec[9] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.statuses ); ++currInd; }
-            if( boolVec[10] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.mothers ); ++currInd; }
-            if( boolVec[11] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.icols ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.pdgs ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.statuses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.mothers ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.icols ); ++currInd; }
         }
         return lheIs;
     }
 
     std::shared_ptr<std::vector<std::shared_ptr<std::vector<int>>>> lheValInts( lheNode& lheFile, 
     sortFcn sorter, 
-    std::vector<std::string_view> statVec = {"-1", "1"}, lheRetInts vals = lheRetInts() )
+    std::vector<int> statVec = {-1, 1}, lheRetInts vals = lheRetInts() )
     {
         auto boolVec = vals.getBools();
         const int noVals = std::count(boolVec.begin(), boolVec.end(), true);
@@ -3695,19 +3710,19 @@ namespace REX
              ++currInd; }
         for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
-            if( boolVec[6] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
-            if( boolVec[7] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
-            if( boolVec[8] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.pdgs ); ++currInd; }
-            if( boolVec[9] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.statuses ); ++currInd; }
-            if( boolVec[10] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.mothers ); ++currInd; }
-            if( boolVec[11] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.icols ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.pdgs ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.statuses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.mothers ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.icols ); ++currInd; }
         }
         return lheIs;
     }
 
     std::shared_ptr<std::vector<std::shared_ptr<std::vector<int>>>> lheValInts( lheNode& lheFile, 
     statSort sorter, 
-    std::vector<std::string_view> statVec = {"-1", "1"}, lheRetInts vals = lheRetInts() )
+    std::vector<int> statVec = {-1, 1}, lheRetInts vals = lheRetInts() )
     {
         auto boolVec = vals.getBools();
         const int noVals = std::count(boolVec.begin(), boolVec.end(), true);
@@ -3730,12 +3745,12 @@ namespace REX
              ++currInd; }
         for( size_t k = 0 ; k < lheAOS.subProcs.size() ; ++k )
         {
-            if( boolVec[6] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
-            if( boolVec[7] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
-            if( boolVec[8] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.pdgs ); ++currInd; }
-            if( boolVec[9] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.statuses ); ++currInd; }
-            if( boolVec[10] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.mothers ); ++currInd; }
-            if( boolVec[11] ){ lheDs[currInd] = vecStoI( lheAOS.subProcs[k]->evtsData.icols ); ++currInd; }
+            if( boolVec[6] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsHead.nprts ); ++currInd; }
+            if( boolVec[7] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsHead.procIDs ); ++currInd; }
+            if( boolVec[8] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.pdgs ); ++currInd; }
+            if( boolVec[9] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.statuses ); ++currInd; }
+            if( boolVec[10] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.mothers ); ++currInd; }
+            if( boolVec[11] ){ lheDs[currInd] = std::make_shared<std::vector<int>>( lheAOS.subProcs[k]->evtsData.icols ); ++currInd; }
         }
         return lheIs;
     }
