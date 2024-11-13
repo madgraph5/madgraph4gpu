@@ -68,10 +68,10 @@
   };
 #ifndef MGONGPU_HAS_NO_BLAS
   // The fptype version is only used by BLAS (TEMPORARY: mixed mode is not fully supported and uses double precision for BLAS color sums)
-  static constexpr __device__ __constant__ NormalizedColorMatrix<fptype> normalizedColorMatrix;
+  static __device__ fptype s_pNormalizedColorMatrix[ncolor * ncolor];
 #endif
   // The fptype2 version is the default used by kernels (supporting mixed floating point mode)
-  static constexpr __device__ __constant__ NormalizedColorMatrix<fptype2> normalizedColorMatrix2;
+  static __device__ fptype2 s_pNormalizedColorMatrix2[ncolor * ncolor];
 #endif
 
   //--------------------------------------------------------------------------
@@ -197,8 +197,8 @@
       {
         fptype2 jampRj = jampR[jcol];
         fptype2 jampIj = jampI[jcol];
-        ztempR += normalizedColorMatrix2.value[icol * ncolor + jcol] * jampRj; // use fptype2 version of color matrix
-        ztempI += normalizedColorMatrix2.value[icol * ncolor + jcol] * jampIj; // use fptype2 version of color matrix
+        ztempR += s_pNormalizedColorMatrix2[icol * ncolor + jcol] * jampRj; // use fptype2 version of color matrix
+        ztempI += s_pNormalizedColorMatrix2[icol * ncolor + jcol] * jampIj; // use fptype2 version of color matrix
       }
       deltaMEs += ztempR * jampR[icol];
       deltaMEs += ztempI * jampI[icol];
@@ -224,9 +224,9 @@
   {
     const int nevt = gpublocks * gputhreads;
 
-    // Get the address associated with the normalized color matrix in constant memory
+    // Get the address associated with the normalized color matrix in device memory
     static fptype* devNormColMat = nullptr;
-    if( !devNormColMat ) gpuGetSymbolAddress( (void**)&devNormColMat, normalizedColorMatrix.value );
+    if( !devNormColMat ) gpuGetSymbolAddress( (void**)&devNormColMat, s_pNormalizedColorMatrix );
 
     // New striding for cuBLAS from DeviceAccessJamp:
     // - allJamps(icol,ievt).real is allJamps[0 * ncolor * nevt + icol * nevt + ievt]

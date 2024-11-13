@@ -213,6 +213,25 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#ifdef MGONGPUCPP_GPUIMPL
+  void createNormalizedColorMatrix()
+  {
+    static bool first = true;
+    if( first )
+    {
+      first = false;
+#ifndef MGONGPU_HAS_NO_BLAS
+      constexpr NormalizedColorMatrix<fptype> normalizedColorMatrix;
+      gpuMemcpyToSymbol( s_pNormalizedColorMatrix, normalizedColorMatrix.value, ncolor * ncolor * sizeof( fptype ) );
+#endif
+      constexpr NormalizedColorMatrix<fptype2> normalizedColorMatrix2;
+      gpuMemcpyToSymbol( s_pNormalizedColorMatrix2, normalizedColorMatrix2.value, ncolor * ncolor * sizeof( fptype2 ) );
+    }
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
 #ifndef MGONGPU_HARDCODE_PARAM
   // Initialize process (with parameters read from user cards)
   void
@@ -253,6 +272,8 @@ namespace mg5amcCpu
 #endif
 #endif%(cipddump)s%(cipcdump)s
     //for ( int i=0; i<Parameters_%(model_name)s::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
+    // Create the normalized color matrix in device memory
+    createNormalizedColorMatrix();
   }
 #else
   // Initialize process (with hardcoded parameters)
@@ -268,6 +289,8 @@ namespace mg5amcCpu
       //Parameters_%(model_name)s::printDependentCouplings(); // now computed event-by-event (running alphas #373)
     }
     %(hardcoded_initProc_lines)s
+    // Create the normalized color matrix in device memory
+    createNormalizedColorMatrix();
   }
 #endif
 
