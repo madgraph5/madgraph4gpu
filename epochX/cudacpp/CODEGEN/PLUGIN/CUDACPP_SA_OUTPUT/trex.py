@@ -112,11 +112,11 @@ class TREX_OneProcessExporter(model_handling.PLUGIN_OneProcessExporter):
         return "P%d_%s" % (self.process_number, self.process_name)
         
     def get_rwgt_runner(self):
-        """Return string to initialise the rwgtRunners in teawREX"""
+        """Return string to initialise the rwgtRunners in tRex"""
         return "%s::runner" % (self.get_proc_dir())
     
     def get_rwgt_includes(self):
-        """Return string with the include directives for the REX reweighting"""
+        """Return string with the include directives for the tRex reweighting"""
         return "#include \"P%d_%s/rwgt_runner.cc\"" % (self.process_number, self.process_name)
     
     def write_rwgt_header(self):
@@ -145,7 +145,7 @@ class TREX_OneProcessExporter(model_handling.PLUGIN_OneProcessExporter):
         ff.close()
     
     def edit_rwgt_runner(self):
-        """Create the rwgt_runner.cc file for the REX reweighting"""
+        """Create the rwgt_runner.cc file for the tRex reweighting"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporterRwgt.edit_rwgt_runner')
         # Create the rwgt_runner.cc file
 #        replace_dict = {}
@@ -249,7 +249,7 @@ class TREX_ProcessExporter(output.PLUGIN_ProcessExporter):
         ff.close()
     
     def link_makefile(self):
-        """Link the makefile for the REX reweighting"""
+        """Link the makefile for the tRex reweighting"""
         files.ln(pjoin(self.dir_path, 'SubProcesses', 'cudacpp_driver.mk'), starting_dir=pjoin(self.dir_path, 'SubProcesses'), name='makefile')
     
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
@@ -258,28 +258,28 @@ class TREX_ProcessExporter(output.PLUGIN_ProcessExporter):
         return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
     
 class TREX_ReweightInterface(rwgt_interface.ReweightInterface):
-    """A custom ReweightInterface for the TREX reweighting"""
+    """A custom ReweightInterface for the tRex reweighting"""
     
     sa_class = 'standalone_trex'
     
     def __init__(self, *args, **kwargs):
-        """Initialise the TREX reweighting interface
+        """Initialise the tRex reweighting interface
         Currently no (substantial) changes compared to upstream are necessary,
         but adding an __init__ method allows for future modifications"""
         super().__init__(*args, **kwargs)
-        self.debug_output = 'tREX_debug'
+        self.debug_output = 'tRex_debug'
         self.param_card = None
         self.reweight_card = []
         self.reweight_names = []
         
     def setup_f2py_interface(self):
-        """"Override native setup_f2py_interface to avoid parsing things not necessary for TREX reweighting"""
+        """"Override native setup_f2py_interface to avoid parsing things not necessary for tRex reweighting"""
         
         self.create_standalone_directory()
         self.compile()
         
     def launch_actual_reweighting(self, *args, **kwargs):
-        """override standard launch command to instead call the TREX reweighting"""
+        """override standard launch command to instead call the tRex reweighting"""
         
         import csv
         
@@ -305,7 +305,7 @@ class TREX_ReweightInterface(rwgt_interface.ReweightInterface):
         elif(misc.is_executable(pjoin(run_path,'rwgt_driver_cpp.exe')) ):
             driver = pjoin(run_path,'rwgt_driver_cpp.exe')
         else:
-            raise Exception('No teawREX driver found for parallel reweighting')
+            raise Exception('No tRex driver found for parallel reweighting')
         if not os.path.exists(param_card):
             try:
                 files.cp(os.path.join(path_me, 'Cards', 'param_card_default.dat'), param_card)
@@ -335,14 +335,23 @@ class TREX_ReweightInterface(rwgt_interface.ReweightInterface):
         #ZW: rwgt_driver is written and compiled properly, now just to figure out how to run it through MG
         subprocess.call([driver, '-lhe=%s' % input_file, '-slha=%s' % param_card, '-rwgt=%s' % rwgt_card, '-out=%s' % output_file], cwd=run_path)
 
-        files.mv(output_path, target)
-        csv_file = pjoin(run_path, 'rwgt_results.csv')
-        with open(csv_file, newline='') as results:
-            iters = csv.reader(results)
-            for row in iters:
-                self.all_cross_section[(row[0],'')] = (float(row[1]), float(row[2]))
+        # ZW: check if output exists, if not nicely raise an exception
+        if not os.path.exists(output_path):
+            if os.path.exists(target):
+                files.mv(self.lhe_input.path, target)
+                logger.info('Error in reweighting: output file not found. Returning original LHE file.')
+                return
+            else:
+                raise Exception('Error in reweighting: output file not found. Input file not found. Exiting.')
+        else:
+            files.mv(output_path, target)
+            csv_file = pjoin(run_path, 'rwgt_results.csv')
+            with open(csv_file, newline='') as results:
+                iters = csv.reader(results)
+                for row in iters:
+                    self.all_cross_section[(row[0],'')] = (float(row[1]), float(row[2]))
 
-        return
+            return
     
     def compile(self):
         """override compile to use the TREX makefiles"""
@@ -655,8 +664,11 @@ class TREX_ReweightInterface(rwgt_interface.ReweightInterface):
     def do_quit(self, line):
         if self.exitted:
             return
-        
-        self.launch_actual_reweighting()
+        try:
+            self.launch_actual_reweighting()
+        except:
+            raise Exception("Error in tRex reweighting. Exiting.")
+            return
         
         self.exitted = True
         
