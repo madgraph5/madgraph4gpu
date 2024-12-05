@@ -7,10 +7,16 @@ import subprocess
 import re
 import sys
 import importlib.util
+
+
+# AV - PLUGIN_NAME can be one of PLUGIN/CUDACPP_OUTPUT or MG5aMC_PLUGIN/CUDACPP_OUTPUT
+PLUGIN_NAME = __name__.rsplit('.',1)[0]
+
+
 SPEC_EXPORTCPP = importlib.util.find_spec('madgraph.iolibs.export_cpp')
 PLUGIN_export_cpp = importlib.util.module_from_spec(SPEC_EXPORTCPP)
 SPEC_EXPORTCPP.loader.exec_module(PLUGIN_export_cpp)
-sys.modules['PLUGIN.CUDACPP_OUTPUT.PLUGIN_export_cpp'] = PLUGIN_export_cpp # allow 'import PLUGIN.CUDACPP_OUTPUT.PLUGIN_export_cpp' in model_handling.py
+sys.modules['%s.PLUGIN_export_cpp'%PLUGIN_NAME] = PLUGIN_export_cpp # allow 'import <PLUGIN_NAME>.PLUGIN_export_cpp' in model_handling.py
 del SPEC_EXPORTCPP
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
@@ -20,12 +26,16 @@ del SPEC_EXPORTCPP
 PLUGINDIR = os.path.dirname( __file__ )
 
 # AV - model_handling includes the custom FileWriter, ALOHAWriter, UFOModelConverter, OneProcessExporter and HelasCallWriter, plus additional patches
-import PLUGIN.CUDACPP_OUTPUT.model_handling as model_handling
-import PLUGIN.CUDACPP_OUTPUT.output as output
+#import PLUGIN.CUDACPP_OUTPUT.model_handling as model_handling
+__import__('%s.model_handling'%PLUGIN_NAME)
+model_handling = sys.modules['%s.model_handling'%PLUGIN_NAME]
+#import PLUGIN.CUDACPP_OUTPUT.output as output
+__import__('%s.output'%PLUGIN_NAME)
+output = sys.modules['%s.output'%PLUGIN_NAME]
 
 # AV - create a plugin-specific logger
 import logging
-logger = logging.getLogger('madgraph.PLUGIN.CUDACPP_OUTPUT.output')
+logger = logging.getLogger('madgraph.%s.output'%PLUGIN_NAME)
 from madgraph import MG5DIR
 #------------------------------------------------------------------------------------
 
