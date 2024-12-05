@@ -47,6 +47,5 @@ extern "C"
   void fbridgegetngoodhel_( CppObjectInFortran** ppbridge,
                             unsigned int* pngoodhel,
                             unsigned int* pntothel );
-
 }
 #endif // _FBRIDGE_H_
