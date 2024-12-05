@@ -39,7 +39,10 @@ namespace mg5amcGpu
   struct GpuRuntime final
   {
     GpuRuntime( const bool debug = false ) // ZW: default debug to false
-      : m_debug( debug ) { setUp( m_debug ); }
+      : m_debug( debug )
+    {
+      setUp( m_debug );
+    }
     ~GpuRuntime() { tearDown( m_debug ); }
     GpuRuntime( const GpuRuntime& ) = delete;
     GpuRuntime( GpuRuntime&& ) = delete;
