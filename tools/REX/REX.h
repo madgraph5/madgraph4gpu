@@ -1,17 +1,17 @@
 /***
- *    ______ _______   __
- *    | ___ \  ___\ \ / /
- *    | |_/ / |__  \ V / 
- *    |    /|  __| /   \ 
- *    | |\ \| |___/ /^\ \
- *    \_| \_\____/\/   \/
+ *    ______          
+ *    | ___ \         
+ *    | |_/ /_____  __
+ *    |    // _ \ \/ /
+ *    | |\ \  __/>  < 
+ *    \_| \_\___/_/\_\
  *                                             
  ***/
 //
-// *R*apid *E*vent e*X*traction Version 0.9.0
-// REX is a C++ library for parsing and manipulating Les Houches Event-format (LHE) files.
+// *R*apid *e*vent e*x*traction Version 0.9.0
+// Rex is a C++ library for parsing and manipulating Les Houches Event-format (LHE) files.
 // It is designed to fast and lightweight, in comparison to internal parsers in programs like MadGraph.
-// Currently, REX is in development and may not contain all features necessary for full LHE parsing;
+// Currently, Rex is in development and may not contain all features necessary for full LHE parsing;
 // particularly, it can only parse existing LHE files, rather than writing completely new ones.
 //
 // Copyright © 2023-2024 CERN, CERN Author Zenny Wettersten. 
@@ -56,20 +56,30 @@ namespace REX
     using sortFcn = std::function<std::shared_ptr<std::vector<size_t>>(std::vector<int>)>;
     using statSort = std::function<std::shared_ptr<std::vector<size_t>>(int, std::vector<int>)>;
 
+    // ZW: generic warning function for printing warnings without throwing anything
+    void warning( std::string message );
+
+    // ZW: generic fcns for converting string-like objects to integers and doubles
+    // Assumes input has no leading blankspace to check for a leading +,
+    // but should not fail as long as there is no + even if there is blankspace
+    // Note that Str needs to have a .compare(), .data() and .size() method
+    template <typename Str>
+    int ctoi(  Str str );
+    extern template int ctoi<std::string>( std::string str );
+    extern template int ctoi<std::string_view>( std::string_view str );
+    template <typename Str>
+    double ctod( Str str );
+    extern template double ctod<std::string>( std::string str );
+    extern template double ctod<std::string_view>( std::string_view str );
+
     // ZW: index sorting function, which returns vector
     // of the indices of the original vector sorted 
     // by default in ascending order
     // ie, for [5.0, 0.25, 2.0, 9.2] returns [1, 2, 0, 3]
     template <typename T>
-    std::shared_ptr<std::vector<size_t>> indSort(const std::vector<T> &vector, std::function<bool(const T&, const T&)> comp = std::less<T>())
-    {
-        auto sorted = std::make_shared<std::vector<size_t>>(vector.size());
-        std::iota(sorted->begin(), sorted->end(), 0);
-        std::stable_sort(sorted->begin(), sorted->end(), [&](size_t i, size_t j) { return comp(vector[i], vector[j]); });
-        return sorted;
-    }
-    template std::shared_ptr<std::vector<size_t>> indSort<int>(const std::vector<int> &vector, std::function<bool(const int&, const int&)> comp = std::less<int>());
-    template std::shared_ptr<std::vector<size_t>> indSort<double>(const std::vector<double> &vector, std::function<bool(const double&, const double&)> comp = std::less<double>());
+    std::shared_ptr<std::vector<size_t>> indSort(const std::vector<T> &vector, std::function<bool(const T&, const T&)> comp = std::less<T>());
+    extern template std::shared_ptr<std::vector<size_t>> indSort<int>(const std::vector<int> &vector, std::function<bool(const int&, const int&)> comp = std::less<int>());
+    extern template std::shared_ptr<std::vector<size_t>> indSort<double>(const std::vector<double> &vector, std::function<bool(const double&, const double&)> comp = std::less<double>());
 
     template <typename T>
     std::shared_ptr<std::vector<size_t>> stoiSort(const std::vector<T> &vector);
@@ -339,6 +349,7 @@ namespace REX
     public:
         evHead getHead();
         std::vector<std::shared_ptr<lhePrt>> getPrts();
+        std::map<int,std::vector<std::shared_ptr<lhePrt>> > getSortedPrts();
         std::vector<std::shared_ptr<bodyWgt>> getWgts();
         void setHead( evHead head );
         void addPrt( std::shared_ptr<lhePrt> prtcl );
@@ -383,6 +394,7 @@ namespace REX
         std::vector<std::shared_ptr<lhePrt>> prts;
         std::map<int, std::vector<int>> procMap;
         std::map<int, std::vector<size_t>> procOrder;
+        std::map<int, std::vector<std::shared_ptr<lhePrt>> > sortPrts;
         sortFcn eventSort = []( std::vector<int> vec ){ return indSort( vec ); };
         statSort specSort = []( int stat, std::vector<int> vec ){ 
             UNUSED(stat); 
@@ -598,7 +610,7 @@ namespace REX
     protected:
         bool grpIsInit = false;
         bool grpInit( std::shared_ptr<weightGroup>& wgt );
-        std::vector<std::shared_ptr<weightGroup>> groups;
+        std::vector<std::shared_ptr<weightGroup>> groups = {};
         void contWriter() override;
         void childWriter() override;
         void childWriter( bool hasChildren );
@@ -905,6 +917,169 @@ namespace REX
         bool operator()(event& firstEv, event& secEv, std::vector<int> statVec);
     };
 
+    using evComp = std::function<bool(event&, event&)>;
+    using evCheck = std::function<bool(event&)>;
+
+    // ZW: struct to define which values to extract from events in
+    // an AoS LHE structure to an SoA structure
+    // Note: has two separate args for momenta,
+    // momUp denotes the physical 4-momentum (E, px, py, pz),
+    // whereas pUp denotes the SLHA/LHE style lab frame momenta (px, py, pz, E, m)
+    struct relEvArgs{
+        bool nUp = true; // number of particles in this event
+        bool idPrUp = true; // process ID
+        bool xWgtUp = true; // event weight
+        bool scalUp = false; // event scale
+        bool aQEDUp = false; // alpha QED
+        bool aQCDUp = true; // alpha QCD
+        bool idUp = true; // particle PDG code
+        bool iStUp = true; // particle status
+        bool mothUp[2] = {false, false}; // particle mothers
+        bool iColUp[2] = {false, false}; // particle colour flow
+        bool massUp = false; // particle mass in GeV
+        bool momUp = true; // generic flag for particle momenta; momUp denotes full 4-momentum (excl mass), following flags denote individual components
+        bool pUp[5] = {false, false, false, false, false}; // lab frame momenta (px, py, pz, E, m) --- separates the different components
+        bool vTimUp = false; // invariant lifetime in mm
+        bool spinUp = false; // cosine of angle between spin and 3-momentum of particle in lab frame
+        relEvArgs();
+        relEvArgs( const relEvArgs& relData );
+        // ZW: self-returning setters for each flag,
+        // to allow for easy chaining of multiple flags
+        // in a single line (ie relEvArgs().setNUp(true).setIdPrUp(true) etc)
+        relEvArgs& setNUp( bool nuNUp );
+        relEvArgs& setIdPrUp( bool nuIdPrUp );
+        relEvArgs& setXWgtUp( bool nuXWgtUp );
+        relEvArgs& setScalUp( bool nuScalUp );
+        relEvArgs& setAQEDUp( bool nuAQEDUp );
+        relEvArgs& setAQCDUp( bool nuAQCDUp );
+        relEvArgs& setIdUp( bool nuIdUp );
+        relEvArgs& setIStUp( bool nuIStUp );
+        relEvArgs& setMothUp( bool nuMothUp[2] );
+        relEvArgs& setMothUp( bool nuMothUp );
+        relEvArgs& setMothUp( std::vector<bool> nuMothUp );
+        relEvArgs& setIColUp( bool nuIColUp[2] );
+        relEvArgs& setIColUp( bool nuIColUp );
+        relEvArgs& setIColUp( std::vector<bool> nuIColUp );
+        relEvArgs& setMassUp( bool nuMassUp );
+        relEvArgs& setMomUp( bool nuMomUp );
+        relEvArgs& setPUp( bool nuPUp[5] );
+        relEvArgs& setPUp( bool nuPUp );
+        relEvArgs& setPUp( std::vector<bool> nuPUp );
+        relEvArgs& setVTimUp( bool nuVTimUp );
+        relEvArgs& setSpinUp( bool nuSpinUp );
+        relEvArgs& setAll( bool nuAll );
+    };
+
+    // ZW: individual process lines
+    // keeping object oriented format due to size, 
+    // but could easily be replaced with an SoA format if needed
+    // (turn arguments here into vectors, and replace the lheSoA->procLines vector with a single struct)
+    struct procLine{
+        double xSecUp; // cross section in pb
+        double xErrUp; // cross section error in pb
+        double xMaxUp; // maximum event weight
+        int lPrUp; // process ID label (corresponds to idPrUp in the events)
+        procLine();
+        procLine( const procLine& process );
+        procLine( double xSec, double xErr, double xMax, int lPr );
+        procLine( lheInitLine& process );
+        procLine( std::shared_ptr<lheInitLine> process );
+    };
+
+    std::vector<procLine> lheProcLines( lheNode& lheFile );
+
+    struct procSoA{
+        relEvArgs relData;
+        std::vector<int> relStats;
+        evCheck relevantEvent;
+        std::vector<std::shared_ptr<event>> events;
+        std::vector<bool> relEvMap;
+        std::vector<std::shared_ptr<event>> relEvents;
+        std::vector<int> nUp;
+        std::vector<int> idPrUp;
+        std::vector<double> xWgtUp;
+        std::vector<double> scalUp;
+        std::vector<double> aQEDUp;
+        std::vector<double> aQCDUp;
+        std::vector<int> idUp;
+        std::vector<int> iStUp;
+        std::vector<std::vector<int>> mothUp;
+        std::vector<std::vector<int>> iColUp;
+        std::vector<double> massUp;
+        std::vector<double> momUp;
+        std::vector<std::vector<double>> pUp;
+        std::vector<double> vTimUp;
+        std::vector<double> spinUp;
+        virtual void reset();
+        void setRelEvs( std::vector<std::shared_ptr<event>> lheFile );
+        bool relevant( event& ev );
+        bool relevant( std::shared_ptr<event> ev );
+        bool extract( std::vector<std::shared_ptr<event>> lheFile, std::vector<int> relevStats = {-1,1} );
+        bool empty();
+        procSoA();
+        procSoA( const relEvArgs& relData );
+        procSoA( const procSoA& process );
+        procSoA( procSoA* process );
+        procSoA( std::shared_ptr<procSoA> process );
+        procSoA( std::vector<std::shared_ptr<event>> lheFile, relEvArgs relArgs = relEvArgs(), 
+            std::vector<int> relevStats = {-1,1}, std::function<bool( event& )> relFcn = nullptr );
+        procSoA& setRelData( relEvArgs& relArgs );
+        procSoA& setRelStats( std::vector<int>& relevStats );
+        procSoA& setRelevant( evCheck& relFcn );
+        procSoA& setEvents( std::vector<std::shared_ptr<event>> lheFile );
+    };
+
+    struct lheSoA{
+        std::vector<std::shared_ptr<procSoA>> subProcesses; // transposed events grouped by arbitrary sorting functions
+        // ZW: note, at extraction events which fail all relEvFcns not extracted but are still stored in the events vectors
+        std::vector<std::shared_ptr<event>> events; // all events in the LHE file
+        std::vector<std::vector<std::shared_ptr<event>>> sortedEvents; // events grouped by process before extraction. events that fail all relEvFcns are stored in the last entry
+        std::vector<procLine> procLines; // individual process lines from the LHE file header
+        std::vector<evCheck> relEvFcns; // vector of event classifiers
+        std::vector<size_t> eventGrouping; // indices to which subProcess each event belongs to
+        std::vector<relEvArgs> relEvData; // vector of relEvArgs for each subProcess
+        std::vector<std::vector<int>> relEvStats; // vector of relevant particle statuses for each subProcess
+        int idBmUp[2]; // beam IDs
+        double eBmUp[2]; // beam energies in GeV
+        int pdfGUp[2]; // Cernlib PDFlib specification authors
+        int pdfSUp[2]; // Cernlib PDFlib specification PDF sets
+        int idWtUp; // event weight model
+        int nPrUp; // number of different user subprocesses; note, not necessarily the same as subProcess vector
+        virtual void reset(); // reset all data but maintain instantiation
+        size_t eventIndex( event& ev ); // map an event to the correct subProcess, based on the order in relEvFcns
+        bool sortEvents( bool hard = false ); // sort events based on relEvFcns into sortedEvents
+        bool extractEvents( bool hard = false ); // extract events from sortedEvents into subProcesses
+        std::function<bool( event& )> evFcnIndex( size_t index ); // return the event classifier function at index if it exists, otherwise return 0-index
+        relEvArgs evDataIndex( size_t index ); // return the relEvArgs at index if it exists, otherwise return 0-index
+        std::vector<int> evStatsIndex( size_t index ); // return the relevant particle statuses at index if it exists, otherwise return 0-index
+        lheSoA();
+        lheSoA( const lheSoA& lheFile );
+        lheSoA( std::vector<std::shared_ptr<event>> lheFile );
+        lheSoA( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort );
+        lheSoA( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort );
+        lheSoA( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort, 
+            std::vector<relEvArgs> relData );
+        lheSoA( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort, 
+            std::vector<relEvArgs> relData );
+        lheSoA( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort, 
+            std::vector<std::vector<int>> relStats );
+        lheSoA( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort,
+            std::vector<std::vector<int>> relStats );
+        lheSoA( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort, 
+            std::vector<relEvArgs> relData, std::vector<std::vector<int>> relStats );
+        lheSoA( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort,
+            std::vector<relEvArgs> relData, std::vector<std::vector<int>> relStats );
+        lheSoA& setInit( lheInitHead& init );
+        lheSoA& setInit(  lheNode& lheFile );
+        lheSoA& setEvents( std::vector<std::shared_ptr<event>> lheFile );
+        lheSoA& setEvents( lheNode& lheFile );
+        lheSoA& setProcLines( std::vector<procLine> procLines );
+        lheSoA& setProcLines(  std::vector<std::shared_ptr<lheInitLine>> procLines );
+        lheSoA& setProcLines( initNode& init );
+        lheSoA& setProcLines( lheNode& lheFile );
+        lheSoA& setRelEvFcns( std::vector<std::function<bool( event& )>> evSort );
+        lheSoA& setRelEvData( std::vector<relEvArgs> relData );
+    };
 
 std::shared_ptr<std::vector<std::shared_ptr<std::vector<double>>>> lheValDoubles( lheNode& lheFile, lheRetDs vals = lheRetDs() );
 

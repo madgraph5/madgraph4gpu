@@ -45,8 +45,24 @@ void writeRwgtCsv( std::string path, std::shared_ptr<std::vector<std::string>> n
     return;
 }
 
+void writeRwgtCsv( std::string path, std::vector<std::string> names, std::vector<double> xSecs, std::vector<double> errXSecs )
+{
+    std::ofstream outFile;
+    outFile.open( path );
+    if( !outFile.is_open() )
+        throw std::runtime_error( "Failed to open output file for writing." );
+    if( names.size() != xSecs.size() || names.size() != errXSecs.size() )
+        throw std::runtime_error( "Mismatch in number of processes, cross-sections, and errors when logging results." );
+    for( size_t k = 0 ; k < names.size() ; ++k )
+    {
+        outFile << names.at(k) << ", " << xSecs.at(k) << ", " << errXSecs.at(k) << "\n";
+    }
+    outFile.close();
+    return;
+}
+
 int main( int argc, char** argv ){
-    std::cout << "Starting reweighting driver...\n";
+    std::cout << "Starting tRex driver...\n";
     std::string lheFilePath;
     std::string rwgtCardPath;
     std::string outputPath;
@@ -108,34 +124,72 @@ int main( int argc, char** argv ){
     }}
     
 
-    static REX::teaw::rwgtFiles fileCol( lheFilePath, slhaPath, rwgtCardPath );
-    static std::vector<REX::eventSet> runSet = {%(run_set)s};
-    static REX::transSkel loadEvs = fileCol.initCards( runSet );
-    fileCol.initDoubles();
+    // static REX::teaw::rwgtFiles fileCol( lheFilePath, slhaPath, rwgtCardPath );
+    // static std::vector<REX::eventSet> runSet = {(run_set)};
+    // static REX::transSkel loadEvs = fileCol.initCards( runSet );
+    // fileCol.initDoubles();
+    // static std::vector<rwgt::fBridge> fBridgeVec = {(fbridge_vec)};
+    // static std::vector<rwgt::fBridge> bridges;
+    // static std::vector<REX::teaw::amplitude> amps;
+    // size_t relSet = 0;
+    // for( size_t k = 0 ; k < runSet.size() ; ++k ){
+    //     if( !loadEvs.relEvSet[k] ){ continue; }
+    //     fBridgeVec[k].init( loadEvs.procSets[relSet], 32 );
+    //     bridges.push_back( fBridgeVec[k] );
+    //     auto currAmp = [bridge = bridges[relSet]](std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS) mutable {
+    //         return bridge.bridgeCall(momenta, alphaS);
+    //     };
+    //     amps.push_back( currAmp );
+    //     ++relSet;
+    // }
+
+    // REX::teaw::rwgtRunner driver( fileCol, amps );
+
+    // driver.runRwgt( outputPath ); 
+
+    // auto rwgt_names = driver.getNames();
+    // auto rwgt_xSecs = driver.getReXSecs();
+    // auto rwgt_errXSecs = driver.getReXErrs();
+
+    auto lheInput = REX::filePuller( lheFilePath );
+    auto lheRun = REX::lheNode( *lheInput );
+    auto slhaInput = REX::filePuller( slhaPath );
+    auto slhaRun = REX::lesHouchesCard( *slhaInput );
+    auto rwgtInput = REX::filePuller( rwgtCardPath );
+    auto rwgtRun = REX::teaw::rwgtCard( *rwgtInput, slhaRun, true );
+
+    static std::vector<std::function<bool( REX::event& )>> comparators = {%(comparators)s};
+    static auto runner = REX::teaw::reweightor( lheRun, comparators );
+
+    if( !runner.extractEvents() ) throw std::runtime_error( "Failed to extract events from LHE file." );
+
     static std::vector<rwgt::fBridge> fBridgeVec = {%(fbridge_vec)s};
-    static std::vector<rwgt::fBridge> bridges;
-    static std::vector<REX::teaw::amplitude> amps;
-    size_t relSet = 0;
-    for( size_t k = 0 ; k < runSet.size() ; ++k ){
-        if( !loadEvs.relEvSet[k] ){ continue; }
-        fBridgeVec[k].init( loadEvs.procSets[relSet], 32 );
-        bridges.push_back( fBridgeVec[k] );
-        auto currAmp = [bridge = bridges[relSet]](std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS) mutable {
-            return bridge.bridgeCall(momenta, alphaS);
-        };
-        amps.push_back( currAmp );
-        ++relSet;
+    static std::vector<REX::teaw::weightor> amplitudes;
+    for( size_t k = 0 ; k < fBridgeVec.size() ; ++k )
+    {
+        fBridgeVec[k].init(runner.sortedEvents[k], 32);
+        amplitudes.push_back( fBridgeVec[k].getAmp() );
     }
 
-    REX::teaw::rwgtRunner driver( fileCol, amps );
+    runner.setAmps( amplitudes );
 
-    driver.runRwgt( outputPath ); 
+    auto returnTrue = std::function<bool()>([](){ return true; });
+    auto writeSlha = std::function<bool()>([slhaInput, slhaPath](){
+        return REX::filePusher(slhaPath, *slhaInput);
+    });
 
-    auto rwgt_names = driver.getNames();
-    auto rwgt_xSecs = driver.getReXSecs();
-    auto rwgt_errXSecs = driver.getReXErrs();
-    
-    writeRwgtCsv( "rwgt_results.csv", rwgt_names, rwgt_xSecs, rwgt_errXSecs );
+    runner.setAmps(amplitudes).setIterators(rwgtRun.getIterators(slhaPath)).setTerminator(writeSlha).setOriginator(returnTrue);
+
+    runner.run();
+
+    runner.appendWgts( lheRun, rwgtRun.getProcs(), rwgtRun.getNames() );
+
+    bool lheWritten = REX::filePusher( outputPath, *lheRun.nodeWriter() );
+
+    if( !lheWritten )
+        throw std::runtime_error( "Failed to write LHE file." );
+
+    writeRwgtCsv( "rwgt_results.csv", *rwgtRun.getNames(), runner.xSecs, runner.xErrs );
 
     return 0;
 

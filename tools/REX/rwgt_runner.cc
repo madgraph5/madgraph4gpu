@@ -107,6 +107,14 @@ namespace %(process_namespace)s{
         return false;
     }
 
+    std::function<bool( REX::event& )> getComp(){
+        std::function<bool( REX::event& )> compar = [&]( REX::event& process ){
+            std::vector<int> relStats = {-1,1};
+            return checkProc( process, relStats );
+        };
+        return compar;
+    }
+
     REX::eventSet eventSetConstr( std::vector<REX::event>& process ){
         REX::eventSet constrSet = REX::eventSet( process );
         REX::eventSetComp compar = checkProc;

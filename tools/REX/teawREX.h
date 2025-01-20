@@ -1,17 +1,17 @@
 /***
- *     _                     ______ _______   __
- *    | |                    | ___ \  ___\ \ / /
- *    | |_ ___  __ ___      _| |_/ / |__  \ V / 
- *    | __/ _ \/ _` \ \ /\ / /    /|  __| /   \ 
- *    | ||  __/ (_| |\ V  V /| |\ \| |___/ /^\ \
- *     \__\___|\__,_| \_/\_/ \_| \_\____/\/   \/
+ *     _            ______          
+ *    | |           | ___ \         
+ *    | |_ ___  __ _| |_/ /_____  __
+ *    | __/ _ \/ _` |    // _ \ \/ /
+ *    | ||  __/ (_| | |\ \  __/>  < 
+ *     \__\___|\__,_\_| \_\___/_/\_\
  *                                              
  ***/
 //
-// *t*ensorial *e*vent *a*daption *w*ith *REX* Version 0.9.0
-// teawREX is an extension to the REX C++ library for parsing and manipulating Les Houches Event-format (LHE) files,
+// *t*ensorial *e*vent *a*daption with *Rex* Version 0.9.0
+// teaRex is an extension to the Rex C++ library for parsing and manipulating Les Houches Event-format (LHE) files,
 // designed for leading order event reweighting based on input LHE file(s) and scattering amplitude functions.
-// teawREX is in development and may not contain all features necessary for all desired features,
+// teaRex is in development and may not contain all features necessary for all desired features,
 // and does not have documentation beyond the code itself.
 //
 // Copyright © 2023-2024 CERN, CERN Author Zenny Wettersten. 
@@ -19,8 +19,8 @@
 // All rights not expressly granted are reserved.
 //
 
-#ifndef _TEAWREX_H_
-#define _TEAWREX_H_
+#ifndef _TEAREX_H_
+#define _TEAREX_H_
 
 #include <unistd.h>
 #include <algorithm>
@@ -36,6 +36,99 @@ namespace REX::teaw
 
     using amplitude = std::function<std::shared_ptr<std::vector<double>>(std::vector<double>&, std::vector<double>&)>;
     using vecMap = std::map<REX::event, std::shared_ptr<std::vector<double>>, REX::eventComp>;
+
+    using iterator = std::function<bool()>;
+    using weightor = std::function<std::shared_ptr<std::vector<double>>( REX::procSoA& )>;
+
+    // ZW: wrapper for procSoA and the reweighting process
+    // Not a derived class of procSoA, such that the full reweight
+    // class can be derived from lheSoA without having to deal with
+    // the procSoA objects stored in the lheSoA class
+    struct procRwgt {
+        std::shared_ptr<REX::procSoA> proc;
+        std::vector<weightor> amplitude;
+        weightor originalAmp;
+        std::shared_ptr<std::vector<double>> invOriginalAmp;
+        std::vector<std::shared_ptr<std::vector<double>>> weights;
+        std::shared_ptr<std::vector<double>> backlog; // FIXME: this should be a vector of vectors if ampsPerIter > 1
+        size_t iteration;
+        void uniqueReset();
+        void reset();
+        procRwgt();
+        procRwgt( const REX::relEvArgs& relData );
+        procRwgt( const procSoA& process );
+        procRwgt( procSoA* process );
+        procRwgt( std::shared_ptr<procSoA> process );
+        procRwgt( const procRwgt& process );
+        procRwgt( procRwgt* process );
+        procRwgt( std::shared_ptr<procRwgt> process );
+        procRwgt( std::vector<std::shared_ptr<REX::event>> lheFile, REX::relEvArgs relArgs = REX::relEvArgs(), 
+            std::vector<int> relevStats = {-1,1}, std::function<bool( REX::event& )> relFcn = nullptr );
+        procRwgt( std::vector<weightor> ampFcns );
+        procRwgt& setAmplitude( weightor amp );
+        procRwgt& setAmplitude( std::vector<weightor> amp );
+        procRwgt& setOriginalAmp( weightor amp );
+        bool initialise();
+        bool evaluate();
+        bool normalise();
+        void doBacklog( bool pass );
+    };
+
+    struct reweightor : REX::lheSoA {
+        std::vector<std::shared_ptr<procRwgt>> amps;
+        std::vector<iterator> iterators;
+        iterator originator;
+        iterator terminator;
+        std::vector<std::shared_ptr<std::vector<double>>> wgts;
+        std::vector<double> xSecs;
+        std::vector<double> xErrs;
+        std::vector<bool> success;
+        double ampNorm;
+        size_t ampsPerIter = 1;
+        void uniqueReset();
+        void reset() override;
+        void setAmpsFromSubprocs();
+        reweightor();
+        reweightor( const lheSoA& lheFile );
+        reweightor( const reweightor& lheFile );
+        reweightor( std::vector<std::shared_ptr<event>> lheFile );
+        reweightor( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort );
+        reweightor( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort );
+        reweightor( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort, 
+            std::vector<relEvArgs> relData );
+        reweightor( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort, 
+            std::vector<relEvArgs> relData );
+        reweightor( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort, 
+            std::vector<std::vector<int>> relStats );
+        reweightor( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort,
+            std::vector<std::vector<int>> relStats );
+        reweightor( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort, 
+            std::vector<relEvArgs> relData, std::vector<std::vector<int>> relStats );
+        reweightor( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort,
+            std::vector<relEvArgs> relData, std::vector<std::vector<int>> relStats );   
+        reweightor& setAmps( std::vector<std::shared_ptr<procRwgt>> newAmps ); 
+        reweightor& setAmps( std::vector<weightor> ampFcns );
+        reweightor& setAmps( std::vector<std::vector<weightor>> ampFcns );
+        reweightor& setIterators( std::vector<iterator> iters );
+        reweightor& setOriginator( iterator origin );
+        reweightor& setTerminator( iterator term );
+        // wrapper for running amps (skips iteration if not all amps succeed?)
+        bool runAmps();
+        // wrapper for running iterator and then amps
+        void runBacklog( bool success );
+        bool doIterate( size_t index );
+        void doAllIterations();
+        void doInit();
+        void doFin();
+        void flattenWeights();
+        void calcAmpNorm();
+        bool setAmpNorm( bool hard = false );
+        void calcXSecs();
+        void calcXErrs();
+        void run();
+        void appendWgtsSimple( lheNode& lheFile, std::vector<std::string_view> procs, std::shared_ptr<std::vector<std::string>> names );
+        void appendWgts( lheNode& lheFile, std::vector<std::string_view> procs, std::shared_ptr<std::vector<std::string>> names );
+    };
 
     struct rwgtVal : REX::paramVal{
     public:
@@ -76,9 +169,11 @@ namespace REX::teaw
     struct rwgtCard{
     public:
         REX::lesHouchesCard slhaCard;
+        std::vector<iterator> cardWriters;
         std::vector<rwgtProc> rwgtRuns;
         std::vector<std::string_view> rwgtProcs;
         std::vector<std::string_view> opts;
+        std::vector<std::shared_ptr<REX::lesHouchesCard>> writtenCards;
         std::shared_ptr<std::vector<std::string>> rwgtNames;
         std::string_view srcCard;
         void parse( bool parseOnline = false );
@@ -86,6 +181,8 @@ namespace REX::teaw
         rwgtCard( std::string_view reweight_card, REX::lesHouchesCard slhaParams, bool parseOnline = false );
         std::vector<std::shared_ptr<REX::lesHouchesCard>> writeCards( REX::lesHouchesCard& slhaOrig );
         std::shared_ptr<std::vector<std::string>> getNames();
+        std::vector<std::string_view> getProcs();
+        std::vector<iterator> getIterators( std::string path );
     };
 
     

@@ -234,13 +234,16 @@ class TREX_ProcessExporter(output.PLUGIN_ProcessExporter):
         replace_dict['info_lines'] = model_handling.PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['multiprocess_lines'] = "\n".join(self.proc_lines)
         replace_dict['include_lines'] = ''
-        replace_dict['run_set'] = ''
+        replace_dict['comparators'] = ''
+        #replace_dict['run_set'] = ''
         replace_dict['fbridge_vec'] = ''
         for name in self.rwgt_names:
             replace_dict['include_lines'] += '#include "%s/rwgt_runner.h"\n' % name
-            replace_dict['run_set'] += '%s::getEventSet(),' % name
+        #    replace_dict['run_set'] += '%s::getEventSet(),' % name
+            replace_dict['comparators'] += '%s::getComp(),' % name
             replace_dict['fbridge_vec'] += '%s::bridgeConstr(),' % name
-        replace_dict['run_set'] = replace_dict['run_set'][:-1]
+        #replace_dict['run_set'] = replace_dict['run_set'][:-1]
+        replace_dict['comparators'] = replace_dict['comparators'][:-1]
         replace_dict['fbridge_vec'] = replace_dict['fbridge_vec'][:-1]
         template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
         template = open(pjoin(template_path,'REX', 'rwgt_driver.inc'),'r').read()

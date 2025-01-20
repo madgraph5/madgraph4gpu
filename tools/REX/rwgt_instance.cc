@@ -141,6 +141,18 @@ namespace rwgt{
         return evalScatAmps;
     }
 
+    std::shared_ptr<std::vector<FORTRANFPTYPE>> fBridge::bridgeCall( REX::procSoA& process ){
+        return this->bridgeCall( process.momUp, process.aQCDUp );
+    }
+
+    REX::teaw::weightor fBridge::getAmp(){
+        if(this->bridge == nullptr) throw std::runtime_error("fBridge object not defined.");
+        REX::teaw::weightor amp = [this](REX::procSoA& process){
+            return this->bridgeCall( process );
+        };
+        return amp;
+    }
+
 }
 
 #endif

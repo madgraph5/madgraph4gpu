@@ -24,6 +24,7 @@ namespace %(process_namespace)s {
     rwgt::fBridge bridgeConstr();
     std::shared_ptr<std::vector<size_t>> procSort( std::string_view status, std::vector<std::string_view> arguments, size_t index = REX::npos );
     bool checkProc( REX::event& process, std::vector<std::string>& relStats );
+    std::function<bool( REX::event& )> getComp();
     REX::eventSet eventSetConstruct( std::vector<REX::event>& process );
     REX::eventSet getEventSet();
 

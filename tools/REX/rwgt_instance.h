@@ -58,6 +58,8 @@ namespace rwgt{
         void bridgeSetup( std::shared_ptr<std::vector<FORTRANFPTYPE>>& evVec, unsigned int warpSize = 32);
         void setBridge( bridgeWrapper& amp );
         std::shared_ptr<std::vector<FORTRANFPTYPE>> bridgeCall( std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS );
+        std::shared_ptr<std::vector<FORTRANFPTYPE>> bridgeCall( REX::procSoA& process );
+        REX::teaw::weightor getAmp();
     };
 
 }

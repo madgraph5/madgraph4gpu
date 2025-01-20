@@ -1,17 +1,17 @@
 /***
- *     _                     ______ _______   __
- *    | |                    | ___ \  ___\ \ / /
- *    | |_ ___  __ ___      _| |_/ / |__  \ V / 
- *    | __/ _ \/ _` \ \ /\ / /    /|  __| /   \ 
- *    | ||  __/ (_| |\ V  V /| |\ \| |___/ /^\ \
- *     \__\___|\__,_| \_/\_/ \_| \_\____/\/   \/
+ *     _            ______          
+ *    | |           | ___ \         
+ *    | |_ ___  __ _| |_/ /_____  __
+ *    | __/ _ \/ _` |    // _ \ \/ /
+ *    | ||  __/ (_| | |\ \  __/>  < 
+ *     \__\___|\__,_\_| \_\___/_/\_\
  *                                              
  ***/
 //
-// *t*ensorial *e*vent *a*daption *w*ith *REX* Version 0.9.0
-// teawREX is an extension to the REX C++ library for parsing and manipulating Les Houches Event-format (LHE) files,
-// designed for leading order event reweighting based on input LHE file(s) and scattering amplitude functions.
-// teawREX is in development and may not contain all features necessary for all desired features,
+// *t*ensorial *e*vent *a*daption with *Rex* Version 0.9.0
+// teaRex is an extension to the Rex C++ library for parsing and manipulating Les Houches Event-format (LHE) files,
+// designed for leading order event reweighting based on input LHE file(s) and (relative) weight evaluation functions.
+// teaRex is in development and may not contain all features necessary for all desired features,
 // and does not have documentation beyond the code itself.
 //
 // Copyright © 2023-2024 CERN, CERN Author Zenny Wettersten. 
@@ -19,8 +19,8 @@
 // All rights not expressly granted are reserved.
 //
 
-#ifndef _TEAWREX_CC_
-#define _TEAWREX_CC_
+#ifndef _TEAREX_CC_
+#define _TEAREX_CC_
 
 #include <unistd.h>
 #include <algorithm>
@@ -50,6 +50,489 @@ namespace REX::teaw
     template<typename T1, typename T2>
     std::shared_ptr<std::vector<T1>> scatAmpEval(std::vector<T2>& momenta, std::function<std::vector<T1>(std::vector<T2>&, std::vector<T2>&)> evalFunc)
     { return evalFunc(momenta); }
+
+    void procRwgt::uniqueReset(){
+        this->amplitude = std::vector<weightor>();
+        this->weights = std::vector<std::shared_ptr<std::vector<double>>>();
+        this->backlog = std::make_shared<std::vector<double>>();
+        this->iteration = 0;
+    }
+
+    void procRwgt::reset(){
+        this->proc = std::make_shared<REX::procSoA>();
+        this->proc->reset();
+        this->uniqueReset();
+    }
+
+    procRwgt::procRwgt(){ this->reset(); return; }
+
+    procRwgt::procRwgt( const REX::relEvArgs& relData ){
+        this->proc = std::make_shared<REX::procSoA>( relData );
+        this->uniqueReset();
+    }
+
+    procRwgt::procRwgt( const procSoA& process ){
+        this->proc = std::make_shared<REX::procSoA>( process );
+        this->uniqueReset();
+    }
+
+    procRwgt::procRwgt( procSoA* process ) : procRwgt( *process ){ return; }
+
+    procRwgt::procRwgt( std::shared_ptr<procSoA> process )
+    {
+        this->proc = process;
+        this->uniqueReset();
+        return;
+    }
+
+    procRwgt::procRwgt( const procRwgt& process ){
+        this->proc = process.proc; 
+        this->amplitude = process.amplitude;
+        this->weights = process.weights; 
+        this->iteration = process.iteration;
+        return; 
+    }
+
+    procRwgt::procRwgt( procRwgt* process ) : procRwgt( *process ){ return; }
+
+    procRwgt::procRwgt( std::shared_ptr<procRwgt> process ) : procRwgt( *process ){ return; }
+
+    procRwgt::procRwgt( std::vector<std::shared_ptr<REX::event>> lheFile, REX::relEvArgs relArgs,
+    std::vector<int> relevStats, std::function<bool( REX::event& )> relFcn )
+    {
+        this->proc = std::make_shared<REX::procSoA>( lheFile, relArgs, relevStats, relFcn );
+        this->uniqueReset(); 
+        return;
+    }
+
+    procRwgt::procRwgt( std::vector<weightor> ampFcns ){
+        this->uniqueReset();
+        this->proc = std::make_shared<REX::procSoA>();
+        this->amplitude = ampFcns;
+        return;
+    }
+
+    procRwgt& procRwgt::setAmplitude( weightor amp ){
+        this->amplitude = std::vector<weightor>({amp});
+        return *this;
+    }
+
+    procRwgt& procRwgt::setAmplitude( std::vector<weightor> amp ){
+        this->amplitude = amp;
+        return *this;
+    }
+
+    procRwgt& procRwgt::setOriginalAmp( weightor amp ){
+        this->originalAmp = amp;
+        return *this;
+    }
+
+    bool procRwgt::initialise(){
+        if( originalAmp == nullptr ) {
+            if ( this->amplitude.size() == 0 ) throw std::runtime_error("procRwgt::initialise() called with no amplitudes set.");
+            this->originalAmp = this->amplitude[0];
+            REX::warning("procRwgt::initialise() called with no original amplitude set. Using first amplitude in list.");
+        }
+        if( this->proc->empty() ) return true;
+        this->invOriginalAmp = this->originalAmp( *(this->proc) );
+        if( this->invOriginalAmp->size() == 0 ) return false;
+        if( this->invOriginalAmp->size() != this->proc->xWgtUp.size() ) throw std::runtime_error("procRwgt::initialise(): Number of event weights returned from procRwgt::originalAmp differs from number of weights in procRwgt::proc.");
+        std::transform( this->proc->xWgtUp.cbegin(), this->proc->xWgtUp.cend(), 
+            this->invOriginalAmp->begin(), this->invOriginalAmp->begin(), 
+            std::divides<double>() );
+        if( std::find_if( this->invOriginalAmp->begin(), this->invOriginalAmp->end(),
+            [](double val) { return (std::isnan(val) || std::isinf(val)); } ) != this->invOriginalAmp->end() )
+        {
+            REX::warning("procRwgt::initialise(): Normalised initial weights contain NaN values.");
+        }
+        return true;
+    }
+
+    bool procRwgt::normalise(){
+        if( this->proc->empty() ) return true;
+        if( this->invOriginalAmp->size() == 0 )
+        {
+            if( !this->initialise() ) return false;
+        }
+        if( this->weights.size() == 0 ) return false;
+        for( auto wgt : this->weights )
+        {
+            if( wgt->size() != this->invOriginalAmp->size() ) throw std::runtime_error("procRwgt::normalise(): Number of event weights stored in procRwgt::weights differs from number of weights in procRwgt::proc.");
+            std::transform( wgt->cbegin(), wgt->cend(),
+                this->invOriginalAmp->cbegin(), wgt->begin(),
+                std::multiplies<double>() );
+            if( std::find_if( wgt->begin(), wgt->end(),
+                [](double val) { return std::isnan(val); } ) != wgt->end() )
+            {
+                REX::warning("procRwgt::normalise(): Normalised weights contain NaN values.");
+            }
+        }
+        return true;
+    }
+
+    bool procRwgt::evaluate(){
+        if( this->proc->empty() ) return true;
+        if ( this->amplitude.size() == 0 ) throw std::runtime_error("procRwgt::evaluate() called with no amplitudes set.");
+        if ( this->iteration >= this->amplitude.size() ) this->iteration = 0;
+        auto newWgts = this->amplitude[this->iteration]( *(this->proc) );
+        this->iteration++;
+        if( newWgts->size() != this->invOriginalAmp->size() ) return false;
+        this->backlog = newWgts;
+        return true;
+    }
+
+    void procRwgt::doBacklog( bool pass ){
+        if( pass ) this->weights.push_back( this->backlog );
+        this->backlog = std::make_shared<std::vector<double>>();
+    }
+
+    void reweightor::uniqueReset(){
+        this->amps = std::vector<std::shared_ptr<procRwgt>>();
+        this->iterators = std::vector<iterator>();
+        this->success = std::vector<bool>();
+    }
+
+    void reweightor::reset(){
+        this->lheSoA::reset();
+        this->uniqueReset();
+    }
+
+    void reweightor::setAmpsFromSubprocs(){
+        this->amps = std::vector<std::shared_ptr<procRwgt>>();
+        for( auto subProc : this->subProcesses )
+        {
+            this->amps.push_back( std::make_shared<procRwgt>( subProc ) );
+        }
+    }
+
+    reweightor::reweightor() : lheSoA(){}
+
+    reweightor::reweightor( const lheSoA& lheFile ) : lheSoA( lheFile ){
+        this->setAmpsFromSubprocs();
+    }
+
+    reweightor::reweightor( const reweightor& lheFile ) : lheSoA( lheFile ){
+        this->amps = lheFile.amps;
+    }
+
+    reweightor::reweightor( std::vector<std::shared_ptr<event>> lheFile ) : lheSoA( lheFile ){}
+
+    reweightor::reweightor( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort ) : lheSoA( lheFile, evSort ){
+        this->setAmpsFromSubprocs();
+    }
+
+    reweightor::reweightor( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort ) : lheSoA( lheFile, evSort ){
+        this->setAmpsFromSubprocs();
+    }
+
+    reweightor::reweightor( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort, std::vector<relEvArgs> relData ) : lheSoA( lheFile, evSort, relData ){
+        this->setAmpsFromSubprocs();
+    }
+
+    reweightor::reweightor( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort, std::vector<relEvArgs> relData ) : lheSoA( lheFile, evSort, relData ){
+        this->setAmpsFromSubprocs();
+    }
+
+    reweightor::reweightor( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort, std::vector<std::vector<int>> relStats ) : lheSoA( lheFile, evSort, relStats ){
+        this->setAmpsFromSubprocs();
+    }
+
+    reweightor::reweightor( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort, std::vector<std::vector<int>> relStats ) : lheSoA( lheFile, evSort, relStats ){
+        this->setAmpsFromSubprocs();
+    }
+
+    reweightor::reweightor( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool( event& )>> evSort, std::vector<relEvArgs> relData, std::vector<std::vector<int>> relStats ) : lheSoA( lheFile, evSort, relData, relStats ){
+        this->setAmpsFromSubprocs();
+    }
+
+    reweightor::reweightor( lheNode& lheFile, std::vector<std::function<bool( event& )>> evSort, std::vector<relEvArgs> relData, std::vector<std::vector<int>> relStats ) : lheSoA( lheFile, evSort, relData, relStats ){
+        this->setAmpsFromSubprocs();
+    }
+
+    reweightor& reweightor::setAmps( std::vector<std::shared_ptr<procRwgt>> newAmps ){
+        this->amps = newAmps;
+        if( this->amps.size() != this->subProcesses.size() ){
+            if( this->subProcesses.size() != 0 ) REX::warning("reweightor::setAmps(): Number of amplitudes does not match number of subprocesses.\nOverriding existing subprocesses with those in amplitudes.");
+            this->subProcesses = std::vector<std::shared_ptr<REX::procSoA>>();
+            for( auto amp : this->amps )
+            {
+                if( amp->proc == nullptr ) throw std::runtime_error("reweightor::setAmps(): Amplitude does not have a process set.");
+                this->subProcesses.push_back( amp->proc );
+            }
+        }
+        for( size_t k = 0 ; k < this->amps.size() ; ++k )
+        {
+            if( this->amps[k]->proc == nullptr ){
+                REX::warning("reweightor::setAmps(): Amplitude does not have a process set. Setting to subprocess with same index.");
+                this->amps[k]->proc = this->subProcesses[k];
+            }
+        }
+        return *this;
+    }
+
+    reweightor& reweightor::setAmps( std::vector<weightor> ampFcns ){
+        this->amps = std::vector<std::shared_ptr<procRwgt>>();
+        if( ampFcns.size() != this->subProcesses.size() ) throw std::runtime_error("reweightor::setAmps(): Number of amplitudes does not match number of subprocesses.");
+        for( size_t k = 0 ; k < ampFcns.size() ; ++k )
+        {
+            this->amps.push_back( std::make_shared<procRwgt>( this->subProcesses[k] ) );
+            this->amps[k]->setAmplitude( ampFcns[k] );
+        }
+        return *this;
+    }
+
+    reweightor& reweightor::setAmps( std::vector<std::vector<weightor>> ampFcns ){
+        this->amps = std::vector<std::shared_ptr<procRwgt>>();
+        if( ampFcns.size() != this->subProcesses.size() ) throw std::runtime_error("reweightor::setAmps(): Number of amplitudes does not match number of subprocesses.");
+        for( size_t k = 0 ; k < ampFcns.size() ; ++k )
+        {
+            this->amps.push_back( std::make_shared<procRwgt>( this->subProcesses[k] ) );
+            this->amps[k]->setAmplitude( ampFcns[k] );
+        }
+        return *this;
+    }
+
+    reweightor& reweightor::setIterators( std::vector<iterator> iters ){
+        this->iterators = iters;
+        return *this;
+    }
+
+    reweightor& reweightor::setOriginator( iterator iter ){
+        this->originator = iter;
+        return *this;
+    }
+
+    reweightor& reweightor::setTerminator( iterator iter ){
+        this->terminator = iter;
+        return *this;
+    }
+
+    bool reweightor::runAmps(){
+        if( this->amps.size() == 0 ) throw std::runtime_error("reweightor::runAmps(): No amplitudes set.");
+        bool success = true;
+        for( auto amp : this->amps )
+        {
+            success = success && amp->evaluate();
+        }
+        return success;
+    }
+
+    void reweightor::runBacklog( bool success ){
+        for( auto amp : this->amps )
+        {
+            amp->doBacklog( success );
+        }
+    }
+
+    bool reweightor::doIterate( size_t index ){
+        if( index >= this->iterators.size() ) throw std::runtime_error("reweightor::doIterate(): Index out of reweightor::iterators range.");
+        if( this->iterators[index] == nullptr ) return false;
+        if( !this->iterators[index]() ) return false;
+        bool archSuccess = true;
+        for( size_t k = 0 ; k < this->ampsPerIter ; ++k )
+        {
+            bool succ = this->runAmps();
+            this->runBacklog( succ );
+            archSuccess = archSuccess && succ;
+        }
+        return archSuccess;
+    }
+
+    void reweightor::doAllIterations(){
+        for( size_t k = 0 ; k < this->iterators.size() ; ++k )
+        {
+            if( this->doIterate(k) ){
+                this->success.push_back( true );
+                continue;
+            }
+            this->success.push_back( false );
+            REX::warning("reweightor::doAllIterations(): Iteration " + std::to_string(k) + " failed. Discarding results from this iteration.");
+        }
+    }
+
+    void reweightor::doInit(){
+        if( this->amps.size() == 0 ) throw std::runtime_error("reweightor::doInit(): No amplitudes set.");
+        if( this->originator != nullptr ){
+            if( !(this->originator()) ) throw std::runtime_error("reweightor::doInit(): Originator failed at initialisation.");
+        }
+        for( auto amp : this->amps )
+        {
+            if ( !amp->initialise() ) throw std::runtime_error("reweightor::doInit(): Initialisation failed for amplitude.");
+        }
+    }
+
+    void reweightor::doFin(){
+        if( this->terminator == nullptr ){
+            if( this->originator != nullptr ){
+            this->terminator = this->originator;
+            REX::warning("reweightor::doFin(): No terminator set. Assuming originator as terminator.");
+            } else return;
+        }
+        if( this->terminator() ) return;
+        REX::warning("reweightor::doFin(): Terminator failed at finalisation.");
+    }
+
+    void reweightor::flattenWeights(){
+        if ( this->amps.size() == 0 ) throw std::runtime_error("reweightor::flattenWeights(): No amplitudes set.");
+        size_t noWgts = this->amps[0]->weights.size();
+        for( auto amp : this->amps )
+        {
+            if( amp->weights.size() != noWgts ) throw std::runtime_error("reweightor::flattenWeights(): Number of weights in amplitudes differ.");
+            amp->normalise();
+        }
+        std::vector<size_t> evInd = std::vector<size_t>( this->amps.size(), 0 );
+        this->wgts = std::vector<std::shared_ptr<std::vector<double>>>( noWgts, std::make_shared<std::vector<double>>() );
+        for( auto ind : this->eventGrouping ){
+            if( ind == REX::npos ){
+                for( auto wgt : this->wgts ){
+                    wgt->push_back( 0.0 );
+                }
+                continue;
+            }
+            for( size_t k = 0 ; k < noWgts ; ++k ){
+                this->wgts[k]->push_back( this->amps[ind]->weights[k]->at( evInd[ind]));
+            }
+            ++evInd[ind];
+        }
+    }
+
+    void reweightor::calcAmpNorm(){
+        if( this->amps.size() == 0 ) throw std::runtime_error("reweightor::calcAmpNorm(): No amplitudes set.");
+        for( auto amp : amps ){
+            if( amp->proc == nullptr ) throw std::runtime_error("reweightor::calcAmpNorm(): Amplitude does not have a process set.");
+            if( amp->proc->xWgtUp.size() == 0 && amp->proc->events.size() != 0 )
+                throw std::runtime_error("reweightor::calcAmpNorm(): Amplitude process does not have any initial weights.");
+        }
+        this->ampNorm = 0.0;
+        for( auto proc : this->procLines ){
+            this->ampNorm += proc.xSecUp;
+        }
+        if( this->ampNorm == 0.0 ) throw std::runtime_error("reweightor::calcAmpNorm(): Total cross section is zero.");
+        int noEvs = this->events.size();
+        if( noEvs == 0 ){
+            for( auto amp : this->amps ){
+                noEvs += amp->proc->xWgtUp.size();
+            }
+        }
+        if( noEvs == 0 ) throw std::runtime_error("reweightor::calcAmpNorm(): No original weights in reweightor.");
+        if( std::abs(this->idWtUp) == 3 ){
+            this->ampNorm *= 1./ double(noEvs);
+            return;
+        } else if( std::abs(this->idWtUp) == 4 ){
+            this->ampNorm = 1. / double(noEvs);
+            return;
+        } else {
+            if( std::abs(this->idWtUp) > 2 ){
+                REX::warning("reweightor::calcAmpNorm(): Unknown weight ID " + std::to_string(this->idWtUp) + ". Assuming weighted events.");
+            }
+            double accumWgts = 0.0;
+            for( auto amp : this->amps ){
+                accumWgts = std::accumulate( amp->proc->xWgtUp.cbegin(), amp->proc->xWgtUp.cend(), accumWgts );
+            }
+            if( accumWgts == 0.0 ) throw std::runtime_error("reweightor::calcAmpNorm(): Total cross section is zero.");
+            this->ampNorm *= 1. / accumWgts;
+        }
+    }
+
+    bool reweightor::setAmpNorm( bool hard ){
+        if( hard || this->ampNorm == 0.0 ) this->calcAmpNorm();
+        return true;
+    }
+
+    void reweightor::calcXSecs(){
+        if( !this->setAmpNorm() ) throw std::runtime_error("reweightor::calcXSecs(): Could not set amplitude normalisation.");
+        if( this->wgts.size() == 0 ) this->flattenWeights();
+        this->xSecs = std::vector<double>( this->wgts.size(), 0.0 );
+        for( size_t k = 0 ; k < this->wgts.size() ; ++k ){
+            this->xSecs[k] = std::accumulate( this->wgts[k]->cbegin(), this->wgts[k]->cend(), 0.0 );
+            this->xSecs[k] *= this->ampNorm;
+        }
+    }
+
+    void reweightor::calcXErrs(){
+        if( this->xSecs.size() == 0 ) this->calcXSecs();
+        double xSec = 0.0;
+        double xErr = 0.0;
+        for( auto proc : this->procLines ){
+            xSec += proc.xSecUp;
+            xErr += std::pow( proc.xErrUp, 2 );
+        }
+        xErr = std::sqrt(xErr);
+        int noEvs = this->events.size();
+        if( noEvs == 0 ){
+            for( auto amp : this->amps ){
+                noEvs += amp->proc->xWgtUp.size();
+            }
+        }
+        if( noEvs == 0 ) throw std::runtime_error("reweightor::calcXErrs(): No original weights in reweightor.");
+        double invNoEvs = 1. / double(noEvs);
+        double sqrtInvNoEvs = std::sqrt(invNoEvs);
+        this->xErrs = std::vector<double>();
+        for( size_t k = 0 ; k < this->xSecs.size() ; ++k ){
+            double omega = 0.0;
+            double omegaSq = 0.0;
+            for( auto wgt : *(this->wgts[k]) ){
+                double invWgt = 1. / wgt;
+                omega += invWgt;
+                omegaSq += std::pow( invWgt, 2 );
+            }
+            double var = (omegaSq - std::pow(omega, 2) * invNoEvs) * invNoEvs * std::pow( this->xSecs[k], 2 );
+            double err = std::sqrt( std::max( 0., sqrtInvNoEvs * var) )*xSec;
+            err += xErr * this->xSecs[k] * omega * invNoEvs;
+            if(  std::isnan(err) || std::isinf(err) ){
+                REX::warning("reweightor::calcXErrs(): Error propagation failed for weight " + std::to_string(k) + ". Approximating the error at cross section level.");
+                err = xErr * std::max( xSec / this->xSecs[k], this->xSecs[k] / xSec );
+            }
+            this->xErrs.push_back(err);
+        }
+    }
+
+    void reweightor::run(){
+        this->doInit();
+        this->setAmpNorm();
+        this->doAllIterations();
+        this->doFin();
+        this->flattenWeights();
+        this->calcXSecs();
+        this->calcXErrs();
+    }
+
+    void reweightor::appendWgtsSimple( lheNode& lheFile, std::vector<std::string_view> procs, std::shared_ptr<std::vector<std::string>> names ){
+        if( lheFile.getEvents().size() == 0 ) throw std::runtime_error("reweightor::appendWgts(): No events in lheNode.");
+        if( this->wgts.size() == 0 ) throw std::runtime_error("reweightor::appendWgts(): No weights in reweightor.");
+        if( this->wgts[0]->size() != lheFile.getEvents().size() ) throw std::runtime_error("reweightor::appendWgts(): Number of weights in reweightor does not match number of events in lheNode.");
+        if( procs.size() == 0 ) throw std::runtime_error("reweightor::appendWgts(): No processes specified.");
+        if( procs.size() != this->wgts.size() ) throw std::runtime_error("reweightor::appendWgts(): Number of processes does not match number of weight sets in reweightor.");
+        if( names == nullptr ) names = std::make_shared<std::vector<std::string>>();
+        if( names->size() == 0 ) names->resize( procs.size(), "" );
+        auto rwgtGroup = std::make_shared<REX::weightGroup>(); 
+        auto currInd = lheFile.getHeader()->addWgtGroup( rwgtGroup ); 
+        for( size_t k = 0 ; k < procs.size() ; ++k ){
+            REX::newWgt newWeight( procs[k], this->wgts[k], names->at(k) );
+            lheFile.addWgt( currInd, newWeight );
+        }
+    }
+
+    void reweightor::appendWgts( lheNode& lheFile, std::vector<std::string_view> procs, std::shared_ptr<std::vector<std::string>> names ){
+        if( lheFile.getEvents().size() == 0 ) throw std::runtime_error("reweightor::appendWgts(): No events in lheNode.");
+        if( this->wgts.size() == 0 ) throw std::runtime_error("reweightor::appendWgts(): No weights in reweightor.");
+        if( this->wgts[0]->size() != lheFile.getEvents().size() ) throw std::runtime_error("reweightor::appendWgts(): Number of weights in reweightor does not match number of events in lheNode.");
+        if( procs.size() == 0 ) throw std::runtime_error("reweightor::appendWgts(): No processes specified.");
+        if( procs.size() != this->wgts.size() && procs.size() != this->success.size() ) throw std::runtime_error("reweightor::appendWgts(): Number of processes does not match number of weight sets in reweightor.");
+        if( names == nullptr ) names = std::make_shared<std::vector<std::string>>();
+        if( names->size() == 0 ) names->resize( procs.size(), "" );
+        if( procs.size() == this->wgts.size() ) this->appendWgtsSimple( lheFile, procs, names );
+        else {
+            auto rwgtGroup = std::make_shared<REX::weightGroup>(); 
+            auto currInd = lheFile.getHeader()->addWgtGroup( rwgtGroup ); 
+            for( size_t k = 0 ; k < procs.size() ; ++k ){
+                if( this->success[k] ){
+                    REX::newWgt newWeight( procs[k], this->wgts[k], names->at(k) );
+                    lheFile.addWgt( currInd, newWeight );
+                }
+            }
+        }
+    }
 
         rwgtVal::rwgtVal() : paramVal(){ return; }
         rwgtVal::rwgtVal( std::string_view paramLine )
@@ -222,6 +705,7 @@ namespace REX::teaw
             if( parseOnline ){ parse( parseOnline ); }
         }
         std::vector<std::shared_ptr<REX::lesHouchesCard>> rwgtCard::writeCards( REX::lesHouchesCard& slhaOrig ){
+            if(  this->writtenCards.size() != 0 ){ return this->writtenCards; }
             std::vector<std::shared_ptr<REX::lesHouchesCard>> cardVec;
             slhaOrig.parse();
             cardVec.reserve( rwgtRuns.size() );
@@ -229,8 +713,37 @@ namespace REX::teaw
             {
                 cardVec.push_back( rwgt.outWrite( slhaOrig ) );
             }
+            this->writtenCards = cardVec;
             return cardVec;
         }
+
+        std::shared_ptr<std::vector<std::string>> rwgtCard::getNames(){
+            if( rwgtNames == nullptr ) this->parse( true );
+            return rwgtNames;
+        }
+
+        std::vector<std::string_view> rwgtCard::getProcs(){
+            if( rwgtProcs.size() == 0 ) this->parse( true );
+            return rwgtProcs;
+        }
+
+        std::vector<iterator> rwgtCard::getIterators( std::string path ){
+            if( this->cardWriters.size() != 0 ){ return this->cardWriters; }
+            std::vector<iterator> iters;
+            auto cards = this->writeCards( this->slhaCard );
+            iters.reserve( cards.size() );
+            for( auto card : cards )
+            {
+                iterator iter = [card, path](){
+                    if( !REX::filePusher( path, *(card->selfWrite()) )){ return false; }
+                    return true;
+                };
+                iters.push_back( iter );
+            }
+            this->cardWriters = iters;
+            return iters;
+        }
+
 
         void rwgtCollection::setRwgt( std::shared_ptr<rwgtCard> rwgts ){ 
             if( rwgtSet ){ return; }
@@ -507,7 +1020,7 @@ namespace REX::teaw
             if( this->ampNorm != 0.0 ){ return; }
             auto xSecLines = this->lheFile->getInit()->getLines();
             if( xSecLines.size() > 1 ){
-                std::cout << "\n\033[1;33mWarning: Multiple cross-section lines found in LHE file.\nAssuming total cross section given by sum of all cross sections.\033[0m\n";
+                REX::warning("Multiple cross-section lines found in LHE file.\nAssuming total cross section given by sum of all cross sections.");
             }
             if( xSecLines.size() == 0 )
                 throw std::runtime_error( "No cross-section information found in LHE file." );
@@ -518,7 +1031,7 @@ namespace REX::teaw
             double div = 0.0;
             bool sameWeight = true;
             for( size_t k = 1 ; k < this->flatWgts->size() - 1 ; k += size_t(flatWgts->size()/21) ){
-                if( std::abs( flatWgts->at(0) - flatWgts->at(0) ) > precision ){
+                if( std::abs( flatWgts->at(k) - flatWgts->at(0) ) > precision ){
                     sameWeight = false;
                     break;
                 }

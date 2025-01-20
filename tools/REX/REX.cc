@@ -1,17 +1,17 @@
 /***
- *    ______ _______   __
- *    | ___ \  ___\ \ / /
- *    | |_/ / |__  \ V / 
- *    |    /|  __| /   \ 
- *    | |\ \| |___/ /^\ \
- *    \_| \_\____/\/   \/
+ *    ______          
+ *    | ___ \         
+ *    | |_/ /_____  __
+ *    |    // _ \ \/ /
+ *    | |\ \  __/>  < 
+ *    \_| \_\___/_/\_\
  *                                             
  ***/
 //
 // *R*apid *E*vent e*X*traction Version 0.9.0
-// REX is a C++ library for parsing and manipulating Les Houches Event-format (LHE) files.
+// Rex is a C++ library for parsing and manipulating Les Houches Event-format (LHE) files.
 // It is designed to fast and lightweight, in comparison to internal parsers in programs like MadGraph.
-// Currently, REX is in development and may not contain all features necessary for full LHE parsing;
+// Currently, Rex is in development and may not contain all features necessary for full LHE parsing;
 // particularly, it can only parse existing LHE files, rather than writing completely new ones.
 //
 // Copyright © 2023-2024 CERN, CERN Author Zenny Wettersten. 
@@ -48,6 +48,28 @@
 // referred to as strings unless the difference is relevant
 namespace REX
 {
+    // ZW: generic warning function for printing warnings without throwing anything
+    void warning( std::string message ){
+        std::cout << "\n\033[1;33mWarning: ";
+        std::cout << message; 
+        std::cout << "\033[0m\n";
+    }
+
+    // ZW: index sorting function, which returns vector
+    // of the indices of the original vector sorted 
+    // by default in ascending order
+    // ie, for [5.0, 0.25, 2.0, 9.2] returns [1, 2, 0, 3]
+    template <typename T>
+    std::shared_ptr<std::vector<size_t>> indSort(const std::vector<T> &vector, std::function<bool(const T&, const T&)> comp )
+    {
+        auto sorted = std::make_shared<std::vector<size_t>>(vector.size());
+        std::iota(sorted->begin(), sorted->end(), 0);
+        std::stable_sort(sorted->begin(), sorted->end(), [&](size_t i, size_t j) { return comp(vector[i], vector[j]); });
+        return sorted;
+    }
+    template std::shared_ptr<std::vector<size_t>> indSort<int>(const std::vector<int> &vector, std::function<bool(const int&, const int&)> comp );
+    template std::shared_ptr<std::vector<size_t>> indSort<double>(const std::vector<double> &vector, std::function<bool(const double&, const double&)> comp );
+
     // ZW: generic fcn for converting string-like objects to integers
     // Assumes input has no leading blankspace to check for a leading +,
     // but should not fail as long as there is no + even if there is blankspace
@@ -61,6 +83,8 @@ namespace REX
         if( result.ec != std::errc() ){ throw std::invalid_argument("Invalid string-like object to convert to int"); }
         return ret;
     }
+    template int ctoi<std::string>( std::string str );
+    template int ctoi<std::string_view>( std::string_view str );
 
     // ZW: generic fcn for converting string-like objects to doubles
     // Assumes input has no leading blankspace to check for a leading +,
@@ -75,6 +99,8 @@ namespace REX
         if( result.ec != std::errc() ){ throw std::invalid_argument("Invalid string-like object to convert to double"); }
         return ret;
     }
+    template double ctod<std::string>( std::string str );
+    template double ctod<std::string_view>( std::string_view str );
 
     // ZW: wrapper for indSort for comparing string-type arguments representing integers
     template <typename T>
@@ -1271,6 +1297,7 @@ namespace REX
         evHead event::getHead(){ return header; }
         std::vector<std::shared_ptr<lhePrt>> event::getPrts(){ return prts; }
         std::vector<std::shared_ptr<bodyWgt>> event::getWgts(){ return rwgt; }
+        std::map<int,std::vector<std::shared_ptr<lhePrt>>> event::getSortedPrts(){ return sortPrts; }
         void event::setHead( evHead head ){ modded = true; header = head; }
         void event::addPrt( std::shared_ptr<lhePrt> prtcl ){ modded = true; prts.push_back( prtcl ); }
         void event::addPrt( lhePrt prtcl ){ modded = true; prts.push_back( std::make_shared<lhePrt>(prtcl) ); }
@@ -1421,12 +1448,15 @@ namespace REX
             if(!hard){ if( procMap.size() > 0 ){ return true; } }
             procMap.clear();
             procOrder.clear();
+            sortPrts.clear();
             for( auto prt : prts ){
                 procMap.insert({prt->getStatus(), std::vector<int>()});
                 procOrder.insert({prt->getStatus(), std::vector<size_t>()});
+                sortPrts.insert({prt->getStatus(), std::vector<std::shared_ptr<lhePrt>>()});
             }
             for( auto prt : prts ){
                 procMap[prt->getStatus()].push_back( prt->getPDG() );
+                sortPrts[prt->getStatus()].push_back( prt );
             }
             for( auto stat = procMap.begin(); stat!= procMap.end(); ++stat ){
                 procOrder[stat->first] = *indSort( stat->second );
@@ -1439,14 +1469,17 @@ namespace REX
             if(!hard){ if( procMap.size() > 0 ){ return true; } }
             procMap.clear();
             procOrder.clear();
+            sortPrts.clear();
             specSorted = false;
             eventSort = sorter;
             for( auto prt : prts ){
                 procMap.insert({prt->getStatus(), std::vector<int>()});
                 procOrder.insert({prt->getStatus(), std::vector<size_t>()});
+                sortPrts.insert({prt->getStatus(), std::vector<std::shared_ptr<lhePrt>>()});
             }
             for( auto prt : prts ){
                 procMap[prt->getStatus()].push_back( prt->getPDG() );
+                sortPrts[prt->getStatus()].push_back( prt );
             }
             for( auto stat = procMap.begin(); stat!= procMap.end(); ++stat ){
                 procOrder[stat->first] = *sorter( stat->second );
@@ -1459,14 +1492,17 @@ namespace REX
             if(!hard){ if( procMap.size() > 0 ){ return true; } }
             procMap.clear();
             procOrder.clear();
+            sortPrts.clear();
             specSorted = true;
             specSort = sorter;
             for( auto prt : prts ){
                 procMap.insert({prt->getStatus(), std::vector<int>()});
                 procOrder.insert({prt->getStatus(), std::vector<size_t>()});
+                sortPrts.insert({prt->getStatus(), std::vector<std::shared_ptr<lhePrt>>()});
             }
             for( auto prt : prts ){
                 procMap[prt->getStatus()].push_back( prt->getPDG() );
+                sortPrts[prt->getStatus()].push_back( prt );
             }
             for( auto stat = procMap.begin(); stat!= procMap.end(); ++stat ){
                 procOrder[stat->first] = *sorter(stat->first, stat->second );
@@ -3305,6 +3341,532 @@ namespace REX
             }
             return flatVec;
         }
+
+    relEvArgs::relEvArgs(){ return; }
+    relEvArgs::relEvArgs( const relEvArgs& relData ){
+        this->nUp = relData.nUp;
+        //this->idPrUp = relData.idPrUp;
+        this->xWgtUp = relData.xWgtUp;
+        this->scalUp = relData.scalUp;
+        this->aQEDUp = relData.aQEDUp;
+        this->aQCDUp = relData.aQCDUp;
+        this->idUp = relData.idUp;
+        this->iStUp = relData.iStUp;
+        for( size_t j = 0 ; j < 2 ; ++j )
+        {
+            this->mothUp[j] = relData.mothUp[j];
+            this->iColUp[j] = relData.iColUp[j];
+        }
+        this->massUp = relData.massUp;
+        this->momUp = relData.momUp;
+        for( size_t j = 0 ; j < 5 ; ++j )
+        {
+            this->pUp[j] = relData.pUp[j];
+        }
+        this->vTimUp = relData.vTimUp;
+        this->spinUp = relData.spinUp;
+    }
+
+
+    // ZW: Set of fcns to set relEvArgs without having to access private members
+    relEvArgs& relEvArgs::setNUp( bool nuNUp ){ this->nUp = nuNUp; return *this; }
+    relEvArgs& relEvArgs::setIdPrUp( bool nuIdPrUp ){ this->idPrUp = nuIdPrUp; return *this; }
+    relEvArgs& relEvArgs::setXWgtUp( bool nuXWgtUp ){ this->xWgtUp = nuXWgtUp; return *this; }
+    relEvArgs& relEvArgs::setScalUp( bool nuScalUp ){ this->scalUp = nuScalUp; return *this; }
+    relEvArgs& relEvArgs::setAQEDUp( bool nuAQEDUp ){ this->aQEDUp = nuAQEDUp; return *this; }
+    relEvArgs& relEvArgs::setAQCDUp( bool nuAQCDUp ){ this->aQCDUp = nuAQCDUp; return *this; }
+    relEvArgs& relEvArgs::setIdUp( bool nuIdUp ){ this->idUp = nuIdUp; return *this; }
+    relEvArgs& relEvArgs::setIStUp( bool nuIStUp ){ this->iStUp = nuIStUp; return *this; }
+    relEvArgs& relEvArgs::setMothUp( bool nuMothUp[2] ){ this->mothUp[0] = nuMothUp[0]; this->mothUp[1] = nuMothUp[1]; return *this; }
+    relEvArgs& relEvArgs::setMothUp( bool nuMothUp ){ this->mothUp[0] = nuMothUp; this->mothUp[1] = nuMothUp; return *this; }
+    relEvArgs& relEvArgs::setMothUp( std::vector<bool> nuMothUp ){
+        if ( nuMothUp.size() != 2 ){
+            throw std::range_error("relEvArgs::setMothUp: input vector must have size 2");
+        }
+        this->mothUp[0] = nuMothUp[0]; 
+        this->mothUp[1] = nuMothUp[1]; 
+        return *this; 
+    }
+    relEvArgs& relEvArgs::setIColUp( bool nuIColUp[2] ){ this->iColUp[0] = nuIColUp[0]; this->iColUp[1] = nuIColUp[1]; return *this; }
+    relEvArgs& relEvArgs::setIColUp( bool nuIColUp ){ this->iColUp[0] = nuIColUp; this->iColUp[1] = nuIColUp; return *this; }
+    relEvArgs& relEvArgs::setIColUp( std::vector<bool> nuIColUp ){
+        if ( nuIColUp.size() != 2 ){
+            throw std::range_error("relEvArgs::setIColUp: input vector must have size 2");
+        }
+        this->iColUp[0] = nuIColUp[0]; 
+        this->iColUp[1] = nuIColUp[1]; 
+        return *this; 
+    }
+    relEvArgs& relEvArgs::setMassUp( bool nuMassUp ){ this->massUp = nuMassUp; return *this; }
+    relEvArgs& relEvArgs::setMomUp( bool nuMomUp ){ this->momUp = nuMomUp; return *this; }
+    relEvArgs& relEvArgs::setPUp( bool nuPUp[5] ){
+        for( size_t j = 0 ; j < 5 ; ++j )
+        {
+            this->pUp[j] = nuPUp[j];
+        }
+        return *this;
+    }
+    relEvArgs& relEvArgs::setPUp( bool nuPUp ){
+        for( size_t j = 0 ; j < 5 ; ++j )
+        {
+            this->pUp[j] = nuPUp;
+        }
+        return *this;
+    }
+    relEvArgs& relEvArgs::setPUp( std::vector<bool> nuPUp ){
+        if ( nuPUp.size() != 5 ){
+            throw std::range_error("relEvArgs::setPUp: input vector must have size 5");
+        }
+        for( size_t j = 0 ; j < 5 ; ++j )
+        {
+            this->pUp[j] = nuPUp[j];
+        }
+        return *this;
+    }
+    relEvArgs& relEvArgs::setVTimUp( bool nuVTimUp ){ this->vTimUp = nuVTimUp; return *this; }
+    relEvArgs& relEvArgs::setSpinUp( bool nuSpinUp ){ this->spinUp = nuSpinUp; return *this; }
+    relEvArgs& relEvArgs::setAll( bool nuAll ){
+        this->nUp = nuAll; this->idPrUp = nuAll; this->xWgtUp = nuAll; this->scalUp = nuAll; this->aQEDUp = nuAll; this->aQCDUp = nuAll;
+        this->idUp = nuAll; this->iStUp = nuAll; this->mothUp[0] = nuAll; this->mothUp[1] = nuAll; this->iColUp[0] = nuAll; this->iColUp[1] = nuAll;
+        this->massUp = nuAll; this->momUp = nuAll; this->pUp[0] = nuAll; this->pUp[1] = nuAll; this->pUp[2] = nuAll; this->pUp[3] = nuAll; this->pUp[4] = nuAll;
+        this->vTimUp = nuAll; this->spinUp = nuAll;
+        return *this;
+    }
+
+    procLine::procLine(){
+        this->xSecUp = 0.0; this->xErrUp = 0.0; this->xMaxUp = 0.0; this->lPrUp = 0;
+    }
+
+    procLine::procLine( const procLine& process ){
+        this->xSecUp = process.xSecUp; this->xErrUp = process.xErrUp; this->xMaxUp = process.xMaxUp; this->lPrUp = process.lPrUp;
+    }
+
+    procLine::procLine( double xSec, double xErr, double xMax, int lPr ){
+        this->xSecUp = xSec; this->xErrUp = xErr; this->xMaxUp = xMax; this->lPrUp = lPr;
+    }
+
+    procLine::procLine( lheInitLine& process ){
+        this->xSecUp = ctod(process.xsecup);
+        this->xErrUp = ctod(process.xerrup);
+        this->xMaxUp = ctod(process.xmaxup);
+        this->lPrUp = ctoi(process.lprup);
+    }
+
+    procLine::procLine( std::shared_ptr<lheInitLine> process ) : procLine( *process ) {}
+
+    std::vector<procLine> lheProcLines( lheNode& lheFile ){
+        std::vector<procLine> procLines;
+        for( auto line : lheFile.getInit()->getLines() ){
+            procLines.push_back(procLine(line));
+        }
+        return procLines;
+    }
+
+    void procSoA::reset(){
+        this->events = std::vector<std::shared_ptr<event>>();
+        this->relStats = std::vector<int>();
+        this->relEvMap = std::vector<bool>();
+        this->relEvents = std::vector<std::shared_ptr<event>>();
+        this->nUp = std::vector<int>();
+        this->idPrUp = std::vector<int>();
+        this->xWgtUp = std::vector<double>();
+        this->scalUp = std::vector<double>();
+        this->aQEDUp = std::vector<double>();
+        this->aQCDUp = std::vector<double>();
+        this->idUp = std::vector<int>();
+        this->iStUp = std::vector<int>();
+        this->mothUp = std::vector<std::vector<int>>(2);
+        this->iColUp = std::vector<std::vector<int>>(2);
+        this->massUp = std::vector<double>();
+        this->momUp = std::vector<double>();
+        this->pUp = std::vector<std::vector<double>>(5);
+        this->vTimUp = std::vector<double>();
+        this->spinUp = std::vector<double>();
+    }
+
+    bool procSoA::relevant( event& ev ){
+        if( this->relevantEvent ) return relevantEvent(ev);
+        return true;
+    }
+
+    bool procSoA::relevant( std::shared_ptr<event> ev ){
+        if( this->relevantEvent ) return relevantEvent(*ev);
+        return true;
+    }
+
+    void procSoA::setRelEvs( std::vector<std::shared_ptr<event>> lheFile ){
+        this->events = lheFile;
+        this->relEvMap = std::vector<bool>(lheFile.size());
+        this->relEvents = std::vector<std::shared_ptr<event>>();
+        this->relEvents.reserve(lheFile.size());
+        for( size_t k = 0 ; k < lheFile.size() ; ++k )
+        {
+            if( this->relevant(*lheFile[k]) ){
+                this->relEvMap[k] = true;
+                this->relEvents.push_back(lheFile[k]);
+            }
+        }
+    }
+
+    bool procSoA::extract( std::vector<std::shared_ptr<event>> lheFile, std::vector<int> relevStats ){
+        this->reset();
+        this->relStats = relevStats;
+        this->setRelEvs(lheFile);
+        for( auto ev : lheFile )
+        {
+            if( this->relevant(*ev) )
+            {
+                if(this->relData.nUp) this->nUp.push_back(ev->getHead().getNprt());
+                if(this->relData.idPrUp) this->idPrUp.push_back(ev->getHead().getProcID());
+                if(this->relData.xWgtUp) this->xWgtUp.push_back(ev->getHead().getWeight());
+                if(this->relData.scalUp) this->scalUp.push_back(ev->getHead().getScale());
+                if(this->relData.aQEDUp) this->aQEDUp.push_back(ev->getHead().getAQED());
+                if(this->relData.aQCDUp) this->aQCDUp.push_back(ev->getHead().getAQCD());
+                auto prts = ev->getSortedPrts();
+                auto order = ev->getProcOrder();
+                for( auto stat : this->relStats )
+                {
+                    auto prt = prts.at(stat);
+                    for( auto j : order[stat] )
+                    {
+                        if(this->relData.idUp) this->idUp.push_back(prt[j]->getPDG());
+                        if(this->relData.iStUp) this->iStUp.push_back(prt[j]->getStatus());
+                        for( size_t k = 0 ; k < 2 ; ++k )
+                        {
+                            if(this->relData.mothUp[k]) this->mothUp[k].push_back(prt[j]->getMothers()[k]);
+                            if(this->relData.iColUp[k]) this->iColUp[k].push_back(prt[j]->getColor()[k]);
+                        }
+                        if(this->relData.massUp) this->massUp.push_back(prt[j]->getMass());
+                        if(this->relData.momUp) this->momUp.push_back(prt[j]->getE());
+                        for( size_t k = 0 ; k < 3 ; ++k )
+                        {
+                            if(this->relData.momUp) this->momUp.push_back(prt[j]->getMom()[k]);
+                            if(this->relData.pUp[k]) this->pUp[k].push_back(prt[j]->getMom()[k]);
+                        }
+                        if(this->relData.pUp[3]) this->pUp[3].push_back(prt[j]->getE());
+                        if(this->relData.pUp[4]) this->pUp[4].push_back(prt[j]->getMass());
+                        if(this->relData.vTimUp) this->vTimUp.push_back(prt[j]->getVTim());
+                        if(this->relData.spinUp) this->spinUp.push_back(prt[j]->getSpin());
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    bool procSoA::empty(){
+        bool isEmpty = true;
+        if( this->relData.nUp ) isEmpty = isEmpty && (this->nUp.size() == 0);
+        if( this->relData.idPrUp ) isEmpty = isEmpty && (this->idPrUp.size() == 0);
+        if( this->relData.xWgtUp ) isEmpty = isEmpty && (this->xWgtUp.size() == 0);
+        if( this->relData.scalUp ) isEmpty = isEmpty && (this->scalUp.size() == 0);
+        if( this->relData.aQEDUp ) isEmpty = isEmpty && (this->aQEDUp.size() == 0);
+        if( this->relData.aQCDUp ) isEmpty = isEmpty && (this->aQCDUp.size() == 0);
+        if( this->relData.idUp ) isEmpty = isEmpty && (this->idUp.size() == 0);
+        if( this->relData.iStUp ) isEmpty = isEmpty && (this->iStUp.size() == 0);
+        if( this->relData.mothUp[0] ) isEmpty = isEmpty && (this->mothUp[0].size() == 0);
+        if( this->relData.mothUp[1] ) isEmpty = isEmpty && (this->mothUp[1].size() == 0);
+        if( this->relData.iColUp[0] ) isEmpty = isEmpty && (this->iColUp[0].size() == 0);
+        if( this->relData.iColUp[1] ) isEmpty = isEmpty && (this->iColUp[1].size() == 0);
+        if( this->relData.massUp ) isEmpty = isEmpty && (this->massUp.size() == 0);
+        if( this->relData.momUp ) isEmpty = isEmpty && (this->momUp.size() == 0);
+        if( this->relData.pUp[0] ) isEmpty = isEmpty && (this->pUp[0].size() == 0);
+        if( this->relData.pUp[1] ) isEmpty = isEmpty && (this->pUp[1].size() == 0);
+        if( this->relData.pUp[2] ) isEmpty = isEmpty && (this->pUp[2].size() == 0);
+        if( this->relData.pUp[3] ) isEmpty = isEmpty && (this->pUp[3].size() == 0);
+        if( this->relData.pUp[4] ) isEmpty = isEmpty && (this->pUp[4].size() == 0);
+        if( this->relData.vTimUp ) isEmpty = isEmpty && (this->vTimUp.size() == 0);
+        if( this->relData.spinUp ) isEmpty = isEmpty && (this->spinUp.size() == 0);
+        return isEmpty;
+    }
+
+    procSoA::procSoA(){ this->reset(); }
+
+    procSoA::procSoA( const relEvArgs& relArgs ){
+        this->reset();
+        this->relData = relData;
+    }
+
+    procSoA::procSoA( const procSoA& process ){
+        this->relData = process.relData;
+        this->relStats = process.relStats;
+        this->relevantEvent = process.relevantEvent;
+        this->events = process.events;
+        this->relEvMap = process.relEvMap;
+        this->relEvents = process.relEvents;
+        this->nUp = process.nUp;
+        this->idPrUp = process.idPrUp;
+        this->xWgtUp = process.xWgtUp;
+        this->scalUp = process.scalUp;
+        this->aQEDUp = process.aQEDUp;
+        this->aQCDUp = process.aQCDUp;
+        this->idUp = process.idUp;
+        this->iStUp = process.iStUp;
+        this->mothUp = process.mothUp;
+        this->iColUp = process.iColUp;
+        this->massUp = process.massUp;
+        this->momUp = process.momUp;
+        this->pUp = process.pUp;
+        this->vTimUp = process.vTimUp;
+        this->spinUp = process.spinUp;
+    }
+
+    procSoA::procSoA( procSoA* process ) : procSoA(*process) {}
+
+    procSoA::procSoA( std::shared_ptr<procSoA> process ) : procSoA(*process) {}
+
+    procSoA::procSoA( std::vector<std::shared_ptr<event>> lheFile, relEvArgs relArgs, std::vector<int> relevStats, std::function<bool(event&)> relFcn ){
+        this->reset();
+        this->relData = relArgs;
+        this->relevantEvent = relFcn;
+        this->relStats = relevStats;
+        if ( !this->extract(lheFile, relStats) ) throw std::runtime_error("procSoA: event extraction failed");
+        return;
+    }
+
+    procSoA& procSoA::setRelData( relEvArgs& relArgs ){
+        this->relData = relArgs;
+        return *this;
+    }
+
+    procSoA& procSoA::setRelStats( std::vector<int>& relevStats ){
+        this->relStats = relevStats;
+        return *this;
+    }
+
+    procSoA& procSoA::setRelevant( evCheck& relFcn ){
+        this->relevantEvent = relFcn;
+        return *this;
+    }
+
+    procSoA& procSoA::setEvents( std::vector<std::shared_ptr<event>> lheFile ){
+        this->events = lheFile;
+        return *this;
+    }
+
+    void lheSoA::reset(){
+        this->subProcesses = std::vector<std::shared_ptr<procSoA>>();
+        this->events = std::vector<std::shared_ptr<event>>();
+        this->sortedEvents = std::vector<std::vector<std::shared_ptr<event>>>();
+        this->procLines = std::vector<procLine>();
+        this->relEvFcns = std::vector<std::function<bool(event&)>>();
+        this->eventGrouping = std::vector<size_t>();
+        this->idBmUp[0] = 0; this->idBmUp[1] = 0;
+        this->eBmUp[0] = 0.; this->eBmUp[1] = 0.; 
+        this->pdfGUp[0] = 0; this->pdfGUp[1] = 0;
+        this->pdfSUp[0] = 0; this->pdfSUp[1] = 0;
+        this->idWtUp = 0;
+        this->nPrUp = 0;
+    }
+
+    size_t lheSoA::eventIndex( event& ev){
+        if (relEvFcns.size() == 0) return npos;
+        for( size_t k = 0 ; k < relEvFcns.size() ; ++k )
+        {
+            if( !relEvFcns[k] ) continue;
+            if( relEvFcns[k](ev) ) return k;
+        }
+        return npos;
+    }
+
+    bool lheSoA::sortEvents( bool hard ){
+        if( this->events.size() == 0 ) return false;
+        if( this->relEvFcns.size() == 0 ) return false;
+        if( !hard ){
+            if( this->sortedEvents.size() == this->relEvFcns.size() ) return true; // if not doing hard sort, check if events have been sorted
+            if( this->sortedEvents.size() == this->relEvFcns.size() + 1 ) return true; // with as many subprocesses as there are sorters
+        }
+        this->eventGrouping = std::vector<size_t>(this->events.size(), npos);
+        this->sortedEvents = std::vector<std::vector<std::shared_ptr<event>>>(this->relEvFcns.size());
+        bool hasUnsorted = false;
+        for( size_t k = 0 ; k < this->events.size() ; ++k )
+        {
+            size_t currInd = this->eventIndex(*this->events[k]);
+            if (currInd == npos){
+                hasUnsorted = true;
+                continue;
+            }
+            this->eventGrouping[k] = currInd;
+            this->sortedEvents[currInd].push_back(this->events[k]);
+        }
+        if ( hasUnsorted )
+        {
+            this->sortedEvents.push_back(std::vector<std::shared_ptr<event>>());
+            for( size_t k = 0 ; k < this->events.size() ; ++k )
+            {
+               if( this->eventGrouping[k] == npos ) this->sortedEvents.back().push_back(this->events[k]);
+            }
+        }
+        return true;
+    }
+
+    std::function<bool( event& )> lheSoA::evFcnIndex( size_t index ){
+        if( relEvFcns.size() > index ) return relEvFcns[index];
+        if( relEvFcns.size() > 0 ) return relEvFcns[0];
+        return nullptr; 
+    }
+
+    relEvArgs lheSoA::evDataIndex( size_t index ){
+        if( relEvData.size() > index ) return relEvData[index];
+        if( relEvData.size() > 0 ) return relEvData[0];
+        return relEvArgs();
+    }
+
+    std::vector<int> lheSoA::evStatsIndex( size_t index ){
+        if( relEvStats.size() > index ) return relEvStats[index];
+        if( relEvStats.size() > 0 ) return relEvStats[0];
+        return std::vector<int>({-1,1});
+    }
+
+    bool lheSoA::extractEvents( bool hard ){
+        if( !( this->sortEvents(hard) ) ) return false;
+        if( !hard ){
+            if( this->subProcesses.size() == this->relEvFcns.size() ) return true;
+        }
+        this->subProcesses = std::vector<std::shared_ptr<procSoA>>();
+        this->subProcesses.reserve( this->relEvFcns.size() );
+        for( size_t k = 0 ; k < this->sortedEvents.size() ; ++k )
+        {
+            this->subProcesses.push_back(
+                std::make_shared<procSoA>(sortedEvents[k], evDataIndex(k), evStatsIndex(k), evFcnIndex(k) )
+                );  
+        }
+        return true;
+    }
+
+    lheSoA& lheSoA::setInit( lheInitHead& init ){
+        if( !(init.idbmup[0].empty() || init.idbmup[1].empty() ) ){
+            this->idBmUp[0] = ctoi(init.idbmup[0]);
+            this->idBmUp[1] = ctoi(init.idbmup[1]);
+        }
+        if( !(init.ebmup[0].empty() || init.ebmup[1].empty() ) ){
+            this->eBmUp[0] = ctod(init.ebmup[0]);
+            this->eBmUp[1] = ctod(init.ebmup[1]);
+        }
+        if( !(init.pdfgup[0].empty() || init.pdfgup[1].empty() ) ){
+            this->pdfGUp[0] = ctoi(init.pdfgup[0]);
+            this->pdfGUp[1] = ctoi(init.pdfgup[1]);
+        }
+        if( !(init.pdfsup[0].empty() || init.pdfsup[1].empty() ) ){
+            this->pdfSUp[0] = ctoi(init.pdfsup[0]);
+            this->pdfSUp[1] = ctoi(init.pdfsup[1]);
+        }
+        if( !(init.idwtup.empty()) ){
+            this->idWtUp = ctoi(init.idwtup);
+        }
+        if( !(init.nprup.empty()) ){
+            this->nPrUp = ctoi(init.nprup);
+        }
+        return *this;
+    }
+
+    lheSoA& lheSoA::setInit( lheNode& lheFile ){
+        this->procLines = lheProcLines(lheFile);
+        return this->setInit(*lheFile.getInit()->getHead());
+    }
+
+    lheSoA::lheSoA(){ this->reset(); }
+
+    lheSoA::lheSoA( const lheSoA& lheFile ){
+        this->subProcesses = lheFile.subProcesses;
+        this->events = lheFile.events;
+        this->sortedEvents = lheFile.sortedEvents;
+        this->procLines = lheFile.procLines;
+        this->relEvFcns = lheFile.relEvFcns;
+        this->relEvData = lheFile.relEvData;
+        this->relEvStats = lheFile.relEvStats;
+        this->eventGrouping = lheFile.eventGrouping;
+        this->idBmUp[0] = lheFile.idBmUp[0]; this->idBmUp[1] = lheFile.idBmUp[1];
+        this->eBmUp[0] = lheFile.eBmUp[0]; this->eBmUp[1] = lheFile.eBmUp[1];
+        this->pdfGUp[0] = lheFile.pdfGUp[0]; this->pdfGUp[1] = lheFile.pdfGUp[1];
+        this->pdfSUp[0] = lheFile.pdfSUp[0]; this->pdfSUp[1] = lheFile.pdfSUp[1];
+        this->idWtUp = lheFile.idWtUp;
+        this->nPrUp = lheFile.nPrUp;
+    }
+
+    lheSoA::lheSoA( std::vector<std::shared_ptr<event>> lheFile ){
+        this->reset();
+        this->events = lheFile;
+    }
+
+    lheSoA::lheSoA( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool(event&)>> evSort ) : lheSoA( lheFile ){ // delegating constructor
+        this->relEvFcns = evSort;
+        this->sortEvents();
+    }    
+
+    lheSoA::lheSoA( lheNode& lheFile, std::vector<std::function<bool(event&)>> evSort ) : lheSoA( lheFile.getEvents(), evSort ){  // delegating constructor
+        this->procLines = std::vector<procLine>();
+        this->setInit(lheFile);
+    }
+
+    lheSoA::lheSoA( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool(event&)>> evSort, std::vector<relEvArgs> evData ) : lheSoA( lheFile, evSort ){ // delegating constructor
+        this->relEvData = evData;
+    }
+
+    lheSoA::lheSoA( lheNode& lheFile, std::vector<std::function<bool(event&)>> evSort, std::vector<relEvArgs> evData ) : lheSoA( lheFile.getEvents(), evSort, evData ){ // delegating constructor
+        this->procLines = std::vector<procLine>();
+        this->setInit(lheFile);
+    }
+
+    lheSoA::lheSoA( std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool(event&)>> evSort, std::vector<std::vector<int>> evStats ) : lheSoA( lheFile, evSort ){ // delegating constructor
+        this->relEvStats = evStats;
+    }
+
+    lheSoA::lheSoA( lheNode& lheFile, std::vector<std::function<bool(event&)>> evSort, std::vector<std::vector<int>> evStats ) : lheSoA( lheFile.getEvents(), evSort, evStats ){ // delegating constructor
+        this->procLines = std::vector<procLine>();
+        this->setInit(lheFile);
+    }
+
+    lheSoA::lheSoA(  std::vector<std::shared_ptr<event>> lheFile, std::vector<std::function<bool(event&)>> evSort, std::vector<relEvArgs> evData, std::vector<std::vector<int>> evStats ) : lheSoA( lheFile, evSort, evData ){ // delegating constructor
+        this->relEvStats = evStats;
+    }
+
+    lheSoA::lheSoA( lheNode& lheFile, std::vector<std::function<bool(event&)>> evSort, std::vector<relEvArgs> evData, std::vector<std::vector<int>> evStats ) : lheSoA( lheFile.getEvents(), evSort, evData, evStats ){ // delegating constructor
+        this->procLines = std::vector<procLine>();
+        this->setInit(lheFile);
+    }
+
+    lheSoA& lheSoA::setEvents( std::vector<std::shared_ptr<event>> lheFile ){
+        this->events = lheFile;
+        return *this;
+    }
+
+    lheSoA& lheSoA::setEvents(  lheNode& lheFile ){
+        this->events = lheFile.getEvents();
+        return *this;
+    }
+
+    lheSoA& lheSoA::setProcLines( std::vector<procLine> procLines ){
+        this->procLines = procLines;
+        return *this;
+    }
+
+    lheSoA& lheSoA::setProcLines( std::vector<std::shared_ptr<lheInitLine>> procLines ){
+        this->procLines = std::vector<procLine>();
+        for( auto line : procLines )
+        {
+            this->procLines.push_back(procLine(*line));
+        }
+        return *this;
+    }
+
+    lheSoA& lheSoA::setProcLines( initNode& procLines ){
+        return this->setProcLines(procLines.getLines());
+    }
+
+    lheSoA& lheSoA::setProcLines( lheNode& lheFile ){
+        return this->setProcLines(lheFile.getInit()->getLines());
+    }
+
+    lheSoA& lheSoA::setRelEvFcns( std::vector<std::function<bool(event&)>> evSort ){
+        this->relEvFcns = evSort;
+        return *this;
+    }
+
+    lheSoA& lheSoA::setRelEvData( std::vector<relEvArgs> evData ){
+        this->relEvData = evData;
+        return *this;
+    }
 
     // ZW: vector transformation string_to_double
     std::shared_ptr<std::vector<double>> vecStoD( const std::vector<std::string_view> dataVec )
