@@ -113,6 +113,7 @@ namespace REX::teaw
     }
 
     procRwgt& procRwgt::setAmplitude( weightor amp ){
+        this->originalAmp = amp;
         this->amplitude = std::vector<weightor>({amp});
         return *this;
     }
@@ -539,7 +540,9 @@ namespace REX::teaw
         : paramVal( paramLine, false ){if( paramLine.size() == 0 ){ return; }
             realLine = paramLine;
             auto vals = *REX::blankSplitter( realLine );
-            blockName = vals[1];
+            auto name = std::string(vals[1]);
+            std::transform( name.begin(), name.end(), name.begin(), ::tolower );
+            this->blockName = name;
             idStr = vals[2];
             valStr = vals[3];
         }
@@ -592,7 +595,8 @@ namespace REX::teaw
             written = true;
             return runBlock;
         }
-        void rwgtBlock::outWrite( REX::paramBlock& srcBlock, const std::map<std::string_view, int>& blocks )
+//        void rwgtBlock::outWrite( REX::paramBlock& srcBlock, const std::map<std::string_view, int>& blocks )
+        void rwgtBlock::outWrite( REX::paramBlock& srcBlock ) //, const std::map<std::string_view, int>& blocks )
         {
             for( auto parm : rwgtVals )
             {
@@ -640,13 +644,19 @@ namespace REX::teaw
         }
         std::shared_ptr<REX::lesHouchesCard> rwgtProc::outWrite( const REX::lesHouchesCard& paramOrig ){
             auto slhaOrig = std::make_shared<REX::lesHouchesCard>( paramOrig );
-            std::map<std::string_view, int> blockIds;
+            std::vector<std::pair<std::string, int>> blockIds;
             for( size_t k = 0 ; k < slhaOrig->blocks.size() ; ++k )
             {   slhaOrig->blocks[k].parse( true );
-                auto nyama = std::pair<std::string_view, int>( slhaOrig->blocks[k].name, k);
-                blockIds.insert( nyama ); }
+                auto currBlock = std::pair<std::string, int>( slhaOrig->blocks[k].name, k);
+                std::transform( currBlock.first.begin(), currBlock.first.end(), currBlock.first.begin(), ::tolower );
+                blockIds.push_back( currBlock ); }
             for( auto rwgts : rwgtParams )
-            { rwgts.outWrite( slhaOrig->blocks[ blockIds.at( rwgts.name ) ], blockIds ); }
+            {
+                for( auto block : blockIds ){
+                    if( block.first == rwgts.name ){ rwgts.outWrite( slhaOrig->blocks[ block.second ] ); break; }
+                }
+                //rwgts.outWrite( slhaOrig->blocks[ blockIds.at( rwgts.name ) ], blockIds );
+            }
             slhaOrig->modded = true;
             return slhaOrig;
         }

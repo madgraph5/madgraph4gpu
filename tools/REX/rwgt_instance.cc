@@ -80,6 +80,10 @@ namespace rwgt{
         this->goodHel = source.goodHel;
     }
     void fBridge::init( std::vector<REX::event>& process, unsigned int warpSize ){
+        if( process.size() == 0 ){
+            this->nWarp = warpSize;
+            return;
+        }
         this->nPar = process[0].getPrts().size();
         this->nEvt = process.size();
         this->nWarp = warpSize;
@@ -91,6 +95,10 @@ namespace rwgt{
         this->selCol = std::vector<int>( fauxNEvt, 0. );
     }
     void fBridge::init( std::vector<std::shared_ptr<REX::event>> process, unsigned int warpSize ){
+        if( process.size() == 0 ){
+            this->nWarp = warpSize;
+            return;
+        }
         this->nPar = process[0]->getPrts().size();
         this->nEvt = process.size();
         this->nWarp = warpSize;

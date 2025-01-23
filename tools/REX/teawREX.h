@@ -143,12 +143,13 @@ namespace REX::teaw
 
     struct rwgtBlock {
     public:
-        std::string_view name;
+        std::string name;
         std::vector<rwgtVal> rwgtVals;
         rwgtBlock( std::vector<std::string_view> values = {}, std::string_view title = "" );
         rwgtBlock( const std::vector<rwgtVal>& vals, std::string_view title = "" );
         std::string_view getBlock();
-        void outWrite( REX::paramBlock& srcBlock, const std::map<std::string_view, int>& blocks );
+        //void outWrite( REX::paramBlock& srcBlock, const std::map<std::string_view, int>& blocks );
+        void outWrite( REX::paramBlock& srcBlock );
     protected:
         std::string runBlock;
         bool written = false;
