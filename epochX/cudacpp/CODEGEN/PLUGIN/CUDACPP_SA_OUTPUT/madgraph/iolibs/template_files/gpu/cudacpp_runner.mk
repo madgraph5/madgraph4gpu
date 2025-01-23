@@ -577,7 +577,7 @@ endif
 $(gpu_rwgtlib): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 gpu_rwgtfiles := $(BUILDDIR)/rwgt_runner_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(BUILDDIR)/fbridge_$(GPUSUFFIX).o $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
 $(gpu_rwgtlib): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_rwgtfiles) $(gpu_objects_lib)
-	$(GPUCC) -shared -Wl,-Bsymbolic -o $@ $(BUILDDIR)/rwgt_runner_$(GPUSUFFIX).o $(LIBFLAGS) -L$(LIBDIR) $(BUILDDIR)/fbridge_$(GPUSUFFIX).o $(gpu_objects_exe) $(gpu_objects_lib) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
+	$(GPUCC) -shared -Xcompiler \"-Wl,-Bsymbolic\" -o $@ $(BUILDDIR)/rwgt_runner_$(GPUSUFFIX).o $(LIBFLAGS) -L$(LIBDIR) $(BUILDDIR)/fbridge_$(GPUSUFFIX).o $(gpu_objects_exe) $(gpu_objects_lib) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------

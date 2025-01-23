@@ -246,8 +246,8 @@ namespace REX
         return splitString;
     }
 
-    // ZW: templated fcn for comparing two
-    // string-like objects, ignoring cases
+    // ZW: caseless string comparison
+    // not templated --- had some issues with instantiation
     bool clStringComp( std::string_view org, std::string comp ){
         return std::equal( org.begin(), org.end(), comp.begin(), comp.end(), 
         []( const char& x, char y ){ return (std::toupper(x) == std::toupper(y)); } );
