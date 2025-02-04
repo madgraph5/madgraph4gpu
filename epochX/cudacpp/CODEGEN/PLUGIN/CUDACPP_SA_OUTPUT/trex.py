@@ -195,6 +195,12 @@ class TREX_ProcessExporter(output.PLUGIN_ProcessExporter):
     template_tst_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_test.mk')
     template_Sub_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_runner.mk')
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.template_path = PLUGINDIR
+        self.rwgt_names = []
+        self.proc_lines = []
+    
     def generate_subprocess_directory(self, matrix_element, cpp_helas_call_writer,
                                       proc_number=None):
         """Generate the Pxxxxx directory for a subprocess in C++ standalone,

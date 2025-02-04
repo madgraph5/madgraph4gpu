@@ -50,7 +50,7 @@ namespace REX::teaw
         weightor originalAmp;
         std::shared_ptr<std::vector<double>> invOriginalAmp;
         std::vector<std::shared_ptr<std::vector<double>>> weights;
-        std::shared_ptr<std::vector<double>> backlog; // FIXME: this should be a vector of vectors if ampsPerIter > 1
+        std::shared_ptr<std::vector<double>> backlog;
         size_t iteration;
         void uniqueReset();
         void reset();
