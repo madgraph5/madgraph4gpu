@@ -31,7 +31,7 @@
 #include <stdarg.h>
 #include "REX.h"
 
-namespace REX::teaw
+namespace REX::tea
 {
 
     using amplitude = std::function<std::shared_ptr<std::vector<double>>(std::vector<double>&, std::vector<double>&)>;
@@ -50,7 +50,7 @@ namespace REX::teaw
         weightor originalAmp;
         std::shared_ptr<std::vector<double>> invOriginalAmp;
         std::vector<std::shared_ptr<std::vector<double>>> weights;
-        std::shared_ptr<std::vector<double>> backlog;
+        std::vector<std::shared_ptr<std::vector<double>>> backlog;
         size_t iteration;
         void uniqueReset();
         void reset();

@@ -183,13 +183,13 @@ class TREX_ProcessExporter(output.PLUGIN_ProcessExporter):
     
     s = PLUGINDIR + '/madgraph/iolibs/template_files/'
     from_template = dict(output.PLUGIN_ProcessExporter.from_template)
-    from_template['src'] = from_template['src'] + [s+'REX/REX.cc', s+'REX/teawREX.cc',
-                                                   s+'REX/REX.h', s+'REX/teawREX.h',
+    from_template['src'] = from_template['src'] + [s+'REX/REX.cc', s+'REX/teaREX.cc',
+                                                   s+'REX/REX.h', s+'REX/teaREX.h',
                                                     s+'REX/rwgt_instance.h', s+'REX/rwgt_instance.cc']
     from_template['SubProcesses'] = from_template['SubProcesses'] + [s+'gpu/cudacpp_driver.mk',
-                                                                     s+'REX/rwgt_instance.h', s+'REX/REX.h', s+'REX/teawREX.h']
+                                                                     s+'REX/rwgt_instance.h', s+'REX/REX.h', s+'REX/teaREX.h']
 
-    to_link_in_P = output.PLUGIN_ProcessExporter.to_link_in_P + ['rwgt_instance.h', 'REX.h', 'teawREX.h']
+    to_link_in_P = output.PLUGIN_ProcessExporter.to_link_in_P + ['rwgt_instance.h', 'REX.h', 'teaREX.h']
 
     template_src_make = pjoin(PLUGINDIR, 'madgraph' ,'iolibs', 'template_files','gpu','cudacpp_rex_src.mk')
     template_tst_make = pjoin(PLUGINDIR, 'madgraph', 'iolibs', 'template_files','gpu','cudacpp_test.mk')
@@ -308,7 +308,7 @@ class TREX_ReweightInterface(rwgt_interface.ReweightInterface):
         output_path = self.lhe_input.path + 'rw'
         param_card = pjoin(rw_dir, 'Cards', 'param_card.dat')
 
-        #ZW: Exceptions, making sure all the necessary files for teawREX are accessible
+        #ZW: Exceptions, making sure all the necessary files for teaREX are accessible
         if( misc.is_executable(pjoin(run_path,'rwgt_driver_gpu.exe')) ):
             driver = pjoin(run_path, 'rwgt_driver_gpu.exe')
         elif(misc.is_executable(pjoin(run_path,'rwgt_driver_cpp.exe')) ):

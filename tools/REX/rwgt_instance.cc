@@ -153,9 +153,9 @@ namespace rwgt{
         return this->bridgeCall( process.momUp, process.aQCDUp );
     }
 
-    REX::teaw::weightor fBridge::getAmp(){
+    REX::tea::weightor fBridge::getAmp(){
         if(this->bridge == nullptr) throw std::runtime_error("fBridge object not defined.");
-        REX::teaw::weightor amp = [this](REX::procSoA& process){
+        REX::tea::weightor amp = [this](REX::procSoA& process){
             return this->bridgeCall( process );
         };
         return amp;

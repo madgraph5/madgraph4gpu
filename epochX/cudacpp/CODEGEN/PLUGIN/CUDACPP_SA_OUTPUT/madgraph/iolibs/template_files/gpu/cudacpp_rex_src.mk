@@ -144,8 +144,8 @@ endif
 #-------------------------------------------------------------------------------
 
 cxx_objects=$(addprefix $(BUILDDIR)/, read_slha_cpp.o)
-cxx_objects+=$(addprefix $(BUILDDIR)/, REX_cpp.o) # ZW: not all functionality from REX needed for teawREX is in the header, so for now just include REX.cc in teawREX.cc
-cxx_objects+=$(addprefix $(BUILDDIR)/, teawREX_cpp.o)
+cxx_objects+=$(addprefix $(BUILDDIR)/, REX_cpp.o) # ZW: not all functionality from REX needed for teaREX is in the header, so for now just include REX.cc in teaREX.cc
+cxx_objects+=$(addprefix $(BUILDDIR)/, teaREX_cpp.o)
 cxx_objects+=$(addprefix $(BUILDDIR)/, rwgt_instance_cpp.o)
 ifeq ($(GPUCC),)
   cxx_objects+=$(addprefix $(BUILDDIR)/, Parameters_%(model)s_cpp.o)

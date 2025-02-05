@@ -124,13 +124,13 @@ int main( int argc, char** argv ){
     }}
     
 
-    // static REX::teaw::rwgtFiles fileCol( lheFilePath, slhaPath, rwgtCardPath );
+    // static REX::tea::rwgtFiles fileCol( lheFilePath, slhaPath, rwgtCardPath );
     // static std::vector<REX::eventSet> runSet = {(run_set)};
     // static REX::transSkel loadEvs = fileCol.initCards( runSet );
     // fileCol.initDoubles();
     // static std::vector<rwgt::fBridge> fBridgeVec = {(fbridge_vec)};
     // static std::vector<rwgt::fBridge> bridges;
-    // static std::vector<REX::teaw::amplitude> amps;
+    // static std::vector<REX::tea::amplitude> amps;
     // size_t relSet = 0;
     // for( size_t k = 0 ; k < runSet.size() ; ++k ){
     //     if( !loadEvs.relEvSet[k] ){ continue; }
@@ -143,7 +143,7 @@ int main( int argc, char** argv ){
     //     ++relSet;
     // }
 
-    // REX::teaw::rwgtRunner driver( fileCol, amps );
+    // REX::tea::rwgtRunner driver( fileCol, amps );
 
     // driver.runRwgt( outputPath ); 
 
@@ -156,15 +156,15 @@ int main( int argc, char** argv ){
     auto slhaInput = REX::filePuller( slhaPath );
     auto slhaRun = REX::lesHouchesCard( *slhaInput );
     auto rwgtInput = REX::filePuller( rwgtCardPath );
-    auto rwgtRun = REX::teaw::rwgtCard( *rwgtInput, slhaRun, true );
+    auto rwgtRun = REX::tea::rwgtCard( *rwgtInput, slhaRun, true );
 
     static std::vector<std::function<bool( REX::event& )>> comparators = {%(comparators)s};
-    static auto runner = REX::teaw::reweightor( lheRun, comparators );
+    static auto runner = REX::tea::reweightor( lheRun, comparators );
 
     if( !runner.extractEvents() ) throw std::runtime_error( "Failed to extract events from LHE file." );
 
     static std::vector<rwgt::fBridge> fBridgeVec = {%(fbridge_vec)s};
-    static std::vector<REX::teaw::weightor> amplitudes;
+    static std::vector<REX::tea::weightor> amplitudes;
     for( size_t k = 0 ; k < fBridgeVec.size() ; ++k )
     {
         fBridgeVec[k].init(runner.sortedEvents[k], 32);
@@ -184,10 +184,14 @@ int main( int argc, char** argv ){
 
     runner.appendWgts( lheRun, rwgtRun.getProcs(), rwgtRun.getNames() );
 
+    std::cout << "\nReweighting procedure finished.\n";
+
     bool lheWritten = REX::filePusher( outputPath, *lheRun.nodeWriter() );
 
     if( !lheWritten )
         throw std::runtime_error( "Failed to write LHE file." );
+
+    std::cout << "Reweighted LHE file written to " << outputPath << ".\n";
 
     writeRwgtCsv( "rwgt_results.csv", *rwgtRun.getNames(), runner.xSecs, runner.xErrs );
 

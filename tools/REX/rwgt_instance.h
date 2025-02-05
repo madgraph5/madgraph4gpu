@@ -13,7 +13,7 @@
 #ifndef _RWGT_INSTANCE_H_
 #define _RWGT_INSTANCE_H_
 
-#include "teawREX.h"
+#include "teaREX.h"
 
 /**
  * The floating point precision used in Fortran arrays.
@@ -59,7 +59,7 @@ namespace rwgt{
         void setBridge( bridgeWrapper& amp );
         std::shared_ptr<std::vector<FORTRANFPTYPE>> bridgeCall( std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS );
         std::shared_ptr<std::vector<FORTRANFPTYPE>> bridgeCall( REX::procSoA& process );
-        REX::teaw::weightor getAmp();
+        REX::tea::weightor getAmp();
     };
 
 }

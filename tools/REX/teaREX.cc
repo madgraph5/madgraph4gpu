@@ -30,9 +30,9 @@
 #include <variant>
 #include <stdarg.h>
 #include "REX.h"
-#include "teawREX.h"
+#include "teaREX.h"
 
-namespace REX::teaw
+namespace REX::tea
 {
 
     template<typename T1, typename T2>
@@ -54,7 +54,7 @@ namespace REX::teaw
     void procRwgt::uniqueReset(){
         this->amplitude = std::vector<weightor>();
         this->weights = std::vector<std::shared_ptr<std::vector<double>>>();
-        this->backlog = std::make_shared<std::vector<double>>();
+        this->backlog = std::vector<std::shared_ptr<std::vector<double>>>();
         this->iteration = 0;
     }
 
@@ -178,13 +178,19 @@ namespace REX::teaw
         auto newWgts = this->amplitude[this->iteration]( *(this->proc) );
         this->iteration++;
         if( newWgts->size() != this->invOriginalAmp->size() ) return false;
-        this->backlog = newWgts;
+        this->backlog.push_back( newWgts );
         return true;
     }
 
     void procRwgt::doBacklog( bool pass ){
-        if( pass ) this->weights.push_back( this->backlog );
-        this->backlog = std::make_shared<std::vector<double>>();
+        if( pass ){
+            for( auto wgt : this->backlog )
+            {
+                this->weights.push_back( wgt );
+            }
+            // this->weights.push_back( this->backlog );
+        }
+        this->backlog = std::vector<std::shared_ptr<std::vector<double>>>();
     }
 
     void reweightor::uniqueReset(){
@@ -332,10 +338,12 @@ namespace REX::teaw
         bool archSuccess = true;
         for( size_t k = 0 ; k < this->ampsPerIter ; ++k )
         {
-            bool succ = this->runAmps();
-            this->runBacklog( succ );
-            archSuccess = archSuccess && succ;
+            // bool succ = this->runAmps();
+            // this->runBacklog( succ );
+            archSuccess = archSuccess && this->runAmps();
         }
+        std::cout << ".";
+        this->runBacklog( archSuccess );
         return archSuccess;
     }
 
@@ -382,7 +390,10 @@ namespace REX::teaw
             amp->normalise();
         }
         std::vector<size_t> evInd = std::vector<size_t>( this->amps.size(), 0 );
-        this->wgts = std::vector<std::shared_ptr<std::vector<double>>>( noWgts, std::make_shared<std::vector<double>>() );
+        this->wgts = std::vector<std::shared_ptr<std::vector<double>>>();
+        for( size_t k = 0 ; k < noWgts ; ++k ){
+            this->wgts.push_back( std::make_shared<std::vector<double>>() );
+        }
         for( auto ind : this->eventGrouping ){
             if( ind == REX::npos ){
                 for( auto wgt : this->wgts ){
@@ -519,7 +530,7 @@ namespace REX::teaw
         if( this->wgts.size() == 0 ) throw std::runtime_error("reweightor::appendWgts(): No weights in reweightor.");
         if( this->wgts[0]->size() != lheFile.getEvents().size() ) throw std::runtime_error("reweightor::appendWgts(): Number of weights in reweightor does not match number of events in lheNode.");
         if( procs.size() == 0 ) throw std::runtime_error("reweightor::appendWgts(): No processes specified.");
-        if( procs.size() != this->wgts.size() && procs.size() != this->success.size() ) throw std::runtime_error("reweightor::appendWgts(): Number of processes does not match number of weight sets in reweightor.");
+        if( procs.size() != this->wgts.size() && procs.size() != this->success.size() * this->ampsPerIter ) throw std::runtime_error("reweightor::appendWgts(): Number of processes does not match number of weight sets in reweightor.");
         if( names == nullptr ) names = std::make_shared<std::vector<std::string>>();
         if( names->size() == 0 ) names->resize( procs.size(), "" );
         if( procs.size() == this->wgts.size() ) this->appendWgtsSimple( lheFile, procs, names );
