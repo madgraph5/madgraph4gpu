@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch1/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum , epoch2/cuda/ee_mumu/SubProcesses/P1_Sigma_sm_epem_mupmum ]
+        folder: [ epochX/cudacpp/ee_mumu.sa/SubProcesses/P1_Sigma_sm_epem_mupmum ]
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
