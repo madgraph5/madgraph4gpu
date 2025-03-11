@@ -4,7 +4,7 @@
 ! Copyright (C) 2020-2024 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-! Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+! Further modified by: J. Teig, A. Valassi, Z. Wettersten (2021-2025) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 //==========================================================================
 // Class member functions for calculating the matrix elements for
@@ -180,7 +180,9 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
+#ifdef MGONGPUCPP_DEBUG
     fpeEnable(); // enable SIGFPE traps for Floating Point Exceptions
+#endif
   }
 
   //--------------------------------------------------------------------------
