@@ -273,8 +273,9 @@ namespace mg5amcCpu
   // A base class encapsulating a memory buffer for numerators (of the multichannel single-diagram enhancement factors)
   typedef BufferBase<fptype> BufferNumerators;
 
-  // The size (number of elements) per event in a memory buffer for numerators
-  constexpr size_t sizePerEventNumerators = 1;
+  // The size (number of elements) per event in a memory buffer for numerators 
+  // (should be equal to the number of diagrams in the process)
+  constexpr size_t sizePerEventNumerators = %(ndiagrams)d; 
 
 #ifndef MGONGPUCPP_GPUIMPL
   // A class encapsulating a C++ host buffer for gs
