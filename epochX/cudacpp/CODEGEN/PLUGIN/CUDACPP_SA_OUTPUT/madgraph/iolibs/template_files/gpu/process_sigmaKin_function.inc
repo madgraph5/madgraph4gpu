@@ -28,9 +28,10 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
-      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+      fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-      numerators_sv = fptype_sv{ 0 };
+      for (int i = 0; i < 3; ++i)
+        numerators_sv[i] = fptype_sv{ 0 };
       denominators_sv = fptype_sv{ 0 };
 #endif
     }
@@ -43,17 +44,7 @@
 
     // *** START OF PART 1a - CUDA (one event per GPU thread) ***
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // SCALAR channelId for the current event (CUDA) or for the whole SIMD event page (C++)
-    // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a SIMD event page
-    unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
-    if( allChannelIds != nullptr )
-    {
-      const unsigned int* channelIds = allChannelIds;                            // fix #899 (distinguish channelIds and allChannelIds)
-      const uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895 (compute this only once for all diagrams)
-      // NB: channelIds_sv is a scalar in CUDA
-      channelId = channelIds_sv;
-      assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
-    }
+    unsigned int channelId = getChannelId(allChannelIds);
 #endif
     // Running sum of partial amplitudes squared for event by event color selection (#402)
     // (for the single event processed in calculate_wavefunctions)
@@ -168,38 +159,7 @@
       const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // SCALAR channelId for the whole SIMD neppV2 event page (C++), i.e. one or two neppV event page(s)
-      // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a neppV2 SIMD event page
-      // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
-      unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
-      if( allChannelIds != nullptr )
-      {
-        // First - and/or only - neppV page of channels (iParity=0 => ievt0 = ievt00 + 0 * neppV)
-        const unsigned int* channelIds = CID_ACCESS::ieventAccessRecordConst( allChannelIds, ievt00 ); // fix bug #899/#911
-        uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds );                           // fix #895 (compute this only once for all diagrams)
-#ifndef MGONGPU_CPPSIMD
-        // NB: channelIds_sv is a scalar in no-SIMD C++
-        channelId = channelIds_sv;
-#else
-        // NB: channelIds_sv is a vector in SIMD C++
-        channelId = channelIds_sv[0];    // element[0]
-        for( int i = 1; i < neppV; ++i ) // elements[1...neppV-1]
-        {
-          assert( channelId == channelIds_sv[i] ); // SANITY CHECK #898: check that all events in a SIMD vector have the same channelId
-        }
-#endif
-        assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        // Second neppV page of channels (iParity=1 => ievt0 = ievt00 + 1 * neppV)
-        const unsigned int* channelIds2 = CID_ACCESS::ieventAccessRecordConst( allChannelIds, ievt00 + neppV ); // fix bug #899/#911
-        uint_v channelIds2_v = CID_ACCESS::kernelAccessConst( channelIds2 );                                    // fix #895 (compute this only once for all diagrams)
-        // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
-        for( int i = 0; i < neppV; ++i )
-        {
-          assert( channelId == channelIds2_v[i] ); // SANITY CHECKS #898 #924: all events in the 2nd SIMD vector have the same channelId as that of the 1st SIMD vector
-        }
-#endif
-      }
+      unsigned int channelId = getChannelId(allChannelIds, ievt00);
 #endif
       // Running sum of partial amplitudes squared for event by event color selection (#402)
       // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_wavefunctions)
@@ -372,11 +332,12 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
       {
+        const unsigned int channelId = getChannelId(allChannelIds, ievt0, false);
         fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
-        fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+        fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
         fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-        MEs_sv *= numerators_sv / denominators_sv;
+        MEs_sv *= numerators_sv[channelId] / denominators_sv;
       }
 #endif
       //for( int ieppV = 0; ieppV < neppV; ieppV++ )
