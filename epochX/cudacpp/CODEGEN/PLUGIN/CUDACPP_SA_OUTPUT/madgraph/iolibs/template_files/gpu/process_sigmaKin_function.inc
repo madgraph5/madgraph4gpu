@@ -30,7 +30,7 @@
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
       fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-      for (int i = 0; i < 3; ++i)
+      for (int i = 0; i < %(ndiagrams)d; ++i)
         numerators_sv[i] = fptype_sv{ 0 };
       denominators_sv = fptype_sv{ 0 };
 #endif

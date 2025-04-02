@@ -1272,6 +1272,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         den_factors = [str(me.get_denominator_factor()) for me in \
                             self.matrix_elements]
         replace_dict['den_factors'] = ",".join(den_factors)
+        replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
 
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
