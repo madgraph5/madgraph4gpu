@@ -19,9 +19,9 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   __device__ INLINE unsigned int getChannelId( const unsigned int* allChannelIds
 #ifndef MGONGPUCPP_GPUIMPL
-                                    ,
-                                    const int ievt00,
-                                    bool sanityCheckMixedPrecision = true
+                                               ,
+                                               const int ievt00,
+                                               bool sanityCheckMixedPrecision = true
 #endif
   )
   {
