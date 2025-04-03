@@ -30,7 +30,7 @@
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
       fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-      for (int i = 0; i < %(ndiagrams)d; ++i)
+      for( int i = 0; i < %(ndiagrams)d; ++i )
         numerators_sv[i] = fptype_sv{ 0 };
       denominators_sv = fptype_sv{ 0 };
 #endif
@@ -44,7 +44,7 @@
 
     // *** START OF PART 1a - CUDA (one event per GPU thread) ***
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    unsigned int channelId = getChannelId(allChannelIds);
+    unsigned int channelId = getChannelId( allChannelIds );
 #endif
     // Running sum of partial amplitudes squared for event by event color selection (#402)
     // (for the single event processed in calculate_wavefunctions)
@@ -159,7 +159,7 @@
       const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      unsigned int channelId = getChannelId(allChannelIds, ievt00);
+      unsigned int channelId = getChannelId( allChannelIds, ievt00 );
 #endif
       // Running sum of partial amplitudes squared for event by event color selection (#402)
       // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_wavefunctions)
@@ -332,7 +332,7 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
       {
-        const unsigned int channelId = getChannelId(allChannelIds, ievt0, false);
+        const unsigned int channelId = getChannelId( allChannelIds, ievt0, false );
         fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
         fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
