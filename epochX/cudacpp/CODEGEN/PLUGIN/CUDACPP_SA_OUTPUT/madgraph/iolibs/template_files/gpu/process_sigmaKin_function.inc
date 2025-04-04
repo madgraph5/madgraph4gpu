@@ -337,7 +337,7 @@
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
         fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
         fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-        MEs_sv *= numerators_sv[channelId] / denominators_sv;
+        MEs_sv *= numerators_sv[channelId - 1] / denominators_sv;
       }
 #endif
       //for( int ieppV = 0; ieppV < neppV; ieppV++ )
