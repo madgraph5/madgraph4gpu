@@ -1272,6 +1272,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         den_factors = [str(me.get_denominator_factor()) for me in \
                             self.matrix_elements]
         replace_dict['den_factors'] = ",".join(den_factors)
+        replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
 
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
@@ -1610,6 +1611,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         template = open(pjoin(self.template_path,'gpu','MemoryBuffers.h'),'r').read()
         replace_dict = {}
         replace_dict['model_name'] = self.model_name
+        replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
         ff = open(pjoin(self.path, '..', 'MemoryBuffers.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
@@ -1926,7 +1928,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
-      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+      fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
 #endif""")
         diagrams = matrix_element.get('diagrams')
@@ -1958,7 +1960,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
                         res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                        res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
+                        diagnum = diagram.get('number')
+                        res.append("if( channelId == %i ) numerators_sv[%i] += cxabs2( amp_sv[0] );" % (diagnum, diagnum-1))
                         res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
                         res.append("#endif")
                 else:
