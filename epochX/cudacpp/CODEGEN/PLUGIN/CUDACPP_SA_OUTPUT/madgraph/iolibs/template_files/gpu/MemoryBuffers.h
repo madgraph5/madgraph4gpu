@@ -279,7 +279,7 @@ namespace mg5amcCpu
 
 #ifndef MGONGPUCPP_GPUIMPL
   // A class encapsulating a C++ host buffer for gs
-  typedef HostBuffer<fptype, sizePerEventNumerators, HostBufferMISALIGNED> HostBufferNumerators;
+  typedef HostBuffer<fptype, sizePerEventNumerators, HostBufferALIGNED> HostBufferNumerators;
 #else
   // A class encapsulating a CUDA pinned host buffer for gs
   typedef PinnedHostBuffer<fptype, sizePerEventNumerators> PinnedHostBufferNumerators;
