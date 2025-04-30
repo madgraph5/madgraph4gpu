@@ -1882,6 +1882,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         ###misc.sprint(multi_channel_map)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
+        ndiagrams = len(me)
         res.append("""//constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
       constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
       const fptype* allCOUPs[nxcoup];
@@ -1918,7 +1919,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 * %d );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
 #endif
 #endif
@@ -1930,7 +1931,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
       fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-#endif""")
+#endif""" % ndiagrams)
         diagrams = matrix_element.get('diagrams')
         diag_to_config = {}
         if multi_channel_map:

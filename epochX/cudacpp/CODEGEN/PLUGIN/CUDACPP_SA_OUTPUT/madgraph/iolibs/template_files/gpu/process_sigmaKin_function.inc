@@ -26,7 +26,7 @@
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv = fptype_sv{ 0 };
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 * %(ndiagrams)d );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
       fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
@@ -333,7 +333,7 @@
       if( allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
       {
         const unsigned int channelId = getChannelId( allChannelIds, ievt0, false );
-        fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+        fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 * %(ndiagrams)d );
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
         fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
         fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
