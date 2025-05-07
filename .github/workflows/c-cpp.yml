@@ -5,6 +5,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   debug_builds:
@@ -56,7 +57,8 @@ jobs:
     - name: make test
       run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
   GPU:
-    runs-on: self-hosted
+    runs-on:
+      group: NGT
     env:
       CUDA_HOME: /usr/local/cuda/
       FC: gfortran
