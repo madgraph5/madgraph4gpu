@@ -23,6 +23,7 @@
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
+#include "processConfig.h"
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #include "MemoryAccessDenominators.h"
