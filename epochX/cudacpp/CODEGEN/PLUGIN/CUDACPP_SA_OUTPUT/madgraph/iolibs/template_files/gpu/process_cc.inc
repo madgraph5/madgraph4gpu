@@ -13,7 +13,6 @@
 #include "CPPProcess.h"
 
 #include "mgOnGpuConfig.h"
-#include "processConfig.h"
 
 %(hel_amps_h)s
 #include "MemoryAccessAmplitudes.h"
@@ -24,6 +23,7 @@
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
+#include "processConfig.h"
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #include "MemoryAccessDenominators.h"
