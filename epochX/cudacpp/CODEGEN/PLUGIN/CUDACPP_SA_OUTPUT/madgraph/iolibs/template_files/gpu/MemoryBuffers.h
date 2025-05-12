@@ -10,6 +10,7 @@
 
 #include "mgOnGpuCxtypes.h"
 
+#include "processConfig.h"
 #include "CPPProcess.h"
 #include "GpuRuntime.h"
 #include "Parameters_%(model_name)s.h"
@@ -275,7 +276,7 @@ namespace mg5amcCpu
 
   // The size (number of elements) per event in a memory buffer for numerators
   // (should be equal to the number of diagrams in the process)
-  constexpr size_t sizePerEventNumerators = %(ndiagrams)d;
+  constexpr size_t sizePerEventNumerators = processConfig::ndiagrams;
 
 #ifndef MGONGPUCPP_GPUIMPL
   // A class encapsulating a C++ host buffer for gs

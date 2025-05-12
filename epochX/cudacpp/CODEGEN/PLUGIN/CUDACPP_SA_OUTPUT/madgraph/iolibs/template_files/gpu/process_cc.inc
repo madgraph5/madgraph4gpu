@@ -13,6 +13,7 @@
 #include "CPPProcess.h"
 
 #include "mgOnGpuConfig.h"
+#include "processConfig.h"
 
 %(hel_amps_h)s
 #include "MemoryAccessAmplitudes.h"
