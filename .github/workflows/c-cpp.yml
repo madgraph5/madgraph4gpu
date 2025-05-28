@@ -69,9 +69,6 @@ jobs:
         backend: [ cppauto, cuda ]
       fail-fast: false
     steps:
-      - name: cvmfs
-        run: |
-          ls /cvmfs/atlas.cern.ch/repo
       - name: nvidia-smi
         run: |
           nvidia-smi
