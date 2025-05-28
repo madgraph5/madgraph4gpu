@@ -58,6 +58,7 @@ jobs:
       run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
   GPU:
     runs-on: madgraph5-h100
+    container: registry.cern.ch/ngt/lxplus-like:9
     env:
       CUDA_HOME: /usr/local/cuda/
       FC: gfortran
