@@ -1970,8 +1970,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
                         res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
                         diagnum = diagram.get('number')
-                        res.append("if( channelId == %i ) numerators_sv[%i] += cxabs2( amp_sv[0] );" % (diagnum, diagnum-1))
-                        res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
+                        res.append("if( channelId != 0 ) {")
+                        res.append("  numerators_sv[%i] += cxabs2( amp_sv[0] );" % (diagnum-1))
+                        res.append("  denominators_sv += cxabs2( amp_sv[0] );")
+                        res.append("}")
                         res.append("#endif")
                 else:
                     res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
