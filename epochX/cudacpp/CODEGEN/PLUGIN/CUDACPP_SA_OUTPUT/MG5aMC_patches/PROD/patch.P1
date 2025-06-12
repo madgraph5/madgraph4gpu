@@ -116,15 +116,6 @@ index af6d02998..ec5722702 100644
        end
  
  c     $B$ get_user_params $B$ ! tag for MadWeight
-@@ -402,7 +489,7 @@ c
-       fopened=.false.
-       tempname=filename 	 
-       fine=index(tempname,' ') 	 
--      fine2=index(path,' ')-1	 
-+c     fine2=index(path,' ')-1 ! AV remove valgrind "Conditional jump or move depends on uninitialised value(s)"
-       if(fine.eq.0) fine=len(tempname)
-       open(unit=lun,file=tempname,status='old',ERR=20)
-       fopened=.true.
 diff --git b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f a/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
 index bf488e4b0..707ea4032 100644
 --- b/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/matrix1.f
