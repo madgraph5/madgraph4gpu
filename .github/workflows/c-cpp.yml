@@ -18,44 +18,44 @@ jobs:
     - uses: actions/checkout@v2
     - name: make debug
       run: make -C ${{ matrix.folder }} debug
-  # CPU:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
-  #       precision: [ d , f , m ]
-  #       backend: [ cppnone, cppauto ]
-  #     fail-fast: false
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: github PR info
-  #     run: date; echo github.event.pull_request.head.sha='${{ github.event.pull_request.head.sha }}'
-  #   - name: make info
-  #     run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
-  #   - name: make
-  #     run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
-  #   - name: make test
-  #     run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
-  # CPU_MAC:
-  #   runs-on: macos-latest
-  #   env:
-  #     FC: gfortran-14 # see #971
-  #   strategy:
-  #     matrix:
-  #       folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum, epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
-  #       precision: [ d , f , m ]
-  #       backend: [ cppnone, cppsse4 ]
-  #     fail-fast: false
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: github PR info
-  #     run: date; echo github.event.pull_request.head.sha='${{ github.event.pull_request.head.sha }}'
-  #   - name: make info
-  #     run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
-  #   - name: make
-  #     run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
-  #   - name: make test
-  #     run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
+  CPU:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
+        precision: [ d , f , m ]
+        backend: [ cppnone, cppauto ]
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v2
+    - name: github PR info
+      run: date; echo github.event.pull_request.head.sha='${{ github.event.pull_request.head.sha }}'
+    - name: make info
+      run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
+    - name: make
+      run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+    - name: make test
+      run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
+  CPU_MAC:
+    runs-on: macos-latest
+    env:
+      FC: gfortran-14 # see #971
+    strategy:
+      matrix:
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum, epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
+        precision: [ d , f , m ]
+        backend: [ cppnone, cppsse4 ]
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v2
+    - name: github PR info
+      run: date; echo github.event.pull_request.head.sha='${{ github.event.pull_request.head.sha }}'
+    - name: make info
+      run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
+    - name: make
+      run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+    - name: make test
+      run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
   GPU:
     runs-on: madgraph5-h100
     container: registry.cern.ch/ngt/lxplus-like:9
