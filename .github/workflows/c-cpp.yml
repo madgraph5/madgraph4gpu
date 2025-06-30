@@ -74,9 +74,9 @@ jobs:
       run: echo "PATH=$PATH"
     - name: github PR info
       run: date; echo github.event.pull_request.head.sha='${{ github.event.pull_request.head.sha }}'
-    # - name: make info
-    #   run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
-    # - name: make
-    #   run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
-    # - name: make test
-    #   run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
+    - name: make info
+      run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk info
+    - name: make
+      run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
+    - name: make test
+      run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
