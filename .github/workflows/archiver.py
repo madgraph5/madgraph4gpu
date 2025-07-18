@@ -6,21 +6,23 @@
 
 import subprocess
 import sys
+import re
 
 def get_all_tags():
     out = subprocess.check_output(['git', 'tag']).decode()
     return out.split('\n')
 
 def get_supported_versions(tags):
-    versions = [ t[len(PREFIX):-len(SUFFIX)] for t in tags if t.startswith(PREFIX) and t.endswith(SUFFIX)]
+    # versions = [ t[len(PREFIX):-len(SUFFIX)] for t in tags if t.startswith(PREFIX) and t.endswith(SUFFIX)]
+    versions = re.findall(rf"{PREFIX}(\d+.\d+.\d+)_v(\d+.\d+.\d+)$","\n".join(tags), re.M)
     versions = set(versions)
     return versions
 
-def create_infodat_file(path, versions):
-    line = "%(version)s https://github.com/%(repo)s/releases/download/%(prefix)s%(version)s%(suffix)s/cudacpp.tar.gz\n"
-    with open(path, 'w') as fsock:
-        for v in versions:
-            fsock.write(line%{'repo':GITHUB_REPO, 'prefix':PREFIX, 'version':v, 'suffix':SUFFIX})
+def create_infodat_file(path, mg_cudacpp_versions):
+    line = "%(version)s https://github.com/%(repo)s/releases/download/%(prefix)s%(version)s_v%(suffix)s/cudacpp.tar.gz\n"
+    with open(path, 'w+') as fsock:
+        for v, c in mg_cudacpp_versions:
+            fsock.write(line%{'repo':GITHUB_REPO, 'prefix':PREFIX, 'version':v, 'suffix':c})
 
 if "__main__" == __name__:
     if len(sys.argv) != 3:
@@ -36,8 +38,8 @@ if "__main__" == __name__:
     PREFIX = 'cudacpp_for'
     if repo_owner != 'madgraph5' : PREFIX = repo_owner + "_" + PREFIX # TEMPORARY! this will change eventually...
     if repo_name != 'madgraph4gpu' : raise Exception('Invalid repo_name "%s" (expect "madgraph4gpu")'%repo_name) # TEMPORARY! this will change eventually...
-    SUFFIX = '_latest'
     tags = get_all_tags()
+    # SUFFIX = '_latest'
     ###print('Tags:', tags)
     versions = get_supported_versions(tags)
     ###print('Supported versions:', versions)
