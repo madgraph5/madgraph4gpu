@@ -92,6 +92,7 @@ jobs:
         # Check version tag
         cudacpp_version=$(cat ${WORKDIR}/VERSION.txt | awk '/^cudacpp_version/{print $3}')
         mg5_version=$(cat ${WORKDIR}/VERSION.txt | awk '/^mg5_version_current/{print $3}')
+        echo "MG5_VERSION=${mg5_version}" >> $GITHUB_ENV
         mg5_commit=$(cat ${WORKDIR}/VERSION.txt | awk '/^mg5_commit_current/{print $3}')
         echo "(From VERSION.txt)       cudacpp_version     = ${cudacpp_version}"
         echo "(From VERSION.txt)       mg5_version_current = ${mg5_version}"
@@ -255,21 +256,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: create_infodat
-      if: ${{ env.TAGNAME_MAKELATEST == 'true' }}
-      run: |
-        echo "Current directory is $(pwd)"
-        echo "WORKDIR is ${WORKDIR}"
-        cd branch_PR
-        echo "Current directory is now $(pwd)"
-        echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
-        echo "(From GITHUB_ENV)        REPOSITORY          = ${REPOSITORY}"
-        python3 .github/workflows/archiver.py ${REPOSITORY} version_info.dat
-        mv version_info.dat ${WORKDIR}
-        echo "Created version_info.dat"
-        python3 -c 'print("-"*132)'
-        cat ${WORKDIR}/version_info.dat
-
     - name: checkout_INFO
       if: ${{ env.TAGNAME_MAKELATEST == 'true' }}
       uses: actions/checkout@v4
@@ -285,7 +271,11 @@ jobs:
         cd branch_INFO
         echo "Current directory is now $(pwd)"
         echo "Current branch is \"$(git branch | \grep ^* | sed 's/^* //')\""
-        mv ${WORKDIR}/version_info.dat .
+        echo "${{ env.MG5_VERSION }} https://github.com/madgraph5/madgraph4gpu/releases/download/${{ env.TAGNAME }}/cudacpp.tar.gz" >> version_info.dat
+        echo "Updated version_info.dat"
+        python3 -c 'print("-"*132)'
+        tail -n1 version_info.dat
+        python3 -c 'print("-"*132)'
         git config user.name github-actions
         git config user.email github-actions@github.com
         if [ -z "$(git status --porcelain version_info.dat)" ]; then
