@@ -133,7 +133,8 @@ class GPURunCard(CPPRunCard):
         super().default_setup()
         # change default value:
         self['cudacpp_backend'] = 'cuda'
-        self['vector_size'] = 16384 # already setup in default class (just change value)
+        self['vector_size'] = 32 # ZW: default to 32, might want to change to 64 to utilise AMD GPUs better as well # 16384 # already setup in default class (just change value)
+        self['nb_warp'] = 512 # number of warps per kernel call, for now setting to 16 384 / vector_size
 
 MEINTERFACE = CPPMEInterface
 RunCard = CPPRunCard
