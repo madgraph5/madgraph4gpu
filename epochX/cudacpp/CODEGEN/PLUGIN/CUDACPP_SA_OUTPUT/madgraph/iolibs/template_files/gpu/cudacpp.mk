@@ -243,7 +243,7 @@ else ifeq ($(BACKEND),hip)
   ###GPUFLAGS += -ggdb # FOR DEBUGGING ONLY
 
   # AMD HIP architecture flags
-  GPUARCHFLAGS = --offload-arch=gfx90a
+  GPUARCHFLAGS = --offload-arch=gfx942
   GPUFLAGS += $(GPUARCHFLAGS)
 
   # Other AMD-specific flags
