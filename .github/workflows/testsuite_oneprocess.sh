@@ -165,7 +165,8 @@ function build() {
       make -f cudacpp.mk gtestlibs
     fi
     # NB: 'make bldall' internally checks if 'which nvcc' and 'which hipcc' succeed before attempting to build cuda and hip
-    make -j bldall
+    # makefile overlay after removing patches
+    make -j -f makefile -f cudacpp_overlay.mk bldall
     popd >& /dev/null
   done
 }
