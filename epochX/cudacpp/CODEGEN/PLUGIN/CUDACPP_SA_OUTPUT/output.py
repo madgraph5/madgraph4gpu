@@ -121,6 +121,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt', s+'gpu/valgrind.h',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
+                                      s+'gpu/cudacpp_overlay.mk',
                                       s+'CMake/SubProcesses/CMakeLists.txt'],
                      'test': [s+'gpu/cudacpp_test.mk']}
 
@@ -144,6 +145,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'MadgraphTest.h', 'runTest.cc',
                     'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h',
                     'cudacpp.mk', # this is generated from a template in Subprocesses but we still link it in P1
+                    'cudacpp_overlay.mk', # this is generated from a template in Subprocesses but we still link it in P1
                     'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
@@ -237,8 +239,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             outputflags is a list of options provided when doing the output command"""
         ###misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
         if self.in_madevent_mode:
-            if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
-            else: patchlevel = ''
+            # if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
+            # else: patchlevel = ''
             # OLDEST implementation (AV)
             #path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
             #misc.sprint(path)
@@ -255,17 +257,46 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             # **NB** AV: change the Popen call to always dump stdout and stderr, because I want to always see the output
             # **NB** AV: this also allows error checking by looking for error strings on the generation log if patchMad.sh silently fails
             # **NB** AV: (e.g. this did happen in the past, when patchMad.sh was calling 'madevent treatcards run', and the latter silently failed)
-            plugin_path = os.path.dirname(os.path.realpath( __file__ ))
+            # plugin_path = os.path.dirname(os.path.realpath( __file__ ))
             ###p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)],
             ###                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)]) # AV always dump patchMad.sh stdout/stderr
-            stdout, stderr = p.communicate()
-            misc.sprint(p.returncode)
-            if p.returncode != 0: # AV: WARNING! do not fully trust this check! patchMad.sh was observed to silently fail in the past...
-                logger.debug("####### \n stdout is \n %s", stdout)
-                logger.info("####### \n stderr is \n %s", stderr)
-                logger.info("return code is %s\n", p.returncode)
-                raise Exception('ERROR! the O/S call to patchMad.sh failed')
+            # p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)]) # AV always dump patchMad.sh stdout/stderr
+            # stdout, stderr = p.communicate()
+            # misc.sprint(p.returncode)
+            # if p.returncode != 0: # AV: WARNING! do not fully trust this check! patchMad.sh was observed to silently fail in the past...
+            #     logger.debug("####### \n stdout is \n %s", stdout)
+            #     logger.info("####### \n stderr is \n %s", stderr)
+            #     logger.info("return code is %s\n", p.returncode)
+            #     raise Exception('ERROR! the O/S call to patchMad.sh failed')
+
+            patch_coupl_write = r"""set -euo pipefail
+# Get last fields from lines starting with WRITE(*,2)
+gcs=$(awk '$1=="WRITE(*,2)" {print $NF}' coupl_write.inc)
+
+for gc in $gcs; do
+  if grep -q "$gc(VECSIZE_MEMMAX)" coupl.inc; then
+    awk -v gc="$gc" '{
+      if ($1=="WRITE(*,2)" && $NF==gc) print $0"(1)";
+      else print
+    }' coupl_write.inc > coupl_write.inc.new
+    mv coupl_write.inc.new coupl_write.inc
+  fi
+done"""
+            try:
+                result = subprocess.run(
+                    ["bash", "-lc", patch_coupl_write],
+                    cwd=pjoin(self.dir_path, "Source", "MODEL"),
+                    text=True,
+                    capture_output=True,
+                    check=True,  # raise CalledProcessError on non-zero exit
+                )
+                misc.sprint(result.returncode)
+            except subprocess.CalledProcessError as e:
+                logger.debug("####### \n stdout is \n %s", e.stdout)
+                logger.info("####### \n stderr is \n %s", e.stderr)
+                logger.info("return code is %s\n", e.returncode)
+                raise Exception("ERROR while patching coupl_write.inc") from e
+
             # Additional patching (OM)
             self.add_madevent_plugin_fct() # Added by OM
         # do not call standard finalize since is this is already done...
