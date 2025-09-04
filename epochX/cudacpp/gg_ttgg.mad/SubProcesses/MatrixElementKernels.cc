@@ -359,7 +359,18 @@ namespace mg5amcGpu
 #ifndef MGONGPU_HAS_NO_BLAS
     // Decide at runtime whether to use BLAS for color sums
     const char* blasEnv = getenv( "CUDACPP_RUNTIME_BLASCOLORSUM" );
-    if( blasEnv ) m_blasColorSum = true; // fixme? eventually set default=true and decode "Y" and "N" choices?
+    static bool first = true;
+    if( blasEnv && std::string( blasEnv ) != "" )
+    {
+      m_blasColorSum = true; // fixme? eventually set default=true and decode "Y" and "N" choices?
+      if( first ) std::cout << "INFO: Environment variable CUDACPP_RUNTIME_BLASCOLORSUM is set and non-empty: enable BLAS" << std::endl;
+      first = false;
+    }
+    else
+    {
+      if( first ) std::cout << "INFO: Environment variable CUDACPP_RUNTIME_BLASCOLORSUM is empty or not set: disable BLAS" << std::endl;
+      first = false;
+    }
 #endif
   }
 
