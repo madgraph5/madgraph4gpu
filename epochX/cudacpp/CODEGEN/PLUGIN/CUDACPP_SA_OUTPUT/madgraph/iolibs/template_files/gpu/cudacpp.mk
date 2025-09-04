@@ -229,6 +229,8 @@ ifeq ($(BACKEND),cuda)
 
 else ifeq ($(BACKEND),hip)
 
+  # example architecture values MI200:gfx90a, MI350X:gfx942
+  MADGRAPH_HIP_ARCHITECTURE ?= gfx942
   # Set GPUCC as $(HIP_HOME)/bin/hipcc (it was already checked above that this exists)
   GPUCC = $(HIP_HOME)/bin/hipcc
   XCOMPILERFLAG =
@@ -243,7 +245,7 @@ else ifeq ($(BACKEND),hip)
   ###GPUFLAGS += -ggdb # FOR DEBUGGING ONLY
 
   # AMD HIP architecture flags
-  GPUARCHFLAGS = --offload-arch=gfx942
+  GPUARCHFLAGS = --offload-arch=${MADGRAPH_HIP_ARCHITECTURE}
   GPUFLAGS += $(GPUARCHFLAGS)
 
   # Other AMD-specific flags
