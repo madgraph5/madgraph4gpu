@@ -196,7 +196,7 @@ namespace mg5amcCpu
 #else
       // Old striding for CUDA kernels: ncolor separate 2*nevt matrices for each color
       // This is now used for CUDA kernels only if HASBLAS=hasNoBlas is set at build time
-      return cxtype_ref( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // OLD
+      return cxtype_ref( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // old
 #endif
     }
     static __device__ inline const cxtype
@@ -210,7 +210,7 @@ namespace mg5amcCpu
       return cxtype( buffer[0 * nevt * ncolor + ievt * ncolor + icol], buffer[1 * nevt * ncolor + ievt * ncolor + icol] ); // new2 transpose
 #else
       // Old striding for CUDA kernels: ncolor separate 2*nevt matrices for each color
-      return cxtype( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] );
+      return cxtype( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // old
 #endif
     }
   };
@@ -2848,9 +2848,9 @@ namespace mg5amcCpu
 
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Mixed precision mode: need two fptype2[ncolor*2*nevt] buffers and one fptype2[nevt] buffer per helicity
-    fptype2* allZtempBoth = allBlasTmp;
-    fptype2* allJampsFpt2 = allBlasTmp + ncolor * mgOnGpu::nx2 * nevt;
-    fptype2* allMEsFpt2 = allBlasTmp + 2 * ncolor * mgOnGpu::nx2 * nevt;
+    fptype2* allZtempBoth = allBlasTmp;                                  // start of first fptype2[ncolor*2*nevt] buffer
+    fptype2* allJampsFpt2 = allBlasTmp + ncolor * mgOnGpu::nx2 * nevt;   // start of second fptype2[ncolor*2*nevt] buffer
+    fptype2* allMEsFpt2 = allBlasTmp + 2 * ncolor * mgOnGpu::nx2 * nevt; // start of fptype2[nevt] buffer
     // Convert jamps from double to float
     gpuLaunchKernelStream( convertD2F_Jamps, gpublocks, gputhreads, stream, allJampsFpt2, allJamps );
     // Real and imaginary components
@@ -2859,7 +2859,7 @@ namespace mg5amcCpu
 #else
     static_assert( std::is_same<fptype2, fptype>::value );     // sanity check
     // Standard single/double precision mode: need one fptype2[ncolor*2*nevt] buffer
-    fptype2* allZtempBoth = allBlasTmp;
+    fptype2* allZtempBoth = allBlasTmp; // start of fptype2[ncolor*2*nevt] buffer
     fptype2* allMEsFpt2 = allMEs;
     // Real and imaginary components
     const fptype2* allJampsReal = allJamps;                 // this is not a cast (the two types are identical)

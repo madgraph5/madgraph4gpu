@@ -441,10 +441,10 @@ namespace mg5amcGpu
 #ifndef MGONGPU_HAS_NO_BLAS
     // Create the "many-helicity" super-buffers of real/imag ncolor*nevt temporary buffers for cuBLAS/hipBLAS intermediate results in color_sum_blas
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-    // Mixed precision mode: need two fptype2[ncolor*2*nevt] buffers and one fptype2[nevt] buffer per helicity
+    // Mixed precision mode: need two fptype2[ncolor*2*nevt] buffers and one fptype2[nevt] buffer per good helicity
     if( m_blasColorSum ) m_pHelBlasTmp.reset( new DeviceBufferSimple2( nGoodHel * ( 2 * CPPProcess::ncolor * mgOnGpu::nx2 + 1 ) * nevt ) );
 #else
-    // Standard single/double precision mode: need one fptype2[ncolor*2*nevt] buffer
+    // Standard single/double precision mode: need one fptype2[ncolor*2*nevt] buffer per good helicity
     if( m_blasColorSum ) m_pHelBlasTmp.reset( new DeviceBufferSimple2( nGoodHel * CPPProcess::ncolor * mgOnGpu::nx2 * nevt ) );
 #endif
 #endif
