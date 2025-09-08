@@ -56,21 +56,19 @@ jobs:
       run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make test
       run: make BACKEND=${{ matrix.backend }} OMPFLAGS= FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
-  GPU:
+
+  GPU_Nvidia:
     runs-on: self-hosted
-    # runs-on: madgraph5-h100
-    # container: registry.cern.ch/ngt/lxplus-like:9
     env:
-      CUDA_HOME: /usr/local/cuda/
       FC: gfortran
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
-        precision: [ d , f , m ]
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum, epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
+        precision: [ d, f, m ]
         backend: [ cppauto, cuda ]
       fail-fast: false
-    steps:
-    - uses: actions/checkout@v2
+    steps: &gpu_steps # allows to recall the steps
+    - uses: actions/checkout@v4
     - name: path
       run: echo "PATH=$PATH"
     - name: github PR info
@@ -81,3 +79,16 @@ jobs:
       run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }}
     - name: make test
       run: make BACKEND=${{ matrix.backend }} FPTYPE=${{ matrix.precision }} -C ${{ matrix.folder }} -f cudacpp.mk test
+
+  GPU_AMD:
+    runs-on: madgraph5-mi300x
+    container: registry.cern.ch/ngt/lxplus-like:9
+    env:
+      FC: gfortran
+    strategy:
+      matrix:
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum, epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
+        precision: [ d, f, m ]
+        backend: [ hip ]
+      fail-fast: false
+    steps: *gpu_steps
