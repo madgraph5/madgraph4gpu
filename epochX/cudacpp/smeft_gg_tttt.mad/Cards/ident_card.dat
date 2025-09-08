@@ -2,424 +2,424 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      written by the UFO converter
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
+mass 1 mdl_MD
 
+mass 2 mdl_MU
 
+mass 3 mdl_MS
 
+mass 4 mdl_MC
 
+mass 5 mdl_MB
 
+mass 6 mdl_MT
 
+mass 11 mdl_Me
 
+mass 13 mdl_MMU
 
+mass 15 mdl_MTA
 
+mass 23 mdl_MZ
 
+mass 25 mdl_MH
 
+smeft 1 mdl_cG
 
+smeft 2 mdl_cW
 
+smeft 3 mdl_cH
 
+smeft 4 mdl_cHbox
 
+smeft 5 mdl_cHDD
 
+smeft 6 mdl_cHG
 
+smeft 7 mdl_cHW
 
+smeft 8 mdl_cHB
 
+smeft 9 mdl_cHWB
 
+smeft 10 mdl_cuHRe
 
+smeft 11 mdl_ctHRe
 
+smeft 12 mdl_cdHRe
 
+smeft 13 mdl_cbHRe
 
+smeft 14 mdl_cuGRe
 
+smeft 15 mdl_ctGRe
 
+smeft 16 mdl_cuWRe
 
+smeft 17 mdl_ctWRe
 
+smeft 18 mdl_cuBRe
 
+smeft 19 mdl_ctBRe
 
+smeft 20 mdl_cdGRe
 
+smeft 21 mdl_cbGRe
 
+smeft 22 mdl_cdWRe
 
+smeft 23 mdl_cbWRe
 
+smeft 24 mdl_cdBRe
 
+smeft 25 mdl_cbBRe
 
+smeft 26 mdl_cHj1
 
+smeft 27 mdl_cHQ1
 
+smeft 28 mdl_cHj3
 
+smeft 29 mdl_cHQ3
 
+smeft 30 mdl_cHu
 
+smeft 31 mdl_cHt
 
+smeft 32 mdl_cHd
 
+smeft 33 mdl_cHbq
 
+smeft 34 mdl_cHudRe
 
+smeft 35 mdl_cHtbRe
 
+smeft 36 mdl_cjj11
 
+smeft 37 mdl_cjj18
 
+smeft 38 mdl_cjj31
 
+smeft 39 mdl_cjj38
 
+smeft 40 mdl_cQj11
 
+smeft 41 mdl_cQj18
 
+smeft 42 mdl_cQj31
 
+smeft 43 mdl_cQj38
 
+smeft 44 mdl_cQQ1
 
+smeft 45 mdl_cQQ8
 
+smeft 46 mdl_cuu1
 
+smeft 47 mdl_cuu8
 
+smeft 48 mdl_ctt
 
+smeft 49 mdl_ctu1
 
+smeft 50 mdl_ctu8
 
+smeft 51 mdl_cdd1
 
+smeft 52 mdl_cdd8
 
+smeft 53 mdl_cbb
 
+smeft 54 mdl_cbd1
 
+smeft 55 mdl_cbd8
 
+smeft 56 mdl_cud1
 
+smeft 57 mdl_ctb1
 
+smeft 58 mdl_ctd1
 
+smeft 59 mdl_cbu1
 
+smeft 60 mdl_cud8
 
+smeft 61 mdl_ctb8
 
+smeft 62 mdl_ctd8
 
+smeft 63 mdl_cbu8
 
+smeft 64 mdl_cutbd1Re
 
+smeft 65 mdl_cutbd8Re
 
+smeft 66 mdl_cju1
 
+smeft 67 mdl_cQu1
 
+smeft 68 mdl_cju8
 
+smeft 69 mdl_cQu8
 
+smeft 70 mdl_ctj1
 
+smeft 71 mdl_ctj8
 
+smeft 72 mdl_cQt1
 
+smeft 73 mdl_cQt8
 
+smeft 74 mdl_cjd1
 
+smeft 75 mdl_cjd8
 
+smeft 76 mdl_cQd1
 
+smeft 77 mdl_cQd8
 
+smeft 78 mdl_cbj1
 
+smeft 79 mdl_cbj8
 
+smeft 80 mdl_cQb1
 
+smeft 81 mdl_cQb8
 
+smeft 82 mdl_cjQtu1Re
 
+smeft 83 mdl_cjQtu8Re
 
+smeft 84 mdl_cjQbd1Re
 
+smeft 85 mdl_cjQbd8Re
 
+smeft 86 mdl_cjujd1Re
 
+smeft 87 mdl_cjujd8Re
 
+smeft 88 mdl_cjujd11Re
 
+smeft 89 mdl_cjujd81Re
 
+smeft 90 mdl_cQtjd1Re
 
+smeft 91 mdl_cQtjd8Re
 
+smeft 92 mdl_cjuQb1Re
 
+smeft 93 mdl_cjuQb8Re
 
+smeft 94 mdl_cQujb1Re
 
+smeft 95 mdl_cQujb8Re
 
+smeft 96 mdl_cjtQd1Re
 
+smeft 97 mdl_cjtQd8Re
 
+smeft 98 mdl_cQtQb1Re
 
+smeft 99 mdl_cQtQb8Re
 
+smeft 100 mdl_ceHRe
 
+smeft 101 mdl_ceWRe
 
+smeft 102 mdl_ceBRe
 
+smeft 103 mdl_cHl1
 
+smeft 104 mdl_cHl3
 
+smeft 105 mdl_cHe
 
+smeft 106 mdl_cll
 
+smeft 107 mdl_cll1
 
+smeft 108 mdl_clj1
 
+smeft 109 mdl_clj3
 
+smeft 110 mdl_cQl1
 
+smeft 111 mdl_cQl3
 
+smeft 112 mdl_cee
 
+smeft 113 mdl_ceu
 
+smeft 114 mdl_cte
 
+smeft 115 mdl_ced
 
+smeft 116 mdl_cbe
 
+smeft 117 mdl_cje
 
+smeft 118 mdl_cQe
 
+smeft 119 mdl_clu
 
+smeft 120 mdl_ctl
 
+smeft 121 mdl_cld
 
+smeft 122 mdl_cbl
 
+smeft 123 mdl_cle
 
+smeft 124 mdl_cledjRe
 
+smeft 125 mdl_clebQRe
 
+smeft 126 mdl_cleju1Re
 
+smeft 127 mdl_cleQt1Re
 
+smeft 128 mdl_cleju3Re
 
+smeft 129 mdl_cleQt3Re
 
+smeftcpv 1 mdl_cGtil
 
+smeftcpv 2 mdl_cWtil
 
+smeftcpv 3 mdl_cHGtil
 
+smeftcpv 4 mdl_cHWtil
 
+smeftcpv 5 mdl_cHBtil
 
+smeftcpv 6 mdl_cHWBtil
 
+smeftcpv 7 mdl_cuGIm
 
+smeftcpv 8 mdl_ctGIm
 
+smeftcpv 9 mdl_cuWIm
 
+smeftcpv 10 mdl_ctWIm
 
+smeftcpv 11 mdl_cuBIm
 
+smeftcpv 12 mdl_ctBIm
 
+smeftcpv 13 mdl_cdGIm
 
+smeftcpv 14 mdl_cbGIm
 
+smeftcpv 15 mdl_cdWIm
 
+smeftcpv 16 mdl_cbWIm
 
+smeftcpv 17 mdl_cdBIm
 
+smeftcpv 18 mdl_cbBIm
 
+smeftcpv 19 mdl_cuHIm
 
+smeftcpv 20 mdl_ctHIm
 
+smeftcpv 21 mdl_cdHIm
 
+smeftcpv 22 mdl_cbHIm
 
+smeftcpv 23 mdl_cHudIm
 
+smeftcpv 24 mdl_cHtbIm
 
+smeftcpv 25 mdl_cutbd1Im
 
+smeftcpv 26 mdl_cutbd8Im
 
+smeftcpv 27 mdl_cjQtu1Im
 
+smeftcpv 28 mdl_cjQtu8Im
 
+smeftcpv 29 mdl_cjQbd1Im
 
+smeftcpv 30 mdl_cjQbd8Im
 
+smeftcpv 31 mdl_cjujd1Im
 
+smeftcpv 32 mdl_cjujd8Im
 
+smeftcpv 33 mdl_cjujd11Im
 
+smeftcpv 34 mdl_cjujd81Im
 
+smeftcpv 35 mdl_cQtjd1Im
 
+smeftcpv 36 mdl_cQtjd8Im
 
+smeftcpv 37 mdl_cjuQb1Im
 
+smeftcpv 38 mdl_cjuQb8Im
 
+smeftcpv 39 mdl_cQujb1Im
 
+smeftcpv 40 mdl_cQujb8Im
 
+smeftcpv 41 mdl_cjtQd1Im
 
+smeftcpv 42 mdl_cjtQd8Im
 
+smeftcpv 43 mdl_cQtQb1Im
 
+smeftcpv 44 mdl_cQtQb8Im
 
+smeftcpv 45 mdl_ceHIm
 
+smeftcpv 46 mdl_ceWIm
 
+smeftcpv 47 mdl_ceBIm
 
+smeftcpv 48 mdl_cledjIm
 
+smeftcpv 49 mdl_clebQIm
 
+smeftcpv 50 mdl_cleju1Im
 
+smeftcpv 51 mdl_cleju3Im
 
+smeftcpv 52 mdl_cleQt1Im
 
+smeftcpv 53 mdl_cleQt3Im
 
+smeftcutoff 1 mdl_LambdaSMEFT
 
+sminputs 1 mdl_MW
 
+sminputs 2 mdl_Gf
 
+sminputs 3 aS
 
+switches 1 mdl_linearPropCorrections
 
+yukawa 1 mdl_ymdo
 
+yukawa 2 mdl_ymup
 
+yukawa 3 mdl_yms
 
+yukawa 4 mdl_ymc
 
+yukawa 5 mdl_ymb
 
+yukawa 6 mdl_ymt
 
+yukawa 11 mdl_yme
 
+yukawa 13 mdl_ymm
 
+yukawa 15 mdl_ymtau
 
-
-
+decay 6 mdl_WT
 
 decay 23 mdl_WZ
+
 decay 24 mdl_WW
+
 decay 25 mdl_WH
-decay 6 mdl_WT
-mass 11 mdl_Me
-mass 13 mdl_MMU
-mass 15 mdl_MTA
-mass 1 mdl_MD
-mass 23 mdl_MZ
-mass 25 mdl_MH
-mass 2 mdl_MU
-mass 3 mdl_MS
-mass 4 mdl_MC
-mass 5 mdl_MB
-mass 6 mdl_MT
-smeft 100 mdl_ceHRe
-smeft 101 mdl_ceWRe
-smeft 102 mdl_ceBRe
-smeft 103 mdl_cHl1
-smeft 104 mdl_cHl3
-smeft 105 mdl_cHe
-smeft 106 mdl_cll
-smeft 107 mdl_cll1
-smeft 108 mdl_clj1
-smeft 109 mdl_clj3
-smeft 10 mdl_cuHRe
-smeft 110 mdl_cQl1
-smeft 111 mdl_cQl3
-smeft 112 mdl_cee
-smeft 113 mdl_ceu
-smeft 114 mdl_cte
-smeft 115 mdl_ced
-smeft 116 mdl_cbe
-smeft 117 mdl_cje
-smeft 118 mdl_cQe
-smeft 119 mdl_clu
-smeft 11 mdl_ctHRe
-smeft 120 mdl_ctl
-smeft 121 mdl_cld
-smeft 122 mdl_cbl
-smeft 123 mdl_cle
-smeft 124 mdl_cledjRe
-smeft 125 mdl_clebQRe
-smeft 126 mdl_cleju1Re
-smeft 127 mdl_cleQt1Re
-smeft 128 mdl_cleju3Re
-smeft 129 mdl_cleQt3Re
-smeft 12 mdl_cdHRe
-smeft 13 mdl_cbHRe
-smeft 14 mdl_cuGRe
-smeft 15 mdl_ctGRe
-smeft 16 mdl_cuWRe
-smeft 17 mdl_ctWRe
-smeft 18 mdl_cuBRe
-smeft 19 mdl_ctBRe
-smeft 1 mdl_cG
-smeft 20 mdl_cdGRe
-smeft 21 mdl_cbGRe
-smeft 22 mdl_cdWRe
-smeft 23 mdl_cbWRe
-smeft 24 mdl_cdBRe
-smeft 25 mdl_cbBRe
-smeft 26 mdl_cHj1
-smeft 27 mdl_cHQ1
-smeft 28 mdl_cHj3
-smeft 29 mdl_cHQ3
-smeft 2 mdl_cW
-smeft 30 mdl_cHu
-smeft 31 mdl_cHt
-smeft 32 mdl_cHd
-smeft 33 mdl_cHbq
-smeft 34 mdl_cHudRe
-smeft 35 mdl_cHtbRe
-smeft 36 mdl_cjj11
-smeft 37 mdl_cjj18
-smeft 38 mdl_cjj31
-smeft 39 mdl_cjj38
-smeft 3 mdl_cH
-smeft 40 mdl_cQj11
-smeft 41 mdl_cQj18
-smeft 42 mdl_cQj31
-smeft 43 mdl_cQj38
-smeft 44 mdl_cQQ1
-smeft 45 mdl_cQQ8
-smeft 46 mdl_cuu1
-smeft 47 mdl_cuu8
-smeft 48 mdl_ctt
-smeft 49 mdl_ctu1
-smeft 4 mdl_cHbox
-smeft 50 mdl_ctu8
-smeft 51 mdl_cdd1
-smeft 52 mdl_cdd8
-smeft 53 mdl_cbb
-smeft 54 mdl_cbd1
-smeft 55 mdl_cbd8
-smeft 56 mdl_cud1
-smeft 57 mdl_ctb1
-smeft 58 mdl_ctd1
-smeft 59 mdl_cbu1
-smeft 5 mdl_cHDD
-smeft 60 mdl_cud8
-smeft 61 mdl_ctb8
-smeft 62 mdl_ctd8
-smeft 63 mdl_cbu8
-smeft 64 mdl_cutbd1Re
-smeft 65 mdl_cutbd8Re
-smeft 66 mdl_cju1
-smeft 67 mdl_cQu1
-smeft 68 mdl_cju8
-smeft 69 mdl_cQu8
-smeft 6 mdl_cHG
-smeft 70 mdl_ctj1
-smeft 71 mdl_ctj8
-smeft 72 mdl_cQt1
-smeft 73 mdl_cQt8
-smeft 74 mdl_cjd1
-smeft 75 mdl_cjd8
-smeft 76 mdl_cQd1
-smeft 77 mdl_cQd8
-smeft 78 mdl_cbj1
-smeft 79 mdl_cbj8
-smeft 7 mdl_cHW
-smeft 80 mdl_cQb1
-smeft 81 mdl_cQb8
-smeft 82 mdl_cjQtu1Re
-smeft 83 mdl_cjQtu8Re
-smeft 84 mdl_cjQbd1Re
-smeft 85 mdl_cjQbd8Re
-smeft 86 mdl_cjujd1Re
-smeft 87 mdl_cjujd8Re
-smeft 88 mdl_cjujd11Re
-smeft 89 mdl_cjujd81Re
-smeft 8 mdl_cHB
-smeft 90 mdl_cQtjd1Re
-smeft 91 mdl_cQtjd8Re
-smeft 92 mdl_cjuQb1Re
-smeft 93 mdl_cjuQb8Re
-smeft 94 mdl_cQujb1Re
-smeft 95 mdl_cQujb8Re
-smeft 96 mdl_cjtQd1Re
-smeft 97 mdl_cjtQd8Re
-smeft 98 mdl_cQtQb1Re
-smeft 99 mdl_cQtQb8Re
-smeft 9 mdl_cHWB
-smeftcpv 10 mdl_ctWIm
-smeftcpv 11 mdl_cuBIm
-smeftcpv 12 mdl_ctBIm
-smeftcpv 13 mdl_cdGIm
-smeftcpv 14 mdl_cbGIm
-smeftcpv 15 mdl_cdWIm
-smeftcpv 16 mdl_cbWIm
-smeftcpv 17 mdl_cdBIm
-smeftcpv 18 mdl_cbBIm
-smeftcpv 19 mdl_cuHIm
-smeftcpv 1 mdl_cGtil
-smeftcpv 20 mdl_ctHIm
-smeftcpv 21 mdl_cdHIm
-smeftcpv 22 mdl_cbHIm
-smeftcpv 23 mdl_cHudIm
-smeftcpv 24 mdl_cHtbIm
-smeftcpv 25 mdl_cutbd1Im
-smeftcpv 26 mdl_cutbd8Im
-smeftcpv 27 mdl_cjQtu1Im
-smeftcpv 28 mdl_cjQtu8Im
-smeftcpv 29 mdl_cjQbd1Im
-smeftcpv 2 mdl_cWtil
-smeftcpv 30 mdl_cjQbd8Im
-smeftcpv 31 mdl_cjujd1Im
-smeftcpv 32 mdl_cjujd8Im
-smeftcpv 33 mdl_cjujd11Im
-smeftcpv 34 mdl_cjujd81Im
-smeftcpv 35 mdl_cQtjd1Im
-smeftcpv 36 mdl_cQtjd8Im
-smeftcpv 37 mdl_cjuQb1Im
-smeftcpv 38 mdl_cjuQb8Im
-smeftcpv 39 mdl_cQujb1Im
-smeftcpv 3 mdl_cHGtil
-smeftcpv 40 mdl_cQujb8Im
-smeftcpv 41 mdl_cjtQd1Im
-smeftcpv 42 mdl_cjtQd8Im
-smeftcpv 43 mdl_cQtQb1Im
-smeftcpv 44 mdl_cQtQb8Im
-smeftcpv 45 mdl_ceHIm
-smeftcpv 46 mdl_ceWIm
-smeftcpv 47 mdl_ceBIm
-smeftcpv 48 mdl_cledjIm
-smeftcpv 49 mdl_clebQIm
-smeftcpv 4 mdl_cHWtil
-smeftcpv 50 mdl_cleju1Im
-smeftcpv 51 mdl_cleju3Im
-smeftcpv 52 mdl_cleQt1Im
-smeftcpv 53 mdl_cleQt3Im
-smeftcpv 5 mdl_cHBtil
-smeftcpv 6 mdl_cHWBtil
-smeftcpv 7 mdl_cuGIm
-smeftcpv 8 mdl_ctGIm
-smeftcpv 9 mdl_cuWIm
-smeftcutoff 1 mdl_LambdaSMEFT
-sminputs 1 mdl_MW
-sminputs 2 mdl_Gf
-sminputs 3 aS
-switches 1 mdl_linearPropCorrections
-yukawa 11 mdl_yme
-yukawa 13 mdl_ymm
-yukawa 15 mdl_ymtau
-yukawa 1 mdl_ymdo
-yukawa 2 mdl_ymup
-yukawa 3 mdl_yms
-yukawa 4 mdl_ymc
-yukawa 5 mdl_ymb
-yukawa 6 mdl_ymt
