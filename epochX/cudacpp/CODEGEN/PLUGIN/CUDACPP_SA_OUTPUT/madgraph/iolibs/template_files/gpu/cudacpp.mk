@@ -1106,10 +1106,20 @@ else
 	@cat /proc/cpuinfo | grep "physical id" | sort -u
 endif
 	@echo ""
-ifneq ($(shell which nvidia-smi 2>/dev/null),)
-	nvidia-smi -L
+	# some systems may have <vendor>-smi installed, but it fails to execute
+	# because it cannot communicate with the hardware
+	@if nvidia-smi &>/dev/null ; then \
+		nvidia-smi -L ;\
+	else \
+		echo "No Nvidia GPU detected" ;\
+	fi
 	@echo ""
-endif
+	@if amd-smi &>/dev/null ; then \
+		amd-smi static -a ;\
+		amd-smi list ;\
+	else \
+		echo "No AMD GPU detected" ;\
+	fi
 	@echo USECCACHE=$(USECCACHE)
 ifeq ($(USECCACHE),1)
 	ccache --version | head -1
