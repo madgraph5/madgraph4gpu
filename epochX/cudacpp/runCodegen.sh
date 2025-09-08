@@ -96,7 +96,7 @@ for process in ${PROCESSES}; do
   process_tmp=${process%/*}_gen
   processFile_tmp=$(mktemp /tmp/mg5_XXXXXXX)
   echo "Generating ${process} into ${process_tmp} ..."
-  sed -E "s/(output [[:graph:]]+) [[:graph:]]+ (.*)/\1 ${process_tmp} \2/" < ${ProcessFile} | tee ${processFile_tmp}
+  sed -E "s/(output [[:graph:]]+) [[:graph:]]+\s*?(.*)/\1 ${process_tmp} \2/" < ${ProcessFile} | tee ${processFile_tmp}
   echo ""
   ${mg5} < ${processFile_tmp} || { echo -e "\n\nError generating ${process}"; exit 1; }
 
