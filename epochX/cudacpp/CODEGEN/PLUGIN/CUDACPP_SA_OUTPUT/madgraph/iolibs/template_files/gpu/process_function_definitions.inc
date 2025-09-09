@@ -97,47 +97,6 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL
-  class DeviceAccessJamp
-  {
-  public:
-    static __device__ inline cxtype_ref
-    kernelAccessIcol( fptype* buffer, const int icol )
-    {
-      const int nevt = gridDim.x * blockDim.x;
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-#ifndef MGONGPU_HAS_NO_BLAS
-      // New stridings for cuBLAS: two separate ncolor*nevt matrices for each of real and imag
-      // This is now used by default also for CUDA kernels (unless HASBLAS=hasNoBlas is set at runtime)
-      // Striding 'new1' might offer better performance, but would require changes in the BLAS code (to transpose Jamp before calling gemm)
-      //return cxtype_ref( buffer[0 * ncolor * nevt + icol * nevt + ievt], buffer[1 * ncolor * nevt + icol * nevt + ievt] ); // new1
-      // Striding 'new2' ensures that the current cuBLAS code is fully functional, but gives overall slower throughputs in both cuBLAS and kernels
-      return cxtype_ref( buffer[0 * nevt * ncolor + ievt * ncolor + icol], buffer[1 * nevt * ncolor + ievt * ncolor + icol] ); // new2 transpose
-#else
-      // Old striding for CUDA kernels: ncolor separate 2*nevt matrices for each color
-      // This is now used for CUDA kernels only if HASBLAS=hasNoBlas is set at build time
-      return cxtype_ref( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // old
-#endif
-    }
-    static __device__ inline const cxtype
-    kernelAccessIcolConst( const fptype* buffer, const int icol )
-    {
-      const int nevt = gridDim.x * blockDim.x;
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-#ifndef MGONGPU_HAS_NO_BLAS
-      // New stridings for cuBLAS: two separate ncolor*nevt matrices for each of real and imag
-      //return cxtype( buffer[0 * ncolor * nevt + icol * nevt + ievt], buffer[1 * ncolor * nevt + icol * nevt + ievt] ); // new1
-      return cxtype( buffer[0 * nevt * ncolor + ievt * ncolor + icol], buffer[1 * nevt * ncolor + ievt * ncolor + icol] ); // new2 transpose
-#else
-      // Old striding for CUDA kernels: ncolor separate 2*nevt matrices for each color
-      return cxtype( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // old
-#endif
-    }
-  };
-#endif
-
-  //--------------------------------------------------------------------------
-
-#ifdef MGONGPUCPP_GPUIMPL
   class DeviceAccessJamp2
   {
   public:
@@ -210,21 +169,6 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   CPPProcess::~CPPProcess() {}
-
-  //--------------------------------------------------------------------------
-
-#ifdef MGONGPUCPP_GPUIMPL
-  void createNormalizedColorMatrix()
-  {
-    static bool first = true;
-    if( first )
-    {
-      first = false;
-      constexpr NormalizedColorMatrix<fptype2> normalizedColorMatrix2;
-      gpuMemcpyToSymbol( s_pNormalizedColorMatrix2, normalizedColorMatrix2.value, ncolor * ncolor * sizeof( fptype2 ) );
-    }
-  }
-#endif
 
   //--------------------------------------------------------------------------
 
