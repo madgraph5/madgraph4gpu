@@ -115,7 +115,7 @@ namespace mg5amcCpu
 #else
       // Old striding for CUDA kernels: ncolor separate 2*nevt matrices for each color
       // This is now used for CUDA kernels only if HASBLAS=hasNoBlas is set at build time
-      return cxtype_ref( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // OLD
+      return cxtype_ref( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // old
 #endif
     }
     static __device__ inline const cxtype
@@ -129,7 +129,7 @@ namespace mg5amcCpu
       return cxtype( buffer[0 * nevt * ncolor + ievt * ncolor + icol], buffer[1 * nevt * ncolor + ievt * ncolor + icol] ); // new2 transpose
 #else
       // Old striding for CUDA kernels: ncolor separate 2*nevt matrices for each color
-      return cxtype( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] );
+      return cxtype( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // old
 #endif
     }
   };
@@ -220,10 +220,6 @@ namespace mg5amcCpu
     if( first )
     {
       first = false;
-#ifndef MGONGPU_HAS_NO_BLAS
-      constexpr NormalizedColorMatrix<fptype> normalizedColorMatrix;
-      gpuMemcpyToSymbol( s_pNormalizedColorMatrix, normalizedColorMatrix.value, ncolor * ncolor * sizeof( fptype ) );
-#endif
       constexpr NormalizedColorMatrix<fptype2> normalizedColorMatrix2;
       gpuMemcpyToSymbol( s_pNormalizedColorMatrix2, normalizedColorMatrix2.value, ncolor * ncolor * sizeof( fptype2 ) );
     }
@@ -729,7 +725,7 @@ namespace mg5amcCpu
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: allJamps super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
-            fptype* ghelAllBlasTmp,             // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            fptype2* ghelAllBlasTmp,            // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             gpuBlasHandle_t* ghelBlasHandles,   // input: cuBLAS/hipBLAS handles (index is ighel: only the first nGoodHel <= ncomb are non-null)
             gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
             const int gpublocks,                // input: cuda gpublocks

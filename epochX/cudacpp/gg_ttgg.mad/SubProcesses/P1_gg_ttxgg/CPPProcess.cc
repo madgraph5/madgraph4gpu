@@ -2566,7 +2566,7 @@ namespace mg5amcCpu
         for( int icol = 0; icol < ncolor; icol++ )
           jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] ); // may underflow #831
       }
-#else
+#else /* clang-format off */
       assert( iParity == 0 ); // sanity check for J2_ACCESS
       using J2_ACCESS = DeviceAccessJamp2;
       if( colAllJamp2s ) // disable color choice if nullptr
@@ -2575,7 +2575,7 @@ namespace mg5amcCpu
           // NB: atomicAdd is needed after moving to cuda streams with one helicity per stream!
           atomicAdd( &J2_ACCESS::kernelAccessIcol( colAllJamp2s, icol ), cxabs2( jamp_sv[icol] ) );
       }
-#endif
+#endif /* clang-format on */
 #endif
 
       // *** PREPARE OUTPUT JAMPS ***
@@ -2646,7 +2646,7 @@ namespace mg5amcCpu
     }
     T value[ncolor * ncolor];
   };
-  // The fptype2 version is the default used by kernels (supporting mixed floating point mode)
+  // The fptype2 version is the default used by kernels (supporting mixed floating point mode also in blas)
   static __device__ fptype2 s_pNormalizedColorMatrix2[ncolor * ncolor];
 #endif
 
