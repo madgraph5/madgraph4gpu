@@ -3099,6 +3099,10 @@ namespace mg5amcCpu
     m_masses.push_back( m_pars->mdl_MT );
     m_masses.push_back( m_pars->ZERO );
     m_masses.push_back( m_pars->ZERO );
+#ifdef MGONGPUCPP_GPUIMPL
+    // Create the normalized color matrix in device memory
+    createNormalizedColorMatrix();
+#endif
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const fptype tIPD[nIPD] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
@@ -3120,8 +3124,6 @@ namespace mg5amcCpu
 #endif
     //for ( int i=0; i<nIPD; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;
     //for ( int i=0; i<Parameters_sm::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
-    // Create the normalized color matrix in device memory
-    createNormalizedColorMatrix();
   }
 #else
   // Initialize process (with hardcoded parameters)
@@ -3143,8 +3145,10 @@ namespace mg5amcCpu
     m_masses.push_back( Parameters_sm::mdl_MT );
     m_masses.push_back( Parameters_sm::ZERO );
     m_masses.push_back( Parameters_sm::ZERO );
+#ifdef MGONGPUCPP_GPUIMPL
     // Create the normalized color matrix in device memory
     createNormalizedColorMatrix();
+#endif
   }
 #endif
 
