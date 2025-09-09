@@ -359,7 +359,18 @@ namespace mg5amcGpu
 #ifndef MGONGPU_HAS_NO_BLAS
     // Decide at runtime whether to use BLAS for color sums
     const char* blasEnv = getenv( "CUDACPP_RUNTIME_BLASCOLORSUM" );
-    if( blasEnv ) m_blasColorSum = true; // fixme? eventually set default=true and decode "Y" and "N" choices?
+    static bool first = true;
+    if( blasEnv && std::string( blasEnv ) != "" )
+    {
+      m_blasColorSum = true; // fixme? eventually set default=true and decode "Y" and "N" choices?
+      if( first ) std::cout << "INFO: Environment variable CUDACPP_RUNTIME_BLASCOLORSUM is set and non-empty: enable BLAS" << std::endl;
+      first = false;
+    }
+    else
+    {
+      if( first ) std::cout << "INFO: Environment variable CUDACPP_RUNTIME_BLASCOLORSUM is empty or not set: disable BLAS" << std::endl;
+      first = false;
+    }
 #endif
   }
 
@@ -429,7 +440,13 @@ namespace mg5amcGpu
 #endif
 #ifndef MGONGPU_HAS_NO_BLAS
     // Create the "many-helicity" super-buffers of real/imag ncolor*nevt temporary buffers for cuBLAS/hipBLAS intermediate results in color_sum_blas
-    if( m_blasColorSum ) m_pHelBlasTmp.reset( new DeviceBufferSimple( nGoodHel * CPPProcess::ncolor * mgOnGpu::nx2 * nevt ) );
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+    // Mixed precision mode: need two fptype2[ncolor*2*nevt] buffers and one fptype2[nevt] buffer per good helicity
+    if( m_blasColorSum ) m_pHelBlasTmp.reset( new DeviceBufferSimple2( nGoodHel * ( 2 * CPPProcess::ncolor * mgOnGpu::nx2 + 1 ) * nevt ) );
+#else
+    // Standard single/double precision mode: need one fptype2[ncolor*2*nevt] buffer per good helicity
+    if( m_blasColorSum ) m_pHelBlasTmp.reset( new DeviceBufferSimple2( nGoodHel * CPPProcess::ncolor * mgOnGpu::nx2 * nevt ) );
+#endif
 #endif
     // Return the number of good helicities
     return nGoodHel;
@@ -441,10 +458,10 @@ namespace mg5amcGpu
   {
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
 #ifndef MGONGPU_HAS_NO_BLAS
-    fptype* ghelAllBlasTmp = ( m_blasColorSum ? m_pHelBlasTmp->data() : nullptr );
+    fptype2* ghelAllBlasTmp = ( m_blasColorSum ? m_pHelBlasTmp->data() : nullptr );
     gpuBlasHandle_t* ghelBlasHandles = ( m_blasColorSum ? m_helBlasHandles : nullptr );
 #else
-    fptype* ghelAllBlasTmp = nullptr;
+    fptype2* ghelAllBlasTmp = nullptr;
     gpuBlasHandle_t* ghelBlasHandles = nullptr;
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
