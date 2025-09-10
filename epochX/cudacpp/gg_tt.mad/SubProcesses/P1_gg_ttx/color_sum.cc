@@ -239,47 +239,6 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPUCPP_GPUIMPL
-#ifndef MGONGPU_HAS_NO_BLAS
-  __global__ void
-  inspectJampsZtempFpt2( const fptype2* allFpt2, // input: jamps/ztemp[ncolor*2*nevt] for one specific helicity
-                         int icall, bool jamps )
-  {
-    const int nevt = gridDim.x * blockDim.x;
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-    //const bool debug = ( ievt == 0 || ievt == 1 );
-    const bool debug = true;
-    if( !debug ) return;
-    for( int iw = 0; iw < ievt/32; iw++ ) __nanosleep(1e8); // for reproducible printouts (delay warps within the single warp)
-    for( int icol = 0; icol < ncolor; icol++ )
-      for( int ix2 = 0; ix2 < mgOnGpu::nx2; ix2++ )
-        printf( "inspectJampsZtempFpt2: icall=%3d ievt=%6d icol=%3d ix2=%1d %s=%7.0e\n", icall, ievt, icol, ix2, // or %8.1e
-                ( jamps ? "jamps" : "ztemp" ), allFpt2[ix2 * nevt * ncolor + ievt * ncolor + icol] );
-  }
-#endif
-#endif
-
-  //--------------------------------------------------------------------------
-
-#ifdef MGONGPUCPP_GPUIMPL
-#ifndef MGONGPU_HAS_NO_BLAS
-  __global__ void
-  inspectMEsFpt2( const fptype2* allMEs, // input: allMEs[nevt] for one specific helicity
-                  int icall )
-  {
-    //const int nevt = gridDim.x * blockDim.x;
-    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-    //const bool debug = ( ievt == 0 || ievt == 1 );
-    const bool debug = true;
-    if( !debug ) return;
-    for( int iw = 0; iw < ievt/32; iw++ ) __nanosleep(1e8); // for reproducible printouts (delay warps within the single warp)
-    printf( "inspectMEs: icall=%3d ievt=%6d MEs=%7.0e\n", icall, ievt, allMEs[ievt] ); // or %8.1e
-  }
-#endif
-#endif
-
-  //--------------------------------------------------------------------------
-
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
 #ifndef MGONGPU_HAS_NO_BLAS
   void
@@ -320,9 +279,6 @@ namespace mg5amcCpu
     const fptype2* allJampsReal = allJamps;                 // this is not a cast (the two types are identical)
     const fptype2* allJampsImag = allJamps + ncolor * nevt; // this is not a cast (the two types are identical)
 #endif
-    static int icall = -1;
-    icall++;
-    //gpuLaunchKernelStream( inspectJampsZtempFpt2, 1, gpublocks*gputhreads, nullptr, allJampsReal, icall, true ); // single block
     // Real and imaginary components
     fptype2* allZtempReal = allZtempBoth;
     fptype2* allZtempImag = allZtempBoth + ncolor * nevt;
@@ -356,8 +312,6 @@ namespace mg5amcCpu
                                 allJampsImag, ncolorK,     // JampsV is ncolorK x nevtN
                                 &beta1,
                                 allZtempImag, ncolorM ) ); // Ztemp is ncolorM x ncolorN
-    //gpuLaunchKernelStream( inspectJampsZtempFpt2, 1, gpublocks*gputhreads, nullptr, allZtempReal, icall, false ); // single block
-    //gpuLaunchKernelStream( inspectJampsZtempFpt2, 1, gpublocks*gputhreads, nullptr, allJampsReal, icall, true ); // single block
 
     // Step 2: For each ievt, compute the dot product of JampsVector[ncolor][ievt] dot tmp[ncolor][ievt]
     // In this case alpha=1 and beta=1 (the operation is ME = alpha * ( Tmp dot JampsVector ) + beta * ME)
@@ -385,7 +339,6 @@ namespace mg5amcCpu
                                               allMEsFpt2, 1, 1,             // output is a 1x1 result for each "batch" (i.e. for each ievt)
                                               nevt ) );                     // there are nevt "batches"
 
-    gpuLaunchKernelStream( inspectMEsFpt2, 1, gpublocks*gputhreads, nullptr, allMEsFpt2, icall ); // single block
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Convert MEs from float to double
     gpuLaunchKernelStream( convertF2D_MEs, gpublocks, gputhreads, stream, allMEs, allMEsFpt2 );
