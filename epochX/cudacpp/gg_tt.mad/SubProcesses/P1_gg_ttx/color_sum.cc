@@ -261,6 +261,25 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_HAS_NO_BLAS
+  __global__ void
+  inspectMEsFpt2( const fptype2* allMEs, // input: allMEs[nevt] for one specific helicity
+                  int icall )
+  {
+    //const int nevt = gridDim.x * blockDim.x;
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+    //const bool debug = ( ievt == 0 || ievt == 1 );
+    const bool debug = true;
+    if( !debug ) return;
+    for( int iw = 0; iw < ievt/32; iw++ ) __nanosleep(1e8); // for reproducible printouts (delay warps within the single warp)
+    printf( "inspectMEs: icall=%3d ievt=%6d MEs=%7.0e\n", icall, ievt, allMEs[ievt] ); // or %8.1e
+  }
+#endif
+#endif
+
+  //--------------------------------------------------------------------------
+
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
 #ifndef MGONGPU_HAS_NO_BLAS
   void
@@ -338,7 +357,7 @@ namespace mg5amcCpu
                                 &beta1,
                                 allZtempImag, ncolorM ) ); // Ztemp is ncolorM x ncolorN
     //gpuLaunchKernelStream( inspectJampsZtempFpt2, 1, gpublocks*gputhreads, nullptr, allZtempReal, icall, false ); // single block
-    gpuLaunchKernelStream( inspectJampsZtempFpt2, 1, gpublocks*gputhreads, nullptr, allJampsReal, icall, true ); // single block
+    //gpuLaunchKernelStream( inspectJampsZtempFpt2, 1, gpublocks*gputhreads, nullptr, allJampsReal, icall, true ); // single block
 
     // Step 2: For each ievt, compute the dot product of JampsVector[ncolor][ievt] dot tmp[ncolor][ievt]
     // In this case alpha=1 and beta=1 (the operation is ME = alpha * ( Tmp dot JampsVector ) + beta * ME)
@@ -366,6 +385,7 @@ namespace mg5amcCpu
                                               allMEsFpt2, 1, 1,             // output is a 1x1 result for each "batch" (i.e. for each ievt)
                                               nevt ) );                     // there are nevt "batches"
 
+    gpuLaunchKernelStream( inspectMEsFpt2, 1, gpublocks*gputhreads, nullptr, allMEsFpt2, icall ); // single block
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
     // Convert MEs from float to double
     gpuLaunchKernelStream( convertF2D_MEs, gpublocks, gputhreads, stream, allMEs, allMEsFpt2 );
