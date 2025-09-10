@@ -356,22 +356,30 @@ namespace mg5amcGpu
     m_pHelNumerators.reset( new DeviceBufferSimple( this->nevt() ) );
     m_pHelDenominators.reset( new DeviceBufferSimple( this->nevt() ) );
 #endif
-#ifndef MGONGPU_HAS_NO_BLAS
     // Decide at runtime whether to use BLAS for color sums
     const char* blasEnv = getenv( "CUDACPP_RUNTIME_BLASCOLORSUM" );
     static bool first = true;
-    if( blasEnv && std::string( blasEnv ) != "" )
+    if( first )
     {
-      m_blasColorSum = true; // fixme? eventually set default=true and decode "Y" and "N" choices?
-      if( first ) std::cout << "INFO: Environment variable CUDACPP_RUNTIME_BLASCOLORSUM is set and non-empty: enable BLAS" << std::endl;
       first = false;
-    }
-    else
-    {
-      if( first ) std::cout << "INFO: Environment variable CUDACPP_RUNTIME_BLASCOLORSUM is empty or not set: disable BLAS" << std::endl;
-      first = false;
-    }
+      if( blasEnv && std::string( blasEnv ) != "" )
+      {
+#ifndef MGONGPU_HAS_NO_BLAS
+        m_blasColorSum = true; // fixme? eventually set default=true and decode "Y" and "N" choices?
+        std::cout << "INFO: Env variable CUDACPP_RUNTIME_BLASCOLORSUM is set and non-empty: enable BLAS" << std::endl;
+#else
+        std::cout << "WARNING! Env variable CUDACPP_RUNTIME_BLASCOLORSUM is set and non-empty, but BLAS was disabled at build time" << std::endl;
 #endif
+      }
+      else
+      {
+#ifndef MGONGPU_HAS_NO_BLAS
+        std::cout << "INFO: Env variable CUDACPP_RUNTIME_BLASCOLORSUM is empty or not set: disable BLAS" << std::endl;
+#else
+        std::cout << "INFO: BLAS was disabled at build time" << std::endl;
+#endif
+      }
+    }
   }
 
   //--------------------------------------------------------------------------
