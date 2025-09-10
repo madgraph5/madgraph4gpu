@@ -34,10 +34,10 @@ namespace mg5amcCpu
 #ifndef MGONGPU_HAS_NO_BLAS
       // New stridings for cuBLAS: two separate ncolor*nevt matrices for each of real and imag
       // This is now used by default also for CUDA kernels (unless HASBLAS=hasNoBlas is set at runtime)
-      // Striding 'new1' might offer better performance, but would require changes in the BLAS code (to transpose Jamp before calling gemm)
-      //return cxtype_ref( buffer[0 * ncolor * nevt + icol * nevt + ievt], buffer[1 * ncolor * nevt + icol * nevt + ievt] ); // new1
       // Striding 'new2' ensures that the current cuBLAS code is fully functional, but gives overall slower throughputs in both cuBLAS and kernels
-      return cxtype_ref( buffer[0 * nevt * ncolor + ievt * ncolor + icol], buffer[1 * nevt * ncolor + ievt * ncolor + icol] ); // new2 transpose
+      //return cxtype_ref( buffer[0 * nevt * ncolor + ievt * ncolor + icol], buffer[1 * nevt * ncolor + ievt * ncolor + icol] ); // new2 transpose
+      // Striding 'new1' might offer better performance, but has required changes in the BLAS code (to transpose Jamp before calling gemm)
+      return cxtype_ref( buffer[0 * ncolor * nevt + icol * nevt + ievt], buffer[1 * ncolor * nevt + icol * nevt + ievt] ); // new1
 #else
       // Old striding for CUDA kernels: ncolor separate 2*nevt matrices for each color
       // This is now used for CUDA kernels only if HASBLAS=hasNoBlas is set at build time
@@ -52,8 +52,8 @@ namespace mg5amcCpu
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
 #ifndef MGONGPU_HAS_NO_BLAS
       // New stridings for cuBLAS: two separate ncolor*nevt matrices for each of real and imag
-      //return cxtype( buffer[0 * ncolor * nevt + icol * nevt + ievt], buffer[1 * ncolor * nevt + icol * nevt + ievt] ); // new1
-      return cxtype( buffer[0 * nevt * ncolor + ievt * ncolor + icol], buffer[1 * nevt * ncolor + ievt * ncolor + icol] ); // new2 transpose
+      //return cxtype( buffer[0 * nevt * ncolor + ievt * ncolor + icol], buffer[1 * nevt * ncolor + ievt * ncolor + icol] ); // new2 transpose
+      return cxtype( buffer[0 * ncolor * nevt + icol * nevt + ievt], buffer[1 * ncolor * nevt + icol * nevt + ievt] ); // new1
 #else
       // Old striding for CUDA kernels: ncolor separate 2*nevt matrices for each color
       return cxtype( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // old
