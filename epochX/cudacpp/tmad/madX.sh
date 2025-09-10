@@ -513,7 +513,7 @@ if [ "${maketype}" == "-makeonly" ]; then printf "\nMAKE COMPLETED\n"; exit 0; f
 # PART 2 - run madevent
 ##########################################################################
 
-export CUDACPP_RUNTIME_BLASCOLORSUM=1
+unset CUDACPP_RUNTIME_BLASCOLORSUM
 printf "\nCUDACPP_RUNTIME_BLASCOLORSUM=$CUDACPP_RUNTIME_BLASCOLORSUM\n"
 
 unset CUDACPP_RUNTIME_CUBLASTF32TENSOR
