@@ -481,6 +481,8 @@ function runmadevent()
 unset GTEST_ROOT
 unset LOCALGTEST
 
+export HASBLAS=hasBlas
+
 for suff in $suffs; do
 
   dir=$(showdir)

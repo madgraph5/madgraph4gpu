@@ -437,6 +437,8 @@ done
 unset GTEST_ROOT
 unset LOCALGTEST
 
+export HASBLAS=hasBlas
+
 if [ "${maketype}" == "-dryrun" ]; then
 
   printf "DRYRUN: SKIP MAKE\n\n"
