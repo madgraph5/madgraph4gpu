@@ -239,6 +239,28 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_HAS_NO_BLAS
+  __global__ void
+  inspectJampsZtempFpt2( const fptype2* allFpt2, // input: jamps/ztemp[ncolor*2*nevt] for one specific helicity
+                         bool jamps = true )
+  {
+    const int nevt = gridDim.x * blockDim.x;
+    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+    //const bool debug = ( ievt == 0 || ievt == 1 );
+    const bool debug = true;
+    if( !debug ) return;
+    for( int iw = 0; iw < ievt/32; iw++ ) __nanosleep(1e7); // for reproducible printouts (delay warps within the single warp)
+    for( int icol = 0; icol < ncolor; icol++ )
+      for( int ix2 = 0; ix2 < mgOnGpu::nx2; ix2++ )
+        printf( "inspectJampsZtempFpt2: ievt=%6d icol=%3d ix2=%1d %s=%7.0e\n", ievt, icol, ix2, // or %8.1e
+                ( jamps ? "jamps" : "ztemp" ), allFpt2[ix2 * nevt * ncolor + ievt * ncolor + icol] );
+  }
+#endif
+#endif
+
+  //--------------------------------------------------------------------------
+
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
 #ifndef MGONGPU_HAS_NO_BLAS
   void
@@ -279,6 +301,7 @@ namespace mg5amcCpu
     const fptype2* allJampsReal = allJamps;                 // this is not a cast (the two types are identical)
     const fptype2* allJampsImag = allJamps + ncolor * nevt; // this is not a cast (the two types are identical)
 #endif
+    gpuLaunchKernelStream( inspectJampsZtempFpt2, 1, gpublocks*gputhreads, nullptr, allJampsReal ); // for reproducible printouts (single block)
     // Real and imaginary components
     fptype2* allZtempReal = allZtempBoth;
     fptype2* allZtempImag = allZtempBoth + ncolor * nevt;
