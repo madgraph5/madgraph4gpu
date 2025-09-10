@@ -288,15 +288,15 @@ namespace mg5amcCpu
     // - allJamps(icol,ievt).imag is allJamps[1 * ncolor * nevt + icol * nevt + ievt] // "new1"
 
     // Step 1: Compute Ztemp[ncolor][nevt] = ColorMatrix[ncolor][ncolor] * JampsVector[ncolor][nevt] for both real and imag
-    // In this case alpha=1 and beta=0 (the operation is Ztemp = alpha * ColorMatrix * JampsVector + beta * Ztemp)
+    // In this case alpha=1 and beta=0: the operation is Ztemp = alpha * ColorMatrix * JampsVector + beta * Ztemp
     fptype2 alpha1 = 1;
     fptype2 beta1 = 0;
     const int ncolorM = ncolor;
     const int nevtN = nevt;
     const int ncolorK = ncolor;
     checkGpuBlas( gpuBlasTgemm( *pBlasHandle,
-                                CUBLAS_OP_N,               // do not transpose ColMat
-                                CUBLAS_OP_T,               // transpose JampsV (new1)
+                                GPUBLAS_OP_N,              // do not transpose ColMat
+                                GPUBLAS_OP_T,              // transpose JampsV (new1)
                                 ncolorM, nevtN, ncolorK,
                                 &alpha1,
                                 devNormColMat, ncolorM,    // ColMat is ncolorM x ncolorK
@@ -304,8 +304,8 @@ namespace mg5amcCpu
                                 &beta1,
                                 allZtempReal, ncolorM ) ); // Ztemp is ncolorM x nevtN
     checkGpuBlas( gpuBlasTgemm( *pBlasHandle,
-                                CUBLAS_OP_N,               // do not transpose ColMat
-                                CUBLAS_OP_T,               // transpose JampsV (new1)
+                                GPUBLAS_OP_N,              // do not transpose ColMat
+                                GPUBLAS_OP_T,              // transpose JampsV (new1)
                                 ncolorM, nevtN, ncolorK,
                                 &alpha1,
                                 devNormColMat, ncolorM,    // ColMat is ncolorM x ncolorK
@@ -314,13 +314,13 @@ namespace mg5amcCpu
                                 allZtempImag, ncolorM ) ); // Ztemp is ncolorM x nevtN
 
     // Step 2: For each ievt, compute the dot product of JampsVector[ncolor][ievt] dot tmp[ncolor][ievt]
-    // In this case alpha=1 and beta=1 (the operation is ME = alpha * ( Tmp dot JampsVector ) + beta * ME)
+    // In this case alpha=1 and beta=1: the operation is ME = alpha * ( Tmp dot JampsVector ) + beta * ME
     // Use cublasSgemmStridedBatched to perform these batched dot products in one call
     fptype2 alpha2 = 1;
     fptype2 beta2 = 1;
     checkGpuBlas( gpuBlasTgemmStridedBatched( *pBlasHandle,
-                                              CUBLAS_OP_N,                    // do not transpose JampsV (new1)
-                                              CUBLAS_OP_N,                    // do not transpose Tmp
+                                              GPUBLAS_OP_N,                   // do not transpose JampsV (new1)
+                                              GPUBLAS_OP_N,                   // do not transpose Tmp
                                               1, 1, ncolor,                   // result is 1x1 (dot product)
                                               &alpha2,
                                               allJampsReal, nevt, 1,          // allJamps is nevt x ncolor, stride 1 for each ievt column (new1)
@@ -329,8 +329,8 @@ namespace mg5amcCpu
                                               allMEsFpt2, 1, 1,               // output is a 1x1 result for each "batch" (i.e. for each ievt)
                                               nevt ) );                       // there are nevt "batches"
     checkGpuBlas( gpuBlasTgemmStridedBatched( *pBlasHandle,
-                                              CUBLAS_OP_N,                    // do not transpose JampsV (new1)
-                                              CUBLAS_OP_N,                    // do not transpose Tmp
+                                              GPUBLAS_OP_N,                   // do not transpose JampsV (new1)
+                                              GPUBLAS_OP_N,                   // do not transpose Tmp
                                               1, 1, ncolor,                   // result is 1x1 (dot product)
                                               &alpha2,
                                               allJampsImag, nevt, 1,          // allJamps is nevt x ncolor, stride 1 for each ievt column (new1)
