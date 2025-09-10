@@ -130,8 +130,7 @@
 
 //--------------------------------------------------------------------------
 
-#ifdef MGONGPU_FPTYPE_FLOAT
-//#ifdef MGONGPU_FPTYPE2_FLOAT
+#ifdef MGONGPU_FPTYPE2_FLOAT
 #define gpuBlasTaxpy gpuBlasSaxpy
 #define gpuBlasTdot gpuBlasSdot
 #define gpuBlasTgemv gpuBlasSgemv

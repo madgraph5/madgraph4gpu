@@ -221,6 +221,9 @@ namespace mg5amcCpu
     // Decide at runtime whether to use BLAS for color sums
     bool m_blasColorSum;
 
+    // Decide at runtime whether TF32TENSOR math should be used in cuBLAS
+    bool m_blasTf32Tensor;
+
     // The super-buffer of nGoodHel cuBLAS/hipBLAS temporary buffers
     std::unique_ptr<DeviceBufferSimple2> m_pHelBlasTmp;
 

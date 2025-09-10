@@ -324,6 +324,7 @@ namespace mg5amcGpu
 #endif
 #ifndef MGONGPU_HAS_NO_BLAS
     , m_blasColorSum( false )
+    , m_blasTf32Tensor( false )
     , m_pHelBlasTmp()
     , m_helBlasHandles()
 #endif
@@ -356,22 +357,59 @@ namespace mg5amcGpu
     m_pHelNumerators.reset( new DeviceBufferSimple( this->nevt() ) );
     m_pHelDenominators.reset( new DeviceBufferSimple( this->nevt() ) );
 #endif
-#ifndef MGONGPU_HAS_NO_BLAS
     // Decide at runtime whether to use BLAS for color sums
-    const char* blasEnv = getenv( "CUDACPP_RUNTIME_BLASCOLORSUM" );
+    // Decide at runtime whether TF32TENSOR math should be used in cuBLAS
     static bool first = true;
-    if( blasEnv && std::string( blasEnv ) != "" )
+    if( first )
     {
-      m_blasColorSum = true; // fixme? eventually set default=true and decode "Y" and "N" choices?
-      if( first ) std::cout << "INFO: Environment variable CUDACPP_RUNTIME_BLASCOLORSUM is set and non-empty: enable BLAS" << std::endl;
       first = false;
-    }
-    else
-    {
-      if( first ) std::cout << "INFO: Environment variable CUDACPP_RUNTIME_BLASCOLORSUM is empty or not set: disable BLAS" << std::endl;
-      first = false;
-    }
+      // Analyse environment variable CUDACPP_RUNTIME_BLASCOLORSUM
+      const char* blasEnv = getenv( "CUDACPP_RUNTIME_BLASCOLORSUM" );
+      if( blasEnv && std::string( blasEnv ) != "" )
+      {
+#ifndef MGONGPU_HAS_NO_BLAS
+        m_blasColorSum = true; // fixme? eventually set default=true and decode "Y" and "N" choices?
+        std::cout << "INFO: Env variable CUDACPP_RUNTIME_BLASCOLORSUM is set and non-empty: enable BLAS" << std::endl;
+#else
+        throw std::runtime_error( "Env variable CUDACPP_RUNTIME_BLASCOLORSUM is set and non-empty, but BLAS was disabled at build time" );
 #endif
+      }
+      else
+      {
+#ifndef MGONGPU_HAS_NO_BLAS
+        std::cout << "INFO: Env variable CUDACPP_RUNTIME_BLASCOLORSUM is empty or not set: disable BLAS" << std::endl;
+#else
+        std::cout << "INFO: BLAS was disabled at build time" << std::endl;
+#endif
+      }
+#ifndef MGONGPU_HAS_NO_BLAS
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+      // Analyse environment variable CUDACPP_RUNTIME_CUBLASTF32TENSOR
+      const char* blasEnv2 = getenv( "CUDACPP_RUNTIME_CUBLASTF32TENSOR" );
+      if( blasEnv2 && std::string( blasEnv2 ) != "" )
+      {
+        if( m_blasColorSum )
+        {
+#ifdef MGONGPU_FPTYPE2_FLOAT
+          m_blasTf32Tensor = true;
+          std::cout << "INFO: Env variable CUDACPP_RUNTIME_CUBLASTF32TENSOR is set and non-empty: enable CUBLAS_TF32_TENSOR_OP_MATH" << std::endl;
+#else
+          std::cout << "WARNING! Env variable CUDACPP_RUNTIME_CUBLASTF32TENSOR is set and non-empty, but color sums use FP64" << std::endl;
+#endif
+        }
+        else
+          std::cout << "WARNING! Env variable CUDACPP_RUNTIME_CUBLASTF32TENSOR is set and non-empty, but BLAS was disabled at runtime" << std::endl;
+      }
+#ifdef MGONGPU_FPTYPE2_FLOAT
+      else
+      {
+        if( m_blasColorSum )
+          std::cout << "INFO: Env variable CUDACPP_RUNTIME_CUBLASTF32TENSOR is empty or not set: keep cuBLAS math defaults" << std::endl;
+      }
+#endif
+#endif
+#endif
+    }
   }
 
   //--------------------------------------------------------------------------
@@ -425,6 +463,10 @@ namespace mg5amcGpu
       {
         checkGpuBlas( gpuBlasCreate( &m_helBlasHandles[ighel] ) );
         checkGpuBlas( gpuBlasSetStream( m_helBlasHandles[ighel], m_helStreams[ighel] ) );
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+        if( m_blasTf32Tensor )
+          checkGpuBlas( cublasSetMathMode( m_helBlasHandles[ighel], CUBLAS_TF32_TENSOR_OP_MATH ) ); // enable TF32 tensor cores
+#endif
       }
 #endif
     // ... Create the "many-helicity" super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)

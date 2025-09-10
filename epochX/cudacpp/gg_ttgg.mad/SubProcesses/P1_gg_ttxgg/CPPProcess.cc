@@ -3261,14 +3261,10 @@ namespace mg5amcCpu
 #endif
     }
     // (2) Then, within each helicity stream, compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
-#ifdef MGONGPU_HAS_NO_BLAS
-    assert( ghelBlasHandles == nullptr ); // sanity check for HASBLAS=hasNoBlas
-    assert( ghelAllBlasTmp == nullptr );  // sanity check for HASBLAS=hasNoBlas
-#endif
-    if( !ghelBlasHandles ) // HASBLAS=hasNoBlas or CUDACPP_RUNTIME_BLASCOLORSUM not set
-      assert( ghelAllBlasTmp == nullptr );
+    if( !ghelBlasHandles )
+      assert( ghelAllBlasTmp == nullptr ); // HASBLAS=hasNoBlas or CUDACPP_RUNTIME_BLASCOLORSUM not set
     else
-      assert( ghelAllBlasTmp != nullptr );
+      assert( ghelAllBlasTmp != nullptr ); // note: this should never happen for HASBLAS=hasNoBlas (a sanity check is in color_sum_gpu)
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       fptype* hAllMEs = ghelAllMEs + ighel * nevt;
