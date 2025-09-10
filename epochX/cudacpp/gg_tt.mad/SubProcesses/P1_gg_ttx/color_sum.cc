@@ -301,7 +301,7 @@ namespace mg5amcCpu
     const fptype2* allJampsReal = allJamps;                 // this is not a cast (the two types are identical)
     const fptype2* allJampsImag = allJamps + ncolor * nevt; // this is not a cast (the two types are identical)
 #endif
-    gpuLaunchKernelStream( inspectJampsZtempFpt2, 1, gpublocks*gputhreads, nullptr, allJampsReal ); // for reproducible printouts (single block)
+    //gpuLaunchKernelStream( inspectJampsZtempFpt2, 1, gpublocks*gputhreads, nullptr, allJampsReal, true ); // single block
     // Real and imaginary components
     fptype2* allZtempReal = allZtempBoth;
     fptype2* allZtempImag = allZtempBoth + ncolor * nevt;
@@ -335,6 +335,7 @@ namespace mg5amcCpu
                                 allJampsImag, ncolorK,     // JampsV is ncolorK x nevtN
                                 &beta1,
                                 allZtempImag, ncolorM ) ); // Ztemp is ncolorM x ncolorN
+    gpuLaunchKernelStream( inspectJampsZtempFpt2, 1, gpublocks*gputhreads, nullptr, allZtempReal, false ); // single block
 
     // Step 2: For each ievt, compute the dot product of JampsVector[ncolor][ievt] dot tmp[ncolor][ievt]
     // In this case alpha=1 and beta=1 (the operation is ME = alpha * ( Tmp dot JampsVector ) + beta * ME)
