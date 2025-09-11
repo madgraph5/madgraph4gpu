@@ -20,7 +20,7 @@ if [ "$(hostname)" == "itgold91.cern.ch" ]; then bblds=-cpponly; fi
 # Usage
 function usage()
 {
-  echo "Usage (1): $0 [-short] [-e] [-sa] [-makeonly] [-nomakeclean] [-hip|-nocuda|-cpponly] [-bsmonly|-nobsm]"
+  echo "Usage (1): $0 [-short] [-e] [-sa] [-makeonly] [-nomakeclean] [-hip|-nocuda|-cpponly] [-bsmonly|-nobsm|-bsmblasonly]"
   echo "Run tests and check all logs"
   echo ""
   echo "Usage (2): $0 -checkonly"
@@ -33,6 +33,7 @@ checkonly=0
 ggttggg=-ggttggg
 rndhst=-curhst
 bsm=
+blas=
 if [ "$1" == "-checkonly" ]; then
   # Check existing logs without running any tests?
   checkonly=1
@@ -73,11 +74,16 @@ while [ "${checkonly}" == "0" ] && [ "$1" != "" ]; do
     if [ "${bblds}" != "" ] && [ "${bblds}" != "$1" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
     bblds="$1"
     shift
-  elif [ "$1" == "-bsmonly" ] && [ "$bsm" != "-nobsm" ]; then
-    bsm=$1
+  elif [ "$1" == "-bsmonly" ] && [ "$bsm" != "-nobsm" ] && [ "$blas" == "" ]; then
+    bsm=-bsmonly
+    blas=noblas
+    shift
+  elif [ "$1" == "-bsmblasonly" ] && [ "$bsm" != "-nobsm" ] && [ "$blas" == "" ]; then
+    bsm=-bsmonly
+    blas=blas
     shift
   elif [ "$1" == "-nobsm" ] && [ "$bsm" != "-bsmonly" ]; then
-    bsm=$1
+    bsm=-nobsm
     shift
   else
     usage
@@ -184,9 +190,12 @@ else
 fi
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
-# (84/114) Three extra logs (double/float x hrd0 x inl0 + blasOn) only in two of the six SM processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh -ggtt -ggttgg -dmf -blasOn ${opts}"
-if [ "${bsm}" != "-bsmonly" ]; then
+# (84/114) Three extra logs (double/float x hrd0 x inl0 + blasOn) only in two of the six SM processes (rebuild may be needed)
+if [ "${blas}" == "blas" ]; then
+  cmd="./tput/teeThroughputX.sh -ggtt -ggttgg -dmf -blasOn ${makeclean} ${opts}" # rebuild just in case
+  $cmd; status=$?
+elif [ "${bsm}" != "-bsmonly" ]; then
+  cmd="./tput/teeThroughputX.sh -ggtt -ggttgg -dmf -blasOn ${opts}" # no rebuild needed
   $cmd; status=$?
 else
   cmd="SKIP '$cmd'"; echo $cmd; status=$?
@@ -195,7 +204,9 @@ ended7="$cmd\nENDED(7) AT $(date) [Status=$status]"
 
 # (90/114) Three extra logs (double/float x hrd0 x inl0 + blasOn) only in two of the six SM processes (rebuild is needed)
 cmd="./tput/teeThroughputX.sh -ggtt -ggttgg -dmf -noBlas ${makeclean} ${opts}"
-if [ "${bsm}" != "-bsmonly" ]; then
+if [ "${blas}" == "blas" ]; then
+  $cmd; status=$?
+elif [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
 else
   cmd="SKIP '$cmd'"; echo $cmd; status=$?
