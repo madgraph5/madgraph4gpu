@@ -7,7 +7,6 @@ HELINL='0'
 HRDCOD='0'
 HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
-HASBLAS=hasNoBlas
 Building in BUILDDIR=build.auto_m_inl0_hrd0 for tag=512y_m_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
 make: Nothing to be done for 'gtestlibs'.
 
@@ -41,9 +40,8 @@ make[1]: Entering directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 
-DATE: 2024-11-11_10:12:24
+DATE: 2024-11-07_04:13:43
 
-CUDACPP_RUNTIME_BLASCOLORSUM=1
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
 runExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.cuda_f_inl1_hrd1/check_cuda.exe -p 2048 256 2 OMP=
@@ -51,20 +49,20 @@ INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: 
 Process                     = SIGMA_SM_GG_TTX_CUDA [nvcc 12.0.140 (gcc 11.3.1)] [inlineHel=1] [hardcodePARAM=1]
 Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 1.262785e+07                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 1.374805e+07                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 1.382177e+07                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 8.334920e+07                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.801533e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.935938e+08                 )  sec^-1
 MeanMatrixElemValue         = ( 2.086719e+00 +- 3.413389e-03 )  GeV^0
-TOTAL       :     1.258983 sec
+TOTAL       :     0.488168 sec
 INFO: No Floating Point Exceptions have been reported
-     4,687,137,361      cycles                           #    2.855 GHz                    
-     6,382,071,203      instructions                     #    1.36  insn per cycle         
-       1.701017355 seconds time elapsed
+     2,121,043,613      cycles                           #    2.961 GHz                    
+     3,025,708,449      instructions                     #    1.43  insn per cycle         
+       0.773714826 seconds time elapsed
 runNcu /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.cuda_f_inl1_hrd1/check_cuda.exe -p 2048 256 1
 ==PROF== Profiling "calculate_jamps": launch__registers_per_thread 96
 ==PROF== Profiling "calculate_jamps": sm__sass_average_branch_targets_threads_uniform.pct 100%
-==PROF== Profiling "color_sum_kernel": launch__registers_per_thread 18
-==PROF== Profiling "color_sum_kernel": sm__sass_average_branch_targets_threads_uniform.pct 0%
+==PROF== Profiling "color_sum": launch__registers_per_thread 18
+==PROF== Profiling "color_sum": sm__sass_average_branch_targets_threads_uniform.pct 0%
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.cuda_f_inl1_hrd1/runTest_cuda.exe
 INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW
@@ -77,8 +75,8 @@ INFO: No Floating Point Exceptions have been reported
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.cuda_f_inl1_hrd1/check_cuda.exe --common -p 2 64 2
 cmpExe /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.cuda_f_inl1_hrd1/fcheck_cuda.exe 2 64 2
 Avg ME (C++/GPU)   = 2.028811e+00
-Avg ME (F77/GPU)   = 2.0288499532034621
-Relative difference = 1.920001590188648e-05
+Avg ME (F77/GPU)   = 2.0288499360904098
+Relative difference = 1.9191580886348533e-05
 OK (relative difference <= 5E-3)
 =========================================================================
 Not found: /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.hip_f_inl1_hrd1/check_hip.exe
@@ -89,15 +87,15 @@ Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.3.1] [inlineHel=1] [ha
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 2.628611e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 2.732727e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 2.732727e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 2.739247e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.845528e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.845528e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 2.086780e+00 +- 3.413794e-03 )  GeV^0
-TOTAL       :     4.075812 sec
+TOTAL       :     3.912261 sec
 INFO: No Floating Point Exceptions have been reported
-    11,827,959,250      cycles                           #    2.899 GHz                    
-    35,064,795,023      instructions                     #    2.96  insn per cycle         
-       4.081084665 seconds time elapsed
+    11,824,476,253      cycles                           #    3.019 GHz                    
+    35,061,259,767      instructions                     #    2.97  insn per cycle         
+       3.917997105 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4:  470) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.none_f_inl1_hrd1/runTest_cpp.exe
@@ -121,15 +119,15 @@ Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.3.1] [inlineHel=1] [ha
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[4] ('sse4': SSE4.2, 128bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 5.334292e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 5.820215e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 5.820215e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 5.567177e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 6.067629e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.067629e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 2.086779e+00 +- 3.413793e-03 )  GeV^0
-TOTAL       :     2.053580 sec
+TOTAL       :     1.967727 sec
 INFO: No Floating Point Exceptions have been reported
-     5,985,008,557      cycles                           #    2.908 GHz                    
-    14,561,748,350      instructions                     #    2.43  insn per cycle         
-       2.059156602 seconds time elapsed
+     5,988,275,633      cycles                           #    3.036 GHz                    
+    14,562,381,620      instructions                     #    2.43  insn per cycle         
+       1.973410441 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4: 2612) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.sse4_f_inl1_hrd1/runTest_cpp.exe
@@ -153,15 +151,15 @@ Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.3.1] [inlineHel=1] [ha
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[8] ('avx2': AVX2, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 7.226122e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 8.066526e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 8.066526e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 7.577265e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 8.470811e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.470811e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 2.086810e+00 +- 3.414231e-03 )  GeV^0
-TOTAL       :     1.537106 sec
+TOTAL       :     1.469553 sec
 INFO: No Floating Point Exceptions have been reported
-     4,171,651,528      cycles                           #    2.705 GHz                    
-     8,892,229,042      instructions                     #    2.13  insn per cycle         
-       1.542679942 seconds time elapsed
+     4,161,920,355      cycles                           #    2.823 GHz                    
+     8,892,884,324      instructions                     #    2.14  insn per cycle         
+       1.475193729 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2: 3598) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.avx2_f_inl1_hrd1/runTest_cpp.exe
@@ -185,15 +183,15 @@ Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.3.1] [inlineHel=1] [ha
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[8] ('512y': AVX512, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 7.304037e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 8.157315e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 8.157315e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 7.626145e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 8.535651e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.535651e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 2.086810e+00 +- 3.414231e-03 )  GeV^0
-TOTAL       :     1.522330 sec
+TOTAL       :     1.460782 sec
 INFO: No Floating Point Exceptions have been reported
-     4,133,479,806      cycles                           #    2.707 GHz                    
-     8,427,870,607      instructions                     #    2.04  insn per cycle         
-       1.527719799 seconds time elapsed
+     4,149,287,894      cycles                           #    2.833 GHz                    
+     8,427,790,827      instructions                     #    2.03  insn per cycle         
+       1.466450608 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2: 3328) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.512y_f_inl1_hrd1/runTest_cpp.exe
@@ -217,15 +215,15 @@ Process                     = SIGMA_SM_GG_TTX_CPP [gcc 11.3.1] [inlineHel=1] [ha
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[16] ('512z': AVX512, 512bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 5.284839e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 5.711166e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 5.711166e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 5.783861e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 6.276256e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.276256e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 2.086810e+00 +- 3.414231e-03 )  GeV^0
-TOTAL       :     2.070937 sec
+TOTAL       :     1.897703 sec
 INFO: No Floating Point Exceptions have been reported
-     3,774,383,921      cycles                           #    1.819 GHz                    
-     7,705,451,571      instructions                     #    2.04  insn per cycle         
-       2.076265676 seconds time elapsed
+     3,790,436,276      cycles                           #    1.992 GHz                    
+     7,704,288,293      instructions                     #    2.03  insn per cycle         
+       1.903415933 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2: 3309) (512y:    0) (512z: 2146)
 -------------------------------------------------------------------------
 runTest /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.512z_f_inl1_hrd1/runTest_cpp.exe
