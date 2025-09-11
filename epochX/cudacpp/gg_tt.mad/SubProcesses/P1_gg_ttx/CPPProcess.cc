@@ -268,7 +268,7 @@ namespace mg5amcCpu
             const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
             const int ihel )                // input: helicity (0 to ncomb)
   {
-    // A uniform interface including channelIDs, numerators and denominators is used for diagramXXX functions also #ifndef GONGPU_SUPPORTS_MULTICHANNEL
+    // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
 #include "diagram_boilerplate.h"
 #ifdef MGONGPUCPP_GPUIMPL
@@ -303,7 +303,7 @@ namespace mg5amcCpu
             fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
             const fptype** COUPs )          // input: constant couplings COUPs[nxcoup]
   {
-    // A uniform interface including channelIDs, numerators and denominators is used for diagramXXX functions also #ifndef GONGPU_SUPPORTS_MULTICHANNEL
+    // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
 #include "diagram_boilerplate.h"
     // *** DIAGRAM 2 OF 3 ***
@@ -328,7 +328,7 @@ namespace mg5amcCpu
             fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
             const fptype** COUPs )          // input: constant couplings COUPs[nxcoup]
   {
-    // A uniform interface including channelIDs, numerators and denominators is used for diagramXXX functions also #ifndef GONGPU_SUPPORTS_MULTICHANNEL
+    // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
 #include "diagram_boilerplate.h"
     // *** DIAGRAM 3 OF 3 ***
@@ -502,7 +502,7 @@ namespace mg5amcCpu
       const unsigned int* channelIds = &channelId;
 #endif
 #else
-      // A uniform interface including channelIDs, numerators and denominators is used for diagramXXX functions also #ifndef GONGPU_SUPPORTS_MULTICHANNEL
+      // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
       // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
       const unsigned int* channelIds = nullptr;
 #endif
@@ -519,7 +519,7 @@ namespace mg5amcCpu
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
 #endif
 #else
-      // A uniform interface including channelIDs, numerators and denominators is used for diagramXXX functions also #ifndef GONGPU_SUPPORTS_MULTICHANNEL
+      // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
       // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
       fptype* numerators = nullptr;
       fptype* denominators = nullptr;
