@@ -19,7 +19,7 @@ export MG5AMC_CHANNELID_DEBUG=1
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge]  [-noBlas|-blasOn] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -50,6 +50,8 @@ helinls="0"
 hrdcods="0"
 rndgen=""
 rmbsmp=""
+
+blas="" # build with blas but disable it at runtime
 
 maketype=
 makej=
@@ -211,6 +213,12 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-bridge" ]; then
     rmbsmp=" -${1}"
     shift
+  elif [ "$1" == "-noBlas" ]; then # build with blas but disable it at runtime
+    if [ "${blas}" == "-blasOn" ]; then echo "ERROR! Options -hasNoBlas and -blasOn are incompatible"; usage; fi
+    blas=$1
+  elif [ "$1" == "-blasOn" ]; then # build with blas and enable it at runtime
+    if [ "${blas}" == "-noBlas" ]; then echo "ERROR! Options -hasNoBlas and -blasOn are incompatible"; usage; fi
+    blas=$1    
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ] || [ "$1" == "-dryrun" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
       echo "ERROR! Options -makeonly, -makeclean, -makecleanonly and -dryrun are incompatible"; usage
@@ -434,10 +442,15 @@ done
 # PART 2 - build the executables which should be run
 ##########################################################################
 
+if [ "${blas}" == "-noBlas" ]; then
+  export HASBLAS=hasBlas
+else
+  export HASBLAS=hasNoBlas
+fi
+echo HASBLAS=${HASBLAS}
+
 unset GTEST_ROOT
 unset LOCALGTEST
-
-export HASBLAS=hasBlas
 
 if [ "${maketype}" == "-dryrun" ]; then
 
@@ -499,6 +512,13 @@ if [ "${maketype}" != "-dryrun" ]; then
   printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 fi
 
+if [ "${blas}" == "-blasOn" ]; then
+  export CUDACPP_RUNTIME_BLASCOLORSUM=1
+else
+  unset CUDACPP_RUNTIME_BLASCOLORSUM
+fi
+echo CUDACPP_RUNTIME_BLASCOLORSUM=${CUDACPP_RUNTIME_BLASCOLORSUM}
+
 unset CUDACPP_RUNTIME_CUBLASTF32TENSOR
 echo CUDACPP_RUNTIME_CUBLASTF32TENSOR=${CUDACPP_RUNTIME_CUBLASTF32TENSOR}
 
@@ -512,7 +532,7 @@ function runExe() {
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   if [ "${exe1%%/check_cuda*}" != "${exe1}" ] || [ "${exe1%%/check_hip*}" != "${exe1}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   pattern="${pattern}|Workflow"
-  pattern="${pattern}|BLASCOLORSUM"
+  ###pattern="${pattern}|BLASCOLORSUM"
   ###pattern="${pattern}|CUCOMPLEX"
   ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
   pattern="${pattern}|ERROR"
@@ -545,7 +565,7 @@ function runTest() {
   echo "runTest $exe1"
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   pattern="PASS|FAIL"
-  pattern="${pattern}|BLASCOLORSUM"
+  ###pattern="${pattern}|BLASCOLORSUM"
   pattern="${pattern}|ERROR"
   pattern="${pattern}|WARNING"
   pattern="${pattern}|Floating Point Exception"
@@ -570,12 +590,12 @@ function cmpExe() {
     echo "ERROR! C++ calculation (C++${tag} failed"; exit 1 # expose FPE crash #1003 on HIP
   fi
   me1=$(cat ${tmp1} | grep MeanMatrix | awk '{print $4}'); cat ${tmp2}
-  cat ${tmp1} | grep BLASCOLORSUM
+  ###cat ${tmp1} | grep BLASCOLORSUM
   if ! ${exef} ${argsf} 2>${tmp2} >${tmp1}; then
     echo "ERROR! Fortran calculation (F77${tag} failed"; exit 1
   fi
   me2=$(cat ${tmp1} | grep Average | awk '{print $4}'); cat ${tmp2}
-  cat ${tmp1} | grep BLASCOLORSUM
+  ###cat ${tmp1} | grep BLASCOLORSUM
   echo -e "Avg ME (C++${tag}   = ${me1}\nAvg ME (F77${tag}   = ${me2}"
   if [ "${me2}" == "NaN" ]; then
     echo "ERROR! Fortran calculation (F77${tag} returned NaN"; exit 1
@@ -597,7 +617,7 @@ function runNcu() {
   args="$2"
   args="$args$rndgen$rmbsmp"
   echo "runNcu $exe1 $args"
-  echoblas=1
+  ###echoblas=1
   kernels="calculate_jamps color_sum_kernel"
   ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels kernel"; fi # heavy to profile...
   ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels regex:gemm"; fi # output to be improved...
@@ -607,7 +627,7 @@ function runNcu() {
     set +e # do not fail on error
     out=$($(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::${kernel}:" --kernel-name-base function $exe1 $args)
     echo "$out" | egrep '(ERROR|WARNING)' # NB must escape $out in between quotes
-    if [ "${echoblas}" == "1" ]; then echo "$out" | egrep '(BLASCOLORSUM)'; echoblas=0; fi
+    ###if [ "${echoblas}" == "1" ]; then echo "$out" | egrep '(BLASCOLORSUM)'; echoblas=0; fi
     set -e # fail on error (after ncu and after egrep!)
     out=$(echo "${out}" | egrep "(${kernel}|registers| sm)" | tr "\n" " ") # NB must escape $out in between quotes
     echo $out | awk -v key1="launch__registers_per_thread" '{val1="N/A"; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+2)}; print $1, $2, $3, key1, val1}'
@@ -764,8 +784,8 @@ for exe in $exes; do
   exeDir=$(dirname $exe)
   cd $exeDir/.. # workaround for reading '../../Cards/param_card.dat' without setting MG5AMC_CARD_PATH
   unset OMP_NUM_THREADS
+  runExe $exe "$exeArgs"
   if [ "${exe%%/check_cpp*}" != "${exe}" ]; then 
-    runExe $exe "$exeArgs"
     if [ "${maketype}" != "-dryrun" ]; then
       obj=${exe%%.exe}; obj=${obj/check/CPPProcess}.o; $scrdir/simdSymSummary.sh -stripdir ${obj} -dumptotmp # comment out -dumptotmp to keep full objdump
     fi
@@ -776,26 +796,14 @@ for exe in $exes; do
       unset OMP_NUM_THREADS
     fi
   elif [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]] || [ "${exe%%/alpcheck*}" != "${exe}" ]; then
-    unset CUDACPP_RUNTIME_BLASCOLORSUM
-    runExe $exe "$exeArgs"
     echo "........................................................................."
-    export CUDACPP_RUNTIME_BLASCOLORSUM=1
-    runExe $exe "$exeArgs"
-    echo "........................................................................."
-    unset CUDACPP_RUNTIME_BLASCOLORSUM
     runNcu $exe "$ncuArgs"
-    echo "........................................................................."
-    export CUDACPP_RUNTIME_BLASCOLORSUM=1
-    runNcu $exe "$ncuArgs"
-    unset CUDACPP_RUNTIME_BLASCOLORSUM
     if [ "${div}" == "1" ]; then
       echo "........................................................................."
-      unset CUDACPP_RUNTIME_BLASCOLORSUM
       runNcuDiv $exe
     fi
     if [ "${req}" == "1" ]; then
       echo "........................................................................."
-      unset CUDACPP_RUNTIME_BLASCOLORSUM
       runNcuReq $exe "$ncuArgs"
     fi
     if [ "${exeArgs2}" != "" ]; then echo "........................................................................."; runExe $exe "$exeArgs2"; fi
@@ -804,30 +812,12 @@ for exe in $exes; do
     echo "-------------------------------------------------------------------------"
     # For simplicity a gtest runTest_xxx.exe is executed for each build where check_xxx.exe is executed
     exe2=${exe/check/runTest} # replace check_xxx.exe by runTest_xxx.exe
-    if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]]; then
-      unset CUDACPP_RUNTIME_BLASCOLORSUM
-      runTest $exe2 2>&1
-      echo "........................................................................."
-      export CUDACPP_RUNTIME_BLASCOLORSUM=1
-      runTest $exe2 2>&1
-      unset CUDACPP_RUNTIME_BLASCOLORSUM
-    else
-      runTest $exe2 2>&1
-    fi
+    runTest $exe2 2>&1
     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit 1; fi 
   fi
   if [ "${bckend}" != "alpaka" ]; then
     echo "-------------------------------------------------------------------------"
-    if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]]; then
-      unset CUDACPP_RUNTIME_BLASCOLORSUM
-      cmpExe $exe
-      echo "........................................................................."
-      export CUDACPP_RUNTIME_BLASCOLORSUM=1
-      cmpExe $exe
-      unset CUDACPP_RUNTIME_BLASCOLORSUM
-    else
-      cmpExe $exe
-    fi
+    cmpExe $exe
   fi
 done
 echo "========================================================================="
