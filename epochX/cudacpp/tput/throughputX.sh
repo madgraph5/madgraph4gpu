@@ -49,7 +49,7 @@ fptypes="m" # new default #995 (was "d")
 helinls="0"
 hrdcods="0"
 rndgen=""
-rmbsam=""
+rmbsmp=""
 
 maketype=
 makej=
