@@ -353,11 +353,11 @@ namespace mg5amcCpu
   // ** NB2: NEW Nov2024! in CUDA this now takes a channelId array as input (it used to take a scalar channelId as input)
   // In C++, this function processes a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
   // *** NB: in C++, calculate_jamps accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
-  __global__ INLINE void /* clang-format off */
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+  __global__ INLINE void
   calculate_jamps( int ihel,
                    const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
-#ifdef MGONGPUCPP_GPUIMPL
                    fptype* allJamps,                  // output: jamp[ncolor*2*nevt] for this helicity
                    fptype* allWfs,                    // output: wf[nwf*nw6*2*nevt]
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -365,17 +365,20 @@ namespace mg5amcCpu
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
 #endif
-                   const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                   const int nevt )                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
+  INLINE void
+  calculate_jamps( int ihel,
+                   const fptype* allmomenta,          // input: momenta[nevt*npar*4]
+                   const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
                    cxtype_sv* allJamp_sv,             // output: jamp_sv[ncolor] (float/double) or jamp_sv[2*ncolor] (mixed) for this helicity
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                    const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
 #endif
-                   const int ievt00                   // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
-#endif
-                   )
+                   const int ievt00 )                 // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+#endif /* clang-format on */
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
 #ifdef MGONGPUCPP_GPUIMPL
