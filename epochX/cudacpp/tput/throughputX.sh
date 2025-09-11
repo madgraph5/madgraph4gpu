@@ -216,9 +216,11 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-noBlas" ]; then # build with blas but disable it at runtime
     if [ "${blas}" == "-blasOn" ]; then echo "ERROR! Options -hasNoBlas and -blasOn are incompatible"; usage; fi
     blas=$1
+    shift
   elif [ "$1" == "-blasOn" ]; then # build with blas and enable it at runtime
     if [ "${blas}" == "-noBlas" ]; then echo "ERROR! Options -hasNoBlas and -blasOn are incompatible"; usage; fi
     blas=$1    
+    shift
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ] || [ "$1" == "-dryrun" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
       echo "ERROR! Options -makeonly, -makeclean, -makecleanonly and -dryrun are incompatible"; usage
