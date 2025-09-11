@@ -123,7 +123,7 @@ fi
 cd $scrdir/..
 started="STARTED  AT $(date)"
 
-# (36/102) Six logs (double/mixed/float x hrd0/hrd1 x inl0) in each of the six SM processes
+# (36/114) Six logs (double/mixed/float x hrd0/hrd1 x inl0) in each of the six SM processes
 \rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh -dmf -hrd -makej -eemumu -ggtt -ggttg -ggttgg -gqttq $ggttggg ${makeclean} ${opts}"
 tmp1=$(mktemp)
@@ -135,7 +135,7 @@ else
 fi
 ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 
-# (48/102) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the six SM processes
+# (48/114) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the six SM processes
 \rm -rf gg_ttg${suff}/lib/build.none_*
 \rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh -d_f -hrd -makej -eemumu -ggtt -ggttgg -inlonly ${makeclean} ${opts}"
@@ -148,7 +148,7 @@ else
 fi
 ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 
-# (60/102) Two extra logs (double/float x hrd0 x inl0 + bridge) in all six SM processes (rebuild from cache)
+# (60/114) Two extra logs (double/float x hrd0 x inl0 + bridge) in all six SM processes (rebuild from cache)
 cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -gqttq -ggttgg $ggttggg -d_f -bridge ${makeclean} ${opts}"
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
@@ -157,7 +157,7 @@ else
 fi
 ended3="$cmd\nENDED(3) AT $(date) [Status=$status]"
 
-# (66/102) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the six SM processes (no rebuild needed)
+# (66/114) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the six SM processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f -rmbhst ${opts}"
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
@@ -166,7 +166,7 @@ else
 fi
 ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
-# (72/102) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six SM processes (no rebuild needed)
+# (72/114) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six SM processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f ${rndhst} ${opts}"
 if [ "${bsm}" != "-bsmonly" ] && [ "${rndhst}" != "-common" ]; then
   $cmd; status=$?
@@ -175,7 +175,7 @@ else
 fi
 ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 
-# (78/102) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six SM processes (no rebuild needed)
+# (78/114) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six SM processes (no rebuild needed)
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f -common ${opts}"
 if [ "${bsm}" != "-bsmonly" ]; then
   $cmd; status=$?
@@ -184,7 +184,25 @@ else
 fi
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
-# (102/102) Six extra logs (double/mixed/float x hrd0/hrd1 x inl0) only in the four BSM processes
+# (84/114) Three extra logs (double/float x hrd0 x inl0 + blasOn) only in two of the six SM processes (no rebuild needed)
+cmd="./tput/teeThroughputX.sh -ggtt -ggttgg -dmf -blasOn ${opts}"
+if [ "${bsm}" != "-bsmonly" ]; then
+  $cmd; status=$?
+else
+  cmd="SKIP '$cmd'"; echo $cmd; status=$?
+fi
+ended7="$cmd\nENDED(7) AT $(date) [Status=$status]"
+
+# (90/114) Three extra logs (double/float x hrd0 x inl0 + blasOn) only in two of the six SM processes (rebuild is needed)
+cmd="./tput/teeThroughputX.sh -ggtt -ggttgg -dmf -noBlas ${makeclean} ${opts}"
+if [ "${bsm}" != "-bsmonly" ]; then
+  $cmd; status=$?
+else
+  cmd="SKIP '$cmd'"; echo $cmd; status=$?
+fi
+ended8="$cmd\nENDED(8) AT $(date) [Status=$status]"
+
+# (114/114) Six extra logs (double/mixed/float x hrd0/hrd1 x inl0) only in the four BSM processes
 cmd="./tput/teeThroughputX.sh -dmf -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb ${makeclean} ${opts}"
 tmp3=$(mktemp)
 if [ "${bsm}" != "-nobsm" ]; then
@@ -193,7 +211,7 @@ if [ "${bsm}" != "-nobsm" ]; then
 else
   cmd="SKIP '$cmd'"; echo $cmd; status=$?
 fi
-ended7="$cmd\nENDED(7) AT $(date) [Status=$status]"
+ended9="$cmd\nENDED(9) AT $(date) [Status=$status]"
 
 echo
 echo "Build(1):"
@@ -210,6 +228,8 @@ echo -e "$ended4"
 echo -e "$ended5"
 echo -e "$ended6"
 echo -e "$ended7"
+echo -e "$ended8"
+echo -e "$ended9"
 
 if [ "$ggttggg" == "" ]; then
   echo
