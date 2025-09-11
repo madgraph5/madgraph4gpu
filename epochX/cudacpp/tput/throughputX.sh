@@ -445,9 +445,9 @@ done
 ##########################################################################
 
 if [ "${blas}" == "-noBlas" ]; then
-  export HASBLAS=hasBlas
-else
   export HASBLAS=hasNoBlas
+else
+  export HASBLAS=hasBlas
 fi
 echo HASBLAS=${HASBLAS}
 
@@ -513,6 +513,8 @@ fi
 if [ "${maketype}" != "-dryrun" ]; then
   printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 fi
+
+echo HASBLAS=${HASBLAS}
 
 if [ "${blas}" == "-blasOn" ]; then
   export CUDACPP_RUNTIME_BLASCOLORSUM=1
