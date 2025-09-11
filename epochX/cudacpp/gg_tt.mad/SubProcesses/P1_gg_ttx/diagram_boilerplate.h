@@ -21,6 +21,11 @@
     unsigned int channelId = gpu_channelId( channelIds );
 #endif
 
+    // Wavefunction buffers
+    const int nevt = gridDim.x * blockDim.x;
+    fptype* w_fp[nwf];
+    for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = wfs + iwf * nevt * nw6 * mgOnGpu::nx2;
+
 #else
 
     //-------------
@@ -38,6 +43,11 @@
     // SCALAR channelId for the current SIMD event page (C++)
     unsigned int channelId = *channelIds;
 #endif
+
+    // Wavefunction buffers
+    cxtype_sv(*w_sv)[nw6] = ( cxtype_sv(*)[nw6] )( wfs ); // originally cxtype_sv w_sv[nwf][nw6]
+    fptype* w_fp[nwf];
+    for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
 
 #endif
 

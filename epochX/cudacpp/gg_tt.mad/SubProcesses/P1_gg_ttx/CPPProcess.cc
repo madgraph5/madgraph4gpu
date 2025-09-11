@@ -259,7 +259,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   __global__ INLINE void
-  diagram1( fptype** w_fp,                  // input/output wavefunctions 'fptype* w_fp[nwf]'
+  diagram1( fptype* wfs,                    // input/output wavefunctions
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
@@ -296,7 +296,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   __global__ INLINE void
-  diagram2( fptype** w_fp,                  // input/output wavefunctions 'fptype* w_fp[nwf]'
+  diagram2( fptype* wfs,                    // input/output wavefunctions
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
@@ -321,7 +321,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   __global__ INLINE void
-  diagram3( fptype** w_fp,                  // input/output wavefunctions 'fptype* w_fp[nwf]'
+  diagram3( fptype* wfs,                    // input/output wavefunctions
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
@@ -408,8 +408,7 @@ namespace mg5amcCpu
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
     // ** NB: wavefunctions only need TRIVIAL ACCESS in C++ code
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
-    fptype* w_fp[nwf];        // proof of concept for using fptype* in the interface
-    for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
+    fptype* wfs = reinterpret_cast<fptype*>( w_sv );
 #else
     // Global-memory variables for a subset of Feynman diagrams in the given CUDA event (ievt)
     // ** NB: wavefunctions need non-trivial access in CUDA code because of kernel splitting
@@ -422,9 +421,7 @@ namespace mg5amcCpu
     // This means that the fi pointer must point to a [RIRIRIRIRIRI] contiguous buffer of size nw6*nx2=12
     // The striding between events is nw6*nx2=12 and this is what W_ACCESS::kernelAccess must respect
     // (En passant, note that this means that events cannot be contiguous in the present code, memory is not coalesced)
-    const int nevt = gputhreads * gpublocks;
-    fptype* w_fp[nwf];
-    for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = allWfs + iwf * nevt * nw6 * mgOnGpu::nx2;
+    fptype* wfs = allWfs;
 #endif
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
@@ -539,13 +536,13 @@ namespace mg5amcCpu
       // ------------------------
       // *** DIAGRAMS 1 TO 3 ***
 #ifdef MGONGPUCPP_GPUIMPL
-      gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, w_fp, allJamps, channelIds, numerators, denominators, COUPs, momenta, ihel );
-      gpuLaunchKernelStream( diagram2, gpublocks, gputhreads, gpustream, w_fp, allJamps, channelIds, numerators, denominators, COUPs );
-      gpuLaunchKernelStream( diagram3, gpublocks, gputhreads, gpustream, w_fp, allJamps, channelIds, numerators, denominators, COUPs );
+      gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, numerators, denominators, COUPs, momenta, ihel );
+      gpuLaunchKernelStream( diagram2, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, numerators, denominators, COUPs );
+      gpuLaunchKernelStream( diagram3, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, numerators, denominators, COUPs );
 #else
-      diagram1( w_fp, allJamps, channelIds, numerators, denominators, COUPs, momenta, ihel );
-      diagram2( w_fp, allJamps, channelIds, numerators, denominators, COUPs );
-      diagram3( w_fp, allJamps, channelIds, numerators, denominators, COUPs );
+      diagram1( wfs, allJamps, channelIds, numerators, denominators, COUPs, momenta, ihel );
+      diagram2( wfs, allJamps, channelIds, numerators, denominators, COUPs );
+      diagram3( wfs, allJamps, channelIds, numerators, denominators, COUPs );
 #endif
     }
     // *****************************
