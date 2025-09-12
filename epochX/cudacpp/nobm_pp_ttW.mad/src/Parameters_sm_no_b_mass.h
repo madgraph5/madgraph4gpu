@@ -1,10 +1,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.6.0, 2024-09-30
@@ -295,7 +295,7 @@ namespace mg5amcCpu
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
 #endif
   // Compute the output couplings (e.g. gc10 and gc11) from the input gs
-  template<class G_ACCESS, class C_ACCESS>
+  template<class G_ACCESS, class CD_ACCESS>
   __device__ inline void
   G2COUP( const fptype gs[],
           fptype couplings[],
@@ -305,10 +305,10 @@ namespace mg5amcCpu
     using namespace Parameters_sm_no_b_mass_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
     DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv, bsmIndepParamPtr );
-    fptype* GC_11s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
-    fptype* GC_10s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
-    cxtype_sv_ref GC_11s_sv = C_ACCESS::kernelAccess( GC_11s );
-    cxtype_sv_ref GC_10s_sv = C_ACCESS::kernelAccess( GC_10s );
+    fptype* GC_11s = CD_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_11 );
+    fptype* GC_10s = CD_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_10 );
+    cxtype_sv_ref GC_11s_sv = CD_ACCESS::kernelAccess( GC_11s );
+    cxtype_sv_ref GC_10s_sv = CD_ACCESS::kernelAccess( GC_10s );
     GC_11s_sv = couplings_sv.GC_11;
     GC_10s_sv = couplings_sv.GC_10;
     mgDebug( 1, __FUNCTION__ );

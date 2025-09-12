@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: J. Teig (Jul 2023) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2020-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef MG5AMC_GPUABSTRACTION_H
 #define MG5AMC_GPUABSTRACTION_H 1
@@ -29,6 +29,8 @@
 
 #define gpuFree( ptr ) checkGpu( cudaFree( ptr ) )
 #define gpuFreeHost( ptr ) checkGpu( cudaFreeHost( ptr ) )
+
+#define gpuGetSymbolAddress( devPtr, symbol ) checkGpu( cudaGetSymbolAddress( devPtr, symbol ) )
 
 #define gpuSetDevice cudaSetDevice
 #define gpuDeviceSynchronize cudaDeviceSynchronize
@@ -63,6 +65,8 @@
 
 #define gpuFree( ptr ) checkGpu( hipFree( ptr ) )
 #define gpuFreeHost( ptr ) checkGpu( hipHostFree( ptr ) )
+
+#define gpuGetSymbolAddress( devPtr, symbol ) checkGpu( hipGetSymbolAddress( devPtr, symbol ) )
 
 #define gpuSetDevice hipSetDevice
 #define gpuDeviceSynchronize hipDeviceSynchronize

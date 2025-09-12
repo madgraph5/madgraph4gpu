@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef MATRIXELEMENTKERNELS_H
 #define MATRIXELEMENTKERNELS_H 1
@@ -199,6 +199,9 @@ namespace mg5amcCpu
 
     // The super-buffer of nGoodHel jamp buffers (dynamically allocated because nGoodHel is determined at runtime)
     std::unique_ptr<DeviceBufferSimple> m_pHelJamps;
+
+    // The super-buffer of nGoodHel wavefunction buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelWfs;
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // The super-buffer of nGoodHel numerator buffers (dynamically allocated because nGoodHel is determined at runtime)

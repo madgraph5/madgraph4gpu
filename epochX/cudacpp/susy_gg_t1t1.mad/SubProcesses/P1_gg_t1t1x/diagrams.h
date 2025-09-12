@@ -64,6 +64,10 @@
     VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[1], 1.0, 0., 0., w_fp[4] );
     // Amplitude(s) for diagram number 2
     VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[3], w_fp[2], COUPs[2], 1.0, &amp_fp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
+    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+#endif
     J_ACCESS::kernelAccessIcol( jamps, 0 ) -= cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 1 ) += cxtype( 0, 1 ) * amp_sv[0];
   }
@@ -90,6 +94,10 @@
     VSS1_2<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[2], COUPs[2], 1.0, cIPD[0], cIPD[1], w_fp[4] );
     // Amplitude(s) for diagram number 3
     VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[3], w_fp[4], COUPs[2], 1.0, &amp_fp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
+    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+#endif
     J_ACCESS::kernelAccessIcol( jamps, 0 ) += amp_sv[0];
   }
   
@@ -115,6 +123,10 @@
     VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[2], COUPs[3], -1.0, cIPD[2], cIPD[3], w_fp[4] );
     // Amplitude(s) for diagram number 4
     VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[3], w_fp[4], COUPs[3], 1.0, &amp_fp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if( channelId == 4 ) numerators_sv += cxabs2( amp_sv[0] );
+    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+#endif
     J_ACCESS::kernelAccessIcol( jamps, 0 ) += amp_sv[0];
   }
   
@@ -140,6 +152,10 @@
     VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[3], COUPs[2], 1.0, cIPD[0], cIPD[1], w_fp[4] );
     // Amplitude(s) for diagram number 5
     VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[4], w_fp[2], COUPs[2], 1.0, &amp_fp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if( channelId == 5 ) numerators_sv += cxabs2( amp_sv[0] );
+    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+#endif
     J_ACCESS::kernelAccessIcol( jamps, 1 ) += amp_sv[0];
   }
   
@@ -165,6 +181,10 @@
     VSS1_3<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[3], COUPs[3], 1.0, cIPD[2], cIPD[3], w_fp[4] );
     // Amplitude(s) for diagram number 6
     VSS1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[2], w_fp[4], COUPs[3], -1.0, &amp_fp[0] );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    if( channelId == 6 ) numerators_sv += cxabs2( amp_sv[0] );
+    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+#endif
     J_ACCESS::kernelAccessIcol( jamps, 1 ) += amp_sv[0];
   }
   
