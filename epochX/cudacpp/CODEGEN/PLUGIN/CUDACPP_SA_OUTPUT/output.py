@@ -224,6 +224,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         misc.sprint("need to link", self.to_link_in_P)
         out = super().generate_subprocess_directory(subproc_group, fortran_model, me)
         return out
+
     # AV (default from OM's tutorial) - add a debug printout
     def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
         if hasattr(model , 'cudacpp_wanted_ordered_couplings'):

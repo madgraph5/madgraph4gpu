@@ -5,7 +5,7 @@
 
 /* clang-format off */
 
-  //----------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 
   __global__ INLINE void
   diagram1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
@@ -94,7 +94,7 @@
 #include "diagram_boilerplate.h"
     // *** DIAGRAM 3 OF 3 ***
     // Wavefunction(s) for diagram number 3
-    FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[4] ); 
+    FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[4] );
     // Amplitude(s) for diagram number 3
     FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -104,6 +104,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 1 ) -= amp_sv[0];
   }
   
-  //----------------------------------------------------------------------------
+  //--------------------------------------------------------------------------
 
 /* clang-format on */

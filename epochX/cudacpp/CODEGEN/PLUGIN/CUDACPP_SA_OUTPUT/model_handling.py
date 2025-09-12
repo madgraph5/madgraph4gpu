@@ -1300,11 +1300,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                                                     color_amplitudes[0],
                                                     multi_channel_map = multi_channel
                                                     )
+            self.diagram_code = self.helas_call_writer.diagram_code # hack? get code in helascallwriter, write it to diagrams.h in oneprocessexporter 
             ###misc.sprint( 'after get_matrix_element_calls', self.matrix_elements[0].get_number_of_wavefunctions() ) # CORRECT value of nwf, eg 5 for gg_tt
             assert len(self.matrix_elements) == 1 # how to handle if this is not true?
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
             ret_lines.append("""
+#include \"diagrams.h\"
+
+  //--------------------------------------------------------------------------
+
   // Evaluate QCD partial amplitudes jamps for this given helicity from Feynman diagrams
   // Also compute running sums over helicities adding jamp2, numerator, denominator
   // (NB: this function no longer handles matrix elements as the color sum has now been moved to a separate function/kernel)
@@ -1541,6 +1546,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         cppprocess_h = os.path.join(self.path, self.include_dir, '%s.h' % self.process_class)
         with open(cppprocess_h, 'r') as file: data = file.read().replace('__NWF__', '%d'%self.nwavefuncs) 
         with open(cppprocess_h, 'w') as file: file.write(data)
+        # Generate diagram headers after generating CPPProcess.cc
+        self.edit_diagrams(self.diagram_code)
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
@@ -1600,6 +1607,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ff.write(template % replace_dict)
         ff.close()
 
+    # AV - new method
+    def edit_diagrams(self, diagrams):
+        """Generate diagrams.h"""
+        ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams')
+        template = open(pjoin(self.template_path,'gpu','diagram_h.inc'),'r').read()
+        replace_dict = {}
+        replace_dict['code'] = ''.join(diagrams) # all diagrams to a single file
+        ff = open(pjoin(self.path, 'diagrams.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
 
     def generate_subprocess_directory_end(self, **opt):
         """ opt contain all local variable of the fortran original function"""
@@ -1940,31 +1957,81 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         return call.replace('(','( ').replace(')',' )').replace(',',', ')
 
     # AV - new method
-    def get_diagram_code(self, diagram, id_amp, multi_channel_map, diag_to_config, color):
+    def get_one_diagram_code(self, diagram, id_amp, multi_channel_map, diag_to_config, color, ndiagrams):
         res = []
+        idiagram = diagram.get('number')
         ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
         ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
-        res.append('\n      // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
-        res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ]) # AV new: avoid format_call
-        if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
-        if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
-        res.append('\n      // Amplitude(s) for diagram number %d' % diagram.get('number'))
+        # 1 - Header
+        if idiagram == 1:
+            res.append("""
+  __global__ INLINE void
+  diagram1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
+            fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
+            const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
+#ifdef MGONGPUCPP_GPUIMPL
+            const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
+#else
+            const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
+#endif
+            fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
+            fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+            const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
+            const int ihel )                // input: helicity (0 to ncomb)
+  {
+    // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
+    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
+#include \"diagram_boilerplate.h\"
+#ifdef MGONGPUCPP_GPUIMPL
+    using M_ACCESS = DeviceAccessMomenta; // non-trivial access: buffer includes all events
+#else
+    using M_ACCESS = HostAccessMomenta; // non-trivial access: buffer includes all events
+#endif""")
+        else:
+            sidiag = '%i'%idiagram
+            indent = ' '*(len(sidiag)-1)
+            res.append("""
+
+  __global__ INLINE void
+  diagram%s( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
+%s            fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
+%s            const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
+#ifdef MGONGPUCPP_GPUIMPL
+%s            const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
+#else
+%s            const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
+#endif
+%s            fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
+%s            fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+  {
+    // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
+    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
+#include \"diagram_boilerplate.h\""""%(sidiag,indent,indent,indent,indent,indent,indent))
+        # 2 - Core code
+        res.append('    // *** DIAGRAM %i OF %i ***' % ( idiagram, ndiagrams ) ) # AV
+        res.append('    // Wavefunction(s) for diagram number %d' % idiagram) # AV
+        for wf in diagram.get('wavefunctions'):
+            wfline =  '    '+self.get_wavefunction_call(wf) # AV new: add formatting
+            if wfline[-1] == '\n': wfline = wfline[:-1]
+            res.append( wfline )
+        if len(diagram.get('wavefunctions')) == 0 : res.append('    // (none)') # AV
+        res.append('    // Amplitude(s) for diagram number %d' % idiagram)
         for amplitude in diagram.get('amplitudes'):
             id_amp +=1
             namp = amplitude.get('number')
             amplitude.set('number', 1)
-            res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
+            res.append('    '+self.get_amplitude_call(amplitude)) # AV new: add formatting
             if multi_channel_map: # different code bases #473 (assume this is the same as self.include_multi_channel...)
                 if id_amp in diag_to_config:
                     ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
                     ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
                     res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                    res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
-                    res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
+                    res.append("    if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % idiagram)
+                    res.append("    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
                     res.append("#endif")
             else:
                 res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
+                res.append("    // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
                 res.append("#endif")
             for njamp, coeff in color[namp].items():
                 scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
@@ -1974,9 +2041,16 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 scoeff = scoeff.replace(',',', ')
                 scoeff = scoeff.replace('*',' * ')
                 scoeff = scoeff.replace('/',' / ')
-                if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
-                else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
-        if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
+                if scoeff.startswith('-'):
+                    res.append('    J_ACCESS::kernelAccessIcol( jamps, %s ) -= %samp_sv[0];' % (njamp, scoeff[1:]))
+                else:
+                    res.append('    J_ACCESS::kernelAccessIcol( jamps, %s ) += %samp_sv[0];' % (njamp, scoeff))
+        if len(diagram.get('amplitudes')) == 0 : res.append('    // (none)') # AV
+        # 3 - Footer
+        res.append("""  }
+  
+  //--------------------------------------------------------------------------""")
+        # Return
         return res
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
@@ -2021,11 +2095,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if idiagram == 1: res.append('diagram1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );')
             else: res.append('diagram%i( wfs, jamps, channelIds, COUPs, numerators, denominators );'%idiagram)
         res.append('#endif')
-        # START OLDCODE
+        # Generate diagram code
+        self.diagram_code = []
         id_amp = 0
         for diagram in matrix_element.get('diagrams'):
-            res += self.get_diagram_code(diagram, id_amp, multi_channel_map, diag_to_config, color)
-        # END OLDCODE
+            res_diagram = self.get_one_diagram_code(diagram, id_amp, multi_channel_map, diag_to_config, color, len(matrix_element.get('diagrams')))
+            self.diagram_code.append( '\n'.join(res_diagram) )
         return res
 
     # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
