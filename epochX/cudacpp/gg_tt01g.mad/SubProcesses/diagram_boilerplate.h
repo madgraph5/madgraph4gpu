@@ -13,8 +13,8 @@
     //-------------
 
     //using namespace mg5amcGpu;
-    using W_ACCESS = DeviceAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
-    using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using W_ACCESS = DeviceAccessWavefunctions;   // non-trivial access (with kernel splitting): buffer includes all events
+    using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
     using J_ACCESS = DeviceAccessJamp;
@@ -63,8 +63,8 @@
     //-------------
 
     //using namespace mg5amcCpu;
-    using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
-    using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
+    using W_ACCESS = HostAccessWavefunctions;   // non-trivial access (with kernel splitting): buffer includes all events
+    using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
     using J_ACCESS = HostAccessJamp;
