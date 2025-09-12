@@ -392,7 +392,7 @@ namespace mg5amcCpu
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
 #endif
                    const int ievt00 )                 // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
-#endif /* clang-format on */
+#endif
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
 #ifdef MGONGPUCPP_GPUIMPL
@@ -409,7 +409,7 @@ namespace mg5amcCpu
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
 #endif
-#endif
+#endif /* clang-format on */
 
     // ----------------------------
     // --- WAVEFUNCTION BUFFERS ---
@@ -523,7 +523,7 @@ namespace mg5amcCpu
       fptype* numerators = nullptr;
       fptype* denominators = nullptr;
 #endif
-      
+
       // ------------------------
       // --- FEYNMAN DIAGRAMS ---
       // ------------------------
@@ -1486,7 +1486,7 @@ namespace mg5amcCpu
         using J_ACCESS = HostAccessJamp;
         for( int iParity = 0; iParity < nParity; ++iParity )
           for( int icol = 0; icol < ncolor; icol++ )
-            jamp2_sv[ncolor * iParity + icol] += cxabs2( J_ACCESS::kernelAccessIcol( &( jamp_sv[ncolor*iParity] ), icol ) ); // may underflow #831
+            jamp2_sv[ncolor * iParity + icol] += cxabs2( J_ACCESS::kernelAccessIcol( &( jamp_sv[ncolor * iParity] ), icol ) ); // may underflow #831
       }
       // Event-by-event random choice of helicity #403
       for( int ieppV = 0; ieppV < neppV; ++ieppV )

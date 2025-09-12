@@ -6,44 +6,11 @@
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 ! Further modified by: J. Teig, A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 !==========================================================================
-
-      // *** COLOR CHOICE BELOW ***
-
-      // Store the leading color flows for choice of color
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#ifndef MGONGPUCPP_GPUIMPL
-      if( jamp2_sv ) // disable color choice if nullptr
-      {
-        for( int icol = 0; icol < ncolor; icol++ )
-          jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] ); // may underflow #831
-      }
-#else
-      assert( iParity == 0 ); // sanity check for J2_ACCESS
-      using J2_ACCESS = DeviceAccessJamp2;
-      if( colAllJamp2s ) // disable color choice if nullptr
-      {
-        for( int icol = 0; icol < ncolor; icol++ )
-          // NB: atomicAdd is needed after moving to cuda streams with one helicity per stream!
-          atomicAdd( &J2_ACCESS::kernelAccessIcol( colAllJamp2s, icol ), cxabs2( jamp_sv[icol] ) );
-      }
-#endif
-#endif
-
-      // *** PREPARE OUTPUT JAMPS ***
-#ifdef MGONGPUCPP_GPUIMPL
-      // In CUDA, copy the local jamp to the output global-memory jamp
-      using J_ACCESS = DeviceAccessJamp;
-      for( int icol = 0; icol < ncolor; icol++ )
-        J_ACCESS::kernelAccessIcol( allJamps, icol ) = jamp_sv[icol];
-#else
-      // In C++, copy the local jamp to the output array passed as function argument
-      for( int icol = 0; icol < ncolor; icol++ )
-        allJamp_sv[iParity * ncolor + icol] = jamp_sv[icol];
-#endif
     }
-    // END LOOP ON IPARITY
+    // *****************************
+    // *** END LOOP ON IPARITY ***
+    // *****************************
 
-    mgDebug( 1, __FUNCTION__ );
     return;
   }
 
@@ -54,8 +21,8 @@
 #ifdef MGONGPUCPP_GPUIMPL
              const fptype* allJamps       // input: jamp[ncolor*2*nevt] for one specific helicity
 #else
-             const cxtype_sv* allJamp_sv, // input: jamp_sv[ncolor] (float/double) or jamp_sv[2*ncolor] (mixed) for one specific helicity
-             const int ievt0              // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+             const cxtype_sv* jamp_sv,    // input: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
+             const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
              ) /* clang-format on */
   {
@@ -68,7 +35,16 @@
 #endif
 
     // *** COLOR MATRIX BELOW ***
-%(color_matrix_lines)s
+
+    // The color denominators (initialize all array elements, with ncolor=2)
+    // [NB do keep 'static' for these constexpr arrays, see issue #283]
+    static constexpr fptype2 denom[ncolor] = { 3, 3 }; // 1-D array[2]
+
+    // The color matrix (initialize all array elements, with ncolor=2)
+    // [NB do keep 'static' for these constexpr arrays, see issue #283]
+    static constexpr fptype2 cf[ncolor][ncolor] = {
+      { 16, -2 },
+      { -2, 16 } }; // 2-D array[2][2]
 
 #ifndef MGONGPUCPP_GPUIMPL
     // Pre-compute a constexpr triangular color matrix properly normalized #475
@@ -103,43 +79,38 @@
 
     // === C++ START ===
     fptype_sv deltaMEs = { 0 };
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-    fptype_sv deltaMEs_next = { 0 };
-    // Mixed mode: merge two neppV vectors into one neppV2 vector
     fptype2_sv jampR_sv[ncolor];
     fptype2_sv jampI_sv[ncolor];
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+    // Mixed mode: merge two neppV vectors into one neppV2 vector
+    fptype_sv deltaMEs_next = { 0 };
     for( int icol = 0; icol < ncolor; icol++ )
     {
-      jampR_sv[icol] = fpvmerge( cxreal( allJamp_sv[icol] ), cxreal( allJamp_sv[ncolor + icol] ) );
-      jampI_sv[icol] = fpvmerge( cximag( allJamp_sv[icol] ), cximag( allJamp_sv[ncolor + icol] ) );
+      jampR_sv[icol] = fpvmerge( cxreal( jamp_sv[icol] ), cxreal( jamp_sv[ncolor + icol] ) );
+      jampI_sv[icol] = fpvmerge( cximag( jamp_sv[icol] ), cximag( jamp_sv[ncolor + icol] ) );
     }
 #else
-    const cxtype_sv* jamp_sv = allJamp_sv;
+    // Double/Float mode: one neppV vector is one neppV2 vector
+    for( int icol = 0; icol < ncolor; icol++ )
+    {
+      jampR_sv[icol] = (fptype2_sv)( cxreal( jamp_sv[icol] ) );
+      jampI_sv[icol] = (fptype2_sv)( cximag( jamp_sv[icol] ) );
+    }
 #endif
     // Loop over icol
     for( int icol = 0; icol < ncolor; icol++ )
     {
       // Diagonal terms
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       fptype2_sv& jampRi_sv = jampR_sv[icol];
       fptype2_sv& jampIi_sv = jampI_sv[icol];
-#else
-      fptype2_sv jampRi_sv = (fptype2_sv)( cxreal( jamp_sv[icol] ) );
-      fptype2_sv jampIi_sv = (fptype2_sv)( cximag( jamp_sv[icol] ) );
-#endif
       fptype2_sv ztempR_sv = cf2.value[icol][icol] * jampRi_sv;
       fptype2_sv ztempI_sv = cf2.value[icol][icol] * jampIi_sv;
       // Loop over jcol
       for( int jcol = icol + 1; jcol < ncolor; jcol++ )
       {
         // Off-diagonal terms
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         fptype2_sv& jampRj_sv = jampR_sv[jcol];
         fptype2_sv& jampIj_sv = jampI_sv[jcol];
-#else
-        fptype2_sv jampRj_sv = (fptype2_sv)( cxreal( jamp_sv[jcol] ) );
-        fptype2_sv jampIj_sv = (fptype2_sv)( cximag( jamp_sv[jcol] ) );
-#endif
         ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
         ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
       }
@@ -182,7 +153,7 @@
 
     // *** STORE THE RESULTS ***
 #ifndef MGONGPUCPP_GPUIMPL
-    fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
+    fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt00 );
 #else
     fptype* MEs = allMEs;
 #endif
@@ -190,7 +161,7 @@
     fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
     MEs_sv += deltaMEs; // fix #435
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-    fptype* MEs_next = E_ACCESS::ieventAccessRecord( allMEs, ievt0 + neppV );
+    fptype* MEs_next = E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV );
     fptype_sv& MEs_sv_next = E_ACCESS::kernelAccess( MEs_next );
     MEs_sv_next += deltaMEs_next;
 #endif
