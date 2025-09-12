@@ -1939,6 +1939,46 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     def format_call(call):
         return call.replace('(','( ').replace(')',' )').replace(',',', ')
 
+    # AV - new method
+    def get_diagram_code(self, diagram, id_amp, multi_channel_map, diag_to_config, color):
+        res = []
+        ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
+        ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
+        res.append('\n      // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
+        res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ]) # AV new: avoid format_call
+        if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
+        if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
+        res.append('\n      // Amplitude(s) for diagram number %d' % diagram.get('number'))
+        for amplitude in diagram.get('amplitudes'):
+            id_amp +=1
+            namp = amplitude.get('number')
+            amplitude.set('number', 1)
+            res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
+            if multi_channel_map: # different code bases #473 (assume this is the same as self.include_multi_channel...)
+                if id_amp in diag_to_config:
+                    ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
+                    ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
+                    res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                    res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
+                    res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
+                    res.append("#endif")
+            else:
+                res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
+                res.append("#endif")
+            for njamp, coeff in color[namp].items():
+                scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
+                if scoeff[0] == '+' : scoeff = scoeff[1:]
+                scoeff = scoeff.replace('(','( ')
+                scoeff = scoeff.replace(')',' )')
+                scoeff = scoeff.replace(',',', ')
+                scoeff = scoeff.replace('*',' * ')
+                scoeff = scoeff.replace('/',' / ')
+                if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
+                else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
+        if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
+        return res
+
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
     def super_get_matrix_element_calls(self, matrix_element, color_amplitudes, multi_channel_map=False):
         """Return a list of strings, corresponding to the Helas calls for the matrix element"""
@@ -1962,7 +2002,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         ###misc.sprint(multi_channel_map)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append("""here diagram1""")
         diagrams = matrix_element.get('diagrams')
         diag_to_config = {}
         if multi_channel_map:
@@ -1972,45 +2011,21 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                        idiag in multi_channel_map[config]], [])]
                 diag_to_config[amp[0]] = config
         ###misc.sprint(diag_to_config)
+        res.append('\n      // *** DIAGRAMS 1 TO %d ***' % (len(matrix_element.get('diagrams'))) ) # AV
+        res.append('#ifdef MGONGPUCPP_GPUIMPL')
+        for idiagram in range(1,len(matrix_element.get('diagrams'))+1):
+            if idiagram == 1: res.append('gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );')
+            else: res.append('gpuLaunchKernelStream( diagram%i, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );'%idiagram)
+        res.append('#else')
+        for idiagram in range(1,len(matrix_element.get('diagrams'))+1):
+            if idiagram == 1: res.append('diagram1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );')
+            else: res.append('diagram%i( wfs, jamps, channelIds, COUPs, numerators, denominators );'%idiagram)
+        res.append('#endif')
+        # START OLDCODE
         id_amp = 0
         for diagram in matrix_element.get('diagrams'):
-            ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
-            ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
-            res.append('\n      // *** DIAGRAM %d OF %d ***' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
-            res.append('\n      // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
-            res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ]) # AV new: avoid format_call
-            if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
-            if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
-            res.append('\n      // Amplitude(s) for diagram number %d' % diagram.get('number'))
-            for amplitude in diagram.get('amplitudes'):
-                id_amp +=1
-                namp = amplitude.get('number')
-                amplitude.set('number', 1)
-                res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
-                if multi_channel_map: # different code bases #473 (assume this is the same as self.include_multi_channel...)
-                    if id_amp in diag_to_config:
-                        ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
-                        ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
-                        res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                        res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
-                        res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
-                        res.append("#endif")
-                else:
-                    res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                    res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
-                    res.append("#endif")
-                for njamp, coeff in color[namp].items():
-                    scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
-                    if scoeff[0] == '+' : scoeff = scoeff[1:]
-                    scoeff = scoeff.replace('(','( ')
-                    scoeff = scoeff.replace(')',' )')
-                    scoeff = scoeff.replace(',',', ')
-                    scoeff = scoeff.replace('*',' * ')
-                    scoeff = scoeff.replace('/',' / ')
-                    if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
-                    else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
-            if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
-        ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR MATRIX BELOW')
+            res += self.get_diagram_code(diagram, id_amp, multi_channel_map, diag_to_config, color)
+        # END OLDCODE
         return res
 
     # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)

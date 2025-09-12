@@ -527,6 +527,7 @@ namespace mg5amcCpu
       // ------------------------
       // --- FEYNMAN DIAGRAMS ---
       // ------------------------
+
       // *** DIAGRAMS 1 TO 3 ***
 #ifdef MGONGPUCPP_GPUIMPL
       gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
