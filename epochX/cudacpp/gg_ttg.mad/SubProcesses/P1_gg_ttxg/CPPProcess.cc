@@ -64,8 +64,7 @@ fpeEnable()
   //std::cout << "fpeEnable:     FE_INVALID is" << ( ( fpes & FE_INVALID ) ? " " : " NOT " ) << "enabled" << std::endl;
   //std::cout << "fpeEnable:     FE_OVERFLOW is" << ( ( fpes & FE_OVERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
   //std::cout << "fpeEnable:     FE_UNDERFLOW is" << ( ( fpes & FE_UNDERFLOW ) ? " " : " NOT " ) << "enabled" << std::endl;
-  constexpr bool enableFPE = false;
-  //constexpr bool enableFPE = true; // this is hardcoded and no longer controlled by getenv( "CUDACPP_RUNTIME_ENABLEFPE" )
+  constexpr bool enableFPE = true; // this is hardcoded and no longer controlled by getenv( "CUDACPP_RUNTIME_ENABLEFPE" )
   if( enableFPE )
   {
     std::cout << "INFO: The following Floating Point Exceptions will cause SIGFPE program aborts: FE_DIVBYZERO, FE_INVALID, FE_OVERFLOW" << std::endl;
@@ -500,15 +499,19 @@ namespace mg5amcCpu
 
     // *** COLOR MATRIX BELOW ***
 
-    // The color denominators (initialize all array elements, with ncolor=2)
+    // The color denominators (initialize all array elements, with ncolor=6)
     // [NB do keep 'static' for these constexpr arrays, see issue #283]
-    static constexpr fptype2 denom[ncolor] = { 3, 3 }; // 1-D array[2]
+    static constexpr fptype2 denom[ncolor] = { 9, 9, 9, 9, 9, 9 }; // 1-D array[6]
 
-    // The color matrix (initialize all array elements, with ncolor=2)
+    // The color matrix (initialize all array elements, with ncolor=6)
     // [NB do keep 'static' for these constexpr arrays, see issue #283]
     static constexpr fptype2 cf[ncolor][ncolor] = {
-      { 16, -2 },
-      { -2, 16 } }; // 2-D array[2][2]
+      { 64, -8, -8, 1, 1, 10 },
+      { -8, 64, 1, 10, -8, 1 },
+      { -8, 1, 64, -8, 10, 1 },
+      { 1, 10, -8, 64, 1, -8 },
+      { 1, -8, 10, 1, 64, -8 },
+      { 10, 1, 1, -8, -8, 64 } }; // 2-D array[6][6]
 
 #ifndef MGONGPUCPP_GPUIMPL
     // Pre-compute a constexpr triangular color matrix properly normalized #475
