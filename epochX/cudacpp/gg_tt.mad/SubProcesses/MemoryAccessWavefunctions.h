@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2022-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef MemoryAccessWavefunctions_H
 #define MemoryAccessWavefunctions_H 1
@@ -39,7 +39,7 @@ namespace mg5amcCpu
     }
   };
 #endif
-  
+
   //----------------------------------------------------------------------------
 
   class HostAccessWavefunctions

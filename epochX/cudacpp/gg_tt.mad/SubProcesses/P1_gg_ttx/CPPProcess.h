@@ -1,10 +1,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2025) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.6.0, 2024-09-30
@@ -128,8 +128,8 @@ namespace mg5amcCpu
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                       fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
-                       fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
+                       fptype* allNumerators,      // output: numerators[nevt], running_sum_over_helicities
+                       fptype* allDenominators,    // output: denominators[nevt], running_sum_over_helicities
 #endif
                        fptype* allJamps,           // output: jamp[ncolor*2*nevt]
                        fptype* allWfs,             // output: wf[nwf*nw6*2*nevt]
@@ -141,8 +141,8 @@ namespace mg5amcCpu
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                       fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
-                       fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
+                       fptype* allNumerators,      // output: numerators[nevt], running_sum_over_helicities
+                       fptype* allDenominators,    // output: denominators[nevt], running_sum_over_helicities
 #endif
                        bool* isGoodHel,            // output: isGoodHel[ncomb] - host array (C++ implementation)
                        const int nevt );           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -191,8 +191,8 @@ namespace mg5amcCpu
             int* allselhel,                     // output: helicity selection[nevt]
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             int* allselcol,                     // output: helicity selection[nevt]
-            fptype* allNumerators,              // tmp: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,            // tmp: multichannel denominators[nevt], running_sum_over_helicities
+            fptype* allNumerators,              // tmp: numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,            // tmp: denominators[nevt], running_sum_over_helicities
 #endif
             const int nevt );                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif /* clang-format on */

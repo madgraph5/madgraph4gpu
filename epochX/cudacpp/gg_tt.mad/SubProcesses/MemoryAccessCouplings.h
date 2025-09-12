@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
 // Further modified by: S. Roiser, A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
