@@ -3,6 +3,9 @@
 // Created by: A. Valassi (Nov 2024) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2024-2025) for the MG5aMC CUDACPP plugin.
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs" // for CI_ACCESS and CD_ACCESS
+
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
 
     //-------------
@@ -63,6 +66,7 @@
     using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
     using J_ACCESS = HostAccessJamp;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
@@ -95,3 +99,5 @@
     assert( numerators == nullptr );
     assert( denominators == nullptr );
 #endif /* clang-format on */
+
+#pragma GCC diagnostic pop
