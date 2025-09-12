@@ -58,7 +58,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005413532257080078 [0m
+[1;32mDEBUG: model prefixing  takes 0.0054361820220947266 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -191,7 +191,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 7 routines in  0.244 s
+ALOHA: aloha creates 7 routines in  0.242 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -229,9 +229,9 @@ Run "open index.html" to see more information about this process.
 quit
 
 real	0m2.070s
-user	0m1.799s
-sys	0m0.265s
-Code generation completed in 2 seconds
+user	0m1.800s
+sys	0m0.264s
+Code generation completed in 3 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
