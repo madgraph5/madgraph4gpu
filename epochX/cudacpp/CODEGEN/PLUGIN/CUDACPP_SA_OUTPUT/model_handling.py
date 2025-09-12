@@ -2051,7 +2051,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
   
   //--------------------------------------------------------------------------""")
         # Return
-        return res
+        return res, id_amp
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
     def super_get_matrix_element_calls(self, matrix_element, color_amplitudes, multi_channel_map=False):
@@ -2099,7 +2099,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         self.diagram_code = []
         id_amp = 0
         for diagram in matrix_element.get('diagrams'):
-            res_diagram = self.get_one_diagram_code(diagram, id_amp, multi_channel_map, diag_to_config, color, len(matrix_element.get('diagrams')))
+            res_diagram, id_amp = self.get_one_diagram_code(diagram, id_amp, multi_channel_map, diag_to_config, color, len(matrix_element.get('diagrams')))
             self.diagram_code.append( '\n'.join(res_diagram) )
         return res
 

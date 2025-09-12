@@ -494,28 +494,16 @@
     VVVV4P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[9] );
     // Amplitude(s) for diagram number 16
     FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelId == 16 ) numerators_sv += cxabs2( amp_sv[0] );
-    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
-#endif
     J_ACCESS::kernelAccessIcol( jamps, 0 ) += amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 1 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 3 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 5 ) += amp_sv[0];
     FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelId == 16 ) numerators_sv += cxabs2( amp_sv[0] );
-    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
-#endif
     J_ACCESS::kernelAccessIcol( jamps, 1 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 2 ) += amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 3 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 4 ) += amp_sv[0];
     FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelId == 16 ) numerators_sv += cxabs2( amp_sv[0] );
-    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
-#endif
     J_ACCESS::kernelAccessIcol( jamps, 0 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 2 ) += amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 4 ) += amp_sv[0];
