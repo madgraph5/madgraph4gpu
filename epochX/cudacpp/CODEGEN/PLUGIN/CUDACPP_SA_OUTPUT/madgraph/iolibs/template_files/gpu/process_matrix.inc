@@ -35,16 +35,7 @@
 #endif
 
     // *** COLOR MATRIX BELOW ***
-
-    // The color denominators (initialize all array elements, with ncolor=2)
-    // [NB do keep 'static' for these constexpr arrays, see issue #283]
-    static constexpr fptype2 denom[ncolor] = { 3, 3 }; // 1-D array[2]
-
-    // The color matrix (initialize all array elements, with ncolor=2)
-    // [NB do keep 'static' for these constexpr arrays, see issue #283]
-    static constexpr fptype2 cf[ncolor][ncolor] = {
-      { 16, -2 },
-      { -2, 16 } }; // 2-D array[2][2]
+%(color_matrix_lines)s
 
 #ifndef MGONGPUCPP_GPUIMPL
     // Pre-compute a constexpr triangular color matrix properly normalized #475
