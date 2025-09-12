@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Nov 2024) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2024-2025) for the MG5aMC CUDACPP plugin.
@@ -23,6 +23,13 @@
 #endif
 
     // Wavefunctions
+    // Buffer wfs for one helicity and nevt events is a DeviceBufferSimple with ( nwf * nevt * nw6 * nx2 ) fptypes
+    // The striding between the nwf wavefunction buffers is ( nevt * nw6 * nx2 ) fptypes
+    // Internally diagramXXX methods pass a w_fp[iwf] to ixx/FFV methods (as argument 'fptype wavefunctions[]')
+    // Internally ixx/FFV methods call 'cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions )' and then use fi[iw6]
+    // This means that the fi pointer must point to a [RIRIRIRIRIRI] contiguous buffer of size nw6*nx2=12
+    // The striding between events is nw6*nx2=12 and this is what W_ACCESS::kernelAccess must respect
+    // (En passant, note that this means that events cannot be contiguous in the present code, memory is not coalesced)
     const int nevt = gridDim.x * blockDim.x;
     fptype* w_fp[nwf];
     for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = wfs + iwf * nevt * nw6 * mgOnGpu::nx2;
@@ -56,7 +63,6 @@
     using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
-    //using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
     using J_ACCESS = HostAccessJamp;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events

@@ -259,13 +259,13 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   __global__ INLINE void
-  diagram1( fptype* wfs,                    // input/output wavefunctions
+  diagram1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 #ifdef MGONGPUCPP_GPUIMPL
-            const fptype* couplings,        // input: constant couplings buffer for all events
+            const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-            const fptype** COUPs,           // input: constant COUPs[nxcoup] for this event page
+            const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
             fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
@@ -300,13 +300,13 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   __global__ INLINE void
-  diagram2( fptype* wfs,                    // input/output wavefunctions
+  diagram2( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 #ifdef MGONGPUCPP_GPUIMPL
-            const fptype* couplings,        // input: constant couplings buffer for all events
+            const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-            const fptype** COUPs,           // input: constant COUPs[nxcoup] for this event page
+            const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
             fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
@@ -329,13 +329,13 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   __global__ INLINE void
-  diagram3( fptype* wfs,                    // input/output wavefunctions
+  diagram3( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 #ifdef MGONGPUCPP_GPUIMPL
-            const fptype* couplings,        // input: constant couplings buffer for all events
+            const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-            const fptype** COUPs,           // input: constant COUPs[nxcoup] for this event page
+            const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
             fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
@@ -385,9 +385,9 @@ namespace mg5amcCpu
   calculate_jamps( int ihel,
                    const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
-                   cxtype_sv* allJamp_sv,             // output: jamp_sv[ncolor] (float/double) or jamp_sv[2*ncolor] (mixed) for this helicity
+                   cxtype_sv* jamp_sv,                // output: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
+                   const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for SIMD event page(s) ievt00
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
 #endif
@@ -397,7 +397,6 @@ namespace mg5amcCpu
   {
 #ifdef MGONGPUCPP_GPUIMPL
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
-    //using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
@@ -424,15 +423,6 @@ namespace mg5amcCpu
 #else
     // Global-memory variables for a subset of Feynman diagrams in the given CUDA event (ievt)
     // ** NB: wavefunctions need non-trivial access in CUDA code because of kernel splitting
-    // Buffer allWfs for one helicity is a DeviceBufferSimple with ( nwf * nevt * nw6 * nx2 ) fptypes
-    // The striding between the nwf wavefunction buffers is ( nevt * nw6 * nx2 ) fptypes
-    // The diagram1 API receives an 'fptype** w_fp'
-    // Internally diagram1 passes a w_fp[iwf] to ixx/FFV
-    // The ixx/FFV API receives an 'fptype* wavefunctions'
-    // Internally ixx/FFV calls 'cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions )' and then uses fi[iw6]
-    // This means that the fi pointer must point to a [RIRIRIRIRIRI] contiguous buffer of size nw6*nx2=12
-    // The striding between events is nw6*nx2=12 and this is what W_ACCESS::kernelAccess must respect
-    // (En passant, note that this means that events cannot be contiguous in the present code, memory is not coalesced)
     fptype* wfs = allWfs;
 #endif
 
@@ -452,8 +442,10 @@ namespace mg5amcCpu
       // --- COUPLINGS ---
       // -----------------
 #ifdef MGONGPUCPP_GPUIMPL
+      // CUDA diagram kernels take input/output buffers with couplings "fptype* couplings" for all events
       const fptype* couplings = allcouplings;
 #else
+      // C++ diagram kernels take input/output buffers with couplings "fptype** COUPs" for a single event or SIMD vector
       constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823: nIPC instead of nicoup)
       const fptype* allCOUPs[nxcoup];
       const fptype* COUPs[nxcoup];
@@ -475,10 +467,10 @@ namespace mg5amcCpu
       // --- MOMENTA ---
       // ---------------
 #ifdef MGONGPUCPP_GPUIMPL
-      // CUDA kernels take input/output buffers with momenta/MEs for all events
+      // CUDA diagram kernels take input/output buffers with momenta for all events
       const fptype* momenta = allmomenta;
 #else
-      // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
+      // C++ diagram kernels take input/output buffers with momenta for a single event or SIMD vector
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
 #endif
       // -------------
@@ -486,21 +478,24 @@ namespace mg5amcCpu
       // -------------
       // (Note: no need to 'reset color flows' i.e. zero allJamps, this is done in sigmaKin and sigmaKin_getGoodHel)
 #ifdef MGONGPUCPP_GPUIMPL
-      // In CUDA, write jamps directly to the output global-memory allJamps passed as argument
+      // In CUDA, write jamps to the output global-memory allJamps [for all events] passed as argument
       // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
+      fptype* jamps = allJamps;
 #else
-      // In C++, write jamps directly to the output array passed as argument
+      // In C++, write jamps to the output array [for one specific event or SIMD vector] passed as argument
       // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
-      fptype* allJamps = reinterpret_cast<fptype*>( iParity == 0 ? allJamp_sv : &( allJamp_sv[ncolor] ) );
+      fptype* jamps = reinterpret_cast<fptype*>( iParity == 0 ? jamp_sv : &( jamp_sv[ncolor] ) );
 #endif
-      
+
       // ------------------
       // --- CHANNELIDS ---
       // ------------------
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #ifdef MGONGPUCPP_GPUIMPL
+      // CUDA diagram kernels take input/output buffers with channelIDs for all events
       const unsigned int* channelIds = allChannelIds;
 #else
+      // C++ diagram kernels take input/output buffers with a single SCALAR channelID for all events in a given SIMD vector
       const unsigned int* channelIds = &channelId;
 #endif
 #else
@@ -514,9 +509,11 @@ namespace mg5amcCpu
       // -------------------------------
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #ifdef MGONGPUCPP_GPUIMPL
+      // CUDA diagram kernels take input/output buffers with numerators/denominators for all events
       fptype* numerators = allNumerators;
       fptype* denominators = allDenominators;
 #else
+      // C++ diagram kernels take input/output buffers with numerators/denominators for a single event or SIMD vector
       fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
 #endif
@@ -532,13 +529,13 @@ namespace mg5amcCpu
       // ------------------------
       // *** DIAGRAMS 1 TO 3 ***
 #ifdef MGONGPUCPP_GPUIMPL
-      gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, couplings, numerators, denominators, momenta, ihel );
-      gpuLaunchKernelStream( diagram2, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram3, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, couplings, numerators, denominators );
+      gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
+      gpuLaunchKernelStream( diagram2, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuLaunchKernelStream( diagram3, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
 #else
-      diagram1( wfs, allJamps, channelIds, COUPs, numerators, denominators, momenta, ihel );
-      diagram2( wfs, allJamps, channelIds, COUPs, numerators, denominators );
-      diagram3( wfs, allJamps, channelIds, COUPs, numerators, denominators );
+      diagram1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );
+      diagram2( wfs, jamps, channelIds, COUPs, numerators, denominators );
+      diagram3( wfs, jamps, channelIds, COUPs, numerators, denominators );
 #endif
     }
     // *****************************
@@ -555,8 +552,8 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
              const fptype* allJamps       // input: jamp[ncolor*2*nevt] for one specific helicity
 #else
-             const cxtype_sv* allJamp_sv, // input: jamp_sv[ncolor] (float/double) or jamp_sv[2*ncolor] (mixed) for one specific helicity
-             const int ievt0              // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+             const cxtype_sv* jamp_sv,    // input: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
+             const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
              ) /* clang-format on */
   {
@@ -613,43 +610,38 @@ namespace mg5amcCpu
 
     // === C++ START ===
     fptype_sv deltaMEs = { 0 };
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-    fptype_sv deltaMEs_next = { 0 };
-    // Mixed mode: merge two neppV vectors into one neppV2 vector
     fptype2_sv jampR_sv[ncolor];
     fptype2_sv jampI_sv[ncolor];
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+    // Mixed mode: merge two neppV vectors into one neppV2 vector
+    fptype_sv deltaMEs_next = { 0 };
     for( int icol = 0; icol < ncolor; icol++ )
     {
-      jampR_sv[icol] = fpvmerge( cxreal( allJamp_sv[icol] ), cxreal( allJamp_sv[ncolor + icol] ) );
-      jampI_sv[icol] = fpvmerge( cximag( allJamp_sv[icol] ), cximag( allJamp_sv[ncolor + icol] ) );
+      jampR_sv[icol] = fpvmerge( cxreal( jamp_sv[icol] ), cxreal( jamp_sv[ncolor + icol] ) );
+      jampI_sv[icol] = fpvmerge( cximag( jamp_sv[icol] ), cximag( jamp_sv[ncolor + icol] ) );
     }
 #else
-    const cxtype_sv* jamp_sv = allJamp_sv;
+    // Double/Float mode: one neppV vector is one neppV2 vector
+    for( int icol = 0; icol < ncolor; icol++ )
+    {
+      jampR_sv[icol] = (fptype2_sv)( cxreal( jamp_sv[icol] ) );
+      jampI_sv[icol] = (fptype2_sv)( cximag( jamp_sv[icol] ) );
+    }
 #endif
     // Loop over icol
     for( int icol = 0; icol < ncolor; icol++ )
     {
       // Diagonal terms
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       fptype2_sv& jampRi_sv = jampR_sv[icol];
       fptype2_sv& jampIi_sv = jampI_sv[icol];
-#else
-      fptype2_sv jampRi_sv = (fptype2_sv)( cxreal( jamp_sv[icol] ) );
-      fptype2_sv jampIi_sv = (fptype2_sv)( cximag( jamp_sv[icol] ) );
-#endif
       fptype2_sv ztempR_sv = cf2.value[icol][icol] * jampRi_sv;
       fptype2_sv ztempI_sv = cf2.value[icol][icol] * jampIi_sv;
       // Loop over jcol
       for( int jcol = icol + 1; jcol < ncolor; jcol++ )
       {
         // Off-diagonal terms
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         fptype2_sv& jampRj_sv = jampR_sv[jcol];
         fptype2_sv& jampIj_sv = jampI_sv[jcol];
-#else
-        fptype2_sv jampRj_sv = (fptype2_sv)( cxreal( jamp_sv[jcol] ) );
-        fptype2_sv jampIj_sv = (fptype2_sv)( cximag( jamp_sv[jcol] ) );
-#endif
         ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
         ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
       }
@@ -692,7 +684,7 @@ namespace mg5amcCpu
 
     // *** STORE THE RESULTS ***
 #ifndef MGONGPUCPP_GPUIMPL
-    fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
+    fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt00 );
 #else
     fptype* MEs = allMEs;
 #endif
@@ -700,7 +692,7 @@ namespace mg5amcCpu
     fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
     MEs_sv += deltaMEs; // fix #435
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-    fptype* MEs_next = E_ACCESS::ieventAccessRecord( allMEs, ievt0 + neppV );
+    fptype* MEs_next = E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV );
     fptype_sv& MEs_sv_next = E_ACCESS::kernelAccess( MEs_next );
     MEs_sv_next += deltaMEs_next;
 #endif
@@ -1227,13 +1219,13 @@ namespace mg5amcCpu
         // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
         if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
       }
-      //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
+      //printf( "select_col: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
       for( int icolC = 0; icolC < ncolor; icolC++ )
       {
         if( allrndcol[ievt] < ( targetamp[icolC] / targetamp[ncolor - 1] ) )
         {
           allselcol[ievt] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
-          //printf( "sigmaKin: ievt=%d icol=%d\n", ievt, icolC+1 );
+          //printf( "select_col: ievt=%d icol=%d\n", ievt, icolC+1 );
           break;
         }
       }
