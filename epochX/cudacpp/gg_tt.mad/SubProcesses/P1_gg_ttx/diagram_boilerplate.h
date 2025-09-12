@@ -72,10 +72,8 @@
 #endif
 
     // Wavefunctions
-    cxtype_sv(*w_sv)[nw6] = ( cxtype_sv(*)[nw6] )( wfs ); // originally cxtype_sv w_sv[nwf][nw6]
-    fptype* w_fp[nwf];
-    //for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
-    for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = (fptype*)( w_sv[iwf] );
+    // Reinterpret wfs as "cxtype_sv w_sv[nwf][nw6]" and build "fptype* w_fp[nwf]" where "w_fp[iwf] = (fptype*)( w_sv[iwf] )"
+    fptype (*w_fp)[nw6*sizeof(cxtype_sv)/sizeof(fptype)] = (fptype (*)[nw6*sizeof(cxtype_sv)/sizeof(fptype)])(wfs);
 
 #endif
 
