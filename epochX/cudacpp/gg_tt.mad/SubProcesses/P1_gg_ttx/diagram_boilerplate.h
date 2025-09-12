@@ -73,7 +73,7 @@
 
     // Wavefunctions
     // Reinterpret wfs as "cxtype_sv w_sv[nwf][nw6]" and build "fptype* w_fp[nwf]" where "w_fp[iwf] = (fptype*)( w_sv[iwf] )"
-    fptype (*w_fp)[nw6*sizeof(cxtype_sv)/sizeof(fptype)] = (fptype (*)[nw6*sizeof(cxtype_sv)/sizeof(fptype)])(wfs);
+    fptype (*w_fp)[nw6 * neppV * mgOnGpu::nx2] = (fptype (*)[nw6 * neppV * mgOnGpu::nx2])(wfs);
 
 #endif
 
