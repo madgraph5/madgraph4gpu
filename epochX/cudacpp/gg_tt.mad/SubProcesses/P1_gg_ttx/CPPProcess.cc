@@ -264,7 +264,7 @@ namespace mg5amcCpu
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
             fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-            const fptype** COUPs,           // input: constant couplings COUPs[nxcoup]
+            const fptype* couplings,        // input: constant couplings
             const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
             const int ihel )                // input: helicity (0 to ncomb)
   {
@@ -301,7 +301,7 @@ namespace mg5amcCpu
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
             fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-            const fptype** COUPs )          // input: constant couplings COUPs[nxcoup]
+            const fptype* couplings )       // input: constant couplings
   {
     // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
@@ -326,7 +326,7 @@ namespace mg5amcCpu
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
             fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
             fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-            const fptype** COUPs )          // input: constant couplings COUPs[nxcoup]
+            const fptype* couplings )       // input: constant couplings
   {
     // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
@@ -385,7 +385,7 @@ namespace mg5amcCpu
   {
 #ifdef MGONGPUCPP_GPUIMPL
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
-    using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+    //using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
@@ -393,7 +393,7 @@ namespace mg5amcCpu
 #else
     using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
-    using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+    //using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
@@ -439,6 +439,8 @@ namespace mg5amcCpu
       // -----------------
       // --- COUPLINGS ---
       // -----------------
+      const fptype* couplings = allcouplings;
+      /*
       constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823: nIPC instead of nicoup)
       const fptype* allCOUPs[nxcoup];
 #ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
@@ -474,6 +476,7 @@ namespace mg5amcCpu
       for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // (FIX #823: nIPC instead of nicoup)
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup];
 #endif
+      */
 
       // ---------------
       // --- MOMENTA ---
@@ -536,13 +539,13 @@ namespace mg5amcCpu
       // ------------------------
       // *** DIAGRAMS 1 TO 3 ***
 #ifdef MGONGPUCPP_GPUIMPL
-      gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, numerators, denominators, COUPs, momenta, ihel );
-      gpuLaunchKernelStream( diagram2, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, numerators, denominators, COUPs );
-      gpuLaunchKernelStream( diagram3, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, numerators, denominators, COUPs );
+      gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, numerators, denominators, couplings, momenta, ihel );
+      gpuLaunchKernelStream( diagram2, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, numerators, denominators, couplings );
+      gpuLaunchKernelStream( diagram3, gpublocks, gputhreads, gpustream, wfs, allJamps, channelIds, numerators, denominators, couplings );
 #else
-      diagram1( wfs, allJamps, channelIds, numerators, denominators, COUPs, momenta, ihel );
-      diagram2( wfs, allJamps, channelIds, numerators, denominators, COUPs );
-      diagram3( wfs, allJamps, channelIds, numerators, denominators, COUPs );
+      diagram1( wfs, allJamps, channelIds, numerators, denominators, couplings, momenta, ihel );
+      diagram2( wfs, allJamps, channelIds, numerators, denominators, couplings );
+      diagram3( wfs, allJamps, channelIds, numerators, denominators, couplings );
 #endif
     }
     // *****************************
