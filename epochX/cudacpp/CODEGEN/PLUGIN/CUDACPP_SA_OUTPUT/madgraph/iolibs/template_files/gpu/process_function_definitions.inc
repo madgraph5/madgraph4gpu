@@ -753,7 +753,7 @@ namespace mg5amcCpu
     }
 
     // Denominators: spins, colors and identical particles
-    constexpr int helcolDenominators[1] = { 256 }; // assume nprocesses == 1 (#272 and #343)
+    constexpr int helcolDenominators[1] = { %(den_factors)s }; // assume nprocesses == 1 (#272 and #343)
 
 #ifndef MGONGPUCPP_GPUIMPL
     //assert( (size_t)(allmomenta) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
