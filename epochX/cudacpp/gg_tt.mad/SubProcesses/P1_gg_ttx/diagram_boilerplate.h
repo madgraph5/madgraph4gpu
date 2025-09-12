@@ -22,10 +22,29 @@
     unsigned int channelId = gpu_channelId( channelIds );
 #endif
 
-    // Wavefunction buffers
+    // Wavefunctions
     const int nevt = gridDim.x * blockDim.x;
     fptype* w_fp[nwf];
     for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = wfs + iwf * nevt * nw6 * mgOnGpu::nx2;
+
+    // Couplings
+    constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823: nIPC instead of nicoup)
+    const fptype* allCOUPs[nxcoup];
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#pragma nv_diagnostic push
+#pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
+#endif
+    // Dependent couplings, vary event-by-event
+    for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
+      allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( couplings, idcoup );
+    // Independent couplings, fixed for all events
+    for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // (FIX #823: nIPC instead of nicoup)
+      allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup );
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#pragma nv_diagnostic pop
+#endif
+    const fptype* COUPs[nxcoup];
+    for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
 
 #else
 
@@ -37,7 +56,7 @@
     using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
-    using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+    //using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
     using J_ACCESS = HostAccessJamp;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
@@ -71,32 +90,3 @@
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
     fptype* amp_fp;      // proof of concept for using fptype* in the interface
     amp_fp = reinterpret_cast<fptype*>( amp_sv );
-
-    // Couplings
-    constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823: nIPC instead of nicoup)
-    const fptype* allCOUPs[nxcoup];
-#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
-#pragma nv_diagnostic push
-#pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
-#endif
-    // Dependent couplings, vary event-by-event
-    for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
-      allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( couplings, idcoup );
-    // Independent couplings, fixed for all events
-    for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // (FIX #823: nIPC instead of nicoup)
-      allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup );
-#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
-#pragma nv_diagnostic pop
-#endif
-#ifdef MGONGPUCPP_GPUIMPL
-    const fptype* COUPs[nxcoup];
-    for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
-#else
-    const fptype* COUPs[nxcoup];
-    // Dependent couplings, vary event-by-event
-    for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
-      COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 );
-    // Independent couplings, fixed for all events
-    for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // (FIX #823: nIPC instead of nicoup)
-      COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup];
-#endif
