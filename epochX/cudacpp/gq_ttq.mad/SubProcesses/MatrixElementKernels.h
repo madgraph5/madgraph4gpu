@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef MATRIXELEMENTKERNELS_H
 #define MATRIXELEMENTKERNELS_H 1
@@ -134,7 +134,7 @@ namespace mg5amcCpu
 
     // Does this host system support the SIMD used in the matrix element calculation?
     // [NB: this is private, SIMD vectorization in mg5amc C++ code is currently only used in the ME calculations below MatrixElementKernelHost!]
-    static bool hostSupportsSIMD( const bool verbose = true );
+    static bool hostSupportsSIMD( const bool verbose = false ); // ZW: default verbose false
 
   private:
 

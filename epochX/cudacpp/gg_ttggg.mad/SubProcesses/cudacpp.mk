@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Hageboeck, D. Massaro, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2025) for the MG5aMC CUDACPP plugin.
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
@@ -114,7 +114,7 @@ export CXXFLAGS
 override CUDA_HOME = $(patsubst %/bin/nvcc,%,$(shell which nvcc 2>/dev/null))
 
 # Set HIP_HOME from the path to hipcc, if it exists
-override HIP_HOME = $(patsubst %/bin/hipcc,%,$(shell which hipcc 2>/dev/null))
+override HIP_HOME = $(shell hipconfig --rocmpath)
 
 # Configure CUDA_INC (for CURAND and NVTX) and NVTX if a CUDA installation exists (see #965)
 ifeq ($(CUDA_HOME),)
@@ -229,6 +229,8 @@ ifeq ($(BACKEND),cuda)
 
 else ifeq ($(BACKEND),hip)
 
+  # example architecture values MI200:gfx90a, MI350X:gfx942
+  MADGRAPH_HIP_ARCHITECTURE ?= gfx942
   # Set GPUCC as $(HIP_HOME)/bin/hipcc (it was already checked above that this exists)
   GPUCC = $(HIP_HOME)/bin/hipcc
   XCOMPILERFLAG =
@@ -243,7 +245,7 @@ else ifeq ($(BACKEND),hip)
   ###GPUFLAGS += -ggdb # FOR DEBUGGING ONLY
 
   # AMD HIP architecture flags
-  GPUARCHFLAGS = --offload-arch=gfx90a
+  GPUARCHFLAGS = --offload-arch=${MADGRAPH_HIP_ARCHITECTURE}
   GPUFLAGS += $(GPUARCHFLAGS)
 
   # Other AMD-specific flags
@@ -878,7 +880,7 @@ endif
 $(gpu_fcheckmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
-	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) -lstdc++ -L$(shell cd -L $(shell dirname $(shell $(GPUCC) -print-prog-name=clang))/../..; pwd)/lib -lamdhip64
+	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) -lstdc++ -L$(HIP_HOME)/lib -lamdhip64
 else
 	$(GPUCC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe)
 endif
@@ -979,7 +981,7 @@ else # link only runTest_$(GPUSUFFIX).o (new: in the past, this was linking both
 $(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(GTESTLIBS)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
-	$(FC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) -lstdc++ -lpthread -L$(shell cd -L $(shell dirname $(shell $(GPUCC) -print-prog-name=clang))/../..; pwd)/lib -lamdhip64
+	$(FC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) -lstdc++ -lpthread -L$(HIP_HOME)/lib -lamdhip64
 else
 	$(GPUCC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) -lcuda
 endif

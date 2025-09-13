@@ -7,7 +7,7 @@
 // Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.6.0, 2024-09-30
+// MadGraph5_aMC@NLO v. 3.6.3, 2025-06-12
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
