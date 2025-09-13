@@ -93,6 +93,15 @@ function checklogs()
   # Print out any FPEs or '{ }' in the logs
   echo
   if ! egrep '(^Floating Point Exception|{ })' tput/logs* -r; then echo "No FPEs or '{ }' found in logs"; fi
+  # Print out any aborts in the logs
+  echo
+  txt=$(grep Aborted ./tput/logs_* -r | sed "s|\:.*SubProcesses/P|: P|")
+  if [ "${txt}" == "" ]; then
+    echo "No aborts found in logs"
+  else
+    echo "${txt}"
+  fi
+
   # Print out the MEK channelid debugging output (except for '{ }')
   echo
   \grep MEK ${scrdir}/logs_*/* | sed "s|${scrdir}/logs_||" | grep -v '{ }' | sed 's|_mad.*DEBUG:||' | sort -u
