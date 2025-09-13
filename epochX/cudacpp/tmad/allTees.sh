@@ -98,6 +98,15 @@ fi
 # Print out the number of "OK!"s in each log (expect 24)
 for f in ${scrdir}/logs_*_mad/log_*; do echo $(cat $f | grep OK  | wc -l) $f; done # expect 24
 
+# Print out any asserts in the logs
+echo
+txt=$(grep assert tmad/logs* -r | sed "s/Gpu.*Assert/Assert/")
+if [ "${txt}" == "" ]; then
+  echo "No asserts found in logs"
+else
+  echo "${txt}"
+fi
+  
 # Print out the MEK channelid debugging output
 echo
 \grep MEK ${scrdir}/logs_*/* | sed "s|${scrdir}/logs_||" | sed 's|_mad.*DEBUG:||' | sort -u
