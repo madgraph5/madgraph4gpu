@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: D. Massaro, O. Mattelaer, A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 # AV - Rename the plugin as CUDACPP_OUTPUT (even if the madgraph4gpu directory is still called CUDACPP_SA_OUTPUT)
 # This can be used in mg5amcnlo in one of two ways:
