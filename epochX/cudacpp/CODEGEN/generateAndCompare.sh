@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 set -e # fail on error
 
@@ -358,10 +358,12 @@ function codeGenAndDiff()
         fi
       done
     fi
-    # Remove card.jpg, diagrams.html and matrix*.jpg files (NB: these are only created if ghostscript is installed)
+    # Remove card.jpg/png, diagrams.html and matrix*.jpg/png files (NB: these are only created if ghostscript is installed)
     \rm -f ${outproc}/SubProcesses/P*/card.jpg
+    \rm -f ${outproc}/SubProcesses/P*/card.png
     \rm -f ${outproc}/SubProcesses/P*/diagrams.html
     \rm -f ${outproc}/SubProcesses/P*/matrix*jpg
+    \rm -f ${outproc}/SubProcesses/P*/matrix*png
     # Cleanup
     \rm -f ${outproc}/crossx.html
     \rm -f ${outproc}/index.html
