@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 set -e # fail on error
@@ -19,7 +19,7 @@ export MG5AMC_CHANNELID_DEBUG=1
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -59,6 +59,7 @@ div=0
 req=0
 detailed=0
 gtest=
+scaling=0
 ###nofpe=0
 verbose=0
 
@@ -244,6 +245,9 @@ while [ "$1" != "" ]; do
       echo "ERROR! Options -gtest and -nogtest are incompatible"; usage
     fi
     gtest=0
+    shift
+  elif [ "$1" == "-scaling" ]; then
+    scaling=1
     shift
   ###elif [ "$1" == "-nofpe" ]; then
   ###  nofpe=1
@@ -659,10 +663,19 @@ else
 fi
 echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
+# Configure scaling tests
+if [ "${scaling}" == "0" ]; then # no scaling tests (throughput tests only)
+  exesSc=
+elif [ "${scaling}" == "1" ]; then # scaling tests only (skip throughput tests)
+  exesSc=$exes
+  exes=
+fi
+
 # These two settings are needed by BMK containers: do not change them
 BMKEXEARGS="" # if BMKEXEARGS is set, exeArgs is set equal to BMKEXEARGS, while exeArgs2 is set to ""
 BMKMULTIPLIER=1 # the pre-defined numbers of iterations (including those in BMKEXEARGS) are multiplied by BMKMULTIPLIER
 
+# (1) TRADITIONAL THROUGHPUT TESTS
 ###lastExe=
 lastExeDir=
 ###echo "exes=$exes"
@@ -775,6 +788,46 @@ for exe in $exes; do
   if [ "${bckend}" != "alpaka" ]; then
     echo "-------------------------------------------------------------------------"
     cmpExe $exe
+  fi
+done
+###echo "========================================================================="
+
+# (2) SCALING TESTS
+lastExeDir=
+for exe in $exesSc; do
+  if [ "$(basename $(dirname $exe))" != "$lastExeDir" ]; then
+    echo "========================================================================="
+    lastExeDir=$(basename $(dirname $exe))
+  else
+    echo "-------------------------------------------------------------------------"
+  fi
+  echo "scalingTest $exe"
+  if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
+  if [ "${unamep}" != "x86_64" ]; then
+    if [ "${exe/build.avx2}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+  elif [ "${unames}" == "Darwin" ]; then
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported on ${unames}"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported on ${unames}"; continue; fi
+  elif [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" != "1" ]; then
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
+  fi
+  exeDir=$(dirname $exe)
+  cd $exeDir/.. # workaround for reading '../../Cards/param_card.dat' without setting MG5AMC_CARD_PATH
+  unset OMP_NUM_THREADS
+  # Scaling test with 256 threads per block
+  if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]]; then
+    echo "### GPU: scaling test 256"
+    for b in 1 2 4 8 16 32 64 128 256 512 1024; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ) |& sed "s/Gpu.*Assert/Assert/"; done
+    echo "### GPU: scaling test 32"
+    for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ) |& sed "s/Gpu.*Assert/Assert/"; done
+  else
+    echo "### CPU: scaling test 256"
+    for b in 1 2 4; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ) |& sed "s/Gpu.*Assert/Assert/"; done
+    echo "### CPU: scaling test 32"
+    for b in 1 2 4; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ) |& sed "s/Gpu.*Assert/Assert/"; done
   fi
 done
 echo "========================================================================="
