@@ -166,7 +166,7 @@ namespace mg5amcCpu
     , m_denominators( nevt )
 #endif
   {
-    //std::cout << "DEBUG: MatrixElementKernelHost ctor " << this << std::endl;
+    //std::cout << "DEBUG: MatrixElementKernelHost::ctor " << this << std::endl;
     if( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: momenta must be a host array" );
     if( m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: matrixElements must be a host array" );
     if( m_channelIds.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHost: channelIds must be a device array" );
@@ -193,6 +193,7 @@ namespace mg5amcCpu
 
   MatrixElementKernelHost::~MatrixElementKernelHost()
   {
+    //std::cout << "DEBUG: MatrixElementKernelBase::dtor " << this << std::endl;
   }
 
   //--------------------------------------------------------------------------
@@ -208,7 +209,7 @@ namespace mg5amcCpu
 #else
     sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt() );
 #endif
-    // ... 0d2. Copy back good helicity list to static memory on the host
+    // ... 0d2. Copy good helicity list to static memory on the host
     // [FIXME! REMOVE THIS STATIC THAT BREAKS MULTITHREADING?]
     return sigmaKin_setGoodHel( hstIsGoodHel.data() );
   }
@@ -220,10 +221,10 @@ namespace mg5amcCpu
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), nevt() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_numerators.data(), m_denominators.data(), nevt() );
 #else
     assert( useChannelIds == false );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), nevt() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), nevt() );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     //std::cout << "DEBUG: MatrixElementKernelHost::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
@@ -314,16 +315,20 @@ namespace mg5amcGpu
     : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol )
     , NumberOfEvents( gpublocks * gputhreads )
     , m_couplings( this->nevt() )
+    , m_pHelMEs()
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    , m_numerators( this->nevt() )
-    , m_denominators( this->nevt() )
+    , m_pHelNumerators()
+    , m_pHelDenominators()
+    , m_colJamp2s( CPPProcess::ncolor * this->nevt() )
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     , m_hstChannelIds( this->nevt() )
 #endif
+    , m_helStreams()
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
   {
+    //std::cout << "DEBUG: MatrixElementKernelDevice::ctor " << this << std::endl;
     if( !m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: momenta must be a device array" );
     if( !m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: matrixElements must be a device array" );
     if( !m_channelIds.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelDevice: channelIds must be a device array" ); // FIXME?!
@@ -341,12 +346,20 @@ namespace mg5amcGpu
       sstr << "MatrixElementKernelHost: gputhreads should be a multiple of neppM=" << neppM;
       throw std::runtime_error( sstr.str() );
     }
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    // Create the "one-helicity" numerator and denominator buffers that will be used for helicity filtering
+    m_pHelNumerators.reset( new DeviceBufferSimple( this->nevt() ) );
+    m_pHelDenominators.reset( new DeviceBufferSimple( this->nevt() ) );
+#endif
   }
 
   //--------------------------------------------------------------------------
 
   MatrixElementKernelDevice::~MatrixElementKernelDevice()
   {
+    //std::cout << "DEBUG: MatrixElementKernelDevice::dtor " << this << std::endl;
+    for( int ihel = 0; ihel < CPPProcess::ncomb; ihel++ )
+      if( m_helStreams[ihel] ) cudaStreamDestroy( m_helStreams[ihel] ); // do not destroy if nullptr
   }
 
   //--------------------------------------------------------------------------
@@ -365,19 +378,29 @@ namespace mg5amcGpu
   {
     constexpr int ncomb = CPPProcess::ncomb; // the number of helicity combinations
     PinnedHostBufferHelicityMask hstIsGoodHel( ncomb );
-    DeviceBufferHelicityMask devIsGoodHel( ncomb );
-    // ... 0d1. Compute good helicity mask on the device
+    // ... 0d1. Compute good helicity mask (a host variable) on the device
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
+    const int nevt = m_gpublocks * m_gputhreads;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), devIsGoodHel.data() );
+    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_pHelNumerators->data(), m_pHelDenominators->data(), hstIsGoodHel.data(), nevt );
 #else
-    gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_matrixElements.data(), devIsGoodHel.data() );
+    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt );
 #endif
-    checkGpu( gpuPeekAtLastError() );
-    // ... 0d2. Copy back good helicity mask to the host
-    copyHostFromDevice( hstIsGoodHel, devIsGoodHel );
-    // ... 0d3. Copy back good helicity list to constant memory on the device
-    return sigmaKin_setGoodHel( hstIsGoodHel.data() );
+    // ... 0d3. Set good helicity list in host static memory
+    int nGoodHel = sigmaKin_setGoodHel( hstIsGoodHel.data() );
+    // Create one GPU stream for each good helicity
+    for( int ighel = 0; ighel < nGoodHel; ighel++ )
+      cudaStreamCreate( &m_helStreams[ighel] );
+    // ... Create the "many-helicity" super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)
+    m_pHelMEs.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    // ... Create the "many-helicity" super-buffers of nGoodHel numerator and denominator buffers (dynamically allocated)
+    // ... (calling reset here deletes the previously created "one-helicity" buffers used for helicity filtering)
+    m_pHelNumerators.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
+    m_pHelDenominators.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
+#endif
+    // Return the number of good helicities
+    return nGoodHel;
   }
 
   //--------------------------------------------------------------------------
@@ -385,17 +408,12 @@ namespace mg5amcGpu
   void MatrixElementKernelDevice::computeMatrixElements( const bool useChannelIds )
   {
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
-#ifndef MGONGPU_NSIGHT_DEBUG
-    constexpr unsigned int sharedMemSize = 0;
-#else
-    constexpr unsigned int sharedMemSize = ntpbMAX * sizeof( float );
-#endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
-    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_colJamp2s.data(), m_pHelNumerators->data(), m_pHelDenominators->data(), m_pHelMEs->data(), m_helStreams, m_gpublocks, m_gputhreads );
 #else
     assert( useChannelIds == false );
-    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_pHelMEs->data(), m_helStreams, m_gpublocks, m_gputhreads );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     //std::cout << "DEBUG: MatrixElementKernelDevice::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
@@ -403,8 +421,8 @@ namespace mg5amcGpu
     const unsigned int* pHstChannelIds = ( useChannelIds ? m_hstChannelIds.data() : nullptr );
     MatrixElementKernelBase::updateNevtProcessedByChannel( pHstChannelIds, nevt() );
 #endif
-    checkGpu( gpuPeekAtLastError() );
-    checkGpu( gpuDeviceSynchronize() );
+    checkGpu( gpuPeekAtLastError() );   // is this needed?
+    checkGpu( gpuDeviceSynchronize() ); // probably not needed? but it avoids errors in sigmaKin above from appearing later on in random places...
   }
 
   //--------------------------------------------------------------------------
