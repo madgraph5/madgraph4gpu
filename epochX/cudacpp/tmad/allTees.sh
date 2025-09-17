@@ -107,6 +107,15 @@ else
   echo "${txt}"
 fi
   
+# Print out any segfaults in the logs
+echo
+txt=$(grep -i segmentation tmad/logs* -r | sed "s/Gpu.*Assert/Assert/")
+if [ "${txt}" == "" ]; then
+  echo "No segmentation fault found in logs"
+else
+  echo "${txt}"
+fi
+  
 # Print out the MEK channelid debugging output
 echo
 \grep MEK ${scrdir}/logs_*/* | sed "s|${scrdir}/logs_||" | sed 's|_mad.*DEBUG:||' | sort -u
