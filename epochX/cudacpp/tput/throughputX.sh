@@ -375,6 +375,9 @@ function showdir()
   echo $dir
 }
 
+echo MADGRAPH_CUDA_ARCHITECTURE=${MADGRAPH_CUDA_ARCHITECTURE}
+echo MADGRAPH_HIP_ARCHITECTURE=${MADGRAPH_HIP_ARCHITECTURE}
+
 ###echo -e "\n********************************************************************************\n"
 printf "\n"
 
