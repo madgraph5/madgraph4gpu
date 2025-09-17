@@ -359,7 +359,7 @@ namespace mg5amcGpu
   {
     //std::cout << "DEBUG: MatrixElementKernelDevice::dtor " << this << std::endl;
     for( int ihel = 0; ihel < CPPProcess::ncomb; ihel++ )
-      if( m_helStreams[ihel] ) cudaStreamDestroy( m_helStreams[ihel] ); // do not destroy if nullptr
+      if( m_helStreams[ihel] ) gpuStreamDestroy( m_helStreams[ihel] ); // do not destroy if nullptr
   }
 
   //--------------------------------------------------------------------------
@@ -390,7 +390,7 @@ namespace mg5amcGpu
     int nGoodHel = sigmaKin_setGoodHel( hstIsGoodHel.data() );
     // Create one GPU stream for each good helicity
     for( int ighel = 0; ighel < nGoodHel; ighel++ )
-      cudaStreamCreate( &m_helStreams[ighel] );
+      gpuStreamCreate( &m_helStreams[ighel] );
     // ... Create the "many-helicity" super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)
     m_pHelMEs.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL

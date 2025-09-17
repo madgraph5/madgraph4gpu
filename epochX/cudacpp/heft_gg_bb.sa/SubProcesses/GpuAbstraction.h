@@ -39,8 +39,8 @@
 #define gpuLaunchKernelStream( kernel, blocks, threads, stream, ... ) kernel<<<blocks, threads, 0, stream>>>( __VA_ARGS__ )
 
 #define gpuStream_t cudaStream_t
-#define gpuStreamCreate cudaStreamCreate
-#define gpuStreamDestroy cudaStreamDestroy
+#define gpuStreamCreate( pStream ) checkGpu( cudaStreamCreate( pStream ) )
+#define gpuStreamDestroy( stream ) checkGpu( cudaStreamDestroy( stream ) )
 
 //--------------------------------------------------------------------------
 
@@ -73,8 +73,8 @@
 #define gpuLaunchKernelStream( kernel, blocks, threads, stream, ... ) kernel<<<blocks, threads, 0, stream>>>( __VA_ARGS__ )
 
 #define gpuStream_t hipStream_t
-#define gpuStreamCreate hipStreamCreate
-#define gpuStreamDestroy hipStreamDestroy
+#define gpuStreamCreate( pStream ) checkGpu( hipStreamCreate( pStream ) )
+#define gpuStreamDestroy( stream ) checkGpu( hipStreamDestroy( stream ) )
 
 //--------------------------------------------------------------------------
 
