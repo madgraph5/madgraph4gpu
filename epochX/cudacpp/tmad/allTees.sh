@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (May 2022) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2022-2025) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
 
@@ -12,7 +12,7 @@ if [ "${host/juwels}" != "${host}" ]; then ${scrdir}/juwelspatch.sh; fi # workar
 # Usage
 function usage()
 {
-  echo "Usage (1): $0 [-short|-ggttggg] [-bsmonly|-nobsm] [-makeclean] [-no10x] [-hip]"
+  echo "Usage (1): $0 [-short|-ggttggg] [-bsmonly|-nobsm] [-makeclean] [+10x] [-hip]"
   echo "Run tests and check all logs"
   echo ""
   echo "Usage (2): $0 -checkonly"
@@ -27,7 +27,7 @@ bsm=
 flts=-dmf # "d m f" (alternative: -d_f i.e. "d f")
 makeclean=
 rmrdat=
-add10x="+10x"
+add10x=
 hip=
 if [ "$1" == "-checkonly" ]; then
   # Check existing logs without running any tests?
@@ -45,8 +45,8 @@ while [ "${checkonly}" == "0" ] && [ "$1" != "" ]; do
   elif [ "$1" == "-makeclean" ]; then
     makeclean=$1
     shift
-  elif [ "$1" == "-no10x" ]; then
-    add10x=""
+  elif [ "$1" == "+10x" ]; then
+    add10x=$1
     shift
   elif [ "$1" == "-bsmonly" ] && [ "$bsm" != "-nobsm" ]; then
     bsm=$1
