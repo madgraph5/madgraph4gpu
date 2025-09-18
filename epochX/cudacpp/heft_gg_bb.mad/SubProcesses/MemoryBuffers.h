@@ -34,6 +34,7 @@ namespace mg5amcCpu
     static constexpr size_t nparf = CPPProcess::nparf;
     static constexpr size_t npar = CPPProcess::npar;
     static constexpr size_t ndcoup = Parameters_heft_dependentCouplings::ndcoup;
+    static constexpr size_t ncolor = CPPProcess::ncolor;
   }
 
   //--------------------------------------------------------------------------
@@ -167,8 +168,14 @@ namespace mg5amcCpu
   public:
     HostBuffer( const size_t nevt )
       : NumberOfEvents( nevt )
-      , HostBufferBase<T, ismisaligned>( sizePerEvent * nevt ) {}
-    virtual ~HostBuffer() {}
+      , HostBufferBase<T, ismisaligned>( sizePerEvent * nevt )
+    {
+      //std::cout << "HostBuffer::ctor " << this << " " << nevt << std::endl;
+    }
+    virtual ~HostBuffer()
+    {
+      //std::cout << "HostBuffer::dtor " << this << std::endl;
+    }
     virtual size_t nevt() const override final { return NumberOfEvents::nevt(); }
   };
 #endif
@@ -194,13 +201,19 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
   // A class encapsulating a CUDA device buffer for a given number of events
   template<typename T, size_t sizePerEvent>
-  class DeviceBuffer : public DeviceBufferBase<T>, virtual private NumberOfEvents
+  class DeviceBuffer : public DeviceBufferBase<T>, virtual protected NumberOfEvents
   {
   public:
     DeviceBuffer( const size_t nevt )
       : NumberOfEvents( nevt )
-      , DeviceBufferBase<T>( sizePerEvent * nevt ) {}
-    virtual ~DeviceBuffer() {}
+      , DeviceBufferBase<T>( sizePerEvent * nevt )
+    {
+      //std::cout << "DeviceBuffer::ctor " << this << " " << nevt << std::endl;
+    }
+    virtual ~DeviceBuffer()
+    {
+      //std::cout << "DeviceBuffer::dtor " << this << std::endl;
+    }
     virtual size_t nevt() const override final { return NumberOfEvents::nevt(); }
   };
 #endif
@@ -284,12 +297,12 @@ namespace mg5amcCpu
   constexpr size_t sizePerEventNumerators = 1;
 
 #ifndef MGONGPUCPP_GPUIMPL
-  // A class encapsulating a C++ host buffer for gs
+  // A class encapsulating a C++ host buffer for numerators
   typedef HostBuffer<fptype, sizePerEventNumerators, HostBufferALIGNED> HostBufferNumerators;
 #else
-  // A class encapsulating a CUDA pinned host buffer for gs
+  // A class encapsulating a CUDA pinned host buffer for numerators
   typedef PinnedHostBuffer<fptype, sizePerEventNumerators> PinnedHostBufferNumerators;
-  // A class encapsulating a CUDA device buffer for gs
+  // A class encapsulating a CUDA device buffer for numerators
   typedef DeviceBuffer<fptype, sizePerEventNumerators> DeviceBufferNumerators;
 #endif
 #endif
@@ -304,12 +317,12 @@ namespace mg5amcCpu
   constexpr size_t sizePerEventDenominators = 1;
 
 #ifndef MGONGPUCPP_GPUIMPL
-  // A class encapsulating a C++ host buffer for gs
+  // A class encapsulating a C++ host buffer for denominators
   typedef HostBuffer<fptype, sizePerEventDenominators, HostBufferALIGNED> HostBufferDenominators;
 #else
-  // A class encapsulating a CUDA pinned host buffer for gs
+  // A class encapsulating a CUDA pinned host buffer for denominators
   typedef PinnedHostBuffer<fptype, sizePerEventDenominators> PinnedHostBufferDenominators;
-  // A class encapsulating a CUDA device buffer for gs
+  // A class encapsulating a CUDA device buffer for denominators
   typedef DeviceBuffer<fptype, sizePerEventDenominators> DeviceBufferDenominators;
 #endif
 #endif
@@ -323,12 +336,12 @@ namespace mg5amcCpu
   constexpr size_t sizePerEventCouplings = MemoryBuffers::ndcoup * MemoryBuffers::nx2;
 
 #ifndef MGONGPUCPP_GPUIMPL
-  // A class encapsulating a C++ host buffer for gs
+  // A class encapsulating a C++ host buffer for couplings
   typedef HostBuffer<fptype, sizePerEventCouplings, HostBufferALIGNED> HostBufferCouplings;
 #else
-  // A class encapsulating a CUDA pinned host buffer for gs
+  // A class encapsulating a CUDA pinned host buffer for couplings
   typedef PinnedHostBuffer<fptype, sizePerEventCouplings> PinnedHostBufferCouplings;
-  // A class encapsulating a CUDA device buffer for gs
+  // A class encapsulating a CUDA device buffer for couplings
   typedef DeviceBuffer<fptype, sizePerEventCouplings> DeviceBufferCouplings;
 #endif
 
@@ -508,6 +521,16 @@ namespace mg5amcCpu
   typedef PinnedHostBuffer<int, sizePerEventSelectedColor> PinnedHostBufferSelectedColor;
   // A class encapsulating a CUDA device buffer for color selection
   typedef DeviceBuffer<int, sizePerEventSelectedColor> DeviceBufferSelectedColor;
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL
+  // The size (number of elements) per event in a memory buffer for jamps
+  constexpr size_t sizePerEventJamps = MemoryBuffers::ncolor * MemoryBuffers::nx2;
+
+  // A class encapsulating a CUDA device buffer for color selection
+  typedef DeviceBuffer<int, sizePerEventJamps> DeviceBufferJamps;
 #endif
 
   //--------------------------------------------------------------------------

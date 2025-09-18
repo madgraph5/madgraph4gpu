@@ -8,11 +8,12 @@
 !==========================================================================
 #include "GpuAbstraction.h"
 
-    // === PART 0 - INITIALISATION (before calculate_wavefunctions) ===
+    // === PART 0 - INITIALISATION (before calculate_jamps) ===
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
 #ifdef MGONGPUCPP_GPUIMPL
     const int nevt = gpublocks * gputhreads;
     gpuMemset( allMEs, 0, nevt * sizeof( fptype ) );
+    gpuMemset( ghelAllJamps, 0, cNGoodHel * ncolor * mgOnGpu::nx2 * nevt * sizeof( fptype ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     gpuMemset( colAllJamp2s, 0, ncolor * nevt * sizeof( fptype ) );
     gpuMemset( ghelAllNumerators, 0, cNGoodHel * nevt * sizeof( fptype ) );
@@ -44,24 +45,31 @@
 #ifdef MGONGPUCPP_GPUIMPL // CUDA OR C++
 
     // *** START OF PART 1a - CUDA (one event per GPU thread) ***
-    // Running sum of partial amplitudes squared for event by event color selection (#402)
-    // (for the single event processed in calculate_wavefunctions)
     // Use CUDA/HIP streams to process different helicities in parallel (one good helicity per stream)
+    // (1) First, within each helicity stream, compute the QCD partial amplitudes jamp's for each helicity
+    // In multichannel mode, also compute the running sums over helicities of numerators, denominators and squared jamp2s
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
-      fptype* hAllMEs = ghelAllMEs + ighel * nevt;
+      fptype* hAllJamps = ghelAllJamps + ighel * nevt * ncolor * mgOnGpu::nx2;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
-      gpuLaunchKernelStream( calculate_wavefunctions, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllMEs, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
 #else
-      gpuLaunchKernelStream( calculate_wavefunctions, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllMEs, nevt );
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );
 #endif
     }
+    // (2) Then, within each helicity stream, compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
+    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+    {
+      fptype* hAllMEs = ghelAllMEs + ighel * nevt;
+      fptype* hAllJamps = ghelAllJamps + ighel * nevt * ncolor * mgOnGpu::nx2;
+      gpuLaunchKernelStream( color_sum, gpublocks, gputhreads, ghelStreams[ighel], hAllMEs, hAllJamps );
+    }
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
-    // Compute the sum of MEs over all good helicities (defer this after the helicity loop to avoid breaking streams parall>
-    // Event-by-event random choice of helicity #403
+    // (3) Wait for all helicity streams to complete, then finally compute the ME sum over all helicities and choose one helicity and one color
+    // Event-by-event random choice of helicity #403 and ME sum over helicities (defer this after the helicity loop to avoid breaking streams parallelism)
     gpuLaunchKernel( add_and_select_hel, gpublocks, gputhreads, allselhel, allrndhel, ghelAllMEs, allMEs, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
@@ -107,7 +115,7 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // SCALAR channelId for the whole SIMD neppV2 event page (C++), i.e. one or two neppV event page(s)
       // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a neppV2 SIMD event page
-      // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
+      // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
       unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
       if( allChannelIds != nullptr )
       {
@@ -130,7 +138,7 @@
         // Second neppV page of channels (iParity=1 => ievt0 = ievt00 + 1 * neppV)
         const unsigned int* channelIds2 = CID_ACCESS::ieventAccessRecordConst( allChannelIds, ievt00 + neppV ); // fix bug #899/#911
         uint_v channelIds2_v = CID_ACCESS::kernelAccessConst( channelIds2 );                                    // fix #895 (compute this only once for all diagrams)
-        // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
+        // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
         for( int i = 0; i < neppV; ++i )
         {
           assert( channelId == channelIds2_v[i] ); // SANITY CHECKS #898 #924: all events in the 2nd SIMD vector have the same channelId as that of the 1st SIMD vector
@@ -139,21 +147,23 @@
       }
 #endif
       // Running sum of partial amplitudes squared for event by event color selection (#402)
-      // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_wavefunctions)
-      fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
-      fptype_sv MEs_ighel[ncomb] = { 0 };  // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
+      // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_jamps)
+      fptype_sv jamp2_sv[nParity * ncolor] = {};
+      fptype_sv MEs_ighel[ncomb] = {};  // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      fptype_sv MEs_ighel2[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the second neppV page)
+      fptype_sv MEs_ighel2[ncomb] = {}; // sum of MEs for all good helicities up to ighel (for the second neppV page)
 #endif
       for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
+        cxtype_sv jamp_sv[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
+        // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, ievt00 );
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 );
 #endif
+        color_sum( allMEs, jamp_sv, ievt00 );
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
@@ -167,8 +177,10 @@
         for( int ighel = 0; ighel < cNGoodHel; ighel++ )
         {
 #if defined MGONGPU_CPPSIMD
+          //printf( "sigmaKin: ievt=%%4d ighel=%%d MEs_ighel=%%f\n", ievt, ighel, MEs_ighel[ighel][ieppV] );
           const bool okhel = allrndhel[ievt] < ( MEs_ighel[ighel][ieppV] / MEs_ighel[cNGoodHel - 1][ieppV] );
 #else
+          //printf( "sigmaKin: ievt=%%4d ighel=%%d MEs_ighel=%%f\n", ievt, ighel, MEs_ighel[ighel] );
           const bool okhel = allrndhel[ievt] < ( MEs_ighel[ighel] / MEs_ighel[cNGoodHel - 1] );
 #endif
           if( okhel )
@@ -184,11 +196,12 @@
         //printf( "sigmaKin: ievt=%%4d rndhel=%%f\n", ievt2, allrndhel[ievt2] );
         for( int ighel = 0; ighel < cNGoodHel; ighel++ )
         {
+          //printf( "sigmaKin: ievt=%%4d ighel=%%d MEs_ighel=%%f\n", ievt2, ighel, MEs_ighel2[ighel][ieppV] );
           if( allrndhel[ievt2] < ( MEs_ighel2[ighel][ieppV] / MEs_ighel2[cNGoodHel - 1][ieppV] ) )
           {
             const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
             allselhel[ievt2] = ihelF;
-            //printf( "sigmaKin: ievt=%%4d ihel=%%4d\n", ievt, ihelF );
+            //printf( "sigmaKin: ievt=%%4d ihel=%%4d\n", ievt2, ihelF );
             break;
           }
         }
@@ -290,7 +303,7 @@
 
 #endif // CUDA or C++
 
-    // PART 2 - FINALISATION (after calculate_wavefunctions)
+    // PART 2 - FINALISATION (after calculate_jamps)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]

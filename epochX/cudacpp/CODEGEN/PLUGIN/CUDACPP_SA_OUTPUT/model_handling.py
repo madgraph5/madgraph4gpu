@@ -1305,46 +1305,43 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
             ret_lines.append("""
-  // Evaluate |M|^2 for each subprocess
-  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-  // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
-  // In CUDA, this function computes the ME for a single event
+  // Evaluate QCD partial amplitudes jamps for this given helicity from Feynman diagrams
+  // Also compute running sums over helicities adding jamp2, numerator, denominator
+  // (NB: this function no longer handles matrix elements as the color sum has now been moved to a separate function/kernel)
+  // In CUDA, this function processes a single event
   // ** NB1: NEW Nov2024! In CUDA this is now a kernel function (it used to be a device function)
   // ** NB2: NEW Nov2024! in CUDA this now takes a channelId array as input (it used to take a scalar channelId as input)
-  // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
-  // *** NB: in C++, calculate_wavefunction accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
+  // In C++, this function processes a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
+  // *** NB: in C++, calculate_jamps accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
   __global__ INLINE void /* clang-format off */
-  calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta,          // input: momenta[nevt*npar*4]
-                           const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs,                    // output: allMEs[nevt], |M|^2 running_sum_over_helicities
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  calculate_jamps( int ihel,
+                   const fptype* allmomenta,          // input: momenta[nevt*npar*4]
+                   const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
 #ifdef MGONGPUCPP_GPUIMPL
-                           const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
-#else
-                           const unsigned int channelId,      // input: multichannel SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
-#endif
-                           fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
-                           fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
-#endif
-#ifdef MGONGPUCPP_GPUIMPL
+                   fptype_sv* allJamps,               // output: jamp[ncolor*2*nevt] for this helicity
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, runsum over colors and helicities (nullptr if disabled)
+                   const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE (#899/#911)
+                   fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
+                   fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
+                   fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
 #endif
-                           const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                   const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
+                   cxtype_sv* allJamp_sv,             // output: jamp_sv[ncolor] (float/double) or jamp_sv[2*ncolor] (mixed) for this helicity
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           fptype_sv* jamp2_sv,               // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
+                   const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
+                   fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
+                   fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
+                   fptype_sv* jamp2_sv,               // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #endif
-                           const int ievt00                   // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                   const int ievt00                   // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
-                           )
+                   )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
 #ifdef MGONGPUCPP_GPUIMPL
     using namespace mg5amcGpu;
     using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
-    using E_ACCESS = DeviceAccessMatrixElements;  // non-trivial access: buffer includes all events
     using W_ACCESS = DeviceAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
@@ -1356,7 +1353,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #else
     using namespace mg5amcCpu;
     using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
-    using E_ACCESS = HostAccessMatrixElements;  // non-trivial access: buffer includes all events
     using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
@@ -1370,11 +1366,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     //bool debug = true;
 #ifndef MGONGPUCPP_GPUIMPL
     //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
-    //if( debug ) printf( "calculate_wavefunctions: ievt00=%d ihel=%2d\\n", ievt00, ihel );
+    //if( debug ) printf( \"calculate_jamps: ievt00=%d ihel=%2d\\n\", ievt00, ihel );
 #else
     //const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
     //debug = ( ievt == 0 );
-    //if( debug ) printf( "calculate_wavefunctions: ievt=%6d ihel=%2d\\n", ievt, ihel );
+    //if( debug ) printf( \"calculate_jamps: ievt=%6d ihel=%2d\\n\", ievt, ihel );
 #endif /* clang-format on */""")
             nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
             ret_lines.append("""
@@ -1402,14 +1398,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-    // Mixed fptypes #537: float for color algebra and double elsewhere
-    // Delay color algebra and ME updates (only on even pages)
-    cxtype_sv jamp_sv_previous[ncolor] = {};
-    fptype* MEs_previous = 0;
-#endif
+
+    // START LOOP ON IPARITY
     for( int iParity = 0; iParity < nParity; ++iParity )
-    { // START LOOP ON IPARITY
+    {
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
 #endif""")
@@ -1704,11 +1696,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """Return the color matrix definition lines for this matrix element. Split rows in chunks of size n."""
         import madgraph.core.color_algebra as color
         if not matrix_element.get('color_matrix'):
-            return '\n'.join(['      static constexpr fptype2 denom[1] = {1.};', 'static const fptype2 cf[1][1] = {1.};'])
+            return '\n'.join(['    static constexpr fptype2 denom[1] = {1.};', 'static const fptype2 cf[1][1] = {1.};'])
         else:
             color_denominators = matrix_element.get('color_matrix').\
                                                  get_line_denominators()
-            denom_string = '      static constexpr fptype2 denom[ncolor] = { %s }; // 1-D array[%i]' \
+            denom_string = '    static constexpr fptype2 denom[ncolor] = { %s }; // 1-D array[%i]' \
                            % ( ', '.join(['%i' % denom for denom in color_denominators]), len(color_denominators) )
             matrix_strings = []
             my_cs = color.ColorString()
@@ -1716,12 +1708,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 # Then write the numerators for the matrix elements
                 num_list = matrix_element.get('color_matrix').get_line_numerators(index, denominator)
                 matrix_strings.append('{ %s }' % ', '.join(['%d' % i for i in num_list]))
-            matrix_string = '      static constexpr fptype2 cf[ncolor][ncolor] = '
-            if len( matrix_strings ) > 1 : matrix_string += '{\n        ' + ',\n        '.join(matrix_strings) + ' };'
+            matrix_string = '    static constexpr fptype2 cf[ncolor][ncolor] = '
+            if len( matrix_strings ) > 1 : matrix_string += '{\n      ' + ',\n      '.join(matrix_strings) + ' };'
             else: matrix_string += '{ ' + matrix_strings[0] + ' };'
             matrix_string += ' // 2-D array[%i][%i]' % ( len(color_denominators), len(color_denominators) )
-            denom_comment = '\n      // The color denominators (initialize all array elements, with ncolor=%i)\n      // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
-            matrix_comment = '\n      // The color matrix (initialize all array elements, with ncolor=%i)\n      // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
+            denom_comment = '\n    // The color denominators (initialize all array elements, with ncolor=%i)\n    // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
+            matrix_comment = '\n    // The color matrix (initialize all array elements, with ncolor=%i)\n    // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
             denom_string = denom_comment + denom_string
             matrix_string = matrix_comment + matrix_string
             return '\n'.join([denom_string, matrix_string])
@@ -1916,7 +1908,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       const fptype* momenta = allmomenta;
       const fptype* COUPs[nxcoup];
       for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
-      fptype* MEs = allMEs;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = allNumerators;
       fptype* denominators = allDenominators;
@@ -1930,7 +1921,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ ) // BUG #823
       for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )     // FIX #823
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
-      fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
