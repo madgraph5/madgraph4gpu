@@ -98,6 +98,15 @@ fi
 # Print out the number of "OK!"s in each log (expect 24)
 for f in ${scrdir}/logs_*_mad/log_*; do echo $(cat $f | grep OK  | wc -l) $f; done # expect 24
 
+# Print out any errors or aborts in the logs
+echo
+txt=$(egrep -i '(error|abort)' tmad/logs* -r | sed 's/:0:rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/')
+if [ "${txt}" == "" ]; then
+  echo "No errors or aborts found in logs"
+else
+  echo "${txt}"
+fi
+  
 # Print out any asserts in the logs
 echo
 txt=$(grep assert tmad/logs* -r | sed "s/Gpu.*Assert/Assert/")
