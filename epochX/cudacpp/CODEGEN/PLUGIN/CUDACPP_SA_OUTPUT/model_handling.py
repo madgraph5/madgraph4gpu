@@ -1418,6 +1418,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             file = self.get_matrix_single_process( i, me, color_amplitudes[i], class_name )
             file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_matrix.inc (copyright)
             file_extend.append( file )
+            assert i == 0, "more than one ME in get_all_sigmaKin_lines" # AV sanity check (added for color_sum.cc but valid independently)
         ret_lines.extend( file_extend )
         return '\n'.join(ret_lines)
 
@@ -1447,7 +1448,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
-        
+        self.edit_colorsum() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
@@ -1526,6 +1527,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ff.write(template % replace_dict)
         ff.close()
 
+    # AV - new method
+    def edit_colorsum(self):
+        """Generate color_sum.cc"""
+        ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_colorsum')
+        template = open(pjoin(self.template_path,'gpu','color_sum.cc'),'r').read()
+        replace_dict = {}
+        # Extract color matrix again (this was also in get_matrix_single_process called within get_all_sigmaKin_lines)
+        replace_dict['color_matrix_lines'] = self.get_color_matrix_lines(self.matrix_elements[0])
+        ff = open(pjoin(self.path, 'color_sum.cc'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
 
     def generate_subprocess_directory_end(self, **opt):
         """ opt contain all local variable of the fortran original function"""
@@ -1696,11 +1708,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """Return the color matrix definition lines for this matrix element. Split rows in chunks of size n."""
         import madgraph.core.color_algebra as color
         if not matrix_element.get('color_matrix'):
-            return '\n'.join(['    static constexpr fptype2 denom[1] = {1.};', 'static const fptype2 cf[1][1] = {1.};'])
+            return '\n'.join(['  static constexpr fptype2 colorDenom[1] = {1.};', 'static const fptype2 cf[1][1] = {1.};'])
         else:
             color_denominators = matrix_element.get('color_matrix').\
                                                  get_line_denominators()
-            denom_string = '    static constexpr fptype2 denom[ncolor] = { %s }; // 1-D array[%i]' \
+            denom_string = '  static constexpr fptype2 colorDenom[ncolor] = { %s }; // 1-D array[%i]' \
                            % ( ', '.join(['%i' % denom for denom in color_denominators]), len(color_denominators) )
             matrix_strings = []
             my_cs = color.ColorString()
@@ -1708,12 +1720,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 # Then write the numerators for the matrix elements
                 num_list = matrix_element.get('color_matrix').get_line_numerators(index, denominator)
                 matrix_strings.append('{ %s }' % ', '.join(['%d' % i for i in num_list]))
-            matrix_string = '    static constexpr fptype2 cf[ncolor][ncolor] = '
-            if len( matrix_strings ) > 1 : matrix_string += '{\n      ' + ',\n      '.join(matrix_strings) + ' };'
+            matrix_string = '  static constexpr fptype2 colorMatrix[ncolor][ncolor] = '
+            if len( matrix_strings ) > 1 : matrix_string += '{\n    ' + ',\n    '.join(matrix_strings) + ' };'
             else: matrix_string += '{ ' + matrix_strings[0] + ' };'
             matrix_string += ' // 2-D array[%i][%i]' % ( len(color_denominators), len(color_denominators) )
-            denom_comment = '\n    // The color denominators (initialize all array elements, with ncolor=%i)\n    // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
-            matrix_comment = '\n    // The color matrix (initialize all array elements, with ncolor=%i)\n    // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
+            denom_comment = '\n  // The color denominators (initialize all array elements, with ncolor=%i)\n  // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
+            matrix_comment = '\n  // The color matrix (initialize all array elements, with ncolor=%i)\n  // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
             denom_string = denom_comment + denom_string
             matrix_string = matrix_comment + matrix_string
             return '\n'.join([denom_string, matrix_string])

@@ -30,6 +30,22 @@ inline void assertGpu( gpuError_t code, const char* file, int line, bool abort =
 
 //--------------------------------------------------------------------------
 
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+#ifndef DMGONGPU_HAS_NO_BLAS
+#define checkGpuBlas( code ){ assertGpuBlas( code, __FILE__, __LINE__ ); }
+inline void assertGpuBlas( gpuBlasStatus_t code, const char *file, int line, bool abort = true )
+{
+  if ( code != GPUBLAS_STATUS_SUCCESS )
+  {
+    printf( "ERROR! assertGpuBlas: '%d' in %s:%d\n", code, file, line );
+    if( abort ) assert( code == GPUBLAS_STATUS_SUCCESS );
+  }
+}
+#endif
+#endif /* clang-format on */
+
+//--------------------------------------------------------------------------
+
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 {

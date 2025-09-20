@@ -97,29 +97,6 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL
-  class DeviceAccessJamp
-  {
-  public:
-    static __device__ inline cxtype_ref
-    kernelAccessIcol( fptype* buffer, const int icol )
-    {
-      const int nevt = gridDim.x * blockDim.x;
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-      return cxtype_ref( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] );
-    }
-    static __device__ inline const cxtype
-    kernelAccessIcolConst( const fptype* buffer, const int icol )
-    {
-      const int nevt = gridDim.x * blockDim.x;
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-      return cxtype( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] );
-    }
-  };
-#endif
-
-  //--------------------------------------------------------------------------
-
-#ifdef MGONGPUCPP_GPUIMPL
   class DeviceAccessJamp2
   {
   public:
@@ -184,8 +161,10 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
+
+    // Enable SIGFPE traps for Floating Point Exceptions
 #ifdef MGONGPUCPP_DEBUG
-    fpeEnable(); // enable SIGFPE traps for Floating Point Exceptions
+    fpeEnable();
 #endif
   }
 
@@ -215,6 +194,10 @@ namespace mg5amcCpu
       //m_pars->printDependentCouplings(); // now computed event-by-event (running alphas #373)
     }
     %(initProc_lines)s
+#ifdef MGONGPUCPP_GPUIMPL
+    // Create the normalized color matrix in device memory
+    createNormalizedColorMatrix();
+#endif
     // Read physics parameters like masses and couplings from user configuration files (static: initialize once)
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     %(cipdassign)s
@@ -250,6 +233,10 @@ namespace mg5amcCpu
       //Parameters_%(model_name)s::printDependentCouplings(); // now computed event-by-event (running alphas #373)
     }
     %(hardcoded_initProc_lines)s
+#ifdef MGONGPUCPP_GPUIMPL
+    // Create the normalized color matrix in device memory
+    createNormalizedColorMatrix();
+#endif
   }
 #endif
 
@@ -379,7 +366,7 @@ namespace mg5amcCpu
                        fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
                        fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                       fptype_sv* allJamps,        // tmp: jamp[ncolor*2*nevt] _for one helicity_ (reused in the helicity loop)
+                       fptype_sv* allJamps,        // tmp: jamp[ncolor*2*nevt] _for one helicity_ (reused in the getGoodHel helicity loop)
                        bool* isGoodHel,            // output: isGoodHel[ncomb] - host array
                        const int nevt )            // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   { /* clang-format on */
@@ -401,7 +388,7 @@ namespace mg5amcCpu
 #else
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, gpublocks * gputhreads );
 #endif
-      gpuLaunchKernel( color_sum, gpublocks, gputhreads, allMEs, allJamps );
+      color_sum_gpu( allMEs, allJamps, nullptr, nullptr, nullptr, gpublocks, gputhreads );
       gpuMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), gpuMemcpyDeviceToHost );
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
       for( int ievt = 0; ievt < maxtry; ++ievt )
@@ -478,7 +465,7 @@ namespace mg5amcCpu
 #else
         calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 ); //maxtry?
 #endif /* clang-format on */
-        color_sum( allMEs, jamp_sv, ievt00 );
+        color_sum_cpu( allMEs, jamp_sv, ievt00 );
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
@@ -688,6 +675,8 @@ namespace mg5amcCpu
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: allJamps super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            fptype2* ghelAllBlasTmp,            // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            gpuBlasHandle_t* ghelBlasHandles,   // input: cuBLAS/hipBLAS handles (index is ighel: only the first nGoodHel <= ncomb are non-null)
             gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
             const int gpublocks,                // input: cuda gpublocks
             const int gputhreads                // input: cuda gputhreads

@@ -6,11 +6,15 @@
 #ifndef MG5AMC_GPUABSTRACTION_H
 #define MG5AMC_GPUABSTRACTION_H 1
 
+#include "mgOnGpuConfig.h"
+
 #include <cassert>
 
 //--------------------------------------------------------------------------
 
 #ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+
+#include "cublas_v2.h"
 
 #define gpuError_t cudaError_t
 #define gpuPeekAtLastError cudaPeekAtLastError
@@ -30,6 +34,8 @@
 #define gpuFree( ptr ) checkGpu( cudaFree( ptr ) )
 #define gpuFreeHost( ptr ) checkGpu( cudaFreeHost( ptr ) )
 
+#define gpuGetSymbolAddress( devPtr, symbol ) checkGpu( cudaGetSymbolAddress( devPtr, symbol ) )
+
 #define gpuSetDevice cudaSetDevice
 #define gpuDeviceSynchronize cudaDeviceSynchronize
 #define gpuDeviceReset cudaDeviceReset
@@ -42,9 +48,31 @@
 #define gpuStreamCreate( pStream ) checkGpu( cudaStreamCreate( pStream ) )
 #define gpuStreamDestroy( stream ) checkGpu( cudaStreamDestroy( stream ) )
 
+#define gpuBlasStatus_t cublasStatus_t
+#define GPUBLAS_STATUS_SUCCESS CUBLAS_STATUS_SUCCESS
+#define gpuBlasHandle_t cublasHandle_t
+#define gpuBlasCreate cublasCreate
+#define gpuBlasDestroy cublasDestroy
+#define gpuBlasSetStream cublasSetStream
+
+#define gpuBlasSaxpy cublasSaxpy
+#define gpuBlasSdot cublasSdot
+#define gpuBlasSgemv cublasSgemv
+#define gpuBlasSgemm cublasSgemm
+#define gpuBlasSgemmStridedBatched cublasSgemmStridedBatched
+#define gpuBlasDaxpy cublasDaxpy
+#define gpuBlasDdot cublasDdot
+#define gpuBlasDgemv cublasDgemv
+#define gpuBlasDgemm cublasDgemm
+#define gpuBlasDgemmStridedBatched cublasDgemmStridedBatched
+#define GPUBLAS_OP_N CUBLAS_OP_N
+#define GPUBLAS_OP_T CUBLAS_OP_T
+
 //--------------------------------------------------------------------------
 
 #elif defined __HIPCC__
+
+#include "hipblas.h"
 
 #define gpuError_t hipError_t
 #define gpuPeekAtLastError hipPeekAtLastError
@@ -64,6 +92,8 @@
 #define gpuFree( ptr ) checkGpu( hipFree( ptr ) )
 #define gpuFreeHost( ptr ) checkGpu( hipHostFree( ptr ) )
 
+#define gpuGetSymbolAddress( devPtr, symbol ) checkGpu( hipGetSymbolAddress( devPtr, symbol ) )
+
 #define gpuSetDevice hipSetDevice
 #define gpuDeviceSynchronize hipDeviceSynchronize
 #define gpuDeviceReset hipDeviceReset
@@ -76,8 +106,42 @@
 #define gpuStreamCreate( pStream ) checkGpu( hipStreamCreate( pStream ) )
 #define gpuStreamDestroy( stream ) checkGpu( hipStreamDestroy( stream ) )
 
+#define gpuBlasStatus_t hipblasStatus_t
+#define GPUBLAS_STATUS_SUCCESS HIPBLAS_STATUS_SUCCESS
+#define gpuBlasHandle_t hipblasHandle_t
+#define gpuBlasCreate hipblasCreate
+#define gpuBlasDestroy hipblasDestroy
+#define gpuBlasSetStream hipblasSetStream
+
+#define gpuBlasSaxpy hipblasSaxpy
+#define gpuBlasSdot hipblasSdot
+#define gpuBlasSgemv hipblasSgemv
+#define gpuBlasSgemm hipblasSgemm
+#define gpuBlasSgemmStridedBatched hipblasSgemmStridedBatched
+#define gpuBlasDaxpy hipblasDaxpy
+#define gpuBlasDdot hipblasDdot
+#define gpuBlasDgemv hipblasDgemv
+#define gpuBlasDgemm hipblasDgemm
+#define gpuBlasDgemmStridedBatched hipblasDgemmStridedBatched
+#define GPUBLAS_OP_N HIPBLAS_OP_N
+#define GPUBLAS_OP_T HIPBLAS_OP_T
+
+#endif
+
 //--------------------------------------------------------------------------
 
+#ifdef MGONGPU_FPTYPE2_FLOAT
+#define gpuBlasTaxpy gpuBlasSaxpy
+#define gpuBlasTdot gpuBlasSdot
+#define gpuBlasTgemv gpuBlasSgemv
+#define gpuBlasTgemm gpuBlasSgemm
+#define gpuBlasTgemmStridedBatched gpuBlasSgemmStridedBatched
+#else
+#define gpuBlasTaxpy gpuBlasDaxpy
+#define gpuBlasTdot gpuBlasDdot
+#define gpuBlasTgemv gpuBlasDgemv
+#define gpuBlasTgemm gpuBlasDgemm
+#define gpuBlasTgemmStridedBatched gpuBlasDgemmStridedBatched
 #endif
 
 #endif // MG5AMC_GPUABSTRACTION_H

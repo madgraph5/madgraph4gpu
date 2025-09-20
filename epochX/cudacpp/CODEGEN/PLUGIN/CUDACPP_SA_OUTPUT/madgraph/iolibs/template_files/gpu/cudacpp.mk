@@ -479,6 +479,34 @@ endif
 
 #-------------------------------------------------------------------------------
 
+#=== Configure defaults and check if user-defined choices exist for HASBLAS
+
+# Set the default HASBLAS (cuBLAS/hipBLAS) choice and check prior choices for HASBLAS
+
+ifeq ($(HASBLAS),)
+  ifeq ($(GPUCC),) # CPU-only build
+    override HASBLAS = hasNoBlas
+  else ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
+    ifeq ($(wildcard $(CUDA_HOME)/include/cublas_v2.h),)
+      # cuBLAS headers do not exist??
+      override HASBLAS = hasNoBlas
+    else
+      override HASBLAS = hasBlas
+    endif
+  else ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
+    ifeq ($(wildcard $(HIP_HOME)/include/hipblas.h),)
+      # hipBLAS headers do not exist??
+      override HASBLAS = hasNoBlas
+    else
+      override HASBLAS = hasBlas
+    endif
+  else
+    override HASBLAS = hasNoBlas
+  endif
+endif
+
+#-------------------------------------------------------------------------------
+
 #=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD
 
 # Set the build flags appropriate to OMPFLAGS
@@ -598,6 +626,30 @@ endif
 
 #$(info RNDCXXFLAGS=$(RNDCXXFLAGS))
 #$(info RNDLIBFLAGS=$(RNDLIBFLAGS))
+
+#=== Set the CUDA/HIP/C++ compiler and linker flags appropriate to user-defined choices of HASBLAS
+
+$(info HASBLAS=$(HASBLAS))
+override BLASCXXFLAGS=
+override BLASLIBFLAGS=
+
+# Set the RNDCXXFLAGS and RNDLIBFLAGS build flags appropriate to each HASBLAS choice (example: "make HASBLAS=hasNoBlas")
+ifeq ($(HASBLAS),hasNoBlas)
+  override BLASCXXFLAGS += -DMGONGPU_HAS_NO_BLAS
+else ifeq ($(HASBLAS),hasBlas)
+  ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
+    override BLASLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcublas
+  else ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
+    override BLASLIBFLAGS = -L$(HIP_HOME)/lib/ -lhipblas
+  endif
+else
+  $(error Unknown HASBLAS='$(HASBLAS)': only 'hasBlas' and 'hasNoBlas' are supported)
+endif
+CXXFLAGS += $(BLASCXXFLAGS)
+GPUFLAGS += $(BLASCXXFLAGS)
+
+#$(info BLASCXXFLAGS=$(BLASCXXFLAGS))
+#$(info BLASLIBFLAGS=$(BLASLIBFLAGS))
 
 #-------------------------------------------------------------------------------
 
@@ -782,12 +834,12 @@ processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 ###$(info processid_short=$(processid_short))
 
 MG5AMC_CXXLIB = mg5amc_$(processid_short)_cpp
-cxx_objects_lib=$(BUILDDIR)/CPPProcess_cpp.o $(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o
+cxx_objects_lib=$(BUILDDIR)/CPPProcess_cpp.o $(BUILDDIR)/color_sum_cpp.o $(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o
 cxx_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_cpp.o $(BUILDDIR)/RamboSamplingKernels_cpp.o
 
 ifneq ($(GPUCC),)
 MG5AMC_GPULIB = mg5amc_$(processid_short)_$(GPUSUFFIX)
-gpu_objects_lib=$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o $(BUILDDIR)/MatrixElementKernels_$(GPUSUFFIX).o $(BUILDDIR)/BridgeKernels_$(GPUSUFFIX).o $(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o
+gpu_objects_lib=$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o $(BUILDDIR)/color_sum_$(GPUSUFFIX).o $(BUILDDIR)/MatrixElementKernels_$(GPUSUFFIX).o $(BUILDDIR)/BridgeKernels_$(GPUSUFFIX).o $(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o
 gpu_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/RamboSamplingKernels_$(GPUSUFFIX).o
 endif
 
@@ -801,7 +853,7 @@ ifneq ($(GPUCC),)
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: $(BUILDDIR)/fbridge_$(GPUSUFFIX).o
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: gpu_objects_lib += $(BUILDDIR)/fbridge_$(GPUSUFFIX).o
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib)
-	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) $(BLASLIBFLAGS)
 # Bypass std::filesystem completely to ease portability on LUMI #803
 #ifneq ($(findstring hipcc,$(GPUCC)),)
 #	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
@@ -834,6 +886,7 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
 $(gpu_checkmain): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
 $(gpu_checkmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(gpu_checkmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_checkmain): $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
 	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
 endif
@@ -878,6 +931,7 @@ ifeq ($(UNAME_S),Darwin)
 $(gpu_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
 endif
 $(gpu_fcheckmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(gpu_fcheckmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
 	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) -lstdc++ -L$(HIP_HOME)/lib -lamdhip64
@@ -979,6 +1033,7 @@ $(cxx_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_ob
 else # link only runTest_$(GPUSUFFIX).o (new: in the past, this was linking both runTest_cpp.o and runTest_$(GPUSUFFIX).o)
 ###$(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSASAN)
 $(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(gpu_testmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(GTESTLIBS)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
 	$(FC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) -lstdc++ -lpthread -L$(HIP_HOME)/lib -lamdhip64

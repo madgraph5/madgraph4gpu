@@ -223,6 +223,7 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
   // A class encapsulating a simple CUDA device buffer managed on an ad-hoc basis
   typedef DeviceBuffer<fptype, 1> DeviceBufferSimple;
+  typedef DeviceBuffer<fptype2, 1> DeviceBufferSimple2;
 #endif
 
   //--------------------------------------------------------------------------

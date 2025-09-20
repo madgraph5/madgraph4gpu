@@ -217,6 +217,20 @@ namespace mg5amcCpu
     PinnedHostBufferChannelIds m_hstChannelIds;
 #endif
 
+#ifndef MGONGPU_HAS_NO_BLAS
+    // Decide at runtime whether to use BLAS for color sums
+    bool m_blasColorSum;
+
+    // Decide at runtime whether TF32TENSOR math should be used in cuBLAS
+    bool m_blasTf32Tensor;
+
+    // The super-buffer of nGoodHel cuBLAS/hipBLAS temporary buffers
+    std::unique_ptr<DeviceBufferSimple2> m_pHelBlasTmp;
+
+    // The array of cuBLAS/hipBLAS handles (one for each good helicity)
+    gpuBlasHandle_t m_helBlasHandles[CPPProcess::ncomb]; // reserve ncomb streams (but only nGoodHel <= ncomb will be used)
+#endif
+
     // The array of GPU streams (one for each good helicity)
     gpuStream_t m_helStreams[CPPProcess::ncomb]; // reserve ncomb streams (but only nGoodHel <= ncomb will be used)
 

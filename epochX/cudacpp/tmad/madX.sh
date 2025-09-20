@@ -484,6 +484,8 @@ echo MADGRAPH_HIP_ARCHITECTURE=${MADGRAPH_HIP_ARCHITECTURE}
 unset GTEST_ROOT
 unset LOCALGTEST
 
+export HASBLAS=hasBlas
+
 for suff in $suffs; do
 
   dir=$(showdir)
@@ -513,6 +515,12 @@ if [ "${maketype}" == "-makeonly" ]; then printf "\nMAKE COMPLETED\n"; exit 0; f
 ##########################################################################
 # PART 2 - run madevent
 ##########################################################################
+
+unset CUDACPP_RUNTIME_BLASCOLORSUM
+printf "\nCUDACPP_RUNTIME_BLASCOLORSUM=$CUDACPP_RUNTIME_BLASCOLORSUM\n"
+
+unset CUDACPP_RUNTIME_CUBLASTF32TENSOR
+printf "\nCUDACPP_RUNTIME_CUBLASTF32TENSOR=$CUDACPP_RUNTIME_CUBLASTF32TENSOR\n"
 
 printf "\nOMP_NUM_THREADS=$OMP_NUM_THREADS\n"
 
