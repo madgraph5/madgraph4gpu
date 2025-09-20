@@ -79,7 +79,7 @@
 #elif defined __HIPCC__
 
 #ifndef MGONGPU_HAS_NO_BLAS
-#include "hipblas.h"
+#include "hipblas/hipblas.h"
 #endif
 
 #define gpuError_t hipError_t

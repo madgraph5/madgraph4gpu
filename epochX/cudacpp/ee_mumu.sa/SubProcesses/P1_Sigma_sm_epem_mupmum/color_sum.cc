@@ -34,7 +34,7 @@ namespace mg5amcCpu
   template<typename T>
   struct NormalizedColorMatrix
   {
-    constexpr __device__ NormalizedColorMatrix()
+    constexpr __host__ __device__ NormalizedColorMatrix()
       : value()
     {
       for( int icol = 0; icol < ncolor; icol++ )

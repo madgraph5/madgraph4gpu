@@ -30851,7 +30851,12 @@ namespace mg5amcCpu
       if( hAllBlasTmp )
         gpuMemset( hAllBlasTmp, 0, nevt * ncolor * mgOnGpu::nx2 * sizeof( fptype2 ) ); // reset the tmp buffer (just in case...)
 #endif
+#ifndef MGONGPU_HAS_NO_BLAS
       gpuBlasHandle_t* pBlasHandle = ( ghelBlasHandles ? &( ghelBlasHandles[ighel] ) : nullptr );
+#else /* clang-format off */
+      assert( ghelBlasHandles == nullptr ); // sanity check
+      gpuBlasHandle_t* pBlasHandle = nullptr; // this is a void* (hack to keep the same API in noBLAS builds)
+#endif /* clang-format on */
       color_sum_gpu( hAllMEs, hAllJamps, hAllBlasTmp, ghelStreams[ighel], pBlasHandle, gpublocks, gputhreads );
     }
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
