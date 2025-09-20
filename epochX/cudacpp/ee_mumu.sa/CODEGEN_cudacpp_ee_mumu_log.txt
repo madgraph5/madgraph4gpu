@@ -15,7 +15,7 @@ Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                 2024-09-30         *
+*         VERSION 3.6.3                 2025-06-12         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -58,7 +58,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0054132938385009766 [0m
+[1;32mDEBUG: model prefixing  takes 0.005461931228637695 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -175,7 +175,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 4 routines in  0.261 s
+ALOHA: aloha creates 4 routines in  0.258 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -194,7 +194,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. and /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. 
 quit
 
-real	0m0.655s
-user	0m0.585s
-sys	0m0.059s
+real	0m0.640s
+user	0m0.576s
+sys	0m0.060s
 Code generation completed in 1 seconds

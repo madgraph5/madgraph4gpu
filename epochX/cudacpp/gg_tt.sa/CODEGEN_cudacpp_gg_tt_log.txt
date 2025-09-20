@@ -15,7 +15,7 @@ Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                 2024-09-30         *
+*         VERSION 3.6.3                 2025-06-12         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -58,7 +58,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0054438114166259766 [0m
+[1;32mDEBUG: model prefixing  takes 0.0054018497467041016 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -170,7 +170,7 @@ INFO: Creating files in directory /data/avalassi/GPU2025/test-madgraph4gpu/MG5aM
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.h
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/. 
-Generated helas calls for 1 subprocesses (3 diagrams) in 0.006 s
+Generated helas calls for 1 subprocesses (3 diagrams) in 0.005 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
@@ -189,7 +189,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. and /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. 
 quit
 
-real	0m0.523s
-user	0m0.468s
-sys	0m0.051s
+real	0m0.515s
+user	0m0.456s
+sys	0m0.056s
 Code generation completed in 1 seconds

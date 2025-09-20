@@ -15,7 +15,7 @@ Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                 2024-09-30         *
+*         VERSION 3.6.3                 2025-06-12         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -57,7 +57,7 @@ set zerowidth_tchannel F
 define j = p
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005375385284423828 [0m
+[1;32mDEBUG: model prefixing  takes 0.005505561828613281 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -374,12 +374,12 @@ INFO: Process s~ u~ > t t~ u~ s~ added to mirror process u~ s~ > t t~ u~ s~
 INFO: Process s~ c~ > t t~ c~ s~ added to mirror process c~ s~ > t t~ c~ s~ 
 INFO: Process s~ d~ > t t~ d~ s~ added to mirror process d~ s~ > t t~ d~ s~ 
 INFO: Crossed process found for s~ s~ > t t~ s~ s~, reuse diagrams. 
-65 processes with 1119 diagrams generated in 1.818 s
+65 processes with 1119 diagrams generated in 1.821 s
 Total: 83 processes with 1202 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4334][0m [0m
+[1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4166][0m [0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 173][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_pp_tt012j 
@@ -689,22 +689,22 @@ INFO: Finding symmetric diagrams for subprocess group uux_ttx
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 1 [1;30m[model_handling.py at line 1547][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1} [1;30m[model_handling.py at line 1571][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1} [1;30m[model_handling.py at line 1572][0m [0m
-Generated helas calls for 18 subprocesses (372 diagrams) in 1.279 s
-Wrote files for 810 helas calls in 2.763 s
+Generated helas calls for 18 subprocesses (372 diagrams) in 1.276 s
+Wrote files for 810 helas calls in 2.752 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.326 s
+ALOHA: aloha creates 5 routines in  0.330 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.303 s
+ALOHA: aloha creates 10 routines in  0.304 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -827,10 +827,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m10.523s
-user	0m9.577s
-sys	0m0.912s
-Code generation completed in 10 seconds
+real	0m11.464s
+user	0m9.558s
+sys	0m0.940s
+Code generation completed in 11 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -843,7 +843,7 @@ Code generation completed in 10 seconds
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                                    *
+*         VERSION 3.6.3                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -873,7 +873,7 @@ launch in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                                    *
+*         VERSION 3.6.3                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *

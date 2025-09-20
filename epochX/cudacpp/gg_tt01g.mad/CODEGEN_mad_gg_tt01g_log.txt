@@ -15,7 +15,7 @@ Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                 2024-09-30         *
+*         VERSION 3.6.3                 2025-06-12         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -58,7 +58,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005428314208984375 [0m
+[1;32mDEBUG: model prefixing  takes 0.005438327789306641 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -159,12 +159,12 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=3: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g WEIGHTED<=3 @2  
 INFO: Process has 16 diagrams 
-1 processes with 16 diagrams generated in 0.019 s
+1 processes with 16 diagrams generated in 0.020 s
 Total: 2 processes with 19 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_gg_tt01g --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4334][0m [0m
+[1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4166][0m [0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 173][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_gg_tt01g 
@@ -202,21 +202,21 @@ INFO: Finding symmetric diagrams for subprocess group gg_ttx
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1571][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1572][0m [0m
 Generated helas calls for 2 subprocesses (19 diagrams) in 0.042 s
-Wrote files for 46 helas calls in 0.187 s
+Wrote files for 46 helas calls in 0.188 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 5 routines in  0.316 s
+ALOHA: aloha creates 5 routines in  0.313 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 10 routines in  0.299 s
+ALOHA: aloha creates 10 routines in  0.321 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -257,9 +257,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.602s
-user	0m2.299s
-sys	0m0.301s
+real	0m2.613s
+user	0m2.284s
+sys	0m0.313s
 Code generation completed in 3 seconds
 ************************************************************
 *                                                          *
@@ -273,7 +273,7 @@ Code generation completed in 3 seconds
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                                    *
+*         VERSION 3.6.3                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -303,7 +303,7 @@ launch in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                                    *
+*         VERSION 3.6.3                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
