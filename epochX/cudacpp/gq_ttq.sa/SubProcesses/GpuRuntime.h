@@ -31,7 +31,7 @@ inline void assertGpu( gpuError_t code, const char* file, int line, bool abort =
 //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
-#ifndef DMGONGPU_HAS_NO_BLAS
+#ifndef MGONGPU_HAS_NO_BLAS
 #define checkGpuBlas( code ){ assertGpuBlas( code, __FILE__, __LINE__ ); }
 inline void assertGpuBlas( gpuBlasStatus_t code, const char *file, int line, bool abort = true )
 {
