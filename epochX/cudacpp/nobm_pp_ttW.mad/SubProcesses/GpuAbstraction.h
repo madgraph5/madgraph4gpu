@@ -52,7 +52,11 @@
 
 #define gpuBlasStatus_t cublasStatus_t
 #define GPUBLAS_STATUS_SUCCESS CUBLAS_STATUS_SUCCESS
+#ifndef MGONGPU_HAS_NO_BLAS
 #define gpuBlasHandle_t cublasHandle_t
+#else
+#define gpuBlasHandle_t void // hack to keep the same API also in noBLAS builds
+#endif
 #define gpuBlasCreate cublasCreate
 #define gpuBlasDestroy cublasDestroy
 #define gpuBlasSetStream cublasSetStream
@@ -112,7 +116,11 @@
 
 #define gpuBlasStatus_t hipblasStatus_t
 #define GPUBLAS_STATUS_SUCCESS HIPBLAS_STATUS_SUCCESS
+#ifndef MGONGPU_HAS_NO_BLAS
 #define gpuBlasHandle_t hipblasHandle_t
+#else
+#define gpuBlasHandle_t void // hack to keep the same API also in noBLAS builds
+#endif
 #define gpuBlasCreate hipblasCreate
 #define gpuBlasDestroy hipblasDestroy
 #define gpuBlasSetStream hipblasSetStream
