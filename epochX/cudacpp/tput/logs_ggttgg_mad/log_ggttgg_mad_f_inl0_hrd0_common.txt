@@ -11,53 +11,58 @@ HASCURAND=hasNoCurand
 HASHIPRAND=hasNoHiprand
 Building in BUILDDIR=build.auto_m_inl0_hrd0 for tag=avx2_m_inl0_hrd0_hasNoCurand_hasNoHiprand (USEBUILDDIR == 1)
 make: Nothing to be done for 'gtestlibs'.
-make: Nothing to be done for 'all'.
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=hip
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cppnone
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cppsse4
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cppavx2
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cpp512y
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-DATE: 2025-09-19_09:25:41
+make USEBUILDDIR=1 BACKEND=cpp512z
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+
+DATE: 2025-09-20_08:20:14
 
 On uan03 [CPU: AMD EPYC 7A53 64-Core Processor] [GPU: AMD INSTINCT MI200]:
+=========================================================================
+Not found: /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.cuda_f_inl0_hrd0/check_cuda.exe
 =========================================================================
 runExe /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.hip_f_inl0_hrd0/check_hip.exe -p 64 256 1 --common OMP=
 Process                     = SIGMA_SM_GG_TTXGG_HIP [hipcc 6.0.32831 (clang 17.0.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = HIP:FLT+CXS:COMMON+RMBDEV+MESDEV/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 2.960019e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 3.497883e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 3.499283e+05                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 3.126773e+05                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 3.712146e+05                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.713527e+05                 )  sec^-1
 MeanMatrixElemValue         = ( 4.205841e-01 +- 3.252483e-01 )  GeV^-4
-TOTAL       :     0.531800 sec
-     1,288,686,187      cycles:u                         #    2.124 GHz                      (74.21%)
-         3,417,378      stalled-cycles-frontend:u        #    0.27% frontend cycles idle     (76.86%)
-        35,257,746      stalled-cycles-backend:u         #    2.74% backend cycles idle      (74.62%)
-     1,734,970,602      instructions:u                   #    1.35  insn per cycle         
-                                                  #    0.02  stalled cycles per insn  (74.58%)
-       0.612876531 seconds time elapsed
-.........................................................................
-runExe /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.hip_f_inl0_hrd0/check_hip.exe -p 2048 256 1 --common OMP=
-Process                     = SIGMA_SM_GG_TTXGG_HIP [hipcc 6.0.32831 (clang 17.0.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = HIP:FLT+CXS:COMMON+RMBDEV+MESDEV/none+NAVBRK
-FP precision                = FLOAT (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 4.605087e+05                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 4.725894e+05                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 4.726313e+05                 )  sec^-1
-MeanMatrixElemValue         = ( 1.183835e+02 +- 1.165669e+02 )  GeV^-4
-TOTAL       :     2.435810 sec
-     6,872,466,997      cycles:u                         #    2.775 GHz                      (74.98%)
-        28,140,683      stalled-cycles-frontend:u        #    0.41% frontend cycles idle     (75.19%)
-     1,079,906,326      stalled-cycles-backend:u         #   15.71% backend cycles idle      (75.40%)
-     6,151,976,386      instructions:u                   #    0.90  insn per cycle         
-                                                  #    0.18  stalled cycles per insn  (75.38%)
-       2.525677985 seconds time elapsed
+TOTAL       :     0.483682 sec
+     1,343,469,904      cycles:u                         #    2.427 GHz                      (76.86%)
+         3,788,492      stalled-cycles-frontend:u        #    0.28% frontend cycles idle     (75.54%)
+        36,541,681      stalled-cycles-backend:u         #    2.72% backend cycles idle      (75.91%)
+     1,909,084,389      instructions:u                   #    1.42  insn per cycle         
+                                                  #    0.02  stalled cycles per insn  (74.83%)
+       0.551854650 seconds time elapsed
 -------------------------------------------------------------------------
 runTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.hip_f_inl0_hrd0/runTest_hip.exe
 [  PASSED  ] 4 tests.
@@ -76,17 +81,17 @@ Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 13.2.1] [inlineHel=0] [
 Workflow summary            = CPP:FLT+CXS:COMMON+RMBHST+MESHST/none+NAVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
-EvtsPerSec[Rmb+ME]     (23) = ( 2.401144e+03                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 2.402235e+03                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 2.402235e+03                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 2.690446e+03                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.691649e+03                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.691649e+03                 )  sec^-1
 MeanMatrixElemValue         = ( 4.208458e-01 +- 3.253446e-01 )  GeV^-4
-TOTAL       :     6.837193 sec
-    21,083,219,904      cycles:u                         #    3.083 GHz                      (74.97%)
-         1,475,091      stalled-cycles-frontend:u        #    0.01% frontend cycles idle     (74.97%)
-     3,142,959,582      stalled-cycles-backend:u         #   14.91% backend cycles idle      (74.97%)
-    78,108,661,700      instructions:u                   #    3.70  insn per cycle         
-                                                  #    0.04  stalled cycles per insn  (74.98%)
-       6.841414461 seconds time elapsed
+TOTAL       :     6.102008 sec
+    21,313,970,953      cycles:u                         #    3.492 GHz                      (74.97%)
+        17,565,049      stalled-cycles-frontend:u        #    0.08% frontend cycles idle     (74.97%)
+     3,105,058,058      stalled-cycles-backend:u         #   14.57% backend cycles idle      (74.97%)
+    78,089,734,390      instructions:u                   #    3.66  insn per cycle         
+                                                  #    0.04  stalled cycles per insn  (74.97%)
+       6.105310223 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4: 2026) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.none_f_inl0_hrd0/runTest_cpp.exe
@@ -106,17 +111,17 @@ Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 13.2.1] [inlineHel=0] [
 Workflow summary            = CPP:FLT+CXS:COMMON+RMBHST+MESHST/sse4+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[4] ('sse4': SSE4.2, 128bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 9.619584e+03                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 9.637882e+03                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 9.637882e+03                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 1.085925e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.087954e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.087954e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 4.208459e-01 +- 3.253446e-01 )  GeV^-4
-TOTAL       :     1.711799 sec
-     5,280,741,446      cycles:u                         #    3.081 GHz                      (74.80%)
-           265,790      stalled-cycles-frontend:u        #    0.01% frontend cycles idle     (74.80%)
-       764,165,856      stalled-cycles-backend:u         #   14.47% backend cycles idle      (74.80%)
-    20,397,599,999      instructions:u                   #    3.86  insn per cycle         
-                                                  #    0.04  stalled cycles per insn  (74.92%)
-       1.715845724 seconds time elapsed
+TOTAL       :     1.516428 sec
+     5,281,095,018      cycles:u                         #    3.478 GHz                      (74.71%)
+           276,891      stalled-cycles-frontend:u        #    0.01% frontend cycles idle     (74.76%)
+       761,135,863      stalled-cycles-backend:u         #   14.41% backend cycles idle      (75.02%)
+    20,367,670,739      instructions:u                   #    3.86  insn per cycle         
+                                                  #    0.04  stalled cycles per insn  (75.24%)
+       1.519634183 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4:12436) (avx2:    0) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.sse4_f_inl0_hrd0/runTest_cpp.exe
@@ -136,17 +141,17 @@ Process                     = SIGMA_SM_GG_TTXGG_CPP [gcc 13.2.1] [inlineHel=0] [
 Workflow summary            = CPP:FLT+CXS:COMMON+RMBHST+MESHST/avx2+CXVBRK
 FP precision                = FLOAT (NaN/abnormal=0, zero=0)
 Internal loops fptype_sv    = VECTOR[8] ('avx2': AVX2, 256bit) [cxtype_ref=YES]
-EvtsPerSec[Rmb+ME]     (23) = ( 2.131292e+04                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 2.140373e+04                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 2.140373e+04                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 2.430710e+04                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.441220e+04                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.441220e+04                 )  sec^-1
 MeanMatrixElemValue         = ( 4.214980e-01 +- 3.255523e-01 )  GeV^-4
-TOTAL       :     0.776437 sec
-     2,396,492,410      cycles:u                         #    3.078 GHz                      (74.21%)
-           956,538      stalled-cycles-frontend:u        #    0.04% frontend cycles idle     (74.73%)
-       237,245,949      stalled-cycles-backend:u         #    9.90% backend cycles idle      (75.34%)
-     7,070,581,710      instructions:u                   #    2.95  insn per cycle         
-                                                  #    0.03  stalled cycles per insn  (75.34%)
-       0.780409318 seconds time elapsed
+TOTAL       :     0.680900 sec
+     2,385,405,509      cycles:u                         #    3.494 GHz                      (74.23%)
+           220,355      stalled-cycles-frontend:u        #    0.01% frontend cycles idle     (74.61%)
+       234,105,239      stalled-cycles-backend:u         #    9.81% backend cycles idle      (75.20%)
+     7,070,126,814      instructions:u                   #    2.96  insn per cycle         
+                                                  #    0.03  stalled cycles per insn  (75.40%)
+       0.684123696 seconds time elapsed
 =Symbols in CPPProcess_cpp.o= (~sse4:    0) (avx2:10819) (512y:    0) (512z:    0)
 -------------------------------------------------------------------------
 runTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.avx2_f_inl0_hrd0/runTest_cpp.exe

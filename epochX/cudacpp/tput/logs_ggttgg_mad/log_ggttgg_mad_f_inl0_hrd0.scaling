@@ -11,80 +11,102 @@ HASCURAND=hasNoCurand
 HASHIPRAND=hasNoHiprand
 Building in BUILDDIR=build.auto_m_inl0_hrd0 for tag=avx2_m_inl0_hrd0_hasNoCurand_hasNoHiprand (USEBUILDDIR == 1)
 make: Nothing to be done for 'gtestlibs'.
-make: Nothing to be done for 'all'.
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=hip
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cppnone
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cppsse4
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cppavx2
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cpp512y
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-DATE: 2025-09-19_09:01:16
+make USEBUILDDIR=1 BACKEND=cpp512z
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+
+DATE: 2025-09-20_08:13:05
 
 On uan03 [CPU: AMD EPYC 7A53 64-Core Processor] [GPU: AMD INSTINCT MI200]:
 =========================================================================
+scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.cuda_f_inl0_hrd0/check_cuda.exe
+Not found: /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.cuda_f_inl0_hrd0/check_cuda.exe
+=========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.hip_f_inl0_hrd0/check_hip.exe
 ### GPU: scaling test 256
-1.034016e+04    1 256
-1.668488e+04    2 256
-3.232393e+04    4 256
-6.402707e+04    8 256
-1.280646e+05   16 256
-2.320663e+05   32 256
-3.663095e+05   64 256
-4.204601e+05  128 256
-4.297680e+05  256 256
-4.802653e+05  512 256
-4.789727e+05 1024 256
+1.073339e+04    1 256
+1.763035e+04    2 256
+3.316164e+04    4 256
+6.734761e+04    8 256
+1.316639e+05   16 256
+2.371643e+05   32 256
+3.764683e+05   64 256
+4.257996e+05  128 256
+4.346311e+05  256 256
+4.637890e+05  512 256
+4.641697e+05 1024 256
 ### GPU: scaling test 32
-1.355520e+03    1  32
-2.696151e+03    2  32
-5.375365e+03    4  32
-1.028900e+04    8  32
-1.963495e+04   16  32
-3.297447e+04   32  32
-6.261420e+04   64  32
-9.023769e+04  128  32
-1.013881e+05  256  32
-1.140151e+05  512  32
-1.206907e+05 1024  32
-1.220171e+05 2048  32
-1.221576e+05 4096  32
-1.229389e+05 8192  32
+1.420198e+03    1  32
+2.729820e+03    2  32
+5.556282e+03    4  32
+1.090685e+04    8  32
+2.018808e+04   16  32
+3.407926e+04   32  32
+6.866727e+04   64  32
+9.239686e+04  128  32
+1.017163e+05  256  32
+1.144729e+05  512  32
+1.197716e+05 1024  32
+1.217493e+05 2048  32
+1.220171e+05 4096  32
+1.224026e+05 8192  32
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.none_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-2.392972e+03    1 256
-2.424157e+03    2 256
-2.416687e+03    4 256
+2.717884e+03    1 256
+2.741506e+03    2 256
+2.730630e+03    4 256
 ### CPU: scaling test 32
-2.422365e+03    1  32
-2.423117e+03    2  32
-2.430238e+03    4  32
+2.740714e+03    1  32
+2.743331e+03    2  32
+2.743845e+03    4  32
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.sse4_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-9.705501e+03    1 256
-9.649841e+03    2 256
-9.680517e+03    4 256
+1.102194e+04    1 256
+1.101175e+04    2 256
+1.101142e+04    4 256
 ### CPU: scaling test 32
-9.677767e+03    1  32
-9.705133e+03    2  32
-9.703703e+03    4  32
+1.103214e+04    1  32
+1.102694e+04    2  32
+1.104533e+04    4  32
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.avx2_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-2.140636e+04    1 256
-2.159441e+04    2 256
-2.140014e+04    4 256
+2.433707e+04    1 256
+2.446257e+04    2 256
+2.435799e+04    4 256
 ### CPU: scaling test 32
-2.155721e+04    1  32
-2.161266e+04    2  32
-2.149006e+04    4  32
+2.428944e+04    1  32
+2.430903e+04    2  32
+2.450487e+04    4  32
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512y_f_inl0_hrd0/check_cpp.exe
 /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512y_f_inl0_hrd0/check_cpp.exe is not supported (no avx512vl in /proc/cpuinfo)

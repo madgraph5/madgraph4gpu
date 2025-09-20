@@ -11,80 +11,102 @@ HASCURAND=hasNoCurand
 HASHIPRAND=hasNoHiprand
 Building in BUILDDIR=build.auto_m_inl0_hrd0 for tag=avx2_m_inl0_hrd0_hasNoCurand_hasNoHiprand (USEBUILDDIR == 1)
 make: Nothing to be done for 'gtestlibs'.
-make: Nothing to be done for 'all'.
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=hip
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cppnone
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cppsse4
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cppavx2
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-make: Nothing to be done for 'all'.
+make USEBUILDDIR=1 BACKEND=cpp512y
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-DATE: 2025-09-19_09:00:52
+make USEBUILDDIR=1 BACKEND=cpp512z
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
+
+DATE: 2025-09-20_08:12:42
 
 On uan03 [CPU: AMD EPYC 7A53 64-Core Processor] [GPU: AMD INSTINCT MI200]:
 =========================================================================
+scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.cuda_m_inl0_hrd0/check_cuda.exe
+Not found: /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.cuda_m_inl0_hrd0/check_cuda.exe
+=========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.hip_m_inl0_hrd0/check_hip.exe
 ### GPU: scaling test 256
-5.549942e+03    1 256
-1.108712e+04    2 256
-2.249812e+04    4 256
-4.383380e+04    8 256
-8.206696e+04   16 256
-1.347149e+05   32 256
-1.789253e+05   64 256
-1.940063e+05  128 256
-2.014528e+05  256 256
-2.037523e+05  512 256
-:0:rocdevice.cpp            :2724: 8029435427313 us: [pid:119883 tid:0x153e235ff700] Callback: Queue 0x153cfac00000 Aborting with error : HSA_STATUS_ERROR_OUT_OF_RESOURCES: The runtime failed to allocate the necessary resources. This error may also occur when the core runtime library needs to spawn threads or create internal OS-specific events. Code: 0x1008 Available Free mem : 55592 MB
+5.686095e+03    1 256
+1.124195e+04    2 256
+2.317336e+04    4 256
+4.528212e+04    8 256
+8.238659e+04   16 256
+1.384467e+05   32 256
+1.815898e+05   64 256
+1.954854e+05  128 256
+2.013595e+05  256 256
+2.042811e+05  512 256
+rocdevice.cpp: Aborting
 ### GPU: scaling test 32
-9.845698e+02    1  32
-1.956092e+03    2  32
-3.794985e+03    4  32
-6.780932e+03    8  32
-1.165761e+04   16  32
-2.324789e+04   32  32
-4.286601e+04   64  32
-5.340084e+04  128  32
-5.578413e+04  256  32
-6.065744e+04  512  32
-6.274746e+04 1024  32
-6.431309e+04 2048  32
-:0:rocdevice.cpp            :2724: 8029446404679 us: [pid:120041 tid:0x150a4e1ff700] Callback: Queue 0x150931800000 Aborting with error : HSA_STATUS_ERROR_OUT_OF_RESOURCES: The runtime failed to allocate the necessary resources. This error may also occur when the core runtime library needs to spawn threads or create internal OS-specific events. Code: 0x1008 Available Free mem : 58932 MB
-:0:rocdevice.cpp            :2724: 8029447221403 us: [pid:120052 tid:0x14ff145ff700] Callback: Queue 0x14fddf600000 Aborting with error : HSA_STATUS_ERROR_OUT_OF_RESOURCES: The runtime failed to allocate the necessary resources. This error may also occur when the core runtime library needs to spawn threads or create internal OS-specific events. Code: 0x1008 Available Free mem : 55592 MB
+9.866944e+02    1  32
+1.924151e+03    2  32
+3.931014e+03    4  32
+6.951539e+03    8  32
+1.192557e+04   16  32
+2.384115e+04   32  32
+4.411989e+04   64  32
+5.437415e+04  128  32
+5.590629e+04  256  32
+6.088226e+04  512  32
+6.328384e+04 1024  32
+6.387678e+04 2048  32
+rocdevice.cpp: Aborting
+rocdevice.cpp: Aborting
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.none_m_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-2.345718e+03    1 256
-2.334734e+03    2 256
-2.334788e+03    4 256
+2.632508e+03    1 256
+2.649311e+03    2 256
+2.640552e+03    4 256
 ### CPU: scaling test 32
-2.350068e+03    1  32
-2.354053e+03    2  32
-2.349027e+03    4  32
+2.656058e+03    1  32
+2.651147e+03    2  32
+2.649220e+03    4  32
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.sse4_m_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-4.955354e+03    1 256
-4.921472e+03    2 256
-4.954517e+03    4 256
+5.557882e+03    1 256
+5.597431e+03    2 256
+5.623026e+03    4 256
 ### CPU: scaling test 32
-4.948212e+03    1  32
-4.911694e+03    2  32
-4.946427e+03    4  32
+5.628126e+03    1  32
+5.609527e+03    2  32
+5.622603e+03    4  32
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.avx2_m_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-1.095454e+04    1 256
-1.102079e+04    2 256
-1.109635e+04    4 256
+1.267732e+04    1 256
+1.249031e+04    2 256
+1.264818e+04    4 256
 ### CPU: scaling test 32
-1.106503e+04    1  32
-1.089131e+04    2  32
-1.116016e+04    4  32
+1.254948e+04    1  32
+1.252809e+04    2  32
+1.181558e+04    4  32
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512y_m_inl0_hrd0/check_cpp.exe
 /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512y_m_inl0_hrd0/check_cpp.exe is not supported (no avx512vl in /proc/cpuinfo)
