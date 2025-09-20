@@ -494,7 +494,7 @@ ifeq ($(HASBLAS),)
       override HASBLAS = hasBlas
     endif
   else ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
-    ifeq ($(wildcard $(HIP_HOME)/include/hipblas.h),)
+    ifeq ($(wildcard $(HIP_HOME)/include/hipblas/hipblas.h),)
       # hipBLAS headers do not exist??
       override HASBLAS = hasNoBlas
     else
