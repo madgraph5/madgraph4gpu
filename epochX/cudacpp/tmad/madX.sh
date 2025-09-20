@@ -253,7 +253,7 @@ function getgridmax()
   elif [ "${ggttg}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${ggttgg}" == "1" ]; then
-    echo 16384 32 # same total grid dimension as 2048 256
+    echo 512 32 # same total grid dimension as 64 256 (new sep2025: even 1024/32 aborts in max8thr mode)
   elif [ "${ggttggg}" == "1" ]; then
     echo 512 32 # same total grid dimension as 64 256
   elif [ "${gguu}" == "1" ]; then
