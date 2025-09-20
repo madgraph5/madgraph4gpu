@@ -744,7 +744,7 @@ for exe in $exes; do
     exeArgs="-p 64 256 1"
     ncuArgs="-p 64 256 1"
     # For ggttgg (NEW): on GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
-    exeArgs2="-p 2048 256 1"
+    ###exeArgs2="-p 2048 256 1" # Sep 2025: this aborts (and is not needed as the plateau is reached earlier) with helicity streams
   elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then 
     # For ggttg, as on ggttgg: this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     ###exeArgs="-p 64 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
