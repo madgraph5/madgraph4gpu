@@ -104,9 +104,9 @@ function checklogs()
   # Print out any FPEs or '{ }' in the logs
   echo
   if ! egrep '(^Floating Point Exception|{ })' tput/logs* -r; then echo "No FPEs or '{ }' found in logs"; fi
-  # Print out any aborts in the logs
+  # Print out any aborts in the logs (exclude scaling logs)
   echo
-  txt=$(grep Aborted ./tput/logs_* -r | sed "s|\:.*SubProcesses/P|: P|")
+  txt=$(grep Abort ./tput/logs_*/*.txt | sed "s|\:.*SubProcesses/P|: P|")
   if [ "${txt}" == "" ]; then
     echo "No aborts found in logs"
   else

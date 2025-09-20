@@ -530,7 +530,7 @@ function runExe() {
     if [ "${detailed}" == "1" ]; then pattern="${pattern}|#"; fi
     if [ "${verbose}" == "1" ]; then set -x; fi
     ###perf stat -d $exe1 $args 2>&1 | grep -v "Performance counter stats"
-    perf stat -d $exe1 $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats"
+    perf stat -d $exe1 $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats" |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'
     set +x
   else
     # -- Older version using time
@@ -825,14 +825,14 @@ for exe in $exesSc; do
   # Scaling test with 256 threads per block
   if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]]; then
     echo "### GPU: scaling test 256"
-    for b in 1 2 4 8 16 32 64 128 256 512 1024; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ) |& sed "s/Gpu.*Assert/Assert/"; done
+    for b in 1 2 4 8 16 32 64 128 256 512 1024; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ) |& sed "s/Gpu.*Assert/Assert/" |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done
     echo "### GPU: scaling test 32"
-    for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ) |& sed "s/Gpu.*Assert/Assert/"; done
+    for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ) |& sed "s/Gpu.*Assert/Assert/" |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done
   else
     echo "### CPU: scaling test 256"
-    for b in 1 2 4; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ) |& sed "s/Gpu.*Assert/Assert/"; done
+    for b in 1 2 4; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ); done
     echo "### CPU: scaling test 32"
-    for b in 1 2 4; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ) |& sed "s/Gpu.*Assert/Assert/"; done
+    for b in 1 2 4; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ); done
   fi
 done
 echo "========================================================================="
