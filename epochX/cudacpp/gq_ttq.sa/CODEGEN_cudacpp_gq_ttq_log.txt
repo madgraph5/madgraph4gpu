@@ -57,7 +57,7 @@ set zerowidth_tchannel F
 define q = u c d s u~ c~ d~ s~
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005440473556518555 [0m
+[1;32mDEBUG: model prefixing  takes 0.0054111480712890625 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -222,7 +222,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/. and /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/. 
 quit
 
-real	0m0.644s
-user	0m0.573s
-sys	0m0.066s
+real	0m0.643s
+user	0m0.585s
+sys	0m0.053s
 Code generation completed in 0 seconds
