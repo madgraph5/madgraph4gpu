@@ -1965,7 +1965,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         # 1 - Header
         if idiagram == 1:
             res.append("""
-  __global__ INLINE void
+  __global__ void
   diagram1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1992,7 +1992,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             indent = ' '*(len(sidiag)-1)
             res.append("""
 
-  __global__ INLINE void
+  __global__ void
   diagram%s( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 %s            fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
 %s            const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
