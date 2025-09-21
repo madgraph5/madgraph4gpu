@@ -7,7 +7,7 @@
 
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -71,7 +71,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram2( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -107,7 +107,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram3( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -143,7 +143,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram4( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -179,7 +179,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram5( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -210,7 +210,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram6( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -242,7 +242,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram7( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -272,7 +272,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram8( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -302,7 +302,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram9( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
             fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
             const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -334,7 +334,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram10( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -364,7 +364,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram11( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -394,7 +394,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram12( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -426,7 +426,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram13( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -456,7 +456,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram14( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -488,7 +488,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram15( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -520,7 +520,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram16( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -552,7 +552,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram17( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -583,7 +583,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram18( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -612,7 +612,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram19( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -642,7 +642,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram20( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -675,7 +675,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram21( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -705,7 +705,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram22( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -735,7 +735,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram23( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -767,7 +767,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram24( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -797,7 +797,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram25( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -827,7 +827,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram26( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -856,7 +856,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram27( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -885,7 +885,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram28( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -914,7 +914,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram29( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -943,7 +943,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram30( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -973,7 +973,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram31( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1005,7 +1005,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram32( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1045,7 +1045,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram33( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1076,7 +1076,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram34( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1105,7 +1105,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram35( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1135,7 +1135,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram36( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1167,7 +1167,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram37( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1197,7 +1197,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram38( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1227,7 +1227,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram39( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1259,7 +1259,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram40( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1289,7 +1289,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram41( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1319,7 +1319,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram42( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1348,7 +1348,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram43( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1377,7 +1377,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram44( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1406,7 +1406,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram45( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1435,7 +1435,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram46( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1465,7 +1465,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram47( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1497,7 +1497,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram48( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1535,7 +1535,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram49( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1566,7 +1566,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram50( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1598,7 +1598,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram51( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1628,7 +1628,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram52( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1658,7 +1658,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram53( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1690,7 +1690,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram54( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1720,7 +1720,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram55( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1752,7 +1752,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram56( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1784,7 +1784,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram57( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1820,7 +1820,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram58( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1870,7 +1870,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram59( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1906,7 +1906,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram60( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1942,7 +1942,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram61( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1974,7 +1974,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram62( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2004,7 +2004,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram63( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2036,7 +2036,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram64( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2066,7 +2066,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram65( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2097,7 +2097,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram66( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2129,7 +2129,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram67( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2159,7 +2159,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram68( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2189,7 +2189,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram69( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2221,7 +2221,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram70( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2251,7 +2251,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram71( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2283,7 +2283,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram72( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2315,7 +2315,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram73( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2351,7 +2351,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram74( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2401,7 +2401,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram75( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2437,7 +2437,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram76( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2473,7 +2473,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram77( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2505,7 +2505,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram78( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2535,7 +2535,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram79( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2567,7 +2567,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram80( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2597,7 +2597,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram81( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2626,7 +2626,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram82( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2655,7 +2655,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram83( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2684,7 +2684,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram84( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2713,7 +2713,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram85( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2743,7 +2743,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram86( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2775,7 +2775,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram87( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2804,7 +2804,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram88( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2833,7 +2833,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram89( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2862,7 +2862,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram90( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2891,7 +2891,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram91( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2921,7 +2921,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram92( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2953,7 +2953,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram93( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3003,7 +3003,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram94( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3039,7 +3039,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram95( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3075,7 +3075,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram96( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3107,7 +3107,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram97( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3137,7 +3137,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram98( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3169,7 +3169,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram99( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
              fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
              const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3199,7 +3199,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram100( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3249,7 +3249,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram101( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3285,7 +3285,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram102( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3321,7 +3321,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram103( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3353,7 +3353,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram104( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3383,7 +3383,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram105( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3415,7 +3415,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram106( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3445,7 +3445,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram107( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3495,7 +3495,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram108( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3531,7 +3531,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram109( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3567,7 +3567,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram110( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3596,7 +3596,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram111( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3625,7 +3625,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram112( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3654,7 +3654,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram113( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3683,7 +3683,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram114( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3735,7 +3735,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram115( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3773,7 +3773,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram116( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3811,7 +3811,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram117( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3863,7 +3863,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram118( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3901,7 +3901,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram119( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3939,7 +3939,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram120( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -3979,7 +3979,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram121( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -4017,7 +4017,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram122( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -4067,7 +4067,7 @@
   
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void
+  __global__ void
   diagram123( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
               fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
               const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)

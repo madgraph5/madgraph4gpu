@@ -451,7 +451,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  __global__ INLINE void /* clang-format off */
+  __global__ void /* clang-format off */
   color_sum( fptype* allMEs,              // output: allMEs[nevt], add |M|^2 for this specific helicity
 #ifdef MGONGPUCPP_GPUIMPL
              const fptype* allJamps       // input: jamp[ncolor*2*nevt] for one specific helicity
