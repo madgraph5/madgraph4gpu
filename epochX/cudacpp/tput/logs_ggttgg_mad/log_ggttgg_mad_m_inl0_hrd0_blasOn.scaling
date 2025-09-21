@@ -25,71 +25,71 @@ make: Nothing to be done for 'all'.
 
 make: Nothing to be done for 'all'.
 
-DATE: 2025-09-21_02:56:55
+DATE: 2025-09-21_03:10:05
 
 HASBLAS=hasBlas
-CUDACPP_RUNTIME_BLASCOLORSUM=
+CUDACPP_RUNTIME_BLASCOLORSUM=1
 CUDACPP_RUNTIME_CUBLASTF32TENSOR=
 On uan01 [CPU: AMD EPYC 7A53 64-Core Processor] [GPU: AMD INSTINCT MI200]:
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.hip_m_inl0_hrd0/check_hip.exe
 ### GPU: scaling test 256
-5.434588e+03    1 256
-1.095243e+04    2 256
-2.196842e+04    4 256
-4.285487e+04    8 256
-7.992077e+04   16 256
-1.333449e+05   32 256
-1.765745e+05   64 256
-1.939124e+05  128 256
-2.007119e+05  256 256
-2.040296e+05  512 256
+7.492947e+01    1 256
+1.496009e+02    2 256
+2.981999e+02    4 256
+5.976569e+02    8 256
+1.201698e+03   16 256
+2.335541e+03   32 256
+4.771591e+03   64 256
+9.470041e+03  128 256
+1.872214e+04  256 256
+3.636180e+04  512 256
 rocdevice.cpp: Aborting
 ### GPU: scaling test 32
-9.468161e+02    1  32
-1.817189e+03    2  32
-3.685041e+03    4  32
-6.553156e+03    8  32
-1.120813e+04   16  32
-2.258908e+04   32  32
-4.176017e+04   64  32
-5.324448e+04  128  32
-5.412151e+04  256  32
-6.117066e+04  512  32
-6.249962e+04 1024  32
-6.358738e+04 2048  32
+9.379022e+00    1  32
+1.861930e+01    2  32
+3.734667e+01    4  32
+7.511612e+01    8  32
+1.493429e+02   16  32
+2.990853e+02   32  32
+5.983301e+02   64  32
+1.193906e+03  128  32
+2.344207e+03  256  32
+4.768736e+03  512  32
+9.458840e+03 1024  32
+1.858431e+04 2048  32
 rocdevice.cpp: Aborting
 rocdevice.cpp: Aborting
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.none_m_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-2.561581e+03    1 256
-2.581431e+03    2 256
-2.569629e+03    4 256
+2.340719e+03    1 256
+2.362796e+03    2 256
+2.352079e+03    4 256
 ### CPU: scaling test 32
-2.474845e+03    1  32
-2.580111e+03    2  32
-2.607206e+03    4  32
+2.364533e+03    1  32
+2.365526e+03    2  32
+2.363225e+03    4  32
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.sse4_m_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-5.090671e+03    1 256
-5.205110e+03    2 256
-5.219773e+03    4 256
+4.899011e+03    1 256
+4.907367e+03    2 256
+4.883300e+03    4 256
 ### CPU: scaling test 32
-5.144185e+03    1  32
-5.440908e+03    2  32
-5.407301e+03    4  32
+4.896330e+03    1  32
+4.879442e+03    2  32
+4.886077e+03    4  32
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.avx2_m_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-1.191914e+04    1 256
-1.195991e+04    2 256
-1.113191e+04    4 256
+1.103724e+04    1 256
+1.101308e+04    2 256
+1.093516e+04    4 256
 ### CPU: scaling test 32
-1.192411e+04    1  32
-1.174012e+04    2  32
-1.162372e+04    4  32
+1.089621e+04    1  32
+1.029555e+04    2  32
+1.101859e+04    4  32
 =========================================================================
 scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512y_m_inl0_hrd0/check_cpp.exe
 /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512y_m_inl0_hrd0/check_cpp.exe is not supported (no avx512vl in /proc/cpuinfo)
