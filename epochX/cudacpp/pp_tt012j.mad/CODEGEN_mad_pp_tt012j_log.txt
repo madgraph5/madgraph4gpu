@@ -15,7 +15,7 @@ Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.3                 2025-06-12         *
+*         VERSION 3.6.0                 2024-09-30         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -57,7 +57,7 @@ set zerowidth_tchannel F
 define j = p
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005446672439575195 [0m
+[1;32mDEBUG: model prefixing  takes 0.0054209232330322266 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -208,7 +208,7 @@ INFO: Process d~ g > t t~ d~ added to mirror process g d~ > t t~ d~
 INFO: Process d~ d > t t~ g added to mirror process d d~ > t t~ g 
 INFO: Process s~ g > t t~ s~ added to mirror process g s~ > t t~ s~ 
 INFO: Process s~ s > t t~ g added to mirror process s s~ > t t~ g 
-13 processes with 76 diagrams generated in 0.137 s
+13 processes with 76 diagrams generated in 0.136 s
 Total: 18 processes with 83 diagrams
 add process p p > t t~ j j @2
 INFO: Checking for minimal orders which gives processes. 
@@ -374,12 +374,12 @@ INFO: Process s~ u~ > t t~ u~ s~ added to mirror process u~ s~ > t t~ u~ s~
 INFO: Process s~ c~ > t t~ c~ s~ added to mirror process c~ s~ > t t~ c~ s~ 
 INFO: Process s~ d~ > t t~ d~ s~ added to mirror process d~ s~ > t t~ d~ s~ 
 INFO: Crossed process found for s~ s~ > t t~ s~ s~, reuse diagrams. 
-65 processes with 1119 diagrams generated in 1.827 s
+65 processes with 1119 diagrams generated in 1.812 s
 Total: 83 processes with 1202 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4166][0m [0m
+[1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4334][0m [0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 173][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_pp_tt012j 
@@ -499,9 +499,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g g > t t~ g g WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxgg 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 105 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 8, 8: 9, 9: 10, 10: 11, 11: 12, 12: 13, 13: 14, 14: 15, 15: 16, 16: 17, 17: 18, 18: 19, 19: 20, 20: 21, 21: 22, 22: 23, 23: 24, 24: 25, 25: 26, 26: 27, 27: 28, 28: 29, 29: 30, 30: 31, 31: 33, 32: 34, 33: 35, 34: 36, 35: 37, 36: 38, 37: 39, 38: 40, 39: 41, 40: 42, 41: 43, 42: 44, 43: 45, 44: 46, 45: 47, 46: 49, 47: 50, 48: 51, 49: 52, 50: 53, 51: 54, 52: 55, 53: 56, 54: 57, 55: 59, 56: 60, 57: 61, 58: 62, 59: 63, 60: 64, 61: 65, 62: 66, 63: 67, 64: 68, 65: 69, 66: 70, 67: 71, 68: 72, 69: 73, 70: 75, 71: 76, 72: 77, 73: 78, 74: 79, 75: 80, 76: 81, 77: 82, 78: 83, 79: 84, 80: 85, 81: 86, 82: 87, 83: 88, 84: 89, 85: 90, 86: 91, 87: 92, 88: 94, 89: 95, 90: 96, 91: 97, 92: 98, 93: 99, 94: 101, 95: 102, 96: 103, 97: 104, 98: 105, 99: 106, 100: 108, 101: 109, 102: 110, 103: 111, 104: 112, 105: 113} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7, 9: 8, 10: 9, 11: 10, 12: 11, 13: 12, 14: 13, 15: 14, 16: 15, 17: 16, 18: 17, 19: 18, 20: 19, 21: 20, 22: 21, 23: 22, 24: 23, 25: 24, 26: 25, 27: 26, 28: 27, 29: 28, 30: 29, 31: 30, 33: 31, 34: 32, 35: 33, 36: 34, 37: 35, 38: 36, 39: 37, 40: 38, 41: 39, 42: 40, 43: 41, 44: 42, 45: 43, 46: 44, 47: 45, 49: 46, 50: 47, 51: 48, 52: 49, 53: 50, 54: 51, 55: 52, 56: 53, 57: 54, 59: 55, 60: 56, 61: 57, 62: 58, 63: 59, 64: 60, 65: 61, 66: 62, 67: 63, 68: 64, 69: 65, 70: 66, 71: 67, 72: 68, 73: 69, 75: 70, 76: 71, 77: 72, 78: 73, 79: 74, 80: 75, 81: 76, 82: 77, 83: 78, 84: 79, 85: 80, 86: 81, 87: 82, 88: 83, 89: 84, 90: 85, 91: 86, 92: 87, 94: 88, 95: 89, 96: 90, 97: 91, 98: 92, 99: 93, 101: 94, 102: 95, 103: 96, 104: 97, 105: 98, 106: 99, 108: 100, 109: 101, 110: 102, 111: 103, 112: 104, 113: 105} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 105 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 8, 8: 9, 9: 10, 10: 11, 11: 12, 12: 13, 13: 14, 14: 15, 15: 16, 16: 17, 17: 18, 18: 19, 19: 20, 20: 21, 21: 22, 22: 23, 23: 24, 24: 25, 25: 26, 26: 27, 27: 28, 28: 29, 29: 30, 30: 31, 31: 33, 32: 34, 33: 35, 34: 36, 35: 37, 36: 38, 37: 39, 38: 40, 39: 41, 40: 42, 41: 43, 42: 44, 43: 45, 44: 46, 45: 47, 46: 49, 47: 50, 48: 51, 49: 52, 50: 53, 51: 54, 52: 55, 53: 56, 54: 57, 55: 59, 56: 60, 57: 61, 58: 62, 59: 63, 60: 64, 61: 65, 62: 66, 63: 67, 64: 68, 65: 69, 66: 70, 67: 71, 68: 72, 69: 73, 70: 75, 71: 76, 72: 77, 73: 78, 74: 79, 75: 80, 76: 81, 77: 82, 78: 83, 79: 84, 80: 85, 81: 86, 82: 87, 83: 88, 84: 89, 85: 90, 86: 91, 87: 92, 88: 94, 89: 95, 90: 96, 91: 97, 92: 98, 93: 99, 94: 101, 95: 102, 96: 103, 97: 104, 98: 105, 99: 106, 100: 108, 101: 109, 102: 110, 103: 111, 104: 112, 105: 113} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7, 9: 8, 10: 9, 11: 10, 12: 11, 13: 12, 14: 13, 15: 14, 16: 15, 17: 16, 18: 17, 19: 18, 20: 19, 21: 20, 22: 21, 23: 22, 24: 23, 25: 24, 26: 25, 27: 26, 28: 27, 29: 28, 30: 29, 31: 30, 33: 31, 34: 32, 35: 33, 36: 34, 37: 35, 38: 36, 39: 37, 40: 38, 41: 39, 42: 40, 43: 41, 44: 42, 45: 43, 46: 44, 47: 45, 49: 46, 50: 47, 51: 48, 52: 49, 53: 50, 54: 51, 55: 52, 56: 53, 57: 54, 59: 55, 60: 56, 61: 57, 62: 58, 63: 59, 64: 60, 65: 61, 66: 62, 67: 63, 68: 64, 69: 65, 70: 66, 71: 67, 72: 68, 73: 69, 75: 70, 76: 71, 77: 72, 78: 73, 79: 74, 80: 75, 81: 76, 82: 77, 83: 78, 84: 79, 85: 80, 86: 81, 87: 82, 88: 83, 89: 84, 90: 85, 91: 86, 92: 87, 94: 88, 95: 89, 96: 90, 97: 91, 98: 92, 99: 93, 101: 94, 102: 95, 103: 96, 104: 97, 105: 98, 106: 99, 108: 100, 109: 101, 110: 102, 111: 103, 112: 104, 113: 105} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P2_gg_ttxuux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -510,9 +510,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g g > t t~ u u~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxuux 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P2_gu_ttxgu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -521,9 +521,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g u > t t~ g u WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group gu_ttxgu 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P2_gux_ttxgux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -532,9 +532,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g u~ > t t~ g u~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group gux_ttxgux 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P2_uux_ttxgg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -543,9 +543,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ g g WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uux_ttxgg 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 35 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 34: 35, 35: 36} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 26: 26, 27: 27, 28: 28, 29: 29, 30: 30, 31: 31, 32: 32, 33: 33, 35: 34, 36: 35} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P1_gg_ttxg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -554,9 +554,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g g > t t~ g WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttxg 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 15 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 15 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P2_uu_ttxuu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -565,9 +565,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: u u > t t~ u u WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uu_ttxuu 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 14 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 14 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P2_uux_ttxuux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -576,9 +576,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ u u~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uux_ttxuux 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 14 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 14 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P2_uxux_ttxuxux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -587,9 +587,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: u~ u~ > t t~ u~ u~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uxux_ttxuxux 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 14 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 14 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P2_uc_ttxuc 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -598,9 +598,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: u c > t t~ u c WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uc_ttxuc 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P2_uux_ttxccx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -609,9 +609,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ c c~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uux_ttxccx 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P2_ucx_ttxucx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -620,9 +620,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: u c~ > t t~ u c~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group ucx_ttxucx 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P2_uxcx_ttxuxcx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -631,9 +631,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: u~ c~ > t t~ u~ c~ WEIGHTED<=4 @2 
 INFO: Finding symmetric diagrams for subprocess group uxcx_ttxuxcx 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 7 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P1_gu_ttxu 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -642,9 +642,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g u > t t~ u WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group gu_ttxu 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 5 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 5 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P1_gux_ttxux 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -653,9 +653,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g u~ > t t~ u~ WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group gux_ttxux 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 5 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 5 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P1_uux_ttxg 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -664,9 +664,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ g WEIGHTED<=3 @1 
 INFO: Finding symmetric diagrams for subprocess group uux_ttxg 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 5 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 5 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P0_gg_ttx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -675,9 +675,9 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g g > t t~ WEIGHTED<=2 
 INFO: Finding symmetric diagrams for subprocess group gg_ttx 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 3 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1572][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 3 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1651][0m [0m
 INFO: Creating files in directory P0_uux_ttx 
 [1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1156][0m [0m
 INFO: Creating files in directory . 
@@ -686,25 +686,25 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: u u~ > t t~ WEIGHTED<=2 
 INFO: Finding symmetric diagrams for subprocess group uux_ttx 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 1 [1;30m[model_handling.py at line 1547][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1} [1;30m[model_handling.py at line 1571][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1} [1;30m[model_handling.py at line 1572][0m [0m
-Generated helas calls for 18 subprocesses (372 diagrams) in 1.276 s
-Wrote files for 810 helas calls in 2.740 s
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 1 [1;30m[model_handling.py at line 1626][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1} [1;30m[model_handling.py at line 1650][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1} [1;30m[model_handling.py at line 1651][0m [0m
+Generated helas calls for 18 subprocesses (372 diagrams) in 1.274 s
+Wrote files for 810 helas calls in 2.745 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.330 s
+ALOHA: aloha creates 5 routines in  0.324 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.408 s
+ALOHA: aloha creates 10 routines in  0.300 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -820,16 +820,16 @@ patching file driver.f
 patching file matrix1.f
 Hunk #1 succeeded at 74 (offset 3 lines).
 Hunk #2 succeeded at 278 (offset 51 lines).
-[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 265][0m [0m
+[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 266][0m [0m
 Output to directory /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j done.
 Type "launch" to generate events from this process, or see
 /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m10.645s
-user	0m9.569s
-sys	0m0.943s
+real	0m10.528s
+user	0m9.554s
+sys	0m0.941s
 Code generation completed in 11 seconds
 ************************************************************
 *                                                          *
@@ -843,7 +843,7 @@ Code generation completed in 11 seconds
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.3                                    *
+*         VERSION 3.6.0                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -873,7 +873,7 @@ launch in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.3                                    *
+*         VERSION 3.6.0                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
