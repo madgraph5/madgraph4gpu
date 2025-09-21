@@ -115,8 +115,8 @@ done
 function checklogs()
 {
   cd $scrdir/..
-  # Print out any errors in the logs
-  if ! egrep -i '(error|fault|failed)' ./tput/logs_* -r; then echo "No errors found in logs"; fi
+  # Print out any errors in the logs (exclude scaling logs)
+  if ! egrep -i '(error|fault|failed)' ./tput/logs_*/*.txt; then echo "No errors found in logs"; fi
   # Print out any FPEs or '{ }' in the logs
   echo
   if ! egrep '(^Floating Point Exception|{ })' tput/logs* -r; then echo "No FPEs or '{ }' found in logs"; fi
@@ -125,6 +125,14 @@ function checklogs()
   txt=$(grep Abort ./tput/logs_*/*.txt | sed "s|\:.*SubProcesses/P|: P|")
   if [ "${txt}" == "" ]; then
     echo "No aborts found in logs"
+  else
+    echo "${txt}"
+  fi
+  # Print out any asserts/aborts in scaling logs
+  echo
+  txt=$(egrep -i '(abort|assert)' ./tput/logs_*/*.scaling | sed "s|\:.*SubProcesses/P|: P|" | sort -u)
+  if [ "${txt}" == "" ]; then
+    echo "No aborts or asserts found in scaling logs"
   else
     echo "${txt}"
   fi
@@ -268,10 +276,10 @@ ended8="$cmd\nENDED(8) AT $(date) [Status=$status]"
 
 # (+24: 138/138) Six extra logs (double/mixed/float x hrd0/hrd1 x inl0) only in the four BSM processes [bsm==1]
 cmd="./tput/teeThroughputX.sh -dmf -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb ${makeclean} ${opts}"
-tmp3=$(mktemp)
+tmp9=$(mktemp)
 if [ "${bsm}" == "1" ]; then
   $cmd; status=$?
-  ls -ltr susy_gg_tt${suff}/lib/build.none_*_inl0_hrd* susy_gg_t1t1${suff}/lib/build.none_*_inl0_hrd* smeft_gg_tttt${suff}/lib/build.none_*_inl0_hrd* heft_gg_bb${suff}/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp2
+  ls -ltr susy_gg_tt${suff}/lib/build.none_*_inl0_hrd* susy_gg_t1t1${suff}/lib/build.none_*_inl0_hrd* smeft_gg_tttt${suff}/lib/build.none_*_inl0_hrd* heft_gg_bb${suff}/lib/build.none_*_inl0_hrd* | egrep -v '(total|\./|\.build|_common|^$)' > $tmp9
 else
   cmd="SKIP '$cmd'"; echo $cmd; status=$?
 fi
@@ -283,6 +291,9 @@ cat $tmp1
 echo
 echo "Build(3):"
 cat $tmp3
+echo
+echo "Build(9):"
+cat $tmp9
 echo
 echo -e "$started"
 echo -e "$ended1"
