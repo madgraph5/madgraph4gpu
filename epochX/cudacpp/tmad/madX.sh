@@ -485,6 +485,7 @@ unset GTEST_ROOT
 unset LOCALGTEST
 
 export HASBLAS=hasBlas
+echo HASBLAS=${HASBLAS}
 
 for suff in $suffs; do
 
