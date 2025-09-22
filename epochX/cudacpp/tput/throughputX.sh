@@ -756,7 +756,7 @@ for exe in $exes; do
     exeArgs="-p 1 256 2"
     ncuArgs="-p 1 256 1"
     # For smeftggtttt, use the same settings as for ggttggg (may be far too short!)
-    exeArgs2="-p 64 256 1"
+    ###exeArgs2="-p 64 256 1" # Sep 2025: aborts (and not needed as the plateau is reached earlier) with helicity streams and diagram kernel splitting
   elif [ "${exe%%/susy_gg_tt*}" != "${exe}" ]; then 
     # For susyggtt, use the same settings as for SM ggtt
     exeArgs="-p 2048 256 2"
@@ -770,27 +770,27 @@ for exe in $exes; do
     exeArgs="-p 64 256 10"
     ncuArgs="-p 64 256 1"
     # For gqttq, use the same settings as for ggttg
-    exeArgs2="-p 2048 256 1"
+    ###exeArgs2="-p 2048 256 1" # Sep 2025: remove this for consistency as all others were removed (and not needed as the plateau is reached earlier)
   elif [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
     # For ggttggg: this is far too little for GPU (4.8E2), but it keeps the CPU to a manageble level (1sec with 512y)
     ###exeArgs="-p 1 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
     exeArgs="-p 1 256 2"
     ncuArgs="-p 1 256 1"
     # For ggttggg: on GPU test also "64 256" to reach the plateau (only ~5% lower than "2048 256": 1.18E4 vs 1.25E4 on cuda116/gcc102)
-    exeArgs2="-p 64 256 1"
+    ###exeArgs2="-p 64 256 1" # Sep 2025: aborts (and not needed as the plateau is reached earlier) with helicity streams and diagram kernel splitting
   elif [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
     # For ggttgg (OLD): this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     exeArgs="-p 64 256 1"
     ncuArgs="-p 64 256 1"
     # For ggttgg (NEW): on GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
-    ###exeArgs2="-p 2048 256 1" # Sep 2025: this aborts (and is not needed as the plateau is reached earlier) with helicity streams
+    ###exeArgs2="-p 2048 256 1" # Sep 2025: aborts (and not needed as the plateau is reached earlier) with helicity streams
   elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then 
     # For ggttg, as on ggttgg: this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     ###exeArgs="-p 64 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
     exeArgs="-p 64 256 10"
     ncuArgs="-p 64 256 1"
     # For ggttg, as on ggttgg: on GPU test both "64 256" and "2048 256" for ggttg as the latter gives ~10% higher throughput on cuda110/gcc92
-    exeArgs2="-p 2048 256 1"
+    ###exeArgs2="-p 2048 256 1" # Sep 2025: aborts (and not needed as the plateau is reached earlier) with helicity streams and diagram kernel splitting
   elif [ "${exe%%/gg_tt*}" != "${exe}" ]; then 
     ###exeArgs="-p 2048 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
     exeArgs="-p 2048 256 2"
