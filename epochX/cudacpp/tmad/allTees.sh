@@ -100,7 +100,7 @@ for f in ${scrdir}/logs_*_mad/log_*; do echo $(cat $f | grep OK  | wc -l) $f; do
 
 # Print out any errors or aborts in the logs
 echo
-txt=$(egrep -i '(error|abort)' tmad/logs* -r | sed 's/:0:rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/')
+txt=$(egrep -i '(error|abort)' tmad/logs* -r | sed 's/:0:rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/' | sed "s/Gpu.*Assert/Assert/")
 if [ "${txt}" == "" ]; then
   echo "No errors or aborts found in logs"
 else
