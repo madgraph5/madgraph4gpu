@@ -251,11 +251,11 @@ function getgridmax()
   elif [ "${ggtt}" == "1" ]; then 
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${ggttg}" == "1" ]; then
-    echo 16384 32 # same total grid dimension as 2048 256
+    echo 8192 32 # same total grid dimension as 1024 256 (new sep2025)
   elif [ "${ggttgg}" == "1" ]; then
     echo 512 32 # same total grid dimension as 64 256 (new sep2025: even 1024/32 aborts in max8thr mode)
   elif [ "${ggttggg}" == "1" ]; then
-    echo 512 32 # same total grid dimension as 64 256
+    echo 256 32 # same total grid dimension as 32 256 (new sep2025)
   elif [ "${gguu}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${gqttq}" == "1" ]; then
@@ -267,7 +267,7 @@ function getgridmax()
   elif [ "${susyggt1t1}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${smeftggtttt}" == "1" ]; then
-    echo 16384 32 # same total grid dimension as 2048 256
+    echo 4096 32 # same total grid dimension as 512 256 (new sep2025)
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
