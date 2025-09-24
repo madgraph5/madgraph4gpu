@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2025) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef MATRIXELEMENTKERNELS_H
 #define MATRIXELEMENTKERNELS_H 1
@@ -137,7 +137,7 @@ namespace mg5amcCpu
 
     // Does this host system support the SIMD used in the matrix element calculation?
     // [NB: this is private, SIMD vectorization in mg5amc C++ code is currently only used in the ME calculations below MatrixElementKernelHost!]
-    static bool hostSupportsSIMD( const bool verbose = true );
+    static bool hostSupportsSIMD( const bool verbose = false ); // ZW: default verbose false
 
   private:
 
@@ -218,6 +218,20 @@ namespace mg5amcCpu
     // The **host** buffer for the channelId array
     // FIXME? MEKD should accept a host buffer as an argument instead of a device buffer, so that a second copy can be avoided?
     PinnedHostBufferChannelIds m_hstChannelIds;
+#endif
+
+#ifndef MGONGPU_HAS_NO_BLAS
+    // Decide at runtime whether to use BLAS for color sums
+    bool m_blasColorSum;
+
+    // Decide at runtime whether TF32TENSOR math should be used in cuBLAS
+    bool m_blasTf32Tensor;
+
+    // The super-buffer of nGoodHel cuBLAS/hipBLAS temporary buffers
+    std::unique_ptr<DeviceBufferSimple2> m_pHelBlasTmp;
+
+    // The array of cuBLAS/hipBLAS handles (one for each good helicity)
+    gpuBlasHandle_t m_helBlasHandles[CPPProcess::ncomb]; // reserve ncomb streams (but only nGoodHel <= ncomb will be used)
 #endif
 
     // The array of GPU streams (one for each good helicity)
