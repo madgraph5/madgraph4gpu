@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Roiser (Nov 2021) for the MG5aMC CUDACPP plugin.
 // Further modified by: S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2021-2025) for the MG5aMC CUDACPP plugin.
@@ -270,7 +270,7 @@ namespace mg5amcCpu
     // FIXME: the process instance can happily go out of scope because it is only needed to read parameters?
     // FIXME: the CPPProcess should really be a singleton? what if fbridgecreate is called from several Fortran threads?
     CPPProcess process( /*verbose=*/false );
-    std::string paramCard = "../../Cards/param_card.dat";
+    std::string paramCard = "../Cards/param_card.dat"; // ZW: change default param_card.dat location to one dir down
     /*
 #ifdef __HIPCC__
     if( !std::experimental::filesystem::exists( paramCard ) ) paramCard = "../" + paramCard;
@@ -282,7 +282,12 @@ namespace mg5amcCpu
     //if( !( stat( paramCard.c_str(), &dummyBuffer ) == 0 ) ) paramCard = "../" + paramCard; //
     auto fileExists = []( std::string& fileName )
     { struct stat buffer; return stat( fileName.c_str(), &buffer ) == 0; };
-    if( !fileExists( paramCard ) ) paramCard = "../" + paramCard; // bypass std::filesystem #803
+    size_t paramCardCheck = 2; // ZW: check for paramCard up to 2 directories up
+    for( size_t k = 0 ; k < paramCardCheck ; ++k )
+    {
+      if( fileExists( paramCard ) ) break;  // bypass std::filesystem #803
+      paramCard = "../" + paramCard;
+    }
     process.initProc( paramCard );
   }
 
