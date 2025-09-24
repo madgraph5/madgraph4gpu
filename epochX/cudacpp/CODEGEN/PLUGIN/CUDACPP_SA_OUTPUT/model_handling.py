@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 import os
 import sys
@@ -211,7 +211,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             output = '%(doublec)s allvertexes[]' % {
                 'doublec': self.type2def['double']}
             comment_output = 'amplitude \'vertex\''
-            template = 'template<class W_ACCESS, class A_ACCESS, class C_ACCESS>'
+            template = 'template<class W_ACCESS, class A_ACCESS, class CD_ACCESS>'
         else:
             output = '%(doublec)s all%(spin)s%(id)d[]' % {
                      'doublec': self.type2def['double'],
@@ -219,7 +219,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
-            template = 'template<class W_ACCESS, class C_ACCESS>'
+            template = 'template<class W_ACCESS, class CD_ACCESS>'
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
         indent = ' ' * len( '  %s( ' % name )
         out.write('  %(comment)s\n  %(template)s\n  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
@@ -258,7 +258,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if type.startswith('list'):
                 out.write('    const %s* %s = W_ACCESS::kernelAccessConst( all%s );\n' % ( self.type2def[type[5:]+'_v'], name, name ) )
             if name.startswith('COUP'): # AV from cxtype_sv to fptype array (running alphas #373)
-                out.write('    const cxtype_sv %s = C_ACCESS::kernelAccessConst( all%s );\n' % ( name, name ) )
+                out.write('    const cxtype_sv %s = CD_ACCESS::kernelAccessConst( all%s );\n' % ( name, name ) )
         if not self.offshell:
             vname = 'vertex'
             access = 'A_ACCESS'
@@ -961,9 +961,9 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupsetdpar'] = '\n'.join( dcoupsetdpar )
             dcoupsetdcoup = [ '    ' + line.replace('constexpr cxsmpl<double> ','out.').replace('mdl_complexi', 'cI') for line in self.write_hardcoded_parameters(list(self.coups_dep.values())).split('\n') if line != '' ]
             replace_dict['dcoupsetdcoup'] = '    ' + '\n'.join( dcoupsetdcoup )
-            dcoupaccessbuffer = [ '    fptype* %ss = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_%s );'%( name, name ) for name in self.coups_dep ]
+            dcoupaccessbuffer = [ '    fptype* %ss = CD_ACCESS::idcoupAccessBuffer( couplings, idcoup_%s );'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupaccessbuffer'] = '\n'.join( dcoupaccessbuffer ) + '\n'
-            dcoupkernelaccess = [ '    cxtype_sv_ref %ss_sv = C_ACCESS::kernelAccess( %ss );'%( name, name ) for name in self.coups_dep ]
+            dcoupkernelaccess = [ '    cxtype_sv_ref %ss_sv = CD_ACCESS::kernelAccess( %ss );'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupkernelaccess'] = '\n'.join( dcoupkernelaccess ) + '\n'
             dcoupcompute = [ '    %ss_sv = couplings_sv.%s;'%( name, name ) for name in self.coups_dep ]
             replace_dict['dcoupcompute'] = '\n'.join( dcoupcompute )
@@ -1300,11 +1300,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                                                     color_amplitudes[0],
                                                     multi_channel_map = multi_channel
                                                     )
+            self.diagram_code = self.helas_call_writer.diagram_code # hack? get code in helascallwriter, write it to diagrams.h in oneprocessexporter 
             ###misc.sprint( 'after get_matrix_element_calls', self.matrix_elements[0].get_number_of_wavefunctions() ) # CORRECT value of nwf, eg 5 for gg_tt
             assert len(self.matrix_elements) == 1 # how to handle if this is not true?
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
             ret_lines.append("""
+#include \"diagrams.h\"
+
+  //--------------------------------------------------------------------------
+
   // Evaluate QCD partial amplitudes jamps for this given helicity from Feynman diagrams
   // Also compute running sums over helicities adding jamp2, numerator, denominator
   // (NB: this function no longer handles matrix elements as the color sum has now been moved to a separate function/kernel)
@@ -1313,98 +1318,169 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // ** NB2: NEW Nov2024! in CUDA this now takes a channelId array as input (it used to take a scalar channelId as input)
   // In C++, this function processes a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
   // *** NB: in C++, calculate_jamps accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
-  __global__ void /* clang-format off */
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+  INLINE void
   calculate_jamps( int ihel,
                    const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
-#ifdef MGONGPUCPP_GPUIMPL
-                   fptype_sv* allJamps,               // output: jamp[ncolor*2*nevt] for this helicity
+                   fptype* allJamps,                  // output: jamp[ncolor*2*nevt] for this helicity
+                   fptype* allWfs,                    // output: wf[nwf*nw6*2*nevt]
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                    const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE (#899/#911)
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
-                   fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
 #endif
-                   const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                   gpuStream_t gpustream,             // input: cuda stream for this helicity
+                   const int gpublocks,               // input: cuda gpublocks
+                   const int gputhreads )             // input: cuda gputhreads
 #else
-                   cxtype_sv* allJamp_sv,             // output: jamp_sv[ncolor] (float/double) or jamp_sv[2*ncolor] (mixed) for this helicity
+  INLINE void
+  calculate_jamps( int ihel,
+                   const fptype* allmomenta,          // input: momenta[nevt*npar*4]
+                   const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
+                   cxtype_sv* jamp_sv,                // output: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
+                   const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for SIMD event page(s) ievt00
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
-                   fptype_sv* jamp2_sv,               // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #endif
-                   const int ievt00                   // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                   const int ievt00 )                 // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
 #endif
-                   )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
 #ifdef MGONGPUCPP_GPUIMPL
-    using namespace mg5amcGpu;
-    using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
-    using W_ACCESS = DeviceAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
-    using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
-    using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
 #endif
 #else
-    using namespace mg5amcCpu;
     using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
-    using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
-    using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
 #endif
-#endif
-    mgDebug( 0, __FUNCTION__ );
-    //bool debug = true;
+#endif /* clang-format on */
+
+    // ----------------------------
+    // --- WAVEFUNCTION BUFFERS ---
+    // ----------------------------
 #ifndef MGONGPUCPP_GPUIMPL
-    //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
-    //if( debug ) printf( \"calculate_jamps: ievt00=%d ihel=%2d\\n\", ievt00, ihel );
-#else
-    //const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-    //debug = ( ievt == 0 );
-    //if( debug ) printf( \"calculate_jamps: ievt=%6d ihel=%2d\\n\", ievt, ihel );
-#endif /* clang-format on */""")
-            nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
-            ret_lines.append("""
-    // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
-    // It is hardcoded here because various attempts to hardcode it in CPPProcess.h at generation time gave the wrong result...
-    static const int nwf = %i; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)"""%nwavefuncs )
-            ret_lines.append("""
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
-    // ** NB: in other words, amplitudes and wavefunctions still have TRIVIAL ACCESS: there is currently no need
-    // ** NB: to have large memory structurs for wavefunctions/amplitudes in all events (no kernel splitting yet)!
-    //MemoryBufferWavefunctions w_buffer[nwf]{ neppV };
+    // ** NB: wavefunctions only need TRIVIAL ACCESS in C++ code
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
-    cxtype_sv amp_sv[1];      // invariant amplitude for one given Feynman diagram
-
-    // Proof of concept for using fptype* in the interface
-    fptype* w_fp[nwf];
-    for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
-    fptype* amp_fp;
-    amp_fp = reinterpret_cast<fptype*>( amp_sv );
-
-    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
-    // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
-    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
+    fptype* wfs = reinterpret_cast<fptype*>( w_sv );
+#else
+    // Global-memory variables for a subset of Feynman diagrams in the given CUDA event (ievt)
+    // ** NB: wavefunctions need non-trivial access in CUDA code because of kernel splitting
+    fptype* wfs = allWfs;
+#endif
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
 
-    // START LOOP ON IPARITY
+    // *****************************
+    // *** START LOOP ON IPARITY ***
+    // *****************************
     for( int iParity = 0; iParity < nParity; ++iParity )
     {
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
-#endif""")
+#endif
+
+      // -----------------
+      // --- COUPLINGS ---
+      // -----------------
+#ifdef MGONGPUCPP_GPUIMPL
+      // CUDA diagram kernels take input/output buffers with couplings "fptype* couplings" for all events
+      const fptype* couplings = allcouplings;
+#else
+      // C++ diagram kernels take input/output buffers with couplings "fptype** COUPs" for a single event or SIMD vector
+      constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823: nIPC instead of nicoup)
+      const fptype* allCOUPs[nxcoup];
+      const fptype* COUPs[nxcoup];
+      // Dependent couplings, vary event-by-event
+      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
+        allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup );
+      // Independent couplings, fixed for all events
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // (FIX #823: nIPC instead of nicoup)
+        allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup );
+      // Dependent couplings, vary event-by-event
+      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
+        COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 );
+      // Independent couplings, fixed for all events
+      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ ) // (FIX #823: nIPC instead of nicoup)
+        COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup];
+#endif
+
+      // ---------------
+      // --- MOMENTA ---
+      // ---------------
+#ifdef MGONGPUCPP_GPUIMPL
+      // CUDA diagram kernels take input/output buffers with momenta for all events
+      const fptype* momenta = allmomenta;
+#else
+      // C++ diagram kernels take input/output buffers with momenta for a single event or SIMD vector
+      const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
+#endif
+      // -------------
+      // --- JAMPS ---
+      // -------------
+      // (Note: no need to 'reset color flows' i.e. zero allJamps, this is done in sigmaKin and sigmaKin_getGoodHel)
+#ifdef MGONGPUCPP_GPUIMPL
+      // In CUDA, write jamps to the output global-memory allJamps [for all events] passed as argument
+      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
+      fptype* jamps = allJamps;
+#else
+      // In C++, write jamps to the output array [for one specific event or SIMD vector] passed as argument
+      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
+      fptype* jamps = reinterpret_cast<fptype*>( iParity == 0 ? jamp_sv : &( jamp_sv[ncolor] ) );
+#endif
+
+      // ------------------
+      // --- CHANNELIDS ---
+      // ------------------
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#ifdef MGONGPUCPP_GPUIMPL
+      // CUDA diagram kernels take input/output buffers with channelIDs for all events
+      const unsigned int* channelIds = allChannelIds;
+#else
+      // C++ diagram kernels take input/output buffers with a single SCALAR channelID for all events in a given SIMD vector
+      const unsigned int* channelIds = &channelId;
+#endif
+#else
+      // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
+      // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
+      const unsigned int* channelIds = nullptr;
+#endif
+
+      // -------------------------------
+      // --- NUMERATORS/DENOMINATORS ---
+      // -------------------------------
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#ifdef MGONGPUCPP_GPUIMPL
+      // CUDA diagram kernels take input/output buffers with numerators/denominators for all events
+      fptype* numerators = allNumerators;
+      fptype* denominators = allDenominators;
+#else
+      // C++ diagram kernels take input/output buffers with numerators/denominators for a single event or SIMD vector
+      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+      fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
+#endif
+#else
+      // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
+      // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
+      fptype* numerators = nullptr;
+      fptype* denominators = nullptr;
+#endif
+
+      // ------------------------
+      // --- FEYNMAN DIAGRAMS ---
+      // ------------------------""")
+            self.nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions() # this was for nwf in CPPProcess.cc: now keep it for CPPProcess.h
             ret_lines += helas_calls
         else:
             ret_lines.extend([self.get_sigmaKin_single_process(i, me) \
@@ -1468,6 +1544,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 PLUGIN_export_cpp.cp( ref, self.path + '/../../test/ref' )
             ###else:
                 ###misc.sprint( 'Test reference file does not exist and will not be copied: ', ref )
+        # Set the value of nwf in CPPProcess.h after generating CPPProcess.cc (workaround for #644)
+        cppprocess_h = os.path.join(self.path, self.include_dir, '%s.h' % self.process_class)
+        with open(cppprocess_h, 'r') as file: data = file.read().replace('__NWF__', '%d'%self.nwavefuncs) 
+        with open(cppprocess_h, 'w') as file: file.write(data)
+        # Generate diagram headers after generating CPPProcess.cc
+        self.edit_diagrams(self.diagram_code)
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
@@ -1536,6 +1618,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # Extract color matrix again (this was also in get_matrix_single_process called within get_all_sigmaKin_lines)
         replace_dict['color_matrix_lines'] = self.get_color_matrix_lines(self.matrix_elements[0])
         ff = open(pjoin(self.path, 'color_sum.cc'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # AV - new method
+    def edit_diagrams(self, diagrams):
+        """Generate diagrams.h"""
+        ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams')
+        template = open(pjoin(self.template_path,'gpu','diagram_h.inc'),'r').read()
+        replace_dict = {}
+        replace_dict['code'] = ''.join(diagrams) # all diagrams to a single file
+        ff = open(pjoin(self.path, 'diagrams.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
 
@@ -1877,6 +1970,103 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     def format_call(call):
         return call.replace('(','( ').replace(')',' )').replace(',',', ')
 
+    # AV - new method
+    def get_one_diagram_code(self, diagram, id_amp, multi_channel_map, diag_to_config, color, ndiagrams):
+        res = []
+        idiagram = diagram.get('number')
+        ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
+        ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
+        # 1 - Header
+        if idiagram == 1:
+            res.append("""
+  __global__ void
+  diagram1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
+            fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
+            const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
+#ifdef MGONGPUCPP_GPUIMPL
+            const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
+#else
+            const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
+#endif
+            fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
+            fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+            const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
+            const int ihel )                // input: helicity (0 to ncomb)
+  {
+    // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
+    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
+#include \"diagram_boilerplate.h\"
+#ifdef MGONGPUCPP_GPUIMPL
+    using M_ACCESS = DeviceAccessMomenta; // non-trivial access: buffer includes all events
+#else
+    using M_ACCESS = HostAccessMomenta; // non-trivial access: buffer includes all events
+#endif""")
+        else:
+            sidiag = '%i'%idiagram
+            indent = ' '*(len(sidiag)-1)
+            res.append("""
+
+  __global__ void
+  diagram%s( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
+%s            fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
+%s            const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
+#ifdef MGONGPUCPP_GPUIMPL
+%s            const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
+#else
+%s            const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
+#endif
+%s            fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
+%s            fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+  {
+    // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
+    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
+#include \"diagram_boilerplate.h\""""%(sidiag,indent,indent,indent,indent,indent,indent))
+        # 2 - Core code
+        res.append('    // *** DIAGRAM %i OF %i ***' % ( idiagram, ndiagrams ) ) # AV
+        res.append('    // Wavefunction(s) for diagram number %d' % idiagram) # AV
+        for wf in diagram.get('wavefunctions'):
+            wfline =  '    '+self.get_wavefunction_call(wf) # AV new: add formatting
+            if wfline[-1] == '\n': wfline = wfline[:-1]
+            res.append( wfline )
+        if len(diagram.get('wavefunctions')) == 0 : res.append('    // (none)') # AV
+        res.append('    // Amplitude(s) for diagram number %d' % idiagram)
+        for amplitude in diagram.get('amplitudes'):
+            id_amp +=1
+            namp = amplitude.get('number')
+            amplitude.set('number', 1)
+            res.append('    '+self.get_amplitude_call(amplitude)) # AV new: add formatting
+            if multi_channel_map: # different code bases #473 (assume this is the same as self.include_multi_channel...)
+                if id_amp in diag_to_config:
+                    ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
+                    ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
+                    res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                    res.append("    if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % idiagram)
+                    res.append("    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
+                    res.append("#endif")
+            else:
+                res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
+                res.append("    // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
+                res.append("#endif")
+            for njamp, coeff in color[namp].items():
+                scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
+                if scoeff[0] == '+' : scoeff = scoeff[1:]
+                scoeff = scoeff.replace('(','( ')
+                scoeff = scoeff.replace(')',' )')
+                scoeff = scoeff.replace(',',', ')
+                scoeff = scoeff.replace('*',' * ')
+                scoeff = scoeff.replace('/',' / ')
+                if scoeff.startswith('-'):
+                    res.append('    J_ACCESS::kernelAccessIcol( jamps, %s ) -= %samp_sv[0];' % (njamp, scoeff[1:]))
+                else:
+                    res.append('    J_ACCESS::kernelAccessIcol( jamps, %s ) += %samp_sv[0];' % (njamp, scoeff))
+        if len(diagram.get('amplitudes')) == 0 : res.append('    // (none)') # AV
+        # 3 - Footer
+        res.append("""  }
+  
+  //--------------------------------------------------------------------------""")
+        # Return
+        return res, id_amp
+
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
     def super_get_matrix_element_calls(self, matrix_element, color_amplitudes, multi_channel_map=False):
         """Return a list of strings, corresponding to the Helas calls for the matrix element"""
@@ -1900,57 +2090,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         ###misc.sprint(multi_channel_map)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        res.append("""//constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
-      constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
-      const fptype* allCOUPs[nxcoup];
-#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
-#pragma nv_diagnostic push
-#pragma nv_diag_suppress 186 // e.g. <<warning #186-D: pointless comparison of unsigned integer with zero>>
-#endif
-      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
-        allCOUPs[idcoup] = CD_ACCESS::idcoupAccessBufferConst( allcouplings, idcoup ); // dependent couplings, vary event-by-event
-      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ )                             // BUG #823
-      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )                                 // FIX #823
-        allCOUPs[ndcoup + iicoup] = CI_ACCESS::iicoupAccessBufferConst( cIPC, iicoup ); // independent couplings, fixed for all events
-#ifdef MGONGPUCPP_GPUIMPL
-#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
-#pragma nv_diagnostic pop
-#endif
-      // CUDA kernels take input/output buffers with momenta/MEs for all events
-      const fptype* momenta = allmomenta;
-      const fptype* COUPs[nxcoup];
-      for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* numerators = allNumerators;
-      fptype* denominators = allDenominators;
-#endif
-#else
-      // C++ kernels take input/output buffers with momenta/MEs for one specific event (the first in the current event page)
-      const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
-      const fptype* COUPs[nxcoup];
-      for( size_t idcoup = 0; idcoup < ndcoup; idcoup++ )
-        COUPs[idcoup] = CD_ACCESS::ieventAccessRecordConst( allCOUPs[idcoup], ievt0 ); // dependent couplings, vary event-by-event
-      //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ ) // BUG #823
-      for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )     // FIX #823
-        COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
-      fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
-#endif
-#endif
-
-      // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
-      for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
-
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#ifdef MGONGPUCPP_GPUIMPL
-      // SCALAR channelId for the current event (CUDA)
-      unsigned int channelId = gpu_channelId( allChannelIds );
-#endif
-      // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
-      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
-      fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-#endif""")
         diagrams = matrix_element.get('diagrams')
         diag_to_config = {}
         if multi_channel_map:
@@ -1960,45 +2099,22 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                        idiag in multi_channel_map[config]], [])]
                 diag_to_config[amp[0]] = config
         ###misc.sprint(diag_to_config)
+        res.append('\n      // *** DIAGRAMS 1 TO %d ***' % (len(matrix_element.get('diagrams'))) ) # AV
+        res.append('#ifdef MGONGPUCPP_GPUIMPL')
+        for idiagram in range(1,len(matrix_element.get('diagrams'))+1):
+            if idiagram == 1: res.append('gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );')
+            else: res.append('gpuLaunchKernelStream( diagram%i, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );'%idiagram)
+        res.append('#else')
+        for idiagram in range(1,len(matrix_element.get('diagrams'))+1):
+            if idiagram == 1: res.append('diagram1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );')
+            else: res.append('diagram%i( wfs, jamps, channelIds, COUPs, numerators, denominators );'%idiagram)
+        res.append('#endif')
+        # Generate diagram code
+        self.diagram_code = []
         id_amp = 0
         for diagram in matrix_element.get('diagrams'):
-            ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
-            ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
-            res.append('\n      // *** DIAGRAM %d OF %d ***' % (diagram.get('number'), len(matrix_element.get('diagrams'))) ) # AV
-            res.append('\n      // Wavefunction(s) for diagram number %d' % diagram.get('number')) # AV
-            res.extend([ self.get_wavefunction_call(wf) for wf in diagram.get('wavefunctions') ]) # AV new: avoid format_call
-            if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
-            if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
-            res.append('\n      // Amplitude(s) for diagram number %d' % diagram.get('number'))
-            for amplitude in diagram.get('amplitudes'):
-                id_amp +=1
-                namp = amplitude.get('number')
-                amplitude.set('number', 1)
-                res.append(self.get_amplitude_call(amplitude)) # AV new: avoid format_call
-                if multi_channel_map: # different code bases #473 (assume this is the same as self.include_multi_channel...)
-                    if id_amp in diag_to_config:
-                        ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
-                        ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
-                        res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                        res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
-                        res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
-                        res.append("#endif")
-                else:
-                    res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                    res.append("// Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)")
-                    res.append("#endif")
-                for njamp, coeff in color[namp].items():
-                    scoeff = PLUGIN_OneProcessExporter.coeff(*coeff) # AV
-                    if scoeff[0] == '+' : scoeff = scoeff[1:]
-                    scoeff = scoeff.replace('(','( ')
-                    scoeff = scoeff.replace(')',' )')
-                    scoeff = scoeff.replace(',',', ')
-                    scoeff = scoeff.replace('*',' * ')
-                    scoeff = scoeff.replace('/',' / ')
-                    if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
-                    else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
-            if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
-        ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR MATRIX BELOW')
+            res_diagram, id_amp = self.get_one_diagram_code(diagram, id_amp, multi_channel_map, diag_to_config, color, len(matrix_element.get('diagrams')))
+            self.diagram_code.append( '\n'.join(res_diagram) )
         return res
 
     # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
@@ -2170,8 +2286,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if usesdepcoupl is None: raise Exception('PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?')
             elif usesdepcoupl: caccess = 'CD_ACCESS'
             else: caccess = 'CI_ACCESS'
-            ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, C_ACCESS>'
-            ###else : arg['routine_name'] += '<W_ACCESS, C_ACCESS>'
+            ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, CD_ACCESS>'
+            ###else : arg['routine_name'] += '<W_ACCESS, CD_ACCESS>'
             if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s>'%caccess
             else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess
             if isinstance(argument, helas_objects.HelasWavefunction):

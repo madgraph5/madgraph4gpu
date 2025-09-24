@@ -1,10 +1,10 @@
 ! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 ! Created by: J. Alwall (Jul 2010) for the MG5aMC CPP backend.
 !==========================================================================
-! Copyright (C) 2020-2024 CERN and UCLouvain.
+! Copyright (C) 2020-2025 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-! Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+! Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 #include "GpuAbstraction.h"
 
@@ -46,20 +46,29 @@
 
     // *** START OF PART 1a - CUDA (one event per GPU thread) ***
     // Use CUDA/HIP streams to process different helicities in parallel (one good helicity per stream)
-    // (1) First, within each helicity stream, compute the QCD partial amplitudes jamp's for each helicity
+    // (1a) First, within each helicity stream, compute the QCD partial amplitudes jamp's for each helicity
     // In multichannel mode, also compute the running sums over helicities of numerators, denominators and squared jamp2s
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
       fptype* hAllJamps = ghelAllJamps + ighel * nevt * ncolor * mgOnGpu::nx2;
+      fptype* hAllWfs = ghelAllWfs + ighel * nwf * nevt * nw6 * mgOnGpu::nx2;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
-      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
+      calculate_jamps( ihel, allmomenta, allcouplings, hAllJamps, hAllWfs, allChannelIds, hAllNumerators, hAllDenominators, ghelStreams[ighel], gpublocks, gputhreads );
 #else
-      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );
+      calculate_jamps( ihel, allmomenta, allcouplings, hAllJamps, hAllWfs, ghelStreams[ighel], gpublocks, gputhreads );
 #endif
     }
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    // (1b) Then, In multichannel mode, also compute the running sums over helicities of squared jamp2s within each helicity stream
+    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+    {
+      fptype* hAllJamps = ghelAllJamps + ighel * nevt * ncolor * mgOnGpu::nx2;
+      gpuLaunchKernelStream( update_jamp2s, gpublocks, gputhreads, ghelStreams[ighel], hAllJamps, colAllJamp2s );
+    }
+#endif
     // (2) Then, within each helicity stream, compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
     if( !ghelBlasHandles )
       assert( ghelAllBlasTmp == nullptr ); // HASBLAS=hasNoBlas or CUDACPP_RUNTIME_BLASCOLORSUM not set
@@ -178,7 +187,7 @@
         cxtype_sv jamp_sv[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, ievt00 );
 #else
         calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 );
 #endif
@@ -187,6 +196,10 @@
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
+        using J_ACCESS = HostAccessJamp;
+        for( int iParity = 0; iParity < nParity; ++iParity )
+          for( int icol = 0; icol < ncolor; icol++ )
+            jamp2_sv[ncolor * iParity + icol] += cxabs2( J_ACCESS::kernelAccessIcol( &( jamp_sv[ncolor * iParity] ), icol ) ); // may underflow #831
       }
       // Event-by-event random choice of helicity #403
       for( int ieppV = 0; ieppV < neppV; ++ieppV )

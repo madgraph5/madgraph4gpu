@@ -629,7 +629,8 @@ function runNcu() {
   args="$args$rndgen$rmbsmp"
   echo "runNcu $exe1 $args"
   ###echoblas=1
-  kernels="calculate_jamps color_sum_kernel"
+  ###kernels="calculate_jamps color_sum_kernel" # before kernel splitting
+  kernels="diagram1 diagram2 color_sum_kernel" # with kernel splitting
   ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels kernel"; fi # heavy to profile...
   ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels regex:gemm"; fi # output to be improved...
   for kernel in $kernels; do
