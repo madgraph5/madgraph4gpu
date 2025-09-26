@@ -363,6 +363,7 @@ class SIMD_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
         return args
 
 class FortranExporterBridge(export_v4.ProcessExporterFortranMEGroup):
+    _file_path = export_v4._file_path
 
     def write_auto_dsig_file(self, writer, matrix_element, proc_id = ""):
         replace_dict,context = super().write_auto_dsig_file(False, matrix_element, proc_id)
@@ -401,15 +402,117 @@ class FortranExporterBridge(export_v4.ProcessExporterFortranMEGroup):
 #endif
 CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1"""
         replace_dict["OMP_POSTFIX"] = open(pjoin(PLUGINDIR,'madgraph','iolibs','template_files','gpu','smatrix_multi.f')).read().split('\n',4)[4] # AV skip 4 copyright lines
-        _file_path = export_v4._file_path
         if writer:
-            file = open(pjoin(_file_path, 'iolibs/template_files/auto_dsig_v4.inc')).read()
+            file = open(pjoin(self._file_path, 'iolibs/template_files/auto_dsig_v4.inc')).read()
             file = file % replace_dict
             # Write the file
             writer.writelines(file, context=context)
         else:
             return replace_dict, context
 
+    def write_driver(self, writer, *args, **kwargs):
+        """Write the SubProcess/driver.f file with additions from CUDACPP"""
+        replace_dict = super().write_driver(False, *args, **kwargs)
+
+        # Additions from CUDACPP plugin (after patch)
+        replace_dict['CUDACPP_EXTRA_HEADER'] = """
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      INCLUDE 'fbridge.inc'
+      INCLUDE 'fbridge_common.inc'
+      character*255 env_name, env_value
+      integer env_length, env_status
+#else
+      INTEGER*4 FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
+      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! can be changed at runtime
+#endif
+"""
+
+        replace_dict['CUDACPP_EXTRA_INITIALISE'] = """
+#ifdef _OPENMP
+      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
+#endif
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL COUNTERS_INITIALISE()
+      fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
+      env_name = 'CUDACPP_RUNTIME_FBRIDGEMODE'
+      call get_environment_variable(env_name, env_value, env_length, env_status)
+      if( env_status.eq.0 ) then
+        write(*,*) 'Found environment variable "', trim(env_name), '" with value "', trim(env_value), '"'
+        read(env_value,'(I255)') FBRIDGE_MODE ! see https://gcc.gnu.org/onlinedocs/gfortran/ICHAR.html
+        write(*,*) 'FBRIDGE_MODE (from env) = ', FBRIDGE_MODE
+      else if( env_status.eq.1 ) then ! 1 = not defined
+        write(*,*) 'FBRIDGE_MODE (default) = ', FBRIDGE_MODE
+      else ! -1 = too long for env_value, 2 = not supported by O/S
+        write(*,*) 'ERROR! get_environment_variable failed for "', trim(env_name), '"'
+        STOP
+      endif
+      vecsize_used = vecsize_memmax ! default ! CppOnly=1, default for CUDACPP
+      env_name = 'CUDACPP_RUNTIME_VECSIZEUSED'
+      call get_environment_variable(env_name, env_value, env_length, env_status)
+      if( env_status.eq.0 ) then
+        write(*,*) 'Found environment variable "', trim(env_name), '" with value "', trim(env_value), '"'
+        read(env_value,'(I255)') VECSIZE_USED ! see https://gcc.gnu.org/onlinedocs/gfortran/ICHAR.html
+        write(*,*) 'VECSIZE_USED (from env) = ', VECSIZE_USED
+      else if( env_status.eq.1 ) then ! 1 = not defined
+        write(*,*) 'VECSIZE_USED (default) = ', VECSIZE_USED
+      else ! -1 = too long for env_value, 2 = not supported by O/S
+        write(*,*) 'ERROR! get_environment_variable failed for "', trim(env_name), '"'
+        STOP
+      endif
+      if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
+        write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
+        STOP
+      endif
+
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
+      FBRIDGE_NCBYF1 = 0
+      FBRIDGE_CBYF1SUM = 0
+      FBRIDGE_CBYF1SUM2 = 0
+      FBRIDGE_CBYF1MAX = -1D100
+      FBRIDGE_CBYF1MIN = 1D100
+#else
+      fbridge_mode = 0 ! FortranOnly=0, default for FORTRAN
+      if( fbridge_mode.ne.0 ) then
+        write(*,*) 'ERROR! Invalid fbridge_mode (in FORTRAN backend mode) = ', fbridge_mode
+        STOP
+      endif
+#endif
+"""
+
+        replace_dict['CUDACPP_EXTRA_FINALISE'] = """
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
+      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
+        WRITE(*,'(a,f10.8,a,e8.2)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MIN = ',
+     &    FBRIDGE_CBYF1MIN + 1, ' = 1 - ', -FBRIDGE_CBYF1MIN
+        WRITE(*,'(a,f10.8,a,e8.2)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MAX = ',
+     &    FBRIDGE_CBYF1MAX + 1, ' = 1 + ', FBRIDGE_CBYF1MAX
+        WRITE(*,'(a,i6)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES = ',
+     &    FBRIDGE_NCBYF1
+c        WRITE(*,'(a,e8.2)')
+c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
+c    &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1
+c       WRITE(*,'(a,e8.2)')
+c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: STD = ',
+c    &    SQRT( FBRIDGE_CBYF1SUM2 / FBRIDGE_NCBYF1 ) ! ~standard deviation
+        WRITE(*,'(a,e8.2,a,e8.2)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
+     &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1, ' +- ',
+     &    SQRT( FBRIDGE_CBYF1SUM2 ) / FBRIDGE_NCBYF1 ! ~standard error
+      ENDIF
+      CALL COUNTERS_FINALISE()
+#endif
+"""
+
+        if writer:
+            text = open(pjoin(self._file_path,'iolibs','template_files','madevent_driver.f')).read() % replace_dict
+            writer.write(text)
+            return True
+        return replace_dict
 #------------------------------------------------------------------------------------
 
 class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
