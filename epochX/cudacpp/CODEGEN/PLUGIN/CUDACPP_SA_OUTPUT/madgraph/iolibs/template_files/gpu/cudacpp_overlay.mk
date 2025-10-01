@@ -119,6 +119,23 @@ $(CUDACPP_BUILDDIR)/.cudacpplibs:
 	$(MAKE) -f $(CUDACPP_MAKEFILE)
 	touch $@
 
+# Remove per-library recipes from makefile to avoid duplicate sub-makes
+# under ../../Source running in parallel otherwise we can have race condition
+# Build the libs only via the single .libs stamp.
+
+# Ensure these targets are satisfied by building Source once
+$(LIBDIR)libmodel.$(libext)     : | .libs
+$(LIBDIR)libgeneric.$(libext)   : | .libs
+$(LIBDIR)libpdf.$(libext)       : | .libs
+$(LIBDIR)libgammaUPC.$(libext)  : | .libs
+
+# Override the recipes from makefile_orig with empty recipes
+# (GNU Make will use the last recipe it reads.)
+$(LIBDIR)libmodel.$(libext)     : ; @:
+$(LIBDIR)libgeneric.$(libext)   : ; @:
+$(LIBDIR)libpdf.$(libext)       : ; @:
+$(LIBDIR)libgammaUPC.$(libext)  : ; @:
+
 # On Linux, set rpath to LIBDIR to make it unnecessary to use LD_LIBRARY_PATH
 # Use relative paths with respect to the executables ($ORIGIN on Linux)
 # On Darwin, building libraries with absolute paths in LIBDIR makes this unnecessary
