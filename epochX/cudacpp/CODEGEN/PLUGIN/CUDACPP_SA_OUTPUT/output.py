@@ -416,25 +416,27 @@ CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1"""
 
         # Additions from CUDACPP plugin (after patch)
         replace_dict['CUDACPP_EXTRA_HEADER'] = """
-#ifdef MG5AMC_MEEXPORTER_CUDACPP
-      INCLUDE 'fbridge.inc'
-      INCLUDE 'fbridge_common.inc'
       character*255 env_name, env_value
       integer env_length, env_status
-#else
-      INTEGER*4 FBRIDGE_MODE ! (CppOnly=1, FortranOnly=0, BothQuiet=-1, BothDebug=-2)
-      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! can be changed at runtime
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      INCLUDE 'fbridge.inc'
+c     INCLUDE 'fbridge_common.inc'
 #endif
+      INCLUDE 'fbridge_common.inc'
 """
 
         replace_dict['CUDACPP_EXTRA_INITIALISE'] = """
 #ifdef _OPENMP
       CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
 #endif
+      CALL COUNTERS_INITIALISE()
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL COUNTERS_INITIALISE()
       fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
+#else
+      fbridge_mode = 0 ! FortranOnly=0, default for FORTRAN
+#endif
       env_name = 'CUDACPP_RUNTIME_FBRIDGEMODE'
       call get_environment_variable(env_name, env_value, env_length, env_status)
       if( env_status.eq.0 ) then
@@ -447,6 +449,13 @@ CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1"""
         write(*,*) 'ERROR! get_environment_variable failed for "', trim(env_name), '"'
         STOP
       endif
+#ifndef MG5AMC_MEEXPORTER_CUDACPP
+      if( fbridge_mode.ne.0 ) then
+        write(*,*) 'ERROR! Invalid fbridge_mode (in FORTRAN backend mode) = ', fbridge_mode
+        STOP
+      endif
+#endif
+
       vecsize_used = vecsize_memmax ! default ! CppOnly=1, default for CUDACPP
       env_name = 'CUDACPP_RUNTIME_VECSIZEUSED'
       call get_environment_variable(env_name, env_value, env_length, env_status)
@@ -465,18 +474,13 @@ CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1"""
         STOP
       endif
 
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
       CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
       FBRIDGE_NCBYF1 = 0
       FBRIDGE_CBYF1SUM = 0
       FBRIDGE_CBYF1SUM2 = 0
       FBRIDGE_CBYF1MAX = -1D100
       FBRIDGE_CBYF1MIN = 1D100
-#else
-      fbridge_mode = 0 ! FortranOnly=0, default for FORTRAN
-      if( fbridge_mode.ne.0 ) then
-        write(*,*) 'ERROR! Invalid fbridge_mode (in FORTRAN backend mode) = ', fbridge_mode
-        STOP
-      endif
 #endif
 """
 
@@ -504,8 +508,8 @@ c    &    SQRT( FBRIDGE_CBYF1SUM2 / FBRIDGE_NCBYF1 ) ! ~standard deviation
      &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1, ' +- ',
      &    SQRT( FBRIDGE_CBYF1SUM2 ) / FBRIDGE_NCBYF1 ! ~standard error
       ENDIF
-      CALL COUNTERS_FINALISE()
 #endif
+      CALL COUNTERS_FINALISE()
 """
 
         if writer:
