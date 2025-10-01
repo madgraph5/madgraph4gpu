@@ -90,6 +90,14 @@ DSIG_cudacpp := driver_cudacpp.o $(patsubst %.f, %_cudacpp.o, $(filter-out auto_
 
 SYMMETRY := symmetry.o idenparts.o
 
+# Binaries
+
+ifeq ($(UNAME),Darwin)
+  LDFLAGS += -lc++ -mmacosx-version-min=11.3
+else
+  LDFLAGS += -Wl,--no-relax
+endif
+
 # Explicitly define the default goal (this is not necessary as it is the first target, which is implicitly the default goal)
 .DEFAULT_GOAL := all
 ifeq ($(BACKEND),cuda)
