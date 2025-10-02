@@ -284,8 +284,10 @@ jobs:
           for c in $(find . -name 'core.*' -maxdepth 6); do
             exe=$(echo "$c" | sed -n 's/.*core\.\(.*\)\.[0-9]\+/\1/p')
             echo "---- $c (exe guess: $exe) ----"
-            command -v gdb >/dev/null && gdb -batch -q "$exe" "$c" -ex 'info reg' -ex 'bt' || true
-            command -v objdump >/dev/null && objdump -d "$exe" | head -n 60 || true
+            exe_full_path="${c%/*}/$exe"
+            echo "$exe_full_path"
+            command -v gdb >/dev/null && gdb -batch -q "$exe_full_path" "$c" -ex 'info reg' -ex 'bt' || true
+            command -v objdump >/dev/null && objdump -d "$exe_full_path" | head -n 60 || true
           done
 
     - name: tmad_test
