@@ -236,6 +236,20 @@ jobs:
           buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ steps.split.outputs.prnum }}
           buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}
 
+    - name: Runner CPU info
+      run: |
+        uname -a
+        lscpu || true
+        cat /proc/cpuinfo | sed -n '1,20p' || true
+        echo "CC: $CC"; $CC --version || true
+        echo "CXX: $CXX"; $CXX --version || true
+        echo "FC: $FC";  $FC  --version || true
+
+    - name: Enable core dumps
+      run: |
+        ulimit -c unlimited
+        echo 'core.%e.%p' | sudo tee /proc/sys/kernel/core_pattern
+
     - name: before_build
       run: .github/workflows/testsuite_oneprocess.sh before_build ${{ inputs.process }}
  
@@ -258,6 +272,17 @@ jobs:
 
     - name: tput_test
       run: .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
+
+    - name: If crash, print SIGILL site
+      if: failure()
+      run: |
+        for c in core.runTest_cpp.exe.*; do
+          [ -f "$c" ] || continue
+          echo "---- $c ----"
+          gdb -batch -q runTest_cpp.exe "$c" -ex 'info reg' -ex 'bt'
+          objdump -d runTest_cpp.exe | head -n 50
+        done
+
 
     - name: tmad_test
       run: .github/workflows/testsuite_oneprocess.sh tmad_test ${{ inputs.process }}
