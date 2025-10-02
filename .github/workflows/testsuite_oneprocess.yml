@@ -278,6 +278,7 @@ jobs:
         .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
 
     - name: If crash, print SIGILL site
+      if: always()
       run: |
           shopt -s nullglob
           for c in $(find . -name 'core.*' -maxdepth 6); do
