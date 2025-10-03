@@ -415,7 +415,7 @@ CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1"""
         replace_dict = super().write_driver(False, *args, **kwargs)
 
         # Additions from CUDACPP plugin (after patch)
-        replace_dict['CUDACPP_EXTRA_HEADER'] = """
+        replace_dict['DRIVER_EXTRA_HEADER'] += """
       character*255 env_name, env_value
       integer env_length, env_status
 
@@ -426,7 +426,7 @@ c     INCLUDE 'fbridge_common.inc'
       INCLUDE 'fbridge_common.inc'
 """
 
-        replace_dict['CUDACPP_EXTRA_INITIALISE'] = """
+        replace_dict['DRIVER_EXTRA_INITIALISE'] += """
 #ifdef _OPENMP
       CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
 #endif
@@ -484,7 +484,7 @@ c     INCLUDE 'fbridge_common.inc'
 #endif
 """
 
-        replace_dict['CUDACPP_EXTRA_FINALISE'] = """
+        replace_dict['DRIVER_EXTRA_FINALISE'] += """
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
       IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
