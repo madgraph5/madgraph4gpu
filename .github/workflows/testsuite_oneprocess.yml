@@ -281,15 +281,20 @@ jobs:
       if: always()
       run: |
           shopt -s nullglob
-          pwd
-          ls -l
           for c in $(find . -name 'core.*' -maxdepth 6); do
             exe=$(echo "$c" | sed -n 's/.*core\.\(.*\)\.[0-9]\+/\1/p')
             echo "---- $c (exe guess: $exe) ----"
-            exe_full_path="${c%/*}/$exe"
-            echo "$exe_full_path"
-            command -v gdb >/dev/null && gdb -batch -q "$exe_full_path" "$c" -ex 'info reg' -ex 'bt' || true
-            command -v objdump >/dev/null && objdump -d "$exe_full_path" | head -n 60 || true
+            for ff in f d; do
+              exe_full_path="${c%/*}/build.none_${ff}_inl0_hrd0/$exe"
+              echo ""
+              echo "==============="
+              echo "$exe_full_path"
+              echo "==============="
+              command -v gdb >/dev/null && gdb -batch -q "$exe_full_path" "$c" -ex 'info reg' -ex 'bt' || true
+              echo ""
+              command -v objdump >/dev/null && objdump -d "$exe_full_path" | head -n 60 || true
+              echo ""
+            done
           done
 
     - name: tmad_test
