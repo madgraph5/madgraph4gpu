@@ -162,7 +162,6 @@ class TREX_OneProcessExporter(model_handling.PLUGIN_OneProcessExporter):
         ###misc.sprint('Entering PLUGIN_OneProcessExporterRwgt.edit_rwgt_runner')
         # Create the rwgt_runner.cc file
         replace_dict = super().get_process_class_definitions(write=False)
-#        rwgt_runner = self.get_proc_dir() + self.rwgt_template
         replace_dict['process_namespace'] = self.get_proc_dir()
         replace_dict['info_lines'] = model_handling.PLUGIN_export_cpp.get_mg5_info_lines()
         replace_dict['parton_ids'] = self.get_rwgt_pdg_vec(self.matrix_elements[0].get('processes'))
