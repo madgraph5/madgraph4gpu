@@ -8,7 +8,7 @@ REX_OBJ = Rex.o
 REX_TARGET = librex.so
 
 TEA_SRC = teaRex.cc
-TEA_HDR = teaRex.hh
+TEA_HDR = teaRex.h
 TEA_OBJ = teaRex.o
 TEA_TARGET = libtearex.so
 
