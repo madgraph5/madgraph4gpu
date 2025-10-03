@@ -284,15 +284,21 @@ jobs:
           for c in $(find . -name 'core.*' -maxdepth 6); do
             exe=$(echo "$c" | sed -n 's/.*core\.\(.*\)\.[0-9]\+/\1/p')
             echo "---- $c (exe guess: $exe) ----"
-            for ff in f d; do
+            for ff in f d m; do
               exe_full_path="${c%/*}/build.none_${ff}_inl0_hrd0/$exe"
+              if [ -f "$exe_full_path" ]; then echo "OK"; else continue; fi
               echo ""
               echo "==============="
               echo "$exe_full_path"
               echo "==============="
               command -v gdb >/dev/null && gdb -batch -q "$exe_full_path" "$c" -ex 'info reg' -ex 'bt' || true
+              gdb -batch -q "$exe_full_path" "$c" -ex 'info files' -ex 'bt' -ex 'x/12i $rip'
               echo ""
               command -v objdump >/dev/null && objdump -d "$exe_full_path" | head -n 60 || true
+              echo ""
+              objdump -d "$exe_full_path" | grep -nE '\bzmm|k[0-7]\b|evex'
+              # or a broader signature:
+              objdump -d "$exe_full_path" | grep -nE 'v[a-z].*zmm|k[0-7]'
               echo ""
             done
           done
