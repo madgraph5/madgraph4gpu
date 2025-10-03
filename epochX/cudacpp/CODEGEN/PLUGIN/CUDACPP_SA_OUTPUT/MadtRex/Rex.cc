@@ -8,7 +8,7 @@
  *
  ***/
 //
-// *R*apid *e*vent e*x*traction Version 0.9.3
+// *R*apid *e*vent e*x*traction Version 1.0.0
 // Rex is a C++ library for parsing and manipulating Les Houches Event-format (LHE) files.
 // It is designed to fast and lightweight, in comparison to internal parsers in programs like MadGraph.
 // Currently, Rex is in development and may not contain all features necessary for full LHE parsing.

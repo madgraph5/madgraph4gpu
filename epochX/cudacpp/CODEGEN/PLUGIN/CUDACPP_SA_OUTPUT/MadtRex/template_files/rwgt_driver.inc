@@ -64,6 +64,22 @@ void writeRwgtCsv(std::string path, std::vector<std::string> names, std::vector<
 
 int main(int argc, char **argv)
 {
+
+    std::string banner =
+        "#################################################\n"
+        "#    ___  ___          _ _  ______              #\n"
+        "#    |  \\/  |         | | | | ___ \\             #\n"
+        "#    | .  . | __ _  __| | |_| |_/ /_____  __    #\n"
+        "#    | |\\/| |/ _` |/ _` | __|    // _ \\ \\/ /    #\n"
+        "#    | |  | | (_| | (_| | |_| |\\ \\  __/>  <     #\n"
+        "#    \\_|  |_/\\__,_|\\__,_|\\__\\_| \\_\\___/_/\\_\\    #\n"
+        "#                                               #\n"
+        "#        Data-parallel event reweighting        #\n"
+        "#             in MadGraph5_aMC@NLO              #\n"
+        "#                                               #\n"
+        "#################################################\n";
+
+    std::cout << banner;
     std::cout << "Starting MadtRex driver...\n";
     std::string lheFilePath;
     std::string rwgtCardPath;

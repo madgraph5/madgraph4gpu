@@ -8,7 +8,7 @@
  *
  ***/
 //
-// *t*ensorial *e*vent *a*daption with *R*e*x* Version 0.9.3
+// *t*ensorial *e*vent *a*daption with *R*e*x* Version 1.0.0
 // teaRex is an extension to the Rex library for the generic reweighting of parton-level events.
 // It provides a flexible framework for applying weight modifications to events based on user-defined criteria,
 // using the underlying Rex formats to sort, extract, and rewrite event-level information,

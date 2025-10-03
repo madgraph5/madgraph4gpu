@@ -162,14 +162,24 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(gpu_objects)
 	$(GPUCC) -shared -o $@ $(cxx_objects) $(gpu_objects) $(LDFLAGS)
 endif
 
-# Target for Rex and teaRex (literally just copy the .so files from src to LIBDIR)
-$(LIBDIR)/librex.so : ../src/librex.so
-	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	cp ../src/librex.so $(LIBDIR)/librex.so
+#-------------------------------------------------------------------------------
+
+# Atomic copy helper macro:
+#   1) copy to unique temp file next to the destination
+#   2) atomically rename into place
+# This is safe under parallel make and concurrent invocations.
+define ATOMIC_COPY
+	@tmp="$$(mktemp "$@.tmp.XXXXXX")"; \
+	cp -f "$(firstword $^)" "$$tmp"; \
+	mv -f "$$tmp" "$@"
+endef
+
+# Rex and teaRex: copy .so from src to LIBDIR atomically
+$(LIBDIR)/librex.so : ../src/librex.so 
+	$(ATOMIC_COPY)
 
 $(LIBDIR)/libtearex.so : ../src/libtearex.so
-	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	cp ../src/libtearex.so $(LIBDIR)/libtearex.so
+	$(ATOMIC_COPY)
 
 #-------------------------------------------------------------------------------
 
