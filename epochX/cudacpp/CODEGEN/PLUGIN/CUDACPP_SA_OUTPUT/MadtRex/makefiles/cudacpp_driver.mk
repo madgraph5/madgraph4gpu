@@ -673,7 +673,7 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
 $(gpu_rwgt): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
 $(gpu_rwgt): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
-$(gpu_rwgt): $(BUILDDIR)/$(BUILDDIR)/rwgt_driver.o $(rwgtlib)
+$(gpu_rwgt): $(BUILDDIR)/rwgt_driver.o $(rwgtlib)
 	$(GPUCC) -o $@ $(BUILDDIR)/rwgt_driver.o $(CUARCHFLAGS) $(LIBFLAGS) -L$(LIBDIR) $(rwgtlib)
 endif
 
