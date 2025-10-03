@@ -161,7 +161,6 @@ class TREX_OneProcessExporter(model_handling.PLUGIN_OneProcessExporter):
         """Create the rwgt_runner.cc file for the tRex reweighting"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporterRwgt.edit_rwgt_runner')
         # Create the rwgt_runner.cc file
-#        replace_dict = {}
         replace_dict = super().get_process_class_definitions(write=False)
 #        rwgt_runner = self.get_proc_dir() + self.rwgt_template
         replace_dict['process_namespace'] = self.get_proc_dir()
