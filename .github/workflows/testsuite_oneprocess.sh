@@ -280,6 +280,7 @@ function tput_test() {
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
           ldd ${bdir}/runTest_${suffix}.exe
           LD_DEBUG=libs ${bdir}/runTest_${suffix}.exe 2>&1 | head -n 80
+          command -v objdump >/dev/null && objdump -d "${bdir}/runTest_${suffix}.exe" | head -n 60 || true
           runExe ${bdir}/runTest_${suffix}.exe
           #
           if [ ! -f ${bdir}/check_${suffix}.exe ]; then echo "ERROR! ${bdir}/check_${suffix}.exe not found?"; exit 1; fi
