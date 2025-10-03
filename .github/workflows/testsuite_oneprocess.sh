@@ -167,6 +167,8 @@ function build() {
     # NB: 'make bldall' internally checks if 'which nvcc' and 'which hipcc' succeed before attempting to build cuda and hip
     if [ "${proc##*.}" == "sa" ]; then
         # for standalone, just use the makefile (symlinked to cudacpp.mk)
+        rm cudacpp_overlay.mk
+        ls -l
         make -j bldall
     else
         # makefile overlay after removing patches
