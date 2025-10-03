@@ -281,6 +281,8 @@ jobs:
       if: always()
       run: |
           shopt -s nullglob
+          sudo apt-get update
+          sudo apt-get install gdb
           for c in $(find . -name 'core.*' -maxdepth 6); do
             exe=$(echo "$c" | sed -n 's/.*core\.\(.*\)\.[0-9]\+/\1/p')
             echo "---- $c (exe guess: $exe) ----"
