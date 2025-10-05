@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi, Z. Wettersten (2021-2025) for the MG5aMC CUDACPP plugin.
 
 # AV - Rename the plugin as CUDACPP_OUTPUT (even if the madgraph4gpu directory is still called CUDACPP_SA_OUTPUT)
 # This can be used in mg5amcnlo in one of two ways:
@@ -36,15 +36,19 @@ else:
     ###import PLUGIN.CUDACPP_OUTPUT.output as output # AV modify this to also allow MG5aMC_PLUGIN
     __import__('%s.output'%PLUGIN_NAME)
     output = sys.modules['%s.output'%PLUGIN_NAME]
+    __import__('%s.trex'%PLUGIN_NAME)
+    trex = sys.modules['%s.trex'%PLUGIN_NAME]
     new_output = { 'madevent_simd' : output.SIMD_ProcessExporter,
                    'madevent_gpu' : output.GPU_ProcessExporter,
                    'standalone_cudacpp' : output.PLUGIN_ProcessExporter,
+                   'standalone_trex' : trex.TREX_ProcessExporter,
                    # the following one are used for the second exporter class 
                    # (not really needed so far but interesting if need
                    #  specialization in the futur) 
                    'standalone_simd' :  output.SIMD_ProcessExporter,
                    'standalone_cuda' :  output.GPU_ProcessExporter,
                   }
+    new_reweight = {'madtrex': trex.TREX_ReweightInterface}
 
     # 2. Define new way to handle the cluster.
     #    Example: new_cluster = {'mycluster': MYCLUSTERCLASS}
