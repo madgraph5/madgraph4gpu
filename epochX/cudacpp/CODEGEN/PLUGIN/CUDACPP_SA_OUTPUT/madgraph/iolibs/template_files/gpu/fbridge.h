@@ -44,9 +44,6 @@ extern "C"
                                         int* selcol,
                                         const bool* pgoodHelOnly );
 
-  void fbridgegetngoodhel_( CppObjectInFortran** ppbridge,
-                            unsigned int* pngoodhel,
-                            unsigned int* pntothel );
-
+  void fbridgegetngoodhel_( CppObjectInFortran** ppbridge, unsigned int* pngoodhel, unsigned int* pntothel );
 }
 #endif // _FBRIDGE_H_
