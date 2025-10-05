@@ -257,27 +257,32 @@ jobs:
         key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ steps.split.outputs.prnum }}-${{ github.run_id }}
 
     ## DEBUG START
-    - name: Run tests (core dumps enabled)
+    - name: Run tests (core dumps enabled, capture status)
       id: run-tests
       continue-on-error: true
       shell: bash
       run: |
         set -euo pipefail
-        # Ask kernel to write named core files (ignore if not permitted)
+        # Enable named core files and unlimited size (ignore if not permitted)
         sudo bash -c 'echo core.%e.%p > /proc/sys/kernel/core_pattern' || true
         ulimit -c unlimited
 
         echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}"
         lscpu || true
 
-        # Run both phases; allow script to return nonzero (continue-on-error handles it)
-        .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }} || true
-        # .github/workflows/testsuite_oneprocess.sh tmad_test ${{ inputs.process }} || true
+        st=0
+        .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }} || st=$?
+        st2=0
+        #.github/workflows/testsuite_oneprocess.sh tmad_test ${{ inputs.process }} || st2=$?
 
-        # Record the exit status we observed (for reference)
-        echo "tput/tmad finished; exit code of last command was $?"
+        total=$(( st | st2 ))
+        echo "tput exit=$st ; tmad exit=$st2 ; combined=$total"
+        if [ "$total" -ne 0 ]; then
+          echo "tests_failed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "tests_failed=false" >> "$GITHUB_OUTPUT"
+        fi
 
-    # Detect whether any non-empty core files were produced (sets an output)
     - name: Detect core dumps
       id: detect-cores
       shell: bash
@@ -293,8 +298,7 @@ jobs:
           echo "has_core=false" >> "$GITHUB_OUTPUT"
         fi
 
-    # Only if we have a core, gather diagnostics and upload the full process folder
-    - name: Collect diagnostics and package process folder
+    - name: Collect diagnostics and package FULL process folder
       if: steps.detect-cores.outputs.has_core == 'true'
       shell: bash
       run: |
@@ -314,33 +318,32 @@ jobs:
         command -v ldd  >/dev/null && ldd --version  > "$outdir/ldd_version.txt"  || true
         echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}" > "$outdir/env_ld_library_path.txt"
 
-        # For each test exe, dump linkage/notes/disasm
+        # Snapshot dynamic linkage & sections for common exes (optional but handy)
         mapfile -t exes < <(find "$root" -type f \( -name 'runTest_cpp.exe' -o -name 'check_cpp.exe' -o -name 'fcheck_cpp.exe' \))
         for exe in "${exes[@]}"; do
           safe=$(echo "$exe" | sed 's#[/ ]#_#g')
           ( set +e
             ldd "$exe"                                  > "$outdir/${safe}.ldd.txt"
             readelf -n "$exe"                           > "$outdir/${safe}.notes.txt"
-            objdump -d "$exe"                           > "$outdir/${safe}.objdump.txt"
             objdump -h "$exe"                           > "$outdir/${safe}.sections.txt"
-            strings "$exe"                              > "$outdir/${safe}.strings.txt"
+            objdump -d "$exe"                           > "$outdir/${safe}.objdump.txt"
           )
         done
 
-        # Copy core files into the artifact directory
+        # Copy core files into outdir for convenience
         find . -maxdepth 8 -type f -name 'core.*' -size +0c -exec cp -v {} "$outdir"/ \; || true
 
-        # If gdb exists, annotate each core with quick context
+        # Quick gdb annotation per core (if available)
+        sudo apt update && sudo apt install -y gdb
         if command -v gdb >/dev/null 2>&1; then
           for c in "$outdir"/core.*; do
             [ -f "$c" ] || continue
+            # Try to guess the exe name from core.%e.%p
             exeguess=$(echo "$c" | sed -n 's/.*core\.\(.*\)\.[0-9]\+/\1/p')
             exe=""
-            # prefer guessed exe if it exists in the tree
             if [ -n "$exeguess" ]; then
               exe=$(find "$root" -type f -name "$exeguess" | head -n1 || true)
             fi
-            # fall back to any known test exe
             if [ -z "${exe:-}" ]; then
               exe=$(find "$root" -type f \( -name 'runTest_cpp.exe' -o -name 'check_cpp.exe' -o -name 'fcheck_cpp.exe' \) | head -n1 || true)
             fi
@@ -352,25 +355,29 @@ jobs:
           done
         fi
 
-        # Tar the entire process directory so you can inspect everything locally
+        # TAR THE FULL PROCESS FOLDER (binaries + .so + build trees)
         if command -v zstd >/dev/null 2>&1; then
-          tar --use-compress-program zstd -cf "process_${tag}.tar.zst" "$root"
-          echo "Wrote process_${tag}.tar.zst"
+          tar --use-compress-program zstd -cf "full_${tag}.tar.zst" "$root"
         else
-          tar -czf "process_${tag}.tar.gz" "$root"
-          echo "Wrote process_${tag}.tar.gz"
+          tar -czf "full_${tag}.tar.gz" "$root"
         fi
 
     - name: Upload artifacts (only if core exists)
       if: steps.detect-cores.outputs.has_core == 'true'
       uses: actions/upload-artifact@v4
       with:
-        name: "${{ inputs.process }}-${{ matrix.fptype }}-debug"
+        name: "${{ inputs.process }}-${{ matrix.fptype }}-FULL"
         path: |
-          process_${{ inputs.process }}_${{ matrix.fptype }}.tar.*
+          full_${{ inputs.process }}_${{ matrix.fptype }}.tar.*
           artifacts_${{ inputs.process }}_${{ matrix.fptype }}/*
         compression-level: 0
         retention-days: 7
+
+    - name: Fail job if tests failed
+      if: steps.run-tests.outputs.tests_failed == 'true'
+      run: |
+        echo "::error::Tests failed in tput_test and/or tmad_test"
+        exit 1
     ## DEBUG END
 
     # - name: tput_test
