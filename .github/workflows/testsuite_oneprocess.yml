@@ -256,28 +256,111 @@ jobs:
           test/googletest
         key: buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}-${{ steps.split.outputs.prnum }}-${{ github.run_id }}
 
-    - name: tput_test
-      run: .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
-
-    - name: tmad_test
-      run: .github/workflows/testsuite_oneprocess.sh tmad_test ${{ inputs.process }}
-
-    - name: GOODBYE_TESTSUITE
+    ## DEBUG START
+    # Run both test phases with core dumps enabled in THIS shell
+    - name: Run tests (core dumps enabled)
       run: |
-        echo "GOODBYE_TESTSUITE ${{ inputs.process }} FPTYPE=${{ matrix.fptype }} $(date)"
-        echo "Workflow run_id is ${{ github.run_id }}"
-        echo "Workflow ref_name is ${{ github.ref_name }}"
-        echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
-        echo "Current directory is $(pwd)"
-        echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
-        REPO=${{ github.repository }}
-        echo "List codegencache keys for this run_id (start)"
-        gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
-        echo "List codegencache keys for this run_id (end)"
-        echo "List buildcache keys (start)"
-        gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}
-        echo "List buildcache keys (end)"
-      env:
-        GH_TOKEN: ${{ github.token }}
+        sudo apt update && sudo apt install gdb
+        set -euo pipefail
+        # Let the kernel write named core files; requires sudo on GH runners
+        sudo bash -c 'echo core.%e.%p > /proc/sys/kernel/core_pattern' || true
+        ulimit -c unlimited
+        # Run the two phases
+        .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
+        .github/workflows/testsuite_oneprocess.sh tmad_test ${{ inputs.process }}
+
+    # Always collect diagnostics + full process dir, even if tests fail
+    - name: Collect diagnostics and package process folder
+      if: always()
+      run: |
+        set -euxo pipefail
+        root="epochX/cudacpp/${{ inputs.process }}"
+        tag="${{ inputs.process }}_${{ matrix.fptype }}"
+        outdir="artifacts_${tag}"
+        mkdir -p "$outdir"
+
+        # System & toolchain fingerprints
+        uname -a                          > "$outdir/uname.txt"            || true
+        lscpu                             > "$outdir/lscpu.txt"             || true
+        cat /proc/cpuinfo                > "$outdir/cpuinfo.txt"            || true
+        ld --version                      > "$outdir/ld_version.txt"        || true
+        g++ --version                     > "$outdir/gpp_version.txt"       || true
+        gcc --version                     > "$outdir/gcc_version.txt"       || true
+        ldd --version                     > "$outdir/ldd_version.txt"       || true
+        echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}" > "$outdir/env_ld_library_path.txt"
+
+        # For every test binary, dump linkage, notes, and disassembly
+        mapfile -t exes < <(find "$root" -type f \( -name 'runTest_cpp.exe' -o -name 'check_cpp.exe' -o -name 'fcheck_cpp.exe' \))
+        for exe in "${exes[@]}"; do
+          safe=$(echo "$exe" | sed 's#[/ ]#_#g')
+          ( set +e
+            ldd "$exe"                                  > "$outdir/${safe}.ldd.txt"
+            readelf -n "$exe"                           > "$outdir/${safe}.notes.txt"
+            objdump -d "$exe"                           > "$outdir/${safe}.objdump.txt"
+            objdump -h "$exe"                           > "$outdir/${safe}.sections.txt"
+            strings "$exe"                              > "$outdir/${safe}.strings.txt"
+          )
+        done
+
+        # Copy any core files we can find
+        find . -maxdepth 8 -type f -name 'core.*' -exec cp -v {} "$outdir"/ \; || true
+
+        # If gdb is present, print quick context for each core into a text file
+        if command -v gdb >/dev/null 2>&1; then
+          for c in "$outdir"/core.*; do
+            [ -f "$c" ] || continue
+            # Try to guess exe name from core.*. If not, fall back to scanning nearby exes.
+            exeguess=$(echo "$c" | sed -n 's/.*core\.\(.*\)\.[0-9]\+/\1/p')
+            exe="$(command -v "$exeguess" || true)"
+            if [ -z "${exe:-}" ]; then
+              exe=$(find "$root" -type f -name 'runTest_cpp.exe' -o -name 'check_cpp.exe' -o -name 'fcheck_cpp.exe' | head -n1 || true)
+            fi
+            if [ -n "${exe:-}" ] && [ -f "$exe" ]; then
+              gdb -batch -q "$exe" "$c" \
+                -ex 'info files' -ex 'info reg' -ex 'bt' -ex 'x/16i $rip' \
+                > "$outdir/$(basename "$c").gdb.txt" || true
+            fi
+          done
+        fi
+
+        # Finally, package the entire process directory (can be large)
+        tar --use-compress-program zstd -cf "${outdir}.tar.zst" "$root"
+        echo "Wrote ${outdir}.tar.zst"
+
+    - name: Upload process artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: "${{ inputs.process }}-${{ matrix.fptype }}-fullproc"
+        path: |
+          artifacts_${{ inputs.process }}_${{ matrix.fptype }}.tar.zst
+          artifacts_${{ inputs.process }}_${{ matrix.fptype }}/*
+        compression-level: 0
+        retention-days: 7
+    ## DEBUG END
+
+    # - name: tput_test
+    #   run: .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
+    #
+    # - name: tmad_test
+    #   run: .github/workflows/testsuite_oneprocess.sh tmad_test ${{ inputs.process }}
+    #
+    # - name: GOODBYE_TESTSUITE
+    #   run: |
+    #     echo "GOODBYE_TESTSUITE ${{ inputs.process }} FPTYPE=${{ matrix.fptype }} $(date)"
+    #     echo "Workflow run_id is ${{ github.run_id }}"
+    #     echo "Workflow ref_name is ${{ github.ref_name }}"
+    #     echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
+    #     echo "Current directory is $(pwd)"
+    #     echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
+    #     REPO=${{ github.repository }}
+    #     echo "List codegencache keys for this run_id (start)"
+    #     gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+    #     echo "List codegencache keys for this run_id (end)"
+    #     echo "List buildcache keys (start)"
+    #     gh actions-cache list -R $REPO --sort created-at --order asc --key buildcache-${{ runner.os }}-${{ inputs.process }}-${{ matrix.fptype }}
+    #     echo "List buildcache keys (end)"
+    #   env:
+    #     GH_TOKEN: ${{ github.token }}
 
 #----------------------------------------------------------------------------------------------------------------------------------
