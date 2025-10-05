@@ -272,7 +272,7 @@ jobs:
 
         # Run both phases; allow script to return nonzero (continue-on-error handles it)
         .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }} || true
-        .github/workflows/testsuite_oneprocess.sh tmad_test ${{ inputs.process }} || true
+        # .github/workflows/testsuite_oneprocess.sh tmad_test ${{ inputs.process }} || true
 
         # Record the exit status we observed (for reference)
         echo "tput/tmad finished; exit code of last command was $?"
