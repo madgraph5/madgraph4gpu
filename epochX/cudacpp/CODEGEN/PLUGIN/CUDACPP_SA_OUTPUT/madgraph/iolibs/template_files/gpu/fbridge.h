@@ -17,13 +17,13 @@ extern "C"
   using namespace mg5amcCpu;
 #endif
 
-    using FORTRANFPTYPE = double;
+  using FORTRANFPTYPE = double;
 
-    void fbridgecreate_( CppObjectInFortran** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F );
+  void fbridgecreate_( CppObjectInFortran** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F );
 
-    void fbridgedelete_( CppObjectInFortran** ppbridge );
+  void fbridgedelete_( CppObjectInFortran** ppbridge );
 
-    void fbridgesequence_( CppObjectInFortran** ppbridge,
+  void fbridgesequence_( CppObjectInFortran** ppbridge,
                          const FORTRANFPTYPE* momenta,
                          const FORTRANFPTYPE* gs,
                          const FORTRANFPTYPE* rndhel,
@@ -34,7 +34,7 @@ extern "C"
                          int* selcol,
                          const bool* pgoodHelOnly );
 
-    void fbridgesequence_nomultichannel_( CppObjectInFortran** ppbridge,
+  void fbridgesequence_nomultichannel_( CppObjectInFortran** ppbridge,
                                         const FORTRANFPTYPE* momenta,
                                         const FORTRANFPTYPE* gs,
                                         const FORTRANFPTYPE* rndhel,
@@ -44,7 +44,7 @@ extern "C"
                                         int* selcol,
                                         const bool* pgoodHelOnly );
 
-    void fbridgegetngoodhel_( CppObjectInFortran** ppbridge,
+  void fbridgegetngoodhel_( CppObjectInFortran** ppbridge,
                             unsigned int* pngoodhel,
                             unsigned int* pntothel );
 

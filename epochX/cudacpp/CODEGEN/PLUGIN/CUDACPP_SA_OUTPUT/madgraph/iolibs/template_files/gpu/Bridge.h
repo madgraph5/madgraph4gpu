@@ -283,9 +283,9 @@ namespace mg5amcCpu
     auto fileExists = []( std::string& fileName )
     { struct stat buffer; return stat( fileName.c_str(), &buffer ) == 0; };
     size_t paramCardCheck = 2; // ZW: check for paramCard up to 2 directories up
-    for( size_t k = 0 ; k < paramCardCheck ; ++k )
+    for( size_t k = 0 ; k < paramCardCheck; ++k )
     {
-      if( fileExists( paramCard ) ) break;  // bypass std::filesystem #803
+      if( fileExists( paramCard ) ) break; // bypass std::filesystem #803
       paramCard = "../" + paramCard;
     }
     process.initProc( paramCard );
