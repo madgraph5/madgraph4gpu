@@ -843,7 +843,7 @@ endif
 # (NB -fPIC was added to fix clang16 build #904, but this seems better for other cases too and is consistent to c++ and cuda builds)
 $(BUILDDIR)/%%_fortran.o : %%.f *.inc
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(FC) -I. -fPIC -c $< -o $@
+	$(FC) $(AVXFLAGS) -I. -fPIC -c $< -o $@
 
 # Generic target and build rules: objects from Fortran compilation
 ###$(BUILDDIR)/%%_fortran.o : %%.f *.inc
