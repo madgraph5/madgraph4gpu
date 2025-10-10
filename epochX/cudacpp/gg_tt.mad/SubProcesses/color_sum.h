@@ -76,7 +76,7 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
   void
   color_sum_gpu( fptype* ghelAllMEs,               // output: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
-                 fptype* ghelAllJamps,             // tmp: allJamps super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+                 const fptype* ghelAllJamps,       // input: allJamps super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
                  fptype2* ghelAllBlasTmp,          // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
                  gpuBlasHandle_t* ghelBlasHandles, // input: cuBLAS/hipBLAS handles (index is ighel: only the first nGoodHel <= ncomb are non-null)
                  gpuStream_t* ghelStreams,         // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
