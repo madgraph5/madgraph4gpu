@@ -584,7 +584,7 @@ Wrote files for 10 helas calls in 0.076 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.133 s
+ALOHA: aloha creates 2 routines in  0.130 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
@@ -620,9 +620,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.837s
-user	0m2.527s
-sys	0m0.306s
+real	0m2.879s
+user	0m2.518s
+sys	0m0.315s
 Code generation completed in 3 seconds
 ************************************************************
 *                                                          *

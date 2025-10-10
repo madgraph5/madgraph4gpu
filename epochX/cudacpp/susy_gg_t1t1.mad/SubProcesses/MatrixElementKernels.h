@@ -227,8 +227,8 @@ namespace mg5amcCpu
     // The super-buffer of nGoodHel cuBLAS/hipBLAS temporary buffers
     std::unique_ptr<DeviceBufferSimple2> m_pHelBlasTmp;
 
-    // The array of cuBLAS/hipBLAS handles (one for each good helicity)
-    gpuBlasHandle_t m_helBlasHandles[CPPProcess::ncomb]; // reserve ncomb streams (but only nGoodHel <= ncomb will be used)
+    // The cuBLAS/hipBLAS handle (a single one for all good helicities)
+    gpuBlasHandle_t m_blasHandle;
 #endif
 
     // The array of GPU streams (one for each good helicity)

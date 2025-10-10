@@ -58,11 +58,6 @@ set auto_convert_model T
 save options auto_convert_model
 save configuration file to /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/mg5amcnlo/input/mg5_configuration.txt
 import model heft
-INFO: load particles 
-INFO: load vertices 
-[1;34mWARNING: coupling GC_13=-(complex(0,1)*GH) has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
-[1;34mWARNING: coupling GC_16=(complex(0,1)*Gphi)/8. has direct dependence in aS but has QCD order set to 0. Automatic computation of scale uncertainty can be wrong for such model. [0m
-[1;32mDEBUG: model prefixing  takes 0.006056070327758789 [0m
 INFO: Restrict model heft with file models/heft/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: s u w+ at order: QED=1 [0m
@@ -170,7 +165,7 @@ INFO: Created files Parameters_heft.h and Parameters_heft.cc in directory
 INFO: /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. and /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. 
 quit
 
-real	0m0.648s
-user	0m0.592s
-sys	0m0.052s
+real	0m0.846s
+user	0m0.578s
+sys	0m0.055s
 Code generation completed in 1 seconds

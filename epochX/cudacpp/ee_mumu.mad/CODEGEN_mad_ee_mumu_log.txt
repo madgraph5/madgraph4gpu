@@ -58,7 +58,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005487918853759766 [0m
+[1;32mDEBUG: model prefixing  takes 0.0054094791412353516 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -180,18 +180,18 @@ INFO: Finding symmetric diagrams for subprocess group epem_mupmum
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1571][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1572][0m [0m
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
-Wrote files for 8 helas calls in 0.071 s
+Wrote files for 8 helas calls in 0.070 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
-ALOHA: aloha creates 3 routines in  0.193 s
+ALOHA: aloha creates 3 routines in  0.191 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 7 routines in  0.244 s
+ALOHA: aloha creates 7 routines in  0.242 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -228,9 +228,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.135s
-user	0m1.787s
-sys	0m0.273s
+real	0m2.054s
+user	0m1.788s
+sys	0m0.265s
 Code generation completed in 2 seconds
 ************************************************************
 *                                                          *

@@ -199,9 +199,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.142s
-user	0m1.886s
-sys	0m0.258s
+real	0m2.165s
+user	0m1.904s
+sys	0m0.256s
 Code generation completed in 2 seconds
 ************************************************************
 *                                                          *
