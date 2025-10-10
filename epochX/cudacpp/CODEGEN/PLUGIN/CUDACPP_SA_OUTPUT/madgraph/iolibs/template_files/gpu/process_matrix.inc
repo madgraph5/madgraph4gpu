@@ -31,10 +31,11 @@
 
       // *** PREPARE OUTPUT JAMPS ***
 #ifdef MGONGPUCPP_GPUIMPL
+      //printf( "calculate_jamps: dcNGoodHel=%%d\n", dcNGoodHel );
       // In CUDA, copy the local jamp to the output global-memory jamp
       using J_ACCESS = DeviceAccessJamp;
       for( int icol = 0; icol < ncolor; icol++ )
-        J_ACCESS::kernelAccessIcol( allJamps, icol ) = jamp_sv[icol];
+        J_ACCESS::kernelAccessIcolIhelNhel( ghelAllJamps, icol, ihel, dcNGoodHel ) = jamp_sv[icol];
 #else
       // In C++, copy the local jamp to the output array passed as function argument
       for( int icol = 0; icol < ncolor; icol++ )
