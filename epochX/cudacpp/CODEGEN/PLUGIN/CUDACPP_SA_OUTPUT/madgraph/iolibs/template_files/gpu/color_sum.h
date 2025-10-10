@@ -75,13 +75,22 @@ namespace mg5amcCpu
 
 #ifdef MGONGPUCPP_GPUIMPL
   void
-  color_sum_gpu( fptype* allMEs,               // output: allMEs[nevt], add |M|^2 for this specific helicity
-                 const fptype* allJamps,       // input: jamp[ncolor*2*nevt] for one specific helicity
-                 fptype2* allBlasTmp,          // tmp: blasTmp[ncolor*2*nevt] or blasTmp[(2*ncolor*2+1)*nevt] for one specific helicity
-                 gpuStream_t stream,           // input: cuda stream (nullptr indicates the default stream)
-                 gpuBlasHandle_t* pBlasHandle, // input: cuBLAS/hipBLAS handle
-                 const int gpublocks,          // input: cuda gpublocks
-                 const int gputhreads );       // input: cuda gputhreads
+  color_sum_gpu( fptype* ghelAllMEs,               // output: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+                 const fptype* ghelAllJamps,       // input: allJamps super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+                 fptype2* ghelAllBlasTmp,          // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+                 gpuBlasHandle_t* ghelBlasHandles, // input: cuBLAS/hipBLAS handles (index is ighel: only the first nGoodHel <= ncomb are non-null)
+                 gpuStream_t* ghelStreams,         // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
+                 const int nGoodHel,               // input: number of good helicities
+                 const int gpublocks,              // input: cuda gpublocks
+                 const int gputhreads );           // input: cuda gputhreads
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL
+  __global__ void
+  color_sum_kernel( fptype* allMEs,           // output: allMEs[nevt], add |M|^2 for this specific helicity
+                    const fptype* allJamps ); // input: jamp[ncolor*2*nevt] for one specific helicity
 #endif
 
   //--------------------------------------------------------------------------
