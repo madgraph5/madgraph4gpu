@@ -361,14 +361,13 @@ namespace mg5amcCpu
                  const int gputhreads )            // input: cuda gputhreads
   {
     const int nevt = gpublocks * gputhreads;
-    // Within each helicity stream, compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
+    // Sanity checks
 #ifdef MGONGPU_HAS_NO_BLAS
+    assert( ghelAllBlasTmp == nullptr );  // sanity check for HASBLAS=hasNoBlas
     assert( ghelBlasHandles == nullptr ); // sanity check for HASBLAS=hasNoBlas
 #endif
     if( !ghelBlasHandles )
       assert( ghelAllBlasTmp == nullptr ); // HASBLAS=hasNoBlas or CUDACPP_RUNTIME_BLASCOLORSUM not set
-    else
-      assert( ghelAllBlasTmp != nullptr ); // note: this should never happen for HASBLAS=hasNoBlas (a sanity check is in color_sum_gpu)
     // Loop over helicities
     for( int ighel = 0; ighel < nGoodHel; ighel++ )
     {
@@ -384,23 +383,16 @@ namespace mg5amcCpu
       if( hAllBlasTmp )
         gpuMemset( hAllBlasTmp, 0, nevt * ncolor * mgOnGpu::nx2 * sizeof( fptype2 ) ); // reset the tmp buffer (just in case...)
 #endif
+      gpuStream_t hStream = ghelStreams[ighel];
       // Call color_sum_kernel or color_sum_blas
-#ifndef MGONGPU_HAS_NO_BLAS
-      gpuBlasHandle_t* pBlasHandle = ( ghelBlasHandles ? &( ghelBlasHandles[ighel] ) : nullptr );
+#ifdef MGONGPU_HAS_NO_BLAS
+      gpuLaunchKernelStream( color_sum_kernel, gpublocks, gputhreads, hStream, hAllMEs, hAllJamps );
 #else
-      assert( hAllBlasTmp == nullptr ); // sanity check for HASBLAS=hasNoBlas
-#endif
-      if( !pBlasHandle ) // HASBLAS=hasNoBlas or CUDACPP_RUNTIME_BLASCOLORSUM not set
-      {
-        assert( hAllBlasTmp == nullptr );
-        gpuLaunchKernelStream( color_sum_kernel, gpublocks, gputhreads, ghelStreams[ighel], hAllMEs, hAllJamps );
-      }
-#ifndef MGONGPU_HAS_NO_BLAS
+      gpuBlasHandle_t* pBlasHandle = ( ghelBlasHandles ? ghelBlasHandles + ighel : nullptr );
+      if( !pBlasHandle ) // CUDACPP_RUNTIME_BLASCOLORSUM not set
+        gpuLaunchKernelStream( color_sum_kernel, gpublocks, gputhreads, hStream, hAllMEs, hAllJamps );
       else
-      {
-        assert( hAllBlasTmp != nullptr );
-        color_sum_blas( hAllMEs, hAllJamps, hAllBlasTmp, pBlasHandle, ghelStreams[ighel], gpublocks, gputhreads );
-      }
+        color_sum_blas( hAllMEs, hAllJamps, hAllBlasTmp, pBlasHandle, hStream, gpublocks, gputhreads );
 #endif
     }
   }
