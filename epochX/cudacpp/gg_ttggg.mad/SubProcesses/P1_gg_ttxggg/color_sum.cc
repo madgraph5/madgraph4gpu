@@ -363,12 +363,12 @@ namespace mg5amcCpu
   color_sum_blas( fptype* allMEs,               // output: allMEs[nevt], add |M|^2 for this specific helicity
                   const fptype* allJamps,       // input: jamp[ncolor*2*nevt] for one specific helicity
                   fptype2* allBlasTmp,          // tmp: blasTmp[ncolor*2*nevt] or blasTmp[(2*ncolor*2+1)*nevt] for one specific helicity
+                  gpuBlasHandle_t* pBlasHandle, // input: cuBLAS/hipBLAS handle
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
                   gpuStream_t stream,           // input: cuda stream (nullptr indicates the default stream - only used for FPTYPE=m)
 #else
                   gpuStream_t /*stream*/,       // input: cuda stream (nullptr indicates the default stream - only used for FPTYPE=m)
 #endif
-                  gpuBlasHandle_t* pBlasHandle, // input: cuBLAS/hipBLAS handle
                   const int gpublocks,          // input: cuda gpublocks
                   const int gputhreads )        // input: cuda gputhreads
   {
@@ -469,30 +469,51 @@ namespace mg5amcCpu
 
 #ifdef MGONGPUCPP_GPUIMPL
   void
-  color_sum_gpu( fptype* allMEs,               // output: allMEs[nevt], add |M|^2 for this specific helicity
-                 const fptype* allJamps,       // input: jamp[ncolor*2*nevt] for one specific helicity
-                 fptype2* allBlasTmp,          // tmp: blasTmp[ncolor*2*nevt] or blasTmp[(2*ncolor*2+1)*nevt] for one specific helicity
-                 gpuStream_t stream,           // input: cuda stream (nullptr indicates the default stream)
-                 gpuBlasHandle_t* pBlasHandle, // input: cuBLAS/hipBLAS handle
-                 const int gpublocks,          // input: cuda gpublocks
-                 const int gputhreads )        // input: cuda gputhreads
+  color_sum_gpu( fptype* ghelAllMEs,               // output: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+                 const fptype* ghelAllJamps,       // input: allJamps super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+                 fptype2* ghelAllBlasTmp,          // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+                 gpuBlasHandle_t* ghelBlasHandles, // input: cuBLAS/hipBLAS handles (index is ighel: only the first nGoodHel <= ncomb are non-null)
+                 gpuStream_t* ghelStreams,         // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
+                 const int nGoodHel,               // input: number of good helicities
+                 const int gpublocks,              // input: cuda gpublocks
+                 const int gputhreads )            // input: cuda gputhreads
   {
+    const int nevt = gpublocks * gputhreads;
+    // Sanity checks
 #ifdef MGONGPU_HAS_NO_BLAS
-    assert( allBlasTmp == nullptr );  // sanity check for HASBLAS=hasNoBlas
-    assert( pBlasHandle == nullptr ); // sanity check for HASBLAS=hasNoBlas
+    assert( ghelAllBlasTmp == nullptr );  // sanity check for HASBLAS=hasNoBlas
+    assert( ghelBlasHandles == nullptr ); // sanity check for HASBLAS=hasNoBlas
+#else
+    if( !ghelBlasHandles )
+      assert( ghelAllBlasTmp == nullptr ); // CUDACPP_RUNTIME_BLASCOLORSUM not set
 #endif
-    if( !pBlasHandle ) // HASBLAS=hasNoBlas or CUDACPP_RUNTIME_BLASCOLORSUM not set
+    // Loop over helicities
+    for( int ighel = 0; ighel < nGoodHel; ighel++ )
     {
-      assert( allBlasTmp == nullptr );
-      gpuLaunchKernelStream( color_sum_kernel, gpublocks, gputhreads, stream, allMEs, allJamps );
-    }
-#ifndef MGONGPU_HAS_NO_BLAS
-    else
-    {
-      assert( allBlasTmp != nullptr );
-      color_sum_blas( allMEs, allJamps, allBlasTmp, stream, pBlasHandle, gpublocks, gputhreads );
-    }
+      // Prepare to call color_sum_kernel or color_sum_blas
+      fptype* hAllMEs = ghelAllMEs + ighel * nevt;
+      const fptype* hAllJamps = ghelAllJamps + ighel * nevt * ncolor * mgOnGpu::nx2;
+#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      fptype2* hAllBlasTmp = ( ghelAllBlasTmp != nullptr ? ghelAllBlasTmp + ighel * nevt * ( 2 * ncolor * mgOnGpu::nx2 + 1 ) : nullptr );
+      if( hAllBlasTmp )
+        gpuMemset( hAllBlasTmp, 0, nevt * ( 2 * ncolor * mgOnGpu::nx2 + 1 ) * sizeof( fptype2 ) ); // reset the tmp buffer (bug fix: reset MEs=0)
+#else
+      fptype2* hAllBlasTmp = ( ghelAllBlasTmp != nullptr ? ghelAllBlasTmp + ighel * nevt * ncolor * mgOnGpu::nx2 : nullptr );
+      if( hAllBlasTmp )
+        gpuMemset( hAllBlasTmp, 0, nevt * ncolor * mgOnGpu::nx2 * sizeof( fptype2 ) ); // reset the tmp buffer (just in case...)
 #endif
+      gpuStream_t hStream = ghelStreams[ighel];
+      // Call color_sum_kernel or color_sum_blas
+#ifdef MGONGPU_HAS_NO_BLAS
+      gpuLaunchKernelStream( color_sum_kernel, gpublocks, gputhreads, hStream, hAllMEs, hAllJamps );
+#else
+      gpuBlasHandle_t* pBlasHandle = ( ghelBlasHandles ? ghelBlasHandles + ighel : nullptr );
+      if( !pBlasHandle ) // CUDACPP_RUNTIME_BLASCOLORSUM not set
+        gpuLaunchKernelStream( color_sum_kernel, gpublocks, gputhreads, hStream, hAllMEs, hAllJamps );
+      else
+        color_sum_blas( hAllMEs, hAllJamps, hAllBlasTmp, pBlasHandle, hStream, gpublocks, gputhreads );
+#endif
+    }
   }
 #endif
 
