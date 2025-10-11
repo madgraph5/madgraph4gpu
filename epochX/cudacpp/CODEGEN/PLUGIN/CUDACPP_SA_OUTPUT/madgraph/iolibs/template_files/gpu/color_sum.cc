@@ -175,16 +175,28 @@ namespace mg5amcCpu
     {
       fptype2 ztempR = { 0 };
       fptype2 ztempI = { 0 };
-      // Loop over jcol
-      for( int jcol = 0; jcol < ncolor; jcol++ )
+      fptype2 jampRi = jampR[icol];
+      fptype2 jampIi = jampI[icol];
+      // OLD IMPLEMENTATION (ihel3: symmetric square matrix) - Loop over all jcol
+      //for( int jcol = 0; jcol < ncolor; jcol++ )
+      //{
+      //  fptype2 jampRj = jampR[jcol];
+      //  fptype2 jampIj = jampI[jcol];
+      //  ztempR += s_pNormalizedColorMatrix2[icol * ncolor + jcol] * jampRj; // use fptype2 version of color matrix
+      //  ztempI += s_pNormalizedColorMatrix2[icol * ncolor + jcol] * jampIj; // use fptype2 version of color matrix
+      //}
+      // NEW IMPLEMENTATION #475 (ihel3p1: triangular lower diagonal matrix) - Loop over jcol < icol
+      ztempR += s_pNormalizedColorMatrix2[icol * ncolor + icol] * jampRi; // use fptype2 version of color matrix
+      ztempI += s_pNormalizedColorMatrix2[icol * ncolor + icol] * jampIi; // use fptype2 version of color matrix
+      for( int jcol = 0; jcol < icol; jcol++ )
       {
         fptype2 jampRj = jampR[jcol];
         fptype2 jampIj = jampI[jcol];
-        ztempR += s_pNormalizedColorMatrix2[icol * ncolor + jcol] * jampRj; // use fptype2 version of color matrix
-        ztempI += s_pNormalizedColorMatrix2[icol * ncolor + jcol] * jampIj; // use fptype2 version of color matrix
+        ztempR += 2 * s_pNormalizedColorMatrix2[icol * ncolor + jcol] * jampRj; // use fptype2 version of color matrix
+        ztempI += 2 * s_pNormalizedColorMatrix2[icol * ncolor + jcol] * jampIj; // use fptype2 version of color matrix
       }
-      deltaMEs += ztempR * jampR[icol];
-      deltaMEs += ztempI * jampI[icol];
+      deltaMEs += ztempR * jampRi;
+      deltaMEs += ztempI * jampIi;
     }
     // *** STORE THE RESULTS ***
     using E_ACCESS = DeviceAccessMatrixElements; // non-trivial access: buffer includes all events
