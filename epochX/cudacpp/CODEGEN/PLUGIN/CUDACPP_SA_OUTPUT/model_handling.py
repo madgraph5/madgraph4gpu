@@ -1318,7 +1318,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                    const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
 #ifdef MGONGPUCPP_GPUIMPL
-                   fptype* ghelAllJamps,              // output: jamp[2*ncolor*nGoodHel*nevt] super-buffer for nGoodHel <= ncomb individual helicities
+                   fptype* allJamps,                  // output: jamp[2*ncolor*nevt] buffer for one helicity _within a super-buffer for dcNGoodHel helicities_
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                    const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE (#899/#911)
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel

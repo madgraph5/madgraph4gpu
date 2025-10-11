@@ -33,9 +33,10 @@
 #ifdef MGONGPUCPP_GPUIMPL
       //printf( "calculate_jamps: dcNGoodHel=%%d\n", dcNGoodHel );
       // In CUDA, copy the local jamp to the output global-memory jamp
+      constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for dcNGoodHel helicities_
       using J_ACCESS = DeviceAccessJamp;
       for( int icol = 0; icol < ncolor; icol++ )
-        J_ACCESS::kernelAccessIcolIhelNhel( ghelAllJamps, icol, ihel, dcNGoodHel ) = jamp_sv[icol];
+        J_ACCESS::kernelAccessIcolIhelNhel( allJamps, icol, ihel0, dcNGoodHel ) = jamp_sv[icol];
 #else
       // In C++, copy the local jamp to the output array passed as function argument
       for( int icol = 0; icol < ncolor; icol++ )

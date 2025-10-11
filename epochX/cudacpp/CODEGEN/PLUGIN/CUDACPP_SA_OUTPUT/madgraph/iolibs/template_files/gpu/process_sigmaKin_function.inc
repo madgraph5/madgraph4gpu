@@ -56,9 +56,10 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
-      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, ghelAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
+      fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
 #else
-      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, ghelAllJamps, nevt );
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );
 #endif
     }
     // (2) Then compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
