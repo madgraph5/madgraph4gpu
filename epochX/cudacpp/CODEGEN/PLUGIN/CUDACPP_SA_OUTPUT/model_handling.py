@@ -2182,7 +2182,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       {
         if( !graphExec )
         {
-          checkGpu( gpuGraphInstantiate( &graphExec, graph ) );
+          checkGpu( gpuGraphInstantiate( &graphExec, graph, nullptr, nullptr, 0 ) );
           //std::cout << \"(ihel=\" << ihel << \") Created graph executor \" << &graphExec << \" for graph \" << graph << std::endl;
         }
         //std::cout << \"(ihel=\" << ihel << \") Launch graph executor \" << &graphExec << \" for graph \" << graph << std::endl;
