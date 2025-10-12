@@ -483,7 +483,7 @@ namespace mg5amcCpu
       {
         if( !graphExec )
         {
-          checkGpu( gpuGraphInstantiate( &graphExec, graph ) );
+          checkGpu( gpuGraphInstantiate( &graphExec, graph, nullptr, nullptr, 0 ) );
           //std::cout << "(ihel=" << ihel << ") Created graph executor " << &graphExec << " for graph " << graph << std::endl;
         }
         //std::cout << "(ihel=" << ihel << ") Launch graph executor " << &graphExec << " for graph " << graph << std::endl;
