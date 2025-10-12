@@ -527,7 +527,7 @@ namespace mg5amcGpu
     const unsigned int* pHstChannelIds = ( useChannelIds ? m_hstChannelIds.data() : nullptr );
     MatrixElementKernelBase::updateNevtProcessedByChannel( pHstChannelIds, nevt() );
 #endif
-    checkGpu( gpuPeekAtLastError() );   // is this needed?
+    checkGpu( gpuPeekAtLastError() );   // not strictly needed, but useful if previous calls were not wrapped in checkGpu
     checkGpu( gpuDeviceSynchronize() ); // probably not needed? but it avoids errors in sigmaKin above from appearing later on in random places...
   }
 

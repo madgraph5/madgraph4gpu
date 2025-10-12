@@ -107,6 +107,8 @@ namespace mg5amcCpu
   constexpr int nwf = CPPProcess::nwf;       // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
 
+  constexpr int ndiagrams = CPPProcess::ndiagrams; // the number of Feynman diagrams
+
   using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
@@ -226,6 +228,61 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #include "diagrams.h"
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL
+  // Launch a Feynman diagram as a standalone kernel (sigmaKin_getGoodHel) or within a CUDA/HIP graph (sigmaKin)
+  template<typename Func, typename... Args>
+  void
+  gpuDiagram( gpuGraph_t* pGraph,
+              gpuGraphExec_t* pGraphExec,
+              gpuGraphNode_t* pNode,
+              gpuGraphNode_t* pNodeDep,
+              Func diagram,
+              int gpublocks,
+              int gputhreads,
+              gpuStream_t gpustream,
+              Args... args )
+  {
+    // CASE 0: WITHOUT GRAPHS (sigmaKin_getGoodHel)
+    if( gpustream == 0 )
+    {
+      gpuLaunchKernelStream( diagram, gpublocks, gputhreads, gpustream, args... );
+    }
+    // CASE 1: WITH GRAPHS (sigmaKin)
+    else
+    {
+      // Define the parameters for the graph node for this Feynman diagram
+      gpuKernelNodeParams params = {};
+      void* kParams[] = { static_cast<void*>( &args )... };
+      params.func = (void*)diagram;
+      params.gridDim = dim3( gpublocks );
+      params.blockDim = dim3( gputhreads );
+      params.kernelParams = kParams;
+      // Create the graph node for this Feynman diagram if not yet done
+      if( !( *pNode ) )
+      {
+        if( pNodeDep == nullptr )
+        {
+          checkGpu( gpuGraphAddKernelNode( pNode, *pGraph, nullptr, 0, &params ) );
+          //std::cout << "Added graph node " << pNode << " with no dependencies" << std::endl;
+        }
+        else
+        {
+          checkGpu( gpuGraphAddKernelNode( pNode, *pGraph, pNodeDep, 1, &params ) );
+          //std::cout << "Added graph node " << pNode << " with one dependency on " << pNodeDep << std::endl;
+        }
+      }
+      // Update parameters if the graph node for this Feynman diagram already exists
+      else
+      {
+        checkGpu( gpuGraphExecKernelNodeSetParams( *pGraphExec, *pNode, &params ) );
+        //std::cout << "Updated parameters for graph node " << pNode << std::endl;
+      }
+    }
+  }
+#endif
 
   //--------------------------------------------------------------------------
 
@@ -402,42 +459,105 @@ namespace mg5amcCpu
 
       // *** DIAGRAMS 1 TO 36 ***
 #ifdef MGONGPUCPP_GPUIMPL
-      gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
-      gpuLaunchKernelStream( diagram2, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram3, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram4, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram5, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram6, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram7, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram8, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram9, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram10, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram11, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram12, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram13, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram14, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram15, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram16, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram17, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram18, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram19, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram20, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram21, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram22, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram23, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram24, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram25, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram26, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram27, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram28, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram29, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram30, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram31, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram32, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram33, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram34, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram35, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuLaunchKernelStream( diagram36, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      static gpuGraph_t graphs[ncomb] = {};
+      static gpuGraphExec_t graphExecs[ncomb] = {};
+      static gpuGraphNode_t graphNodes[ncomb * ndiagrams] = {};
+      gpuGraph_t& graph = graphs[ihel];
+      gpuGraphExec_t& graphExec = graphExecs[ihel];
+      // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph if not yet done
+      if( gpustream != 0 )
+      {
+        if( !graph )
+        {
+          checkGpu( gpuGraphCreate( &graph, 0 ) );
+          //std::cout << "(ihel=" << ihel << ") Created graph " << graph << std::endl;
+        }
+      }
+      // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
+      // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
+      gpuGraphNode_t& node1 = graphNodes[ihel * ndiagrams + 0];
+      gpuDiagram( &graph, &graphExec, &node1, nullptr, diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
+      gpuGraphNode_t& node2 = graphNodes[ihel * ndiagrams + 1];
+      gpuDiagram( &graph, &graphExec, &node2, &node1, diagram2, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node3 = graphNodes[ihel * ndiagrams + 2];
+      gpuDiagram( &graph, &graphExec, &node3, &node2, diagram3, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node4 = graphNodes[ihel * ndiagrams + 3];
+      gpuDiagram( &graph, &graphExec, &node4, &node3, diagram4, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node5 = graphNodes[ihel * ndiagrams + 4];
+      gpuDiagram( &graph, &graphExec, &node5, &node4, diagram5, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node6 = graphNodes[ihel * ndiagrams + 5];
+      gpuDiagram( &graph, &graphExec, &node6, &node5, diagram6, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node7 = graphNodes[ihel * ndiagrams + 6];
+      gpuDiagram( &graph, &graphExec, &node7, &node6, diagram7, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node8 = graphNodes[ihel * ndiagrams + 7];
+      gpuDiagram( &graph, &graphExec, &node8, &node7, diagram8, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node9 = graphNodes[ihel * ndiagrams + 8];
+      gpuDiagram( &graph, &graphExec, &node9, &node8, diagram9, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node10 = graphNodes[ihel * ndiagrams + 9];
+      gpuDiagram( &graph, &graphExec, &node10, &node9, diagram10, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node11 = graphNodes[ihel * ndiagrams + 10];
+      gpuDiagram( &graph, &graphExec, &node11, &node10, diagram11, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node12 = graphNodes[ihel * ndiagrams + 11];
+      gpuDiagram( &graph, &graphExec, &node12, &node11, diagram12, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node13 = graphNodes[ihel * ndiagrams + 12];
+      gpuDiagram( &graph, &graphExec, &node13, &node12, diagram13, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node14 = graphNodes[ihel * ndiagrams + 13];
+      gpuDiagram( &graph, &graphExec, &node14, &node13, diagram14, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node15 = graphNodes[ihel * ndiagrams + 14];
+      gpuDiagram( &graph, &graphExec, &node15, &node14, diagram15, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node16 = graphNodes[ihel * ndiagrams + 15];
+      gpuDiagram( &graph, &graphExec, &node16, &node15, diagram16, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node17 = graphNodes[ihel * ndiagrams + 16];
+      gpuDiagram( &graph, &graphExec, &node17, &node16, diagram17, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node18 = graphNodes[ihel * ndiagrams + 17];
+      gpuDiagram( &graph, &graphExec, &node18, &node17, diagram18, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node19 = graphNodes[ihel * ndiagrams + 18];
+      gpuDiagram( &graph, &graphExec, &node19, &node18, diagram19, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node20 = graphNodes[ihel * ndiagrams + 19];
+      gpuDiagram( &graph, &graphExec, &node20, &node19, diagram20, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node21 = graphNodes[ihel * ndiagrams + 20];
+      gpuDiagram( &graph, &graphExec, &node21, &node20, diagram21, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node22 = graphNodes[ihel * ndiagrams + 21];
+      gpuDiagram( &graph, &graphExec, &node22, &node21, diagram22, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node23 = graphNodes[ihel * ndiagrams + 22];
+      gpuDiagram( &graph, &graphExec, &node23, &node22, diagram23, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node24 = graphNodes[ihel * ndiagrams + 23];
+      gpuDiagram( &graph, &graphExec, &node24, &node23, diagram24, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node25 = graphNodes[ihel * ndiagrams + 24];
+      gpuDiagram( &graph, &graphExec, &node25, &node24, diagram25, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node26 = graphNodes[ihel * ndiagrams + 25];
+      gpuDiagram( &graph, &graphExec, &node26, &node25, diagram26, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node27 = graphNodes[ihel * ndiagrams + 26];
+      gpuDiagram( &graph, &graphExec, &node27, &node26, diagram27, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node28 = graphNodes[ihel * ndiagrams + 27];
+      gpuDiagram( &graph, &graphExec, &node28, &node27, diagram28, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node29 = graphNodes[ihel * ndiagrams + 28];
+      gpuDiagram( &graph, &graphExec, &node29, &node28, diagram29, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node30 = graphNodes[ihel * ndiagrams + 29];
+      gpuDiagram( &graph, &graphExec, &node30, &node29, diagram30, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node31 = graphNodes[ihel * ndiagrams + 30];
+      gpuDiagram( &graph, &graphExec, &node31, &node30, diagram31, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node32 = graphNodes[ihel * ndiagrams + 31];
+      gpuDiagram( &graph, &graphExec, &node32, &node31, diagram32, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node33 = graphNodes[ihel * ndiagrams + 32];
+      gpuDiagram( &graph, &graphExec, &node33, &node32, diagram33, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node34 = graphNodes[ihel * ndiagrams + 33];
+      gpuDiagram( &graph, &graphExec, &node34, &node33, diagram34, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node35 = graphNodes[ihel * ndiagrams + 34];
+      gpuDiagram( &graph, &graphExec, &node35, &node34, diagram35, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node36 = graphNodes[ihel * ndiagrams + 35];
+      gpuDiagram( &graph, &graphExec, &node36, &node35, diagram36, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
+      if( gpustream != 0 )
+      {
+        if( !graphExec )
+        {
+          checkGpu( gpuGraphInstantiate( &graphExec, graph, nullptr, nullptr, 0 ) );
+          //std::cout << "(ihel=" << ihel << ") Created graph executor " << &graphExec << " for graph " << graph << std::endl;
+        }
+        //std::cout << "(ihel=" << ihel << ") Launch graph executor " << &graphExec << " for graph " << graph << std::endl;
+        checkGpu( gpuGraphLaunch( graphExec, gpustream ) );
+      }
 #else
       diagram1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );
       diagram2( wfs, jamps, channelIds, COUPs, numerators, denominators );

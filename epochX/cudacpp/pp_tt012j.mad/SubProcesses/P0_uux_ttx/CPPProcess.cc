@@ -107,6 +107,8 @@ namespace mg5amcCpu
   constexpr int nwf = CPPProcess::nwf;       // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
 
+  constexpr int ndiagrams = CPPProcess::ndiagrams; // the number of Feynman diagrams
+
   using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
@@ -226,6 +228,61 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #include "diagrams.h"
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL
+  // Launch a Feynman diagram as a standalone kernel (sigmaKin_getGoodHel) or within a CUDA/HIP graph (sigmaKin)
+  template<typename Func, typename... Args>
+  void
+  gpuDiagram( gpuGraph_t* pGraph,
+              gpuGraphExec_t* pGraphExec,
+              gpuGraphNode_t* pNode,
+              gpuGraphNode_t* pNodeDep,
+              Func diagram,
+              int gpublocks,
+              int gputhreads,
+              gpuStream_t gpustream,
+              Args... args )
+  {
+    // CASE 0: WITHOUT GRAPHS (sigmaKin_getGoodHel)
+    if( gpustream == 0 )
+    {
+      gpuLaunchKernelStream( diagram, gpublocks, gputhreads, gpustream, args... );
+    }
+    // CASE 1: WITH GRAPHS (sigmaKin)
+    else
+    {
+      // Define the parameters for the graph node for this Feynman diagram
+      gpuKernelNodeParams params = {};
+      void* kParams[] = { static_cast<void*>( &args )... };
+      params.func = (void*)diagram;
+      params.gridDim = dim3( gpublocks );
+      params.blockDim = dim3( gputhreads );
+      params.kernelParams = kParams;
+      // Create the graph node for this Feynman diagram if not yet done
+      if( !( *pNode ) )
+      {
+        if( pNodeDep == nullptr )
+        {
+          checkGpu( gpuGraphAddKernelNode( pNode, *pGraph, nullptr, 0, &params ) );
+          //std::cout << "Added graph node " << pNode << " with no dependencies" << std::endl;
+        }
+        else
+        {
+          checkGpu( gpuGraphAddKernelNode( pNode, *pGraph, pNodeDep, 1, &params ) );
+          //std::cout << "Added graph node " << pNode << " with one dependency on " << pNodeDep << std::endl;
+        }
+      }
+      // Update parameters if the graph node for this Feynman diagram already exists
+      else
+      {
+        checkGpu( gpuGraphExecKernelNodeSetParams( *pGraphExec, *pNode, &params ) );
+        //std::cout << "Updated parameters for graph node " << pNode << std::endl;
+      }
+    }
+  }
+#endif
 
   //--------------------------------------------------------------------------
 
@@ -402,7 +459,35 @@ namespace mg5amcCpu
 
       // *** DIAGRAMS 1 TO 1 ***
 #ifdef MGONGPUCPP_GPUIMPL
-      gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
+      static gpuGraph_t graphs[ncomb] = {};
+      static gpuGraphExec_t graphExecs[ncomb] = {};
+      static gpuGraphNode_t graphNodes[ncomb * ndiagrams] = {};
+      gpuGraph_t& graph = graphs[ihel];
+      gpuGraphExec_t& graphExec = graphExecs[ihel];
+      // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph if not yet done
+      if( gpustream != 0 )
+      {
+        if( !graph )
+        {
+          checkGpu( gpuGraphCreate( &graph, 0 ) );
+          //std::cout << "(ihel=" << ihel << ") Created graph " << graph << std::endl;
+        }
+      }
+      // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
+      // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
+      gpuGraphNode_t& node1 = graphNodes[ihel * ndiagrams + 0];
+      gpuDiagram( &graph, &graphExec, &node1, nullptr, diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
+      // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
+      if( gpustream != 0 )
+      {
+        if( !graphExec )
+        {
+          checkGpu( gpuGraphInstantiate( &graphExec, graph, nullptr, nullptr, 0 ) );
+          //std::cout << "(ihel=" << ihel << ") Created graph executor " << &graphExec << " for graph " << graph << std::endl;
+        }
+        //std::cout << "(ihel=" << ihel << ") Launch graph executor " << &graphExec << " for graph " << graph << std::endl;
+        checkGpu( gpuGraphLaunch( graphExec, gpustream ) );
+      }
 #else
       diagram1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );
 #endif
