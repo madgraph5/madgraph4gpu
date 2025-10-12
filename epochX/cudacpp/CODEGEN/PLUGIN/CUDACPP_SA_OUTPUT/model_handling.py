@@ -1310,13 +1310,68 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 
   //--------------------------------------------------------------------------
 
+#ifdef MGONGPUCPP_GPUIMPL
+  // Launch a Feynman diagram as a standalone kernel (sigmaKin_getGoodHel) or within a CUDA/HIP graph (sigmaKin)
+  template<typename Func, typename... Args>
+  void
+  gpuDiagram( gpuGraph_t* pGraph,
+              gpuGraphExec_t* pGraphExec,
+              gpuGraphNode_t* pNode,
+              gpuGraphNode_t* pNodeDep,
+              Func diagram,
+              int gpublocks,
+              int gputhreads,
+              gpuStream_t gpustream,
+              Args... args )
+  {
+    // CASE 0: WITHOUT GRAPHS (sigmaKin_getGoodHel)
+    if( gpustream == 0 )
+    {
+      gpuLaunchKernelStream( diagram, gpublocks, gputhreads, gpustream, args... );
+    }
+    // CASE 1: WITH GRAPHS (sigmaKin)
+    else
+    {
+      // Define the parameters for the graph node for this Feynman diagram
+      gpuKernelNodeParams params = {};
+      void* kParams[] = { static_cast<void*>( &args )... };
+      params.func = (void*)diagram;
+      params.gridDim = dim3( gpublocks );
+      params.blockDim = dim3( gputhreads );
+      params.kernelParams = kParams;
+      // Create the graph node for this Feynman diagram if not yet done
+      if( !( *pNode ) )
+      {
+        if( pNodeDep == nullptr )
+        {
+          checkGpu( gpuGraphAddKernelNode( pNode, *pGraph, nullptr, 0, &params ) );
+          //std::cout << \"Added graph node \" << pNode << \" with no dependencies\" << std::endl;
+        }
+        else
+        {
+          checkGpu( gpuGraphAddKernelNode( pNode, *pGraph, pNodeDep, 1, &params ) );
+          //std::cout << \"Added graph node \" << pNode << \" with one dependency on \" << pNodeDep << std::endl;
+        }
+      }
+      // Update parameters if the graph node for this Feynman diagram already exists
+      else
+      {
+        checkGpu( gpuGraphExecKernelNodeSetParams( *pGraphExec, *pNode, &params ) );
+        //std::cout << \"Updated parameters for graph node \" << pNode << std::endl;
+      }
+    }
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
   // Evaluate QCD partial amplitudes jamps for this given helicity from Feynman diagrams
   // Also compute running sums over helicities adding jamp2, numerator, denominator
   // (NB: this function no longer handles matrix elements as the color sum has now been moved to a separate function/kernel)
   // In CUDA, this function processes a single event
   // ** NB1: NEW Nov2024! In CUDA this is now a kernel function (it used to be a device function)
   // ** NB2: NEW Nov2024! in CUDA this now takes a channelId array as input (it used to take a scalar channelId as input)
-  // In C++, this function processes a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
+  // In C++, this function processes a single event \"page\" or SIMD vector (or for two in \"mixed\" precision mode, nParity=2)
   // *** NB: in C++, calculate_jamps accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   INLINE void
@@ -1395,10 +1450,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
       // --- COUPLINGS ---
       // -----------------
 #ifdef MGONGPUCPP_GPUIMPL
-      // CUDA diagram kernels take input/output buffers with couplings "fptype* couplings" for all events
+      // CUDA diagram kernels take input/output buffers with couplings \"fptype* couplings\" for all events
       const fptype* couplings = allcouplings;
 #else
-      // C++ diagram kernels take input/output buffers with couplings "fptype** COUPs" for a single event or SIMD vector
+      // C++ diagram kernels take input/output buffers with couplings \"fptype** COUPs\" for a single event or SIMD vector
       constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823: nIPC instead of nicoup)
       const fptype* allCOUPs[nxcoup];
       const fptype* COUPs[nxcoup];
@@ -2100,11 +2155,40 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 diag_to_config[amp[0]] = config
         ###misc.sprint(diag_to_config)
         res.append('\n      // *** DIAGRAMS 1 TO %d ***' % (len(matrix_element.get('diagrams'))) ) # AV
-        res.append('#ifdef MGONGPUCPP_GPUIMPL')
-        for idiagram in range(1,len(matrix_element.get('diagrams'))+1):
-            if idiagram == 1: res.append('gpuLaunchKernelStream( diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );')
-            else: res.append('gpuLaunchKernelStream( diagram%i, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );'%idiagram)
-        res.append('#else')
+        res.append("""#ifdef MGONGPUCPP_GPUIMPL
+      static gpuGraph_t graphs[ncomb] = {};
+      static gpuGraphExec_t graphExecs[ncomb] = {};
+      static gpuGraphNode_t graphNodes[ncomb * ndiagrams] = {};
+      gpuGraph_t& graph = graphs[ihel];
+      gpuGraphExec_t& graphExec = graphExecs[ihel];
+      // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph if not yet done
+      if( gpustream != 0 )
+      {
+        if( !graph )
+        {
+          checkGpu( gpuGraphCreate( &graph, 0 ) );
+          //std::cout << \"(ihel=\" << ihel << \") Created graph \" << graph << std::endl;
+        }
+      }
+      // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
+      // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
+      gpuGraphNode_t& node1 = graphNodes[ihel * ndiagrams + 0];
+      gpuDiagram( &graph, &graphExec, &node1, nullptr, diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );""")
+        for idiagram in range(2,len(matrix_element.get('diagrams'))+1): # only diagrams 2-N
+            res.append('gpuGraphNode_t& node%i = graphNodes[ihel * ndiagrams + %i];'%(idiagram,idiagram-1))
+            res.append('gpuDiagram( &graph, &graphExec, &node%i, &node%i, diagram%i, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );'%(idiagram,idiagram-1,idiagram))
+        res.append("""// Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
+      if( gpustream != 0 )
+      {
+        if( !graphExec )
+        {
+          checkGpu( gpuGraphInstantiate( &graphExec, graph ) );
+          //std::cout << \"(ihel=\" << ihel << \") Created graph executor \" << &graphExec << \" for graph \" << graph << std::endl;
+        }
+        //std::cout << \"(ihel=\" << ihel << \") Launch graph executor \" << &graphExec << \" for graph \" << graph << std::endl;
+        checkGpu( gpuGraphLaunch( graphExec, gpustream ) );
+      }
+#else""")
         for idiagram in range(1,len(matrix_element.get('diagrams'))+1):
             if idiagram == 1: res.append('diagram1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );')
             else: res.append('diagram%i( wfs, jamps, channelIds, COUPs, numerators, denominators );'%idiagram)
