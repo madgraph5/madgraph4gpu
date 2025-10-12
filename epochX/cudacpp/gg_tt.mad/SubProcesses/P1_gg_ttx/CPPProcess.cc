@@ -104,6 +104,8 @@ namespace mg5amcCpu
   constexpr int nwf = CPPProcess::nwf;       // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
 
+  constexpr int ndiagrams = CPPProcess::ndiagrams; // the number of Feynman diagrams
+
   using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
@@ -227,11 +229,18 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL
-  // Launch a Feynman diagram as a standalone kernel (sigmaKin_getGoodHel) or within a CUDA/HIP graph (sigmaKin) 
-  template <typename Func, typename... Args>
+  // Launch a Feynman diagram as a standalone kernel (sigmaKin_getGoodHel) or within a CUDA/HIP graph (sigmaKin)
+  template<typename Func, typename... Args>
   void
-  gpuDiagram( gpuGraph_t* pGraph, gpuGraphExec_t* pGraphExec, gpuGraphNode_t* pNode, gpuGraphNode_t* pNodeDep,
-              Func diagram, int gpublocks, int gputhreads, gpuStream_t gpustream, Args... args )
+  gpuDiagram( gpuGraph_t* pGraph,
+              gpuGraphExec_t* pGraphExec,
+              gpuGraphNode_t* pNode,
+              gpuGraphNode_t* pNodeDep,
+              Func diagram,
+              int gpublocks,
+              int gputhreads,
+              gpuStream_t gpustream,
+              Args... args )
   {
     // CASE 0: WITHOUT GRAPHS (sigmaKin_getGoodHel)
     if( gpustream == 0 )
@@ -243,13 +252,13 @@ namespace mg5amcCpu
     {
       // Define the parameters for the graph node for this Feynman diagram
       gpuKernelNodeParams params = {};
-      void* kParams[] = { static_cast<void*>(&args)... };
+      void* kParams[] = { static_cast<void*>( &args )... };
       params.func = (void*)diagram;
-      params.gridDim = dim3(gpublocks);
-      params.blockDim = dim3(gputhreads);
+      params.gridDim = dim3( gpublocks );
+      params.blockDim = dim3( gputhreads );
       params.kernelParams = kParams;
       // Create the graph node for this Feynman diagram if not yet done
-      if( !(*pNode) )
+      if( !( *pNode ) )
       {
         if( pNodeDep == nullptr )
         {
@@ -449,7 +458,7 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
       static gpuGraph_t graphs[ncomb] = {};
       static gpuGraphExec_t graphExecs[ncomb] = {};
-      static gpuGraphNode_t graphNodes[ncomb*3] = {};
+      static gpuGraphNode_t graphNodes[ncomb * ndiagrams] = {};
       gpuGraph_t& graph = graphs[ihel];
       gpuGraphExec_t& graphExec = graphExecs[ihel];
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph if not yet done
@@ -463,15 +472,12 @@ namespace mg5amcCpu
       }
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
-      gpuGraphNode_t& node1 = graphNodes[ihel*3+0];
-      gpuDiagram( &graph, &graphExec, &node1, nullptr, diagram1, gpublocks, gputhreads, gpustream,
-                  wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
-      gpuGraphNode_t& node2 = graphNodes[ihel*3+1];
-      gpuDiagram( &graph, &graphExec, &node2, &node1, diagram2, gpublocks, gputhreads, gpustream,
-                  wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuGraphNode_t& node3 = graphNodes[ihel*3+2];
-      gpuDiagram( &graph, &graphExec, &node3, &node2, diagram3, gpublocks, gputhreads, gpustream,
-                  wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node1 = graphNodes[ihel * ndiagrams + 0];
+      gpuDiagram( &graph, &graphExec, &node1, nullptr, diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
+      gpuGraphNode_t& node2 = graphNodes[ihel * ndiagrams + 1];
+      gpuDiagram( &graph, &graphExec, &node2, &node1, diagram2, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuGraphNode_t& node3 = graphNodes[ihel * ndiagrams + 2];
+      gpuDiagram( &graph, &graphExec, &node3, &node2, diagram3, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( gpustream != 0 )
       {
