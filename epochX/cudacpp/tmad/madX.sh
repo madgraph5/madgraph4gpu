@@ -478,6 +478,9 @@ function runmadevent()
 # PART 1 - build madevent
 ##########################################################################
 
+echo MADGRAPH_CUDA_ARCHITECTURE=${MADGRAPH_CUDA_ARCHITECTURE}
+echo MADGRAPH_HIP_ARCHITECTURE=${MADGRAPH_HIP_ARCHITECTURE}
+
 unset GTEST_ROOT
 unset LOCALGTEST
 
