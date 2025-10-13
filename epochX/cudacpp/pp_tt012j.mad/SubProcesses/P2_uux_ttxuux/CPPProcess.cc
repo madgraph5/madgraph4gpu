@@ -1289,9 +1289,9 @@ namespace mg5amcCpu
     // These variable are not used anywhere else in the code and their scope is limited to this sanity check
     {
       // nprocesses == 2 may happen for "mirror processes" such as P0_uux_ttx within pp_tt012j (see PR #754)
-      constexpr int nprocesses = 1;
+      constexpr int nprocesses = 2;
       static_assert( nprocesses == 1 || nprocesses == 2, "Assume nprocesses == 1 or 2" );
-      constexpr int process_id = 1; // code generation source: standalone_cudacpp
+      constexpr int process_id = 1; // code generation source: madevent + cudacpp exporter
       static_assert( process_id == 1, "Assume process_id == 1" );
     }
 
