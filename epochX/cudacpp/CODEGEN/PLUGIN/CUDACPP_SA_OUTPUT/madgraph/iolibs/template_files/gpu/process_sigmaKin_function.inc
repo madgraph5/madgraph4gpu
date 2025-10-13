@@ -53,10 +53,10 @@
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
+      fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
-      fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
       gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
 #else
       gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );

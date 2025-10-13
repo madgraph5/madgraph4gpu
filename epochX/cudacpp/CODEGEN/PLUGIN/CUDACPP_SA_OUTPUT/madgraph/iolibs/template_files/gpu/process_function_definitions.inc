@@ -378,14 +378,14 @@ namespace mg5amcCpu
     {
       const int gpublocks = 1;
       const int gputhreads = maxtry;
+      constexpr int nOneHel = 1; // use a jamp buffer for a single helicity
+      gpuMemcpyToSymbol( dcNGoodHel, &nOneHel, sizeof( int ) );
       // NEW IMPLEMENTATION OF GETGOODHEL (#630): RESET THE RUNNING SUM OVER HELICITIES TO 0 BEFORE ADDING A NEW HELICITY
       gpuMemset( allMEs, 0, maxtry * sizeof( fptype ) );
       // NB: color_sum ADDS |M|^2 for one helicity to the running sum of |M|^2 over helicities for the given event(s)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr fptype_sv* allJamp2s = nullptr;        // no need for color selection during helicity filtering
       constexpr unsigned int* allChannelIds = nullptr; // disable multichannel single-diagram enhancement
-      constexpr int nOneHel = 1;                       // use a jamp buffer for a single helicity
-      gpuMemcpyToSymbol( dcNGoodHel, &nOneHel, sizeof( int ) );
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, allChannelIds, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
 #else
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, gpublocks * gputhreads );
