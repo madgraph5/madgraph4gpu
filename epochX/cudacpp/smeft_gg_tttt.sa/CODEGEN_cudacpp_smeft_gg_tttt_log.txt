@@ -73,7 +73,7 @@ INFO: load vertices
 [1;32mDEBUG: MG5 converter defines FFFF26 to Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjP(-5,1)*ProjP(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjP(-5,3)*ProjP(-3,1) + Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjM(-5,1)*ProjM(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjM(-5,3)*ProjM(-3,1) [0m
 [1;32mDEBUG: MG5 converter defines FFFF27 to ProjP(2,1)*ProjP(4,3) + ProjM(2,1)*ProjM(4,3) [0m
 [1;32mDEBUG: MG5 converter defines FFFF112 to ProjM(2,3)*ProjM(4,1) + ProjP(2,3)*ProjP(4,1) [0m
-[1;32mDEBUG: model prefixing  takes 0.12777948379516602 [0m
+[1;32mDEBUG: model prefixing  takes 0.12794756889343262 [0m
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
 Defined multiparticle j = g u c d s u~ c~ d~ s~
@@ -102,7 +102,7 @@ INFO: Processing color information for process: g g > t t~ t t~ @1
 [1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 219][0m [0m
 [1;32mDEBUG:    type(fortran_model)=<class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 220][0m [0m
 [1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 221][0m [0m
-[1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'MemoryAccessChannelIds.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.h', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h', 'cudacpp.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 222][0m [0m
+[1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'MemoryAccessChannelIds.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h', 'cudacpp.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 222][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx 
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/./CPPProcess.h
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/./CPPProcess.cc
@@ -114,7 +114,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV9 routines[0m
 ALOHA: aloha creates VVVV10 routines[0m
-ALOHA: aloha creates 5 routines in  0.306 s
+ALOHA: aloha creates 5 routines in  0.304 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV5
 <class 'aloha.create_aloha.AbstractRoutine'> VVV5
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -134,7 +134,7 @@ INFO: Created files Parameters_SMEFTsim_topU3l_MwScheme_UFO.h and Parameters_SME
 INFO: /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/. and /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/. 
 quit
 
-real	0m5.059s
-user	0m4.973s
+real	0m5.053s
+user	0m4.964s
 sys	0m0.067s
 Code generation completed in 5 seconds

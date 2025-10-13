@@ -58,7 +58,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005333662033081055 [0m
+[1;32mDEBUG: model prefixing  takes 0.005407094955444336 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -165,7 +165,7 @@ INFO: Processing color information for process: g g > t t~ @1
 [1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 219][0m [0m
 [1;32mDEBUG:    type(fortran_model)=<class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 220][0m [0m
 [1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 221][0m [0m
-[1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'MemoryAccessChannelIds.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.h', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h', 'cudacpp.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 222][0m [0m
+[1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'MemoryAccessChannelIds.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h', 'cudacpp.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 222][0m [0m
 INFO: Creating files in directory /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx 
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.h
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.cc
@@ -189,7 +189,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. and /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. 
 quit
 
-real	0m0.537s
-user	0m0.480s
-sys	0m0.053s
-Code generation completed in 1 seconds
+real	0m0.523s
+user	0m0.473s
+sys	0m0.047s
+Code generation completed in 0 seconds
