@@ -476,13 +476,6 @@ EOF
     if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc}.${autosuffix}.BKP ${proc}.${autosuffix}; then echo "Old and new generated codes are identical"; else echo -e "\nWARNING! Old and new generated codes differ"; fi
     popd >& /dev/null
   fi
-  # Compare the existing manually developed code to the newly generated code for the specific process
-  if [ "${OUTBCK}" == "cudacpp" ] || [ "${OUTBCK}" == "gridpack" ]; then
-    pushd ${OUTDIR} >& /dev/null
-    echo -e "\n+++ Compare manually developed code to newly generated code for $proc\n"
-    if $SCRDIR/diffCode.sh ${BRIEF} -r -c ${proc} ${proc}.${autosuffix}; then echo "Manual and generated codes are identical"; else echo -e "\nWARNING! Manual and generated codes differ"; fi
-    popd >& /dev/null
-  fi
   # Print a summary of the available code
   if [ "$QUIET" != "1" ]; then
     echo

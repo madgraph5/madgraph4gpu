@@ -167,7 +167,7 @@ fi
 cd $scrdir/..
 started="STARTED  AT $(date)"
 
-# (+36: 36/138) Six logs (double/mixed/float x hrd0/hrd1 x inl0) in each of the six SM processes [sm==1]
+# (+36: 36/144) Six logs (double/mixed/float x hrd0/hrd1 x inl0) in each of the six SM processes [sm==1]
 \rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh -dmf -hrd -makej -eemumu -ggtt -ggttg -ggttgg -gqttq $ggttggg ${makeclean} ${opts}"
 tmp1=$(mktemp)
@@ -179,7 +179,7 @@ else
 fi
 ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 
-# (+18: 54/138) Three scaling logs (double/mixed/float x hrd0 x inl0) in each of the six SM processes [scaling==1]
+# (+18: 54/144) Three scaling logs (double/mixed/float x hrd0 x inl0) in each of the six SM processes [scaling==1]
 if [ "${scaling}" == "1" ]; then
   if [ "${sm}" == "1" ]; then
     cmd="./tput/teeThroughputX.sh -dmf -makej -eemumu -ggtt -ggttg -ggttgg -gqttq $ggttggg -scaling ${opts}" # no rebuild needed
@@ -193,7 +193,7 @@ else
 fi
 ended1sc="$cmd\nENDED(1-scaling) AT $(date) [Status=$status]"
 
-# (+6: 60/138) Three extra logs (double/float x hrd0 x inl0 + blasOn) only in two of the six SM processes (rebuild may be needed) [blas==1]
+# (+6: 60/144) Three extra logs (double/mixed/float x hrd0 x inl0 + blasOn) only in two of the six SM processes (rebuild may be needed) [blas==1]
 if [ "${blas}" == "1" ]; then
   if [ "${sm}" == "1" ] || [ "${scaling}" == "1" ]; then
     cmd="./tput/teeThroughputX.sh -ggtt -ggttgg -dmf -blasOn ${opts}" # no rebuild needed
@@ -207,16 +207,16 @@ else
 fi
 ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 
-# (+6: 66/138) Three scaling logs (double/float x hrd0 x inl0 + blasOn) only in two of the six SM processes [blas==1 || scaling==1]
+# (+12: 72/144) Three scaling logs (double/mixed/float x hrd0 x inl0 + blasOn) only in four of the six SM processes [blas==1 || scaling==1]
 if [ "${blas}" == "1" ] || [ "${scaling}" == "1" ]; then
-  cmd="./tput/teeThroughputX.sh -ggtt -ggttgg -dmf -blasOn -scaling ${opts}" # no rebuild needed
+  cmd="./tput/teeThroughputX.sh -ggtt -ggttg -ggttgg -ggttggg -dmf -blasOn -scaling ${opts}" # no rebuild needed
   $cmd; status=$?
 else
   cmd="SKIP '$cmd'"; echo $cmd; status=$?
 fi
 ended2sc="$cmd\nENDED(2-scaling) AT $(date) [Status=$status]"
 
-# (+12: 78/138) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the six SM processes [sm==1]
+# (+12: 84/144) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the six SM processes [sm==1]
 \rm -rf gg_ttg${suff}/lib/build.none_*
 \rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh -d_f -hrd -makej -eemumu -ggtt -ggttgg -inlonly ${makeclean} ${opts}"
@@ -229,7 +229,7 @@ else
 fi
 ended3="$cmd\nENDED(3) AT $(date) [Status=$status]"
 
-# (+12: 90/138) Two extra logs (double/float x hrd0 x inl0 + bridge) in all six SM processes (rebuild from cache) [sm==1]
+# (+12: 96/144) Two extra logs (double/float x hrd0 x inl0 + bridge) in all six SM processes (rebuild from cache) [sm==1]
 cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -gqttq -ggttgg $ggttggg -d_f -bridge ${makeclean} ${opts}"
 if [ "${sm}" == "1" ]; then
   $cmd; status=$?
@@ -238,7 +238,7 @@ else
 fi
 ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
-# (+6: 96/138) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the six SM processes (no rebuild needed) [sm==1]
+# (+6: 102/144) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the six SM processes (no rebuild needed) [sm==1]
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f -rmbhst ${opts}"
 if [ "${sm}" == "1" ]; then
   $cmd; status=$?
@@ -247,7 +247,7 @@ else
 fi
 ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 
-# (+6: 102/138) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six SM processes (no rebuild needed) [sm==1]
+# (+6: 108/144) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six SM processes (no rebuild needed) [sm==1]
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f ${rndhst} ${opts}"
 if [ "${sm}" == "1" ] && [ "${rndhst}" != "-common" ]; then
   $cmd; status=$?
@@ -256,7 +256,7 @@ else
 fi
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
-# (+6: 108/138) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six SM processes (no rebuild needed) [sm==1]
+# (+6: 114/144) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six SM processes (no rebuild needed) [sm==1]
 cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f -common ${opts}"
 if [ "${sm}" == "1" ]; then
   $cmd; status=$?
@@ -265,7 +265,7 @@ else
 fi
 ended7="$cmd\nENDED(7) AT $(date) [Status=$status]"
 
-# (+6: 114/138) Three extra logs (double/float x hrd0 x inl0 + noBlas) only in two of the six SM processes (rebuild is needed) [blas==1]
+# (+6: 120/144) Three extra logs (double/float x hrd0 x inl0 + noBlas) only in two of the six SM processes (rebuild is needed) [blas==1]
 cmd="./tput/teeThroughputX.sh -ggtt -ggttgg -dmf -noBlas ${makeclean} ${opts}"
 if [ "${blas}" == "1" ]; then
   $cmd; status=$?
@@ -274,7 +274,7 @@ else
 fi
 ended8="$cmd\nENDED(8) AT $(date) [Status=$status]"
 
-# (+24: 138/138) Six extra logs (double/mixed/float x hrd0/hrd1 x inl0) only in the four BSM processes [bsm==1]
+# (+24: 144/144) Six extra logs (double/mixed/float x hrd0/hrd1 x inl0) only in the four BSM processes [bsm==1]
 cmd="./tput/teeThroughputX.sh -dmf -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb ${makeclean} ${opts}"
 tmp9=$(mktemp)
 if [ "${bsm}" == "1" ]; then
