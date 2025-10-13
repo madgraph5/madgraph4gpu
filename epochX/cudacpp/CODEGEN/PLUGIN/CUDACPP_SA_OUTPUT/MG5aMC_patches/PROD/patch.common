@@ -15,7 +15,7 @@ index 348c283be..49e6800ff 100644
 +endif
 +
 +# Disable all Fortran warnings?
- FFLAGS+= -w
+ FFLAGS+= -w -I ../../Source/DHELAS/ -I ../../Source/MODEL
  
 +# Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
 +FFLAGS+= -cpp
