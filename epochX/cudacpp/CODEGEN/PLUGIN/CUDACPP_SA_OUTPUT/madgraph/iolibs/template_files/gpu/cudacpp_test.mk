@@ -23,7 +23,7 @@ googletest/CMakeLists.txt:
 
 googletest/$(BUILDDIR)/Makefile: googletest/CMakeLists.txt
 	mkdir -p googletest/$(BUILDDIR)
-	cd googletest/$(BUILDDIR) && cmake -DCMAKE_INSTALL_PREFIX:PATH=$(THISDIR)/googletest/install -DBUILD_GMOCK=OFF ../
+	cd googletest/$(BUILDDIR) && cmake -DCMAKE_INSTALL_PREFIX:PATH=$(THISDIR)/googletest/install -DCMAKE_CXX_FLAGS="-mavx2 -mfma" -DBUILD_GMOCK=OFF ../
 
 googletest/$(BUILDDIR)/lib/libgtest.a: googletest/$(BUILDDIR)/Makefile
 	$(MAKE) -C googletest/$(BUILDDIR)
