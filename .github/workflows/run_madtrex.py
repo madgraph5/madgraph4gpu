@@ -30,7 +30,7 @@ def write_rwgt_card(path: Path) -> None:
 
 def load_csv(path):
     with open(path, newline="") as f:
-        reader = csv.DictReader(f)
+        reader = csv.DictReader(f, fieldnames=["RWGT", "VALUE", "ERROR"])
         for row in reader:
             yield float(row["VALUE"]), float(row["ERROR"])
 
