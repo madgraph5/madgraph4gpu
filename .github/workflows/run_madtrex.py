@@ -1,42 +1,14 @@
 #!/usr/bin/env python3
-import argparse
 import os
 import sys
-import shutil
 import subprocess
 from pathlib import Path
 import csv
-ALLOWED_PROCESS_DICTIONARY = {
-    "ee_mumu": {"model": "sm", "process": "e+ e- > mu+ mu-"},
-    "gg_tt": {"model": "sm", "process": "g g > t t~"},
-    "gg_tt01g": {"model": "sm", "process": "g g > t t~\nadd process g g > t t~ g"},
-    "gg_ttg": {"model": "sm", "process": "g g > t t~ g"},
-    "gg_ttgg": {"model": "sm", "process": "g g > t t~ g g"},
-    "gg_ttggg": {"model": "sm", "process": "g g > t t~ g g g"},
-    "gq_ttq": {"model": "sm", "process": "g q > t t~ q"},
-    "heft_gg_bb": {"model": "heft", "process": "g g > b b~"},
-    "nobm_pp_ttW": {"model": "sm-no_b_mass", "process": "p p > t t~ w+"},
-    "pp_tt012j": {"model": "sm", "process": "p p > t t~\nadd process p p > t t~ j\nadd process p p > t t~ j j"},
-    "smeft_gg_tttt": {"model": "SMEFTsim_topU3l_MwScheme_UFO-massless", "process": "g g > t t~ t t~"},
-    "susy_gg_t1t1": {"model": "MSSM_SLHA2", "process": "g g > t1 t1~"},
-    "susy_gg_tt": {"model": "MSSM_SLHA2", "process": "g g > t t~"},
-}
 
+ALLOWED_PROCESSES = [ "ee_mumu", "gg_tt", "gg_tt01g", "gg_ttg", "gg_ttgg", "gg_ttggg", "gq_ttq", "heft_gg_bb", "nobm_pp_ttW", "pp_tt012j", "smeft_gg_tttt", "susy_gg_t1t1", "susy_gg_tt" ]
 
 def generate_dat_content(process: str, rwgt_card_path: Path) -> str:
-    if not process in ALLOWED_PROCESS_DICTIONARY:
-        raise ValueError(f"Process '{process}' is not in the allowed processes.")
-    proc_info = ALLOWED_PROCESS_DICTIONARY[process]
-    proc = proc_info.get("process", "unknown_process")
-    model = proc_info.get("model", "unknown_model")
-    if proc == "unknown_process" or model == "unknown_model":
-        raise ValueError(f"Process '{process}' is not properly defined in the dictionary.")
-    run_card = f"import model {model}\n"
-    run_card += "define q = u c d s u~ c~ d~ s~\n"
-    run_card += f"generate {proc}\n"
-    run_card += f"output {process}.rw\n"
-    run_card += "launch\n"
-    run_card += "reweight=madtrex\n"
+    run_card = "reweight=madtrex\n"
     run_card += "0\n"
     run_card += "set nevents 10000\n"
     run_card += "set iseed 489\n"
@@ -61,42 +33,34 @@ def load_csv(path):
             yield float(row["VALUE"]), float(row["ERROR"])
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Run mg5_aMC for a validated PROCESS and move reweighting results."
-    )
-    parser.add_argument(
-        "mg5_rel_path",
-        help="Relative path (from current working directory HOME) to the mg5_aMC executable, e.g. SOMETHING/SOMETHING/bin/mg5_aMC",
-    )
-    parser.add_argument(
-        "process",
-        help="Label for the process (must be in the allowed list)."
-    )
-    args = parser.parse_args()
+    # Name of the directory of the process to test
+    process_dir = sys.argv[1]
+    # Label for the process (must be in the allowed list)
+    process = process_dir.replace(".mad", "")
 
     # Treat current working directory as HOME
     HOME = Path.cwd()
 
-    # Resolve mg5 executable path from HOME
-    mg5_path = (HOME / args.mg5_rel_path).resolve()
-    if not mg5_path.exists():
-        print(f"ERROR: mg5_aMC not found at: {mg5_path}", file=sys.stderr)
+    # Resolve generate_events executable path from HOME
+    process_path = (HOME / process_dir).resolve()
+    generate_events = (process_dir / "bin" / "generate_events").resolve()
+    if not process_path.exists():
+        print(f"ERROR: Process {process} not found at: {process_path}", file=sys.stderr)
         return 1
-    if not is_executable(mg5_path):
-        print(f"ERROR: Not executable: {mg5_path}", file=sys.stderr)
+    if not is_executable(generate_events):
+        print(f"ERROR: Not executable: {generate_events}", file=sys.stderr)
         return 1
 
-    process = args.process.strip()
-    if process not in ALLOWED_PROCESS_DICTIONARY:
+    if process not in ALLOWED_PROCESSES:
         print(
             f"ERROR: PROCESS '{process}' is not in the allowed list.\n"
-            f"Allowed: {sorted(ALLOWED_PROCESS_DICTIONARY.keys())}",
+            f"Allowed: {sorted(ALLOWED_PROCESSES)}",
             file=sys.stderr,
         )
         return 1
 
     # Check that baseline rwgt.csv exists
-    baseline_csv = HOME / "baseline" / f"{process}_rwgt.csv"
+    baseline_csv = HOME / "epochX" / "cudacpp" / "CODEGEN" / "PLUGIN" / "CUDACPP_SA_OUTPUT" / "test" / "MadtRex_baseline" / f"{process}_rwgt.csv"
     if not baseline_csv.exists():
         print(
             f"ERROR: Baseline rwgt.csv not found at:\n  {baseline_csv}\n"
@@ -127,11 +91,11 @@ def main() -> int:
     LOGS.mkdir(exist_ok=True)
     stdout_log = LOGS / f"mg5_{process}.stdout.log"
     stderr_log = LOGS / f"mg5_{process}.stderr.log"
-    print(f"Launching: {mg5_path} {dat_path}")
+    print(f"Launching: {generate_events} {dat_path}")
     try:
         with stdout_log.open("wb") as out, stderr_log.open("wb") as err:
             result = subprocess.run(
-                [str(mg5_path), str(dat_path)],
+                [str(generate_events), str(dat_path)],
                 cwd=str(HOME),
                 stdout=out,
                 stderr=err,
@@ -147,7 +111,7 @@ def main() -> int:
         else:
             print(f"mg5_aMC finished. Logs:\n  stdout: {stdout_log}\n  stderr: {stderr_log}")
     except FileNotFoundError:
-        print(f"ERROR: Failed to launch mg5_aMC at {mg5_path}", file=sys.stderr)
+        print(f"ERROR: Failed to launch {generate_events}", file=sys.stderr)
         return 1
     except Exception as e:
         print(f"ERROR: mg5_aMC run failed: {e}", file=sys.stderr)
@@ -157,7 +121,7 @@ def main() -> int:
     dat_path.unlink(missing_ok=True)
 
     # Move rwgt_results.csv → HOME/baseline/PROCESS_rwgt.csv
-    madtrex_csv = HOME / f"{process}.rw" / "rw_me" / "SubProcesses" / "rwgt_results.csv"
+    madtrex_csv = process_path / "rw_me" / "SubProcesses" / "rwgt_results.csv"
     if not madtrex_csv.exists():
         print(
             f"ERROR: Expected results not found at:\n  {madtrex_csv}\n"
@@ -166,6 +130,7 @@ def main() -> int:
         )
         return 1
 
+    all_ok = True
     for i, ((v_base, e_base), (v_mad, e_mad)) in enumerate(zip(load_csv(baseline_csv), load_csv(madtrex_csv)), start=1):
         diff = abs(v_base - v_mad)
         tol = min(e_base, e_mad)
