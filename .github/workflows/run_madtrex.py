@@ -6,9 +6,11 @@ from pathlib import Path
 import csv
 
 ALLOWED_PROCESSES = [ "ee_mumu", "gg_tt", "gg_tt01g", "gg_ttg", "gg_ttgg", "gg_ttggg", "gq_ttq", "heft_gg_bb", "nobm_pp_ttW", "pp_tt012j", "smeft_gg_tttt", "susy_gg_t1t1", "susy_gg_tt" ]
+MADGRAPH_CLI = Path.cwd() / ".." / ".." / "MG5aMC" / "mg5amcnlo" / "bin" / "mg5_aMC"
 
-def generate_dat_content(process: str, rwgt_card_path: Path) -> str:
-    run_card = "reweight=madtrex\n"
+def generate_dat_content(process_dir: str, rwgt_card_path: Path) -> str:
+    run_card = f"launch {process_dir}\n"
+    run_card += "reweight=madtrex\n"
     run_card += "0\n"
     run_card += "set nevents 10000\n"
     run_card += "set iseed 489\n"
@@ -43,12 +45,8 @@ def main() -> int:
 
     # Resolve generate_events executable path from HOME
     process_path = (HOME / process_dir).resolve()
-    generate_events = (process_dir / "bin" / "generate_events").resolve()
     if not process_path.exists():
         print(f"ERROR: Process {process} not found at: {process_path}", file=sys.stderr)
-        return 1
-    if not is_executable(generate_events):
-        print(f"ERROR: Not executable: {generate_events}", file=sys.stderr)
         return 1
 
     if process not in ALLOWED_PROCESSES:
@@ -60,7 +58,7 @@ def main() -> int:
         return 1
 
     # Check that baseline rwgt.csv exists
-    baseline_csv = HOME / "epochX" / "cudacpp" / "CODEGEN" / "PLUGIN" / "CUDACPP_SA_OUTPUT" / "test" / "MadtRex_baseline" / f"{process}_rwgt.csv"
+    baseline_csv = HOME / "CODEGEN" / "PLUGIN" / "CUDACPP_SA_OUTPUT" / "test" / "MadtRex_baseline" / f"{process}_rwgt.csv"
     if not baseline_csv.exists():
         print(
             f"ERROR: Baseline rwgt.csv not found at:\n  {baseline_csv}\n"
@@ -80,7 +78,7 @@ def main() -> int:
     # Write PROCESS.dat to HOME
     dat_path = HOME / f"{process}.dat"
     try:
-        dat_content = generate_dat_content(process, rwgt_card_path)
+        dat_content = generate_dat_content(process_dir, rwgt_card_path)
         dat_path.write_text(dat_content, encoding="utf-8")
     except Exception as e:
         print(f"ERROR: Failed to write {dat_path}: {e}", file=sys.stderr)
@@ -91,11 +89,11 @@ def main() -> int:
     LOGS.mkdir(exist_ok=True)
     stdout_log = LOGS / f"mg5_{process}.stdout.log"
     stderr_log = LOGS / f"mg5_{process}.stderr.log"
-    print(f"Launching: {generate_events} {dat_path}")
+    print(f"Launching: {MADGRAPH_CLI} {dat_path}")
     try:
         with stdout_log.open("wb") as out, stderr_log.open("wb") as err:
             result = subprocess.run(
-                [str(generate_events), str(dat_path)],
+                [str(MADGRAPH_CLI), str(dat_path)],
                 cwd=str(HOME),
                 stdout=out,
                 stderr=err,
@@ -111,7 +109,7 @@ def main() -> int:
         else:
             print(f"mg5_aMC finished. Logs:\n  stdout: {stdout_log}\n  stderr: {stderr_log}")
     except FileNotFoundError:
-        print(f"ERROR: Failed to launch {generate_events}", file=sys.stderr)
+        print(f"ERROR: Failed to launch {MADGRAPH_CLI}", file=sys.stderr)
         return 1
     except Exception as e:
         print(f"ERROR: mg5_aMC run failed: {e}", file=sys.stderr)
