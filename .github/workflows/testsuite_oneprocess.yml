@@ -280,4 +280,83 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
 
+  madtrex:
+    runs-on: ubuntu-latest
+    needs: codegen
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+
+    - name: split_prnum
+      # See https://stackoverflow.com/a/73467112
+      id: split
+      run: echo "prnum=PR${GITHUB_REF_NAME%%/*}" >> $GITHUB_OUTPUT
+
+    - name: HELLO_MADTREX
+      run: |
+        echo "HELLO_MADTREX ${{ inputs.process }} $(date)"
+        echo "Workflow run_id is ${{ github.run_id }}"
+        echo "Workflow ref_name is ${{ github.ref_name }}"
+        echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
+        echo "Current directory is $(pwd)"
+        echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
+        gh extension install actions/gh-actions-cache
+        REPO=${{ github.repository }}
+        echo "List codegencache keys for this run_id (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+        echo "List codegencache keys for this run_id (end)"
+      env:
+        GH_TOKEN: ${{ github.token }}
+
+    - name: restore_codegen_cache
+      id: codegen-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          epochX/cudacpp/${{ inputs.process }}
+        key: codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+        restore-keys: |
+          codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+
+    - name: check_f2py
+      run: |
+        # check if f2py is installed, if not, install it
+        if command -v f2py >/dev/null 2>&1; then
+          echo "f2py is installed"
+        else
+          echo "f2py not found, it will be installed"
+          sudo apt update && sudo apt install -y python3-numpy
+        fi
+
+        # check if it has been installed correctly
+        if ! command -v f2py >/dev/null 2>&1; then
+          echo "f2py not found, cannot run reweighting!"
+          exit 1
+        fi
+
+    - name: madtrex_test
+      run: |
+        if [ "${proc##*.}" == "mad" ]; then
+          cd epochX/cudacpp
+          ../../.github/workflows/run_madtrex.py ${{ inputs.process }}
+        else
+          echo "Skipping MadTrex tests since it is not madevent"
+        fi
+
+    - name: GOODBYE_MADTREX
+      run: |
+        echo "GOODBYE_MADTREX ${{ inputs.process }} $(date)"
+        echo "Workflow run_id is ${{ github.run_id }}"
+        echo "Workflow ref_name is ${{ github.ref_name }}"
+        echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
+        echo "Current directory is $(pwd)"
+        echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
+        REPO=${{ github.repository }}
+        echo "List codegencache keys for this run_id (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+        echo "List codegencache keys for this run_id (end)"
+      env:
+        GH_TOKEN: ${{ github.token }}
 #----------------------------------------------------------------------------------------------------------------------------------
