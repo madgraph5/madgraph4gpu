@@ -426,7 +426,6 @@ c     INCLUDE 'fbridge_common.inc'
       endif
 #endif
 
-      vecsize_used = vecsize_memmax ! default ! CppOnly=1, default for CUDACPP
       env_name = 'CUDACPP_RUNTIME_VECSIZEUSED'
       call get_environment_variable(env_name, env_value, env_length, env_status)
       if( env_status.eq.0 ) then
