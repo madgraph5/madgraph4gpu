@@ -1446,6 +1446,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # NB: symlink of cudacpp.mk to makefile is overwritten by madevent makefile if this exists (#480)
         # NB: this relies on the assumption that cudacpp code is generated before madevent code
         files.ln(pjoin(self.path, 'cudacpp.mk'), self.path, 'makefile')
+        # Add link to makefile_original.mk, PR #1052
+        files.ln(pjoin(self.path, '..', 'makefile_original.mk'), self.path, 'makefile_original.mk')
         # Add symbolic links in the test directory
         files.ln(pjoin(self.path + '/../../test', 'cudacpp_test.mk'), self.path + '/../../test', 'makefile')
         # Add reference file in the test directory (if it exists for this process)

@@ -121,7 +121,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt', s+'gpu/valgrind.h',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
-                                      s+'gpu/cudacpp_overlay.mk',
+                                      s+'gpu/cudacpp_overlay.mk', s+'gpu/makefile_wrapper.mk',
                                       s+'CMake/SubProcesses/CMakeLists.txt'],
                      'test': [s+'gpu/cudacpp_test.mk']}
 
@@ -239,6 +239,14 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             outputflags is a list of options provided when doing the output command"""
         ###misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
         if self.in_madevent_mode:
+            # Modify makefiles and symlinks to avoid doing
+            # make -f makefile -f cudacpp_overlay.mk to include the overlay
+            # and instead just use `make`, see #1052
+            subprocesses_dir = pjoin(self.dir_path, "SubProcesses")
+            files.cp(pjoin(subprocesses_dir, "makefile"), pjoin(subprocesses_dir, "makefile_original.mk"))
+            files.rm(pjoin(subprocesses_dir, "makefile"))
+            files.ln(pjoin(subprocesses_dir, "makefile_wrapper.mk"), subprocesses_dir, 'makefile')
+
             patch_coupl_write = r"""set -euo pipefail
 # Get last fields from lines starting with WRITE(*,2)
 gcs=$(awk '$1=="WRITE(*,2)" {print $NF}' coupl_write.inc)

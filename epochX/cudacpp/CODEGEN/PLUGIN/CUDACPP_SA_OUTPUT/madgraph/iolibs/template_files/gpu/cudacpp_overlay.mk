@@ -4,13 +4,7 @@
 # Based on code originally written by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024)
 
 # To be used after the project makefile
-# Usage: make -f makefile -f cudacpp_overlay.mk ...
 SHELL := /bin/bash
-
-# Recursive-make helper
-PRIMARY_MK ?= makefile
-OVERLAY_MK ?= cudacpp_overlay.mk
-SELF_MF := -f $(PRIMARY_MK) -f $(OVERLAY_MK)
 
 # Determine CUDACPP_BUILDDIR based on the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD and USEBUILDDIR (#829)
 # Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing
@@ -205,17 +199,17 @@ madevent_fortran_link: $(PROG)_fortran
 	ln -s $(PROG)_fortran $(PROG)
 
 madevent_cuda_link:
-	$(MAKE) $(SELF_MF) USEGTEST=0 BACKEND=cuda $(CUDACPP_BUILDDIR)/$(PROG)_cuda
+	$(MAKE) USEGTEST=0 BACKEND=cuda $(CUDACPP_BUILDDIR)/$(PROG)_cuda
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cuda $(PROG)
 
 madevent_hip_link:
-	$(MAKE) $(SELF_MF) USEGTEST=0 BACKEND=hip $(CUDACPP_BUILDDIR)/$(PROG)_hip
+	$(MAKE) USEGTEST=0 BACKEND=hip $(CUDACPP_BUILDDIR)/$(PROG)_hip
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_hip $(PROG)
 
 madevent_cpp_link:
-	$(MAKE) $(SELF_MF) USEGTEST=0 BACKEND=cppauto $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+	$(MAKE) USEGTEST=0 BACKEND=cppauto $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
@@ -224,7 +218,7 @@ override SUPPORTED_AVXS := cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
 madevent_%_link:
 	@if [ '$(words $(filter $*, $(SUPPORTED_AVXS)))' != '1' ]; then \
 	  echo "ERROR! Invalid target '$@' (supported: $(foreach avx,$(SUPPORTED_AVXS),madevent_$(avx)_link))"; exit 1; fi
-	$(MAKE) $(SELF_MF) USEGTEST=0 BACKEND=$* $(CUDACPP_BUILDDIR)/$(PROG)_cpp
+	$(MAKE) USEGTEST=0 BACKEND=$* $(CUDACPP_BUILDDIR)/$(PROG)_cpp
 	rm -f $(PROG)
 	ln -s $(CUDACPP_BUILDDIR)/$(PROG)_cpp $(PROG)
 
@@ -253,31 +247,31 @@ endif
 
 bldcuda: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) $(SELF_MF) USEBUILDDIR=1 BACKEND=cuda
+	$(MAKE) USEBUILDDIR=1 BACKEND=cuda
 
 bldhip: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) $(SELF_MF) USEBUILDDIR=1 BACKEND=hip
+	$(MAKE) USEBUILDDIR=1 BACKEND=hip
 
 bldnone: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) $(SELF_MF) USEBUILDDIR=1 BACKEND=cppnone
+	$(MAKE) USEBUILDDIR=1 BACKEND=cppnone
 
 bldsse4: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) $(SELF_MF) USEBUILDDIR=1 BACKEND=cppsse4
+	$(MAKE) USEBUILDDIR=1 BACKEND=cppsse4
 
 bldavx2: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) $(SELF_MF) USEBUILDDIR=1 BACKEND=cppavx2
+	$(MAKE) USEBUILDDIR=1 BACKEND=cppavx2
 
 bld512y: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) $(SELF_MF) USEBUILDDIR=1 BACKEND=cpp512y
+	$(MAKE) USEBUILDDIR=1 BACKEND=cpp512y
 
 bld512z: $(PROG)_fortran $(DSIG_cudacpp)
 	@echo
-	$(MAKE) $(SELF_MF) USEBUILDDIR=1 BACKEND=cpp512z
+	$(MAKE) USEBUILDDIR=1 BACKEND=cpp512z
 
 # Clean (NB: 'make clean' in Source calls 'make clean' in all P*)
 clean: # Clean builds: fortran in this Pn; cudacpp executables for one AVX in this Pn
