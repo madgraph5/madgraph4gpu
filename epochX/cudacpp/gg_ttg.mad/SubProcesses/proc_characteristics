@@ -8,7 +8,7 @@
  ninitial = 2 
  grouped_matrix = True 
  has_loops = False 
- bias_module = dummy 
+ bias_module = None 
  max_n_matched_jets = 1 
  colored_pdgs = [1, 2, 3, 4, 5, 6, 21] 
  complex_mass_scheme = False 

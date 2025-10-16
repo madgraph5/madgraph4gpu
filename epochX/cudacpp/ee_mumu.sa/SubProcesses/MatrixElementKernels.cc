@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
 
 #include "MatrixElementKernels.h"
 
@@ -60,7 +60,9 @@ namespace mg5amcCpu
 #ifdef MGONGPU_CHANNELID_DEBUG
     MatrixElementKernelBase::dumpNevtProcessedByChannel();
 #endif
+#ifdef MGONGPUCPP_VERBOSE
     MatrixElementKernelBase::dumpSignallingFPEs();
+#endif
   }
 
   //--------------------------------------------------------------------------
