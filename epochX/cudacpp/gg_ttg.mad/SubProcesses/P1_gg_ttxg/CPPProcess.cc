@@ -229,23 +229,23 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL
-  // Launch a Feynman diagram or group of diagrams as a standalone kernel (sigmaKin_getGoodHel) or within a CUDA/HIP graph (sigmaKin)
+  // Launch a group of Feynman diagrams as a standalone kernel (sigmaKin_getGoodHel) or within a CUDA/HIP graph (sigmaKin)
   template<typename Func, typename... Args>
   void
-  gpuDiagram( gpuGraph_t* pGraph,
-              gpuGraphExec_t* pGraphExec,
-              gpuGraphNode_t* pNode,
-              gpuGraphNode_t* pNodeDep,
-              Func diagram,
-              int gpublocks,
-              int gputhreads,
-              gpuStream_t gpustream,
-              Args... args )
+  gpuDiagrams( gpuGraph_t* pGraph,
+               gpuGraphExec_t* pGraphExec,
+               gpuGraphNode_t* pNode,
+               gpuGraphNode_t* pNodeDep,
+               Func diagrams,
+               int gpublocks,
+               int gputhreads,
+               gpuStream_t gpustream,
+               Args... args )
   {
     // CASE 0: WITHOUT GRAPHS (sigmaKin_getGoodHel)
     if( gpustream == 0 )
     {
-      gpuLaunchKernelStream( diagram, gpublocks, gputhreads, gpustream, args... );
+      gpuLaunchKernelStream( diagrams, gpublocks, gputhreads, gpustream, args... );
     }
     // CASE 1: WITH GRAPHS (sigmaKin)
     else
@@ -253,7 +253,7 @@ namespace mg5amcCpu
       // Define the parameters for the graph node for this Feynman diagram
       gpuKernelNodeParams params = {};
       void* kParams[] = { static_cast<void*>( &args )... };
-      params.func = (void*)diagram;
+      params.func = (void*)diagrams;
       params.gridDim = dim3( gpublocks );
       params.blockDim = dim3( gputhreads );
       params.kernelParams = kParams;
@@ -474,13 +474,13 @@ namespace mg5amcCpu
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
       gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
-      gpuDiagram( &graph, &graphExec, &node1, nullptr, diagrams1to5, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
+      gpuDiagrams( &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
       gpuGraphNode_t& node2 = graphNodes[ihel * ndiagramgroups + 1];
-      gpuDiagram( &graph, &graphExec, &node2, &node1, diagrams6to10, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuDiagrams( &graph, &graphExec, &node2, &node1, diagramgroup2, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
       gpuGraphNode_t& node3 = graphNodes[ihel * ndiagramgroups + 2];
-      gpuDiagram( &graph, &graphExec, &node3, &node2, diagrams11to15, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuDiagrams( &graph, &graphExec, &node3, &node2, diagramgroup3, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
       gpuGraphNode_t& node4 = graphNodes[ihel * ndiagramgroups + 3];
-      gpuDiagram( &graph, &graphExec, &node4, &node3, diagrams16to16, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuDiagrams( &graph, &graphExec, &node4, &node3, diagramgroup4, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( gpustream != 0 )
       {
@@ -493,10 +493,10 @@ namespace mg5amcCpu
         checkGpu( gpuGraphLaunch( graphExec, gpustream ) );
       }
 #else
-      diagrams1to5( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );
-      diagrams6to10( wfs, jamps, channelIds, COUPs, numerators, denominators );
-      diagrams11to15( wfs, jamps, channelIds, COUPs, numerators, denominators );
-      diagrams16to16( wfs, jamps, channelIds, COUPs, numerators, denominators );
+      diagramgroup1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );
+      diagramgroup2( wfs, jamps, channelIds, COUPs, numerators, denominators );
+      diagramgroup3( wfs, jamps, channelIds, COUPs, numerators, denominators );
+      diagramgroup4( wfs, jamps, channelIds, COUPs, numerators, denominators );
 #endif
     }
     // *****************************
