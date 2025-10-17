@@ -74,6 +74,7 @@
 #define MGONGPU_FPTYPE2_DOUBLE 1 // default
 //#define MGONGPU_FPTYPE2_FLOAT 1 // 2x faster
 #endif
+
 // Choose whether to inline all HelAmps functions
 // This optimization can gain almost a factor 4 in C++, similar to -flto (issue #229)
 // By default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_INLINE_HELAMPS
@@ -108,10 +109,23 @@
 #define MGONGPU_CPPCXTYPE_CXSMPL 1 // new default (5.1E6/double, 10.2E6/float)
 #endif
 
+// Choose if cuBLAS and hipBLAS are supported for generating random numbers
+// For both CUDA and HIP, by default, do not inline, but allow this macro to be set from outside with e.g. -DMGONGPU_HAS_NO_BLAS
+// (there may exist CUDA/HIP installations, e.g. using the HPC package, which do not include cuBLAS/hipBLAS?)
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+//#undef MGONGPU_HAS_NO_BLAS // default
+////#define MGONGPU_HAS_NO_BLAS 1
+#elif defined __HIPCC__
+//#undef MGONGPU_HAS_NO_BLAS // default
+////#define MGONGPU_HAS_NO_BLAS 1
+#else
+#define MGONGPU_HAS_NO_BLAS 1
+#endif
+
 // CUDA nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
 #ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #undef MGONGPU_NSIGHT_DEBUG // default in CUDA
-//#define MGONGPU_NSIGHT_DEBUG 1
+//#define MGONGPU_NSIGHT_DEBUG 1 // CURRENTLY NO LONGER SUPPORTED!
 #else
 #undef MGONGPU_NSIGHT_DEBUG // only option in HIP or C++
 #endif /* clang-format on */
@@ -232,19 +246,19 @@ using mgOnGpu::fptype2;
 #endif
 
 /* clang-format off */
-// CUDA nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation
+// CUDA nsight compute (ncu) debug: add dummy lines to ease SASS program flow navigation [NB: CURRENTLY NO LONGER SUPPORTED!]
 // Arguments (not used so far): text is __FUNCTION__, code is 0 (start) or 1 (end)
-#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
-#define mgDebugDeclare() __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
-#define mgDebugInitialise() { mgDebugCounter[threadIdx.x] = 0; }
-#define mgDebug( code, text ) { mgDebugCounter[threadIdx.x] += 1; }
-#define mgDebugFinalise() { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%f\n", mgDebugCounter[threadIdx.x] ); }
-#else
+//#if defined __CUDACC__ && defined MGONGPU_NSIGHT_DEBUG // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+//#define mgDebugDeclare() __shared__ float mgDebugCounter[mgOnGpu::ntpbMAX];
+//#define mgDebugInitialise() { mgDebugCounter[threadIdx.x] = 0; }
+//#define mgDebug( code, text ) { mgDebugCounter[threadIdx.x] += 1; }
+//#define mgDebugFinalise() { if ( blockIdx.x == 0 && threadIdx.x == 0 ) printf( "MGDEBUG: counter=%f\n", mgDebugCounter[threadIdx.x] ); }
+//#else
 #define mgDebugDeclare() /*noop*/
-#define mgDebugInitialise() { /*noop*/ }
-#define mgDebug( code, text ) { /*noop*/ }
-#define mgDebugFinalise() { /*noop*/ }
-#endif /* clang-format on */
+#define mgDebugInitialise() /*noop*/
+#define mgDebug( code, text ) /*noop*/
+#define mgDebugFinalise() /*noop*/
+//#endif /* clang-format on */
 
 // Define empty CUDA/HIP declaration specifiers for C++
 #ifndef MGONGPUCPP_GPUIMPL

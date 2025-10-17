@@ -112,6 +112,7 @@
 # Parton level cuts definition *
 #*******************************
   0.0  = dsqrt_shat ! minimal shat for full process
+  -1  = dsqrt_shatmax ! maximum shat for full process
 #                                                                    
 #
 #*********************************************************************

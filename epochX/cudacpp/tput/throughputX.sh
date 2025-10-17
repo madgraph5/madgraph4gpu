@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Apr 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 set -e # fail on error
@@ -19,7 +19,7 @@ export MG5AMC_CHANNELID_DEBUG=1
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -49,7 +49,9 @@ fptypes="m" # new default #995 (was "d")
 helinls="0"
 hrdcods="0"
 rndgen=""
-rmbsam=""
+rmbsmp=""
+
+blas="" # build with blas but disable it at runtime
 
 maketype=
 makej=
@@ -59,6 +61,7 @@ div=0
 req=0
 detailed=0
 gtest=
+scaling=0
 ###nofpe=0
 verbose=0
 
@@ -211,6 +214,14 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-bridge" ]; then
     rmbsmp=" -${1}"
     shift
+  elif [ "$1" == "-noBlas" ]; then # build without blas
+    if [ "${blas}" == "-blasOn" ]; then echo "ERROR! Options -noBlas and -blasOn are incompatible"; usage; fi
+    blas=$1
+    shift
+  elif [ "$1" == "-blasOn" ]; then # build with blas and enable it at runtime
+    if [ "${blas}" == "-noBlas" ]; then echo "ERROR! Options -noBlas and -blasOn are incompatible"; usage; fi
+    blas=$1    
+    shift
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ] || [ "$1" == "-dryrun" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
       echo "ERROR! Options -makeonly, -makeclean, -makecleanonly and -dryrun are incompatible"; usage
@@ -244,6 +255,9 @@ while [ "$1" != "" ]; do
       echo "ERROR! Options -gtest and -nogtest are incompatible"; usage
     fi
     gtest=0
+    shift
+  elif [ "$1" == "-scaling" ]; then
+    scaling=1
     shift
   ###elif [ "$1" == "-nofpe" ]; then
   ###  nofpe=1
@@ -371,6 +385,9 @@ function showdir()
   echo $dir
 }
 
+echo MADGRAPH_CUDA_ARCHITECTURE=${MADGRAPH_CUDA_ARCHITECTURE}
+echo MADGRAPH_HIP_ARCHITECTURE=${MADGRAPH_HIP_ARCHITECTURE}
+
 ###echo -e "\n********************************************************************************\n"
 printf "\n"
 
@@ -433,6 +450,13 @@ done
 ##########################################################################
 # PART 2 - build the executables which should be run
 ##########################################################################
+
+if [ "${blas}" == "-noBlas" ]; then
+  export HASBLAS=hasNoBlas
+else
+  export HASBLAS=hasBlas
+fi
+echo HASBLAS=${HASBLAS}
 
 unset GTEST_ROOT
 unset LOCALGTEST
@@ -497,6 +521,18 @@ if [ "${maketype}" != "-dryrun" ]; then
   printf "DATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 fi
 
+echo HASBLAS=${HASBLAS}
+
+if [ "${blas}" == "-blasOn" ]; then
+  export CUDACPP_RUNTIME_BLASCOLORSUM=1
+else
+  unset CUDACPP_RUNTIME_BLASCOLORSUM
+fi
+echo CUDACPP_RUNTIME_BLASCOLORSUM=${CUDACPP_RUNTIME_BLASCOLORSUM}
+
+unset CUDACPP_RUNTIME_CUBLASTF32TENSOR
+echo CUDACPP_RUNTIME_CUBLASTF32TENSOR=${CUDACPP_RUNTIME_CUBLASTF32TENSOR}
+
 function runExe() {
   exe1=$1
   args="$2"
@@ -507,6 +543,7 @@ function runExe() {
   # Optionally add other patterns here for some specific configurations (e.g. clang)
   if [ "${exe1%%/check_cuda*}" != "${exe1}" ] || [ "${exe1%%/check_hip*}" != "${exe1}" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   pattern="${pattern}|Workflow"
+  ###pattern="${pattern}|BLASCOLORSUM"
   ###pattern="${pattern}|CUCOMPLEX"
   ###pattern="${pattern}|COMMON RANDOM|CURAND HOST \(CUDA"
   pattern="${pattern}|ERROR"
@@ -523,7 +560,7 @@ function runExe() {
     if [ "${detailed}" == "1" ]; then pattern="${pattern}|#"; fi
     if [ "${verbose}" == "1" ]; then set -x; fi
     ###perf stat -d $exe1 $args 2>&1 | grep -v "Performance counter stats"
-    perf stat -d $exe1 $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats"
+    perf stat -d $exe1 $args 2>&1 | egrep "(${pattern})" | grep -v "Performance counter stats" |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'
     set +x
   else
     # -- Older version using time
@@ -539,6 +576,7 @@ function runTest() {
   echo "runTest $exe1"
   if [ "${maketype}" == "-dryrun" ]; then return; fi
   pattern="PASS|FAIL"
+  ###pattern="${pattern}|BLASCOLORSUM"
   pattern="${pattern}|ERROR"
   pattern="${pattern}|WARNING"
   pattern="${pattern}|Floating Point Exception"
@@ -563,10 +601,12 @@ function cmpExe() {
     echo "ERROR! C++ calculation (C++${tag} failed"; exit 1 # expose FPE crash #1003 on HIP
   fi
   me1=$(cat ${tmp1} | grep MeanMatrix | awk '{print $4}'); cat ${tmp2}
+  ###cat ${tmp1} | grep BLASCOLORSUM
   if ! ${exef} ${argsf} 2>${tmp2} >${tmp1}; then
     echo "ERROR! Fortran calculation (F77${tag} failed"; exit 1
   fi
   me2=$(cat ${tmp1} | grep Average | awk '{print $4}'); cat ${tmp2}
+  ###cat ${tmp1} | grep BLASCOLORSUM
   echo -e "Avg ME (C++${tag}   = ${me1}\nAvg ME (F77${tag}   = ${me2}"
   if [ "${me2}" == "NaN" ]; then
     echo "ERROR! Fortran calculation (F77${tag} returned NaN"; exit 1
@@ -588,16 +628,23 @@ function runNcu() {
   args="$2"
   args="$args$rndgen$rmbsmp"
   echo "runNcu $exe1 $args"
-  if [ "${verbose}" == "1" ]; then set -x; fi
-  #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args | egrep '(sigmaKin|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
-  set +e # do not fail on error
-  out=$($(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args)
-  echo "$out" | egrep '(ERROR|WARNING)' # NB must escape $out in between quotes
-  set -e # fail on error (after ncu and after egrep!)
-  out=$(echo "${out}" | egrep '(sigmaKin|registers| sm)' | tr "\n" " ") # NB must escape $out in between quotes
-  echo $out | awk -v key1="launch__registers_per_thread" '{val1="N/A"; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+2)}; print $1, $2, $3, key1, val1}'
-  echo $out | awk -v key1="sm__sass_average_branch_targets_threads_uniform.pct" '{val1="N/A"; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+2)$(i+1)}; print $1, $2, $3, key1, val1}'
-  set +x
+  ###echoblas=1
+  kernels="calculate_jamps color_sum_kernel"
+  ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels kernel"; fi # heavy to profile...
+  ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels regex:gemm"; fi # output to be improved...
+  for kernel in $kernels; do
+    if [ "${verbose}" == "1" ]; then set -x; fi
+    #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::${kernel}:" --kernel-name-base function $exe1 $args | egrep '(calculate_jamps|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
+    set +e # do not fail on error
+    out=$($(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::${kernel}:" --kernel-name-base function $exe1 $args)
+    echo "$out" | egrep '(ERROR|WARNING)' # NB must escape $out in between quotes
+    ###if [ "${echoblas}" == "1" ]; then echo "$out" | egrep '(BLASCOLORSUM)'; echoblas=0; fi
+    set -e # fail on error (after ncu and after egrep!)
+    out=$(echo "${out}" | egrep "(${kernel}|registers| sm)" | tr "\n" " ") # NB must escape $out in between quotes
+    echo $out | awk -v key1="launch__registers_per_thread" '{val1="N/A"; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+2)}; print $1, $2, $3, key1, val1}'
+    echo $out | awk -v key1="sm__sass_average_branch_targets_threads_uniform.pct" '{val1="N/A"; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+2)$(i+1)}; print $1, $2, $3, key1, val1}'
+    set +x
+  done
 }
 
 # Profile divergence metrics more in detail
@@ -613,11 +660,11 @@ function runNcuDiv() {
   ###echo "runNcuDiv $exe1 $args"
   if [ "${verbose}" == "1" ]; then set -x; fi
   ###$(which ncu) --query-metrics $exe1 $args
-  ###$(which ncu) --metrics regex:.*branch_targets.* --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args
-  ###$(which ncu) --metrics regex:.*stalled_barrier.* --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args
-  ###$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %s\n", "", $18, $19; printf "%29s: %-51s %s\n", "", $22, $23; printf "%29s: %-51s %s\n", "", $20, $21; printf "%29s: %-51s %s\n", "", $24, $26}'
-  #$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args | egrep '(sigmaKin| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %-10s %s\n", "", $18, $19, $22$21; printf "%29s: %-51s %-10s %s\n", "", $28, $29, $32$31; printf "%29s: %-51s %-10s %s\n", "", $23, $24, $27$26; printf "%29s: %-51s %s\n", "", $33, $35}'
-  out=$($(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args | egrep '(sigmaKin| sm)' | tr "\n" " ")
+  ###$(which ncu) --metrics regex:.*branch_targets.* --target-processes all --kernel-id "::calculate_jamps:" --kernel-name-base function $exe1 $args
+  ###$(which ncu) --metrics regex:.*stalled_barrier.* --target-processes all --kernel-id "::calculate_jamps:" --kernel-name-base function $exe1 $args
+  ###$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum --target-processes all --kernel-id "::calculate_jamps:" --kernel-name-base function $exe1 $args | egrep '(calculate_jamps| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %s\n", "", $18, $19; printf "%29s: %-51s %s\n", "", $22, $23; printf "%29s: %-51s %s\n", "", $20, $21; printf "%29s: %-51s %s\n", "", $24, $26}'
+  #$(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::calculate_jamps:" --kernel-name-base function $exe1 $args | egrep '(calculate_jamps| sm)' | tr "\n" " " | awk '{printf "%29s: %-51s %-10s %s\n", "", $18, $19, $22$21; printf "%29s: %-51s %-10s %s\n", "", $28, $29, $32$31; printf "%29s: %-51s %-10s %s\n", "", $23, $24, $27$26; printf "%29s: %-51s %s\n", "", $33, $35}'
+  out=$($(which ncu) --metrics sm__sass_average_branch_targets_threads_uniform.pct,smsp__warps_launched.sum,smsp__sass_branch_targets.sum,smsp__sass_branch_targets_threads_divergent.sum,smsp__sass_branch_targets_threads_uniform.sum,smsp__sass_branch_targets.sum.per_second,smsp__sass_branch_targets_threads_divergent.sum.per_second,smsp__sass_branch_targets_threads_uniform.sum.per_second --target-processes all --kernel-id "::calculate_jamps:" --kernel-name-base function $exe1 $args | egrep '(calculate_jamps| sm)' | tr "\n" " ")
   ###echo $out
   echo $out | awk -v key1="smsp__sass_branch_targets.sum" '{key2=key1".per_second"; val1="N/A"; val2=""; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+1); if ($i==key2 && $(i+1)!="(!)") val2=$(i+2)$(i+1)}; printf "%29s: %-51s %-10s %s\n", "", key1, val1, val2}'
   echo $out | awk -v key1="smsp__sass_branch_targets_threads_uniform.sum" '{key2=key1".per_second"; val1="N/A"; val2=""; for (i=1; i<=NF; i++){if ($i==key1 && $(i+1)!="(!)") val1=$(i+1); if ($i==key2 && $(i+1)!="(!)") val2=$(i+2)$(i+1)}; printf "%29s: %-51s %-10s %s\n", "", key1, val1, val2}'
@@ -637,7 +684,7 @@ function runNcuReq() {
   for args in "-p 1 1 1" "-p 1 4 1" "-p 1 8 1" "-p 1 32 1" "$ncuArgs"; do
     ###echo "runNcuReq $exe1 $args"
     # NB This will print nothing if $args are invalid (eg "-p 1 4 1" when neppR=8)
-    $(which ncu) --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::sigmaKin:" --kernel-name-base function $exe1 $args | egrep '(sigmaKin|registers| sm|l1tex)' | tr "\n" " " | awk -vtag="[$args]" '{print $1, $2, $3, $16"s", $17";", $19"s", $20, tag}'
+    $(which ncu) --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum,launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::calculate_jamps:" --kernel-name-base function $exe1 $args | egrep '(calculate_jamps|registers| sm|l1tex)' | tr "\n" " " | awk -vtag="[$args]" '{print $1, $2, $3, $16"s", $17";", $19"s", $20, tag}'
   done
   set +x
 }
@@ -659,10 +706,19 @@ else
 fi
 echo -e "On $HOSTNAME [CPU: $cpuTxt] [GPU: $gpuTxt]:"
 
+# Configure scaling tests
+if [ "${scaling}" == "0" ]; then # no scaling tests (throughput tests only)
+  exesSc=
+elif [ "${scaling}" == "1" ]; then # scaling tests only (skip throughput tests)
+  exesSc=$exes
+  exes=
+fi
+
 # These two settings are needed by BMK containers: do not change them
 BMKEXEARGS="" # if BMKEXEARGS is set, exeArgs is set equal to BMKEXEARGS, while exeArgs2 is set to ""
 BMKMULTIPLIER=1 # the pre-defined numbers of iterations (including those in BMKEXEARGS) are multiplied by BMKMULTIPLIER
 
+# (1) TRADITIONAL THROUGHPUT TESTS
 ###lastExe=
 lastExeDir=
 ###echo "exes=$exes"
@@ -726,7 +782,7 @@ for exe in $exes; do
     exeArgs="-p 64 256 1"
     ncuArgs="-p 64 256 1"
     # For ggttgg (NEW): on GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
-    exeArgs2="-p 2048 256 1"
+    ###exeArgs2="-p 2048 256 1" # Sep 2025: this aborts (and is not needed as the plateau is reached earlier) with helicity streams
   elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then 
     # For ggttg, as on ggttgg: this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     ###exeArgs="-p 64 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
@@ -760,9 +816,16 @@ for exe in $exes; do
       unset OMP_NUM_THREADS
     fi
   elif [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]] || [ "${exe%%/alpcheck*}" != "${exe}" ]; then
+    echo "........................................................................."
     runNcu $exe "$ncuArgs"
-    if [ "${div}" == "1" ]; then runNcuDiv $exe; fi
-    if [ "${req}" == "1" ]; then runNcuReq $exe "$ncuArgs"; fi
+    if [ "${div}" == "1" ]; then
+      echo "........................................................................."
+      runNcuDiv $exe
+    fi
+    if [ "${req}" == "1" ]; then
+      echo "........................................................................."
+      runNcuReq $exe "$ncuArgs"
+    fi
     if [ "${exeArgs2}" != "" ]; then echo "........................................................................."; runExe $exe "$exeArgs2"; fi
   fi
   if [ "${gtest}" == "1" ]; then
@@ -775,6 +838,51 @@ for exe in $exes; do
   if [ "${bckend}" != "alpaka" ]; then
     echo "-------------------------------------------------------------------------"
     cmpExe $exe
+  fi
+done
+###echo "========================================================================="
+
+# (2) SCALING TESTS
+lastExeDir=
+for exe in $exesSc; do
+  if [ "$(basename $(dirname $exe))" != "$lastExeDir" ]; then
+    echo "========================================================================="
+    lastExeDir=$(basename $(dirname $exe))
+  else
+    echo "-------------------------------------------------------------------------"
+  fi
+  echo "scalingTest $exe"
+  if [ ! -f $exe ]; then echo "Not found: $exe"; continue; fi
+  if [ "${unamep}" != "x86_64" ]; then
+    if [ "${exe/build.avx2}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported on ${unamep}"; continue; fi
+  elif [ "${unames}" == "Darwin" ]; then
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported on ${unames}"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported on ${unames}"; continue; fi
+  elif [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" != "1" ]; then
+    if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
+    if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
+  fi
+  exeDir=$(dirname $exe)
+  cd $exeDir/.. # workaround for reading '../../Cards/param_card.dat' without setting MG5AMC_CARD_PATH
+  unset OMP_NUM_THREADS
+  # Scaling test with 256 threads per block
+  if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]]; then
+    echo "### GPU: scaling test 256"
+    for b in 1 2 4 8 16 32 64 128 256 512 1024; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ) |& sed "s/Gpu.*Assert/Assert/" |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done
+    if [[ "${exe%%/check_hip*}" != "${exe}" ]]; then
+      echo "### GPU: scaling test 64"
+      for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096; do ( $exe -p $b 64 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 64}" ) |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done # HIP (AMD GPU warp size is 32)
+    else
+      echo "### GPU: scaling test 32"
+      for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ) |& sed "s/Gpu.*Assert/Assert/"; done # CUDA (NVidia GPU warp size is 32)
+    fi
+  else
+    echo "### CPU: scaling test 256"
+    for b in 1 2 4; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ); done
+    echo "### CPU: scaling test 32"
+    for b in 1 2 4; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ); done
   fi
 done
 echo "========================================================================="

@@ -22,6 +22,8 @@
 #endif
 #include "epoch_process_id.h"
 
+#include <memory>
+
 #ifdef MGONGPUCPP_GPUIMPL
 using namespace mg5amcGpu;
 #else
