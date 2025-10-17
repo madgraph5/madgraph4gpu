@@ -1481,6 +1481,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
       // C++ diagram kernels take input/output buffers with momenta for a single event or SIMD vector
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
 #endif
+
       // -------------
       // --- JAMPS ---
       // -------------

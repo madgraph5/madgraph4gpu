@@ -62,7 +62,7 @@
 #endif
     }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // (1b) Then, In multichannel mode, also compute the running sums over helicities of squared jamp2s within each helicity stream
+    // (1b) Then, in multichannel mode, also compute the running sums over helicities of squared jamp2s within each helicity stream
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       fptype* hAllJamps = ghelAllJamps + ighel * nevt * ncolor * mgOnGpu::nx2;
