@@ -76,6 +76,7 @@ c      common/to_colstats/ncols,ncolflow,ncolalt,ic
 
       include 'coupl.inc' ! needs VECSIZE_MEMMAX (defined in vector.inc)
       INTEGER VECSIZE_USED
+      DATA VECSIZE_USED/VECSIZE_MEMMAX/ ! can be changed at runtime
 
       character*255 env_name, env_value
       integer env_length, env_status
@@ -121,7 +122,6 @@ C-----
       endif
 #endif
 
-      vecsize_used = vecsize_memmax ! default ! CppOnly=1, default for CUDACPP
       env_name = 'CUDACPP_RUNTIME_VECSIZEUSED'
       call get_environment_variable(env_name, env_value, env_length, env_status)
       if( env_status.eq.0 ) then
@@ -147,6 +147,7 @@ C-----
       FBRIDGE_CBYF1MAX = -1D100
       FBRIDGE_CBYF1MIN = 1D100
 #endif
+
 c
 c     Read process number
 c
@@ -280,6 +281,7 @@ c      call sample_result(xsec,xerr)
 c      write(*,*) 'Final xsec: ',xsec
 
       rewind(lun)
+
       close(lun)
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
@@ -307,6 +309,7 @@ c    &    SQRT( FBRIDGE_CBYF1SUM2 / FBRIDGE_NCBYF1 ) ! ~standard deviation
       ENDIF
 #endif
       CALL COUNTERS_FINALISE()
+
       end
 
 c     $B$ get_user_params $B$ ! tag for MadWeight
@@ -489,7 +492,6 @@ c
       fopened=.false.
       tempname=filename 	 
       fine=index(tempname,' ') 	 
-c     fine2=index(path,' ')-1 ! AV remove valgrind "Conditional jump or move depends on uninitialised value(s)"
       if(fine.eq.0) fine=len(tempname)
       open(unit=lun,file=tempname,status='old',ERR=20)
       fopened=.true.

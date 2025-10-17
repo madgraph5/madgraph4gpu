@@ -12,3 +12,5 @@ C     Diagram 2
       DATA TPRID(-1,2)/0/
 C     Number of configs
       DATA MAPCONFIG(0)/2/
+C     used fake id
+      DATA FAKE_ID/7/

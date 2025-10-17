@@ -7,7 +7,7 @@
 // Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.6.0, 2024-09-30
+// MadGraph5_aMC@NLO v. 3.6.5, 2025-10-17
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -798,7 +798,9 @@ namespace mg5amcCpu
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
+#ifdef MGONGPUCPP_DEBUG
     fpeEnable(); // enable SIGFPE traps for Floating Point Exceptions
+#endif
   }
 
   //--------------------------------------------------------------------------

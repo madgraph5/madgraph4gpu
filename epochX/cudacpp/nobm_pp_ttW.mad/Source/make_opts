@@ -103,6 +103,7 @@ endif
 ifneq ($(lhapdf),)
 CXXFLAGS += $(shell $(lhapdf) --cppflags)
 alfas_functions=alfas_functions_lhapdf
+alfas_to_clean=alfas_functions.o
 llhapdf+= $(shell $(lhapdf) --cflags --libs) -lLHAPDF
 # check if we need to activate c++11 (for lhapdf6.2)
 ifeq ($(origin CXX),default)
@@ -114,6 +115,7 @@ endif
 endif
 else
 alfas_functions=alfas_functions
+alfas_to_clean=alfas_functions_lhapdf.o
 llhapdf=
 endif
 

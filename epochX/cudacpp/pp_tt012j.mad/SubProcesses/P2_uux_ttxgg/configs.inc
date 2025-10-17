@@ -480,3 +480,5 @@ C     Diagram 35
       DATA TPRID(-3,35)/0/
 C     Number of configs
       DATA MAPCONFIG(0)/35/
+C     used fake id
+      DATA FAKE_ID/7/
