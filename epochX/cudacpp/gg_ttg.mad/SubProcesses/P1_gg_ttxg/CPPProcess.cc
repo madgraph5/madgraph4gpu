@@ -104,7 +104,7 @@ namespace mg5amcCpu
   constexpr int nwf = CPPProcess::nwf;       // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
 
-  constexpr int ndiagrams = CPPProcess::ndiagrams; // the number of Feynman diagrams
+  constexpr int ndiagramgroups = CPPProcess::ndiagramgroups; // the number of Feynman diagram groups
 
   using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
@@ -459,7 +459,7 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
       static gpuGraph_t graphs[ncomb] = {};
       static gpuGraphExec_t graphExecs[ncomb] = {};
-      static gpuGraphNode_t graphNodes[ncomb * ndiagrams] = {};
+      static gpuGraphNode_t graphNodes[ncomb * ndiagramgroups] = {};
       gpuGraph_t& graph = graphs[ihel];
       gpuGraphExec_t& graphExec = graphExecs[ihel];
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph if not yet done
@@ -473,13 +473,13 @@ namespace mg5amcCpu
       }
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
-      gpuGraphNode_t& node1 = graphNodes[ihel * ndiagrams + 0];
+      gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
       gpuDiagram( &graph, &graphExec, &node1, nullptr, diagrams1to5, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
-      gpuGraphNode_t& node2 = graphNodes[ihel * ndiagrams + 1];
+      gpuGraphNode_t& node2 = graphNodes[ihel * ndiagramgroups + 1];
       gpuDiagram( &graph, &graphExec, &node2, &node1, diagrams6to10, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuGraphNode_t& node3 = graphNodes[ihel * ndiagrams + 2];
+      gpuGraphNode_t& node3 = graphNodes[ihel * ndiagramgroups + 2];
       gpuDiagram( &graph, &graphExec, &node3, &node2, diagrams11to15, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
-      gpuGraphNode_t& node4 = graphNodes[ihel * ndiagrams + 3];
+      gpuGraphNode_t& node4 = graphNodes[ihel * ndiagramgroups + 3];
       gpuDiagram( &graph, &graphExec, &node4, &node3, diagrams16to16, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( gpustream != 0 )
