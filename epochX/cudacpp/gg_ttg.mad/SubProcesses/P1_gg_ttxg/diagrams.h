@@ -3,7 +3,39 @@
 // Created by: A. Valassi (Sep 2025) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2025) for the MG5aMC CUDACPP plugin.
 
-/* clang-format off */
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL
+  inline __device__ void
+  retrieveWf( const fptype* allWfs,
+              cxtype w_cx[][nw6],
+              int nevt,
+              int iwf )
+  {
+    using WG_ACCESS = DeviceAccessWavefunctions; // non-trivial access in global memory
+    const fptype* allWfs_iwf = allWfs + iwf * nevt * nw6 * mgOnGpu::nx2;
+    const cxtype* wcx_iwf = WG_ACCESS::kernelAccessConst( allWfs_iwf );
+    for( int iw6 = 0; iw6 < nw6; iw6++ ) // FIXME: only need 4 out of 6?
+      w_cx[iwf][iw6] = wcx_iwf[iw6];
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL
+  inline __device__ void
+  storeWf( fptype* allWfs,
+           const cxtype w_cx[][nw6],
+           int nevt,
+           int iwf )
+  {  
+    using WG_ACCESS = DeviceAccessWavefunctions; // non-trivial access in global memory
+    fptype* allWfs_iwf = allWfs + iwf * nevt * nw6 * mgOnGpu::nx2;
+    cxtype* wcx_iwf = WG_ACCESS::kernelAccess( allWfs_iwf );
+    for( int iw6 = 0; iw6 < nw6; iw6++ ) // FIXME: only need 4 out of 6?
+      wcx_iwf[iw6] = w_cx[iwf][iw6];
+  }
+#endif /* clang-format off */
 
   //--------------------------------------------------------------------------
 
@@ -28,6 +60,11 @@
     using M_ACCESS = DeviceAccessMomenta; // non-trivial access: buffer includes all events
 #else
     using M_ACCESS = HostAccessMomenta; // non-trivial access: buffer includes all events
+#endif
+
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
+    // (none)
 #endif
 
     // *** DIAGRAM 1 OF 16 ***
@@ -97,6 +134,11 @@
 #endif
     J_ACCESS::kernelAccessIcol( jamps, 0 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 1 ) -= cxtype( 0, 1 ) * amp_sv[0];
+
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
+    for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
+#endif
   }
   
   //--------------------------------------------------------------------------
@@ -116,6 +158,11 @@
     // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
 #include "diagram_boilerplate.h"
+
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
+    for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
+#endif
 
     // *** DIAGRAM 6 OF 16 ***
     // Wavefunction(s) for diagram number 6
@@ -174,6 +221,11 @@
 #endif
     J_ACCESS::kernelAccessIcol( jamps, 2 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 3 ) -= cxtype( 0, 1 ) * amp_sv[0];
+
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
+    for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
+#endif
   }
   
   //--------------------------------------------------------------------------
@@ -193,6 +245,11 @@
     // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
 #include "diagram_boilerplate.h"
+
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
+    for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
+#endif
 
     // *** DIAGRAM 11 OF 16 ***
     // Wavefunction(s) for diagram number 11
@@ -255,6 +312,11 @@
     J_ACCESS::kernelAccessIcol( jamps, 1 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 3 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 5 ) += amp_sv[0];
+
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
+    for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
+#endif
   }
   
   //--------------------------------------------------------------------------
@@ -274,6 +336,12 @@
     // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
 #include "diagram_boilerplate.h"
+
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
+    for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
+#endif
+
     // *** DIAGRAM 16 OF 16 ***
     // Wavefunction(s) for diagram number 16
     VVVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[10] );
@@ -295,6 +363,11 @@
     J_ACCESS::kernelAccessIcol( jamps, 2 ) += amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 4 ) += amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 5 ) -= amp_sv[0];
+
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
+    // (none)
+#endif
   }
   
   //--------------------------------------------------------------------------

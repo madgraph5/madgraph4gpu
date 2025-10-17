@@ -13,14 +13,14 @@
     //-------------
 
     //using namespace mg5amcGpu;
-    using W_ACCESS = DeviceAccessWavefunctions;   // non-trivial access (with kernel splitting): buffer includes all events
-    using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (local variable for one event): buffer for one event
-    using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
-    using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial;  // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using A_ACCESS = DeviceAccessAmplitudes;            // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;            // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed;       // TRIVIAL access (independent couplings): buffer for one event
     using J_ACCESS = DeviceAccessJamp;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
-    using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
+    using NUM_ACCESS = DeviceAccessNumerators;          // non-trivial access: buffer includes all events
+    using DEN_ACCESS = DeviceAccessDenominators;        // non-trivial access: buffer includes all events
     // SCALAR channelId for the current event (CUDA)
     unsigned int channelId = gpu_channelId( channelIds );
 #endif
@@ -33,9 +33,10 @@
     // This means that the fi pointer must point to a [RIRIRIRIRIRI] contiguous buffer of size nw6*nx2=12
     // The striding between events is nw6*nx2=12 and this is what W_ACCESS::kernelAccess must respect
     // (En passant, note that this means that events cannot be contiguous in the present code, memory is not coalesced)
-    const int nevt = gridDim.x * blockDim.x;
+    cxtype w_cx[nwf][nw6];
     fptype* w_fp[nwf];
-    for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = wfs + iwf * nevt * nw6 * mgOnGpu::nx2;
+    for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_cx[iwf] );
+    const int nevt = gridDim.x * blockDim.x;
 
     // Couplings
     constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823: nIPC instead of nicoup)
