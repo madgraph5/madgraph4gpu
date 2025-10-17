@@ -137,7 +137,18 @@
 
 #ifdef MGONGPUCPP_GPUIMPL
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
+    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
+    storeWf( wfs, w_cx, nevt, 0 );
+    storeWf( wfs, w_cx, nevt, 1 );
+    storeWf( wfs, w_cx, nevt, 2 );
+    storeWf( wfs, w_cx, nevt, 3 );
+    storeWf( wfs, w_cx, nevt, 4 );
+    storeWf( wfs, w_cx, nevt, 5 );
+    storeWf( wfs, w_cx, nevt, 6 );
+    storeWf( wfs, w_cx, nevt, 7 );
+    storeWf( wfs, w_cx, nevt, 8 );
+    storeWf( wfs, w_cx, nevt, 9 );
+    storeWf( wfs, w_cx, nevt, 10 );
 #endif
   }
   
@@ -161,7 +172,16 @@
 
 #ifdef MGONGPUCPP_GPUIMPL
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
+    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
+    retrieveWf( wfs, w_cx, nevt, 0 );
+    retrieveWf( wfs, w_cx, nevt, 1 );
+    retrieveWf( wfs, w_cx, nevt, 2 );
+    retrieveWf( wfs, w_cx, nevt, 3 );
+    retrieveWf( wfs, w_cx, nevt, 4 );
+    retrieveWf( wfs, w_cx, nevt, 5 );
+    retrieveWf( wfs, w_cx, nevt, 7 );
+    retrieveWf( wfs, w_cx, nevt, 8 );
+    retrieveWf( wfs, w_cx, nevt, 10 );
 #endif
 
     // *** DIAGRAM 6 OF 16 ***
@@ -224,7 +244,9 @@
 
 #ifdef MGONGPUCPP_GPUIMPL
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
+    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
+    storeWf( wfs, w_cx, nevt, 5 );
+    storeWf( wfs, w_cx, nevt, 11 );
 #endif
   }
   
@@ -248,7 +270,17 @@
 
 #ifdef MGONGPUCPP_GPUIMPL
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
+    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
+    retrieveWf( wfs, w_cx, nevt, 0 );
+    retrieveWf( wfs, w_cx, nevt, 1 );
+    retrieveWf( wfs, w_cx, nevt, 2 );
+    retrieveWf( wfs, w_cx, nevt, 5 );
+    retrieveWf( wfs, w_cx, nevt, 6 );
+    retrieveWf( wfs, w_cx, nevt, 7 );
+    retrieveWf( wfs, w_cx, nevt, 8 );
+    retrieveWf( wfs, w_cx, nevt, 9 );
+    retrieveWf( wfs, w_cx, nevt, 10 );
+    retrieveWf( wfs, w_cx, nevt, 11 );
 #endif
 
     // *** DIAGRAM 11 OF 16 ***
@@ -315,7 +347,8 @@
 
 #ifdef MGONGPUCPP_GPUIMPL
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
+    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
+    // (none)
 #endif
   }
   
@@ -339,7 +372,12 @@
 
 #ifdef MGONGPUCPP_GPUIMPL
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
+    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
+    retrieveWf( wfs, w_cx, nevt, 0 );
+    retrieveWf( wfs, w_cx, nevt, 1 );
+    retrieveWf( wfs, w_cx, nevt, 2 );
+    retrieveWf( wfs, w_cx, nevt, 3 );
+    retrieveWf( wfs, w_cx, nevt, 4 );
 #endif
 
     // *** DIAGRAM 16 OF 16 ***
