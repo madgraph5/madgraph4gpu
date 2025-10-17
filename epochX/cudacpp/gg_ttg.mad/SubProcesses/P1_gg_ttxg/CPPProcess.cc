@@ -399,6 +399,7 @@ namespace mg5amcCpu
       // C++ diagram kernels take input/output buffers with momenta for a single event or SIMD vector
       const fptype* momenta = M_ACCESS::ieventAccessRecordConst( allmomenta, ievt0 );
 #endif
+
       // -------------
       // --- JAMPS ---
       // -------------
@@ -964,7 +965,7 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                     fptype* ghelAllNumerators,         // input/tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
                     fptype* ghelAllDenominators,       // input/tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
-                    const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
+                    const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE (#899/#911)
 #endif
                     const fptype globaldenom ) /* clang-format on */
   {
@@ -1122,7 +1123,7 @@ namespace mg5amcCpu
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
-            const unsigned int* allChannelIds,  // input: channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
+            const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE (#899/#911)
 #endif
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
             int* allselhel,                     // output: helicity selection[nevt]
@@ -1147,7 +1148,7 @@ namespace mg5amcCpu
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
-            const unsigned int* allChannelIds,  // input: channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
+            const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE (#899/#911)
 #endif
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
             int* allselhel,                     // output: helicity selection[nevt]
@@ -1243,7 +1244,7 @@ namespace mg5amcCpu
 #endif
     }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // (1b) Then, In multichannel mode, also compute the running sums over helicities of squared jamp2s within each helicity stream
+    // (1b) Then, in multichannel mode, also compute the running sums over helicities of squared jamp2s within each helicity stream
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       fptype* hAllJamps = ghelAllJamps + ighel * nevt * ncolor * mgOnGpu::nx2;

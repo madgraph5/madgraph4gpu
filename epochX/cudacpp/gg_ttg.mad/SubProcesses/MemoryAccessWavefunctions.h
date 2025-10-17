@@ -22,8 +22,12 @@ namespace mg5amcCpu
   //----------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL
+
+#undef MGONGPU_TRIVIAL_WAVEFUNCTIONS
+
   class DeviceAccessWavefunctions
   {
+#ifndef MGONGPU_TRIVIAL_WAVEFUNCTIONS
   public:
     static __host__ __device__ inline cxtype_sv*
     kernelAccess( fptype* buffer )
@@ -37,7 +41,21 @@ namespace mg5amcCpu
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
       return reinterpret_cast<const cxtype*>( buffer + ievt * CPPProcess::nw6 * mgOnGpu::nx2 );
     }
+#else
+  public:
+    static __host__ __device__ inline cxtype*
+    kernelAccess( fptype* buffer )
+    {
+      return reinterpret_cast<cxtype*>( buffer );
+    }
+    static __host__ __device__ inline const cxtype*
+    kernelAccessConst( const fptype* buffer )
+    {
+      return reinterpret_cast<const cxtype*>( buffer );
+    }
+#endif
   };
+
 #endif
 
   //----------------------------------------------------------------------------
