@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Oct 2023) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2023-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi, D. Massaro (2023-2025) for the MG5aMC CUDACPP plugin.
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -281,7 +281,8 @@ jobs:
         GH_TOKEN: ${{ github.token }}
 
   madtrex:
-    runs-on: ubuntu-latest
+    if: ${{ endsWith(inputs.process, '.mad') }} # Reweighting test to do only in case of madevent
+    runs-on: ubuntu-22.04 # Python 3.12 not yet supported for reweighting
     needs: codegen
 
     steps:
@@ -320,30 +321,45 @@ jobs:
         restore-keys: |
           codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
 
+    - name: symlink_plugin
+      run: |
+        cd MG5aMC/mg5amcnlo/PLUGIN
+        ln -s ../../MG5aMC_PLUGIN/CUDACPP_OUTPUT ./
+
     - name: check_f2py
       run: |
         # check if f2py is installed, if not, install it
-        if command -v f2py >/dev/null 2>&1; then
+        if type -P "f2py" &>/dev/null; then
           echo "f2py is installed"
         else
-          echo "f2py not found, it will be installed"
-          sudo apt update && sudo apt install -y python3-numpy
+          echo "f2py not found"
+          echo "check if numpy.f2py is present"
+          if python3 -m numpy.f2py -v &>/dev/null; then
+            echo "numpy.f2py is installed correctly, creating wrapper"
+          else
+            echo "numpy.f2py not found, it will be installed"
+            sudo apt update && sudo apt install -y python3-numpy
+            echo "Installation done, now create wrapper"
+          fi
+          mkdir -p "$HOME/.local/bin"
+          echo '#!/usr/bin/env bash' > "$HOME/.local/bin/f2py"
+          echo 'exec python3 -m numpy.f2py "$@"' >> "$HOME/.local/bin/f2py"
+          chmod +x "$HOME/.local/bin/f2py"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH" # this updates path for the subsequent steps
+          export PATH="$HOME/.local/bin:$PATH" # this for the current step
         fi
 
-        # check if it has been installed correctly
-        if ! command -v f2py >/dev/null 2>&1; then
-          echo "f2py not found, cannot run reweighting!"
+        # Validate that "f2py" actually executes (not just resolves)
+        if ! f2py -v &>/dev/null; then
+          echo "f2py resolves but does not execute correctly."
+          echo "Cannot run reweighting!"
           exit 1
         fi
 
     - name: madtrex_test
       run: |
-        if [ "${proc##*.}" == "mad" ]; then
           cd epochX/cudacpp
           ../../.github/workflows/run_madtrex.py ${{ inputs.process }}
-        else
-          echo "Skipping MadTrex tests since it is not madevent"
-        fi
 
     - name: GOODBYE_MADTREX
       run: |
