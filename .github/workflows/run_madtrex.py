@@ -43,7 +43,6 @@ def main() -> int:
     # Treat current working directory as HOME
     HOME = Path.cwd()
 
-    # Resolve generate_events executable path from HOME
     process_path = (HOME / process_dir).resolve()
     if not process_path.exists():
         print(f"ERROR: Process {process} not found at: {process_path}", file=sys.stderr)
@@ -129,9 +128,9 @@ def main() -> int:
         return 1
 
     all_ok = True
-    for i, ((v_base, e_base), (v_mad, e_mad)) in enumerate(zip(load_csv(baseline_csv), load_csv(madtrex_csv)), start=1):
+    for i, ((v_base, _), (v_mad, _)) in enumerate(zip(load_csv(baseline_csv), load_csv(madtrex_csv)), start=1):
         diff = abs(v_base - v_mad)
-        tol = min(e_base, e_mad)
+        tol = 0.02 * v_mad
 
         if diff >= tol:
             print(f"Error: Row {i}: |{v_base} - {v_mad}| = {diff} >= {tol}")
