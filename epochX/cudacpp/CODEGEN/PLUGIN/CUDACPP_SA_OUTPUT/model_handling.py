@@ -2035,8 +2035,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
     # AV - new method
     def get_one_diagramgroup_code(self, idiagramgroup, diagrams, id_amp, multi_channel_map, diag_to_config, color):
-        res = []
         # 1 - Header
+        res = []
         if idiagramgroup == 1:
             res.append("""
   __global__ void
@@ -2087,26 +2087,39 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
 #include \"diagram_boilerplate.h\""""%(sidiagg,indent,indent,indent,indent,indent,indent))
+        # 2 - Core code
+        res2 = []
+        wfGet, wfPut = set(), set()
+        for diagram in diagrams:
+            res_diagram, id_amp, wfGet, wfPut = self.get_one_diagram_code(diagram, id_amp, multi_channel_map, diag_to_config, color, wfGet, wfPut)
+            res2.append( '\n'.join(res_diagram) )
+        wfGet, wfPut = sorted(wfGet), sorted(wfPut)
+        # 1b - Retrieve wavefunctions
+        ###print(idiagramgroup, wfGet)
+        if idiagramgroup > 1:
             res.append("""
 #ifdef MGONGPUCPP_GPUIMPL
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-#endif
+    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );""")
+            for iwf in wfGet: res.append('    retrieveWf( wfs, w_cx, nevt, %i );'%iwf)
+            if len(wfGet) == 0: res.append('    // (none)')
+            res.append("""#endif
 """)
-        # 2 - Core code
-        for diagram in diagrams:
-            res_diagram, id_amp = self.get_one_diagram_code(diagram, id_amp, multi_channel_map, diag_to_config, color)
-            res.append( '\n'.join(res_diagram) )
+        # 2b - Store wavefunctions
         if idiagramgroup == self.ndiagramgroups:
-            res.append("""#ifdef MGONGPUCPP_GPUIMPL
+            res2.append("""#ifdef MGONGPUCPP_GPUIMPL
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
     // (none)
 #endif""")
         else:
-            res.append("""#ifdef MGONGPUCPP_GPUIMPL
+            ###print(idiagramgroup, wfPut)
+            res2.append("""#ifdef MGONGPUCPP_GPUIMPL
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-#endif""")
+    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );""")
+            for iwf in wfPut: res2.append('    storeWf( wfs, w_cx, nevt, %i );'%iwf)
+            if len(wfPut) == 0: res2.append('    // (none)')
+            res2.append('#endif')
+        res += res2
         # 3 - Footer
         res.append("""  }
 
@@ -2115,7 +2128,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         return res, id_amp
 
     # AV - new method
-    def get_one_diagram_code(self, diagram, id_amp, multi_channel_map, diag_to_config, color):
+    def get_one_diagram_code(self, diagram, id_amp, multi_channel_map, diag_to_config, color, wfGet, wfPut):
         res = []
         idiagram = diagram.get('number')
         # 1 - Header
@@ -2127,13 +2140,28 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             wfline =  '    '+self.get_wavefunction_call(wf) # AV new: add formatting
             if wfline[-1] == '\n': wfline = wfline[:-1]
             res.append( wfline )
+            # Determine input/output wavefunctions in wfline (AV Oct 2025 kernel splitting)
+            ###print( idiagram, wfline )
+            wfargs = wfline.split('(')[1].split(')')[0].split(',')
+            ###print( idiagram, wfargs )
+            for arg in wfargs[:-2]: # look for input wavefunctions in all arguments except the last two
+                if 'w_fp' in arg: 
+                    iwf = int(arg.split('[')[1].split(']')[0])
+                    if iwf not in wfPut: wfGet.add(iwf)
+                    ###print( idiagram, 'input wf:', iwf )
+            for arg in wfargs[-2:]: # look for output wavefunctions in the last two arguments
+                if 'w_fp' in arg: 
+                    iwf = int(arg.split('[')[1].split(']')[0])
+                    wfPut.add(iwf)
+                    ###print( idiagram, 'output wf:', iwf )
         if len(diagram.get('wavefunctions')) == 0 : res.append('    // (none)') # AV
         res.append('    // Amplitude(s) for diagram number %d' % idiagram)
         for amplitude in diagram.get('amplitudes'):
             id_amp +=1
             namp = amplitude.get('number')
             amplitude.set('number', 1)
-            res.append('    '+self.get_amplitude_call(amplitude)) # AV new: add formatting
+            ampline = '    '+self.get_amplitude_call(amplitude) # AV new: add formatting
+            res.append(ampline)
             if multi_channel_map: # different code bases #473 (assume this is the same as self.include_multi_channel...)
                 if id_amp in diag_to_config:
                     ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
@@ -2158,12 +2186,21 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     res.append('    J_ACCESS::kernelAccessIcol( jamps, %s ) -= %samp_sv[0];' % (njamp, scoeff[1:]))
                 else:
                     res.append('    J_ACCESS::kernelAccessIcol( jamps, %s ) += %samp_sv[0];' % (njamp, scoeff))
+            # Determine input/output wavefunctions in ampline (AV Oct 2025 kernel splitting)
+            ###print( idiagram, ampline )
+            wfargs = ampline.split('(')[1].split(')')[0].split(',')
+            ###print( idiagram, wfargs )
+            for arg in wfargs[:3]: # look for input wavefunctions in the first three arguments
+                if 'w_fp' in arg: 
+                    iwf = int(arg.split('[')[1].split(']')[0])
+                    if iwf not in wfPut: wfGet.add(iwf)
+                    ###print( idiagram, 'input wf:', iwf )
         if len(diagram.get('amplitudes')) == 0 : res.append('    // (none)') # AV
         # 3 - Footer
         res.append('')
         # (none)
         # Return
-        return res, id_amp
+        return res, id_amp, wfGet, wfPut
 
     # AV - replace helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
     def super_get_matrix_element_calls(self, matrix_element, color_amplitudes, multi_channel_map=False):
