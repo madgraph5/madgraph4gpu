@@ -2190,7 +2190,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             ###print( idiagram, ampline )
             wfargs = ampline.split('(')[1].split(')')[0].split(',')
             ###print( idiagram, wfargs )
-            for arg in wfargs[:3]: # look for input wavefunctions in the first three arguments
+            for arg in wfargs: # look for input wavefunctions in all arguments (need at least the first four: four-particle vertices!)
                 if 'w_fp' in arg: 
                     iwf = int(arg.split('[')[1].split(']')[0])
                     if iwf not in wfPut: wfGet.add(iwf)
