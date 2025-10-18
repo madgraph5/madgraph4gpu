@@ -5,6 +5,7 @@
 
 import os
 import sys
+import math
 
 # AV - PLUGIN_NAME can be one of PLUGIN/CUDACPP_OUTPUT or MG5aMC_PLUGIN/CUDACPP_OUTPUT
 PLUGIN_NAME = __name__.rsplit('.',1)[0]
@@ -12,6 +13,9 @@ PLUGIN_NAME = __name__.rsplit('.',1)[0]
 # AV - use templates for source code, scripts and Makefiles from PLUGINDIR instead of MG5DIR
 ###from madgraph import MG5DIR
 PLUGINDIR = os.path.dirname( __file__ )
+
+# AV (Oct 2025) - Feynman diagrams per group (kernel splitting)
+DIAGRAMS_PER_GROUP = 5 # AV hardcoded (5 = initial ggttg value)
 
 # AV - create a plugin-specific logger
 import logging
@@ -1173,7 +1177,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['nincoming'] = nincoming
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
-        replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
+        self.ndiagrams = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
+        self.ndiagramgroups = math.ceil(self.ndiagrams/DIAGRAMS_PER_GROUP)
+        replace_dict['ndiagrams'] = self.ndiagrams
+        replace_dict['ndiagramgroups'] = self.ndiagramgroups
+        replace_dict['diagramspergroup'] = DIAGRAMS_PER_GROUP
         file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
         file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
         return file
@@ -1311,23 +1319,23 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL
-  // Launch a Feynman diagram as a standalone kernel (sigmaKin_getGoodHel) or within a CUDA/HIP graph (sigmaKin)
+  // Launch a group of Feynman diagrams as a standalone kernel (sigmaKin_getGoodHel) or within a CUDA/HIP graph (sigmaKin)
   template<typename Func, typename... Args>
   void
-  gpuDiagram( gpuGraph_t* pGraph,
-              gpuGraphExec_t* pGraphExec,
-              gpuGraphNode_t* pNode,
-              gpuGraphNode_t* pNodeDep,
-              Func diagram,
-              int gpublocks,
-              int gputhreads,
-              gpuStream_t gpustream,
-              Args... args )
+  gpuDiagrams( gpuGraph_t* pGraph,
+               gpuGraphExec_t* pGraphExec,
+               gpuGraphNode_t* pNode,
+               gpuGraphNode_t* pNodeDep,
+               Func diagrams,
+               int gpublocks,
+               int gputhreads,
+               gpuStream_t gpustream,
+               Args... args )
   {
     // CASE 0: WITHOUT GRAPHS (sigmaKin_getGoodHel)
     if( gpustream == 0 )
     {
-      gpuLaunchKernelStream( diagram, gpublocks, gputhreads, gpustream, args... );
+      gpuLaunchKernelStream( diagrams, gpublocks, gputhreads, gpustream, args... );
     }
     // CASE 1: WITH GRAPHS (sigmaKin)
     else
@@ -1335,7 +1343,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
       // Define the parameters for the graph node for this Feynman diagram
       gpuKernelNodeParams params = {};
       void* kParams[] = { static_cast<void*>( &args )... };
-      params.func = (void*)diagram;
+      params.func = (void*)diagrams;
       params.gridDim = dim3( gpublocks );
       params.blockDim = dim3( gputhreads );
       params.kernelParams = kParams;
@@ -1724,7 +1732,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # will be smaller than the true number of diagram. This is fine for color
         # but maybe not for something else.
         nb_diag = max(config[0] for config in config_subproc_map)
-        import math
         ndigits = str(int(math.log10(nb_diag))+1+1) # the additional +1 is for the -sign
         # Output which diagrams correspond ot a channel to get information for valid color
         lines = []
@@ -2146,7 +2153,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         ###misc.sprint(multi_channel_map)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
+        self.diagramsPerGroup = 5 # AV hardcoded (5 = initial ggttg value)
         diagrams = matrix_element.get('diagrams')
+        self.ndiagrams = len(matrix_element.get('diagrams'))
+        self.ndiagramgroups = math.ceil(self.ndiagrams/DIAGRAMS_PER_GROUP)
         diag_to_config = {}
         if multi_channel_map:
             for config in sorted(multi_channel_map.keys()):
@@ -2159,7 +2169,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         res.append("""#ifdef MGONGPUCPP_GPUIMPL
       static gpuGraph_t graphs[ncomb] = {};
       static gpuGraphExec_t graphExecs[ncomb] = {};
-      static gpuGraphNode_t graphNodes[ncomb * ndiagrams] = {};
+      static gpuGraphNode_t graphNodes[ncomb * ndiagramgroups] = {};
       gpuGraph_t& graph = graphs[ihel];
       gpuGraphExec_t& graphExec = graphExecs[ihel];
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph if not yet done
@@ -2173,11 +2183,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       }
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
-      gpuGraphNode_t& node1 = graphNodes[ihel * ndiagrams + 0];
-      gpuDiagram( &graph, &graphExec, &node1, nullptr, diagram1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );""")
-        for idiagram in range(2,len(matrix_element.get('diagrams'))+1): # only diagrams 2-N
-            res.append('gpuGraphNode_t& node%i = graphNodes[ihel * ndiagrams + %i];'%(idiagram,idiagram-1))
-            res.append('gpuDiagram( &graph, &graphExec, &node%i, &node%i, diagram%i, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );'%(idiagram,idiagram-1,idiagram))
+      gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
+      gpuDiagrams( &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );""")
+        for idiagramgroup in range(2,self.ndiagramgroups+1): # only diagram groups 2-N
+            res.append('gpuGraphNode_t& node%i = graphNodes[ihel * ndiagramgroups + %i];'%(idiagramgroup,idiagramgroup-1))
+            res.append('gpuDiagrams( &graph, &graphExec, &node%i, &node%i, diagramgroup%i, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );'%(idiagramgroup,idiagramgroup-1,idiagramgroup))
         res.append("""// Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( gpustream != 0 )
       {
@@ -2190,9 +2200,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         checkGpu( gpuGraphLaunch( graphExec, gpustream ) );
       }
 #else""")
-        for idiagram in range(1,len(matrix_element.get('diagrams'))+1):
-            if idiagram == 1: res.append('diagram1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );')
-            else: res.append('diagram%i( wfs, jamps, channelIds, COUPs, numerators, denominators );'%idiagram)
+        for idiagramgroup in range(1,self.ndiagramgroups+1):
+            if idiagramgroup == 1: res.append('diagramgroup1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );')
+            else: res.append('diagramgroup%i( wfs, jamps, channelIds, COUPs, numerators, denominators );'%idiagramgroup)
         res.append('#endif')
         # Generate diagram code
         self.diagram_code = []
