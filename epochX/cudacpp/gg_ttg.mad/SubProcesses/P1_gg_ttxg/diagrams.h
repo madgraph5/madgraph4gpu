@@ -5,40 +5,6 @@
 
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPUCPP_GPUIMPL
-  inline __device__ void
-  retrieveWf( const fptype* allWfs,
-              cxtype w_cx[][nw6],
-              int nevt,
-              int iwf )
-  {
-    using WG_ACCESS = DeviceAccessWavefunctions; // non-trivial access in global memory
-    const fptype* allWfs_iwf = allWfs + iwf * nevt * nw6 * mgOnGpu::nx2;
-    const cxtype* wcx_iwf = WG_ACCESS::kernelAccessConst( allWfs_iwf );
-    for( int iw6 = 0; iw6 < nw6; iw6++ ) // FIXME: only need 4 out of 6?
-      w_cx[iwf][iw6] = wcx_iwf[iw6];
-  }
-#endif
-
-  //--------------------------------------------------------------------------
-
-#ifdef MGONGPUCPP_GPUIMPL
-  inline __device__ void
-  storeWf( fptype* allWfs,
-           const cxtype w_cx[][nw6],
-           int nevt,
-           int iwf )
-  {  
-    using WG_ACCESS = DeviceAccessWavefunctions; // non-trivial access in global memory
-    fptype* allWfs_iwf = allWfs + iwf * nevt * nw6 * mgOnGpu::nx2;
-    cxtype* wcx_iwf = WG_ACCESS::kernelAccess( allWfs_iwf );
-    for( int iw6 = 0; iw6 < nw6; iw6++ ) // FIXME: only need 4 out of 6?
-      wcx_iwf[iw6] = w_cx[iwf][iw6];
-  }
-#endif /* clang-format off */
-
-  //--------------------------------------------------------------------------
-
   __global__ void
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
