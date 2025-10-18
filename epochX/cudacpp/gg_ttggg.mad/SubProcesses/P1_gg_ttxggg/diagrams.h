@@ -253,6 +253,7 @@
     retrieveWf( wfs, w_cx, nevt, 7 );
     retrieveWf( wfs, w_cx, nevt, 8 );
     retrieveWf( wfs, w_cx, nevt, 10 );
+    retrieveWf( wfs, w_cx, nevt, 12 );
     retrieveWf( wfs, w_cx, nevt, 13 );
 #endif
 
@@ -5880,6 +5881,7 @@
     retrieveWf( wfs, w_cx, nevt, 19 );
     retrieveWf( wfs, w_cx, nevt, 27 );
     retrieveWf( wfs, w_cx, nevt, 55 );
+    retrieveWf( wfs, w_cx, nevt, 62 );
     retrieveWf( wfs, w_cx, nevt, 68 );
     retrieveWf( wfs, w_cx, nevt, 77 );
 #endif
@@ -7277,6 +7279,7 @@
     retrieveWf( wfs, w_cx, nevt, 69 );
     retrieveWf( wfs, w_cx, nevt, 70 );
     retrieveWf( wfs, w_cx, nevt, 88 );
+    retrieveWf( wfs, w_cx, nevt, 92 );
 #endif
 
     // *** DIAGRAM 281 OF 1240 ***
@@ -11118,6 +11121,7 @@
     retrieveWf( wfs, w_cx, nevt, 11 );
     retrieveWf( wfs, w_cx, nevt, 62 );
     retrieveWf( wfs, w_cx, nevt, 86 );
+    retrieveWf( wfs, w_cx, nevt, 104 );
 #endif
 
     // *** DIAGRAM 436 OF 1240 ***
@@ -22422,6 +22426,7 @@
     retrieveWf( wfs, w_cx, nevt, 61 );
     retrieveWf( wfs, w_cx, nevt, 63 );
     retrieveWf( wfs, w_cx, nevt, 64 );
+    retrieveWf( wfs, w_cx, nevt, 90 );
 #endif
 
     // *** DIAGRAM 841 OF 1240 ***
@@ -26056,6 +26061,7 @@
     retrieveWf( wfs, w_cx, nevt, 8 );
     retrieveWf( wfs, w_cx, nevt, 10 );
     retrieveWf( wfs, w_cx, nevt, 13 );
+    retrieveWf( wfs, w_cx, nevt, 56 );
     retrieveWf( wfs, w_cx, nevt, 72 );
     retrieveWf( wfs, w_cx, nevt, 74 );
     retrieveWf( wfs, w_cx, nevt, 75 );
@@ -28284,6 +28290,7 @@
     retrieveWf( wfs, w_cx, nevt, 10 );
     retrieveWf( wfs, w_cx, nevt, 16 );
     retrieveWf( wfs, w_cx, nevt, 27 );
+    retrieveWf( wfs, w_cx, nevt, 56 );
     retrieveWf( wfs, w_cx, nevt, 101 );
     retrieveWf( wfs, w_cx, nevt, 108 );
 #endif
@@ -29016,6 +29023,7 @@
     retrieveWf( wfs, w_cx, nevt, 42 );
     retrieveWf( wfs, w_cx, nevt, 67 );
     retrieveWf( wfs, w_cx, nevt, 76 );
+    retrieveWf( wfs, w_cx, nevt, 96 );
     retrieveWf( wfs, w_cx, nevt, 108 );
 #endif
 
@@ -32118,6 +32126,7 @@
     retrieveWf( wfs, w_cx, nevt, 3 );
     retrieveWf( wfs, w_cx, nevt, 4 );
     retrieveWf( wfs, w_cx, nevt, 5 );
+    retrieveWf( wfs, w_cx, nevt, 6 );
     retrieveWf( wfs, w_cx, nevt, 8 );
     retrieveWf( wfs, w_cx, nevt, 10 );
     retrieveWf( wfs, w_cx, nevt, 16 );
@@ -36153,6 +36162,7 @@
     retrieveWf( wfs, w_cx, nevt, 1 );
     retrieveWf( wfs, w_cx, nevt, 2 );
     retrieveWf( wfs, w_cx, nevt, 3 );
+    retrieveWf( wfs, w_cx, nevt, 6 );
     retrieveWf( wfs, w_cx, nevt, 8 );
     retrieveWf( wfs, w_cx, nevt, 16 );
     retrieveWf( wfs, w_cx, nevt, 21 );

@@ -1384,6 +1384,7 @@
     retrieveWf( wfs, w_cx, nevt, 1 );
     retrieveWf( wfs, w_cx, nevt, 2 );
     retrieveWf( wfs, w_cx, nevt, 7 );
+    retrieveWf( wfs, w_cx, nevt, 8 );
     retrieveWf( wfs, w_cx, nevt, 9 );
     retrieveWf( wfs, w_cx, nevt, 10 );
     retrieveWf( wfs, w_cx, nevt, 11 );
