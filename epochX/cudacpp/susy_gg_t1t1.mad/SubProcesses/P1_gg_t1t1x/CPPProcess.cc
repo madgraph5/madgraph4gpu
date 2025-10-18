@@ -476,8 +476,6 @@ namespace mg5amcCpu
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
       gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
       gpuDiagrams( &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
-      gpuGraphNode_t& node2 = graphNodes[ihel * ndiagramgroups + 1];
-      gpuDiagrams( &graph, &graphExec, &node2, &node1, diagramgroup2, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( gpustream != 0 )
       {
@@ -491,7 +489,6 @@ namespace mg5amcCpu
       }
 #else
       diagramgroup1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );
-      diagramgroup2( wfs, jamps, channelIds, COUPs, numerators, denominators );
 #endif
     }
     // *****************************

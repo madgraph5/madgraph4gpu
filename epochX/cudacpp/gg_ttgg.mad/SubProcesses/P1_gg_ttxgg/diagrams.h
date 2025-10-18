@@ -141,57 +141,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 16 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 17 ) -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 0 );
-    storeWf( wfs, w_cx, nevt, 1 );
-    storeWf( wfs, w_cx, nevt, 2 );
-    storeWf( wfs, w_cx, nevt, 3 );
-    storeWf( wfs, w_cx, nevt, 4 );
-    storeWf( wfs, w_cx, nevt, 5 );
-    storeWf( wfs, w_cx, nevt, 6 );
-    storeWf( wfs, w_cx, nevt, 7 );
-    storeWf( wfs, w_cx, nevt, 8 );
-    storeWf( wfs, w_cx, nevt, 9 );
-    storeWf( wfs, w_cx, nevt, 10 );
-    storeWf( wfs, w_cx, nevt, 11 );
-    storeWf( wfs, w_cx, nevt, 12 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup2( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 6 );
-    retrieveWf( wfs, w_cx, nevt, 8 );
-    retrieveWf( wfs, w_cx, nevt, 9 );
-    retrieveWf( wfs, w_cx, nevt, 11 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-#endif
-
     // *** DIAGRAM 6 OF 123 ***
     // Wavefunction(s) for diagram number 6
     // (none)
@@ -255,48 +204,6 @@
 #endif
     J_ACCESS::kernelAccessIcol( jamps, 18 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 20 ) -= cxtype( 0, 1 ) * amp_sv[0];
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 13 );
-    storeWf( wfs, w_cx, nevt, 14 );
-    storeWf( wfs, w_cx, nevt, 15 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup3( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 6 );
-    retrieveWf( wfs, w_cx, nevt, 8 );
-    retrieveWf( wfs, w_cx, nevt, 9 );
-    retrieveWf( wfs, w_cx, nevt, 10 );
-    retrieveWf( wfs, w_cx, nevt, 13 );
-    retrieveWf( wfs, w_cx, nevt, 15 );
-#endif
 
     // *** DIAGRAM 11 OF 123 ***
     // Wavefunction(s) for diagram number 11
@@ -364,44 +271,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 6 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 7 ) += amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 16 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup4( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 10 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-#endif
-
     // *** DIAGRAM 16 OF 123 ***
     // Wavefunction(s) for diagram number 16
     // (none)
@@ -467,52 +336,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 4 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 5 ) += amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 6 );
-    storeWf( wfs, w_cx, nevt, 8 );
-    storeWf( wfs, w_cx, nevt, 9 );
-    storeWf( wfs, w_cx, nevt, 12 );
-    storeWf( wfs, w_cx, nevt, 16 );
-    storeWf( wfs, w_cx, nevt, 17 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup5( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 6 );
-    retrieveWf( wfs, w_cx, nevt, 8 );
-    retrieveWf( wfs, w_cx, nevt, 9 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 13 );
-    retrieveWf( wfs, w_cx, nevt, 15 );
-    retrieveWf( wfs, w_cx, nevt, 17 );
-#endif
-
     // *** DIAGRAM 21 OF 123 ***
     // Wavefunction(s) for diagram number 21
     // (none)
@@ -575,46 +398,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 1 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 4 ) -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 18 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup6( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 8 );
-    retrieveWf( wfs, w_cx, nevt, 9 );
-    retrieveWf( wfs, w_cx, nevt, 10 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 13 );
-    retrieveWf( wfs, w_cx, nevt, 15 );
-#endif
-
     // *** DIAGRAM 26 OF 123 ***
     // Wavefunction(s) for diagram number 26
     FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[12], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[19] );
@@ -670,45 +453,6 @@
 #endif
     J_ACCESS::kernelAccessIcol( jamps, 0 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 1 ) -= cxtype( 0, 1 ) * amp_sv[0];
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 19 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup7( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 10 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 17 );
-#endif
 
     // *** DIAGRAM 31 OF 123 ***
     // Wavefunction(s) for diagram number 31
@@ -782,51 +526,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 9 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 11 ) -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 8 );
-    storeWf( wfs, w_cx, nevt, 9 );
-    storeWf( wfs, w_cx, nevt, 12 );
-    storeWf( wfs, w_cx, nevt, 17 );
-    storeWf( wfs, w_cx, nevt, 19 );
-    storeWf( wfs, w_cx, nevt, 20 );
-    storeWf( wfs, w_cx, nevt, 21 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup8( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 6 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 14 );
-    retrieveWf( wfs, w_cx, nevt, 18 );
-    retrieveWf( wfs, w_cx, nevt, 20 );
-    retrieveWf( wfs, w_cx, nevt, 21 );
-#endif
-
     // *** DIAGRAM 36 OF 123 ***
     // Wavefunction(s) for diagram number 36
     FFV1P0_3<W_ACCESS, CD_ACCESS>( w_fp[12], w_fp[2], COUPs[1], 1.0, 0., 0., w_fp[22] );
@@ -891,45 +590,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 11 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 21 ) -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 22 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup9( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 11 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 14 );
-    retrieveWf( wfs, w_cx, nevt, 18 );
-    retrieveWf( wfs, w_cx, nevt, 20 );
-    retrieveWf( wfs, w_cx, nevt, 21 );
-#endif
-
     // *** DIAGRAM 41 OF 123 ***
     // Wavefunction(s) for diagram number 41
     // (none)
@@ -985,50 +645,6 @@
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
     J_ACCESS::kernelAccessIcol( jamps, 21 ) -= amp_sv[0];
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 23 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup10( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 8 );
-    retrieveWf( wfs, w_cx, nevt, 9 );
-    retrieveWf( wfs, w_cx, nevt, 10 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 17 );
-    retrieveWf( wfs, w_cx, nevt, 19 );
-    retrieveWf( wfs, w_cx, nevt, 22 );
-    retrieveWf( wfs, w_cx, nevt, 23 );
-#endif
 
     // *** DIAGRAM 46 OF 123 ***
     // Wavefunction(s) for diagram number 46
@@ -1103,48 +719,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 10 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 11 ) += amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 12 );
-    storeWf( wfs, w_cx, nevt, 22 );
-    storeWf( wfs, w_cx, nevt, 23 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup11( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 9 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 13 );
-    retrieveWf( wfs, w_cx, nevt, 14 );
-    retrieveWf( wfs, w_cx, nevt, 16 );
-    retrieveWf( wfs, w_cx, nevt, 18 );
-    retrieveWf( wfs, w_cx, nevt, 23 );
-#endif
-
     // *** DIAGRAM 51 OF 123 ***
     // Wavefunction(s) for diagram number 51
     // (none)
@@ -1208,44 +782,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 3 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 12 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 13 ) += amp_sv[0];
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 20 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup12( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 7 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 18 );
-    retrieveWf( wfs, w_cx, nevt, 22 );
-    retrieveWf( wfs, w_cx, nevt, 23 );
-#endif
 
     // *** DIAGRAM 56 OF 123 ***
     // Wavefunction(s) for diagram number 56
@@ -1347,48 +883,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 19 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 22 ) -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 21 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup13( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 9 );
-    retrieveWf( wfs, w_cx, nevt, 13 );
-    retrieveWf( wfs, w_cx, nevt, 14 );
-    retrieveWf( wfs, w_cx, nevt, 20 );
-    retrieveWf( wfs, w_cx, nevt, 21 );
-    retrieveWf( wfs, w_cx, nevt, 22 );
-#endif
-
     // *** DIAGRAM 61 OF 123 ***
     // Wavefunction(s) for diagram number 61
     // (none)
@@ -1454,45 +948,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 8 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 9 ) -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 20 );
-    storeWf( wfs, w_cx, nevt, 21 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup14( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 9 );
-    retrieveWf( wfs, w_cx, nevt, 11 );
-    retrieveWf( wfs, w_cx, nevt, 15 );
-    retrieveWf( wfs, w_cx, nevt, 16 );
-    retrieveWf( wfs, w_cx, nevt, 20 );
-#endif
-
     // *** DIAGRAM 66 OF 123 ***
     // Wavefunction(s) for diagram number 66
     VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[20], w_fp[4], COUPs[0], 1.0, 0., 0., w_fp[22] );
@@ -1556,46 +1011,6 @@
 #endif
     J_ACCESS::kernelAccessIcol( jamps, 13 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 16 ) -= cxtype( 0, 1 ) * amp_sv[0];
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 22 );
-    storeWf( wfs, w_cx, nevt, 23 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup15( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 6 );
-    retrieveWf( wfs, w_cx, nevt, 7 );
-    retrieveWf( wfs, w_cx, nevt, 20 );
-    retrieveWf( wfs, w_cx, nevt, 21 );
-    retrieveWf( wfs, w_cx, nevt, 23 );
-#endif
 
     // *** DIAGRAM 71 OF 123 ***
     // Wavefunction(s) for diagram number 71
@@ -1693,46 +1108,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 16 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 18 ) -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 12 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup16( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 7 );
-    retrieveWf( wfs, w_cx, nevt, 11 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 15 );
-    retrieveWf( wfs, w_cx, nevt, 21 );
-    retrieveWf( wfs, w_cx, nevt, 22 );
-    retrieveWf( wfs, w_cx, nevt, 23 );
-#endif
-
     // *** DIAGRAM 76 OF 123 ***
     // Wavefunction(s) for diagram number 76
     // (none)
@@ -1803,44 +1178,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 4 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 18 ) -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    // (none)
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup17( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 9 );
-    retrieveWf( wfs, w_cx, nevt, 10 );
-    retrieveWf( wfs, w_cx, nevt, 13 );
-    retrieveWf( wfs, w_cx, nevt, 15 );
-#endif
-
     // *** DIAGRAM 81 OF 123 ***
     // Wavefunction(s) for diagram number 81
     FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[9], w_fp[0], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[23] );
@@ -1896,47 +1233,6 @@
 #endif
     J_ACCESS::kernelAccessIcol( jamps, 6 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 7 ) -= cxtype( 0, 1 ) * amp_sv[0];
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 12 );
-    storeWf( wfs, w_cx, nevt, 21 );
-    storeWf( wfs, w_cx, nevt, 23 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup18( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 9 );
-    retrieveWf( wfs, w_cx, nevt, 10 );
-    retrieveWf( wfs, w_cx, nevt, 11 );
-    retrieveWf( wfs, w_cx, nevt, 14 );
-    retrieveWf( wfs, w_cx, nevt, 16 );
-#endif
 
     // *** DIAGRAM 86 OF 123 ***
     // Wavefunction(s) for diagram number 86
@@ -1995,48 +1291,6 @@
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
     J_ACCESS::kernelAccessIcol( jamps, 19 ) -= amp_sv[0];
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 20 );
-    storeWf( wfs, w_cx, nevt, 22 );
-    storeWf( wfs, w_cx, nevt, 23 );
-    storeWf( wfs, w_cx, nevt, 24 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup19( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 6 );
-    retrieveWf( wfs, w_cx, nevt, 7 );
-    retrieveWf( wfs, w_cx, nevt, 10 );
-    retrieveWf( wfs, w_cx, nevt, 16 );
-    retrieveWf( wfs, w_cx, nevt, 22 );
-    retrieveWf( wfs, w_cx, nevt, 23 );
-#endif
 
     // *** DIAGRAM 91 OF 123 ***
     // Wavefunction(s) for diagram number 91
@@ -2132,49 +1386,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 21 ) += cxtype( 0, 1 ) * amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 23 ) -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 22 );
-    storeWf( wfs, w_cx, nevt, 25 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup20( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 6 );
-    retrieveWf( wfs, w_cx, nevt, 7 );
-    retrieveWf( wfs, w_cx, nevt, 13 );
-    retrieveWf( wfs, w_cx, nevt, 14 );
-    retrieveWf( wfs, w_cx, nevt, 18 );
-    retrieveWf( wfs, w_cx, nevt, 21 );
-    retrieveWf( wfs, w_cx, nevt, 22 );
-    retrieveWf( wfs, w_cx, nevt, 24 );
-#endif
-
     // *** DIAGRAM 96 OF 123 ***
     // Wavefunction(s) for diagram number 96
     // (none)
@@ -2262,23 +1473,48 @@
 #ifdef MGONGPUCPP_GPUIMPL
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
     //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    // (none)
+    storeWf( wfs, w_cx, nevt, 0 );
+    storeWf( wfs, w_cx, nevt, 1 );
+    storeWf( wfs, w_cx, nevt, 2 );
+    storeWf( wfs, w_cx, nevt, 3 );
+    storeWf( wfs, w_cx, nevt, 4 );
+    storeWf( wfs, w_cx, nevt, 5 );
+    storeWf( wfs, w_cx, nevt, 6 );
+    storeWf( wfs, w_cx, nevt, 7 );
+    storeWf( wfs, w_cx, nevt, 8 );
+    storeWf( wfs, w_cx, nevt, 9 );
+    storeWf( wfs, w_cx, nevt, 10 );
+    storeWf( wfs, w_cx, nevt, 11 );
+    storeWf( wfs, w_cx, nevt, 12 );
+    storeWf( wfs, w_cx, nevt, 13 );
+    storeWf( wfs, w_cx, nevt, 14 );
+    storeWf( wfs, w_cx, nevt, 15 );
+    storeWf( wfs, w_cx, nevt, 16 );
+    storeWf( wfs, w_cx, nevt, 17 );
+    storeWf( wfs, w_cx, nevt, 18 );
+    storeWf( wfs, w_cx, nevt, 19 );
+    storeWf( wfs, w_cx, nevt, 20 );
+    storeWf( wfs, w_cx, nevt, 21 );
+    storeWf( wfs, w_cx, nevt, 22 );
+    storeWf( wfs, w_cx, nevt, 23 );
+    storeWf( wfs, w_cx, nevt, 24 );
+    storeWf( wfs, w_cx, nevt, 25 );
 #endif
   }
 
   //--------------------------------------------------------------------------
 
   __global__ void
-  diagramgroup21( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
+  diagramgroup2( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
+                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
+                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 #ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
+                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
+                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
+                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
   {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
@@ -2288,14 +1524,28 @@
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
     //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
     retrieveWf( wfs, w_cx, nevt, 0 );
+    retrieveWf( wfs, w_cx, nevt, 1 );
     retrieveWf( wfs, w_cx, nevt, 2 );
     retrieveWf( wfs, w_cx, nevt, 3 );
     retrieveWf( wfs, w_cx, nevt, 4 );
+    retrieveWf( wfs, w_cx, nevt, 5 );
     retrieveWf( wfs, w_cx, nevt, 7 );
+    retrieveWf( wfs, w_cx, nevt, 8 );
+    retrieveWf( wfs, w_cx, nevt, 9 );
+    retrieveWf( wfs, w_cx, nevt, 10 );
     retrieveWf( wfs, w_cx, nevt, 11 );
+    retrieveWf( wfs, w_cx, nevt, 12 );
+    retrieveWf( wfs, w_cx, nevt, 13 );
+    retrieveWf( wfs, w_cx, nevt, 14 );
     retrieveWf( wfs, w_cx, nevt, 15 );
+    retrieveWf( wfs, w_cx, nevt, 16 );
+    retrieveWf( wfs, w_cx, nevt, 17 );
     retrieveWf( wfs, w_cx, nevt, 18 );
+    retrieveWf( wfs, w_cx, nevt, 19 );
     retrieveWf( wfs, w_cx, nevt, 20 );
+    retrieveWf( wfs, w_cx, nevt, 21 );
+    retrieveWf( wfs, w_cx, nevt, 23 );
+    retrieveWf( wfs, w_cx, nevt, 24 );
     retrieveWf( wfs, w_cx, nevt, 25 );
 #endif
 
@@ -2374,47 +1624,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 4 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 10 ) -= amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 20 ) += amp_sv[0];
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 6 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup22( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 7 );
-    retrieveWf( wfs, w_cx, nevt, 10 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 13 );
-    retrieveWf( wfs, w_cx, nevt, 18 );
-    retrieveWf( wfs, w_cx, nevt, 20 );
-    retrieveWf( wfs, w_cx, nevt, 23 );
-    retrieveWf( wfs, w_cx, nevt, 25 );
-#endif
 
     // *** DIAGRAM 106 OF 123 ***
     // Wavefunction(s) for diagram number 106
@@ -2507,48 +1716,6 @@
 #endif
     J_ACCESS::kernelAccessIcol( jamps, 12 ) -= amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    // (none)
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup23( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 7 );
-    retrieveWf( wfs, w_cx, nevt, 11 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 14 );
-    retrieveWf( wfs, w_cx, nevt, 15 );
-    retrieveWf( wfs, w_cx, nevt, 21 );
-    retrieveWf( wfs, w_cx, nevt, 24 );
-#endif
-
     // *** DIAGRAM 111 OF 123 ***
     // Wavefunction(s) for diagram number 111
     // (none)
@@ -2635,52 +1802,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 20 ) += amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 22 ) += amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 23 ) -= amp_sv[0];
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 12 );
-    storeWf( wfs, w_cx, nevt, 21 );
-    storeWf( wfs, w_cx, nevt, 24 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup24( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 3 );
-    retrieveWf( wfs, w_cx, nevt, 4 );
-    retrieveWf( wfs, w_cx, nevt, 5 );
-    retrieveWf( wfs, w_cx, nevt, 7 );
-    retrieveWf( wfs, w_cx, nevt, 9 );
-    retrieveWf( wfs, w_cx, nevt, 11 );
-    retrieveWf( wfs, w_cx, nevt, 12 );
-    retrieveWf( wfs, w_cx, nevt, 13 );
-    retrieveWf( wfs, w_cx, nevt, 15 );
-    retrieveWf( wfs, w_cx, nevt, 21 );
-    retrieveWf( wfs, w_cx, nevt, 24 );
-#endif
 
     // *** DIAGRAM 116 OF 123 ***
     // Wavefunction(s) for diagram number 116
@@ -2797,50 +1918,6 @@
     J_ACCESS::kernelAccessIcol( jamps, 8 ) += amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 10 ) += amp_sv[0];
     J_ACCESS::kernelAccessIcol( jamps, 11 ) -= amp_sv[0];
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
-    storeWf( wfs, w_cx, nevt, 13 );
-    storeWf( wfs, w_cx, nevt, 15 );
-    storeWf( wfs, w_cx, nevt, 21 );
-    storeWf( wfs, w_cx, nevt, 24 );
-#endif
-  }
-
-  //--------------------------------------------------------------------------
-
-  __global__ void
-  diagramgroup25( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                  fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
-#ifdef MGONGPUCPP_GPUIMPL
-                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
-#else
-                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
-#endif
-                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                  fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
-    retrieveWf( wfs, w_cx, nevt, 0 );
-    retrieveWf( wfs, w_cx, nevt, 1 );
-    retrieveWf( wfs, w_cx, nevt, 2 );
-    retrieveWf( wfs, w_cx, nevt, 7 );
-    retrieveWf( wfs, w_cx, nevt, 8 );
-    retrieveWf( wfs, w_cx, nevt, 13 );
-    retrieveWf( wfs, w_cx, nevt, 15 );
-    retrieveWf( wfs, w_cx, nevt, 16 );
-    retrieveWf( wfs, w_cx, nevt, 17 );
-    retrieveWf( wfs, w_cx, nevt, 19 );
-    retrieveWf( wfs, w_cx, nevt, 24 );
-#endif
 
     // *** DIAGRAM 121 OF 123 ***
     // Wavefunction(s) for diagram number 121
