@@ -2034,58 +2034,94 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         return call.replace('(','( ').replace(')',' )').replace(',',', ')
 
     # AV - new method
-    def get_one_diagram_code(self, diagram, id_amp, multi_channel_map, diag_to_config, color, ndiagrams):
+    def get_one_diagramgroup_code(self, idiagramgroup, diagrams, id_amp, multi_channel_map, diag_to_config, color):
         res = []
-        idiagram = diagram.get('number')
-        ###print('DIAGRAM %3d: #wavefunctions=%3d, #diagrams=%3d' %
-        ###      (diagram.get('number'), len(diagram.get('wavefunctions')), len(diagram.get('amplitudes')) )) # AV - FOR DEBUGGING
         # 1 - Header
-        if idiagram == 1:
+        if idiagramgroup == 1:
             res.append("""
   __global__ void
-  diagram1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-            fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-            const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
+  diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
+                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
+                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 #ifdef MGONGPUCPP_GPUIMPL
-            const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
+                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-            const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
+                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
-            fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-            fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-            const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
-            const int ihel )                // input: helicity (0 to ncomb)
+                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
+                 fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
+                 const int ihel )                // input: helicity (0 to ncomb)
   {
-    // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
+    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
 #include \"diagram_boilerplate.h\"
 #ifdef MGONGPUCPP_GPUIMPL
     using M_ACCESS = DeviceAccessMomenta; // non-trivial access: buffer includes all events
 #else
     using M_ACCESS = HostAccessMomenta; // non-trivial access: buffer includes all events
-#endif""")
+#endif
+
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
+    // (none)
+#endif
+""")
         else:
-            sidiag = '%i'%idiagram
-            indent = ' '*(len(sidiag)-1)
+            sidiagg = '%i'%idiagramgroup
+            indent = ' '*(len(sidiagg)-1)
             res.append("""
 
   __global__ void
-  diagram%s( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-%s            fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-%s            const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
+  diagramgroup%s( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
+%s                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
+%s                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 #ifdef MGONGPUCPP_GPUIMPL
-%s            const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
+%s                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-%s            const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
+%s                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
-%s            fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-%s            fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+%s                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
+%s                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
   {
-    // A uniform interface for diagramXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
+    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include \"diagram_boilerplate.h\""""%(sidiag,indent,indent,indent,indent,indent,indent))
+#include \"diagram_boilerplate.h\""""%(sidiagg,indent,indent,indent,indent,indent,indent))
+            res.append("""
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
+    //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
+#endif
+""")
         # 2 - Core code
-        res.append('    // *** DIAGRAM %i OF %i ***' % ( idiagram, ndiagrams ) ) # AV
+        for diagram in diagrams:
+            res_diagram, id_amp = self.get_one_diagram_code(diagram, id_amp, multi_channel_map, diag_to_config, color)
+            res.append( '\n'.join(res_diagram) )
+        if idiagramgroup == self.ndiagramgroups:
+            res.append("""#ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
+    // (none)
+#endif""")
+        else:
+            res.append("""#ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
+    //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
+#endif""")
+        # 3 - Footer
+        res.append("""  }
+
+  //--------------------------------------------------------------------------""")
+        # Return
+        return res, id_amp
+
+    # AV - new method
+    def get_one_diagram_code(self, diagram, id_amp, multi_channel_map, diag_to_config, color):
+        res = []
+        idiagram = diagram.get('number')
+        # 1 - Header
+        # (none)
+        # 2 - Core code
+        res.append('    // *** DIAGRAM %i OF %i ***' % ( idiagram, self.ndiagrams ) ) # AV
         res.append('    // Wavefunction(s) for diagram number %d' % idiagram) # AV
         for wf in diagram.get('wavefunctions'):
             wfline =  '    '+self.get_wavefunction_call(wf) # AV new: add formatting
@@ -2124,9 +2160,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     res.append('    J_ACCESS::kernelAccessIcol( jamps, %s ) += %samp_sv[0];' % (njamp, scoeff))
         if len(diagram.get('amplitudes')) == 0 : res.append('    // (none)') # AV
         # 3 - Footer
-        res.append("""  }
-  
-  //--------------------------------------------------------------------------""")
+        res.append('')
+        # (none)
         # Return
         return res, id_amp
 
@@ -2204,12 +2239,22 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if idiagramgroup == 1: res.append('diagramgroup1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );')
             else: res.append('diagramgroup%i( wfs, jamps, channelIds, COUPs, numerators, denominators );'%idiagramgroup)
         res.append('#endif')
+        # Create diagram groups
+        assert( DIAGRAMS_PER_GROUP > 0 )
+        self.diagramgroups = []
+        diagramgroup = []
+        for diagram in matrix_element.get('diagrams'):
+            if len(diagramgroup) >= DIAGRAMS_PER_GROUP:
+                self.diagramgroups.append(diagramgroup)
+                diagramgroup = []
+            diagramgroup.append(diagram)
+        self.diagramgroups.append(diagramgroup)
         # Generate diagram code
         self.diagram_code = []
         id_amp = 0
-        for diagram in matrix_element.get('diagrams'):
-            res_diagram, id_amp = self.get_one_diagram_code(diagram, id_amp, multi_channel_map, diag_to_config, color, len(matrix_element.get('diagrams')))
-            self.diagram_code.append( '\n'.join(res_diagram) )
+        for idiagramgroup, diagramgroup in enumerate(self.diagramgroups):
+            res_diagramgroup, id_amp = self.get_one_diagramgroup_code(idiagramgroup+1, diagramgroup, id_amp, multi_channel_map, diag_to_config, color)
+            self.diagram_code.append( '\n'.join(res_diagramgroup) )
         return res
 
     # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
