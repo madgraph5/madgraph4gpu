@@ -3,6 +3,8 @@
 // Created by: A. Valassi (Sep 2025) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2025) for the MG5aMC CUDACPP plugin.
 
+/* clang-format off */
+
   //--------------------------------------------------------------------------
 
   __global__ void
