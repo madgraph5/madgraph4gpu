@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Roiser (Nov 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Roiser, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2021-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef BRIDGE_H
 #define BRIDGE_H 1
@@ -255,11 +255,15 @@ namespace mg5amcCpu
         throw std::logic_error( "Bridge constructor: FIXME! cannot choose gputhreads" ); // this should never happen!
       m_gpublocks = m_nevt / m_gputhreads;
     }
+#ifdef MGONGPUCPP_VERBOSE
     std::cout << "WARNING! Instantiate device Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
+#endif
     m_pmek.reset( new MatrixElementKernelDevice( m_devMomentaC, m_devGs, m_devRndHel, m_devRndCol, m_devChannelIds, m_devMEs, m_devSelHel, m_devSelCol, m_gpublocks, m_gputhreads ) );
 #else
+#ifdef MGONGPUCPP_VERBOSE
     std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")" << std::endl;
+#endif
     m_pmek.reset( new MatrixElementKernelHost( m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstChannelIds, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
 #endif // MGONGPUCPP_GPUIMPL
     // Create a process object, read param card and set parameters
@@ -290,8 +294,10 @@ namespace mg5amcCpu
       throw std::runtime_error( "Bridge: gpublocks*gputhreads must equal m_nevt in set_gpugrid" );
     m_gpublocks = gpublocks;
     m_gputhreads = gputhreads;
+#ifdef MGONGPUCPP_VERBOSE
     std::cout << "WARNING! Set grid in Bridge (nevt=" << m_nevt << ", gpublocks=" << m_gpublocks << ", gputhreads=" << m_gputhreads
               << ", gpublocks*gputhreads=" << m_gpublocks * m_gputhreads << ")" << std::endl;
+#endif
     m_pmek->setGrid( m_gpublocks, m_gputhreads );
   }
 #endif
@@ -347,7 +353,9 @@ namespace mg5amcCpu
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( useChannelIds );
     copyHostFromDevice( m_hstMEs, m_devMEs );
+#ifdef MGONGPUCPP_VERBOSE
     flagAbnormalMEs( m_hstMEs.data(), m_nevt );
+#endif
     copyHostFromDevice( m_hstSelHel, m_devSelHel );
     copyHostFromDevice( m_hstSelCol, m_devSelCol );
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
@@ -400,7 +408,9 @@ namespace mg5amcCpu
     }
     if( goodHelOnly ) return;
     m_pmek->computeMatrixElements( useChannelIds );
+#ifdef MGONGPUCPP_VERBOSE
     flagAbnormalMEs( m_hstMEs.data(), m_nevt );
+#endif
     if constexpr( std::is_same_v<FORTRANFPTYPE, fptype> )
     {
       memcpy( mes, m_hstMEs.data(), m_hstMEs.bytes() );

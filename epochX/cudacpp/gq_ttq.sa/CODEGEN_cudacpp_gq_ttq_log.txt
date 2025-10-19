@@ -1,8 +1,10 @@
+Running MG5 in debug mode
+Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
+[1;34mPlugin MG5aMC_PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.6.4. 
+It has been validated for the last time with version: 3.6.3[0m
 [1;31mNote that this is a development version.
 This version is intended for development/beta testing and NOT for production.
 This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
-Running MG5 in debug mode
-Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -15,7 +17,7 @@ Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                 2024-09-30         *
+*         VERSION 3.6.4                 2025-09-13         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -46,10 +48,9 @@ Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (inclu
 Note that you can still compile and run aMC@NLO with the built-in PDFs
  MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
 
-Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq.mg
+import /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
@@ -57,7 +58,7 @@ set zerowidth_tchannel F
 define q = u c d s u~ c~ d~ s~
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.006358146667480469 [0m
+[1;32mDEBUG: model prefixing  takes 0.019250154495239258 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -166,13 +167,13 @@ INFO: Crossed process found for g u~ > t t~ u~, reuse diagrams.
 INFO: Crossed process found for g c~ > t t~ c~, reuse diagrams. 
 INFO: Crossed process found for g d~ > t t~ d~, reuse diagrams. 
 INFO: Crossed process found for g s~ > t t~ s~, reuse diagrams. 
-8 processes with 40 diagrams generated in 0.078 s
+8 processes with 40 diagrams generated in 0.263 s
 Total: 8 processes with 40 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_gq_ttq
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 171][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 176][0m [0m
-INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq 
+INFO: Creating subdirectories in directory /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq 
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g u > t t~ u WEIGHTED<=3 @1 
 INFO: Processing color information for process: g u > t t~ u @1 
@@ -189,40 +190,40 @@ INFO: Combined process g s~ > t t~ s~ WEIGHTED<=3 @1 with process g u~ > t t~ u~
 [1;32mDEBUG:    type(fortran_model)=<class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 220][0m [0m
 [1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 221][0m [0m
 [1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'MemoryAccessChannelIds.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h', 'cudacpp.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 222][0m [0m
-INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gu_ttxu 
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gu_ttxu/./CPPProcess.h
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gu_ttxu/./CPPProcess.cc
-INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gu_ttxu/. 
+INFO: Creating files in directory /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gu_ttxu 
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gu_ttxu/./CPPProcess.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gu_ttxu/./CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gu_ttxu/. 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.generate_subprocess_directory (create the directory) [1;30m[output.py at line 218][0m [0m
 [1;32mDEBUG:    type(subproc_group)=<class 'madgraph.core.helas_objects.HelasMatrixElement'> [1;30m[output.py at line 219][0m [0m
 [1;32mDEBUG:    type(fortran_model)=<class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 220][0m [0m
 [1;32mDEBUG:    type(me)=<class 'int'> me=1 [1;30m[output.py at line 221][0m [0m
 [1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'MemoryAccessChannelIds.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h', 'cudacpp.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 222][0m [0m
-INFO: Creating files in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gux_ttxux 
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gux_ttxux/./CPPProcess.h
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gux_ttxux/./CPPProcess.cc
-INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gux_ttxux/. 
-Generated helas calls for 2 subprocesses (10 diagrams) in 0.031 s
+INFO: Creating files in directory /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gux_ttxux 
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gux_ttxux/./CPPProcess.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gux_ttxux/./CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gux_ttxux/. 
+Generated helas calls for 2 subprocesses (10 diagrams) in 0.100 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.145 s
+ALOHA: aloha creates 2 routines in  0.383 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/./HelAmps_sm.h
-INFO: Created file HelAmps_sm.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/. 
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/./HelAmps_sm.h
+INFO: Created file HelAmps_sm.h in directory /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/./Parameters_sm.h
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/./Parameters_sm.cc
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/./Parameters_sm.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
-INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/. 
+INFO: /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/. and /home/dmass/Development/madgraph4gpu/tests_for_3_6_4/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/. 
 quit
 
-real	0m0.670s
-user	0m0.588s
-sys	0m0.061s
-Code generation completed in 1 seconds
+real	0m2.121s
+user	0m1.819s
+sys	0m0.168s
+Code generation completed in 2 seconds

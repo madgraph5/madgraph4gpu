@@ -33,7 +33,7 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
         if 'cwd' in opts and os.path.basename(opts['cwd']) == 'Source':
             path = pjoin(opts['cwd'], 'make_opts')
             common_run_interface.CommonRunCmd.update_make_opts_full(path,
-                {'FPTYPE': self.run_card['floating_type'] })
+                {'override FPTYPE': self.run_card['floating_type'] })
             misc.sprint('FPTYPE checked')
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
@@ -76,7 +76,7 @@ class CPPRunCard(banner_mod.RunCardLO):
         if not hasattr(self, 'path'):
             raise Exception
         if name == 'floating_type':
-            common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': new_value})
+            common_run_interface.CommonRunCmd.update_make_opts_full({'override FPTYPE': new_value})
         else:
             raise Exception
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')

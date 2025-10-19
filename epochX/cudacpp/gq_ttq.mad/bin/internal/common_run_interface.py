@@ -750,8 +750,8 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
         else:
             self.ninitial = self.proc_characteristics['ninitial']
 
-    def make_make_all_html_results(self, folder_names = [], jobs=[]):
-        return sum_html.make_all_html_results(self, folder_names, jobs)
+    def make_make_all_html_results(self, folder_names = [], jobs=[], get_attr=None):
+        return sum_html.make_all_html_results(self, folder_names, jobs, get_attr)
 
 
     def write_RunWeb(self, me_dir):
@@ -1463,11 +1463,15 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
                                              self.run_name, '%s_pts.dat' % tag)
                 for observable_name, data_path in [('djr',djr_path),
                                                    ('pt',pt_path)]:
-                    if not self.generate_Pythia8_HwU_plots(
+                    try:
+                        if not self.generate_Pythia8_HwU_plots(
                                     PY8_plots_root_path, merging_scale_name,
                                                      observable_name,data_path):
-                        return False
-
+                            return False
+                    except Exception as error:
+                        if os.path.exists(data_path):
+                            logger.info('plot information present in %s' % data_path)
+                        return True
         if mode == 'Pythia8':
             plot_files = glob.glob(pjoin(PY8_plots_root_path,'*.gnuplot'))
             if not misc.which('gnuplot'):
@@ -1964,12 +1968,16 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
                 self.cluster.wait(os.path.dirname(output), update_status, update_first=update_status)
             except Exception:
                 self.cluster.remove()
+                for i in range(nb_submit):
+                    os.remove('%s/tmp_%s_%s' %(os.path.dirname(output),i,os.path.basename(output)))
                 old_run_mode = self.options['run_mode']
                 self.options['run_mode'] =0
+                out =False
                 try:
                     out = self.do_systematics(line)
                 finally:
                     self.options['run_mode']  =  old_run_mode
+                return out
             #collect the data
             all_cross = []
             for i in range(nb_submit):
@@ -1995,18 +2003,21 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
                                        self.run_card['event_norm'] in ['unity']:
                 all_cross= [cross/nb_event for cross in all_cross]
                 
-            sys_obj = systematics.call_systematics([input, None] + opts, 
-                                         log=lambda x: logger.info(str(x)),
-                                         result=result_file,
-                                         running=False
-                                         )                    
+
+            sys_obj = systematics.call_systematics([input, None] + opts,
+                                        log=lambda x: logger.info(str(x)),
+                                        result=result_file,
+                                        running=False
+                                        )
+
             sys_obj.print_cross_sections(all_cross, nb_event, result_file)
-            
+
             #concatenate the output file
             subprocess.call(['cat']+\
                             ['./tmp_%s_%s' % (i, os.path.basename(output)) for i in range(nb_submit)],
                             stdout=open(output,'w'),
                             cwd=os.path.dirname(output))
+                
             for i in range(nb_submit):
                 os.remove('%s/tmp_%s_%s' %(os.path.dirname(output),i,os.path.basename(output)))
             #    os.remove('%s/log_sys_%s.txt' % (os.path.dirname(output),i))
@@ -3831,7 +3842,7 @@ class CommonRunCmd(HelpToCmd, CheckValidForCmd, cmd.Cmd):
         """return the information that need to be kept for the scan summary.
         Auto-width are automatically added."""
         
-        return {'cross': self.results.current['cross']}
+        return {'cross': self.results.current['cross'], 'error': self.results.current['error']}
 
 
     def add_error_log_in_html(self, errortype=None):
@@ -5135,10 +5146,10 @@ class AskforEditCard(cmd.OneLinePathCompletion):
             self.special_shortcut.update(
                 {'ebeam':([float],['run_card ebeam1 %(0)s', 'run_card ebeam2 %(0)s']),
                 'lpp': ([int],['run_card lpp1 %(0)s', 'run_card lpp2 %(0)s' ]),
-                'lhc': ([int],['run_card lpp1 1', 'run_card lpp2 1', 'run_card ebeam1 %(0)s*1000/2', 'run_card ebeam2 %(0)s*1000/2']),
+                'lhc': ([float],['run_card lpp1 1', 'run_card lpp2 1', 'run_card ebeam1 %(0)s*1000/2', 'run_card ebeam2 %(0)s*1000/2']),
                 'lep': ([int],['run_card lpp1 0', 'run_card lpp2 0', 'run_card ebeam1 %(0)s/2', 'run_card ebeam2 %(0)s/2']),
                 'ilc': ([int],['run_card lpp1 0', 'run_card lpp2 0', 'run_card ebeam1 %(0)s/2', 'run_card ebeam2 %(0)s/2']),
-                'lcc': ([int],['run_card lpp1 1', 'run_card lpp2 1', 'run_card ebeam1 %(0)s*1000/2', 'run_card ebeam2 %(0)s*1000/2']),
+                'lcc': ([float],['run_card lpp1 1', 'run_card lpp2 1', 'run_card ebeam1 %(0)s*1000/2', 'run_card ebeam2 %(0)s*1000/2']),
                 'fixed_scale': ([float],['run_card fixed_fac_scale T', 'run_card fixed_ren_scale T', 'run_card scale %(0)s', 'run_card dsqrt_q2fact1 %(0)s' ,'run_card dsqrt_q2fact2 %(0)s']),
                 'no_parton_cut':([],['run_card nocut T']),
                 'cm_velocity':([float], [lambda self :self.set_CM_velocity]),
@@ -6740,7 +6751,15 @@ class AskforEditCard(cmd.OneLinePathCompletion):
             return ending_question
     
     
-    
+    def help_update(self):
+        logger.info(""" syntax: update dependent: Change the mass/width of particles which are not free parameter for the model.
+                    update missing:   add to the current param_card missing blocks/parameters.
+                    update to_slha1: pass SLHA2 card to SLHA1 convention. (beta)
+                    update to_slha2: pass SLHA1 card to SLHA2 convention. (beta)
+                    update to_full [run_card]
+                    update XXX [where XXX correspond to a hidden block of the run_card]:
+                    supported block are %s
+        """, ', '.join(self.update_block))
     
     
     def do_update(self, line, timer=0):
@@ -6755,6 +6774,8 @@ class AskforEditCard(cmd.OneLinePathCompletion):
         if len(args)==0:
             logger.warning('miss an argument (dependent or missing). Please retry')
             return
+        
+        args[0] = args[0].lower()
         
         if args[0] == 'dependent':
             if not self.mother_interface:
@@ -6805,8 +6826,9 @@ class AskforEditCard(cmd.OneLinePathCompletion):
             self.modified_card.add('run') # delay writting of the run_card
             logger.info('add optional block %s to the run_card', args[0])
         else:
-            self.help_update()
+            self.do_help('update')
             logger.warning('unvalid options for update command. Please retry')
+
 
 
     def update_to_full(self, line):
@@ -6868,8 +6890,9 @@ class AskforEditCard(cmd.OneLinePathCompletion):
         else:
             log_level=20
 
-
-        if run_card:
+        if run_card and (run_card['lpp1'] !=0 or run_card['lpp2'] !=0):
+            # They are likely case like lpp=+-3, where alpas not need reset
+            # but those have dedicated name of pdf avoid the reset
             as_for_pdf = {'cteq6_m': 0.118,
                           'cteq6_d': 0.118, 
                           'cteq6_l': 0.118, 

@@ -489,7 +489,6 @@ c
       fopened=.false.
       tempname=filename 	 
       fine=index(tempname,' ') 	 
-c     fine2=index(path,' ')-1 ! AV remove valgrind "Conditional jump or move depends on uninitialised value(s)"
       if(fine.eq.0) fine=len(tempname)
       open(unit=lun,file=tempname,status='old',ERR=20)
       fopened=.true.
