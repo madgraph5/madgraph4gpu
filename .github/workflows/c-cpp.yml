@@ -2,9 +2,9 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, compatibility* ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, compatibility* ]
   workflow_dispatch:
 
 jobs:
