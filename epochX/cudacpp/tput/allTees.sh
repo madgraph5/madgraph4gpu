@@ -10,7 +10,10 @@ scrdir=$(cd $(dirname $0); pwd)
 # By default, build and run all tests (use -makeonly to only build all tests)
 opts=
 suff=".mad"
-makeclean=
+
+# New (Oct 2025): systematically run 'make clean' (unless -nomakeclean is specified)
+# As troughputX.sh is now using 'make -f cudacpp.mk', rebuilds are fast as they are fully available from ccache
+makeclean=-makeclean
 
 # By default, build and run all backends
 # (AV private config: on itgold91 build and run only the C++ backends)
@@ -20,7 +23,7 @@ if [ "$(hostname)" == "itgold91.cern.ch" ]; then bblds=-cpponly; fi
 # Usage
 function usage()
 {
-  echo "Usage (1): $0 [-short] [-e] [-sa] [-makeonly] [-makeclean|-nomakeclean] [-hip|-nocuda|-cpponly] [-bsmonly|-nobsm|-scalingonly|-blasonly|-blasandscalingonly|-graphsonly]"
+  echo "Usage (1): $0 [-e] [-sa] [-makeonly] [-nomakeclean] [-hip|-nocuda|-cpponly] [-bsmonly|-nobsm|-scalingonly|-blasonly|-blasandscalingonly|-graphsonly]"
   echo "Run tests and check all logs"
   echo ""
   echo "Usage (2): $0 -checkonly"
@@ -30,7 +33,6 @@ function usage()
 
 # Parse command line arguments
 checkonly=0
-ggttggg=-ggttggg
 rndhst=-curhst
 sm=1
 bsm=1
@@ -44,11 +46,7 @@ if [ "$1" == "-checkonly" ]; then
   if [ "$1" != "" ]; then usage; fi
 fi
 while [ "${checkonly}" == "0" ] && [ "$1" != "" ]; do
-  if [ "$1" == "-short" ]; then
-    # Short (no ggttggg) or long version?
-    ggttggg=
-    shift
-  elif [ "$1" == "-e" ]; then
+  if [ "$1" == "-e" ]; then
     # Fail on error?
     set -e
     shift
@@ -61,11 +59,7 @@ while [ "${checkonly}" == "0" ] && [ "$1" != "" ]; do
     # Only build all tests instead of building and running them?
     opts+=" -makeonly"
     shift
-  elif [ "$1" == "-makeclean" ] && [ "${makeclean}" != "-nomakeclean" ]; then
-    # Force -makeclean all the time (otherwise it is used only when necessary)
-    makeclean=$1
-    shift
-  elif [ "$1" == "-nomakeclean" ] && [ "${makeclean}" != "-makeclean" ]; then
+  elif [ "$1" == "-nomakeclean" ]; then
     # Skip -makeclean (e.g. for brand new generated/downloaded code)
     makeclean=$1
     shift
@@ -187,10 +181,9 @@ fi
 cd $scrdir/..
 started="STARTED  AT $(date)"
 
-# (+36: 36/162) Six logs (double/mixed/float x hrd0/hrd1 x inl0) in each of the six SM processes (rebuild is needed)
+# (+36: 36/162) Six logs (double/mixed/float x hrd0/hrd1 x inl0) in each of the six SM processes (always force rebuild)
 \rm -rf gg_ttggg${suff}/lib/build.none_*
-if [ "${makeclean}" != "-nomakeclean" ]; then clean=-makeclean; else clean=; fi
-cmd="./tput/teeThroughputX.sh -dmf -hrd -makej -eemumu -ggtt -ggttg -ggttgg -gqttq $ggttggg ${clean} ${opts}"
+cmd="./tput/teeThroughputX.sh -dmf -hrd -makej -eemumu -ggtt -ggttg -ggttgg -ggttggg -gqttq -makeclean ${opts}"
 tmp1=$(mktemp)
 if [ "${sm}" == "1" ]; then
   $cmd; status=$?
@@ -200,9 +193,8 @@ else
 fi
 ended1="$cmd\nENDED(1) AT $(date) [Status=$status]"
 
-# (+18: 54/162) Three scaling logs (double/mixed/float x hrd0 x inl0) in each of the six SM processes (rebuild may be needed)
-if [ "${makeclean}" == "-nomakeclean" ]; then clean=; elif [ "${sm}" == "1" ]; then clean=; else clean=-makeclean; fi
-cmd="./tput/teeThroughputX.sh -dmf -makej -eemumu -ggtt -ggttg -ggttgg -gqttq $ggttggg -scaling ${clean} ${opts}"
+# (+18: 54/162) Three scaling logs (double/mixed/float x hrd0 x inl0) in each of the six SM processes
+cmd="./tput/teeThroughputX.sh -dmf -makej -eemumu -ggtt -ggttg -ggttgg -ggttggg -gqttq -scaling ${makeclean} ${opts}"
 if [ "${scaling}" == "1" ]; then
   $cmd; status=$?
 else
@@ -210,9 +202,8 @@ else
 fi
 ended1sc="$cmd\nENDED(1-scaling) AT $(date) [Status=$status]"
 
-# (+6: 60/162) Three extra logs (double/mixed/float x hrd0 x inl0 + blasOn) only in two of the six SM processes (rebuild may be needed)
-if [ "${makeclean}" == "-nomakeclean" ]; then clean=; elif [ "${sm}" == "1" ] || [ "${scaling}" == "1" ]; then clean=; else clean=-makeclean; fi
-cmd="./tput/teeThroughputX.sh -ggtt -ggttgg -dmf -blasOn ${clean} ${opts}" # no rebuild needed
+# (+6: 60/162) Three extra logs (double/mixed/float x hrd0 x inl0 + blasOn) only in two of the six SM processes
+cmd="./tput/teeThroughputX.sh -ggtt -ggttgg -dmf -blasOn ${makeclean} ${opts}" # no rebuild needed
 if [ "${blas}" == "1" ]; then
   $cmd; status=$?
 else
@@ -220,9 +211,8 @@ else
 fi
 ended2="$cmd\nENDED(2) AT $(date) [Status=$status]"
 
-# (+12: 72/162) Three scaling logs (double/mixed/float x hrd0 x inl0 + blasOn) only in four of the six SM processes (rebuild may be needed)
-if [ "${makeclean}" == "-nomakeclean" ]; then clean=; elif [ "${sm}" == "1" ] || [ "${scaling}" == "1" ]; then clean=; else clean=-makeclean; fi
-cmd="./tput/teeThroughputX.sh -ggtt -ggttg -ggttgg -ggttggg -dmf -blasOn -scaling ${clean} ${opts}" # no rebuild needed
+# (+12: 72/162) Three scaling logs (double/mixed/float x hrd0 x inl0 + blasOn) only in four of the six SM processes
+cmd="./tput/teeThroughputX.sh -ggtt -ggttg -ggttgg -ggttggg -dmf -blasOn -scaling ${makeclean} ${opts}"
 if [ "${blas}" == "1" ] || [ "${scaling}" == "1" ]; then
   $cmd; status=$?
 else
@@ -230,9 +220,8 @@ else
 fi
 ended2sc="$cmd\nENDED(2-scaling) AT $(date) [Status=$status]"
 
-# (+6: 78/162) Three extra logs (double/mixed/float x hrd0 x inl0 + graphs) only in two of the six SM processes (rebuild may be needed)
-if [ "${makeclean}" == "-nomakeclean" ]; then clean=; elif [ "${sm}" == "1" ] || [ "${scaling}" == "1" ]; then clean=; else clean=-makeclean; fi
-cmd="./tput/teeThroughputX.sh -ggttgg -ggttggg -dmf -useGraphs ${clean} ${opts}" # no rebuild needed
+# (+6: 78/162) Three extra logs (double/mixed/float x hrd0 x inl0 + graphs) only in two of the six SM processes
+cmd="./tput/teeThroughputX.sh -ggttgg -ggttggg -dmf -useGraphs ${makeclean} ${opts}"
 if [ "${sm}" == "1" ] || [ "${graphsonly}" == "1" ]; then
   $cmd; status=$?
 else
@@ -240,9 +229,8 @@ else
 fi
 ended3="$cmd\nENDED(3) AT $(date) [Status=$status]"
 
-# (+12: 90/162) Three scaling logs (double/mixed/float x hrd0 x inl0 + graphs) only in four of the six SM processes (rebuild may be needed)
-if [ "${makeclean}" == "-nomakeclean" ]; then clean=; elif [ "${sm}" == "1" ] || [ "${scaling}" == "1" ]; then clean=; else clean=-makeclean; fi
-cmd="./tput/teeThroughputX.sh -ggtt -ggttg -ggttgg -ggttggg -dmf -useGraphs -scaling ${clean} ${opts}" # no rebuild needed
+# (+12: 90/162) Three scaling logs (double/mixed/float x hrd0 x inl0 + graphs) only in four of the six SM processes
+cmd="./tput/teeThroughputX.sh -ggtt -ggttg -ggttgg -ggttggg -dmf -useGraphs -scaling ${makeclean} ${opts}"
 if [ "${scaling}" == "1" ] || [ "${graphsonly}" == "1" ]; then
   $cmd; status=$?
 else
@@ -250,7 +238,7 @@ else
 fi
 ended3sc="$cmd\nENDED(3-scaling) AT $(date) [Status=$status]"
 
-# (+12: 102/162) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the six SM processes (rebuild is needed)
+# (+12: 102/162) Four extra logs (double/float x hrd0/hrd1 x inl1) only in three of the six SM processes
 \rm -rf gg_ttg${suff}/lib/build.none_*
 \rm -rf gg_ttggg${suff}/lib/build.none_*
 cmd="./tput/teeThroughputX.sh -d_f -hrd -makej -eemumu -ggtt -ggttgg -inlonly ${makeclean} ${opts}"
@@ -263,8 +251,8 @@ else
 fi
 ended4="$cmd\nENDED(4) AT $(date) [Status=$status]"
 
-# (+12: 114/162) Two extra logs (double/float x hrd0 x inl0 + bridge) in all six SM processes (rebuild from cache)
-cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -gqttq -ggttgg $ggttggg -d_f -bridge ${makeclean} ${opts}"
+# (+12: 114/162) Two extra logs (double/float x hrd0 x inl0 + bridge) in all six SM processes
+cmd="./tput/teeThroughputX.sh -makej -eemumu -ggtt -ggttg -ggttgg -ggttggg -gqttq -d_f -bridge ${makeclean} ${opts}"
 if [ "${sm}" == "1" ]; then
   $cmd; status=$?
 else
@@ -272,8 +260,8 @@ else
 fi
 ended5="$cmd\nENDED(5) AT $(date) [Status=$status]"
 
-# (+6: 120/162) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the six SM processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f -rmbhst ${opts}"
+# (+6: 120/162) Two extra logs (double/float x hrd0 x inl0 + rmbhst) only in three of the six SM processes
+cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f -rmbhst ${makeclean} ${opts}"
 if [ "${sm}" == "1" ]; then
   $cmd; status=$?
 else
@@ -281,8 +269,8 @@ else
 fi
 ended6="$cmd\nENDED(6) AT $(date) [Status=$status]"
 
-# (+6: 126/162) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six SM processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f ${rndhst} ${opts}"
+# (+6: 126/162) Two extra logs (double/float x hrd0 x inl0 + rndhst) only in three of the six SM processes
+cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f ${rndhst} ${makeclean} ${opts}"
 if [ "${sm}" == "1" ] && [ "${rndhst}" != "-common" ]; then
   $cmd; status=$?
 else
@@ -290,8 +278,8 @@ else
 fi
 ended7="$cmd\nENDED(7) AT $(date) [Status=$status]"
 
-# (+6: 132/162) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six SM processes (no rebuild needed)
-cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f -common ${opts}"
+# (+6: 132/162) Two extra logs (double/float x hrd0 x inl0 + common) only in three of the six SM processes
+cmd="./tput/teeThroughputX.sh -eemumu -ggtt -ggttgg -d_f -common ${makeclean} ${opts}"
 if [ "${sm}" == "1" ]; then
   $cmd; status=$?
 else
@@ -308,8 +296,8 @@ else
 fi
 ended9="$cmd\nENDED(9) AT $(date) [Status=$status]"
 
-# (+24: 162/162) Six extra logs (double/mixed/float x hrd0/hrd1 x inl0) only in the four BSM processes (rebuild is needed)
-cmd="./tput/teeThroughputX.sh -dmf -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb ${makeclean} ${opts}"
+# (+24: 162/162) Six extra logs (double/mixed/float x hrd0/hrd1 x inl0) only in the four BSM processes (always force rebuild)
+cmd="./tput/teeThroughputX.sh -dmf -hrd -makej -susyggtt -susyggt1t1 -smeftggtttt -heftggbb -makeclean ${opts}"
 tmp10=$(mktemp)
 if [ "${bsm}" == "1" ]; then
   $cmd; status=$?
@@ -343,14 +331,6 @@ echo -e "$ended7"
 echo -e "$ended8"
 echo -e "$ended9"
 echo -e "$ended10"
-
-if [ "$ggttggg" == "" ]; then
-  echo
-  echo "To complete the test for ggttggg type:"
-  echo "  ./tput/teeThroughputX.sh -dmf -hrd -makej -ggttggg ${makeclean} ${opts}"
-  echo "  ./tput/teeThroughputX.sh -dmf -makej -ggttggg -scaling ${makeclean} ${opts}"
-  echo "  ./tput/teeThroughputX.sh -makej -ggttggg -d_f -bridge ${makeclean} ${opts}"
-fi
 
 # Finally check all logs
 echo

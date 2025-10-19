@@ -25,7 +25,7 @@ checkonly=0
 short=0
 bsm=
 flts=-dmf # "d m f" (alternative: -d_f i.e. "d f")
-makeclean=
+makeclean=-makeclean
 rmrdat=
 add10x=
 hip=
@@ -42,7 +42,7 @@ while [ "${checkonly}" == "0" ] && [ "$1" != "" ]; do
   elif [ "$1" == "-ggttggg" ]; then
     short=-1 # only ggttggg (implies no bsm!)
     shift
-  elif [ "$1" == "-makeclean" ]; then
+  elif [ "$1" == "-nomakeclean" ]; then
     makeclean=$1
     shift
   elif [ "$1" == "+10x" ]; then
@@ -66,22 +66,26 @@ done
 if [ "${checkonly}" == "0" ]; then
   started="STARTED  AT $(date)"
   # SM tests
+  cmd1="(none)"
   if [ "${bsm}" != "-bsmonly" ]; then
     if [ "$short" == "1" ]; then
-      ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq $flts $makeclean $rmrdat $add10x $hip
+      cmd1="${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq $flts $makeclean $rmrdat $add10x $hip"
     elif [ "$short" == "-1" ]; then
-      ${scrdir}/teeMadX.sh -ggttggg $flts $makeclean $rmrdat $add10x $hip
+      cmd1="${scrdir}/teeMadX.sh -ggttggg $flts $makeclean $rmrdat $add10x $hip"
     else
-      ${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -ggttggg $flts $makeclean $rmrdat $add10x $hip
+      cmd1="${scrdir}/teeMadX.sh -eemumu -ggtt -ggttg -ggttgg -gqttq -ggttggg $flts $makeclean $rmrdat $add10x $hip"
     fi
+    ${cmd1}
   fi
   status=$?
   ended1="(SM tests)\nENDED(1) AT $(date) [Status=$status]"
   # BSM tests
+  cmd2="(none)"
   if [ "${bsm}" != "-nobsm" ]; then
     if [ "$short" != "-1" ]; then
-      ${scrdir}/teeMadX.sh -heftggbb -susyggtt -susyggt1t1 -smeftggtttt $flts $makeclean $rmrdat $add10x $hip
+      cmd2="${scrdir}/teeMadX.sh -heftggbb -susyggtt -susyggt1t1 -smeftggtttt $flts $makeclean $rmrdat $add10x $hip"
     fi
+    ${cmd2}
   fi
   status=$?
   ended2="(BSM tests)\nENDED(1) AT $(date) [Status=$status]"
@@ -90,7 +94,9 @@ if [ "${checkonly}" == "0" ]; then
   printf "\n%80s\n" |tr " " "#"
   echo
   echo -e "$started"
+  echo -e "$cmd1"
   echo -e "$ended1"
+  echo -e "$cmd2"
   echo -e "$ended2"
   echo
 fi

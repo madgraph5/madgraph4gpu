@@ -69,9 +69,9 @@ verbose=0
 
 dlp=
 
-# Optional hack to build only the cudacpp plugin (without building the madevent code) in .mad directories
-makef=
-###makef="-f Makefile"
+# Hack to build only the cudacpp plugin (without building the madevent code) in .mad directories
+###makef=
+makef="-f cudacpp.mk"
 
 # (Was: workaround to allow 'make avxall' when '-avxall' is specified #536)
 bbldsall="cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z"
@@ -639,13 +639,13 @@ function runNcu() {
   exe1=$1
   args="$2"
   args="$args$rndgen$rmbsmp"
-  echo "runNcu $exe1 $args"
   ###echoblas=1
   ###kernels="calculate_jamps color_sum_kernel" # before kernel splitting
-  kernels="diagram1 diagram2 color_sum_kernel" # with kernel splitting
+  kernels="diagramgroup1 diagramgroup2 color_sum_kernel" # with kernel splitting
   ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels kernel"; fi # heavy to profile...
   ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels regex:gemm"; fi # output to be improved...
   for kernel in $kernels; do
+    echo "runNcu $exe1 $args [profile kernel $kernel]"
     if [ "${verbose}" == "1" ]; then set -x; fi
     #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::${kernel}:" --kernel-name-base function $exe1 $args | egrep '(calculate_jamps|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
     set +e # do not fail on error
