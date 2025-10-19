@@ -1,4 +1,4 @@
-Copyright (C) 2020-2024 CERN and UCLouvain.
+Copyright (C) 2020-2025 CERN and UCLouvain.
 Licensed under the GNU Lesser General Public License (version 3 or later).
 All rights not expressly granted are reserved.
 
@@ -13,6 +13,7 @@ initial work on porting MG5aMC to GPUs using CUDA and on speeding up MG5aMC on
 CPUs using vectorized C++ by three original authors from CERN and UCLouvain.
 The full development team currently includes the following authors :
   Stephan Hageboeck (CERN)
+  Daniele Massaro (CERN)
   Olivier Mattelaer (Universite Catholique de Louvain, original author)
   Stefan Roiser (CERN, original author)
   Jorgen Teig (CERN)
