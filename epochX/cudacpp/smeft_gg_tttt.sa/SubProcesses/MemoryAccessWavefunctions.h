@@ -23,24 +23,6 @@ namespace mg5amcCpu
 
 #ifdef MGONGPUCPP_GPUIMPL
 
-  // Non-trivial access in GPU global memory
-  class DeviceAccessWavefunctions
-  {
-  public:
-    static __host__ __device__ inline cxtype_sv*
-    kernelAccess( fptype* buffer )
-    {
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-      return reinterpret_cast<cxtype*>( buffer + ievt * CPPProcess::nw6 * mgOnGpu::nx2 );
-    }
-    static __host__ __device__ inline const cxtype_sv*
-    kernelAccessConst( const fptype* buffer )
-    {
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-      return reinterpret_cast<const cxtype*>( buffer + ievt * CPPProcess::nw6 * mgOnGpu::nx2 );
-    }
-  };
-
   // Trivial access in local variables
   class DeviceAccessWavefunctionsTrivial
   {
