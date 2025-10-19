@@ -901,9 +901,9 @@ for exe in $exesSc; do
     echo "### CPU: scaling test 32"
     for b in 1 2 4; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ); done
   fi
-  printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 done
 echo "========================================================================="
 
 # Workaround for reading of data files
+printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')"
 printf "\nTEST COMPLETED\n"
