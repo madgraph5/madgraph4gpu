@@ -27,7 +27,8 @@ namespace mg5amcGpu
     using WG_ACCESS = DeviceAccessWavefunctions; // non-trivial access in global memory
     const fptype* allWfs_iwf = allWfs + iwf * nevt * CPPProcess::nw6 * mgOnGpu::nx2;
     const cxtype* wcx_iwf = WG_ACCESS::kernelAccessConst( allWfs_iwf );
-    for( int iw6 = 0; iw6 < CPPProcess::nw6; iw6++ ) // FIXME: only need 4 out of 6?
+    // NB copy all 6 components (only the last 4 are used to compute amplitudes, but all 6 are needed to compute other wavefunctions)
+    for( int iw6 = 0; iw6 < CPPProcess::nw6; iw6++ )
       w_cx[iwf][iw6] = wcx_iwf[iw6];
   }
 
@@ -42,7 +43,8 @@ namespace mg5amcGpu
     using WG_ACCESS = DeviceAccessWavefunctions; // non-trivial access in global memory
     fptype* allWfs_iwf = allWfs + iwf * nevt * CPPProcess::nw6 * mgOnGpu::nx2;
     cxtype* wcx_iwf = WG_ACCESS::kernelAccess( allWfs_iwf );
-    for( int iw6 = 0; iw6 < CPPProcess::nw6; iw6++ ) // FIXME: only need 4 out of 6?
+    // NB copy all 6 components (only the last 4 are used to compute amplitudes, but all 6 are needed to compute other wavefunctions)
+    for( int iw6 = 0; iw6 < CPPProcess::nw6; iw6++ )
       wcx_iwf[iw6] = w_cx[iwf][iw6];
   }
 
