@@ -8,9 +8,11 @@ scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
 cd $scrdir
 
+###echo RUN "'$0 $*'"; exit 1 # FOR DEBUGGING
+
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocuda] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-makeonly] [-makeclean] [-makej] [-scaling] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocuda] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-makeonly] [-makeclean] [-makej] [-scaling] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -34,6 +36,7 @@ hrdcods="0"
 rndgen=
 rmbsmp=
 blas="" # build with blas but disable it at runtime
+graphs=""
 steps="make test"
 makej=
 scaling=
@@ -125,6 +128,8 @@ for arg in $*; do
   elif [ "$arg" == "-blasOn" ]; then # build with blas and enable it at runtime
     if [ "${blas}" == "-noBlas" ]; then echo "ERROR! Options -noBlas and -blasOn are incompatible"; usage; fi
     blas=$arg
+  elif [ "$arg" == "-useGraphs" ]; then
+    graphs=$arg
   elif [ "$arg" == "-makeonly" ]; then
     if [ "${steps}" == "make test" ]; then
       steps="make"
@@ -187,6 +192,7 @@ for step in $steps; do
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
             args="${args} ${scaling}" # optionally run scaling tests
             args="${args} ${blas}" # optionally build with no blas or instead enable it at runtime
+            args="${args} ${graphs}" # optionally run with CUDA Graphs
             ###args="${args} ${nofpe}" # optionally disable FPEs
             args="${args} ${bldall}" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
@@ -204,6 +210,7 @@ for step in $steps; do
               if [ "${rndgen}" != "" ]; then logfile=${logfile%.txt}_${rndgen#-}.txt; fi
               if [ "${rmbsmp}" != "" ]; then logfile=${logfile%.txt}_${rmbsmp#-}.txt; fi
               if [ "${blas}" != "" ]; then logfile=${logfile%.txt}_${blas#-}.txt; fi
+              if [ "${graphs}" != "" ]; then logfile=${logfile%.txt}_graphs.txt; fi
               if [ "${scaling}" != "" ]; then logfile=${logfile%.txt}.scaling; fi
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./throughputX.sh $args | tee $logfile"

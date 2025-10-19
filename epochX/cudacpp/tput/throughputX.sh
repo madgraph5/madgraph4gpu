@@ -19,7 +19,7 @@ export MG5AMC_CHANNELID_DEBUG=1
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -52,6 +52,8 @@ rndgen=""
 rmbsmp=""
 
 blas="" # build with blas but disable it at runtime
+
+graphs=""
 
 maketype=
 makej=
@@ -221,6 +223,9 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-blasOn" ]; then # build with blas and enable it at runtime
     if [ "${blas}" == "-noBlas" ]; then echo "ERROR! Options -noBlas and -blasOn are incompatible"; usage; fi
     blas=$1    
+    shift
+  elif [ "$1" == "-useGraphs" ]; then
+    graphs=$1    
     shift
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ] || [ "$1" == "-dryrun" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
@@ -532,6 +537,13 @@ echo CUDACPP_RUNTIME_BLASCOLORSUM=${CUDACPP_RUNTIME_BLASCOLORSUM}
 
 unset CUDACPP_RUNTIME_CUBLASTF32TENSOR
 echo CUDACPP_RUNTIME_CUBLASTF32TENSOR=${CUDACPP_RUNTIME_CUBLASTF32TENSOR}
+
+if [ "${graphs}" != "" ]; then
+  export CUDACPP_RUNTIME_GPUGRAPHS=1
+else
+  unset CUDACPP_RUNTIME_GPUGRAPHS
+fi
+echo CUDACPP_RUNTIME_GPUGRAPHS=${CUDACPP_RUNTIME_GPUGRAPHS}
 
 function runExe() {
   exe1=$1
@@ -870,21 +882,26 @@ for exe in $exesSc; do
   unset OMP_NUM_THREADS
   # Scaling test with 256 threads per block
   if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]]; then
-    echo "### GPU: scaling test 256"
-    for b in 1 2 4 8 16 32 64 128 256 512 1024; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ) |& sed "s/Gpu.*Assert/Assert/" |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done
-    if [[ "${exe%%/check_hip*}" != "${exe}" ]]; then
-      echo "### GPU: scaling test 64"
-      for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096; do ( $exe -p $b 64 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 64}" ) |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done # HIP (AMD GPU warp size is 32)
-    else
-      echo "### GPU: scaling test 32"
-      for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ) |& sed "s/Gpu.*Assert/Assert/"; done # CUDA (NVidia GPU warp size is 32)
-    fi
-  else
+    if [ "${graphs}" == "" ]; then ncycles="1"; else ncycles="1 10"; fi
+    for ncycle in $ncycles; do
+      if [ "${ncycle}" == "1" ]; then cycletxt="(1 cycle)"; else cycletxt="(${ncycle} cycles)"; fi
+      echo "### GPU: scaling test 256 ${cycletxt}"
+      for b in 1 2 4 8 16 32 64 128 256 512 1024; do ( $exe -p $b 256 ${ncycle} | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ) |& sed "s/Gpu.*Assert/Assert/" |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done
+      if [[ "${exe%%/check_hip*}" != "${exe}" ]]; then
+        echo "### GPU: scaling test 64 ${cycletxt}"
+        for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096; do ( $exe -p $b 64 ${ncycle} | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 64}" ) |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done # HIP (AMD GPU warp size is 32)
+      else
+        echo "### GPU: scaling test 32 ${cycletxt}"
+        for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192; do ( $exe -p $b 32 ${ncycle} | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ) |& sed "s/Gpu.*Assert/Assert/"; done # CUDA (NVidia GPU warp size is 32)
+      fi
+    done
+  elif [ "${graphs}" == "" ]; then
     echo "### CPU: scaling test 256"
     for b in 1 2 4; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ); done
     echo "### CPU: scaling test 32"
     for b in 1 2 4; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ); done
   fi
+  printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')\n\n"
 done
 echo "========================================================================="
 
