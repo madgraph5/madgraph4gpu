@@ -44,94 +44,100 @@ make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cud
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-DATE: 2025-10-18_22:25:01
+DATE: 2025-10-19_11:59:09
 
 HASBLAS=hasBlas
 CUDACPP_RUNTIME_BLASCOLORSUM=
 CUDACPP_RUNTIME_CUBLASTF32TENSOR=
+CUDACPP_RUNTIME_GPUGRAPHS=1
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.cuda_f_inl0_hrd0/check_cuda.exe
-### GPU: scaling test 256
-7.622997e+04    1 256
-1.530116e+05    2 256
-2.882437e+05    4 256
-4.125619e+05    8 256
-4.584035e+05   16 256
-4.726932e+05   32 256
-4.861257e+05   64 256
-4.830245e+05  128 256
-5.018091e+05  256 256
+### GPU: scaling test 256 (1 cycle)
+7.969065e+04    1 256
+1.475273e+05    2 256
+2.884282e+05    4 256
+4.169604e+05    8 256
+4.655046e+05   16 256
+4.782435e+05   32 256
+4.844511e+05   64 256
+4.841045e+05  128 256
+5.024516e+05  256 256
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
-### GPU: scaling test 32
-9.707295e+03    1  32
-1.922664e+04    2  32
-3.858381e+04    4  32
-7.905529e+04    8  32
-1.520615e+05   16  32
-1.800247e+05   32  32
-3.720774e+05   64  32
-4.435756e+05  128  32
-4.583742e+05  256  32
-4.579535e+05  512  32
-4.443955e+05 1024  32
-4.495769e+05 2048  32
+### GPU: scaling test 32 (1 cycle)
+9.566512e+03    1  32
+1.913797e+04    2  32
+4.206832e+04    4  32
+7.675023e+04    8  32
+1.478644e+05   16  32
+2.676208e+05   32  32
+3.758044e+05   64  32
+4.432933e+05  128  32
+4.611007e+05  256  32
+4.543953e+05  512  32
+4.395811e+05 1024  32
+4.502649e+05 2048  32
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
+### GPU: scaling test 256 (10 cycles)
+1.994885e+05    1 256
+3.080492e+05    2 256
+3.929877e+05    4 256
+4.437840e+05    8 256
+4.806831e+05   16 256
+4.944770e+05   32 256
+5.144119e+05   64 256
+5.263279e+05  128 256
+5.409518e+05  256 256
+check_cuda.exe: Assertion `code == gpuSuccess' failed.
+check_cuda.exe: Assertion `code == gpuSuccess' failed.
+### GPU: scaling test 32 (10 cycles)
+2.826317e+04    1  32
+5.697866e+04    2  32
+1.109517e+05    4  32
+1.714663e+05    8  32
+2.627120e+05   16  32
+3.797160e+05   32  32
+4.326410e+05   64  32
+4.746041e+05  128  32
+4.857144e+05  256  32
+4.779054e+05  512  32
+4.832247e+05 1024  32
+4.915010e+05 2048  32
+check_cuda.exe: Assertion `code == gpuSuccess' failed.
+check_cuda.exe: Assertion `code == gpuSuccess' failed.
+
+DATE: 2025-10-19_12:00:08
+
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.hip_f_inl0_hrd0/check_hip.exe
 Not found: /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.hip_f_inl0_hrd0/check_hip.exe
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.none_f_inl0_hrd0/check_cpp.exe
-### CPU: scaling test 256
-1.896178e+03    1 256
-1.918781e+03    2 256
-1.918499e+03    4 256
-### CPU: scaling test 32
-1.890056e+03    1  32
-1.897282e+03    2  32
-1.897440e+03    4  32
+
+DATE: 2025-10-19_12:00:08
+
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.sse4_f_inl0_hrd0/check_cpp.exe
-### CPU: scaling test 256
-6.774433e+03    1 256
-6.814242e+03    2 256
-6.831570e+03    4 256
-### CPU: scaling test 32
-6.387065e+03    1  32
-6.441132e+03    2  32
-6.575817e+03    4  32
+
+DATE: 2025-10-19_12:00:08
+
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.avx2_f_inl0_hrd0/check_cpp.exe
-### CPU: scaling test 256
-1.482575e+04    1 256
-1.477149e+04    2 256
-1.508584e+04    4 256
-### CPU: scaling test 32
-1.491536e+04    1  32
-1.450734e+04    2  32
-1.445487e+04    4  32
+
+DATE: 2025-10-19_12:00:08
+
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512y_f_inl0_hrd0/check_cpp.exe
-### CPU: scaling test 256
-1.659234e+04    1 256
-1.678460e+04    2 256
-1.682864e+04    4 256
-### CPU: scaling test 32
-1.621107e+04    1  32
-1.679417e+04    2  32
-1.675629e+04    4  32
+
+DATE: 2025-10-19_12:00:08
+
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512z_f_inl0_hrd0/check_cpp.exe
-### CPU: scaling test 256
-1.338169e+04    1 256
-1.336455e+04    2 256
-1.351665e+04    4 256
-### CPU: scaling test 32
-1.338546e+04    1  32
-1.317459e+04    2  32
-1.329320e+04    4  32
+
+DATE: 2025-10-19_12:00:08
+
 =========================================================================
 
 TEST COMPLETED
