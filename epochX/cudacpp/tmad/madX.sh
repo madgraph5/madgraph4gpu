@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 
@@ -522,6 +522,9 @@ printf "\nCUDACPP_RUNTIME_BLASCOLORSUM=$CUDACPP_RUNTIME_BLASCOLORSUM\n"
 
 unset CUDACPP_RUNTIME_CUBLASTF32TENSOR
 printf "\nCUDACPP_RUNTIME_CUBLASTF32TENSOR=$CUDACPP_RUNTIME_CUBLASTF32TENSOR\n"
+
+unset CUDACPP_RUNTIME_GPUGRAPHS
+printf "\nCUDACPP_RUNTIME_GPUGRAPHS=$CUDACPP_RUNTIME_GPUGRAPHS\n"
 
 printf "\nOMP_NUM_THREADS=$OMP_NUM_THREADS\n"
 
