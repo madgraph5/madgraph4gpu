@@ -238,7 +238,8 @@ namespace mg5amcCpu
   // Launch a group of Feynman diagrams as a standalone kernel (sigmaKin_getGoodHel) or within a CUDA/HIP graph (sigmaKin)
   template<typename Func, typename... Args>
   void
-  gpuDiagrams( gpuGraph_t* pGraph,
+  gpuDiagrams( bool useGraphs,
+               gpuGraph_t* pGraph,
                gpuGraphExec_t* pGraphExec,
                gpuGraphNode_t* pNode,
                gpuGraphNode_t* pNodeDep,
@@ -248,12 +249,17 @@ namespace mg5amcCpu
                gpuStream_t gpustream,
                Args... args )
   {
-    // CASE 0: WITHOUT GRAPHS (sigmaKin_getGoodHel)
-    if( gpustream == 0 )
+    // CASE 0: WITHOUT GRAPHS (graphs disabled)
+    if( !useGraphs )
     {
       gpuLaunchKernelStream( diagrams, gpublocks, gputhreads, gpustream, args... );
     }
-    // CASE 1: WITH GRAPHS (sigmaKin)
+    // CASE 0: WITHOUT GRAPHS (graphs enabled - sigmaKin_getGoodHel)
+    else if( gpustream == 0 )
+    {
+      gpuLaunchKernelStream( diagrams, gpublocks, gputhreads, gpustream, args... );
+    }
+    // CASE 1: WITH GRAPHS (graphs enabled - sigmaKin)
     else
     {
       // Define the parameters for the graph node for this Feynman diagram
@@ -463,13 +469,30 @@ namespace mg5amcCpu
 
       // *** DIAGRAMS 1 TO 7 ***
 #ifdef MGONGPUCPP_GPUIMPL
+      static bool useGraphs = false;
+      static bool first = true;
+      if( first )
+      {
+        first = false;
+        // Analyse environment variable CUDACPP_RUNTIME_GPUGRAPHS
+        const char* graphsEnv = getenv( "CUDACPP_RUNTIME_GPUGRAPHS" );
+        if( graphsEnv && std::string( graphsEnv ) != "" )
+        {
+          useGraphs = true;
+          std::cout << "INFO: Env variable CUDACPP_RUNTIME_GPUGRAPHS is set and non-empty: use GPU Graphs" << std::endl;
+        }
+        else
+        {
+          std::cout << "INFO: Env variable CUDACPP_RUNTIME_GPUGRAPHS is empty or not set: do not use GPU Graphs" << std::endl;
+        }
+      }
       static gpuGraph_t graphs[ncomb] = {};
       static gpuGraphExec_t graphExecs[ncomb] = {};
       static gpuGraphNode_t graphNodes[ncomb * ndiagramgroups] = {};
       gpuGraph_t& graph = graphs[ihel];
       gpuGraphExec_t& graphExec = graphExecs[ihel];
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph if not yet done
-      if( gpustream != 0 )
+      if( useGraphs && gpustream != 0 )
       {
         if( !graph )
         {
@@ -480,9 +503,9 @@ namespace mg5amcCpu
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
       gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
-      gpuDiagrams( &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
-      if( gpustream != 0 )
+      if( useGraphs && gpustream != 0 )
       {
         if( !graphExec )
         {
