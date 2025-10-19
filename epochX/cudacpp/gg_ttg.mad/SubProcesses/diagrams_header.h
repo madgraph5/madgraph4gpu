@@ -26,17 +26,17 @@ namespace mg5amcGpu
     kernelAccessIw6( fptype* buffer, const int iw6 )
     {
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-      return reinterpret_cast<cxtype*>( buffer + ievt * CPPProcess::nw6 * mgOnGpu::nx2 )[iw6]; // OLD (non coalesced?)
-      //const int nevt = gridDim.x * blockDim.x;
-      //return *( reinterpret_cast<cxtype*>( buffer + ( iw6 * nevt + ievt ) * mgOnGpu::nx2 ) ); // NEW (coalesced?)
+      //return reinterpret_cast<cxtype*>( buffer + ievt * CPPProcess::nw6 * mgOnGpu::nx2 )[iw6]; // OLD (non coalesced?)
+      const int nevt = gridDim.x * blockDim.x;
+      return *( reinterpret_cast<cxtype*>( buffer + ( iw6 * nevt + ievt ) * mgOnGpu::nx2 ) ); // NEW (coalesced?)
     }
     static __host__ __device__ inline const cxtype
     kernelAccessIw6Const( const fptype* buffer, const int iw6 )
     {
       const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
-      return reinterpret_cast<const cxtype*>( buffer + ievt * CPPProcess::nw6 * mgOnGpu::nx2 )[iw6]; // OLD (non coalesced?)
-      //const int nevt = gridDim.x * blockDim.x;
-      //return *( reinterpret_cast<const cxtype*>( buffer + ( iw6 * nevt + ievt ) * mgOnGpu::nx2 ) ); // NEW (coalesced?)
+      //return reinterpret_cast<const cxtype*>( buffer + ievt * CPPProcess::nw6 * mgOnGpu::nx2 )[iw6]; // OLD (non coalesced?)
+      const int nevt = gridDim.x * blockDim.x;
+      return *( reinterpret_cast<const cxtype*>( buffer + ( iw6 * nevt + ievt ) * mgOnGpu::nx2 ) ); // NEW (coalesced?)
     }
   };
 
