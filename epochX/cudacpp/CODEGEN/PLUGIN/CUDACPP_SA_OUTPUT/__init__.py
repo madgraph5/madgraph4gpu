@@ -74,4 +74,4 @@ else:
 
     minimal_mg5amcnlo_version = (3,6,3)
     maximal_mg5amcnlo_version = (1000,1000,1000)
-    latest_validated_version = (3,6,3)
+    latest_validated_version = (3,6,4)
