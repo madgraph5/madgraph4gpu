@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi, Z. Wettersten (2021-2025) for the MG5aMC CUDACPP plugin.
+# Further modified by: D. Massaro, O. Mattelaer, A. Valassi, Z. Wettersten (2021-2025) for the MG5aMC CUDACPP plugin.
 
 # AV - Rename the plugin as CUDACPP_OUTPUT (even if the madgraph4gpu directory is still called CUDACPP_SA_OUTPUT)
 # This can be used in mg5amcnlo in one of two ways:
@@ -74,8 +74,8 @@ else:
     # The release infrastructure expects 'vN.NN.NN' tags with 1-digit major and 2-digit minor and patch versions
     # and it takes care of converting the python tuple '(1,0,1)' into a version string 'v1.00.01'
     # NB! Do not use '(1,00,01)' here: leading zeros in decimal integer literals are not permitted in python (#1013)
-    __version__ = (1,0,2)
+    __version__ = (1,1,0)
 
-    minimal_mg5amcnlo_version = (3,6,3)
+    minimal_mg5amcnlo_version = (3,6,5)
     maximal_mg5amcnlo_version = (1000,1000,1000)
-    latest_validated_version = (3,6,3)
+    latest_validated_version = (3,6,5)
