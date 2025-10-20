@@ -94,10 +94,13 @@
     // GPU or C++
     //-------------
 
-    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
     fptype* amp_fp;      // proof of concept for using fptype* in the interface
     amp_fp = reinterpret_cast<fptype*>( amp_sv );
+
+    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
+    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
