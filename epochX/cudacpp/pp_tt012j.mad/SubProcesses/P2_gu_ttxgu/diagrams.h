@@ -9,13 +9,14 @@
 
   __global__ void
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 #ifdef MGONGPUCPP_GPUIMPL
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
+                 cxtype_sv* jamp_sv,             // output jamps[ncolor*2*neppV]
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
+                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
                  fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
                  const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
@@ -52,10 +53,10 @@
     if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) -= 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 8 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 9 ) += 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[4] -= 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[5] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[8] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[9] += 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 2 OF 36 ***
     // Wavefunction(s) for diagram number 2
@@ -66,10 +67,10 @@
     if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) -= 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 9 ) += 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 10 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[2] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[4] -= 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[9] += 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[10] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 3 OF 36 ***
     // Wavefunction(s) for diagram number 3
@@ -80,10 +81,10 @@
     if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) += 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 8 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 10 ) += 1. / 2. * amp_sv[0];
+    jamp_sv[2] -= 1. / 2. * amp_sv[0];
+    jamp_sv[5] += 1. / 2. * amp_sv[0];
+    jamp_sv[8] -= 1. / 2. * amp_sv[0];
+    jamp_sv[10] += 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 4 OF 36 ***
     // Wavefunction(s) for diagram number 4
@@ -94,10 +95,10 @@
     if( channelId == 4 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) -= 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 10 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 11 ) += 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[2] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[3] -= 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[10] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[11] += 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 5 OF 36 ***
     // Wavefunction(s) for diagram number 5
@@ -108,10 +109,10 @@
     if( channelId == 5 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) -= 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 8 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 11 ) += 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[3] -= 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[5] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[8] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[11] += 1. / 6. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 6 OF 36 ***
     // Wavefunction(s) for diagram number 6
@@ -123,8 +124,8 @@
     if( channelId == 6 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) += 1. / 6. * amp_sv[0];
+    jamp_sv[0] -= 1. / 2. * amp_sv[0];
+    jamp_sv[3] += 1. / 6. * amp_sv[0];
 
     // *** DIAGRAM 7 OF 36 ***
     // Wavefunction(s) for diagram number 7
@@ -136,8 +137,8 @@
     if( channelId == 7 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 1 ) += 1. / 6. * amp_sv[0];
+    jamp_sv[0] -= 1. / 2. * amp_sv[0];
+    jamp_sv[1] += 1. / 6. * amp_sv[0];
 
     // *** DIAGRAM 8 OF 36 ***
     // Wavefunction(s) for diagram number 8
@@ -148,8 +149,8 @@
     if( channelId == 8 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 1 ) += 1. / 6. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[1] += 1. / 6. * amp_sv[0];
+    jamp_sv[2] -= 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 9 OF 36 ***
     // Wavefunction(s) for diagram number 9
@@ -160,8 +161,8 @@
     if( channelId == 9 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) += 1. / 6. * amp_sv[0];
+    jamp_sv[2] -= 1. / 2. * amp_sv[0];
+    jamp_sv[3] += 1. / 6. * amp_sv[0];
 
     // *** DIAGRAM 10 OF 36 ***
     // Wavefunction(s) for diagram number 10
@@ -172,8 +173,8 @@
     if( channelId == 10 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[0] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[2] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 11 OF 36 ***
     // Wavefunction(s) for diagram number 11
@@ -185,8 +186,8 @@
     if( channelId == 11 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 11 ) += 1. / 6. * amp_sv[0];
+    jamp_sv[7] -= 1. / 2. * amp_sv[0];
+    jamp_sv[11] += 1. / 6. * amp_sv[0];
 
     // *** DIAGRAM 12 OF 36 ***
     // Wavefunction(s) for diagram number 12
@@ -197,8 +198,8 @@
     if( channelId == 12 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 1 ) += 1. / 6. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 8 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[1] += 1. / 6. * amp_sv[0];
+    jamp_sv[8] -= 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 13 OF 36 ***
     // Wavefunction(s) for diagram number 13
@@ -209,8 +210,8 @@
     if( channelId == 13 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 1 ) += 1. / 6. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[1] += 1. / 6. * amp_sv[0];
+    jamp_sv[7] -= 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 14 OF 36 ***
     // Wavefunction(s) for diagram number 14
@@ -221,8 +222,8 @@
     if( channelId == 14 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 8 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 11 ) += 1. / 6. * amp_sv[0];
+    jamp_sv[8] -= 1. / 2. * amp_sv[0];
+    jamp_sv[11] += 1. / 6. * amp_sv[0];
 
     // *** DIAGRAM 15 OF 36 ***
     // Wavefunction(s) for diagram number 15
@@ -233,8 +234,8 @@
     if( channelId == 15 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 8 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[7] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[8] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 16 OF 36 ***
     // Wavefunction(s) for diagram number 16
@@ -246,8 +247,8 @@
     if( channelId == 16 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 6 ) += 1. / 6. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[6] += 1. / 6. * amp_sv[0];
+    jamp_sv[7] -= 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 17 OF 36 ***
     // Wavefunction(s) for diagram number 17
@@ -258,8 +259,8 @@
     if( channelId == 17 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 6 ) += 1. / 6. * amp_sv[0];
+    jamp_sv[5] -= 1. / 2. * amp_sv[0];
+    jamp_sv[6] += 1. / 6. * amp_sv[0];
 
     // *** DIAGRAM 18 OF 36 ***
     // Wavefunction(s) for diagram number 18
@@ -270,8 +271,8 @@
     if( channelId == 18 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) += 1. / 6. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[4] += 1. / 6. * amp_sv[0];
+    jamp_sv[7] -= 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 19 OF 36 ***
     // Wavefunction(s) for diagram number 19
@@ -282,8 +283,8 @@
     if( channelId == 19 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) += 1. / 6. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[4] += 1. / 6. * amp_sv[0];
+    jamp_sv[5] -= 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 20 OF 36 ***
     // Wavefunction(s) for diagram number 20
@@ -294,8 +295,8 @@
     if( channelId == 20 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[5] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[7] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 21 OF 36 ***
     // Wavefunction(s) for diagram number 21
@@ -307,8 +308,8 @@
     if( channelId == 21 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 6 ) += 1. / 6. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 10 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[6] += 1. / 6. * amp_sv[0];
+    jamp_sv[10] -= 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 22 OF 36 ***
     // Wavefunction(s) for diagram number 22
@@ -319,8 +320,8 @@
     if( channelId == 22 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 6 ) += 1. / 6. * amp_sv[0];
+    jamp_sv[0] -= 1. / 2. * amp_sv[0];
+    jamp_sv[6] += 1. / 6. * amp_sv[0];
 
     // *** DIAGRAM 23 OF 36 ***
     // Wavefunction(s) for diagram number 23
@@ -331,8 +332,8 @@
     if( channelId == 23 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 9 ) += 1. / 6. * amp_sv[0];
+    jamp_sv[0] -= 1. / 2. * amp_sv[0];
+    jamp_sv[9] += 1. / 6. * amp_sv[0];
 
     // *** DIAGRAM 24 OF 36 ***
     // Wavefunction(s) for diagram number 24
@@ -343,8 +344,8 @@
     if( channelId == 24 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 9 ) += 1. / 6. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 10 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[9] += 1. / 6. * amp_sv[0];
+    jamp_sv[10] -= 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 25 OF 36 ***
     // Wavefunction(s) for diagram number 25
@@ -355,8 +356,8 @@
     if( channelId == 25 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 10 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[0] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[10] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 26 OF 36 ***
     // Wavefunction(s) for diagram number 26
@@ -367,8 +368,8 @@
     if( channelId == 26 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 10 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 11 ) += 1. / 6. * amp_sv[0];
+    jamp_sv[10] -= 1. / 2. * amp_sv[0];
+    jamp_sv[11] += 1. / 6. * amp_sv[0];
 
     // *** DIAGRAM 27 OF 36 ***
     // Wavefunction(s) for diagram number 27
@@ -379,8 +380,8 @@
     if( channelId == 27 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 10 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[7] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[10] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 28 OF 36 ***
     // Wavefunction(s) for diagram number 28
@@ -391,8 +392,8 @@
     if( channelId == 28 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) += 1. / 6. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[3] += 1. / 6. * amp_sv[0];
+    jamp_sv[5] -= 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 29 OF 36 ***
     // Wavefunction(s) for diagram number 29
@@ -403,8 +404,8 @@
     if( channelId == 29 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[0] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[5] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 30 OF 36 ***
     // Wavefunction(s) for diagram number 30
@@ -415,8 +416,8 @@
     if( channelId == 30 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 8 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 9 ) += 1. / 6. * amp_sv[0];
+    jamp_sv[8] -= 1. / 2. * amp_sv[0];
+    jamp_sv[9] += 1. / 6. * amp_sv[0];
 
     // *** DIAGRAM 31 OF 36 ***
     // Wavefunction(s) for diagram number 31
@@ -427,8 +428,8 @@
     if( channelId == 31 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 8 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[0] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[8] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 32 OF 36 ***
     // Wavefunction(s) for diagram number 32
@@ -439,8 +440,8 @@
     if( channelId == 32 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) += 1. / 6. * amp_sv[0];
+    jamp_sv[2] -= 1. / 2. * amp_sv[0];
+    jamp_sv[4] += 1. / 6. * amp_sv[0];
 
     // *** DIAGRAM 33 OF 36 ***
     // Wavefunction(s) for diagram number 33
@@ -451,28 +452,28 @@
     if( channelId == 33 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[2] -= 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[7] += 1. / 2. * cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 34 OF 36 ***
     // Wavefunction(s) for diagram number 34
     // (none)
     // Amplitude(s) for diagram number 34
     VVVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[0], w_fp[4], w_fp[7], w_fp[8], COUPs[2], 1.0, &amp_fp[0] );
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) += 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 8 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 10 ) += 1. / 2. * amp_sv[0];
+    jamp_sv[2] -= 1. / 2. * amp_sv[0];
+    jamp_sv[5] += 1. / 2. * amp_sv[0];
+    jamp_sv[8] -= 1. / 2. * amp_sv[0];
+    jamp_sv[10] += 1. / 2. * amp_sv[0];
     VVVV3_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[0], w_fp[4], w_fp[7], w_fp[8], COUPs[2], 1.0, &amp_fp[0] );
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) += 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) += 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 8 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[0] += 1. / 2. * amp_sv[0];
+    jamp_sv[2] -= 1. / 2. * amp_sv[0];
+    jamp_sv[7] += 1. / 2. * amp_sv[0];
+    jamp_sv[8] -= 1. / 2. * amp_sv[0];
     VVVV4_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[0], w_fp[4], w_fp[7], w_fp[8], COUPs[2], 1.0, &amp_fp[0] );
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) += 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) += 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 10 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[0] += 1. / 2. * amp_sv[0];
+    jamp_sv[5] -= 1. / 2. * amp_sv[0];
+    jamp_sv[7] += 1. / 2. * amp_sv[0];
+    jamp_sv[10] -= 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 35 OF 36 ***
     // Wavefunction(s) for diagram number 35
@@ -483,10 +484,10 @@
     if( channelId == 35 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) += 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) += 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 8 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[0] += 1. / 2. * amp_sv[0];
+    jamp_sv[2] -= 1. / 2. * amp_sv[0];
+    jamp_sv[7] += 1. / 2. * amp_sv[0];
+    jamp_sv[8] -= 1. / 2. * amp_sv[0];
 
     // *** DIAGRAM 36 OF 36 ***
     // Wavefunction(s) for diagram number 36
@@ -497,10 +498,16 @@
     if( channelId == 36 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) += 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) -= 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 7 ) += 1. / 2. * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 10 ) -= 1. / 2. * amp_sv[0];
+    jamp_sv[0] += 1. / 2. * amp_sv[0];
+    jamp_sv[5] -= 1. / 2. * amp_sv[0];
+    jamp_sv[7] += 1. / 2. * amp_sv[0];
+    jamp_sv[10] -= 1. / 2. * amp_sv[0];
+
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE JAMPS ***
+    for( int icol = 0; icol < ncolor; icol++ )
+      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps
+#endif
 
 #ifdef MGONGPUCPP_GPUIMPL
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***

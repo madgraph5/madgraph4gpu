@@ -9,13 +9,14 @@
 
   __global__ void
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 #ifdef MGONGPUCPP_GPUIMPL
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
+                 cxtype_sv* jamp_sv,             // output jamps[ncolor*2*neppV]
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
+                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
                  fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
                  const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
@@ -49,10 +50,10 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) -= amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) += amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) += amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) -= amp_sv[0];
+    jamp_sv[0] -= amp_sv[0];
+    jamp_sv[2] += amp_sv[0];
+    jamp_sv[4] += amp_sv[0];
+    jamp_sv[5] -= amp_sv[0];
 
     // *** DIAGRAM 2 OF 16 ***
     // Wavefunction(s) for diagram number 2
@@ -62,8 +63,8 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) += cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) -= cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 3 OF 16 ***
     // Wavefunction(s) for diagram number 3
@@ -73,8 +74,8 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) += cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) -= cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 4 OF 16 ***
     // Wavefunction(s) for diagram number 4
@@ -85,7 +86,7 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 1 ) -= amp_sv[0];
+    jamp_sv[1] -= amp_sv[0];
 
     // *** DIAGRAM 5 OF 16 ***
     // Wavefunction(s) for diagram number 5
@@ -95,8 +96,8 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) += cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 1 ) -= cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 6 OF 16 ***
     // Wavefunction(s) for diagram number 6
@@ -106,7 +107,7 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) -= amp_sv[0];
+    jamp_sv[0] -= amp_sv[0];
 
     // *** DIAGRAM 7 OF 16 ***
     // Wavefunction(s) for diagram number 7
@@ -117,7 +118,7 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) -= amp_sv[0];
+    jamp_sv[3] -= amp_sv[0];
 
     // *** DIAGRAM 8 OF 16 ***
     // Wavefunction(s) for diagram number 8
@@ -127,8 +128,8 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) += cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) -= cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 9 OF 16 ***
     // Wavefunction(s) for diagram number 9
@@ -138,7 +139,7 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) -= amp_sv[0];
+    jamp_sv[5] -= amp_sv[0];
 
     // *** DIAGRAM 10 OF 16 ***
     // Wavefunction(s) for diagram number 10
@@ -148,8 +149,8 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) += cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) -= cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 11 OF 16 ***
     // Wavefunction(s) for diagram number 11
@@ -159,8 +160,8 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 1 ) += cxtype( 0, 1 ) * amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) -= cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
+    jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
 
     // *** DIAGRAM 12 OF 16 ***
     // Wavefunction(s) for diagram number 12
@@ -170,10 +171,10 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 1 ) += amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) -= amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) += amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) -= amp_sv[0];
+    jamp_sv[1] += amp_sv[0];
+    jamp_sv[2] -= amp_sv[0];
+    jamp_sv[3] += amp_sv[0];
+    jamp_sv[4] -= amp_sv[0];
 
     // *** DIAGRAM 13 OF 16 ***
     // Wavefunction(s) for diagram number 13
@@ -183,7 +184,7 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) -= amp_sv[0];
+    jamp_sv[2] -= amp_sv[0];
 
     // *** DIAGRAM 14 OF 16 ***
     // Wavefunction(s) for diagram number 14
@@ -193,7 +194,7 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) -= amp_sv[0];
+    jamp_sv[4] -= amp_sv[0];
 
     // *** DIAGRAM 15 OF 16 ***
     // Wavefunction(s) for diagram number 15
@@ -203,10 +204,10 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) += amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 1 ) -= amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) -= amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) += amp_sv[0];
+    jamp_sv[0] += amp_sv[0];
+    jamp_sv[1] -= amp_sv[0];
+    jamp_sv[3] -= amp_sv[0];
+    jamp_sv[5] += amp_sv[0];
 
     // *** DIAGRAM 16 OF 16 ***
     // Wavefunction(s) for diagram number 16
@@ -218,26 +219,32 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) += amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 1 ) -= amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) -= amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) += amp_sv[0];
+    jamp_sv[0] += amp_sv[0];
+    jamp_sv[1] -= amp_sv[0];
+    jamp_sv[3] -= amp_sv[0];
+    jamp_sv[5] += amp_sv[0];
     FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 1 ) -= amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) += amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 3 ) -= amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) += amp_sv[0];
+    jamp_sv[1] -= amp_sv[0];
+    jamp_sv[2] += amp_sv[0];
+    jamp_sv[3] -= amp_sv[0];
+    jamp_sv[4] += amp_sv[0];
     FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
-    J_ACCESS::kernelAccessIcol( jamps, 0 ) -= amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 2 ) += amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 4 ) += amp_sv[0];
-    J_ACCESS::kernelAccessIcol( jamps, 5 ) -= amp_sv[0];
+    jamp_sv[0] -= amp_sv[0];
+    jamp_sv[2] += amp_sv[0];
+    jamp_sv[4] += amp_sv[0];
+    jamp_sv[5] -= amp_sv[0];
+
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE JAMPS ***
+    for( int icol = 0; icol < ncolor; icol++ )
+      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps
+#endif
 
 #ifdef MGONGPUCPP_GPUIMPL
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***

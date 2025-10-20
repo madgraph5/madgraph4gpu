@@ -54,21 +54,6 @@ namespace mg5amcCpu
       //return cxtype( buffer[0 * nevt * ncolor + ievt * ncolor + icol], buffer[1 * nevt * ncolor + ievt * ncolor + icol] ); // "new2"
     }
   };
-#else
-  class HostAccessJamp
-  {
-  public:
-    static inline cxtype_sv&
-    kernelAccessIcol( cxtype_sv* buffer, const int icol )
-    {
-      return buffer[icol];
-    }
-    static inline cxtype_sv&
-    kernelAccessIcol( fptype* buffer, const int icol )
-    {
-      return reinterpret_cast<cxtype_sv*>( buffer )[icol];
-    }
-  };
 #endif
 
   //--------------------------------------------------------------------------

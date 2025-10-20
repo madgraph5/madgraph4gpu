@@ -413,11 +413,9 @@ namespace mg5amcCpu
       // (Note: no need to 'reset color flows' i.e. zero allJamps, this is done in sigmaKin and sigmaKin_getGoodHel)
 #ifdef MGONGPUCPP_GPUIMPL
       // In CUDA, write jamps to the output global-memory allJamps [for all events] passed as argument
-      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
       fptype* jamps = allJamps;
 #else
       // In C++, write jamps to the output array [for one specific event or SIMD vector] passed as argument
-      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
       cxtype_sv* jamp_sv = ( iParity == 0 ? jamp_sv_1or2 : &( jamp_sv_1or2[ncolor] ) );
 #endif
 

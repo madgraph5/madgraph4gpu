@@ -319,7 +319,7 @@ namespace mg5amcCpu
   calculate_jamps( int ihel,
                    const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
-                   cxtype_sv* jamp_sv,                // output: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
+                   cxtype_sv* jamp_sv_1or2,           // output: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                    const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for SIMD event page(s) ievt00
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
@@ -414,12 +414,10 @@ namespace mg5amcCpu
       // (Note: no need to 'reset color flows' i.e. zero allJamps, this is done in sigmaKin and sigmaKin_getGoodHel)
 #ifdef MGONGPUCPP_GPUIMPL
       // In CUDA, write jamps to the output global-memory allJamps [for all events] passed as argument
-      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
       fptype* jamps = allJamps;
 #else
       // In C++, write jamps to the output array [for one specific event or SIMD vector] passed as argument
-      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
-      fptype* jamps = reinterpret_cast<fptype*>( iParity == 0 ? jamp_sv : &( jamp_sv[ncolor] ) );
+      cxtype_sv* jamp_sv = ( iParity == 0 ? jamp_sv_1or2 : &( jamp_sv_1or2[ncolor] ) );
 #endif
 
       // ------------------
@@ -499,7 +497,7 @@ namespace mg5amcCpu
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
       gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, momenta, ihel );
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( useGraphs && gpustream != 0 )
       {
@@ -512,7 +510,7 @@ namespace mg5amcCpu
         checkGpu( gpuGraphLaunch( graphExec, gpustream ) );
       }
 #else
-      diagramgroup1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );
+      diagramgroup1( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, momenta, ihel );
 #endif
     }
     // *****************************
@@ -895,17 +893,17 @@ namespace mg5amcCpu
         }
         //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        cxtype_sv jamp_sv[2 * ncolor] = {}; // all zeros
+        cxtype_sv jamp_sv_1or2[2 * ncolor] = {}; // all zeros
 #else
-        cxtype_sv jamp_sv[ncolor] = {};  // all zeros
+        cxtype_sv jamp_sv_1or2[ncolor] = {}; // all zeros
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL /* clang-format off */
         constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, ievt00 ); //maxtry?
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, channelId, allNumerators, allDenominators, ievt00 ); //maxtry?
 #else
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 ); //maxtry?
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, ievt00 ); //maxtry?
 #endif /* clang-format on */
-        color_sum_cpu( allMEs, jamp_sv, ievt00 );
+        color_sum_cpu( allMEs, jamp_sv_1or2, ievt00 );
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
@@ -1292,9 +1290,9 @@ namespace mg5amcCpu
     // Delay color algebra and ME updates (only on even pages)
     assert( npagV % 2 == 0 );     // SANITY CHECK for mixed fptypes: two neppV-pages are merged to one 2*neppV-page
     const int npagV2 = npagV / 2; // loop on two SIMD pages (neppV events) at a time
-#else
-    const int npagV2 = npagV;            // loop on one SIMD page (neppV events) at a time
-#endif
+#else /* clang-format off */
+    const int npagV2 = npagV; // loop on one SIMD page (neppV events) at a time
+#endif /* clang-format on */
 #ifdef _OPENMP
     // OMP multithreading #575 (NB: tested only with gcc11 so far)
     // See https://www.openmp.org/specifications/
@@ -1316,9 +1314,9 @@ namespace mg5amcCpu
     {
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       const int ievt00 = ipagV2 * neppV * 2; // loop on two SIMD pages (neppV events) at a time
-#else
+#else /* clang-format off */
       const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
-#endif
+#endif /* clang-format on */
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // SCALAR channelId for the whole SIMD neppV2 event page (C++), i.e. one or two neppV event page(s)
       // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a neppV2 SIMD event page
@@ -1363,22 +1361,21 @@ namespace mg5amcCpu
       for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-        cxtype_sv jamp_sv[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
+        cxtype_sv jamp_sv_1or2[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, ievt00 );
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, channelId, allNumerators, allDenominators, ievt00 );
 #else
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 );
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, ievt00 );
 #endif
-        color_sum_cpu( allMEs, jamp_sv, ievt00 );
+        color_sum_cpu( allMEs, jamp_sv_1or2, ievt00 );
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
-        using J_ACCESS = HostAccessJamp;
         for( int iParity = 0; iParity < nParity; ++iParity )
           for( int icol = 0; icol < ncolor; icol++ )
-            jamp2_sv[ncolor * iParity + icol] += cxabs2( J_ACCESS::kernelAccessIcol( &( jamp_sv[ncolor * iParity] ), icol ) ); // may underflow #831
+            jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv_1or2[ncolor * iParity + icol] ); // may underflow #831
       }
       // Event-by-event random choice of helicity #403
       for( int ieppV = 0; ieppV < neppV; ++ieppV )

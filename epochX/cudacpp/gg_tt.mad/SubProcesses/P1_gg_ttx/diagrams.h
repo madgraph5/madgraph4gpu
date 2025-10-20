@@ -77,7 +77,7 @@
 #ifdef MGONGPUCPP_GPUIMPL
     // *** STORE JAMPS ***
     for( int icol = 0; icol < ncolor; icol++ )
-      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol];
+      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps
 #endif
 
 #ifdef MGONGPUCPP_GPUIMPL
