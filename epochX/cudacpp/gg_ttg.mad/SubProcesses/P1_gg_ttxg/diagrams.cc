@@ -26,6 +26,8 @@ namespace mg5amcCpu
 #endif
 {
   constexpr int nw6 = CPPProcess::nw6;       // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  constexpr int npar = CPPProcess::npar;     // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
+  constexpr int ncomb = CPPProcess::ncomb;   // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
   constexpr int nwf = CPPProcess::nwf;       // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
 
@@ -34,6 +36,10 @@ namespace mg5amcCpu
 
   constexpr int nIPD = CPPProcess::nIPD; // SM independent parameters
   constexpr int nIPC = CPPProcess::nIPC; // SM independent couplings
+
+  extern __device__ __constant__ fptype* cIPC;
+  extern __device__ __constant__ fptype* cIPD;
+  extern __device__ __constant__ short cHel[ncomb][npar];
 
   //--------------------------------------------------------------------------
 
@@ -436,4 +442,3 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 }
-
