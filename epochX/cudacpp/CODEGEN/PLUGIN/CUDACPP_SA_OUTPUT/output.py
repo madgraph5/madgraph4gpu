@@ -49,14 +49,12 @@ from . import launch_plugin
 
 # AV - define the plugin's process exporter
 # (NB: this is the plugin's main class, enabled in the new_output dictionary in __init__.py)
-class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
+class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterCPP):
     # Class structure information
     #  - object
     #  - VirtualExporter(object) [in madgraph/iolibs/export_v4.py]
     #  - ProcessExporterCPP(VirtualExporter) [in madgraph/iolibs/export_cpp.py]
-    #  - ProcessExporterGPU(ProcessExporterCPP) [in madgraph/iolibs/export_cpp.py]
-    #      Note: only change class attribute
-    #  - PLUGIN_ProcessExporter(ProcessExporterGPU)
+    #  - PLUGIN_ProcessExporter(ProcessExporterCPP)
     #      This class
 
     # Below are the class variable that are defined in export_v4.VirtualExporter
@@ -73,9 +71,9 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # Below are the class variable that are defined in export_cpp.ProcessExporterGPU
     # AV - keep defaults from export_cpp.ProcessExporterGPU
     # Decide which type of merging is used [madevent/madweight]
-    ###grouped_mode = False
+    grouped_mode = False
     # Other options
-    ###default_opt = {'clean': False, 'complex_mass':False, 'export_format':'madevent', 'mp': False, 'v5_model': True }
+    default_opt = {'clean': False, 'complex_mass':False, 'export_format':'madevent', 'mp': False, 'v5_model': True }
 
     # AV - keep defaults from export_cpp.ProcessExporterGPU
     # AV - used in MadGraphCmd.do_output to assign export_cpp.ExportCPPFactory to MadGraphCmd._curr_exporter (if cpp or gpu)
