@@ -32,6 +32,9 @@ namespace mg5amcCpu
   using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
+  constexpr int nIPD = CPPProcess::nIPD; // SM independent parameters
+  constexpr int nIPC = CPPProcess::nIPC; // SM independent couplings
+
   //--------------------------------------------------------------------------
 
   __global__ void
