@@ -1407,7 +1407,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   calculate_jamps( int ihel,
                    const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
-                   cxtype_sv* jamp_sv,                // output: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
+                   cxtype_sv* jamp_sv_1or2,           // output: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                    const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for SIMD event page(s) ievt00
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
@@ -1502,12 +1502,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
       // (Note: no need to 'reset color flows' i.e. zero allJamps, this is done in sigmaKin and sigmaKin_getGoodHel)
 #ifdef MGONGPUCPP_GPUIMPL
       // In CUDA, write jamps to the output global-memory allJamps [for all events] passed as argument
-      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
       fptype* jamps = allJamps;
 #else
       // In C++, write jamps to the output array [for one specific event or SIMD vector] passed as argument
-      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
-      fptype* jamps = reinterpret_cast<fptype*>( iParity == 0 ? jamp_sv : &( jamp_sv[ncolor] ) );
+      cxtype_sv* jamp_sv = ( iParity == 0 ? jamp_sv_1or2 : &( jamp_sv_1or2[ncolor] ) );
 #endif
 
       // ------------------
@@ -2047,13 +2045,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             res.append("""
   __global__ void
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 #ifdef MGONGPUCPP_GPUIMPL
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
+                 cxtype_sv* jamp_sv,             // output jamps[ncolor*2*neppV]
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
+                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
                  fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
                  const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
@@ -2080,19 +2079,20 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
   __global__ void
   diagramgroup%s( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-%s                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-%s                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 #ifdef MGONGPUCPP_GPUIMPL
+%s                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
 %s                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
+%s                 cxtype_sv* jamp_sv,             // output jamps[ncolor*2*neppV]
 %s                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
+%s                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 %s                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
 %s                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
   {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include \"diagram_boilerplate.h\""""%(sidiagg,indent,indent,indent,indent,indent,indent))
+#include \"diagram_boilerplate.h\""""%(sidiagg,indent,indent,indent,indent,indent,indent,indent))
         # 2 - Core code
         res2 = []
         wfGet, wfPut = set(), set()
@@ -2111,7 +2111,21 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if len(wfGet) == 0: res.append('    // (none)')
             res.append("""#endif
 """)
-        # 2b - Store wavefunctions
+        # 2b - Store jamps and wavefunctions
+        if idiagramgroup == 1:
+            res2.append("""#ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE JAMPS ***
+    for( int icol = 0; icol < ncolor; icol++ )
+      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps
+#endif
+""")
+        else:
+            res2.append("""#ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE JAMPS ***
+    for( int icol = 0; icol < ncolor; icol++ )
+      J_ACCESS::kernelAccessIcol( jamps, icol ) += jamp_sv[icol]; // update jamps
+#endif
+""")
         if idiagramgroup == self.ndiagramgroups:
             res2.append("""#ifdef MGONGPUCPP_GPUIMPL
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
@@ -2189,9 +2203,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 scoeff = scoeff.replace('*',' * ')
                 scoeff = scoeff.replace('/',' / ')
                 if scoeff.startswith('-'):
-                    res.append('    J_ACCESS::kernelAccessIcol( jamps, %s ) -= %samp_sv[0];' % (njamp, scoeff[1:]))
+                    res.append('    jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:]))
                 else:
-                    res.append('    J_ACCESS::kernelAccessIcol( jamps, %s ) += %samp_sv[0];' % (njamp, scoeff))
+                    res.append('    jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff))
             # Determine input/output wavefunctions in ampline (AV Oct 2025 kernel splitting)
             ###print( idiagram, ampline )
             wfargs = ampline.split('(')[1].split(')')[0].split(',')
@@ -2279,10 +2293,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
       gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );""")
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, momenta, ihel );""")
         for idiagramgroup in range(2,self.ndiagramgroups+1): # only diagram groups 2-N
             res.append('gpuGraphNode_t& node%i = graphNodes[ihel * ndiagramgroups + %i];'%(idiagramgroup,idiagramgroup-1))
-            res.append('gpuDiagrams( useGraphs, &graph, &graphExec, &node%i, &node%i, diagramgroup%i, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );'%(idiagramgroup,idiagramgroup-1,idiagramgroup))
+            res.append('gpuDiagrams( useGraphs, &graph, &graphExec, &node%i, &node%i, diagramgroup%i, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators );'%(idiagramgroup,idiagramgroup-1,idiagramgroup))
         res.append("""// Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( useGraphs && gpustream != 0 )
       {
@@ -2296,8 +2310,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       }
 #else""")
         for idiagramgroup in range(1,self.ndiagramgroups+1):
-            if idiagramgroup == 1: res.append('diagramgroup1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );')
-            else: res.append('diagramgroup%i( wfs, jamps, channelIds, COUPs, numerators, denominators );'%idiagramgroup)
+            if idiagramgroup == 1: res.append('diagramgroup1( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, momenta, ihel );')
+            else: res.append('diagramgroup%i( wfs, jamp_sv, COUPs, channelIds, numerators, denominators );'%idiagramgroup)
         res.append('#endif')
         # Create diagram groups
         assert( DIAGRAMS_PER_GROUP > 0 )
