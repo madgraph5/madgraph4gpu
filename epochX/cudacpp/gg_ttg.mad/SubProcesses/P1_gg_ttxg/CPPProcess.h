@@ -87,6 +87,12 @@ namespace mg5amcCpu
     // [NB: I was unable to get the right value of nwf in CPPProcess.h directly, so I added it with a hack after generating CPPProcess.cc (#644)]
     static const int nwf = 12; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
+    // Process-dependent (but event-independent) parameters and couplings
+    // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
+    // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
+    static const int nIPD = 2; // SM independent parameters (FIXME? rename as sm_IndepParam?)
+    static const int nIPC = 0; // SM independent couplings (FIXME? rename as sm_IndepCoupl?)
+
     // Other variables of this instance (???)
     //static const int ninitial = CPPProcess::npari;
     //static const int nexternal = 5; // CPPProcess::npar (nexternal was nioparticles)
