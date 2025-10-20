@@ -3,7 +3,28 @@
 // Created by: A. Valassi (Sep 2025) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2025) for the MG5aMC CUDACPP plugin.
 
-/* clang-format off */
+#include "GpuRuntime.h"
+#include "HelAmps_sm.h"
+#include "MemoryAccessAmplitudes.h"
+#include "MemoryAccessChannelIds.h"
+#include "MemoryAccessCouplings.h"
+#include "MemoryAccessCouplingsFixed.h"
+#include "MemoryAccessWavefunctions.h"
+#include "color_sum.h"
+#include "diagrams.h"
+#include "diagrams_header.h"
+
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#include "MemoryAccessDenominators.h"
+#include "MemoryAccessNumerators.h"
+#endif
+
+#ifdef MGONGPUCPP_GPUIMPL
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
 
   //--------------------------------------------------------------------------
 
@@ -405,5 +426,5 @@
   }
 
   //--------------------------------------------------------------------------
+}
 
-/* clang-format on */
