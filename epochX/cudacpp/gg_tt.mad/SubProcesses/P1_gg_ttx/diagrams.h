@@ -9,13 +9,14 @@
 
   __global__ void
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
-                 fptype* jamps,                  // output jamps[ncolor*2*nevtORneppV]
-                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 #ifdef MGONGPUCPP_GPUIMPL
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
+                 cxtype_sv* jamp_sv,             // output jamps[ncolor*2*neppV]
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
+                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
                  fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
                  const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
@@ -73,9 +74,11 @@
 #endif
     jamp_sv[1] -= amp_sv[0];
 
-    // *** PREPARE OUTPUT JAMPS ***
+#ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE JAMPS ***
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol];
+#endif
 
 #ifdef MGONGPUCPP_GPUIMPL
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***

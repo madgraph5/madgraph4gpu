@@ -46,6 +46,9 @@
 #pragma nv_diagnostic pop
 #endif
 
+    // Local variables for the given CUDA event (ievt)
+    cxtype jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
+
     // Couplings
     constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823: nIPC instead of nicoup)
     const fptype* allCOUPs[nxcoup];
@@ -76,7 +79,6 @@
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
-    using J_ACCESS = HostAccessJamp;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
@@ -98,9 +100,6 @@
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
     fptype* amp_fp;      // proof of concept for using fptype* in the interface
     amp_fp = reinterpret_cast<fptype*>( amp_sv );
-
-    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
-    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
