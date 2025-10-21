@@ -34,6 +34,16 @@ def load_csv(path):
         for row in reader:
             yield float(row["VALUE"]), float(row["ERROR"])
 
+def dump_logs(stdout_log, stderr_log):
+    print("Dumping run logs...")
+    print("==== STDOUT ====")
+    with open(stdout_log, "r") as file:
+        print(file.read())
+    print("\n\n==== STDERR ====")
+    with open(stderr_log, "r") as file:
+        print(file.read())
+    print("================")
+
 def main() -> int:
     # Name of the directory of the process to test
     process_dir = sys.argv[1]
@@ -104,6 +114,7 @@ def main() -> int:
                 f"See logs:\n  stdout: {stdout_log}\n  stderr: {stderr_log}",
                 file=sys.stderr,
             )
+            dump_logs(stdout_log, stderr_log)
             return result.returncode
         else:
             print(f"mg5_aMC finished. Logs:\n  stdout: {stdout_log}\n  stderr: {stderr_log}")
@@ -125,6 +136,7 @@ def main() -> int:
             f"Ensure the run produced rwgt_results.csv.",
             file=sys.stderr,
         )
+        dump_logs(stdout_log, stderr_log)
         return 1
 
     all_ok = True
