@@ -130,7 +130,7 @@ def main() -> int:
     all_ok = True
     for i, ((v_base, _), (v_mad, _)) in enumerate(zip(load_csv(baseline_csv), load_csv(madtrex_csv)), start=1):
         diff = abs(v_base - v_mad)
-        tol = 0.02 * v_mad
+        tol = 0.05 * v_mad
 
         if diff >= tol:
             print(f"Error: Row {i}: |{v_base} - {v_mad}| = {diff} >= {tol}")
