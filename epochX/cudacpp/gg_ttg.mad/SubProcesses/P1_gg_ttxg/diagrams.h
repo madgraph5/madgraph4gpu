@@ -9,8 +9,6 @@
 #include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"
-//#include "MemoryAccessChannelIds.h"
-//#include "diagrams_tmp.h"
 
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
@@ -55,6 +53,9 @@ namespace mg5amcCpu
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
                  fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
+                 const fptype* cIPD,             // input: GPU __device__ or GPU host address of cIPD
+                 const short* cHelFlat,          // input: GPU __device__ or GPU host address of cHel
                  const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
                  const int ihel );               // input: helicity (0 to ncomb)
 
@@ -71,7 +72,9 @@ namespace mg5amcCpu
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators );         // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
+                 const fptype* cIPD );           // input: GPU __device__ or GPU host address of cIPD
 
   //--------------------------------------------------------------------------
 
@@ -86,7 +89,9 @@ namespace mg5amcCpu
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators );         // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
+                 const fptype* cIPD );           // input: GPU __device__ or GPU host address of cIPD
 
   //--------------------------------------------------------------------------
 
@@ -101,7 +106,9 @@ namespace mg5amcCpu
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators );         // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
+                 const fptype* cIPD );           // input: GPU __device__ or GPU host address of cIPD
 
   //--------------------------------------------------------------------------
 }

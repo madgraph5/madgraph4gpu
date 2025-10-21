@@ -131,10 +131,12 @@ namespace mg5amcCpu
   __device__ const fptype cIPD[nIPD] = { (fptype)Parameters_sm::mdl_MT, (fptype)Parameters_sm::mdl_WT };
   __device__ const fptype* cIPC = nullptr; // unused as nIPC=0
 #else
-#ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ fptype cIPD[nIPD];
-  __device__ __constant__ fptype* cIPC = nullptr; // unused as nIPC=0
-#else
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+  __device__ __constant__ fptype dcIPD[nIPD];
+  __device__ __constant__ fptype* dcIPC = nullptr; // unused as nIPC=0
+  static fptype* cIPD = nullptr; // symbol address
+  static fptype* cIPC = nullptr; // symbol address
+#else /* clang-format on */
   static fptype cIPD[nIPD];
   static fptype* cIPC = nullptr; // unused as nIPC=0
 #endif
@@ -167,11 +169,13 @@ namespace mg5amcCpu
 
   // Helicity combinations (and filtering of "good" helicity combinations)
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ short cHel[ncomb][npar];
+  __device__ __constant__ short dcHel[ncomb][npar];
   __device__ __constant__ int dcNGoodHel;
   __device__ __constant__ int dcGoodHel[ncomb];
+  static short* cHelFlat = nullptr; // symbol address
 #else
   static short cHel[ncomb][npar];
+  static short* cHelFlat = (short*)cHel;
 #endif
   static int cNGoodHel;
   static int cGoodHel[ncomb];
@@ -468,13 +472,13 @@ namespace mg5amcCpu
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
       gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, momenta, ihel );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );
       gpuGraphNode_t& node2 = graphNodes[ihel * ndiagramgroups + 1];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node2, &node1, diagramgroup2, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node2, &node1, diagramgroup2, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       gpuGraphNode_t& node3 = graphNodes[ihel * ndiagramgroups + 2];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node3, &node2, diagramgroup3, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node3, &node2, diagramgroup3, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       gpuGraphNode_t& node4 = graphNodes[ihel * ndiagramgroups + 3];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node4, &node3, diagramgroup4, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node4, &node3, diagramgroup4, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( useGraphs && gpustream != 0 )
       {
@@ -487,10 +491,10 @@ namespace mg5amcCpu
         checkGpu( gpuGraphLaunch( graphExec, gpustream ) );
       }
 #else
-      diagramgroup1( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, momenta, ihel );
-      diagramgroup2( wfs, jamp_sv, COUPs, channelIds, numerators, denominators );
-      diagramgroup3( wfs, jamp_sv, COUPs, channelIds, numerators, denominators );
-      diagramgroup4( wfs, jamp_sv, COUPs, channelIds, numerators, denominators );
+      diagramgroup1( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );
+      diagramgroup2( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup3( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup4( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
 #endif
     }
     // *****************************
@@ -547,7 +551,8 @@ namespace mg5amcCpu
       { 1, 1, 1, -1, -1 },
       { 1, 1, 1, -1, 1 } };
 #ifdef MGONGPUCPP_GPUIMPL
-    gpuMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) );
+    gpuMemcpyToSymbol( dcHel, tHel, ncomb * npar * sizeof( short ) );
+    gpuGetSymbolAddress( (void**)(&cHelFlat), dcHel );
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
@@ -597,9 +602,11 @@ namespace mg5amcCpu
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const fptype tIPD[nIPD] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
     //const cxtype tIPC[0] = { ... }; // nIPC=0
-#ifdef MGONGPUCPP_GPUIMPL
-    gpuMemcpyToSymbol( cIPD, tIPD, nIPD * sizeof( fptype ) );
-    //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0
+#ifdef MGONGPUCPP_GPUIMPL    
+    gpuMemcpyToSymbol( dcIPD, tIPD, nIPD * sizeof( fptype ) );
+    //gpuMemcpyToSymbol( dcIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0
+    if constexpr( nIPD > 0 ) gpuGetSymbolAddress( (void**)(&cIPD), dcIPD );
+    if constexpr( nIPC > 0 ) gpuGetSymbolAddress( (void**)(&cIPC), dcIPC );
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_sm::nBsmIndepParam > 0 )
       gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_sm::nBsmIndepParam * sizeof( double ) );

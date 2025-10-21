@@ -27,19 +27,21 @@ namespace mg5amcCpu
 {
   constexpr int nw6 = CPPProcess::nw6;       // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
   constexpr int npar = CPPProcess::npar;     // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
-  constexpr int ncomb = CPPProcess::ncomb;   // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
   constexpr int nwf = CPPProcess::nwf;       // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
 
   using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#pragma nv_diagnostic push
+#pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "nevt" was declared but never referenced>>
+#endif
   constexpr int nIPD = CPPProcess::nIPD; // SM independent parameters
   constexpr int nIPC = CPPProcess::nIPC; // SM independent couplings
-
-  extern __device__ __constant__ fptype* cIPC;
-  extern __device__ __constant__ fptype* cIPD;
-  extern __device__ __constant__ short cHel[ncomb][npar];
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
+#pragma nv_diagnostic pop
+#endif
 
   //--------------------------------------------------------------------------
 
@@ -55,6 +57,9 @@ namespace mg5amcCpu
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
                  fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
+                 const fptype* cIPD,             // input: GPU __device__ or GPU host address of cIPD
+                 const short* cHelFlat,          // input: GPU __device__ or GPU host address of cHel
                  const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
                  const int ihel )                // input: helicity (0 to ncomb)
   {
@@ -71,6 +76,9 @@ namespace mg5amcCpu
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
     // (none)
 #endif
+
+    // Reinterpret the flat array pointer for helicities as a multidimensional array pointer
+    const short (*cHel)[npar] = reinterpret_cast<const short(*)[npar]>( cHelFlat );
 
     // *** DIAGRAM 1 OF 16 ***
     // Wavefunction(s) for diagram number 1
@@ -176,7 +184,9 @@ namespace mg5amcCpu
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
+                 const fptype* cIPD )            // input: GPU __device__ or GPU host address of cIPD
   {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
@@ -281,7 +291,9 @@ namespace mg5amcCpu
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
+                 const fptype* cIPD )            // input: GPU __device__ or GPU host address of cIPD
   {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
@@ -390,7 +402,9 @@ namespace mg5amcCpu
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
+                 const fptype* cIPD )            // input: GPU __device__ or GPU host address of cIPD
   {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
