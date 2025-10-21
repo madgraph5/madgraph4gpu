@@ -128,8 +128,10 @@ namespace mg5amcCpu
   static_assert( nIPD >= 0 ); // Hack to avoid build warnings when nIPD==0 is unused
   static_assert( nIPC >= 0 ); // Hack to avoid build warnings when nIPC==0 is unused
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const fptype cIPD[nIPD] = { (fptype)Parameters_sm::mdl_MT, (fptype)Parameters_sm::mdl_WT };
-  __device__ const fptype* cIPC = nullptr; // unused as nIPC=0
+  __device__ const fptype dcIPD[nIPD] = { (fptype)Parameters_sm::mdl_MT, (fptype)Parameters_sm::mdl_WT };
+  __device__ const fptype* dcIPC = nullptr; // unused as nIPC=0
+  static fptype* cIPD = nullptr; // symbol address
+  static fptype* cIPC = nullptr; // symbol address
 #else
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   __device__ __constant__ fptype dcIPD[nIPD];
@@ -642,6 +644,8 @@ namespace mg5amcCpu
     m_masses.push_back( Parameters_sm::mdl_MT );
     m_masses.push_back( Parameters_sm::ZERO );
 #ifdef MGONGPUCPP_GPUIMPL
+    if constexpr( nIPD > 0 ) gpuGetSymbolAddress( (void**)(&cIPD), dcIPD );
+    if constexpr( nIPC > 0 ) gpuGetSymbolAddress( (void**)(&cIPC), dcIPC );
     // Create the normalized color matrix in device memory
     createNormalizedColorMatrix();
 #endif
