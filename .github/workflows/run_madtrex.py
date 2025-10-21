@@ -9,13 +9,12 @@ ALLOWED_PROCESSES = [ "ee_mumu", "gg_tt", "gg_tt01g", "gg_ttg", "gg_ttgg", "gg_t
 MADGRAPH_CLI = Path.cwd() / ".." / ".." / "MG5aMC" / "mg5amcnlo" / "bin" / "mg5_aMC"
 
 def generate_dat_content(process_dir: str, rwgt_card_path: Path) -> str:
-    run_card = f"launch {process_dir}\n"
+    run_card = "set auto_convert_model True\n"
+    run_card += f"launch {process_dir}\n"
     run_card += "reweight=madtrex\n"
-    run_card += "0\n"
     run_card += "set nevents 10000\n"
     run_card += "set iseed 489\n"
     run_card += f"{rwgt_card_path}\n"
-    run_card += "0\n"
     return run_card
 
 def is_executable(path: Path) -> bool:
