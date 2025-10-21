@@ -127,11 +127,18 @@ namespace mg5amcCpu
   static_assert( nIPC <= nicoup );
   static_assert( nIPD >= 0 ); // Hack to avoid build warnings when nIPD==0 is unused
   static_assert( nIPC >= 0 ); // Hack to avoid build warnings when nIPC==0 is unused
+  // Hardcoded parameters (HRDCOD=1)
 #ifdef MGONGPU_HARDCODE_PARAM
   __device__ const fptype dcIPD[nIPD] = { (fptype)Parameters_sm::mdl_MT, (fptype)Parameters_sm::mdl_WT };
   __device__ const fptype* dcIPC = nullptr; // unused as nIPC=0
+#ifdef MGONGPUCPP_GPUIMPL
   static fptype* cIPD = nullptr; // symbol address
   static fptype* cIPC = nullptr; // symbol address
+#else
+  static const fptype* cIPD = dcIPD;
+  static const fptype* cIPC = dcIPC;
+#endif
+  // Non-hardcoded parameters (HRDCOD=0)
 #else
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   __device__ __constant__ fptype dcIPD[nIPD];
@@ -554,7 +561,7 @@ namespace mg5amcCpu
       { 1, 1, 1, -1, 1 } };
 #ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( dcHel, tHel, ncomb * npar * sizeof( short ) );
-    gpuGetSymbolAddress( (void**)(&cHelFlat), dcHel );
+    gpuGetSymbolAddress( (void**)( &cHelFlat ), dcHel );
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
@@ -604,11 +611,11 @@ namespace mg5amcCpu
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     const fptype tIPD[nIPD] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
     //const cxtype tIPC[0] = { ... }; // nIPC=0
-#ifdef MGONGPUCPP_GPUIMPL    
+#ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( dcIPD, tIPD, nIPD * sizeof( fptype ) );
     //gpuMemcpyToSymbol( dcIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0
-    if constexpr( nIPD > 0 ) gpuGetSymbolAddress( (void**)(&cIPD), dcIPD );
-    if constexpr( nIPC > 0 ) gpuGetSymbolAddress( (void**)(&cIPC), dcIPC );
+    if constexpr( nIPD > 0 ) gpuGetSymbolAddress( (void**)( &cIPD ), dcIPD );
+    if constexpr( nIPC > 0 ) gpuGetSymbolAddress( (void**)( &cIPC ), dcIPC );
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_sm::nBsmIndepParam > 0 )
       gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_sm::nBsmIndepParam * sizeof( double ) );
@@ -644,8 +651,6 @@ namespace mg5amcCpu
     m_masses.push_back( Parameters_sm::mdl_MT );
     m_masses.push_back( Parameters_sm::ZERO );
 #ifdef MGONGPUCPP_GPUIMPL
-    if constexpr( nIPD > 0 ) gpuGetSymbolAddress( (void**)(&cIPD), dcIPD );
-    if constexpr( nIPC > 0 ) gpuGetSymbolAddress( (void**)(&cIPC), dcIPC );
     // Create the normalized color matrix in device memory
     createNormalizedColorMatrix();
 #endif
