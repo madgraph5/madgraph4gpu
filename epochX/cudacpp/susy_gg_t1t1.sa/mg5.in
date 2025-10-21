@@ -1,5 +1,0 @@
-set stdout_level DEBUG
-set zerowidth_tchannel F
-import model MSSM_SLHA2
-generate g g > t1 t1~
-output standalone_cudacpp susy_gg_t1t1.sa

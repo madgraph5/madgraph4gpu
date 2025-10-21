@@ -1,4 +1,0 @@
-set stdout_level DEBUG
-set zerowidth_tchannel F
-generate g g > t t~
-output standalone_cudacpp gg_tt.sa

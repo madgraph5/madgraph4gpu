@@ -1,12 +1,11 @@
-DEFAULT_CPP_COMPILER=g++
-DEFAULT_F2PY_COMPILER=f2py3
+DEFAULT_CPP_COMPILER=clang
+MACFLAG=-mmacosx-version-min=10.8
+STDLIB=-lc++
+STDLIB_FLAG=-stdlib=libc++
+DEFAULT_F2PY_COMPILER=f2py
 DEFAULT_F_COMPILER=gfortran
-GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
-MACFLAG=
 MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
 PYTHIA8_PATH=NotInstalled
-STDLIB_FLAG=
-STDLIB=-lstdc++
 #end_of_make_opts_variables
 
 BIASLIBDIR=../../../lib/

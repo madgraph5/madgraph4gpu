@@ -92,11 +92,11 @@
 #*********************************************************************
 # Compilation flag. 
 #*********************************************************************   
-   -O3 -ffast-math -fbounds-check = global_flag ! build flags for all Fortran code (for a fair comparison to cudacpp; default is -O)
+   -O = global_flag ! fortran optimization flag use for the all code.
    --fast-math  = aloha_flag ! fortran optimization flag for aloha function. Suggestions: '-ffast-math'
    -O3 = matrix_flag ! fortran optimization flag for matrix.f function. Suggestions: '-O3'
-   32 = vector_size ! size of fortran arrays allocated in the multi-event API for SIMD/GPU (VECSIZE_MEMMAX)
-   512 = nb_warp ! total number of warp/frontwave
+   16 = vector_size ! size of fortran arrays allocated in the multi-event API for SIMD/GPU (VECSIZE_MEMMAX)
+   1 = nb_warp ! total number of warp/frontwave
 			     
 #*********************************************************************
 # Customization (custom cuts/scale/bias/...)                         *

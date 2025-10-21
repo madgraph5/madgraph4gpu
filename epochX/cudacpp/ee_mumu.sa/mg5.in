@@ -1,4 +1,0 @@
-set stdout_level DEBUG
-set zerowidth_tchannel F
-generate e+ e- > mu+ mu-
-output standalone_cudacpp ee_mumu.sa

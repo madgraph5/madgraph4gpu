@@ -8,7 +8,7 @@
  ninitial = 2 
  grouped_matrix = True 
  has_loops = False 
- bias_module = dummy 
+ bias_module = None 
  max_n_matched_jets = 0 
  colored_pdgs = [1, 2, 3, 4, 5, 6, 21, 1000001, 1000002, 1000003, 1000004, 1000005, 1000006, 1000021, 2000001, 2000002, 2000003, 2000004, 2000005, 2000006] 
  complex_mass_scheme = False 

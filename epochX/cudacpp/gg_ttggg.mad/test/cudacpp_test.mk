@@ -5,6 +5,16 @@
 
 THISDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
+# Host detection
+UNAME_S := $(shell uname -s)
+
+# Only add AVX2/FMA on non-mac hosts
+ifeq ($(UNAME_S),Darwin)
+  GTEST_CMAKE_FLAGS :=
+else
+  GTEST_CMAKE_FLAGS := -DCMAKE_CXX_FLAGS="-mavx2 -mfma"
+endif
+
 # Compiler-specific googletest build directory (#125 and #738)
 # In epochX, CXXNAMESUFFIX=_$(CXXNAME) is exported from cudacpp.mk
 # In epoch1/epoch2, CXXNAMESUFFIX is undefined
@@ -23,7 +33,7 @@ googletest/CMakeLists.txt:
 
 googletest/$(BUILDDIR)/Makefile: googletest/CMakeLists.txt
 	mkdir -p googletest/$(BUILDDIR)
-	cd googletest/$(BUILDDIR) && cmake -DCMAKE_INSTALL_PREFIX:PATH=$(THISDIR)/googletest/install -DBUILD_GMOCK=OFF ../
+	cd googletest/$(BUILDDIR) && cmake -DCMAKE_INSTALL_PREFIX:PATH=$(THISDIR)/googletest/install $(GTEST_CMAKE_FLAGS) -DBUILD_GMOCK=OFF ../
 
 googletest/$(BUILDDIR)/lib/libgtest.a: googletest/$(BUILDDIR)/Makefile
 	$(MAKE) -C googletest/$(BUILDDIR)

@@ -3675,7 +3675,7 @@ Beware that this can be dangerous for local multicore runs.""")
         devnull.close()
     
     ############################################################################ 
-    def do_comine_iteration(self, line):
+    def do_combine_iteration(self, line):
         """Not in help: Combine a given iteration combine_iteration Pdir Gdir S|R step
             S is for survey 
             R is for refine
@@ -5635,6 +5635,19 @@ tar -czf split_$1.tar.gz split_$1
             else:
                 logger.info('No valid files for delphes plot')
 
+    def do_compile(self, line):
+        """compile the current directory    """
+
+        args = self.split_arg(line)
+        self.ask_run_configuration(mode='parton')
+        self.run_card = banner_mod.RunCard(pjoin(self.me_dir, 'Cards', 'run_card.dat'))
+        self.configure_directory(html_opening =False)
+
+        for Pdir in self.get_Pdir():
+            misc.sprint(Pdir)
+            self.compile(['gensym'], cwd=Pdir)
+            self.compile(['madevent_forhel'], cwd=Pdir)
+
     ############################################################################
     def do_syscalc(self, line):
         """Evaluate systematics variation weights for a given run"""
@@ -6235,7 +6248,7 @@ tar -czf split_$1.tar.gz split_$1
                     else:
                         critical_bwconfig.add(os.sep.join(base.rsplit(os.sep)[-2:]))
                 for G in critical_bwconfig:
-                    logger.warning('Gdirectory %s has no events.lhe file. (no BW config found %s times)' % G) 
+                    logger.warning('Gdirectory %s has no events.lhe file.' % G) 
 
                 logger.debug('  - impossible BW configuration: %s' % len(reasons['bwconfig']))
                 logger.debug('  - channel with no possible BW configuration: %s' %  len(critical_bwconfig))

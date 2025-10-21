@@ -124,7 +124,8 @@ c
 
       integer sprop(maxsproc,-max_branch:-1,lmaxconfigs)
       integer tprid(-max_branch:-1,lmaxconfigs)
-      common/to_sprop/sprop,tprid
+      integer fake_id
+      common/to_sprop/sprop,tprid,fake_id
       logical firsttime
 
       double precision xprop(3,nexternal),tprop(3,nexternal)
@@ -1833,8 +1834,8 @@ c     include 'run.inc'
       common/to_forest/ iforest, tstrategy
 
       integer sprop(maxsproc,-max_branch:-1,lmaxconfigs)
-      integer tprid(-max_branch:-1,lmaxconfigs)
-      common/to_sprop/sprop,tprid
+      integer tprid(-max_branch:-1,lmaxconfigs), fake_id
+      common/to_sprop/sprop,tprid,fake_id
 
       double precision stot,m1,m2
       common/to_stot/stot,m1,m2
