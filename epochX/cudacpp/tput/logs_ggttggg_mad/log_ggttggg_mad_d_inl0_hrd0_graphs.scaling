@@ -79,7 +79,7 @@ HASBLAS=hasBlas
 Building in BUILDDIR=build.512z_d_inl0_hrd0 for tag=512z_d_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
 make: Nothing to be done for 'all.512z_d_inl0_hrd0_hasCurand_hasNoHiprand'.
 
-DATE: 2025-10-20_13:07:43
+DATE: 2025-10-20_22:47:37
 
 HASBLAS=hasBlas
 CUDACPP_RUNTIME_BLASCOLORSUM=
@@ -89,56 +89,56 @@ On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg/build.cuda_d_inl0_hrd0/check_cuda.exe
 ### GPU: scaling test 256 (1 cycle)
-5.645773e+03    1 256
-6.352573e+03    2 256
-7.490360e+03    4 256
-7.520465e+03    8 256
-7.496304e+03   16 256
-7.399428e+03   32 256
+9.791182e+03    1 256
+1.129225e+04    2 256
+1.223697e+04    4 256
+1.249812e+04    8 256
+1.274302e+04   16 256
+1.268819e+04   32 256
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
-7.264781e+03  128 256
+1.254988e+04  128 256
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 ### GPU: scaling test 32 (1 cycle)
-2.089540e+03    1  32
-3.725528e+03    2  32
-5.569005e+03    4  32
-7.006958e+03    8  32
-7.207001e+03   16  32
-7.569734e+03   32  32
-7.481606e+03   64  32
-7.414422e+03  128  32
-7.284676e+03  256  32
+2.610177e+03    1  32
+4.690211e+03    2  32
+7.396518e+03    4  32
+1.010401e+04    8  32
+1.130275e+04   16  32
+1.210154e+04   32  32
+1.235742e+04   64  32
+1.240872e+04  128  32
+1.226599e+04  256  32
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
-7.180766e+03 1024  32
+1.219059e+04 1024  32
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 ### GPU: scaling test 256 (10 cycles)
-6.943353e+03    1 256
-7.128489e+03    2 256
-7.487688e+03    4 256
-7.506323e+03    8 256
-7.401349e+03   16 256
-7.324181e+03   32 256
+1.193502e+04    1 256
+1.204115e+04    2 256
+1.264985e+04    4 256
+1.280041e+04    8 256
+1.282770e+04   16 256
+1.272719e+04   32 256
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
-7.237325e+03  128 256
+1.252594e+04  128 256
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 ### GPU: scaling test 32 (10 cycles)
-4.113096e+03    1  32
-6.185161e+03    2  32
-7.325459e+03    4  32
-7.381943e+03    8  32
-7.381801e+03   16  32
-7.457469e+03   32  32
-7.397532e+03   64  32
-7.286066e+03  128  32
-7.204899e+03  256  32
+5.290637e+03    1  32
+9.089528e+03    2  32
+1.126982e+04    4  32
+1.219192e+04    8  32
+1.215940e+04   16  32
+1.262782e+04   32  32
+1.251721e+04   64  32
+1.238156e+04  128  32
+1.220975e+04  256  32
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
-7.148583e+03 1024  32
+1.217771e+04 1024  32
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
@@ -157,5 +157,5 @@ scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttggg.mad
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttggg.mad/SubProcesses/P1_gg_ttxggg/build.512z_d_inl0_hrd0/check_cpp.exe
 =========================================================================
 
-DATE: 2025-10-20_13:12:04
+DATE: 2025-10-20_22:50:44
 TEST COMPLETED
