@@ -1308,7 +1308,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                                                     color_amplitudes[0],
                                                     multi_channel_map = multi_channel
                                                     )
-            self.diagram_code = self.helas_call_writer.diagram_code # hack? get code in helascallwriter, write it to diagrams.h in oneprocessexporter 
+            self.diagram_code_h = self.helas_call_writer.diagram_code_h # get code in helascallwriter, write it to diagrams.h/cc in oneprocessexporter 
+            self.diagram_code_cc = self.helas_call_writer.diagram_code_cc # get code in helascallwriter, write it to diagrams.h/cc in oneprocessexporter 
             ###misc.sprint( 'after get_matrix_element_calls', self.matrix_elements[0].get_number_of_wavefunctions() ) # CORRECT value of nwf, eg 5 for gg_tt
             assert len(self.matrix_elements) == 1 # how to handle if this is not true?
             self.couplings2order = self.helas_call_writer.couplings2order
@@ -1616,8 +1617,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         cppprocess_h = os.path.join(self.path, self.include_dir, '%s.h' % self.process_class)
         with open(cppprocess_h, 'r') as file: data = file.read().replace('__NWF__', '%d'%self.nwavefuncs) 
         with open(cppprocess_h, 'w') as file: file.write(data)
-        # Generate diagram headers after generating CPPProcess.cc
-        self.edit_diagrams(self.diagram_code)
+        # Generate diagrams.h/cc after generating CPPProcess.cc
+        self.edit_diagrams_h(self.diagram_code_h)
+        self.edit_diagrams_cc(self.diagram_code_cc)
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
@@ -1690,13 +1692,24 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ff.close()
 
     # AV - new method
-    def edit_diagrams(self, diagrams):
-        """Generate diagrams.h"""
-        ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams')
+    def edit_diagrams_h(self, diagrams_h):
+        """Generate diagrams.cc"""
+        ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams_h')
         template = open(pjoin(self.template_path,'gpu','diagram_h.inc'),'r').read()
         replace_dict = {}
-        replace_dict['code'] = ''.join(diagrams) # all diagrams to a single file
+        replace_dict['code'] = ''.join(diagrams_h) # all diagrams to a single file
         ff = open(pjoin(self.path, 'diagrams.h'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # AV - new method
+    def edit_diagrams_cc(self, diagrams_cc):
+        """Generate diagrams.cc"""
+        ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams_cc')
+        template = open(pjoin(self.template_path,'gpu','diagram_h.inc'),'r').read()
+        replace_dict = {}
+        replace_dict['code'] = ''.join(diagrams_cc) # all diagrams to a single file
+        ff = open(pjoin(self.path, 'diagrams.cc'),'w')
         ff.write(template % replace_dict)
         ff.close()
 
@@ -2145,7 +2158,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
   //--------------------------------------------------------------------------""")
         # Return
-        return res, id_amp
+        return (res, res), id_amp
 
     # AV - new method
     def get_one_diagram_code(self, diagram, id_amp, multi_channel_map, diag_to_config, color, wfGet, wfPut):
@@ -2324,11 +2337,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             diagramgroup.append(diagram)
         self.diagramgroups.append(diagramgroup)
         # Generate diagram code
-        self.diagram_code = []
+        self.diagram_code_h = []
+        self.diagram_code_cc = []
         id_amp = 0
         for idiagramgroup, diagramgroup in enumerate(self.diagramgroups):
             res_diagramgroup, id_amp = self.get_one_diagramgroup_code(idiagramgroup+1, diagramgroup, id_amp, multi_channel_map, diag_to_config, color)
-            self.diagram_code.append( '\n'.join(res_diagramgroup) )
+            res_diagramgroup_h, res_diagramgroup_cc = res_diagramgroup
+            self.diagram_code_h.append( '\n'.join(res_diagramgroup_h) )
+            self.diagram_code_cc.append( '\n'.join(res_diagramgroup_cc) )
         return res
 
     # AV - overload helas_call_writers.GPUFOHelasCallWriter method (improve formatting)
