@@ -1695,7 +1695,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def edit_diagrams_h(self, diagrams_h):
         """Generate diagrams.cc"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams_h')
-        template = open(pjoin(self.template_path,'gpu','diagram_h.inc'),'r').read()
+        template = open(pjoin(self.template_path,'gpu','diagrams_h.inc'),'r').read()
         replace_dict = {}
         replace_dict['code'] = ''.join(diagrams_h) # all diagrams to a single file
         ff = open(pjoin(self.path, 'diagrams.h'),'w')
@@ -1706,7 +1706,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def edit_diagrams_cc(self, diagrams_cc):
         """Generate diagrams.cc"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams_cc')
-        template = open(pjoin(self.template_path,'gpu','diagram_h.inc'),'r').read()
+        template = open(pjoin(self.template_path,'gpu','diagrams_cc.inc'),'r').read()
         replace_dict = {}
         replace_dict['code'] = ''.join(diagrams_cc) # all diagrams to a single file
         ff = open(pjoin(self.path, 'diagrams.cc'),'w')
@@ -2053,9 +2053,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     # AV - new method
     def get_one_diagramgroup_code(self, idiagramgroup, diagrams, id_amp, multi_channel_map, diag_to_config, color):
         # 1 - Header
-        res = []
+        resH = []
+        resCC = []
         if idiagramgroup == 1:
-            res.append("""
+            txt="""
   __global__ void
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
@@ -2068,9 +2069,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
                  fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
+                 const fptype* cIPD,             // input: GPU __device__ or GPU host address of cIPD
+                 const short* cHelFlat,          // input: GPU __device__ or GPU host address of cHel
                  const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
-                 const int ihel )                // input: helicity (0 to ncomb)
-  {
+                 const int ihel )%s               // input: helicity (0 to ncomb)"""
+            resH.append(txt%';')
+            resCC.append(txt%' ')
+            resCC.append("""  {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
 #include \"diagram_boilerplate.h\"
@@ -2084,11 +2090,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
     // (none)
 #endif
+
+    // Reinterpret the flat array pointer for helicities as a multidimensional array pointer
+    const short (*cHel)[npar] = reinterpret_cast<const short(*)[npar]>( cHelFlat );
 """)
         else:
             sidiagg = '%i'%idiagramgroup
             indent = ' '*(len(sidiagg)-1)
-            res.append("""
+            txt="""
 
   __global__ void
   diagramgroup%s( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
@@ -2101,11 +2110,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #endif
 %s                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
 %s                 fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
-%s                 fptype* denominators )          // input/output: multichannel denominators[nevtORneppV], add helicity ihel
-  {
+%s                 fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+%s                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
+%s                 const fptype* cIPD )%s           // input: GPU __device__ or GPU host address of cIPD"""
+            resH.append(txt%(sidiagg,indent,indent,indent,indent,indent,indent,indent,indent,indent,';'))
+            resCC.append(txt%(sidiagg,indent,indent,indent,indent,indent,indent,indent,indent,indent,' '))
+            resCC.append("""  {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include \"diagram_boilerplate.h\""""%(sidiagg,indent,indent,indent,indent,indent,indent,indent))
+#include \"diagram_boilerplate.h\"""")
         # 2 - Core code
         res2 = []
         wfGet, wfPut = set(), set()
@@ -2116,13 +2129,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         # 1b - Retrieve wavefunctions
         ###print(idiagramgroup, wfGet)
         if idiagramgroup > 1:
-            res.append("""
+            resCC.append("""
 #ifdef MGONGPUCPP_GPUIMPL
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
     //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );""")
-            for iwf in wfGet: res.append('    retrieveWf( wfs, w_cx, nevt, %i );'%iwf)
-            if len(wfGet) == 0: res.append('    // (none)')
-            res.append("""#endif
+            for iwf in wfGet: resCC.append('    retrieveWf( wfs, w_cx, nevt, %i );'%iwf)
+            if len(wfGet) == 0: resCC.append('    // (none)')
+            resCC.append("""#endif
 """)
         # 2b - Store jamps and wavefunctions
         if idiagramgroup == 1:
@@ -2152,13 +2165,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             for iwf in wfPut: res2.append('    storeWf( wfs, w_cx, nevt, %i );'%iwf)
             if len(wfPut) == 0: res2.append('    // (none)')
             res2.append('#endif')
-        res += res2
+        resCC += res2
         # 3 - Footer
-        res.append("""  }
+        resH.append("""
+  //--------------------------------------------------------------------------""")
+        resCC.append("""  }
 
   //--------------------------------------------------------------------------""")
         # Return
-        return (res, res), id_amp
+        return (resH, resCC), id_amp
 
     # AV - new method
     def get_one_diagram_code(self, diagram, id_amp, multi_channel_map, diag_to_config, color, wfGet, wfPut):
@@ -2306,10 +2321,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
       gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, momenta, ihel );""")
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );""")
         for idiagramgroup in range(2,self.ndiagramgroups+1): # only diagram groups 2-N
             res.append('gpuGraphNode_t& node%i = graphNodes[ihel * ndiagramgroups + %i];'%(idiagramgroup,idiagramgroup-1))
-            res.append('gpuDiagrams( useGraphs, &graph, &graphExec, &node%i, &node%i, diagramgroup%i, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators );'%(idiagramgroup,idiagramgroup-1,idiagramgroup))
+            res.append('gpuDiagrams( useGraphs, &graph, &graphExec, &node%i, &node%i, diagramgroup%i, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );'%(idiagramgroup,idiagramgroup-1,idiagramgroup))
         res.append("""// Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( useGraphs && gpustream != 0 )
       {
@@ -2323,8 +2338,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       }
 #else""")
         for idiagramgroup in range(1,self.ndiagramgroups+1):
-            if idiagramgroup == 1: res.append('diagramgroup1( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, momenta, ihel );')
-            else: res.append('diagramgroup%i( wfs, jamp_sv, COUPs, channelIds, numerators, denominators );'%idiagramgroup)
+            if idiagramgroup == 1: res.append('diagramgroup1( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );')
+            else: res.append('diagramgroup%i( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );'%idiagramgroup)
         res.append('#endif')
         # Create diagram groups
         assert( DIAGRAMS_PER_GROUP > 0 )
