@@ -8,13 +8,25 @@ import csv
 ALLOWED_PROCESSES = [ "ee_mumu", "gg_tt", "gg_tt01g", "gg_ttg", "gg_ttgg", "gg_ttggg", "gq_ttq", "heft_gg_bb", "nobm_pp_ttW", "pp_tt012j", "smeft_gg_tttt", "susy_gg_t1t1", "susy_gg_tt" ]
 MADGRAPH_CLI = Path.cwd() / ".." / ".." / "MG5aMC" / "mg5amcnlo" / "bin" / "mg5_aMC"
 
-def generate_dat_content(process_dir: str, rwgt_card_path: Path) -> str:
-    run_card = "set auto_convert_model True\n"
-    run_card += f"launch {process_dir}\n"
+PROCESSES_NON_TRIVIAL_MODELS = {
+    "heft_gg_bb": "heft",
+    "smeft_gg_tttt": "SMEFTsim_topU3l_MwScheme_UFO-massless",
+    "susy_gg_t1t1": "MSSM_SLHA2",
+    "susy_gg_tt": "MSSM_SLHA2",
+}
+
+def generate_dat_content(process_dir: Path, rwgt_card_path: Path, process_name: str) -> str:
+    run_card = f"launch {process_dir}\n"
     run_card += "reweight=madtrex\n"
     run_card += "set nevents 10000\n"
     run_card += "set iseed 489\n"
     run_card += f"{rwgt_card_path}\n"
+    # if the model of this process is not trivial, import it preventively
+    # so that if it is still Python 2, it will be converted before the
+    # reweighting procedure takes place
+    if process_name in PROCESSES_NON_TRIVIAL_MODELS:
+        model = PROCESSES_NON_TRIVIAL_MODELS[process_name]
+        run_card = f"set auto_convert_model True\nimport model {model}\n" + run_card
     return run_card
 
 def is_executable(path: Path) -> bool:
@@ -45,9 +57,9 @@ def dump_logs(stdout_log, stderr_log):
 
 def main() -> int:
     # Name of the directory of the process to test
-    process_dir = sys.argv[1]
+    process_dir = Path(sys.argv[1])
     # Label for the process (must be in the allowed list)
-    process = process_dir.replace(".mad", "")
+    process = process_dir.name.replace(".mad", "")
 
     # Treat current working directory as HOME
     HOME = Path.cwd()
@@ -86,7 +98,7 @@ def main() -> int:
     # Write PROCESS.dat to HOME
     dat_path = HOME / f"{process}.dat"
     try:
-        dat_content = generate_dat_content(process_dir, rwgt_card_path)
+        dat_content = generate_dat_content(process_dir, rwgt_card_path, process)
         dat_path.write_text(dat_content, encoding="utf-8")
     except Exception as e:
         print(f"ERROR: Failed to write {dat_path}: {e}", file=sys.stderr)
