@@ -2,298 +2,298 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c      written by the UFO converter
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-dsqmix 1 1 mdl_RRd1x1
 
-dsqmix 2 2 mdl_RRd2x2
 
-dsqmix 3 3 mdl_RRd3x3
 
-dsqmix 3 6 mdl_RRd3x6
 
-dsqmix 4 4 mdl_RRd4x4
 
-dsqmix 5 5 mdl_RRd5x5
 
-dsqmix 6 3 mdl_RRd6x3
 
-dsqmix 6 6 mdl_RRd6x6
 
-fralpha 1 mdl_alp
 
-hmix 1 mdl_RMUH
 
-hmix 2 mdl_tb
 
-hmix 4 mdl_MA2
 
-mass 5 mdl_MB
 
-mass 6 mdl_MT
 
-mass 15 mdl_Mta
 
-mass 23 mdl_MZ
 
-mass 24 mdl_MW
 
-mass 25 mdl_MH01
 
-mass 35 mdl_MH02
 
-mass 36 mdl_MA0
 
-mass 37 mdl_MH
 
-mass 1000001 mdl_Msd1
 
-mass 1000002 mdl_Msu1
 
-mass 1000005 mdl_Msd3
 
-mass 1000006 mdl_Msu3
 
-mass 1000011 mdl_Msl1
 
-mass 1000012 mdl_Msn1
 
-mass 1000015 mdl_Msl3
 
-mass 1000016 mdl_Msn3
 
-mass 1000021 mdl_Mgo
 
-mass 1000022 mdl_Mneu1
 
-mass 1000023 mdl_Mneu2
 
-mass 1000024 mdl_Mch1
 
-mass 1000025 mdl_Mneu3
 
-mass 1000035 mdl_Mneu4
 
-mass 1000037 mdl_Mch2
 
-mass 2000001 mdl_Msd4
 
-mass 2000002 mdl_Msu4
 
-mass 2000005 mdl_Msd6
 
-mass 2000006 mdl_Msu6
 
-mass 2000011 mdl_Msl4
 
-mass 2000015 mdl_Msl6
 
-msd2 1 1 mdl_RmD21x1
 
-msd2 3 3 mdl_RmD23x3
 
-mse2 1 1 mdl_RmE21x1
 
-mse2 3 3 mdl_RmE23x3
 
-msl2 1 1 mdl_RmL21x1
 
-msl2 3 3 mdl_RmL23x3
 
-msoft 1 mdl_RMx1
 
-msoft 2 mdl_RMx2
 
-msoft 3 mdl_RMx3
 
-msoft 21 mdl_mHd2
 
-msoft 22 mdl_mHu2
 
-msq2 1 1 mdl_RmQ21x1
 
-msq2 3 3 mdl_RmQ23x3
 
-msu2 1 1 mdl_RmU21x1
 
-msu2 3 3 mdl_RmU23x3
 
-nmix 1 1 mdl_RNN1x1
 
-nmix 1 2 mdl_RNN1x2
 
-nmix 1 3 mdl_RNN1x3
 
-nmix 1 4 mdl_RNN1x4
 
-nmix 2 1 mdl_RNN2x1
 
-nmix 2 2 mdl_RNN2x2
 
-nmix 2 3 mdl_RNN2x3
 
-nmix 2 4 mdl_RNN2x4
 
-nmix 3 1 mdl_RNN3x1
 
-nmix 3 2 mdl_RNN3x2
 
-nmix 3 3 mdl_RNN3x3
 
-nmix 3 4 mdl_RNN3x4
 
-nmix 4 1 mdl_RNN4x1
 
-nmix 4 2 mdl_RNN4x2
 
-nmix 4 3 mdl_RNN4x3
 
-nmix 4 4 mdl_RNN4x4
 
-selmix 1 1 mdl_RRl1x1
 
-selmix 2 2 mdl_RRl2x2
 
-selmix 3 3 mdl_RRl3x3
 
-selmix 3 6 mdl_RRl3x6
 
-selmix 4 4 mdl_RRl4x4
 
-selmix 5 5 mdl_RRl5x5
 
-selmix 6 3 mdl_RRl6x3
 
-selmix 6 6 mdl_RRl6x6
 
-sminputs 1 aEWM1
 
-sminputs 3 aS
 
-snumix 1 1 mdl_RRn1x1
 
-snumix 2 2 mdl_RRn2x2
 
-snumix 3 3 mdl_RRn3x3
 
-td 3 3 mdl_Rtd3x3
 
-te 3 3 mdl_Rte3x3
 
-tu 3 3 mdl_Rtu3x3
 
-umix 1 1 mdl_RUU1x1
 
-umix 1 2 mdl_RUU1x2
 
-umix 2 1 mdl_RUU2x1
 
-umix 2 2 mdl_RUU2x2
 
-upmns 1 1 mdl_RMNS1x1
 
-upmns 2 2 mdl_RMNS2x2
 
-upmns 3 3 mdl_RMNS3x3
 
-usqmix 1 1 mdl_RRu1x1
 
-usqmix 2 2 mdl_RRu2x2
 
-usqmix 3 3 mdl_RRu3x3
 
-usqmix 3 6 mdl_RRu3x6
 
-usqmix 4 4 mdl_RRu4x4
 
-usqmix 5 5 mdl_RRu5x5
 
-usqmix 6 3 mdl_RRu6x3
 
-usqmix 6 6 mdl_RRu6x6
 
-vckm 1 1 mdl_RCKM1x1
 
-vckm 2 2 mdl_RCKM2x2
 
-vckm 3 3 mdl_RCKM3x3
 
-vmix 1 1 mdl_RVV1x1
 
-vmix 1 2 mdl_RVV1x2
 
-vmix 2 1 mdl_RVV2x1
 
-vmix 2 2 mdl_RVV2x2
 
-yd 3 3 mdl_Ryd3x3
 
-ye 3 3 mdl_Rye3x3
 
-yu 3 3 mdl_Ryu3x3
 
-decay 6 mdl_WT
 
-decay 23 mdl_WZ
 
-decay 24 mdl_WW
 
-decay 25 mdl_WH01
 
-decay 35 mdl_WH02
 
-decay 36 mdl_WA0
 
-decay 37 mdl_WH
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 decay 1000001 mdl_Wsd1
-
 decay 1000002 mdl_Wsu1
-
 decay 1000003 mdl_Wsd2
-
 decay 1000004 mdl_Wsu2
-
 decay 1000005 mdl_Wsd3
-
 decay 1000006 mdl_Wsu3
-
 decay 1000011 mdl_Wsl1
-
 decay 1000012 mdl_Wsn1
-
 decay 1000013 mdl_Wsl2
-
 decay 1000014 mdl_Wsn2
-
 decay 1000015 mdl_Wsl3
-
 decay 1000016 mdl_Wsn3
-
 decay 1000021 mdl_Wgo
-
 decay 1000023 mdl_Wneu2
-
 decay 1000024 mdl_Wch1
-
 decay 1000025 mdl_Wneu3
-
 decay 1000035 mdl_Wneu4
-
 decay 1000037 mdl_Wch2
-
 decay 2000001 mdl_Wsd4
-
 decay 2000002 mdl_Wsu4
-
 decay 2000003 mdl_Wsd5
-
 decay 2000004 mdl_Wsu5
-
 decay 2000005 mdl_Wsd6
-
 decay 2000006 mdl_Wsu6
-
 decay 2000011 mdl_Wsl4
-
 decay 2000013 mdl_Wsl5
-
 decay 2000015 mdl_Wsl6
+decay 23 mdl_WZ
+decay 24 mdl_WW
+decay 25 mdl_WH01
+decay 35 mdl_WH02
+decay 36 mdl_WA0
+decay 37 mdl_WH
+decay 6 mdl_WT
+dsqmix 1 1 mdl_RRd1x1
+dsqmix 2 2 mdl_RRd2x2
+dsqmix 3 3 mdl_RRd3x3
+dsqmix 3 6 mdl_RRd3x6
+dsqmix 4 4 mdl_RRd4x4
+dsqmix 5 5 mdl_RRd5x5
+dsqmix 6 3 mdl_RRd6x3
+dsqmix 6 6 mdl_RRd6x6
+fralpha 1 mdl_alp
+hmix 1 mdl_RMUH
+hmix 2 mdl_tb
+hmix 4 mdl_MA2
+mass 1000001 mdl_Msd1
+mass 1000002 mdl_Msu1
+mass 1000005 mdl_Msd3
+mass 1000006 mdl_Msu3
+mass 1000011 mdl_Msl1
+mass 1000012 mdl_Msn1
+mass 1000015 mdl_Msl3
+mass 1000016 mdl_Msn3
+mass 1000021 mdl_Mgo
+mass 1000022 mdl_Mneu1
+mass 1000023 mdl_Mneu2
+mass 1000024 mdl_Mch1
+mass 1000025 mdl_Mneu3
+mass 1000035 mdl_Mneu4
+mass 1000037 mdl_Mch2
+mass 15 mdl_Mta
+mass 2000001 mdl_Msd4
+mass 2000002 mdl_Msu4
+mass 2000005 mdl_Msd6
+mass 2000006 mdl_Msu6
+mass 2000011 mdl_Msl4
+mass 2000015 mdl_Msl6
+mass 23 mdl_MZ
+mass 24 mdl_MW
+mass 25 mdl_MH01
+mass 35 mdl_MH02
+mass 36 mdl_MA0
+mass 37 mdl_MH
+mass 5 mdl_MB
+mass 6 mdl_MT
+msd2 1 1 mdl_RmD21x1
+msd2 3 3 mdl_RmD23x3
+mse2 1 1 mdl_RmE21x1
+mse2 3 3 mdl_RmE23x3
+msl2 1 1 mdl_RmL21x1
+msl2 3 3 mdl_RmL23x3
+msoft 1 mdl_RMx1
+msoft 21 mdl_mHd2
+msoft 22 mdl_mHu2
+msoft 2 mdl_RMx2
+msoft 3 mdl_RMx3
+msq2 1 1 mdl_RmQ21x1
+msq2 3 3 mdl_RmQ23x3
+msu2 1 1 mdl_RmU21x1
+msu2 3 3 mdl_RmU23x3
+nmix 1 1 mdl_RNN1x1
+nmix 1 2 mdl_RNN1x2
+nmix 1 3 mdl_RNN1x3
+nmix 1 4 mdl_RNN1x4
+nmix 2 1 mdl_RNN2x1
+nmix 2 2 mdl_RNN2x2
+nmix 2 3 mdl_RNN2x3
+nmix 2 4 mdl_RNN2x4
+nmix 3 1 mdl_RNN3x1
+nmix 3 2 mdl_RNN3x2
+nmix 3 3 mdl_RNN3x3
+nmix 3 4 mdl_RNN3x4
+nmix 4 1 mdl_RNN4x1
+nmix 4 2 mdl_RNN4x2
+nmix 4 3 mdl_RNN4x3
+nmix 4 4 mdl_RNN4x4
+selmix 1 1 mdl_RRl1x1
+selmix 2 2 mdl_RRl2x2
+selmix 3 3 mdl_RRl3x3
+selmix 3 6 mdl_RRl3x6
+selmix 4 4 mdl_RRl4x4
+selmix 5 5 mdl_RRl5x5
+selmix 6 3 mdl_RRl6x3
+selmix 6 6 mdl_RRl6x6
+sminputs 1 aEWM1
+sminputs 3 aS
+snumix 1 1 mdl_RRn1x1
+snumix 2 2 mdl_RRn2x2
+snumix 3 3 mdl_RRn3x3
+td 3 3 mdl_Rtd3x3
+te 3 3 mdl_Rte3x3
+tu 3 3 mdl_Rtu3x3
+umix 1 1 mdl_RUU1x1
+umix 1 2 mdl_RUU1x2
+umix 2 1 mdl_RUU2x1
+umix 2 2 mdl_RUU2x2
+upmns 1 1 mdl_RMNS1x1
+upmns 2 2 mdl_RMNS2x2
+upmns 3 3 mdl_RMNS3x3
+usqmix 1 1 mdl_RRu1x1
+usqmix 2 2 mdl_RRu2x2
+usqmix 3 3 mdl_RRu3x3
+usqmix 3 6 mdl_RRu3x6
+usqmix 4 4 mdl_RRu4x4
+usqmix 5 5 mdl_RRu5x5
+usqmix 6 3 mdl_RRu6x3
+usqmix 6 6 mdl_RRu6x6
+vckm 1 1 mdl_RCKM1x1
+vckm 2 2 mdl_RCKM2x2
+vckm 3 3 mdl_RCKM3x3
+vmix 1 1 mdl_RVV1x1
+vmix 1 2 mdl_RVV1x2
+vmix 2 1 mdl_RVV2x1
+vmix 2 2 mdl_RVV2x2
+yd 3 3 mdl_Ryd3x3
+ye 3 3 mdl_Rye3x3
+yu 3 3 mdl_Ryu3x3

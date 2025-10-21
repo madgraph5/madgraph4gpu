@@ -35,19 +35,17 @@ set loop_color_flows False
 set max_npoint_for_channel 0
 set default_unset_couplings 99
 set max_t_for_channel 99
-set zerowidth_tchannel True
 set nlo_mixed_expansion True
-import model sm
+set stdout_level DEBUG
+set zerowidth_tchannel F
+set auto_convert_model T
+import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t
 define p = g u c d s u~ c~ d~ s~
 define j = g u c d s u~ c~ d~ s~
 define l+ = e+ mu+
 define l- = e- mu-
 define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
-set stdout_level DEBUG
-set zerowidth_tchannel F
-set auto_convert_model T
-import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t
 generate g g > t t~ t t~
-output madevent_simd smeft_gg_tttt.mad_gen --hel_recycling=False --vec\
-tor_size=32
+output madevent_simd ../TMPOUT/CODEGEN_mad_smeft_gg_tttt --hel_recycli\
+ng=False --vector_size=32

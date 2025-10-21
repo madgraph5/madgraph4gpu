@@ -35,23 +35,21 @@ set loop_color_flows False
 set max_npoint_for_channel 0
 set default_unset_couplings 99
 set max_t_for_channel 99
-set zerowidth_tchannel True
 set nlo_mixed_expansion True
-import model sm
+set stdout_level DEBUG
+set zerowidth_tchannel F
+import model sm-no_b_mass
 define p = g u c d s u~ c~ d~ s~
 define j = g u c d s u~ c~ d~ s~
 define l+ = e+ mu+
 define l- = e- mu-
 define vl = ve vm vt
 define vl~ = ve~ vm~ vt~
-set stdout_level DEBUG
-set zerowidth_tchannel F
-import model sm-no_b_mass
 define p = 21 2 4 1 3 -2 -4 -1 -3 5 -5 # pass to 5 flavors
 define p = p b b~
 define j = p
 define w = w+ w-
 generate p p > t t~ w @0
 add process p p > t t~ w j @1
-output madevent_simd nobm_pp_ttW.mad_gen --hel_recycling=False --vecto\
-r_size=32
+output madevent_simd ../TMPOUT/CODEGEN_mad_nobm_pp_ttW --hel_recycling\
+=False --vector_size=32
