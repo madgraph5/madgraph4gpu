@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 # Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2021-2024) for the MG5aMC CUDACPP plugin.
@@ -122,6 +122,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt', s+'gpu/valgrind.h',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
+                                      s+'gpu/cudacpp_overlay.mk', s+'gpu/makefile_wrapper.mk',
                                       s+'CMake/SubProcesses/CMakeLists.txt'],
                      'test': [s+'gpu/cudacpp_test.mk']}
 
@@ -146,6 +147,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'MadgraphTest.h', 'runTest.cc',
                     'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h',
                     'cudacpp.mk', # this is generated from a template in Subprocesses but we still link it in P1
+                    'cudacpp_overlay.mk', # this is generated from a template in Subprocesses but we still link it in P1
                     'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
@@ -239,35 +241,42 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             outputflags is a list of options provided when doing the output command"""
         ###misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
         if self.in_madevent_mode:
-            if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
-            else: patchlevel = ''
-            # OLDEST implementation (AV)
-            #path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
-            #misc.sprint(path)
-            #if os.system(path + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
-            #    logger.debug("####### \n stdout is \n %s", stdout)
-            #    logger.info("####### \n stderr is \n %s", stderr)
-            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')
-            # OLD implementation (SH PR #762)
-            #if os.system(PLUGINDIR + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
-            #    logger.debug("####### \n stdout is \n %s", stdout)
-            #    logger.info("####### \n stderr is \n %s", stderr)
-            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')
-            # NEW implementation (OM PR #764)
-            # **NB** AV: change the Popen call to always dump stdout and stderr, because I want to always see the output
-            # **NB** AV: this also allows error checking by looking for error strings on the generation log if patchMad.sh silently fails
-            # **NB** AV: (e.g. this did happen in the past, when patchMad.sh was calling 'madevent treatcards run', and the latter silently failed)
-            plugin_path = os.path.dirname(os.path.realpath( __file__ ))
-            ###p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)],
-            ###                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)]) # AV always dump patchMad.sh stdout/stderr
-            stdout, stderr = p.communicate()
-            misc.sprint(p.returncode)
-            if p.returncode != 0: # AV: WARNING! do not fully trust this check! patchMad.sh was observed to silently fail in the past...
-                logger.debug("####### \n stdout is \n %s", stdout)
-                logger.info("####### \n stderr is \n %s", stderr)
-                logger.info("return code is %s\n", p.returncode)
-                raise Exception('ERROR! the O/S call to patchMad.sh failed')
+            # Modify makefiles and symlinks to avoid doing
+            # make -f makefile -f cudacpp_overlay.mk to include the overlay
+            # and instead just use `make`, see #1052
+            subprocesses_dir = pjoin(self.dir_path, "SubProcesses")
+            files.cp(pjoin(subprocesses_dir, "makefile"), pjoin(subprocesses_dir, "makefile_original.mk"))
+            files.rm(pjoin(subprocesses_dir, "makefile"))
+            files.ln(pjoin(subprocesses_dir, "makefile_wrapper.mk"), subprocesses_dir, 'makefile')
+
+            patch_coupl_write = r"""set -euo pipefail
+# Get last fields from lines starting with WRITE(*,2)
+gcs=$(awk '$1=="WRITE(*,2)" {print $NF}' coupl_write.inc)
+
+for gc in $gcs; do
+  if grep -q "$gc(VECSIZE_MEMMAX)" coupl.inc; then
+    awk -v gc="$gc" '{
+      if ($1=="WRITE(*,2)" && $NF==gc) print $0"(1)";
+      else print
+    }' coupl_write.inc > coupl_write.inc.new
+    mv coupl_write.inc.new coupl_write.inc
+  fi
+done"""
+            try:
+                result = subprocess.run(
+                    ["bash", "-lc", patch_coupl_write],
+                    cwd=pjoin(self.dir_path, "Source", "MODEL"),
+                    text=True,
+                    capture_output=True,
+                    check=True,  # raise CalledProcessError on non-zero exit
+                )
+                misc.sprint(result.returncode)
+            except subprocess.CalledProcessError as e:
+                logger.debug("####### \n stdout is \n %s", e.stdout)
+                logger.info("####### \n stderr is \n %s", e.stderr)
+                logger.info("return code is %s\n", e.returncode)
+                raise Exception("ERROR while patching coupl_write.inc") from e
+
             # Additional patching (OM)
             self.add_madevent_plugin_fct() # Added by OM
         # do not call standard finalize since is this is already done...
@@ -334,6 +343,7 @@ class SIMD_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
         return args
 
 class FortranExporterBridge(export_v4.ProcessExporterFortranMEGroup):
+    _file_path = export_v4._file_path
 
     def write_auto_dsig_file(self, writer, matrix_element, proc_id = ""):
         replace_dict,context = super().write_auto_dsig_file(False, matrix_element, proc_id)
@@ -372,15 +382,120 @@ class FortranExporterBridge(export_v4.ProcessExporterFortranMEGroup):
 #endif
 CALL COUNTERS_SMATRIX1MULTI_START( -1, VECSIZE_USED )  ! fortranMEs=-1"""
         replace_dict["OMP_POSTFIX"] = open(pjoin(PLUGINDIR,'madgraph','iolibs','template_files','gpu','smatrix_multi.f')).read().split('\n',4)[4] # AV skip 4 copyright lines
-        _file_path = export_v4._file_path
         if writer:
-            file = open(pjoin(_file_path, 'iolibs/template_files/auto_dsig_v4.inc')).read()
+            file = open(pjoin(self._file_path, 'iolibs/template_files/auto_dsig_v4.inc')).read()
             file = file % replace_dict
             # Write the file
             writer.writelines(file, context=context)
         else:
             return replace_dict, context
 
+    def write_driver(self, writer, *args, **kwargs):
+        """Write the SubProcess/driver.f file with additions from CUDACPP"""
+        replace_dict = super().write_driver(False, *args, **kwargs)
+
+        # Additions from CUDACPP plugin (after patch)
+        replace_dict['DRIVER_EXTRA_HEADER'] += """
+      character*255 env_name, env_value
+      integer env_length, env_status
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      INCLUDE 'fbridge.inc'
+c     INCLUDE 'fbridge_common.inc'
+#endif
+      INCLUDE 'fbridge_common.inc'
+"""
+
+        replace_dict['DRIVER_EXTRA_INITIALISE'] += """
+#ifdef _OPENMP
+      CALL OMPNUMTHREADS_NOT_SET_MEANS_ONE_THREAD()
+#endif
+      CALL COUNTERS_INITIALISE()
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      fbridge_mode = 1 ! CppOnly=1, default for CUDACPP
+#else
+      fbridge_mode = 0 ! FortranOnly=0, default for FORTRAN
+#endif
+      env_name = 'CUDACPP_RUNTIME_FBRIDGEMODE'
+      call get_environment_variable(env_name, env_value, env_length, env_status)
+      if( env_status.eq.0 ) then
+        write(*,*) 'Found environment variable "', trim(env_name), '" with value "', trim(env_value), '"'
+        read(env_value,'(I255)') FBRIDGE_MODE ! see https://gcc.gnu.org/onlinedocs/gfortran/ICHAR.html
+        write(*,*) 'FBRIDGE_MODE (from env) = ', FBRIDGE_MODE
+      else if( env_status.eq.1 ) then ! 1 = not defined
+        write(*,*) 'FBRIDGE_MODE (default) = ', FBRIDGE_MODE
+      else ! -1 = too long for env_value, 2 = not supported by O/S
+        write(*,*) 'ERROR! get_environment_variable failed for "', trim(env_name), '"'
+        STOP
+      endif
+#ifndef MG5AMC_MEEXPORTER_CUDACPP
+      if( fbridge_mode.ne.0 ) then
+        write(*,*) 'ERROR! Invalid fbridge_mode (in FORTRAN backend mode) = ', fbridge_mode
+        STOP
+      endif
+#endif
+
+      env_name = 'CUDACPP_RUNTIME_VECSIZEUSED'
+      call get_environment_variable(env_name, env_value, env_length, env_status)
+      if( env_status.eq.0 ) then
+        write(*,*) 'Found environment variable "', trim(env_name), '" with value "', trim(env_value), '"'
+        read(env_value,'(I255)') VECSIZE_USED ! see https://gcc.gnu.org/onlinedocs/gfortran/ICHAR.html
+        write(*,*) 'VECSIZE_USED (from env) = ', VECSIZE_USED
+      else if( env_status.eq.1 ) then ! 1 = not defined
+        write(*,*) 'VECSIZE_USED (default) = ', VECSIZE_USED
+      else ! -1 = too long for env_value, 2 = not supported by O/S
+        write(*,*) 'ERROR! get_environment_variable failed for "', trim(env_name), '"'
+        STOP
+      endif
+      if( VECSIZE_USED.gt.VECSIZE_MEMMAX .or. VECSIZE_USED.le.0 ) then
+        write(*,*) 'ERROR! Invalid VECSIZE_USED = ', VECSIZE_USED
+        STOP
+      endif
+
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL FBRIDGECREATE(FBRIDGE_PBRIDGE, VECSIZE_USED, NEXTERNAL, 4) ! this must be at the beginning as it initialises the CUDA device
+      FBRIDGE_NCBYF1 = 0
+      FBRIDGE_CBYF1SUM = 0
+      FBRIDGE_CBYF1SUM2 = 0
+      FBRIDGE_CBYF1MAX = -1D100
+      FBRIDGE_CBYF1MIN = 1D100
+#endif
+"""
+
+        replace_dict['DRIVER_EXTRA_FINALISE'] += """
+#ifdef MG5AMC_MEEXPORTER_CUDACPP
+      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
+      IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
+        WRITE(*,'(a,f10.8,a,e8.2)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MIN = ',
+     &    FBRIDGE_CBYF1MIN + 1, ' = 1 - ', -FBRIDGE_CBYF1MIN
+        WRITE(*,'(a,f10.8,a,e8.2)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MAX = ',
+     &    FBRIDGE_CBYF1MAX + 1, ' = 1 + ', FBRIDGE_CBYF1MAX
+        WRITE(*,'(a,i6)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran: NENTRIES = ',
+     &    FBRIDGE_NCBYF1
+c        WRITE(*,'(a,e8.2)')
+c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
+c    &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1
+c       WRITE(*,'(a,e8.2)')
+c    &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: STD = ',
+c    &    SQRT( FBRIDGE_CBYF1SUM2 / FBRIDGE_NCBYF1 ) ! ~standard deviation
+        WRITE(*,'(a,e8.2,a,e8.2)')
+     &    ' [MERATIOS] ME ratio CudaCpp/Fortran - 1: AVG = ',
+     &    FBRIDGE_CBYF1SUM / FBRIDGE_NCBYF1, ' +- ',
+     &    SQRT( FBRIDGE_CBYF1SUM2 ) / FBRIDGE_NCBYF1 ! ~standard error
+      ENDIF
+#endif
+      CALL COUNTERS_FINALISE()
+"""
+
+        if writer:
+            text = open(pjoin(self._file_path,'iolibs','template_files','madevent_driver.f')).read() % replace_dict
+            writer.write(text)
+            return True
+        return replace_dict
 #------------------------------------------------------------------------------------
 
 class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
