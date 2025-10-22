@@ -15,7 +15,7 @@ PLUGIN_NAME = __name__.rsplit('.',1)[0]
 PLUGINDIR = os.path.dirname( __file__ )
 
 # AV (Oct 2025) - Feynman diagrams per group (kernel splitting)
-DIAGRAMS_PER_GROUP = 5 # AV hardcoded (100 = production; 5 = initial ggttg value)
+MAX_DIAGRAMS_PER_GROUP = 5 # AV hardcoded (2000: split ggttgggg; 100: split ggttggg, ggttgg; 5: split ggttg)
 
 # AV - create a plugin-specific logger
 import logging
@@ -1178,10 +1178,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         self.ndiagrams = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
-        self.ndiagramgroups = math.ceil(self.ndiagrams/DIAGRAMS_PER_GROUP)
+        self.ndiagramgroups = math.ceil(self.ndiagrams/MAX_DIAGRAMS_PER_GROUP)
         replace_dict['ndiagrams'] = self.ndiagrams
         replace_dict['ndiagramgroups'] = self.ndiagramgroups
-        replace_dict['diagramspergroup'] = DIAGRAMS_PER_GROUP
+        replace_dict['maxdiagramspergroup'] = MAX_DIAGRAMS_PER_GROUP
         file = self.read_template_file(self.process_class_template) % replace_dict # HACK! ignore write=False case
         file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
         return file
@@ -2289,10 +2289,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         ###misc.sprint(multi_channel_map)
         res = []
         ###res.append('for(int i=0;i<%s;i++){jamp[i] = cxtype(0.,0.);}' % len(color_amplitudes))
-        self.diagramsPerGroup = 5 # AV hardcoded (5 = initial ggttg value)
         diagrams = matrix_element.get('diagrams')
         self.ndiagrams = len(matrix_element.get('diagrams'))
-        self.ndiagramgroups = math.ceil(self.ndiagrams/DIAGRAMS_PER_GROUP)
+        self.ndiagramgroups = math.ceil(self.ndiagrams/MAX_DIAGRAMS_PER_GROUP)
         diag_to_config = {}
         if multi_channel_map:
             for config in sorted(multi_channel_map.keys()):
@@ -2358,11 +2357,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             else: res.append('diagramgroup%i( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );'%idiagramgroup)
         res.append('#endif')
         # Create diagram groups
-        assert( DIAGRAMS_PER_GROUP > 0 )
+        assert( MAX_DIAGRAMS_PER_GROUP > 0 )
         self.diagramgroups = []
         diagramgroup = []
         for diagram in matrix_element.get('diagrams'):
-            if len(diagramgroup) >= DIAGRAMS_PER_GROUP:
+            if len(diagramgroup) >= MAX_DIAGRAMS_PER_GROUP:
                 self.diagramgroups.append(diagramgroup)
                 diagramgroup = []
             diagramgroup.append(diagram)
