@@ -142,7 +142,7 @@ namespace mg5amcCpu
 #else
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   __device__ __constant__ fptype dcIPD[nIPD];
-  __device__ __constant__ fptype cIPC[nIPC * 2];
+  __device__ __constant__ fptype dcIPC[nIPC * 2];
   static fptype* cIPD = nullptr; // symbol address
   static fptype* cIPC = nullptr; // symbol address
 #else /* clang-format on */
