@@ -1699,7 +1699,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams_h')
         template = open(pjoin(self.template_path,'gpu','diagrams_h.inc'),'r').read()
         replace_dict = {}
-        replace_dict['code'] = ''.join(diagrams_h) # all diagrams to a single file
+        replace_dict['code'] = '\n'.join(diagrams_h) # all diagramgroups to a single file
         ff = open(pjoin(self.path, 'diagrams.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
@@ -1709,12 +1709,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """Generate diagrams.cc"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams_cc')
         template = open(pjoin(self.template_path,'gpu','diagrams_cc.inc'),'r').read()
-        replace_dict = {}
-        replace_dict['code'] = ''.join(diagrams_cc) # all diagrams to a single file
-        replace_dict['model_name'] = self.model_name
-        ff = open(pjoin(self.path, 'diagrams1.cc'),'w')
-        ff.write(template % replace_dict)
-        ff.close()
+        for idiagramgroup, diagramgroup in enumerate(diagrams_cc):
+            replace_dict = {}
+            replace_dict['code'] = diagramgroup # one diagramgroup per file
+            replace_dict['model_name'] = self.model_name
+            ff = open(pjoin(self.path, 'diagrams%i.cc'%(idiagramgroup+1)),'w')
+            ff.write(template % replace_dict)
+            ff.close()
 
     def generate_subprocess_directory_end(self, **opt):
         """ opt contain all local variable of the fortran original function"""
@@ -2101,7 +2102,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             sidiagg = '%i'%idiagramgroup
             indent = ' '*(len(sidiagg)-1)
             txt="""
-
   __global__ void
   diagramgroup%s( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
