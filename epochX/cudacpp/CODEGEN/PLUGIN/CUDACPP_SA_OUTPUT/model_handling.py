@@ -1212,48 +1212,50 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 if "aS" in key and coup in coup_list: keep = False
             if keep: coupling_indep.append( coup ) # AV only indep!
         replace_dict['ncouplings'] = len(coupling_indep) # AV only indep!
-        replace_dict['nipc'] = len(coupling_indep)
+        ###replace_dict['nipc'] = len(coupling_indep)
+        self.nIPC = len(coupling_indep)
         if len(coupling_indep) > 0:
             replace_dict['cipcassign'] = 'const cxtype tIPC[nIPC] = { cxmake( m_pars->%s ) };'\
                                          % ( ' ), cxmake( m_pars->'.join(coupling_indep) ) # AV only indep!
             replace_dict['cipcdevice'] = '__device__ __constant__ fptype cIPC[nIPC * 2];'
             replace_dict['cipcstatic'] = 'static fptype cIPC[nIPC * 2];'
-            replace_dict['cipc2tipcSym'] = 'gpuMemcpyToSymbol( cIPC, tIPC, nIPC * sizeof( cxtype ) );'
+            replace_dict['cipc2tipcSym'] = 'gpuMemcpyToSymbol( dcIPC, tIPC, nIPC * sizeof( cxtype ) );'
             replace_dict['cipc2tipc'] = 'memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) );'
             replace_dict['cipcdump'] = '\n    //for ( int i=0; i<nIPC; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'
-            coup_str_hrd = '__device__ const fptype cIPC[nIPC * 2] = { '
+            coup_str_hrd = '__device__ const fptype dcIPC[nIPC * 2] = { '
             for coup in coupling_indep : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup ) # AV only indep!
             coup_str_hrd = coup_str_hrd[:-2] + ' };'
             replace_dict['cipchrdcod'] = coup_str_hrd
         else:
             replace_dict['cipcassign'] = '//const cxtype tIPC[0] = { ... }; // nIPC=0'
-            replace_dict['cipcdevice'] = '__device__ __constant__ fptype* cIPC = nullptr; // unused as nIPC=0'
+            replace_dict['cipcdevice'] = '__device__ __constant__ fptype* dcIPC = nullptr; // unused as nIPC=0'
             replace_dict['cipcstatic'] = 'static fptype* cIPC = nullptr; // unused as nIPC=0'
-            replace_dict['cipc2tipcSym'] = '//gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0'
+            replace_dict['cipc2tipcSym'] = '//gpuMemcpyToSymbol( dcIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0'
             replace_dict['cipc2tipc'] = '//memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) ); // nIPC=0'
             replace_dict['cipcdump'] = ''
-            replace_dict['cipchrdcod'] = '__device__ const fptype* cIPC = nullptr; // unused as nIPC=0'
-        replace_dict['nipd'] = len(params)
+            replace_dict['cipchrdcod'] = '__device__ const fptype* dcIPC = nullptr; // unused as nIPC=0'
+        ###replace_dict['nipd'] = len(params)
+        self.nIPD = len(params)
         if len(params) > 0:
             replace_dict['cipdassign'] = 'const fptype tIPD[nIPD] = { (fptype)m_pars->%s };'\
                                          %( ', (fptype)m_pars->'.join(params) )
-            replace_dict['cipddevice'] = '__device__ __constant__ fptype cIPD[nIPD];'
+            replace_dict['cipddevice'] = '__device__ __constant__ fptype dcIPD[nIPD];'
             replace_dict['cipdstatic'] = 'static fptype cIPD[nIPD];'
-            replace_dict['cipd2tipdSym'] = 'gpuMemcpyToSymbol( cIPD, tIPD, nIPD * sizeof( fptype ) );'
+            replace_dict['cipd2tipdSym'] = 'gpuMemcpyToSymbol( dcIPD, tIPD, nIPD * sizeof( fptype ) );'
             replace_dict['cipd2tipd'] = 'memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) );'
             replace_dict['cipddump'] = '\n    //for ( int i=0; i<nIPD; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;'
-            param_str_hrd = '__device__ const fptype cIPD[nIPD] = { '
+            param_str_hrd = '__device__ const fptype dcIPD[nIPD] = { '
             for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
             param_str_hrd = param_str_hrd[:-2] + ' };'
             replace_dict['cipdhrdcod'] = param_str_hrd
         else:
             replace_dict['cipdassign'] = '//const fptype tIPD[0] = { ... }; // nIPD=0'
-            replace_dict['cipddevice'] = '//__device__ __constant__ fptype* cIPD = nullptr; // unused as nIPD=0'
+            replace_dict['cipddevice'] = '//__device__ __constant__ fptype* dcIPD = nullptr; // unused as nIPD=0'
             replace_dict['cipdstatic'] = '//static fptype* cIPD = nullptr; // unused as nIPD=0'
-            replace_dict['cipd2tipdSym'] = '//gpuMemcpyToSymbol( cIPD, tIPD, 0 * sizeof( fptype ) ); // nIPD=0'
+            replace_dict['cipd2tipdSym'] = '//gpuMemcpyToSymbol( dcIPD, tIPD, 0 * sizeof( fptype ) ); // nIPD=0'
             replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nIPD=0'
             replace_dict['cipddump'] = ''
-            replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nIPD=0'
+            replace_dict['cipdhrdcod'] = '//__device__ const fptype* dcIPD = nullptr; // unused as nIPD=0'
         # FIXME! Here there should be different code generated depending on MGONGPUCPP_NBSMINDEPPARAM_GT_0 (issue #827)
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
@@ -1315,10 +1317,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
             ret_lines.append("""
-#include \"diagrams.h\"
-
-  //--------------------------------------------------------------------------
-
 #ifdef MGONGPUCPP_GPUIMPL
   // Launch a group of Feynman diagrams as a standalone kernel (sigmaKin_getGoodHel) or within a CUDA/HIP graph (sigmaKin)
   template<typename Func, typename... Args>
@@ -1614,8 +1612,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             ###else:
                 ###misc.sprint( 'Test reference file does not exist and will not be copied: ', ref )
         # Set the value of nwf in CPPProcess.h after generating CPPProcess.cc (workaround for #644)
+        # Also set the value of nIPC and nIPD in CPPProcess.h after generating CPPProcess.cc
         cppprocess_h = os.path.join(self.path, self.include_dir, '%s.h' % self.process_class)
-        with open(cppprocess_h, 'r') as file: data = file.read().replace('__NWF__', '%d'%self.nwavefuncs) 
+        with open(cppprocess_h, 'r') as file: data = file.read()
+        data = data.replace('__NWF__', '%d'%self.nwavefuncs) 
+        data = data.replace('__NIPC__', '%d'%self.nIPC) 
+        data = data.replace('__NIPD__', '%d'%self.nIPD) 
         with open(cppprocess_h, 'w') as file: file.write(data)
         # Generate diagrams.h/cc after generating CPPProcess.cc
         self.edit_diagrams_h(self.diagram_code_h)

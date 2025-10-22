@@ -25,7 +25,7 @@
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
 #include "color_sum.h"
-#include "diagrams_header.h"
+#include "diagrams.h"
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #include "MemoryAccessDenominators.h"

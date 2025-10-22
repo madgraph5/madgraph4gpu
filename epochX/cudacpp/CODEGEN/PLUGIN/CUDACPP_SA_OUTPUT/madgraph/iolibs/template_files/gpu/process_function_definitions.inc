@@ -27,6 +27,9 @@ namespace mg5amcCpu
   using Parameters_%(model_name)s_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_%(model_name)s_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
+  constexpr int nIPD = CPPProcess::nIPD; // SM independent parameters
+  constexpr int nIPC = CPPProcess::nIPC; // SM independent couplings
+
   // The number of SIMD vectors of events processed by calculate_jamps
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
   constexpr int nParity = 2;
@@ -38,21 +41,28 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
-  constexpr int nIPD = %(nipd)i; // SM independent parameters used in this CPPProcess.cc (FIXME? rename as sm_IndepParam?)
-  // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
-  // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
-  constexpr int nIPC = %(nipc)i; // SM independent couplings used in this CPPProcess.cc (FIXME? rename as sm_IndepCoupl?)
   static_assert( nIPC <= nicoup );
   static_assert( nIPD >= 0 ); // Hack to avoid build warnings when nIPD==0 is unused
   static_assert( nIPC >= 0 ); // Hack to avoid build warnings when nIPC==0 is unused
+  // Hardcoded parameters (HRDCOD=1)
 #ifdef MGONGPU_HARDCODE_PARAM
   %(cipdhrdcod)s
   %(cipchrdcod)s
-#else
 #ifdef MGONGPUCPP_GPUIMPL
+  static fptype* cIPD = nullptr; // symbol address
+  static fptype* cIPC = nullptr; // symbol address
+#else
+  static const fptype* cIPD = dcIPD;
+  static const fptype* cIPC = dcIPC;
+#endif
+  // Non-hardcoded parameters (HRDCOD=0)
+#else
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   %(cipddevice)s
   %(cipcdevice)s
-#else
+  static fptype* cIPD = nullptr; // symbol address
+  static fptype* cIPC = nullptr; // symbol address
+#else /* clang-format on */
   %(cipdstatic)s
   %(cipcstatic)s
 #endif
@@ -85,11 +95,13 @@ namespace mg5amcCpu
 
   // Helicity combinations (and filtering of "good" helicity combinations)
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ short cHel[ncomb][npar];
+  __device__ __constant__ short dcHel[ncomb][npar];
   __device__ __constant__ int dcNGoodHel;
   __device__ __constant__ int dcGoodHel[ncomb];
+  static short* cHelFlat = nullptr; // symbol address
 #else
   static short cHel[ncomb][npar];
+  static short* cHelFlat = (short*)cHel;
 #endif
   static int cNGoodHel;
   static int cGoodHel[ncomb];
@@ -134,7 +146,8 @@ namespace mg5amcCpu
     // *** NB There is no automatic check yet that these are in the same order as Fortran! #569 ***
 %(all_helicities)s
 #ifdef MGONGPUCPP_GPUIMPL
-    gpuMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) );
+    gpuMemcpyToSymbol( dcHel, tHel, ncomb * npar * sizeof( short ) );
+    gpuGetSymbolAddress( (void**)( &cHelFlat ), dcHel );
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
@@ -182,6 +195,8 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
     %(cipd2tipdSym)s
     %(cipc2tipcSym)s
+    if constexpr( nIPD > 0 ) gpuGetSymbolAddress( (void**)( &cIPD ), dcIPD );
+    if constexpr( nIPC > 0 ) gpuGetSymbolAddress( (void**)( &cIPC ), dcIPC );
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_%(model_name)s::nBsmIndepParam > 0 )
       gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_%(model_name)s::nBsmIndepParam * sizeof( double ) );

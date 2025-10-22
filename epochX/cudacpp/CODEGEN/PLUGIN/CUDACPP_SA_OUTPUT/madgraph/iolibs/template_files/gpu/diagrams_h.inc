@@ -9,8 +9,6 @@
 #include "mgOnGpuConfig.h"
 
 #include "CPPProcess.h"
-//#include "MemoryAccessChannelIds.h"
-//#include "diagrams_tmp.h"
 
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
