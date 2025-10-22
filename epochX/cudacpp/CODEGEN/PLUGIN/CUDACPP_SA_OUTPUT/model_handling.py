@@ -1695,7 +1695,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 
     # AV - new method
     def edit_diagrams_h(self, diagrams_h):
-        """Generate diagrams.cc"""
+        """Generate diagrams.h"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams_h')
         template = open(pjoin(self.template_path,'gpu','diagrams_h.inc'),'r').read()
         replace_dict = {}
@@ -1712,7 +1712,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = {}
         replace_dict['code'] = ''.join(diagrams_cc) # all diagrams to a single file
         replace_dict['model_name'] = self.model_name
-        ff = open(pjoin(self.path, 'diagrams.cc'),'w')
+        ff = open(pjoin(self.path, 'diagrams1.cc'),'w')
         ff.write(template % replace_dict)
         ff.close()
 
