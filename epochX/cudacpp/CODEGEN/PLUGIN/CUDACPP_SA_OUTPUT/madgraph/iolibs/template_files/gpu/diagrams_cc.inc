@@ -4,7 +4,7 @@
 // Further modified by: A. Valassi (2025) for the MG5aMC CUDACPP plugin.
 
 #include "GpuRuntime.h"
-#include "HelAmps_sm.h"
+#include "HelAmps_%(model_name)s.h"
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessChannelIds.h"
 #include "MemoryAccessCouplings.h"
@@ -30,8 +30,8 @@ namespace mg5amcCpu
   constexpr int nwf = CPPProcess::nwf;       // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
 
-  using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
-  using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
+  using Parameters_%(model_name)s_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
+  using Parameters_%(model_name)s_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
 #ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic push

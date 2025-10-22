@@ -1711,6 +1711,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         template = open(pjoin(self.template_path,'gpu','diagrams_cc.inc'),'r').read()
         replace_dict = {}
         replace_dict['code'] = ''.join(diagrams_cc) # all diagrams to a single file
+        replace_dict['model_name'] = self.model_name
         ff = open(pjoin(self.path, 'diagrams.cc'),'w')
         ff.write(template % replace_dict)
         ff.close()
