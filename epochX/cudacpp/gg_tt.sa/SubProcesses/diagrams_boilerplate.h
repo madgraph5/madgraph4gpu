@@ -36,13 +36,12 @@
     cxtype w_cx[nwf][nw6];
     fptype* w_fp[nwf];
     for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_cx[iwf] );
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "nevt" was declared but never referenced>>
 #endif
     const int nevt = gridDim.x * blockDim.x;
-#ifdef MGONGPUCPP_GPUIMPL
-#pragma GCC diagnostic pop
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic pop
 #endif
 

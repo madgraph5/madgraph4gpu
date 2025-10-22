@@ -3,7 +3,41 @@
 // Created by: A. Valassi (Sep 2025) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2025) for the MG5aMC CUDACPP plugin.
 
-/* clang-format off */
+#ifndef diagrams_H
+#define diagrams_H 1
+ 
+#include "mgOnGpuConfig.h"
+
+#include "CPPProcess.h"
+
+#ifdef MGONGPUCPP_GPUIMPL
+namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
+{
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL
+  __device__ inline unsigned int
+  gpu_channelId( const unsigned int* allChannelIds )
+  {
+    unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    using CID_ACCESS = DeviceAccessChannelIds; // non-trivial access: buffer includes all events
+    // SCALAR channelId for the current event (CUDA)
+    if( allChannelIds != nullptr )
+    {
+      const unsigned int* channelIds = allChannelIds;                            // fix #899 (distinguish channelIds and allChannelIds)
+      const uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895 (compute this only once for all diagrams)
+      // NB: channelIds_sv is a scalar in CUDA
+      channelId = channelIds_sv;
+      assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
+    }
+#endif
+    return channelId;
+  }
+#endif
 
   //--------------------------------------------------------------------------
 
@@ -19,70 +53,12 @@
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
                  fptype* numerators,             // input/output: multichannel numerators[nevtORneppV], add helicity ihel
                  fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
+                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
+                 const fptype* cIPD,             // input: GPU __device__ or GPU host address of cIPD
+                 const short* cHelFlat,          // input: GPU __device__ or GPU host address of cHel
                  const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
-                 const int ihel )                // input: helicity (0 to ncomb)
-  {
-    // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
-    // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
-#ifdef MGONGPUCPP_GPUIMPL
-    using M_ACCESS = DeviceAccessMomenta; // non-trivial access: buffer includes all events
-#else
-    using M_ACCESS = HostAccessMomenta; // non-trivial access: buffer includes all events
-#endif
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
-    // (none)
-#endif
-
-    // *** DIAGRAM 1 OF 3 ***
-    // Wavefunction(s) for diagram number 1
-    vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], -1, w_fp[0], 0 );
-    vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], -1, w_fp[1], 1 );
-    oxxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2 );
-    ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
-    VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[4] );
-    // Amplitude(s) for diagram number 1
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], -1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
-    jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
-    jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
-
-    // *** DIAGRAM 2 OF 3 ***
-    // Wavefunction(s) for diagram number 2
-    FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[0], COUPs[1], -1.0, cIPD[0], cIPD[1], w_fp[4] );
-    // Amplitude(s) for diagram number 2
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], -1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
-    jamp_sv[0] -= amp_sv[0];
-
-    // *** DIAGRAM 3 OF 3 ***
-    // Wavefunction(s) for diagram number 3
-    FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[0], COUPs[1], -1.0, cIPD[0], cIPD[1], w_fp[4] );
-    // Amplitude(s) for diagram number 3
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], -1.0, &amp_fp[0] );
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
-#endif
-    jamp_sv[1] -= amp_sv[0];
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE JAMPS ***
-    for( int icol = 0; icol < ncolor; icol++ )
-      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps
-#endif
-
-#ifdef MGONGPUCPP_GPUIMPL
-    // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
-    // (none)
-#endif
-  }
+                 const int ihel );               // input: helicity (0 to ncomb)
 
   //--------------------------------------------------------------------------
-
-/* clang-format on */
+}
+#endif // diagrams_H

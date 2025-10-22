@@ -65,7 +65,7 @@ namespace mg5amcCpu
   {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include "diagram_boilerplate.h"
+#include "diagrams_boilerplate.h"
 #ifdef MGONGPUCPP_GPUIMPL
     using M_ACCESS = DeviceAccessMomenta; // non-trivial access: buffer includes all events
 #else
@@ -90,8 +90,7 @@ namespace mg5amcCpu
     // Amplitude(s) for diagram number 1
     FFV1_0<W_ACCESS, A_ACCESS, CI_ACCESS>( w_fp[2], w_fp[3], w_fp[4], COUPs[ndcoup + 0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
-    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+    // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
     jamp_sv[0] -= amp_sv[0];
 
@@ -101,8 +100,7 @@ namespace mg5amcCpu
     // Amplitude(s) for diagram number 2
     FFV2_4_0<W_ACCESS, A_ACCESS, CI_ACCESS>( w_fp[2], w_fp[3], w_fp[4], COUPs[ndcoup + 1], 1.0, COUPs[ndcoup + 2], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
-    if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+    // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
     jamp_sv[0] -= amp_sv[0];
 

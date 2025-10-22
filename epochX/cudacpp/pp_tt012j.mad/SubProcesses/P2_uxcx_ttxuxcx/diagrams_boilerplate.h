@@ -1,1 +1,1 @@
-../diagram_boilerplate.h
+../diagrams_boilerplate.h

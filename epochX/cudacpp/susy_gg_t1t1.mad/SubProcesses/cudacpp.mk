@@ -834,9 +834,9 @@ processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 ###$(info processid_short=$(processid_short))
 
 src_diagrams=$(wildcard diagrams*.cc)
-cxx_diagrams=$(BUILDDIR)/$(src_diagrams:.cc=_cpp.o)
+cxx_diagrams=$(addprefix $(BUILDDIR)/, $(src_diagrams:.cc=_cpp.o))
 ifneq ($(GPUCC),)
-gpu_diagrams=$(BUILDDIR)/$(src_diagrams:.cc=_$(GPUSUFFIX).o)
+gpu_diagrams=$(addprefix $(BUILDDIR)/, $(src_diagrams:.cc=_$(GPUSUFFIX).o))
 endif
 
 MG5AMC_CXXLIB = mg5amc_$(processid_short)_cpp
