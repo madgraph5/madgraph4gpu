@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
 bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
@@ -10,7 +10,7 @@ cd $scrdir
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocuda] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-makeonly] [-makeclean] [-makej] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocuda] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-makeonly] [-makeclean] [-makej] [-scaling] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -33,8 +33,10 @@ helinls="0"
 hrdcods="0"
 rndgen=
 rmbsmp=
+blas="" # build with blas but disable it at runtime
 steps="make test"
 makej=
+scaling=
 ###nofpe=
 dlp=
 dlpset=0
@@ -117,6 +119,12 @@ for arg in $*; do
     rmbsmp=$arg
   elif [ "$arg" == "-bridge" ]; then
     rmbsmp=$arg
+  elif [ "$arg" == "-noBlas" ]; then # build with blas but disable it at runtime
+    if [ "${blas}" == "-blasOn" ]; then echo "ERROR! Options -noBlas and -blasOn are incompatible"; usage; fi
+    blas=$arg
+  elif [ "$arg" == "-blasOn" ]; then # build with blas and enable it at runtime
+    if [ "${blas}" == "-noBlas" ]; then echo "ERROR! Options -noBlas and -blasOn are incompatible"; usage; fi
+    blas=$arg
   elif [ "$arg" == "-makeonly" ]; then
     if [ "${steps}" == "make test" ]; then
       steps="make"
@@ -131,6 +139,8 @@ for arg in $*; do
     fi
   elif [ "$arg" == "-makej" ]; then
     makej=-makej
+  elif [ "$arg" == "-scaling" ]; then
+    scaling=$arg
   ###elif [ "$arg" == "-nofpe" ]; then
   ###  nofpe=-nofpe
   else
@@ -175,6 +185,8 @@ for step in $steps; do
             args="${args} ${alpaka}" # optionally disable alpaka tests
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
+            args="${args} ${scaling}" # optionally run scaling tests
+            args="${args} ${blas}" # optionally build with no blas or instead enable it at runtime
             ###args="${args} ${nofpe}" # optionally disable FPEs
             args="${args} ${bldall}" # avx, fptype, helinl and hrdcod are now supported for all processes
             if [ "${step}" == "makeclean" ]; then
@@ -191,6 +203,8 @@ for step in $steps; do
               logfile=logs_${proc#-}_${sufflog}/log_${proc#-}_${sufflog}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
               if [ "${rndgen}" != "" ]; then logfile=${logfile%.txt}_${rndgen#-}.txt; fi
               if [ "${rmbsmp}" != "" ]; then logfile=${logfile%.txt}_${rmbsmp#-}.txt; fi
+              if [ "${blas}" != "" ]; then logfile=${logfile%.txt}_${blas#-}.txt; fi
+              if [ "${scaling}" != "" ]; then logfile=${logfile%.txt}.scaling; fi
               printf "\n%80s\n" |tr " " "*"
               printf "*** ./throughputX.sh $args | tee $logfile"
               printf "\n%80s\n" |tr " " "*"

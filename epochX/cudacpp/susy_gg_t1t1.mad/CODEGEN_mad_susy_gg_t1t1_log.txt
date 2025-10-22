@@ -15,7 +15,7 @@ Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                 2024-09-30         *
+*         VERSION 3.6.5                 2025-10-17         *
 [1;31m*                                                          *[1;0m
 [1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
 [1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
@@ -46,10 +46,9 @@ Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (inclu
 Note that you can still compile and run aMC@NLO with the built-in PDFs
  MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
 
-Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1.mg
+import /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
@@ -550,21 +549,21 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t1 t1~ WEIGHTED<=2 @1  
 INFO: Process has 6 diagrams 
-1 processes with 6 diagrams generated in 0.124 s
+1 processes with 6 diagrams generated in 0.091 s
 Total: 1 processes with 6 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_susy_gg_t1t1 --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4334][0m [0m
+[1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4168][0m [0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 171][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 175][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_susy_gg_t1t1 
 INFO: remove old information in CODEGEN_mad_susy_gg_t1t1 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 176][0m [0m
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1 [0m
-INFO: Creating subdirectories in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1 
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards [0m
-[1;34mWARNING: File exists /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/SubProcesses [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 180][0m [0m
+[1;34mWARNING: File exists /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1 [0m
+INFO: Creating subdirectories in directory /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1 
+[1;34mWARNING: File exists /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards [0m
+[1;34mWARNING: File exists /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/SubProcesses [0m
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > t1 t1~ WEIGHTED<=2 @1 
 INFO: Processing color information for process: g g > t1 t1~ @1 
@@ -576,57 +575,51 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g g > t1 t1~ WEIGHTED<=2 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_t1t1x 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 5 [1;30m[model_handling.py at line 1527][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 2, 2: 3, 3: 4, 4: 5, 5: 6} [1;30m[model_handling.py at line 1551][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {2: 1, 3: 2, 4: 3, 5: 4, 6: 5} [1;30m[model_handling.py at line 1552][0m [0m
-Generated helas calls for 1 subprocesses (6 diagrams) in 0.009 s
-Wrote files for 16 helas calls in 0.082 s
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 5 [1;30m[model_handling.py at line 1552][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 2, 2: 3, 3: 4, 4: 5, 5: 6} [1;30m[model_handling.py at line 1576][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {2: 1, 3: 2, 4: 3, 5: 4, 6: 5} [1;30m[model_handling.py at line 1577][0m [0m
+Generated helas calls for 1 subprocesses (6 diagrams) in 0.008 s
+Wrote files for 16 helas calls in 0.096 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 3 routines in  0.186 s
+ALOHA: aloha creates 3 routines in  0.146 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 6 routines in  0.184 s
+ALOHA: aloha creates 6 routines in  0.144 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
 <class 'aloha.create_aloha.AbstractRoutine'> VVSS1
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/./HelAmps_MSSM_SLHA2.h
-INFO: Created file HelAmps_MSSM_SLHA2.h in directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/. 
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/./HelAmps_MSSM_SLHA2.h
+INFO: Created file HelAmps_MSSM_SLHA2.h in directory /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/./Parameters_MSSM_SLHA2.h
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/./Parameters_MSSM_SLHA2.cc
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/./Parameters_MSSM_SLHA2.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/./Parameters_MSSM_SLHA2.cc
 INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in directory 
-INFO: /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/. and /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/. 
+INFO: /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/. and /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/src/. 
 The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
 If you want to make this value the default for future session, you can run 'save options --all'
-save configuration file to /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards/me5_configuration.txt
+save configuration file to /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards/me5_configuration.txt
 INFO: Use Fortran compiler gfortran 
 INFO: Use c++ compiler g++ 
 INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1; patch -p4 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.common
-patching file SubProcesses/makefile
-DEBUG: cd /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/SubProcesses/P1_gg_t1t1x; patch -p6 -i /data/avalassi/GPU2023/madgraph4gpuX/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/MG5aMC_patches/PROD/patch.P1
-patching file driver.f
-patching file matrix1.f
-Hunk #2 succeeded at 215 (offset -12 lines).
-[1;32mDEBUG:  p.returncode = [0m 0 [1;30m[output.py at line 263][0m [0m
-Output to directory /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1 done.
+[1;32mDEBUG:  result.returncode = [0m 0 [1;30m[output.py at line 273][0m [0m
+Output to directory /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1 done.
 Type "launch" to generate events from this process, or see
-/data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/README
+/home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.996s
-user	0m2.690s
-sys	0m0.299s
+real	0m3.181s
+user	0m2.732s
+sys	0m0.440s
 Code generation completed in 3 seconds
 ************************************************************
 *                                                          *
@@ -640,7 +633,7 @@ Code generation completed in 3 seconds
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                                    *
+*         VERSION 3.6.5                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -648,10 +641,9 @@ Code generation completed in 3 seconds
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards/me5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards/me5_configuration.txt  
-Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards/me5_configuration.txt  
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards/me5_configuration.txt  
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 treatcards run
@@ -670,7 +662,7 @@ launch in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.0                                    *
+*         VERSION 3.6.5                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -678,10 +670,9 @@ launch in debug mode
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards/me5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
-INFO: load configuration from /data/avalassi/GPU2023/madgraph4gpuX/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards/me5_configuration.txt  
-Using default text editor "vi". Set another one in ./input/mg5_configuration.txt
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards/me5_configuration.txt  
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/hack_ihel3_sep25_pr/MG5aMC/TMPOUT/CODEGEN_mad_susy_gg_t1t1/Cards/me5_configuration.txt  
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 treatcards param

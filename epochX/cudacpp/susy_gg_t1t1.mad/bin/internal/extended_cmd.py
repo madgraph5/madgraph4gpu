@@ -1317,6 +1317,8 @@ class Cmd(CheckCmd, HelpCmd, CompleteCmd, BasicCmd):
 
         debug_file = open(self.debug_output, 'a')
         traceback.print_exc(file=debug_file)
+        if __debug__:
+            traceback.print_exc()
         if hasattr(error, 'filename'):
             debug_file.write("Related File: %s\n" % error.filename)
         # Create a nice error output
@@ -1928,7 +1930,8 @@ class Cmd(CheckCmd, HelpCmd, CompleteCmd, BasicCmd):
             for i, name in enumerate(split):
                 try:
                     __import__('.'.join(split[:i+1]))                    
-                    exec('%s=sys.modules[\'%s\']' % (split[i], '.'.join(split[:i+1])))
+                    tmp = {}
+                    exec('%s=sys.modules[\'%s\']' % (split[i], '.'.join(split[:i+1])), globals(),tmp)
                 except ImportError:
                     try:
                         var = eval(args[1])
@@ -1939,7 +1942,7 @@ class Cmd(CheckCmd, HelpCmd, CompleteCmd, BasicCmd):
                         outstr += 'EXTERNAL:\n'
                         outstr += misc.nice_representation(var, nb_space=4)                        
                 else:
-                    var = eval(args[1])
+                    var = eval(args[1], globals(), tmp)
                     outstr += 'EXTERNAL:\n'
                     outstr += misc.nice_representation(var, nb_space=4)                        
             

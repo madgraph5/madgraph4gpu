@@ -6,18 +6,23 @@
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 ! Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 !==========================================================================
-
 #include "GpuAbstraction.h"
 
-    // === PART 0 - INITIALISATION (before calculate_wavefunctions) ===
+    // === PART 0 - INITIALISATION (before calculate_jamps) ===
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
 #ifdef MGONGPUCPP_GPUIMPL
-    allMEs[ievt] = 0;
+    // *** PART 0a - CUDA ***
+    const int nevt = gpublocks * gputhreads;
+    gpuMemset( allMEs, 0, nevt * sizeof( fptype ) );
+    gpuMemset( ghelAllJamps, 0, cNGoodHel * ncolor * mgOnGpu::nx2 * nevt * sizeof( fptype ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    allNumerators[ievt] = 0;
-    allDenominators[ievt] = 0;
+    gpuMemset( colAllJamp2s, 0, ncolor * nevt * sizeof( fptype ) );
+    gpuMemset( ghelAllNumerators, 0, cNGoodHel * nevt * sizeof( fptype ) );
+    gpuMemset( ghelAllDenominators, 0, cNGoodHel * nevt * sizeof( fptype ) );
 #endif
+    gpuMemset( ghelAllMEs, 0, cNGoodHel * nevt * sizeof( fptype ) );
 #else
+    // *** PART 0b - C++ ***
     const int npagV = nevt / neppV;
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
@@ -42,93 +47,30 @@
 #ifdef MGONGPUCPP_GPUIMPL // CUDA OR C++
 
     // *** START OF PART 1a - CUDA (one event per GPU thread) ***
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // SCALAR channelId for the current event (CUDA) or for the whole SIMD event page (C++)
-    // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a SIMD event page
-    unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
-    if( allChannelIds != nullptr )
-    {
-      const unsigned int* channelIds = allChannelIds;                            // fix #899 (distinguish channelIds and allChannelIds)
-      const uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895 (compute this only once for all diagrams)
-      // NB: channelIds_sv is a scalar in CUDA
-      channelId = channelIds_sv;
-      assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
-    }
-#endif
-    // Running sum of partial amplitudes squared for event by event color selection (#402)
-    // (for the single event processed in calculate_wavefunctions)
-    fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
-    fptype MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for this event)
+    // Use CUDA/HIP streams to process different helicities in parallel (one good helicity per stream)
+    // (1) First, within each helicity stream, compute the QCD partial amplitudes jamp's for each helicity
+    // In multichannel mode, also compute the running sums over helicities of numerators, denominators and squared jamp2s
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
+      fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
+      fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
+      fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );
 #endif
-      MEs_ighel[ighel] = allMEs[ievt];
     }
-    // Event-by-event random choice of helicity #403
-    //printf( "sigmaKin: ievt=%%4d rndhel=%%f\n", ievt, allrndhel[ievt] );
-    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
-    {
-      if( allrndhel[ievt] < ( MEs_ighel[ighel] / MEs_ighel[cNGoodHel - 1] ) )
-      {
-        const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
-        allselhel[ievt] = ihelF;
-        //printf( "sigmaKin: ievt=%%4d ihel=%%4d\n", ievt, ihelF );
-        break;
-      }
-    }
+    // (2) Then compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
+    color_sum_gpu( ghelAllMEs, ghelAllJamps, ghelAllBlasTmp, pBlasHandle, ghelStreams, cNGoodHel, gpublocks, gputhreads );
+    checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
+    // (3) Wait for all helicity streams to complete, then finally compute the ME sum over all helicities and choose one helicity and one color
+    // Event-by-event random choice of helicity #403 and ME sum over helicities (defer this after the helicity loop to avoid breaking streams parallelism)
+    gpuLaunchKernel( add_and_select_hel, gpublocks, gputhreads, allselhel, allrndhel, ghelAllMEs, allMEs, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
-    if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
-    {
-      if( channelId > mgOnGpu::nchannels )
-      {
-        printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which is greater than nchannels=%%d\n", channelId, mgOnGpu::nchannels );
-        assert( channelId <= mgOnGpu::nchannels ); // SANITY CHECK #919 #910
-      }
-      // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
-      // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
-      const int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
-      if( iconfig <= 0 )
-      {
-        printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which has no associated SDE iconfig\n", channelId );
-        assert( iconfig > 0 ); // SANITY CHECK #917
-      }
-      else if( iconfig > (int)mgOnGpu::nconfigSDE )
-      {
-        printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d (invalid SDE iconfig=%%d\n > nconfig=%%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
-        assert( iconfig <= (int)mgOnGpu::nconfigSDE ); // SANITY CHECK #917
-      }
-      fptype targetamp[ncolor] = { 0 };
-      // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
-      for( int icolC = 0; icolC < ncolor; icolC++ )
-      {
-        if( icolC == 0 )
-          targetamp[icolC] = 0;
-        else
-          targetamp[icolC] = targetamp[icolC - 1];
-        // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
-        if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
-      }
-      //printf( "sigmaKin: ievt=%%4d rndcol=%%f\n", ievt, allrndcol[ievt] );
-      for( int icolC = 0; icolC < ncolor; icolC++ )
-      {
-        if( allrndcol[ievt] < ( targetamp[icolC] / targetamp[ncolor - 1] ) )
-        {
-          allselcol[ievt] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
-          //printf( "sigmaKin: ievt=%%d icol=%%d\n", ievt, icolC+1 );
-          break;
-        }
-      }
-    }
-    else
-    {
-      allselcol[ievt] = 0; // no color selected in Fortran range [1,ncolor] if channelId == 0 (see #931)
-    }
+    gpuLaunchKernel( select_col, gpublocks, gputhreads, allselcol, allrndcol, allChannelIds, colAllJamp2s, gpublocks * gputhreads );
 #endif
     // *** END OF PART 1a - CUDA (one event per GPU thread) ***
 
@@ -170,7 +112,7 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // SCALAR channelId for the whole SIMD neppV2 event page (C++), i.e. one or two neppV event page(s)
       // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a neppV2 SIMD event page
-      // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
+      // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
       unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
       if( allChannelIds != nullptr )
       {
@@ -193,7 +135,7 @@
         // Second neppV page of channels (iParity=1 => ievt0 = ievt00 + 1 * neppV)
         const unsigned int* channelIds2 = CID_ACCESS::ieventAccessRecordConst( allChannelIds, ievt00 + neppV ); // fix bug #899/#911
         uint_v channelIds2_v = CID_ACCESS::kernelAccessConst( channelIds2 );                                    // fix #895 (compute this only once for all diagrams)
-        // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
+        // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
         for( int i = 0; i < neppV; ++i )
         {
           assert( channelId == channelIds2_v[i] ); // SANITY CHECKS #898 #924: all events in the 2nd SIMD vector have the same channelId as that of the 1st SIMD vector
@@ -202,21 +144,23 @@
       }
 #endif
       // Running sum of partial amplitudes squared for event by event color selection (#402)
-      // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_wavefunctions)
-      fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
-      fptype_sv MEs_ighel[ncomb] = { 0 };  // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
+      // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_jamps)
+      fptype_sv jamp2_sv[nParity * ncolor] = {};
+      fptype_sv MEs_ighel[ncomb] = {};  // sum of MEs for all good helicities up to ighel (for the first - and/or only - neppV page)
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      fptype_sv MEs_ighel2[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for the second neppV page)
+      fptype_sv MEs_ighel2[ncomb] = {}; // sum of MEs for all good helicities up to ighel (for the second neppV page)
 #endif
       for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
+        cxtype_sv jamp_sv[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-        // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
+        // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
-        calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv, ievt00 );
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 );
 #endif
+        color_sum_cpu( allMEs, jamp_sv, ievt00 );
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
@@ -230,8 +174,10 @@
         for( int ighel = 0; ighel < cNGoodHel; ighel++ )
         {
 #if defined MGONGPU_CPPSIMD
+          //printf( "sigmaKin: ievt=%%4d ighel=%%d MEs_ighel=%%f\n", ievt, ighel, MEs_ighel[ighel][ieppV] );
           const bool okhel = allrndhel[ievt] < ( MEs_ighel[ighel][ieppV] / MEs_ighel[cNGoodHel - 1][ieppV] );
 #else
+          //printf( "sigmaKin: ievt=%%4d ighel=%%d MEs_ighel=%%f\n", ievt, ighel, MEs_ighel[ighel] );
           const bool okhel = allrndhel[ievt] < ( MEs_ighel[ighel] / MEs_ighel[cNGoodHel - 1] );
 #endif
           if( okhel )
@@ -247,11 +193,12 @@
         //printf( "sigmaKin: ievt=%%4d rndhel=%%f\n", ievt2, allrndhel[ievt2] );
         for( int ighel = 0; ighel < cNGoodHel; ighel++ )
         {
+          //printf( "sigmaKin: ievt=%%4d ighel=%%d MEs_ighel=%%f\n", ievt2, ighel, MEs_ighel2[ighel][ieppV] );
           if( allrndhel[ievt2] < ( MEs_ighel2[ighel][ieppV] / MEs_ighel2[cNGoodHel - 1][ieppV] ) )
           {
             const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
             allselhel[ievt2] = ihelF;
-            //printf( "sigmaKin: ievt=%%4d ihel=%%4d\n", ievt, ihelF );
+            //printf( "sigmaKin: ievt=%%4d ihel=%%4d\n", ievt2, ihelF );
             break;
           }
         }
@@ -353,14 +300,15 @@
 
 #endif // CUDA or C++
 
-    // === PART 2 - FINALISATION (after calculate_wavefunctions) ===
+    // PART 2 - FINALISATION (after calculate_jamps)
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
 #ifdef MGONGPUCPP_GPUIMPL
-    allMEs[ievt] /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    if( allChannelIds != nullptr ) allMEs[ievt] *= allNumerators[ievt] / allDenominators[ievt]; // fix segfault #892 (not 'channelIds[0] != 0')
+    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, ghelAllNumerators, ghelAllDenominators, allChannelIds, helcolDenominators[0] );
+#else
+    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, helcolDenominators[0] );
 #endif
 #else
     for( int ipagV = 0; ipagV < npagV; ++ipagV )

@@ -37,10 +37,12 @@ all: $(LIBRARIES) $(LIBDIR)libdhelas.$(libext) $(LIBDIR)libpdf.$(libext) $(LIBDI
 $(LIBDIR)libdsample.$(libext): $(DSAMPLE)
 	$(call CREATELIB, $@, $^)
 $(LIBDIR)libgeneric.$(libext): $(GENERIC)
+	rm -f $@ 2>/dev/null
 	$(call CREATELIB, $@, $^)
+	rm -f $(alfas_to_clean) 2>/dev/null
 $(LIBDIR)libdhelas.$(libext): DHELAS
 	cd DHELAS; make; cd ..
-$(LIBDIR)libpdf.$(libext): PDF make_opts
+$(LIBDIR)libpdf.$(libext): PDF $(alfas_functions).o
 	cd PDF; make; cd ..
 ifneq (,$(filter edff chff, $(pdlabel1) $(pdlabel2)))
 $(LIBDIR)libgammaUPC.$(libext): PDF/gammaUPC
@@ -73,6 +75,7 @@ $(BINDIR)gensudgrid: $(GENSUDGRID) $(LIBDIR)libpdf.$(libext) $(LIBDIR)libgammaUP
 # Dependencies
 
 dsample.o: DiscreteSampler.o dsample.f genps.inc StringCast.o vector.inc
+pawgraph.o: vector.inc
 DiscreteSampler.o: StringCast.o
 invarients.o: invarients.f genps.inc
 gen_ximprove.o: gen_ximprove.f run_config.inc run_card.inc 
