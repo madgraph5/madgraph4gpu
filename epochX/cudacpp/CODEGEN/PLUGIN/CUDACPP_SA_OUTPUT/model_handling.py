@@ -2082,7 +2082,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             resCC.append("""  {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include \"diagram_boilerplate.h\"
+#include \"diagrams_boilerplate.h\"
 #ifdef MGONGPUCPP_GPUIMPL
     using M_ACCESS = DeviceAccessMomenta; // non-trivial access: buffer includes all events
 #else
@@ -2121,7 +2121,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             resCC.append("""  {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
-#include \"diagram_boilerplate.h\"""")
+#include \"diagrams_boilerplate.h\"""")
         # 2 - Core code
         res2 = []
         wfGet, wfPut = set(), set()
