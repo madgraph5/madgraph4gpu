@@ -1217,7 +1217,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         if len(coupling_indep) > 0:
             replace_dict['cipcassign'] = 'const cxtype tIPC[nIPC] = { cxmake( m_pars->%s ) };'\
                                          % ( ' ), cxmake( m_pars->'.join(coupling_indep) ) # AV only indep!
-            replace_dict['cipcdevice'] = '__device__ __constant__ fptype cIPC[nIPC * 2];'
+            replace_dict['cipcdevice'] = '__device__ __constant__ fptype dcIPC[nIPC * 2];'
             replace_dict['cipcstatic'] = 'static fptype cIPC[nIPC * 2];'
             replace_dict['cipc2tipcSym'] = 'gpuMemcpyToSymbol( dcIPC, tIPC, nIPC * sizeof( cxtype ) );'
             replace_dict['cipc2tipc'] = 'memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) );'
