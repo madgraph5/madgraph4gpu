@@ -625,6 +625,8 @@ namespace mg5amcCpu
     m_masses.push_back( Parameters_sm::ZERO );
     m_masses.push_back( Parameters_sm::ZERO );
 #ifdef MGONGPUCPP_GPUIMPL
+    if constexpr( nIPD > 0 ) gpuGetSymbolAddress( (void**)( &cIPD ), dcIPD );
+    if constexpr( nIPC > 0 ) gpuGetSymbolAddress( (void**)( &cIPC ), dcIPC );
     // Create the normalized color matrix in device memory
     createNormalizedColorMatrix();
 #endif
