@@ -2096,6 +2096,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #endif
 
     // Reinterpret the flat array pointer for helicities as a multidimensional array pointer
+    constexpr int npar = CPPProcess::npar;
     const short (*cHel)[npar] = reinterpret_cast<const short(*)[npar]>( cHelFlat );
 """)
         else:

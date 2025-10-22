@@ -14,9 +14,30 @@
 
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
+#else
+namespace mg5amcCpu
+#endif
 {
+  constexpr int nw6 = CPPProcess::nw6;       // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+  constexpr int nwf = CPPProcess::nwf;       // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+  constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
+
+  using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
+  using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
+
+#ifdef __CUDACC__
+#pragma nv_diagnostic push
+#pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "nevt" was declared but never referenced>>
+#endif
+  constexpr int nIPD = CPPProcess::nIPD; // SM independent parameters
+  constexpr int nIPC = CPPProcess::nIPC; // SM independent couplings
+#ifdef __CUDACC__
+#pragma nv_diagnostic pop
+#endif
+
   //--------------------------------------------------------------------------
 
+#ifdef MGONGPUCPP_GPUIMPL
   // Encapsulate here (rather than in MemoyAccessWavefunctions.h) the wavefunction memory layout in GPU global memory
   // *** NB: Non-trivial access in GPU global memory is only used in storeWf and retrieveWf ***
   class DeviceAccessWavefunctions
@@ -39,9 +60,11 @@ namespace mg5amcGpu
       return *( reinterpret_cast<const cxtype*>( buffer + ( iw6 * nevt + ievt ) * mgOnGpu::nx2 ) ); // NEW (coalesced?)
     }
   };
+#endif
 
   //--------------------------------------------------------------------------
 
+#ifdef MGONGPUCPP_GPUIMPL
   inline __device__ void
   retrieveWf( const fptype* allWfs,
               cxtype w_cx[][CPPProcess::nw6],
@@ -54,9 +77,11 @@ namespace mg5amcGpu
     for( int iw6 = 0; iw6 < CPPProcess::nw6; iw6++ )
       w_cx[iwf][iw6] = WG_ACCESS::kernelAccessIw6Const( allWfs_iwf, iw6 );
   }
+#endif
 
   //--------------------------------------------------------------------------
 
+#ifdef MGONGPUCPP_GPUIMPL
   inline __device__ void
   storeWf( fptype* allWfs,
            const cxtype w_cx[][CPPProcess::nw6],
@@ -69,9 +94,9 @@ namespace mg5amcGpu
     for( int iw6 = 0; iw6 < CPPProcess::nw6; iw6++ )
       WG_ACCESS::kernelAccessIw6( allWfs_iwf, iw6 ) = w_cx[iwf][iw6];
   }
+#endif
 
   //--------------------------------------------------------------------------
 }
-#endif
 
 #endif // diagrams_header_H
