@@ -1620,6 +1620,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         data = data.replace('__NIPD__', '%d'%self.nIPD) 
         with open(cppprocess_h, 'w') as file: file.write(data)
         # Generate diagrams.h/cc after generating CPPProcess.cc
+        self.edit_diagrams_header()
         self.edit_diagrams_h(self.diagram_code_h)
         self.edit_diagrams_cc(self.diagram_code_cc)
 
@@ -1690,6 +1691,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # Extract color matrix again (this was also in get_matrix_single_process called within get_all_sigmaKin_lines)
         replace_dict['color_matrix_lines'] = self.get_color_matrix_lines(self.matrix_elements[0])
         ff = open(pjoin(self.path, 'color_sum.cc'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+
+    # AV - new method
+    def edit_diagrams_header(self):
+        """Generate diagrams_header.h"""
+        ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams_header')
+        template = open(pjoin(self.template_path,'gpu','diagrams_header.h'),'r').read()
+        replace_dict = {}
+        replace_dict['model_name'] = self.model_name
+        ff = open(pjoin(self.path, 'diagrams_header.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
 
