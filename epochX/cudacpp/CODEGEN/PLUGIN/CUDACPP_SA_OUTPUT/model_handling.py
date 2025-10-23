@@ -15,6 +15,7 @@ PLUGIN_NAME = __name__.rsplit('.',1)[0]
 PLUGINDIR = os.path.dirname( __file__ )
 
 # AV (Oct 2025) - Feynman diagrams per group (kernel splitting)
+MIN_DIAGRAMS_PER_FILE = 10 # AV hardcoded (100: may split ggttggg, ggttgg; 10: may split ggttg)
 MAX_DIAGRAMS_PER_GROUP = 5 # AV hardcoded (2000: split ggttgggg; 100: split ggttggg, ggttgg; 5: split ggttg)
 
 # AV - create a plugin-specific logger
@@ -1721,13 +1722,22 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """Generate diagrams.cc"""
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_diagrams_cc')
         template = open(pjoin(self.template_path,'gpu','diagrams_cc.inc'),'r').read()
+        diagrams_in_file, code_in_file = 0, ''
+        idiagramfile = 1
         for idiagramgroup, diagramgroup in enumerate(diagrams_cc):
-            replace_dict = {}
-            replace_dict['code'] = diagramgroup # one diagramgroup per file
-            replace_dict['model_name'] = self.model_name
-            ff = open(pjoin(self.path, 'diagrams%i.cc'%(idiagramgroup+1)),'w')
-            ff.write(template % replace_dict)
-            ff.close()
+            if diagrams_in_file > 0: code_in_file += '\n'
+            code_in_file += diagramgroup # one or more diagramgroups per file
+            if diagrams_in_file > 0: code_in_file += '\n'
+            diagrams_in_file += MAX_DIAGRAMS_PER_GROUP
+            if diagrams_in_file >= MIN_DIAGRAMS_PER_FILE or idiagramgroup == len(diagrams_cc)-1 :
+                replace_dict = {}
+                replace_dict['code'] = code_in_file
+                replace_dict['model_name'] = self.model_name
+                ff = open(pjoin(self.path, 'diagrams%i.cc'%idiagramfile),'w')
+                ff.write(template % replace_dict)
+                ff.close()
+                diagrams_in_file, code_in_file = 0, ''
+                idiagramfile += 1
 
     def generate_subprocess_directory_end(self, **opt):
         """ opt contain all local variable of the fortran original function"""
