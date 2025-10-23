@@ -484,52 +484,6 @@ namespace mg5amcCpu
       gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );
       gpuGraphNode_t& node2 = graphNodes[ihel * ndiagramgroups + 1];
       gpuDiagrams( useGraphs, &graph, &graphExec, &node2, &node1, diagramgroup2, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node3 = graphNodes[ihel * ndiagramgroups + 2];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node3, &node2, diagramgroup3, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node4 = graphNodes[ihel * ndiagramgroups + 3];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node4, &node3, diagramgroup4, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node5 = graphNodes[ihel * ndiagramgroups + 4];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node5, &node4, diagramgroup5, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node6 = graphNodes[ihel * ndiagramgroups + 5];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node6, &node5, diagramgroup6, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node7 = graphNodes[ihel * ndiagramgroups + 6];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node7, &node6, diagramgroup7, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node8 = graphNodes[ihel * ndiagramgroups + 7];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node8, &node7, diagramgroup8, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node9 = graphNodes[ihel * ndiagramgroups + 8];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node9, &node8, diagramgroup9, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node10 = graphNodes[ihel * ndiagramgroups + 9];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node10, &node9, diagramgroup10, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node11 = graphNodes[ihel * ndiagramgroups + 10];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node11, &node10, diagramgroup11, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node12 = graphNodes[ihel * ndiagramgroups + 11];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node12, &node11, diagramgroup12, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node13 = graphNodes[ihel * ndiagramgroups + 12];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node13, &node12, diagramgroup13, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node14 = graphNodes[ihel * ndiagramgroups + 13];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node14, &node13, diagramgroup14, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node15 = graphNodes[ihel * ndiagramgroups + 14];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node15, &node14, diagramgroup15, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node16 = graphNodes[ihel * ndiagramgroups + 15];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node16, &node15, diagramgroup16, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node17 = graphNodes[ihel * ndiagramgroups + 16];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node17, &node16, diagramgroup17, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node18 = graphNodes[ihel * ndiagramgroups + 17];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node18, &node17, diagramgroup18, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node19 = graphNodes[ihel * ndiagramgroups + 18];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node19, &node18, diagramgroup19, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node20 = graphNodes[ihel * ndiagramgroups + 19];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node20, &node19, diagramgroup20, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node21 = graphNodes[ihel * ndiagramgroups + 20];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node21, &node20, diagramgroup21, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node22 = graphNodes[ihel * ndiagramgroups + 21];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node22, &node21, diagramgroup22, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node23 = graphNodes[ihel * ndiagramgroups + 22];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node23, &node22, diagramgroup23, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node24 = graphNodes[ihel * ndiagramgroups + 23];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node24, &node23, diagramgroup24, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
-      gpuGraphNode_t& node25 = graphNodes[ihel * ndiagramgroups + 24];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node25, &node24, diagramgroup25, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( useGraphs && gpustream != 0 )
       {
@@ -544,29 +498,6 @@ namespace mg5amcCpu
 #else
       diagramgroup1( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );
       diagramgroup2( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup3( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup4( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup5( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup6( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup7( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup8( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup9( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup10( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup11( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup12( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup13( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup14( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup15( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup16( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup17( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup18( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup19( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup20( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup21( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup22( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup23( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup24( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
-      diagramgroup25( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
 #endif
     }
     // *****************************
