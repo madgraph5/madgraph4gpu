@@ -289,9 +289,15 @@ function codeGenAndDiff()
     echo -e "--------------------------------------------------\n"
     PYTHONPATHOLD=$PYTHONPATH
     export PYTHONPATH=..:$PYTHONPATHOLD
+    if [ "${maxdiagpergroup}" != "" ] || [ "${mindiagperfile}" != "" ]; then
+      \cp ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/model_handling.py ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/model_handling.py.original
+      if [ "${maxdiagpergroup}" != "" ]; then sed -i "s/MAX_DIAGRAMS_PER_GROUP = .*/MAX_DIAGRAMS_PER_GROUP = ${maxdiagpergroup}/" ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/model_handling.py; fi
+      if [ "${mindiagperfile}" != "" ]; then sed -i "s/MIN_DIAGRAMS_PER_FILE = .*/MIN_DIAGRAMS_PER_FILE = ${mindiagperfile}/" ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/model_handling.py; fi
+    fi
     ###{ strace -f -o ${outproc}_strace.txt python3 ./bin/mg5_aMC -m CUDACPP_OUTPUT ${outproc}.mg ; } >& ${outproc}_log.txt
     { time python3 ./bin/mg5_aMC -m CUDACPP_OUTPUT ${outproc}.mg || true ; } >& ${outproc}_log.txt
     export PYTHONPATH=$PYTHONPATHOLD
+    if [ "${maxdiagpergroup}" != "" ] || [ "${mindiagperfile}" != "" ]; then \mv ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/model_handling.py.original ../MG5aMC_PLUGIN/CUDACPP_OUTPUT/model_handling.py; fi
     cat ${outproc}_log.txt | egrep -v '(Crash Annotation)' > ${outproc}_log.txt.new # remove firefox 'glxtest: libEGL initialize failed' errors
     \mv ${outproc}_log.txt.new ${outproc}_log.txt
   fi
@@ -415,6 +421,11 @@ function codeGenAndDiff()
   elif [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
     autosuffix=${OUTBCK}
   fi
+  # Special directory name with kernel splitting (AV Oct 2025)
+  autosuffix2=
+  if [ "${maxdiagpergroup}" != "" ]; then autosuffix2="dpg${maxdiagpergroup}"; fi
+  if [ "${mindiagperfile}" != "" ]; then autosuffix2="${autosuffix2}dpf${mindiagperfile}"; fi
+  if [ "${autosuffix2}" != "" ]; then autosuffix="${autosuffix2}.${autosuffix}"; fi
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
   rm -rf ${OUTDIR}/${proc}.${autosuffix}.BKP
   if [ -d ${OUTDIR}/${proc}.${autosuffix} ]; then mv ${OUTDIR}/${proc}.${autosuffix} ${OUTDIR}/${proc}.${autosuffix}.BKP; fi
@@ -573,6 +584,8 @@ if [ "${SCRBCK}" == "gridpack" ]; then export HELREC=1; else export HELREC=0; fi
 # Process command line arguments (https://unix.stackexchange.com/a/258514)
 cmd=
 proc=
+maxdiagpergroup=
+mindiagperfile=
 while [ "$1" != "" ]; do
   if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
     usage
@@ -608,6 +621,12 @@ while [ "$1" != "" ]; do
     export OUTBCK=${1#--}
   elif [ "$1" == "-c" ] && [ "$2" != "" ]; then
     cmd="$2"
+    shift
+  elif [ "$1" == "--maxdiagpergroup" ] && [ "$2" != "" ]; then
+    maxdiagpergroup=$2
+    shift
+  elif [ "$1" == "--mindiagperfile" ] && [ "$2" != "" ]; then
+    mindiagperfile="$2"
     shift
   elif [ "$proc" == "" ]; then
     proc="$1"
@@ -757,14 +776,14 @@ cleanup_MG5AMC_HOME
 
 # Check formatting in the auto-generated code
 if [ "${OUTBCK}" == "cudacpp" ]; then
-  echo -e "\n+++ Check code formatting in newly generated code ${proc}.sa\n"
-  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.sa; then
+  echo -e "\n+++ Check code formatting in newly generated code ${proc}.${autosuffix}\n" # i.e. ${proc}.sa
+  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.${autosuffix}; then
     echo "ERROR! Auto-generated code does not respect formatting policies"
     exit 1
   fi
 elif [ "${OUTBCK}" == "mad" ]; then
-  echo -e "\n+++ Check code formatting in newly generated code ${proc}.mad\n"
-  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.mad; then
+  echo -e "\n+++ Check code formatting in newly generated code ${proc}.${autosuffix}\n" # i.e. ${proc}.mad or ${proc}.dpgXdpfX.mad
+  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.${autosuffix}; then
     echo "ERROR! Auto-generated code does not respect formatting policies"
     exit 1
   fi
