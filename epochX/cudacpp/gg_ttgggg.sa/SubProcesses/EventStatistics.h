@@ -1,7 +1,14 @@
+// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+
 #ifndef EventStatistics_H
 #define EventStatistics_H 1
 
-#include "mgOnGpuConfig.h" // for npar (meGeVexponent)
+#include "mgOnGpuConfig.h"
+
+#include "CPPProcess.h" // for npar (meGeVexponent)
 
 #include <algorithm>
 #include <cmath>
@@ -9,7 +16,7 @@
 #include <limits>
 #include <string>
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -99,7 +106,14 @@ namespace mg5amcCpu
       , sqsWGdiff( 0 )
       , tag( "" ) {}
     // Combine two EventStatistics
-    EventStatistics& operator+=( const EventStatistics& stats )
+#ifdef __clang__
+    // Disable optimizations for this function in HIP (work around FPE crash #1003: originally using #if __HIP_CLANG_ONLY__)
+    // Disable optimizations for this function in clang tout court (work around FPE crash #1005: now using #ifdef __clang__)
+    // See https://clang.llvm.org/docs/LanguageExtensions.html#extensions-for-selectively-disabling-optimization
+    __attribute__( ( optnone ) )
+#endif
+    EventStatistics&
+    operator+=( const EventStatistics& stats )
     {
       EventStatistics s1 = *this; // temporary copy
       EventStatistics s2 = stats; // temporary copy
@@ -127,7 +141,7 @@ namespace mg5amcCpu
     void printout( std::ostream& out ) const
     {
       const EventStatistics& s = *this;
-      constexpr int meGeVexponent = -( 2 * mgOnGpu::npar - 8 );
+      constexpr int meGeVexponent = -( 2 * CPPProcess::npar - 8 );
       out << s.tag << "NumMatrixElems(notAbnormal) = " << s.nevtOK() << std::endl
           << std::scientific // fixed format: affects all floats (default precision: 6)
           << s.tag << "MeanMatrixElemValue         = ( " << s.meanME()

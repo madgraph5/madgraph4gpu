@@ -1,3 +1,8 @@
+// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+
 #ifndef MemoryAccessVectors_H
 #define MemoryAccessVectors_H 1
 
@@ -5,7 +10,7 @@
 
 #include "mgOnGpuVectors.h"
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
 namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
 {
 
@@ -19,11 +24,21 @@ namespace mg5amcCpu // this is only needed for CPU SIMD vectorization
     return *reinterpret_cast<fptype_sv*>( &ref );
   }
 
+  inline uint_v& uintvFromAlignedArray( unsigned int& ref )
+  {
+    return *reinterpret_cast<uint_sv*>( &ref );
+  }
+
   // Cast one const fptype_v reference (one vector of neppV fptype values) from one const fptype reference,
   // assuming that "pointer(evt#0)+1" indicates "pointer(evt#1)", and that the arrays are aligned
   inline const fptype_v& fptypevFromAlignedArray( const fptype& ref )
   {
     return *reinterpret_cast<const fptype_sv*>( &ref );
+  }
+
+  inline const uint_v& uintvFromAlignedArray( const unsigned int& ref )
+  {
+    return *reinterpret_cast<const uint_sv*>( &ref );
   }
 
   // Build one fptype_v (one vector of neppV fptype values) from one fptype reference,

@@ -1,11 +1,21 @@
+// Copyright (C) 2020-2025 CERN and UCLouvain.
+// Licensed under the GNU Lesser General Public License (version 3 or later).
+// Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
+
 #ifndef MATRIXELEMENTKERNELS_H
 #define MATRIXELEMENTKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
 
+#include "CPPProcess.h"
+#include "GpuAbstraction.h"
 #include "MemoryBuffers.h"
 
-#ifdef __CUDACC__
+#include <map>
+#include <memory>
+
+#ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
 #else
 namespace mg5amcCpu
@@ -23,32 +33,39 @@ namespace mg5amcCpu
                              const BufferGs& gs,                   // input: gs for alphaS
                              const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                              const BufferRndNumColor& rndcol,      // input: random numbers for color selection
+                             const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              BufferSelectedHelicity& selhel,       // output: helicity selection
-                             BufferSelectedColor& selcol )         // output: color selection
-      : m_momenta( momenta )
-      , m_gs( gs )
-      , m_rndhel( rndhel )
-      , m_rndcol( rndcol )
-      , m_matrixElements( matrixElements )
-      , m_selhel( selhel )
-      , m_selcol( selcol )
-    {
-    }
+                             BufferSelectedColor& selcol );        // output: color selection
 
   public:
 
     // Destructor
-    virtual ~MatrixElementKernelBase() {}
+    virtual ~MatrixElementKernelBase();
 
     // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
     virtual int computeGoodHelicities() = 0;
 
     // Compute matrix elements
-    virtual void computeMatrixElements( const unsigned int channelId ) = 0;
+    virtual void computeMatrixElements( const bool useChannelIds ) = 0;
 
     // Is this a host or device kernel?
     virtual bool isOnDevice() const = 0;
+
+    // Dump signalling FPEs (#831 and #837)
+    static void dumpSignallingFPEs();
+
+#ifdef MGONGPU_CHANNELID_DEBUG
+    // Add a MEK identifier for the channelId debug printout
+    void setTagForNevtProcessedByChannel( const std::string& tag ) { m_tag = tag; }
+
+  protected:
+    // Update number of events processed by channel
+    void updateNevtProcessedByChannel( const unsigned int* pHstChannelIds, const size_t nevt );
+
+    // Dump number of events processed by channel
+    void dumpNevtProcessedByChannel();
+#endif
 
   protected:
 
@@ -64,6 +81,9 @@ namespace mg5amcCpu
     // The buffer for the random numbers for color selection
     const BufferRndNumColor& m_rndcol;
 
+    // The buffer for the channel ids for single-diagram enhancement
+    const BufferChannelIds& m_channelIds;
+
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;
 
@@ -72,11 +92,19 @@ namespace mg5amcCpu
 
     // The buffer for the output color selection
     BufferSelectedColor& m_selcol;
+
+#ifdef MGONGPU_CHANNELID_DEBUG
+    // The events-per-channel counter for debugging
+    std::map<size_t, size_t> m_nevtProcessedByChannel;
+
+    // The tag for events-per-channel debugging
+    std::string m_tag;
+#endif
   };
 
   //--------------------------------------------------------------------------
 
-#ifndef __CUDACC__
+#ifndef MGONGPUCPP_GPUIMPL
   // A class encapsulating matrix element calculations on a CPU host
   class MatrixElementKernelHost final : public MatrixElementKernelBase, public NumberOfEvents
   {
@@ -87,26 +115,29 @@ namespace mg5amcCpu
                              const BufferGs& gs,                   // input: gs for alphaS
                              const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                              const BufferRndNumColor& rndcol,      // input: random numbers for color selection
+                             const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              BufferSelectedHelicity& selhel,       // output: helicity selection
                              BufferSelectedColor& selcol,          // output: color selection
                              const size_t nevt );
 
     // Destructor
-    virtual ~MatrixElementKernelHost() {}
+    virtual ~MatrixElementKernelHost();
 
     // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
     int computeGoodHelicities() override final;
 
     // Compute matrix elements
-    void computeMatrixElements( const unsigned int channelId ) override final;
+    void computeMatrixElements( const bool useChannelIds ) override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return false; }
 
+  private:
+
     // Does this host system support the SIMD used in the matrix element calculation?
-    // [NB: SIMD vectorization in mg5amc C++ code is currently only used in the ME calculations below MatrixElementKernelHost!]
-    static bool hostSupportsSIMD( const bool verbose = true );
+    // [NB: this is private, SIMD vectorization in mg5amc C++ code is currently only used in the ME calculations below MatrixElementKernelHost!]
+    static bool hostSupportsSIMD( const bool verbose = false ); // ZW: default verbose false
 
   private:
 
@@ -125,7 +156,7 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifdef __CUDACC__
+#ifdef MGONGPUCPP_GPUIMPL
   // A class encapsulating matrix element calculations on a GPU device
   class MatrixElementKernelDevice : public MatrixElementKernelBase, public NumberOfEvents
   {
@@ -136,6 +167,7 @@ namespace mg5amcCpu
                                const BufferGs& gs,                   // input: gs for alphaS
                                const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                                const BufferRndNumColor& rndcol,      // input: random numbers for color selection
+                               const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                                BufferMatrixElements& matrixElements, // output: matrix elements
                                BufferSelectedHelicity& selhel,       // output: helicity selection
                                BufferSelectedColor& selcol,          // output: color selection
@@ -143,7 +175,7 @@ namespace mg5amcCpu
                                const size_t gputhreads );
 
     // Destructor
-    virtual ~MatrixElementKernelDevice() {}
+    virtual ~MatrixElementKernelDevice();
 
     // Reset gpublocks and gputhreads
     void setGrid( const int gpublocks, const int gputhreads );
@@ -152,7 +184,7 @@ namespace mg5amcCpu
     int computeGoodHelicities() override final;
 
     // Compute matrix elements
-    void computeMatrixElements( const unsigned int channelId ) override final;
+    void computeMatrixElements( const bool useChannelIds ) override final;
 
     // Is this a host or device kernel?
     bool isOnDevice() const override final { return true; }
@@ -162,13 +194,48 @@ namespace mg5amcCpu
     // The buffer for the event-by-event couplings that depends on alphas QCD
     DeviceBufferCouplings m_couplings;
 
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // The buffer for the event-by-event numerators of multichannel factors
-    DeviceBufferNumerators m_numerators;
+    // The super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelMEs;
 
-    // The buffer for the event-by-event denominators of multichannel factors
-    DeviceBufferDenominators m_denominators;
+    // The super-buffer of nGoodHel jamp buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelJamps;
+
+    // The super-buffer of nGoodHel wavefunction buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelWfs;
+
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    // The super-buffer of nGoodHel numerator buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelNumerators;
+
+    // The super-buffer of nGoodHel denominator buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelDenominators;
+
+    // The super-buffer of ncolor jamp2 buffers
+    DeviceBufferSimple m_colJamp2s;
 #endif
+
+#ifdef MGONGPU_CHANNELID_DEBUG
+    // The **host** buffer for the channelId array
+    // FIXME? MEKD should accept a host buffer as an argument instead of a device buffer, so that a second copy can be avoided?
+    PinnedHostBufferChannelIds m_hstChannelIds;
+#endif
+
+#ifndef MGONGPU_HAS_NO_BLAS
+    // Decide at runtime whether to use BLAS for color sums
+    bool m_blasColorSum;
+
+    // Decide at runtime whether TF32TENSOR math should be used in cuBLAS
+    bool m_blasTf32Tensor;
+
+    // The super-buffer of nGoodHel cuBLAS/hipBLAS temporary buffers
+    std::unique_ptr<DeviceBufferSimple2> m_pHelBlasTmp;
+
+    // The array of cuBLAS/hipBLAS handles (one for each good helicity)
+    gpuBlasHandle_t m_helBlasHandles[CPPProcess::ncomb]; // reserve ncomb streams (but only nGoodHel <= ncomb will be used)
+#endif
+
+    // The array of GPU streams (one for each good helicity)
+    gpuStream_t m_helStreams[CPPProcess::ncomb]; // reserve ncomb streams (but only nGoodHel <= ncomb will be used)
 
     // The number of blocks in the GPU grid
     size_t m_gpublocks;

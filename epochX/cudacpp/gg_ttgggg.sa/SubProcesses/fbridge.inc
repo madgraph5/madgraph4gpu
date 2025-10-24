@@ -1,3 +1,8 @@
+C Copyright (C) 2020-2024 CERN and UCLouvain.
+C Licensed under the GNU Lesser General Public License (version 3 or later).
+C Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
+C Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+
 C
 C Create a Bridge and return its pointer
 C - PBRIDGE: the memory address of the C++ Bridge
@@ -31,24 +36,53 @@ C - MOMENTA: the input 4-momenta Fortran array
 C - GS:      the input Gs (running QCD coupling constant alphas) Fortran array
 C - RNDHEL:  the input random number Fortran array for helicity selection
 C - RNDCOL:  the input random number Fortran array for color selection
-C - CHANID:  the input Feynman diagram to enhance in multi-channel mode if 1 to n (disable multi-channel if 0)
+C - CHANID:  the input array of channels (Feynman diagrams) to enhance
 C - MES:     the output matrix element Fortran array
 C - SELHEL:  the output selected helicity Fortran array
 C - SELCOL:  the output selected color Fortran array
+C - HELONLY: input flag, quit after computing good helicities?
 C
       INTERFACE
          SUBROUTINE FBRIDGESEQUENCE(PBRIDGE, MOMENTA, GS,
-     &     RNDHEL, RNDCOL, CHANID, MES, SELHEL, SELCOL)
+     &     RNDHEL, RNDCOL, CHANID, MES, SELHEL, SELCOL, HELONLY)
          INTEGER*8 PBRIDGE
          DOUBLE PRECISION MOMENTA(*)
          DOUBLE PRECISION GS(*)
          DOUBLE PRECISION RNDHEL(*)
          DOUBLE PRECISION RNDCOL(*)
-         INTEGER*4 CHANID
+         INTEGER*4 CHANID(*)
          DOUBLE PRECISION MES(*)
          INTEGER*4 SELHEL(*)
          INTEGER*4 SELCOL(*)
+         LOGICAL HELONLY
          END SUBROUTINE FBRIDGESEQUENCE
+      END INTERFACE
+
+C
+C Execute the matrix-element calculation "sequence" via a Bridge on GPU/CUDA or CUDA/C++.
+C - PBRIDGE: the memory address of the C++ Bridge
+C - MOMENTA: the input 4-momenta Fortran array
+C - GS:      the input Gs (running QCD coupling constant alphas) Fortran array
+C - RNDHEL:  the input random number Fortran array for helicity selection
+C - RNDCOL:  the input random number Fortran array for color selection
+C - MES:     the output matrix element Fortran array
+C - SELHEL:  the output selected helicity Fortran array
+C - SELCOL:  the output selected color Fortran array
+C - HELONLY: input flag, quit after computing good helicities?
+C
+      INTERFACE
+         SUBROUTINE FBRIDGESEQUENCE_NOMULTICHANNEL(PBRIDGE, MOMENTA, GS,
+     &     RNDHEL, RNDCOL, MES, SELHEL, SELCOL, HELONLY)
+         INTEGER*8 PBRIDGE
+         DOUBLE PRECISION MOMENTA(*)
+         DOUBLE PRECISION GS(*)
+         DOUBLE PRECISION RNDHEL(*)
+         DOUBLE PRECISION RNDCOL(*)
+         DOUBLE PRECISION MES(*)
+         INTEGER*4 SELHEL(*)
+         INTEGER*4 SELCOL(*)
+         LOGICAL HELONLY
+         END SUBROUTINE FBRIDGESEQUENCE_NOMULTICHANNEL
       END INTERFACE
 
 C
