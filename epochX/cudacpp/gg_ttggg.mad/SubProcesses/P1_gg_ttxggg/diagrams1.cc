@@ -27222,15 +27222,15 @@ namespace mg5amcCpu
     jamp_sv[106] += amp_sv[0];
     jamp_sv[116] -= amp_sv[0];
 
-    // *** STORE JAMPS ***
 #ifdef MGONGPUCPP_GPUIMPL
+    // *** STORE JAMPS ***
     // In CUDA, copy the local jamp to the output global-memory jamp
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps
 #else
-      // In C++, copy the local jamp to the output array passed as function argument
-      for( int icol = 0; icol < ncolor; icol++ )
-        jamps[icol] = jamp_sv[icol];
+    // In C++, copy the local jamp to the output array passed as function argument
+    for( int icol = 0; icol < ncolor; icol++ )
+      jamps[icol] = jamp_sv[icol];
 #endif
 
 #ifdef MGONGPUCPP_GPUIMPL
