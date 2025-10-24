@@ -2131,7 +2131,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 %s                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
 %s                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-%s                 cxtype_sv* jamp_sv,             // output jamps[ncolor*2*neppV]
+%s                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
 %s                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
 %s                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
