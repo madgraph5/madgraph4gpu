@@ -15,8 +15,8 @@ PLUGIN_NAME = __name__.rsplit('.',1)[0]
 PLUGINDIR = os.path.dirname( __file__ )
 
 # AV (Oct 2025) - Feynman diagrams per group (kernel splitting)
-MIN_DIAGRAMS_PER_FILE = 2000 # AV hardcoded (2000: may split ggttgggg; 100: may split ggttggg, ggttgg; 10: may split ggttg)
-MAX_DIAGRAMS_PER_GROUP = 2000 # AV hardcoded (2000: split ggttgggg; 100: split ggttggg, ggttgg; 5: split ggttg)
+MIN_DIAGRAMS_PER_FILE = 5 # AV hardcoded (2000: may split ggttgggg; 100: may split ggttggg, ggttgg; 10: may split ggttg)
+MAX_DIAGRAMS_PER_GROUP = 5 # AV hardcoded (2000: split ggttgggg; 100: split ggttggg, ggttgg; 5: split ggttg)
 
 # AV - create a plugin-specific logger
 import logging
