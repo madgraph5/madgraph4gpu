@@ -107,7 +107,7 @@ Building in BUILDDIR=build.512z_m_inl0_hrd0 for tag=512z_m_inl0_hrd0_hasCurand_h
 make[1]: Nothing to be done for 'all.512z_m_inl0_hrd0_hasCurand_hasNoHiprand'.
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg'
 
-DATE: 2025-10-23_19:13:12
+DATE: 2025-10-24_15:08:10
 
 HASBLAS=hasBlas
 CUDACPP_RUNTIME_BLASCOLORSUM=
@@ -117,59 +117,59 @@ On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.cuda_m_inl0_hrd0/check_cuda.exe
 ### GPU: scaling test 256 (1 cycle)
-8.145100e+04    1 256
-1.451433e+05    2 256
-2.567518e+05    4 256
-3.085863e+05    8 256
-3.264373e+05   16 256
-3.297228e+05   32 256
-3.298298e+05   64 256
-3.333973e+05  128 256
-3.389026e+05  256 256
+9.074828e+04    1 256
+1.780607e+05    2 256
+3.412324e+05    4 256
+3.868948e+05    8 256
+4.203020e+05   16 256
+4.307591e+05   32 256
+4.339738e+05   64 256
+4.385513e+05  128 256
+4.505074e+05  256 256
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
-check_cuda.exe: Assertion `code == gpuSuccess' failed.
+4.448489e+05 1024 256
 ### GPU: scaling test 32 (1 cycle)
-9.661092e+03    1  32
-1.917904e+04    2  32
-3.861018e+04    4  32
-7.717547e+04    8  32
-1.487513e+05   16  32
-2.665823e+05   32  32
-3.157777e+05   64  32
-3.282311e+05  128  32
-3.316290e+05  256  32
-3.334872e+05  512  32
-3.348189e+05 1024  32
-3.404917e+05 2048  32
+1.160925e+04    1  32
+2.335589e+04    2  32
+4.620839e+04    4  32
+9.180642e+04    8  32
+1.785857e+05   16  32
+3.347556e+05   32  32
+3.984098e+05   64  32
+4.344120e+05  128  32
+4.333288e+05  256  32
+4.363086e+05  512  32
+4.418390e+05 1024  32
+4.454641e+05 2048  32
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
-check_cuda.exe: Assertion `code == gpuSuccess' failed.
+4.445603e+05 8192  32
 ### GPU: scaling test 256 (10 cycles)
-1.790031e+05    1 256
-2.573615e+05    2 256
-3.042592e+05    4 256
-3.272051e+05    8 256
-3.343159e+05   16 256
-3.375467e+05   32 256
-3.387229e+05   64 256
-3.401137e+05  128 256
-3.407349e+05  256 256
+2.289002e+05    1 256
+3.147176e+05    2 256
+3.792906e+05    4 256
+4.189680e+05    8 256
+4.403681e+05   16 256
+4.449744e+05   32 256
+4.498322e+05   64 256
+4.537848e+05  128 256
+4.551342e+05  256 256
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
-check_cuda.exe: Assertion `code == gpuSuccess' failed.
+4.560469e+05 1024 256
 ### GPU: scaling test 32 (10 cycles)
-2.959043e+04    1  32
-5.867450e+04    2  32
-1.121171e+05    4  32
-1.862857e+05    8  32
-2.666903e+05   16  32
-3.089241e+05   32  32
-3.298239e+05   64  32
-3.384474e+05  128  32
-3.406189e+05  256  32
-3.423091e+05  512  32
-3.420377e+05 1024  32
-3.427956e+05 2048  32
+3.287693e+04    1  32
+6.500656e+04    2  32
+1.291765e+05    4  32
+2.104280e+05    8  32
+3.323884e+05   16  32
+3.868324e+05   32  32
+4.267318e+05   64  32
+4.434166e+05  128  32
+4.484159e+05  256  32
+4.538724e+05  512  32
+4.536885e+05 1024  32
+4.575868e+05 2048  32
 check_cuda.exe: Assertion `code == gpuSuccess' failed.
-check_cuda.exe: Assertion `code == gpuSuccess' failed.
+4.554594e+05 8192  32
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.hip_m_inl0_hrd0/check_hip.exe
 Not found: /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.hip_m_inl0_hrd0/check_hip.exe
@@ -185,5 +185,5 @@ scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg/build.512z_m_inl0_hrd0/check_cpp.exe
 =========================================================================
 
-DATE: 2025-10-23_19:14:19
+DATE: 2025-10-24_15:09:20
 TEST COMPLETED
