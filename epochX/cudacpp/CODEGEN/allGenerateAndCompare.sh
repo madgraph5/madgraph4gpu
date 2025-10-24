@@ -73,4 +73,6 @@ if [ "${bsm}" != "-bsmonly" ]; then
 
   ./CODEGEN/generateAndCompare.sh -q pp_tt012j --mad
 
+  ./CODEGEN/generateAndCompare.sh --mad gg_ttg --maxdiagpergroup 5 --mindiagperfile 5
+
 fi
