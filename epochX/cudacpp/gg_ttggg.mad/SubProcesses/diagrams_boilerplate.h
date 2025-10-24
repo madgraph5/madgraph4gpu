@@ -45,9 +45,6 @@
 #pragma nv_diagnostic pop
 #endif
 
-    // Local variables for the given CUDA event (ievt)
-    cxtype jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
-
     // Couplings
     constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823: nIPC instead of nicoup)
     const fptype* allCOUPs[nxcoup];
@@ -89,14 +86,14 @@
     // Reinterpret wfs as "cxtype_sv w_sv[nwf][nw6]" and build "fptype* w_fp[nwf]" where "w_fp[iwf] = (fptype*)( w_sv[iwf] )"
     fptype (*w_fp)[nw6 * neppV * mgOnGpu::nx2] = (fptype (*)[nw6 * neppV * mgOnGpu::nx2])(wfs);
 
-    // Local variables for the given C++ event page (ipagV)
-    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
-
 #endif
 
     //-------------
     // GPU or C++
     //-------------
+
+    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
+    cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
