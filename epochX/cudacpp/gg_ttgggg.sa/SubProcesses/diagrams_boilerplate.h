@@ -36,15 +36,17 @@
     cxtype w_cx[nwf][nw6];
     fptype* w_fp[nwf];
     for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_cx[iwf] );
-#ifdef MGONGPUCPP_GPUIMPL
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic push
 #pragma nv_diag_suppress 177 // e.g. <<warning #177-D: variable "nevt" was declared but never referenced>>
 #endif
     const int nevt = gridDim.x * blockDim.x;
-#ifdef MGONGPUCPP_GPUIMPL
-#pragma GCC diagnostic pop
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
 #pragma nv_diagnostic pop
 #endif
+
+    // Local variables for the given CUDA event (ievt)
+    cxtype jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
     // Couplings
     constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823: nIPC instead of nicoup)
@@ -76,7 +78,6 @@
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
-    using J_ACCESS = HostAccessJamp;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
@@ -94,7 +95,7 @@
     // GPU or C++
     //-------------
 
-    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+    // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     cxtype_sv amp_sv[1]; // invariant amplitude for one given Feynman diagram
     fptype* amp_fp;      // proof of concept for using fptype* in the interface
     amp_fp = reinterpret_cast<fptype*>( amp_sv );

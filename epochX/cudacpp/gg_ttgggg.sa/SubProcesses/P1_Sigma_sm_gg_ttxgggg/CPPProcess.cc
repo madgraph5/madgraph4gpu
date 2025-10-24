@@ -27,7 +27,7 @@
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
 #include "color_sum.h"
-#include "diagrams_header.h"
+#include "diagrams.h"
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #include "MemoryAccessDenominators.h"
@@ -110,6 +110,9 @@ namespace mg5amcCpu
   using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
+  constexpr int nIPD = CPPProcess::nIPD; // SM independent parameters
+  constexpr int nIPC = CPPProcess::nIPC; // SM independent couplings
+
   // The number of SIMD vectors of events processed by calculate_jamps
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
   constexpr int nParity = 2;
@@ -121,21 +124,28 @@ namespace mg5amcCpu
   // For CUDA performance, hardcoded constexpr's would be better: fewer registers and a tiny throughput increase
   // However, physics parameters are user-defined through card files: use CUDA constant memory instead (issue #39)
   // [NB if hardcoded parameters are used, it's better to define them here to avoid silent shadowing (issue #263)]
-  constexpr int nIPD = 2; // SM independent parameters used in this CPPProcess.cc (FIXME? rename as sm_IndepParam?)
-  // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
-  // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
-  constexpr int nIPC = 0; // SM independent couplings used in this CPPProcess.cc (FIXME? rename as sm_IndepCoupl?)
   static_assert( nIPC <= nicoup );
   static_assert( nIPD >= 0 ); // Hack to avoid build warnings when nIPD==0 is unused
   static_assert( nIPC >= 0 ); // Hack to avoid build warnings when nIPC==0 is unused
+  // Hardcoded parameters (HRDCOD=1)
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const fptype cIPD[nIPD] = { (fptype)Parameters_sm::mdl_MT, (fptype)Parameters_sm::mdl_WT };
-  __device__ const fptype* cIPC = nullptr; // unused as nIPC=0
-#else
+  __device__ const fptype dcIPD[nIPD] = { (fptype)Parameters_sm::mdl_MT, (fptype)Parameters_sm::mdl_WT };
+  __device__ const fptype* dcIPC = nullptr; // unused as nIPC=0
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ fptype cIPD[nIPD];
-  __device__ __constant__ fptype* cIPC = nullptr; // unused as nIPC=0
+  static fptype* cIPD = nullptr; // symbol address
+  static fptype* cIPC = nullptr; // symbol address
 #else
+  static const fptype* cIPD = dcIPD;
+  static const fptype* cIPC = dcIPC;
+#endif
+  // Non-hardcoded parameters (HRDCOD=0)
+#else
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+  __device__ __constant__ fptype dcIPD[nIPD];
+  __device__ __constant__ fptype* dcIPC = nullptr; // unused as nIPC=0
+  static fptype* cIPD = nullptr; // symbol address
+  static fptype* cIPC = nullptr; // symbol address
+#else /* clang-format on */
   static fptype cIPD[nIPD];
   static fptype* cIPC = nullptr; // unused as nIPC=0
 #endif
@@ -168,11 +178,13 @@ namespace mg5amcCpu
 
   // Helicity combinations (and filtering of "good" helicity combinations)
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ short cHel[ncomb][npar];
+  __device__ __constant__ short dcHel[ncomb][npar];
   __device__ __constant__ int dcNGoodHel;
   __device__ __constant__ int dcGoodHel[ncomb];
+  static short* cHelFlat = nullptr; // symbol address
 #else
   static short cHel[ncomb][npar];
+  static short* cHelFlat = (short*)cHel;
 #endif
   static int cNGoodHel;
   static int cGoodHel[ncomb];
@@ -199,33 +211,6 @@ namespace mg5amcCpu
     }
   };
 #endif
-
-  //--------------------------------------------------------------------------
-
-#ifdef MGONGPUCPP_GPUIMPL
-  __device__ INLINE unsigned int
-  gpu_channelId( const unsigned int* allChannelIds )
-  {
-    unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    using CID_ACCESS = DeviceAccessChannelIds; // non-trivial access: buffer includes all events
-    // SCALAR channelId for the current event (CUDA)
-    if( allChannelIds != nullptr )
-    {
-      const unsigned int* channelIds = allChannelIds;                            // fix #899 (distinguish channelIds and allChannelIds)
-      const uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895 (compute this only once for all diagrams)
-      // NB: channelIds_sv is a scalar in CUDA
-      channelId = channelIds_sv;
-      assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
-    }
-#endif
-    return channelId;
-  }
-#endif
-
-  //--------------------------------------------------------------------------
-
-#include "diagrams.h"
 
   //--------------------------------------------------------------------------
 
@@ -318,7 +303,7 @@ namespace mg5amcCpu
   calculate_jamps( int ihel,
                    const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
-                   cxtype_sv* jamp_sv,                // output: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
+                   cxtype_sv* jamp_sv_1or2,           // output: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                    const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for SIMD event page(s) ievt00
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
@@ -413,12 +398,10 @@ namespace mg5amcCpu
       // (Note: no need to 'reset color flows' i.e. zero allJamps, this is done in sigmaKin and sigmaKin_getGoodHel)
 #ifdef MGONGPUCPP_GPUIMPL
       // In CUDA, write jamps to the output global-memory allJamps [for all events] passed as argument
-      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
       fptype* jamps = allJamps;
 #else
       // In C++, write jamps to the output array [for one specific event or SIMD vector] passed as argument
-      // (write directly to J_ACCESS::kernelAccessIcol( allJamps, icol ) instead of writing to jamp_sv[icol])
-      fptype* jamps = reinterpret_cast<fptype*>( iParity == 0 ? jamp_sv : &( jamp_sv[ncolor] ) );
+      cxtype_sv* jamp_sv = ( iParity == 0 ? jamp_sv_1or2 : &( jamp_sv_1or2[ncolor] ) );
 #endif
 
       // ------------------
@@ -498,21 +481,37 @@ namespace mg5amcCpu
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
       gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators, momenta, ihel );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );
       gpuGraphNode_t& node2 = graphNodes[ihel * ndiagramgroups + 1];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node2, &node1, diagramgroup2, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node2, &node1, diagramgroup2, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       gpuGraphNode_t& node3 = graphNodes[ihel * ndiagramgroups + 2];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node3, &node2, diagramgroup3, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node3, &node2, diagramgroup3, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       gpuGraphNode_t& node4 = graphNodes[ihel * ndiagramgroups + 3];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node4, &node3, diagramgroup4, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node4, &node3, diagramgroup4, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       gpuGraphNode_t& node5 = graphNodes[ihel * ndiagramgroups + 4];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node5, &node4, diagramgroup5, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node5, &node4, diagramgroup5, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       gpuGraphNode_t& node6 = graphNodes[ihel * ndiagramgroups + 5];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node6, &node5, diagramgroup6, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node6, &node5, diagramgroup6, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       gpuGraphNode_t& node7 = graphNodes[ihel * ndiagramgroups + 6];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node7, &node6, diagramgroup7, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node7, &node6, diagramgroup7, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       gpuGraphNode_t& node8 = graphNodes[ihel * ndiagramgroups + 7];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node8, &node7, diagramgroup8, gpublocks, gputhreads, gpustream, wfs, jamps, channelIds, couplings, numerators, denominators );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node8, &node7, diagramgroup8, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
+      gpuGraphNode_t& node9 = graphNodes[ihel * ndiagramgroups + 8];
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node9, &node8, diagramgroup9, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
+      gpuGraphNode_t& node10 = graphNodes[ihel * ndiagramgroups + 9];
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node10, &node9, diagramgroup10, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
+      gpuGraphNode_t& node11 = graphNodes[ihel * ndiagramgroups + 10];
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node11, &node10, diagramgroup11, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
+      gpuGraphNode_t& node12 = graphNodes[ihel * ndiagramgroups + 11];
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node12, &node11, diagramgroup12, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
+      gpuGraphNode_t& node13 = graphNodes[ihel * ndiagramgroups + 12];
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node13, &node12, diagramgroup13, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
+      gpuGraphNode_t& node14 = graphNodes[ihel * ndiagramgroups + 13];
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node14, &node13, diagramgroup14, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
+      gpuGraphNode_t& node15 = graphNodes[ihel * ndiagramgroups + 14];
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node15, &node14, diagramgroup15, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
+      gpuGraphNode_t& node16 = graphNodes[ihel * ndiagramgroups + 15];
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node16, &node15, diagramgroup16, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( useGraphs && gpustream != 0 )
       {
@@ -525,14 +524,22 @@ namespace mg5amcCpu
         checkGpu( gpuGraphLaunch( graphExec, gpustream ) );
       }
 #else
-      diagramgroup1( wfs, jamps, channelIds, COUPs, numerators, denominators, momenta, ihel );
-      diagramgroup2( wfs, jamps, channelIds, COUPs, numerators, denominators );
-      diagramgroup3( wfs, jamps, channelIds, COUPs, numerators, denominators );
-      diagramgroup4( wfs, jamps, channelIds, COUPs, numerators, denominators );
-      diagramgroup5( wfs, jamps, channelIds, COUPs, numerators, denominators );
-      diagramgroup6( wfs, jamps, channelIds, COUPs, numerators, denominators );
-      diagramgroup7( wfs, jamps, channelIds, COUPs, numerators, denominators );
-      diagramgroup8( wfs, jamps, channelIds, COUPs, numerators, denominators );
+      diagramgroup1( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );
+      diagramgroup2( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup3( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup4( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup5( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup6( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup7( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup8( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup9( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup10( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup11( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup12( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup13( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup14( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup15( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
+      diagramgroup16( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );
 #endif
     }
     // *****************************
@@ -813,7 +820,8 @@ namespace mg5amcCpu
       { 1, 1, 1, -1, 1, 1, 1, -1 },
       { 1, 1, 1, -1, 1, 1, 1, 1 } };
 #ifdef MGONGPUCPP_GPUIMPL
-    gpuMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) );
+    gpuMemcpyToSymbol( dcHel, tHel, ncomb * npar * sizeof( short ) );
+    gpuGetSymbolAddress( (void**)( &cHelFlat ), dcHel );
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
@@ -867,8 +875,10 @@ namespace mg5amcCpu
     const fptype tIPD[nIPD] = { (fptype)m_pars->mdl_MT, (fptype)m_pars->mdl_WT };
     //const cxtype tIPC[0] = { ... }; // nIPC=0
 #ifdef MGONGPUCPP_GPUIMPL
-    gpuMemcpyToSymbol( cIPD, tIPD, nIPD * sizeof( fptype ) );
-    //gpuMemcpyToSymbol( cIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0
+    gpuMemcpyToSymbol( dcIPD, tIPD, nIPD * sizeof( fptype ) );
+    //gpuMemcpyToSymbol( dcIPC, tIPC, 0 * sizeof( cxtype ) ); // nIPC=0
+    if constexpr( nIPD > 0 ) gpuGetSymbolAddress( (void**)( &cIPD ), dcIPD );
+    if constexpr( nIPC > 0 ) gpuGetSymbolAddress( (void**)( &cIPC ), dcIPC );
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_sm::nBsmIndepParam > 0 )
       gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_sm::nBsmIndepParam * sizeof( double ) );
@@ -907,6 +917,8 @@ namespace mg5amcCpu
     m_masses.push_back( Parameters_sm::ZERO );
     m_masses.push_back( Parameters_sm::ZERO );
 #ifdef MGONGPUCPP_GPUIMPL
+    if constexpr( nIPD > 0 ) gpuGetSymbolAddress( (void**)( &cIPD ), dcIPD );
+    if constexpr( nIPC > 0 ) gpuGetSymbolAddress( (void**)( &cIPC ), dcIPC );
     // Create the normalized color matrix in device memory
     createNormalizedColorMatrix();
 #endif
@@ -1128,17 +1140,17 @@ namespace mg5amcCpu
         }
         //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        cxtype_sv jamp_sv[2 * ncolor] = {}; // all zeros
+        cxtype_sv jamp_sv_1or2[2 * ncolor] = {}; // all zeros
 #else
-        cxtype_sv jamp_sv[ncolor] = {};  // all zeros
+        cxtype_sv jamp_sv_1or2[ncolor] = {}; // all zeros
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL /* clang-format off */
         constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, ievt00 ); //maxtry?
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, channelId, allNumerators, allDenominators, ievt00 ); //maxtry?
 #else
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 ); //maxtry?
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, ievt00 ); //maxtry?
 #endif /* clang-format on */
-        color_sum_cpu( allMEs, jamp_sv, ievt00 );
+        color_sum_cpu( allMEs, jamp_sv_1or2, ievt00 );
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
@@ -1525,9 +1537,9 @@ namespace mg5amcCpu
     // Delay color algebra and ME updates (only on even pages)
     assert( npagV % 2 == 0 );     // SANITY CHECK for mixed fptypes: two neppV-pages are merged to one 2*neppV-page
     const int npagV2 = npagV / 2; // loop on two SIMD pages (neppV events) at a time
-#else
-    const int npagV2 = npagV;            // loop on one SIMD page (neppV events) at a time
-#endif
+#else /* clang-format off */
+    const int npagV2 = npagV; // loop on one SIMD page (neppV events) at a time
+#endif /* clang-format on */
 #ifdef _OPENMP
     // OMP multithreading #575 (NB: tested only with gcc11 so far)
     // See https://www.openmp.org/specifications/
@@ -1549,9 +1561,9 @@ namespace mg5amcCpu
     {
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       const int ievt00 = ipagV2 * neppV * 2; // loop on two SIMD pages (neppV events) at a time
-#else
+#else /* clang-format off */
       const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
-#endif
+#endif /* clang-format on */
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // SCALAR channelId for the whole SIMD neppV2 event page (C++), i.e. one or two neppV event page(s)
       // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a neppV2 SIMD event page
@@ -1596,22 +1608,21 @@ namespace mg5amcCpu
       for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-        cxtype_sv jamp_sv[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
+        cxtype_sv jamp_sv_1or2[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, ievt00 );
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, channelId, allNumerators, allDenominators, ievt00 );
 #else
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 );
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, ievt00 );
 #endif
-        color_sum_cpu( allMEs, jamp_sv, ievt00 );
+        color_sum_cpu( allMEs, jamp_sv_1or2, ievt00 );
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
-        using J_ACCESS = HostAccessJamp;
         for( int iParity = 0; iParity < nParity; ++iParity )
           for( int icol = 0; icol < ncolor; icol++ )
-            jamp2_sv[ncolor * iParity + icol] += cxabs2( J_ACCESS::kernelAccessIcol( &( jamp_sv[ncolor * iParity] ), icol ) ); // may underflow #831
+            jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv_1or2[ncolor * iParity + icol] ); // may underflow #831
       }
       // Event-by-event random choice of helicity #403
       for( int ieppV = 0; ieppV < neppV; ++ieppV )
