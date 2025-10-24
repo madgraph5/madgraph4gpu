@@ -19,7 +19,7 @@ export MG5AMC_CHANNELID_DEBUG=1
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-ggttg5]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -38,6 +38,7 @@ heftggbb=0
 susyggtt=0
 susyggt1t1=0
 smeftggtttt=0
+ggttg5=0
 
 suffs=".mad/"
 
@@ -118,6 +119,10 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-smeftggtttt" ]; then
     if [ "$smeftggtttt" == "0" ]; then procs+=${procs:+ }$1; fi
     smeftggtttt=1
+    shift
+  elif [ "$1" == "-ggttg5" ]; then
+    if [ "$ggttg5" == "0" ]; then procs+=${procs:+ }$1; fi
+    ggttg5=1
     shift
   elif [ "$1" == "-sa" ]; then
     suffs=".sa/"
@@ -300,7 +305,7 @@ fi
 ###fi
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ] && [ "${ggttg5}" == "0" ]; then usage; fi
 
 # Define the default bblds if none are defined (use ${bbldsall} which is translated back to 'make -bldall')
 ###if [ "${bblds}" == "" ]; then bblds="cuda avx2"; fi # this fails if cuda is not installed
@@ -362,6 +367,8 @@ function showdir()
       dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_gg_t1t1x
     elif [ "${proc}" == "-smeftggtttt" ]; then 
       dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_gg_ttxttx
+    elif [ "${proc}" == "-ggttg5" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttg.dpg5dpf5${suff}SubProcesses/P1_gg_ttxg
     fi
   else
     if [ "${proc}" == "-eemumu" ]; then 
@@ -796,7 +803,7 @@ for exe in $exes; do
     ncuArgs="-p 64 256 1"
     # For ggttgg (NEW): on GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
     ###exeArgs2="-p 2048 256 1" # Sep 2025: aborts (and not needed as the plateau is reached earlier) with helicity streams
-  elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then 
+  elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then # includes gg_ttg.dpg5dpf5
     # For ggttg, as on ggttgg: this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     ###exeArgs="-p 64 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
     exeArgs="-p 64 256 10"
