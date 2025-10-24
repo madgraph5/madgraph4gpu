@@ -82,7 +82,7 @@ namespace mg5amcCpu
     static constexpr int ncolor = 2; // the number of leading colors: e.g. 1 for e+ e- -> mu+ mu-
 
     // Process-dependent (and generation-choice-dependent) compile-time constants
-    static constexpr int ndiagramgroups = 1; // #groups of Feynman diagrams (with at most 100 diagrams per group)
+    static constexpr int ndiagramgroups = 1; // #groups of Feynman diagrams (with at most 2000 diagrams per group)
 
     // Hardcoded parameters for this process (constant class variables)
     // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]

@@ -574,7 +574,7 @@ ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 3 routines in  0.174 s
+ALOHA: aloha creates 3 routines in  0.176 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
@@ -590,7 +590,7 @@ INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in dire
 INFO: /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/. and /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/. 
 quit
 
-real	0m1.274s
-user	0m1.208s
-sys	0m0.059s
-Code generation completed in 1 seconds
+real	0m1.276s
+user	0m1.209s
+sys	0m0.061s
+Code generation completed in 2 seconds

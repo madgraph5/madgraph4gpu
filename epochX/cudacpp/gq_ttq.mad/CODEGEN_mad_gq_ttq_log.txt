@@ -57,7 +57,7 @@ set zerowidth_tchannel F
 define q = u c d s u~ c~ d~ s~
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005343198776245117 [0m
+[1;32mDEBUG: model prefixing  takes 0.005233287811279297 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -166,7 +166,7 @@ INFO: Crossed process found for g u~ > t t~ u~, reuse diagrams.
 INFO: Crossed process found for g c~ > t t~ c~, reuse diagrams. 
 INFO: Crossed process found for g d~ > t t~ d~, reuse diagrams. 
 INFO: Crossed process found for g s~ > t t~ s~, reuse diagrams. 
-8 processes with 40 diagrams generated in 0.077 s
+8 processes with 40 diagrams generated in 0.079 s
 Total: 8 processes with 40 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_gq_ttq --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -215,15 +215,15 @@ INFO: Finding symmetric diagrams for subprocess group gux_ttxux
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1771][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5} [1;30m[model_handling.py at line 1772][0m [0m
 Generated helas calls for 2 subprocesses (10 diagrams) in 0.030 s
-Wrote files for 32 helas calls in 0.166 s
+Wrote files for 32 helas calls in 0.164 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.138 s
+ALOHA: aloha creates 2 routines in  0.139 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVV1 routines[0m
-ALOHA: aloha creates 4 routines in  0.125 s
+ALOHA: aloha creates 4 routines in  0.127 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -263,9 +263,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.191s
-user	0m1.881s
-sys	0m0.307s
+real	0m2.205s
+user	0m1.899s
+sys	0m0.305s
 Code generation completed in 2 seconds
 ************************************************************
 *                                                          *
