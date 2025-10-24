@@ -2169,17 +2169,23 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     // *** STORE JAMPS ***
     // In CUDA, copy the local jamp to the output global-memory jamp
     for( int icol = 0; icol < ncolor; icol++ )
-      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps""")
+      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps
+#else
+    // In C++, copy the local jamp to the output array passed as function argument
+    for( int icol = 0; icol < ncolor; icol++ )
+      jamps[icol] = jamp_sv[icol]; // set jamps
+#endif
+""")
         else:
             res2.append("""#ifdef MGONGPUCPP_GPUIMPL
     // *** STORE JAMPS ***
     // In CUDA, copy the local jamp to the output global-memory jamp
     for( int icol = 0; icol < ncolor; icol++ )
-      J_ACCESS::kernelAccessIcol( jamps, icol ) += jamp_sv[icol]; // update jamps""")
-        res2.append("""#else
+      J_ACCESS::kernelAccessIcol( jamps, icol ) += jamp_sv[icol]; // update jamps
+#else
     // In C++, copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
-      jamps[icol] = jamp_sv[icol];
+      jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
 """)
         if idiagramgroup == self.ndiagramgroups:
