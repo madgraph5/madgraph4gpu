@@ -2089,7 +2089,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                 cxtype_sv* jamp_sv,             // output jamps[ncolor*2*neppV]
+                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2167,15 +2167,19 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         if idiagramgroup == 1:
             res2.append("""#ifdef MGONGPUCPP_GPUIMPL
     // *** STORE JAMPS ***
+    // In CUDA, copy the local jamp to the output global-memory jamp
     for( int icol = 0; icol < ncolor; icol++ )
-      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps
-#endif
-""")
+      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps""")
         else:
             res2.append("""#ifdef MGONGPUCPP_GPUIMPL
     // *** STORE JAMPS ***
+    // In CUDA, copy the local jamp to the output global-memory jamp
     for( int icol = 0; icol < ncolor; icol++ )
-      J_ACCESS::kernelAccessIcol( jamps, icol ) += jamp_sv[icol]; // update jamps
+      J_ACCESS::kernelAccessIcol( jamps, icol ) += jamp_sv[icol]; // update jamps""")
+        res2.append("""#else
+    // In C++, copy the local jamp to the output array passed as function argument
+    for( int icol = 0; icol < ncolor; icol++ )
+      jamps[icol] = jamp_sv[icol];
 #endif
 """)
         if idiagramgroup == self.ndiagramgroups:
