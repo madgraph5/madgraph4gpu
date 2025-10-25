@@ -764,6 +764,8 @@ for exe in $exes; do
   elif [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" != "1" ]; then
     if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
     if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
+  elif [ "${exe%%/check_hip*}" != "${exe}" ] && [ "${exe%%/hrd1/}" != "${exe}" ]; then
+    echo "$exe is not supported (HRDCOD=1 is no longer supported on HIP)"; continue
   fi
   if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]] && [ "$gpuTxt" == "none" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   if [ "${exe%%/heft_gg_bb*}" != "${exe}" ]; then 
