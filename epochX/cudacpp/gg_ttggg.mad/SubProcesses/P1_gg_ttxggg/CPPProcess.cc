@@ -742,6 +742,10 @@ namespace mg5amcCpu
     m_masses.push_back( Parameters_sm::ZERO );
     m_masses.push_back( Parameters_sm::ZERO );
 #ifdef MGONGPUCPP_GPUIMPL
+#ifdef __HIPCC__
+#warning HRDCOD=1 in CUDACPP is no longer supported on HIP
+#warning This code builds but fails at runtime "Cannot create GlobalVar Obj for symbol: _ZN9mg5amcGpuL5dcIPDE"
+#endif
     if constexpr( nIPD > 0 ) gpuGetSymbolAddress( (void**)( &cIPD ), dcIPD );
     if constexpr( nIPC > 0 ) gpuGetSymbolAddress( (void**)( &cIPC ), dcIPC );
     // Create the normalized color matrix in device memory
