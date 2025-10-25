@@ -58,7 +58,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005306720733642578 [0m
+[1;32mDEBUG: model prefixing  takes 0.005390167236328125 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -209,7 +209,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 5 routines in  0.311 s
+ALOHA: aloha creates 5 routines in  0.310 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
@@ -257,10 +257,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.576s
-user	0m2.265s
-sys	0m0.310s
-Code generation completed in 3 seconds
+real	0m4.082s
+user	0m2.282s
+sys	0m0.291s
+Code generation completed in 4 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *

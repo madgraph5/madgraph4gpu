@@ -55,6 +55,10 @@ set stdout_level DEBUG
 set output information to level: 10
 set zerowidth_tchannel F
 import model MSSM_SLHA2
+INFO: reload from .py file 
+INFO: load particles 
+INFO: load vertices 
+[1;32mDEBUG: model prefixing  takes 0.8997611999511719 [0m
 INFO: Restrict model MSSM_SLHA2 with file models/MSSM_SLHA2/restrict_default.dat . 
 INFO: Detect SLHA2 format. keeping restricted parameter in the param_card 
 [1;32mDEBUG: Simplifying conditional expressions [0m
@@ -550,7 +554,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ WEIGHTED<=2 @1  
 INFO: Process has 3 diagrams 
-1 processes with 3 diagrams generated in 0.106 s
+1 processes with 3 diagrams generated in 0.095 s
 Total: 1 processes with 3 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_susy_gg_tt
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -573,7 +577,7 @@ Generated helas calls for 1 subprocesses (3 diagrams) in 0.006 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.130 s
+ALOHA: aloha creates 2 routines in  0.131 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -588,7 +592,7 @@ INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in dire
 INFO: /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/. and /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/. 
 quit
 
-real	0m1.221s
-user	0m1.153s
-sys	0m0.062s
-Code generation completed in 1 seconds
+real	0m2.294s
+user	0m2.208s
+sys	0m0.069s
+Code generation completed in 3 seconds
