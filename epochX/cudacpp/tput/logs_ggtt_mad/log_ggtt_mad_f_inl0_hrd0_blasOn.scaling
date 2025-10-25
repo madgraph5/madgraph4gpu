@@ -1,156 +1,202 @@
 MADGRAPH_CUDA_ARCHITECTURE=
-MADGRAPH_HIP_ARCHITECTURE=gfx90a
+MADGRAPH_HIP_ARCHITECTURE=
 
 HASBLAS=hasBlas
-Building in /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx
-BACKEND=cppavx2 (was cppauto)
+Building in /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx
+BACKEND=cpp512y (was cppauto)
 OMPFLAGS=
 FPTYPE='m'
 HELINL='0'
 HRDCOD='0'
-HASCURAND=hasNoCurand
+HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.auto_m_inl0_hrd0 for tag=avx2_m_inl0_hrd0_hasNoCurand_hasNoHiprand (USEBUILDDIR == 1)
+Building in BUILDDIR=build.auto_m_inl0_hrd0 for tag=512y_m_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
 make: Nothing to be done for 'gtestlibs'.
-BACKEND='hip'
+BACKEND=cpp512y (was cppauto)
 OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
-HASCURAND=hasNoCurand
-HASHIPRAND=hasHiprand
+HASCURAND=hasCurand
+HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.hip_f_inl0_hrd0 for tag=hip_f_inl0_hrd0_hasNoCurand_hasHiprand (USEBUILDDIR == 1)
-make: Nothing to be done for 'all.hip_f_inl0_hrd0_hasNoCurand_hasHiprand'.
+Building in BUILDDIR=build.auto_f_inl0_hrd0 for tag=512y_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
 
+make USEBUILDDIR=1 BACKEND=cuda -f cudacpp.mk
+make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+BACKEND='cuda'
+OMPFLAGS=
+FPTYPE='f'
+HELINL='0'
+HRDCOD='0'
+HASCURAND=hasCurand
+HASHIPRAND=hasNoHiprand
+HASBLAS=hasBlas
+Building in BUILDDIR=build.cuda_f_inl0_hrd0 for tag=cuda_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.cuda_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
+
+make USEBUILDDIR=1 BACKEND=cppnone -f cudacpp.mk
+make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 BACKEND='cppnone'
 OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
-HASCURAND=hasNoCurand
+HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.none_f_inl0_hrd0 for tag=none_f_inl0_hrd0_hasNoCurand_hasNoHiprand (USEBUILDDIR == 1)
-make: Nothing to be done for 'all.none_f_inl0_hrd0_hasNoCurand_hasNoHiprand'.
+Building in BUILDDIR=build.none_f_inl0_hrd0 for tag=none_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.none_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 
+make USEBUILDDIR=1 BACKEND=cppsse4 -f cudacpp.mk
+make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 BACKEND='cppsse4'
 OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
-HASCURAND=hasNoCurand
+HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.sse4_f_inl0_hrd0 for tag=sse4_f_inl0_hrd0_hasNoCurand_hasNoHiprand (USEBUILDDIR == 1)
-make: Nothing to be done for 'all.sse4_f_inl0_hrd0_hasNoCurand_hasNoHiprand'.
+Building in BUILDDIR=build.sse4_f_inl0_hrd0 for tag=sse4_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.sse4_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 
+make USEBUILDDIR=1 BACKEND=cppavx2 -f cudacpp.mk
+make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 BACKEND='cppavx2'
 OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
-HASCURAND=hasNoCurand
+HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.avx2_f_inl0_hrd0 for tag=avx2_f_inl0_hrd0_hasNoCurand_hasNoHiprand (USEBUILDDIR == 1)
-make: Nothing to be done for 'all.avx2_f_inl0_hrd0_hasNoCurand_hasNoHiprand'.
+Building in BUILDDIR=build.avx2_f_inl0_hrd0 for tag=avx2_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.avx2_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 
+make USEBUILDDIR=1 BACKEND=cpp512y -f cudacpp.mk
+make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 BACKEND='cpp512y'
 OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
-HASCURAND=hasNoCurand
+HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.512y_f_inl0_hrd0 for tag=512y_f_inl0_hrd0_hasNoCurand_hasNoHiprand (USEBUILDDIR == 1)
-make: Nothing to be done for 'all.512y_f_inl0_hrd0_hasNoCurand_hasNoHiprand'.
+Building in BUILDDIR=build.512y_f_inl0_hrd0 for tag=512y_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.512y_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 
+make USEBUILDDIR=1 BACKEND=cpp512z -f cudacpp.mk
+make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 BACKEND='cpp512z'
 OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
-HASCURAND=hasNoCurand
+HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.512z_f_inl0_hrd0 for tag=512z_f_inl0_hrd0_hasNoCurand_hasNoHiprand (USEBUILDDIR == 1)
-make: Nothing to be done for 'all.512z_f_inl0_hrd0_hasNoCurand_hasNoHiprand'.
+Building in BUILDDIR=build.512z_f_inl0_hrd0 for tag=512z_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.512z_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 
-DATE: 2025-10-24_15:20:42
+DATE: 2025-10-24_14:40:53
 
 HASBLAS=hasBlas
 CUDACPP_RUNTIME_BLASCOLORSUM=1
 CUDACPP_RUNTIME_CUBLASTF32TENSOR=
 CUDACPP_RUNTIME_GPUGRAPHS=
-On uan02 [CPU: AMD EPYC 7A53 64-Core Processor] [GPU: AMD INSTINCT MI200]:
+On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
-scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.hip_f_inl0_hrd0/check_hip.exe
+scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.cuda_f_inl0_hrd0/check_cuda.exe
 ### GPU: scaling test 256 (1 cycle)
-7.422405e+01    1 256
-1.495741e+02    2 256
-2.991527e+02    4 256
-5.968289e+02    8 256
-1.159387e+03   16 256
-2.350486e+03   32 256
-4.785297e+03   64 256
-9.143005e+03  128 256
-1.769342e+04  256 256
-3.756675e+04  512 256
-7.408528e+04 1024 256
-### GPU: scaling test 64 (1 cycle)
-1.689232e+01    1  64
-3.684272e+01    2  64
-7.504614e+01    4  64
-1.486380e+02    8  64
-2.904098e+02   16  64
-4.720488e+02   32  64
-1.173777e+03   64  64
-2.384263e+03  128  64
-4.665512e+03  256  64
-9.574918e+03  512  64
-1.812764e+04 1024  64
-3.752524e+04 2048  64
-7.458335e+04 4096  64
+2.773291e+05    1 256
+5.765220e+05    2 256
+1.069479e+06    4 256
+1.853028e+06    8 256
+3.321532e+06   16 256
+5.577801e+06   32 256
+8.158538e+06   64 256
+1.079676e+07  128 256
+1.241476e+07  256 256
+1.350695e+07  512 256
+1.387670e+07 1024 256
+### GPU: scaling test 32 (1 cycle)
+3.398330e+04    1  32
+7.295675e+04    2  32
+1.461076e+05    4  32
+2.928285e+05    8  32
+5.675551e+05   16  32
+1.054254e+06   32  32
+1.849402e+06   64  32
+3.318421e+06  128  32
+5.559156e+06  256  32
+8.315523e+06  512  32
+1.097185e+07 1024  32
+1.246047e+07 2048  32
+1.338372e+07 4096  32
+1.372364e+07 8192  32
 =========================================================================
-scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.none_f_inl0_hrd0/check_cpp.exe
+scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.hip_f_inl0_hrd0/check_hip.exe
+Not found: /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.hip_f_inl0_hrd0/check_hip.exe
+=========================================================================
+scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.none_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-2.098466e+05    1 256
-2.407192e+05    2 256
-2.562068e+05    4 256
+1.769639e+05    1 256
+1.833049e+05    2 256
+1.871537e+05    4 256
 ### CPU: scaling test 32
-2.578753e+05    1  32
-2.544236e+05    2  32
-2.556819e+05    4  32
+1.711715e+05    1  32
+1.738601e+05    2  32
+1.743770e+05    4  32
 =========================================================================
-scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.sse4_f_inl0_hrd0/check_cpp.exe
+scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.sse4_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-5.544774e+05    1 256
-5.545735e+05    2 256
-5.525580e+05    4 256
+4.163326e+05    1 256
+4.042580e+05    2 256
+4.403135e+05    4 256
 ### CPU: scaling test 32
-5.429803e+05    1  32
-5.249473e+05    2  32
-5.264847e+05    4  32
+3.817522e+05    1  32
+4.049480e+05    2  32
+4.145655e+05    4  32
 =========================================================================
-scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.avx2_f_inl0_hrd0/check_cpp.exe
+scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.avx2_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-1.036353e+06    1 256
-1.162514e+06    2 256
-1.273074e+06    4 256
+8.703753e+05    1 256
+9.715223e+05    2 256
+9.713140e+05    4 256
 ### CPU: scaling test 32
-1.218073e+06    1  32
-1.242718e+06    2  32
-1.258505e+06    4  32
+9.648726e+05    1  32
+9.970866e+05    2  32
+9.098017e+05    4  32
 =========================================================================
-scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.512y_f_inl0_hrd0/check_cpp.exe
-/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.512y_f_inl0_hrd0/check_cpp.exe is not supported (no avx512vl in /proc/cpuinfo)
+scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.512y_f_inl0_hrd0/check_cpp.exe
+### CPU: scaling test 256
+1.040333e+06    1 256
+1.065308e+06    2 256
+1.055764e+06    4 256
+### CPU: scaling test 32
+6.612253e+05    1  32
+1.054036e+06    2  32
+1.003268e+06    4  32
 =========================================================================
-scalingTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.512z_f_inl0_hrd0/check_cpp.exe
-/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.512z_f_inl0_hrd0/check_cpp.exe is not supported (no avx512vl in /proc/cpuinfo)
+scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.512z_f_inl0_hrd0/check_cpp.exe
+### CPU: scaling test 256
+6.695787e+05    1 256
+7.585197e+05    2 256
+7.553784e+05    4 256
+### CPU: scaling test 32
+6.234171e+05    1  32
+6.936918e+05    2  32
+6.521562e+05    4  32
 =========================================================================
 
-DATE: 2025-10-24_15:22:26
+DATE: 2025-10-24_14:41:33
 TEST COMPLETED
