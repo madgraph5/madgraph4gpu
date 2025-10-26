@@ -467,8 +467,10 @@ namespace mg5amcGpu
     if( m_blasColorSum )
     {
       checkGpuBlas( gpuBlasCreate( &m_blasHandle ) );
+#ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
       if( m_blasTf32Tensor )
         checkGpuBlas( cublasSetMathMode( m_blasHandle, CUBLAS_TF32_TENSOR_OP_MATH ) ); // enable TF32 tensor cores
+#endif
     }
 #endif
     // ... Create the "many-helicity" super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)
