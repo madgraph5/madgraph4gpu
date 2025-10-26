@@ -19,7 +19,7 @@ export MG5AMC_CHANNELID_DEBUG=1
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-ggttg5]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -38,6 +38,7 @@ heftggbb=0
 susyggtt=0
 susyggt1t1=0
 smeftggtttt=0
+ggttg5=0
 
 suffs=".mad/"
 
@@ -53,6 +54,8 @@ rmbsmp=""
 
 blas="" # build with blas but disable it at runtime
 
+graphs=""
+
 maketype=
 makej=
 
@@ -67,9 +70,9 @@ verbose=0
 
 dlp=
 
-# Optional hack to build only the cudacpp plugin (without building the madevent code) in .mad directories
-makef=
-###makef="-f Makefile"
+# Hack to build only the cudacpp plugin (without building the madevent code) in .mad directories
+###makef=
+makef="-f cudacpp.mk"
 
 # (Was: workaround to allow 'make avxall' when '-avxall' is specified #536)
 bbldsall="cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z"
@@ -116,6 +119,10 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-smeftggtttt" ]; then
     if [ "$smeftggtttt" == "0" ]; then procs+=${procs:+ }$1; fi
     smeftggtttt=1
+    shift
+  elif [ "$1" == "-ggttg5" ]; then
+    if [ "$ggttg5" == "0" ]; then procs+=${procs:+ }$1; fi
+    ggttg5=1
     shift
   elif [ "$1" == "-sa" ]; then
     suffs=".sa/"
@@ -222,6 +229,9 @@ while [ "$1" != "" ]; do
     if [ "${blas}" == "-noBlas" ]; then echo "ERROR! Options -noBlas and -blasOn are incompatible"; usage; fi
     blas=$1    
     shift
+  elif [ "$1" == "-useGraphs" ]; then
+    graphs=$1    
+    shift
   elif [ "$1" == "-makeonly" ] || [ "$1" == "-makeclean" ] || [ "$1" == "-makecleanonly" ] || [ "$1" == "-dryrun" ]; then
     if [ "${maketype}" != "" ] && [ "${maketype}" != "$1" ]; then
       echo "ERROR! Options -makeonly, -makeclean, -makecleanonly and -dryrun are incompatible"; usage
@@ -295,7 +305,7 @@ fi
 ###fi
 
 # Check that at least one process has been selected
-if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ]; then usage; fi
+if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ "${ggttgg}" == "0" ] && [ "${ggttggg}" == "0" ] && [ "${gqttq}" == "0" ] && [ "${heftggbb}" == "0" ] && [ "${susyggtt}" == "0" ] && [ "${susyggt1t1}" == "0" ] && [ "${smeftggtttt}" == "0" ] && [ "${ggttg5}" == "0" ]; then usage; fi
 
 # Define the default bblds if none are defined (use ${bbldsall} which is translated back to 'make -bldall')
 ###if [ "${bblds}" == "" ]; then bblds="cuda avx2"; fi # this fails if cuda is not installed
@@ -357,6 +367,8 @@ function showdir()
       dir=$topdir/epochX/${bckend}/susy_gg_t1t1${suff}SubProcesses/P1_gg_t1t1x
     elif [ "${proc}" == "-smeftggtttt" ]; then 
       dir=$topdir/epochX/${bckend}/smeft_gg_tttt${suff}SubProcesses/P1_gg_ttxttx
+    elif [ "${proc}" == "-ggttg5" ]; then 
+      dir=$topdir/epochX/${bckend}/gg_ttg.dpg5dpf5${suff}SubProcesses/P1_gg_ttxg
     fi
   else
     if [ "${proc}" == "-eemumu" ]; then 
@@ -533,6 +545,13 @@ echo CUDACPP_RUNTIME_BLASCOLORSUM=${CUDACPP_RUNTIME_BLASCOLORSUM}
 unset CUDACPP_RUNTIME_CUBLASTF32TENSOR
 echo CUDACPP_RUNTIME_CUBLASTF32TENSOR=${CUDACPP_RUNTIME_CUBLASTF32TENSOR}
 
+if [ "${graphs}" != "" ]; then
+  export CUDACPP_RUNTIME_GPUGRAPHS=1
+else
+  unset CUDACPP_RUNTIME_GPUGRAPHS
+fi
+echo CUDACPP_RUNTIME_GPUGRAPHS=${CUDACPP_RUNTIME_GPUGRAPHS}
+
 function runExe() {
   exe1=$1
   args="$2"
@@ -627,12 +646,13 @@ function runNcu() {
   exe1=$1
   args="$2"
   args="$args$rndgen$rmbsmp"
-  echo "runNcu $exe1 $args"
   ###echoblas=1
-  kernels="calculate_jamps color_sum_kernel"
+  ###kernels="calculate_jamps color_sum_kernel" # before kernel splitting
+  kernels="diagramgroup1 diagramgroup2 color_sum_kernel" # with kernel splitting
   ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels kernel"; fi # heavy to profile...
   ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels regex:gemm"; fi # output to be improved...
   for kernel in $kernels; do
+    echo "runNcu $exe1 $args [profile kernel $kernel]"
     if [ "${verbose}" == "1" ]; then set -x; fi
     #$(which ncu) --metrics launch__registers_per_thread,sm__sass_average_branch_targets_threads_uniform.pct --target-processes all --kernel-id "::${kernel}:" --kernel-name-base function $exe1 $args | egrep '(calculate_jamps|registers| sm)' | tr "\n" " " | awk '{print $1, $2, $3, $15, $17; print $1, $2, $3, $18, $20$19}'
     set +e # do not fail on error
@@ -744,6 +764,8 @@ for exe in $exes; do
   elif [ "$(grep -m1 -c avx512vl /proc/cpuinfo)" != "1" ]; then
     if [ "${exe/build.512y}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
     if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
+  elif [ "${exe%%/check_hip*}" != "${exe}" ] && [ "${exe%%/hrd1/}" != "${exe}" ]; then
+    echo "$exe is not supported (HRDCOD=1 is no longer supported on HIP)"; continue
   fi
   if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]] && [ "$gpuTxt" == "none" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   if [ "${exe%%/heft_gg_bb*}" != "${exe}" ]; then 
@@ -755,7 +777,7 @@ for exe in $exes; do
     exeArgs="-p 1 256 2"
     ncuArgs="-p 1 256 1"
     # For smeftggtttt, use the same settings as for ggttggg (may be far too short!)
-    exeArgs2="-p 64 256 1"
+    ###exeArgs2="-p 64 256 1" # Sep 2025: aborts (and not needed as the plateau is reached earlier) with helicity streams and diagram kernel splitting
   elif [ "${exe%%/susy_gg_tt*}" != "${exe}" ]; then 
     # For susyggtt, use the same settings as for SM ggtt
     exeArgs="-p 2048 256 2"
@@ -769,27 +791,27 @@ for exe in $exes; do
     exeArgs="-p 64 256 10"
     ncuArgs="-p 64 256 1"
     # For gqttq, use the same settings as for ggttg
-    exeArgs2="-p 2048 256 1"
+    ###exeArgs2="-p 2048 256 1" # Sep 2025: remove this for consistency as all others were removed (and not needed as the plateau is reached earlier)
   elif [ "${exe%%/gg_ttggg*}" != "${exe}" ]; then 
     # For ggttggg: this is far too little for GPU (4.8E2), but it keeps the CPU to a manageble level (1sec with 512y)
     ###exeArgs="-p 1 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
     exeArgs="-p 1 256 2"
     ncuArgs="-p 1 256 1"
     # For ggttggg: on GPU test also "64 256" to reach the plateau (only ~5% lower than "2048 256": 1.18E4 vs 1.25E4 on cuda116/gcc102)
-    exeArgs2="-p 64 256 1"
+    ###exeArgs2="-p 64 256 1" # Sep 2025: aborts (and not needed as the plateau is reached earlier) with helicity streams and diagram kernel splitting
   elif [ "${exe%%/gg_ttgg*}" != "${exe}" ]; then 
     # For ggttgg (OLD): this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     exeArgs="-p 64 256 1"
     ncuArgs="-p 64 256 1"
     # For ggttgg (NEW): on GPU test both "64 256" and "2048 256" for ggttgg as the latter gives ~10% higher throughput on cuda110/gcc92
-    ###exeArgs2="-p 2048 256 1" # Sep 2025: this aborts (and is not needed as the plateau is reached earlier) with helicity streams
-  elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then 
+    ###exeArgs2="-p 2048 256 1" # Sep 2025: aborts (and not needed as the plateau is reached earlier) with helicity streams
+  elif [ "${exe%%/gg_ttg*}" != "${exe}" ]; then # includes gg_ttg.dpg5dpf5
     # For ggttg, as on ggttgg: this is a good GPU middle point: tput is 1.5x lower with "32 256 1", only a few% higher with "128 256 1"
     ###exeArgs="-p 64 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
     exeArgs="-p 64 256 10"
     ncuArgs="-p 64 256 1"
     # For ggttg, as on ggttgg: on GPU test both "64 256" and "2048 256" for ggttg as the latter gives ~10% higher throughput on cuda110/gcc92
-    exeArgs2="-p 2048 256 1"
+    ###exeArgs2="-p 2048 256 1" # Sep 2025: aborts (and not needed as the plateau is reached earlier) with helicity streams and diagram kernel splitting
   elif [ "${exe%%/gg_tt*}" != "${exe}" ]; then 
     ###exeArgs="-p 2048 256 1" # too short! see https://its.cern.ch/jira/browse/BMK-1056
     exeArgs="-p 2048 256 2"
@@ -869,16 +891,20 @@ for exe in $exesSc; do
   unset OMP_NUM_THREADS
   # Scaling test with 256 threads per block
   if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]]; then
-    echo "### GPU: scaling test 256"
-    for b in 1 2 4 8 16 32 64 128 256 512 1024; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ) |& sed "s/Gpu.*Assert/Assert/" |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done
-    if [[ "${exe%%/check_hip*}" != "${exe}" ]]; then
-      echo "### GPU: scaling test 64"
-      for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096; do ( $exe -p $b 64 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 64}" ) |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done # HIP (AMD GPU warp size is 32)
-    else
-      echo "### GPU: scaling test 32"
-      for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192; do ( $exe -p $b 32 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ) |& sed "s/Gpu.*Assert/Assert/"; done # CUDA (NVidia GPU warp size is 32)
-    fi
-  else
+    if [ "${graphs}" == "" ]; then ncycles="1"; else ncycles="1 10"; fi
+    for ncycle in $ncycles; do
+      if [ "${ncycle}" == "1" ]; then cycletxt="(1 cycle)"; else cycletxt="(${ncycle} cycles)"; fi
+      echo "### GPU: scaling test 256 ${cycletxt}"
+      for b in 1 2 4 8 16 32 64 128 256 512 1024; do ( $exe -p $b 256 ${ncycle} | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ) |& sed "s/Gpu.*Assert/Assert/" |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done
+      if [[ "${exe%%/check_hip*}" != "${exe}" ]]; then
+        echo "### GPU: scaling test 64 ${cycletxt}"
+        for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096; do ( $exe -p $b 64 ${ncycle} | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 64}" ) |& sed 's/.*rocdevice.cpp.*Aborting.*/rocdevice.cpp: Aborting/'; done # HIP (AMD GPU warp size is 32)
+      else
+        echo "### GPU: scaling test 32 ${cycletxt}"
+        for b in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192; do ( $exe -p $b 32 ${ncycle} | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 32}" ) |& sed "s/Gpu.*Assert/Assert/"; done # CUDA (NVidia GPU warp size is 32)
+      fi
+    done
+  elif [ "${graphs}" == "" ]; then
     echo "### CPU: scaling test 256"
     for b in 1 2 4; do ( $exe -p $b 256 1 | \grep "EvtsPerSec\[MECalcOnly\]" | awk -vb=$b "{printf \"%s %4d %3d\n\", \$5, b, 256}" ); done
     echo "### CPU: scaling test 32"
@@ -888,4 +914,5 @@ done
 echo "========================================================================="
 
 # Workaround for reading of data files
+printf "\nDATE: $(date '+%Y-%m-%d_%H:%M:%S')"
 printf "\nTEST COMPLETED\n"

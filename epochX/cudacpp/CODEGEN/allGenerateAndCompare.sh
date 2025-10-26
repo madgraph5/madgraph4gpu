@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Oct 2023) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 set -e # fail on error
 
@@ -72,5 +72,7 @@ if [ "${bsm}" != "-bsmonly" ]; then
   ./CODEGEN/generateAndCompare.sh -q gg_tt01g --mad
 
   ./CODEGEN/generateAndCompare.sh -q pp_tt012j --mad
+
+  ./CODEGEN/generateAndCompare.sh --mad gg_ttg --maxdiagpergroup 5 --mindiagperfile 5
 
 fi

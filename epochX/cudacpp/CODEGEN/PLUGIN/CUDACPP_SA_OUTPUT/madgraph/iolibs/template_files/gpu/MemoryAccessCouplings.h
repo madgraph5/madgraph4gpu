@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Dec 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Roiser, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Roiser, A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef MemoryAccessCouplings_H
 #define MemoryAccessCouplings_H 1
@@ -235,7 +235,7 @@ namespace mg5amcCpu
       /*
       fptype_sv& real = kernelAccessIx2( buffer, 0 );
       fptype_sv& imag = kernelAccessIx2( buffer, 1 );
-      printf( "C_ACCESS::kernelAccess: pbuffer=%%p pr=%%p pi=%%p\n", buffer, &real, &imag );
+      printf( "CD_ACCESS::kernelAccess: pbuffer=%%p pr=%%p pi=%%p\n", buffer, &real, &imag );
       return cxtype_sv_ref( real, imag );
       */
       return cxtype_sv_ref( kernelAccessIx2( buffer, 0 ),
@@ -250,7 +250,7 @@ namespace mg5amcCpu
       /*
       const fptype_sv& real = kernelAccessIx2Const( buffer, 0 );
       const fptype_sv& imag = kernelAccessIx2Const( buffer, 1 );
-      printf( "C_ACCESS::kernelAccessConst: pbuffer=%%p pr=%%p pi=%%p\n", buffer, &real, &imag );
+      printf( "CD_ACCESS::kernelAccessConst: pbuffer=%%p pr=%%p pi=%%p\n", buffer, &real, &imag );
       return cxtype_sv( real, imag );
       */
       return cxtype_sv( kernelAccessIx2Const( buffer, 0 ),
