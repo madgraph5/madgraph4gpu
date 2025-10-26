@@ -6890,8 +6890,9 @@ class AskforEditCard(cmd.OneLinePathCompletion):
         else:
             log_level=20
 
-
-        if run_card:
+        if run_card and (run_card['lpp1'] !=0 or run_card['lpp2'] !=0):
+            # They are likely case like lpp=+-3, where alpas not need reset
+            # but those have dedicated name of pdf avoid the reset
             as_for_pdf = {'cteq6_m': 0.118,
                           'cteq6_d': 0.118, 
                           'cteq6_l': 0.118, 

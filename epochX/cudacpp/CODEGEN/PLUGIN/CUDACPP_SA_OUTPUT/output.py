@@ -123,7 +123,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt', s+'gpu/valgrind.h',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
-                                      s+'gpu/cudacpp_overlay.mk',
+                                      s+'gpu/cudacpp_overlay.mk', s+'gpu/makefile_wrapper.mk',
                                       s+'CMake/SubProcesses/CMakeLists.txt'],
                      'test': [s+'gpu/cudacpp_test.mk']}
 
@@ -244,35 +244,13 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             outputflags is a list of options provided when doing the output command"""
         ###misc.sprint('Entering PLUGIN_ProcessExporter.finalize', self.in_madevent_mode, type(self))
         if self.in_madevent_mode:
-            # if 'CUDACPP_CODEGEN_PATCHLEVEL' in os.environ: patchlevel = os.environ['CUDACPP_CODEGEN_PATCHLEVEL']
-            # else: patchlevel = ''
-            # OLDEST implementation (AV)
-            #path = os.path.realpath(os.curdir + os.sep + 'PLUGIN' + os.sep + 'CUDACPP_OUTPUT')
-            #misc.sprint(path)
-            #if os.system(path + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
-            #    logger.debug("####### \n stdout is \n %s", stdout)
-            #    logger.info("####### \n stderr is \n %s", stderr)
-            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')
-            # OLD implementation (SH PR #762)
-            #if os.system(PLUGINDIR + os.sep + 'patchMad.sh ' + self.dir_path + ' PROD ' + patchlevel) != 0:
-            #    logger.debug("####### \n stdout is \n %s", stdout)
-            #    logger.info("####### \n stderr is \n %s", stderr)
-            #    raise Exception('ERROR! the O/S call to patchMad.sh failed')
-            # NEW implementation (OM PR #764)
-            # **NB** AV: change the Popen call to always dump stdout and stderr, because I want to always see the output
-            # **NB** AV: this also allows error checking by looking for error strings on the generation log if patchMad.sh silently fails
-            # **NB** AV: (e.g. this did happen in the past, when patchMad.sh was calling 'madevent treatcards run', and the latter silently failed)
-            # plugin_path = os.path.dirname(os.path.realpath( __file__ ))
-            ###p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)],
-            ###                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            # p = subprocess.Popen([pjoin(plugin_path, 'patchMad.sh'), self.dir_path , 'PROD', str(patchlevel)]) # AV always dump patchMad.sh stdout/stderr
-            # stdout, stderr = p.communicate()
-            # misc.sprint(p.returncode)
-            # if p.returncode != 0: # AV: WARNING! do not fully trust this check! patchMad.sh was observed to silently fail in the past...
-            #     logger.debug("####### \n stdout is \n %s", stdout)
-            #     logger.info("####### \n stderr is \n %s", stderr)
-            #     logger.info("return code is %s\n", p.returncode)
-            #     raise Exception('ERROR! the O/S call to patchMad.sh failed')
+            # Modify makefiles and symlinks to avoid doing
+            # make -f makefile -f cudacpp_overlay.mk to include the overlay
+            # and instead just use `make`, see #1052
+            subprocesses_dir = pjoin(self.dir_path, "SubProcesses")
+            files.cp(pjoin(subprocesses_dir, "makefile"), pjoin(subprocesses_dir, "makefile_original.mk"))
+            files.rm(pjoin(subprocesses_dir, "makefile"))
+            files.ln(pjoin(subprocesses_dir, "makefile_wrapper.mk"), subprocesses_dir, 'makefile')
 
             patch_coupl_write = r"""set -euo pipefail
 # Get last fields from lines starting with WRITE(*,2)
@@ -461,7 +439,6 @@ c     INCLUDE 'fbridge_common.inc'
       endif
 #endif
 
-      vecsize_used = vecsize_memmax ! default ! CppOnly=1, default for CUDACPP
       env_name = 'CUDACPP_RUNTIME_VECSIZEUSED'
       call get_environment_variable(env_name, env_value, env_length, env_status)
       if( env_status.eq.0 ) then
