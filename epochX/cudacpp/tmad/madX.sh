@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Mar 2022) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 set +x # not verbose
 
@@ -251,11 +251,11 @@ function getgridmax()
   elif [ "${ggtt}" == "1" ]; then 
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${ggttg}" == "1" ]; then
-    echo 16384 32 # same total grid dimension as 2048 256
+    echo 8192 32 # same total grid dimension as 1024 256 (new sep2025)
   elif [ "${ggttgg}" == "1" ]; then
     echo 512 32 # same total grid dimension as 64 256 (new sep2025: even 1024/32 aborts in max8thr mode)
   elif [ "${ggttggg}" == "1" ]; then
-    echo 512 32 # same total grid dimension as 64 256
+    echo 256 32 # same total grid dimension as 32 256 (new sep2025)
   elif [ "${gguu}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${gqttq}" == "1" ]; then
@@ -267,7 +267,7 @@ function getgridmax()
   elif [ "${susyggt1t1}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${smeftggtttt}" == "1" ]; then
-    echo 16384 32 # same total grid dimension as 2048 256
+    echo 4096 32 # same total grid dimension as 512 256 (new sep2025)
   else
     echo "ERROR! Unknown process" > /dev/stderr; usage
   fi
@@ -522,6 +522,9 @@ printf "\nCUDACPP_RUNTIME_BLASCOLORSUM=$CUDACPP_RUNTIME_BLASCOLORSUM\n"
 
 unset CUDACPP_RUNTIME_CUBLASTF32TENSOR
 printf "\nCUDACPP_RUNTIME_CUBLASTF32TENSOR=$CUDACPP_RUNTIME_CUBLASTF32TENSOR\n"
+
+unset CUDACPP_RUNTIME_GPUGRAPHS
+printf "\nCUDACPP_RUNTIME_GPUGRAPHS=$CUDACPP_RUNTIME_GPUGRAPHS\n"
 
 printf "\nOMP_NUM_THREADS=$OMP_NUM_THREADS\n"
 
