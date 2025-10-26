@@ -1193,7 +1193,7 @@ namespace mg5amcCpu
     {
       const int ihel = cGoodHel[ighel];
       fptype* hAllJamps = ghelAllJamps + ighel * nevt; // consistent with ALL-HELICITIES new striding for cuBLAS
-      fptype* hAllWfs = ghelAllWfs + ighel * nwf * nevt * nw6 * mgOnGpu::nx2;
+      fptype* hAllWfs = ( ghelAllWfs ? ghelAllWfs + ighel * nwf * nevt * nw6 * mgOnGpu::nx2 : nullptr );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
