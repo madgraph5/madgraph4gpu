@@ -55,10 +55,6 @@ set stdout_level DEBUG
 set output information to level: 10
 set zerowidth_tchannel F
 import model MSSM_SLHA2
-INFO: reload from .py file 
-INFO: load particles 
-INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.9009430408477783 [0m
 INFO: Restrict model MSSM_SLHA2 with file models/MSSM_SLHA2/restrict_default.dat . 
 INFO: Detect SLHA2 format. keeping restricted parameter in the param_card 
 [1;32mDEBUG: Simplifying conditional expressions [0m
@@ -577,7 +573,7 @@ Generated helas calls for 1 subprocesses (3 diagrams) in 0.006 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.131 s
+ALOHA: aloha creates 2 routines in  0.133 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -592,7 +588,7 @@ INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in dire
 INFO: /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/. and /data/avalassi/GPU2025/test-madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_tt/src/. 
 quit
 
-real	0m2.291s
-user	0m2.208s
-sys	0m0.073s
+real	0m1.229s
+user	0m1.155s
+sys	0m0.064s
 Code generation completed in 2 seconds

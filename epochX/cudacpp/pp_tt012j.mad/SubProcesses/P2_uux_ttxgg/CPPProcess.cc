@@ -832,6 +832,7 @@ namespace mg5amcCpu
       const int gputhreads = maxtry;
       constexpr int nOneHel = 1; // use a jamp buffer for a single helicity
       gpuMemcpyToSymbol( dcNGoodHel, &nOneHel, sizeof( int ) );
+      cNGoodHel = nOneHel; // fix nasty bug (which was causing failures only in heftggbb)
       // NEW IMPLEMENTATION OF GETGOODHEL (#630): RESET THE RUNNING SUM OVER HELICITIES TO 0 BEFORE ADDING A NEW HELICITY
       gpuMemset( allMEs, 0, maxtry * sizeof( fptype ) );
       gpuMemset( allJamps, 0, maxtry * ncolor * mgOnGpu::nx2 * sizeof( fptype ) );

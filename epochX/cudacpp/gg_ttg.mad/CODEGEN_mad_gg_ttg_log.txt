@@ -58,7 +58,7 @@ generate g g > t t~ g
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005307674407958984 [0m
+[1;32mDEBUG: model prefixing  takes 0.005404949188232422 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -151,7 +151,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=3: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ g WEIGHTED<=3 @1  
 INFO: Process has 16 diagrams 
-1 processes with 16 diagrams generated in 0.021 s
+1 processes with 16 diagrams generated in 0.022 s
 Total: 1 processes with 16 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_gg_ttg --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -180,7 +180,7 @@ INFO: Finding symmetric diagrams for subprocess group gg_ttxg
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 15 [1;30m[model_handling.py at line 1751][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1775][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15} [1;30m[model_handling.py at line 1776][0m [0m
-Generated helas calls for 1 subprocesses (16 diagrams) in 0.037 s
+Generated helas calls for 1 subprocesses (16 diagrams) in 0.036 s
 Wrote files for 36 helas calls in 0.121 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
@@ -188,14 +188,14 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 5 routines in  0.310 s
+ALOHA: aloha creates 5 routines in  0.309 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV3 set of routines with options: P0[0m
 ALOHA: aloha creates VVVV4 set of routines with options: P0[0m
-ALOHA: aloha creates 10 routines in  0.294 s
+ALOHA: aloha creates 10 routines in  0.293 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -227,9 +227,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.576s
-user	0m2.202s
-sys	0m0.313s
+real	0m2.486s
+user	0m2.188s
+sys	0m0.299s
 Code generation completed in 2 seconds
 ************************************************************
 *                                                          *

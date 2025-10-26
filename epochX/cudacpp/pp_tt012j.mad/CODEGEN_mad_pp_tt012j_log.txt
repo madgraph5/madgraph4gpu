@@ -57,7 +57,7 @@ set zerowidth_tchannel F
 define j = p
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.005295276641845703 [0m
+[1;32mDEBUG: model prefixing  takes 0.005433320999145508 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -168,7 +168,7 @@ INFO: Process u~ u > t t~ added to mirror process u u~ > t t~
 INFO: Process c~ c > t t~ added to mirror process c c~ > t t~ 
 INFO: Process d~ d > t t~ added to mirror process d d~ > t t~ 
 INFO: Process s~ s > t t~ added to mirror process s s~ > t t~ 
-5 processes with 7 diagrams generated in 0.030 s
+5 processes with 7 diagrams generated in 0.029 s
 Total: 5 processes with 7 diagrams
 add process p p > t t~ j @1
 INFO: Checking for minimal orders which gives processes. 
@@ -208,7 +208,7 @@ INFO: Process d~ g > t t~ d~ added to mirror process g d~ > t t~ d~
 INFO: Process d~ d > t t~ g added to mirror process d d~ > t t~ g 
 INFO: Process s~ g > t t~ s~ added to mirror process g s~ > t t~ s~ 
 INFO: Process s~ s > t t~ g added to mirror process s s~ > t t~ g 
-13 processes with 76 diagrams generated in 0.137 s
+13 processes with 76 diagrams generated in 0.135 s
 Total: 18 processes with 83 diagrams
 add process p p > t t~ j j @2
 INFO: Checking for minimal orders which gives processes. 
@@ -374,7 +374,7 @@ INFO: Process s~ u~ > t t~ u~ s~ added to mirror process u~ s~ > t t~ u~ s~
 INFO: Process s~ c~ > t t~ c~ s~ added to mirror process c~ s~ > t t~ c~ s~ 
 INFO: Process s~ d~ > t t~ d~ s~ added to mirror process d~ s~ > t t~ d~ s~ 
 INFO: Crossed process found for s~ s~ > t t~ s~ s~, reuse diagrams. 
-65 processes with 1119 diagrams generated in 1.824 s
+65 processes with 1119 diagrams generated in 1.788 s
 Total: 83 processes with 1202 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -689,15 +689,15 @@ INFO: Finding symmetric diagrams for subprocess group uux_ttx
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 1 [1;30m[model_handling.py at line 1751][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1} [1;30m[model_handling.py at line 1775][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1} [1;30m[model_handling.py at line 1776][0m [0m
-Generated helas calls for 18 subprocesses (372 diagrams) in 1.264 s
-Wrote files for 810 helas calls in 2.714 s
+Generated helas calls for 18 subprocesses (372 diagrams) in 1.260 s
+Wrote files for 810 helas calls in 2.716 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.322 s
+ALOHA: aloha creates 5 routines in  0.324 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
@@ -739,10 +739,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m11.933s
-user	0m9.533s
-sys	0m0.920s
-Code generation completed in 12 seconds
+real	0m10.448s
+user	0m9.515s
+sys	0m0.899s
+Code generation completed in 10 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
