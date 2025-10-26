@@ -2188,8 +2188,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             res2.append("""#ifdef MGONGPUCPP_GPUIMPL
     // *** STORE JAMPS ***
     // In CUDA, copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
-      J_ACCESS::kernelAccessIcol( jamps, icol ) += jamp_sv[icol]; // update jamps
+      J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
@@ -2367,7 +2368,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, cNGoodHel, couplings, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );""")
         for idiagramgroup in range(2,self.ndiagramgroups+1): # only diagram groups 2-N
             res.append('gpuGraphNode_t& node%i = graphNodes[ihel * ndiagramgroups + %i];'%(idiagramgroup,idiagramgroup-1))
-            res.append('gpuDiagrams( useGraphs, &graph, &graphExec, &node%i, &node%i, diagramgroup%i, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );'%(idiagramgroup,idiagramgroup-1,idiagramgroup))
+            res.append('gpuDiagrams( useGraphs, &graph, &graphExec, &node%i, &node%i, diagramgroup%i, gpublocks, gputhreads, gpustream, wfs, jamps, cNGoodHel, couplings, channelIds, numerators, denominators, cIPC, cIPD );'%(idiagramgroup,idiagramgroup-1,idiagramgroup))
         res.append("""// Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( useGraphs && gpustream != 0 )
       {
