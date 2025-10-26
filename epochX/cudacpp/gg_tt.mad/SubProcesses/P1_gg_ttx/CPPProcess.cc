@@ -990,10 +990,11 @@ namespace mg5amcCpu
   {
     using J_ACCESS = DeviceAccessJamp;
     using J2_ACCESS = DeviceAccessJamp2;
+    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for dcNGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       // NB: atomicAdd is needed after moving to cuda streams with one helicity per stream!
-      //atomicAdd( &J2_ACCESS::kernelAccessIcol( colAllJamp2s, icol ), cxabs2( J_ACCESS::kernelAccessIcolConst( allJamps, icol ) ) );
-      atomicAdd( &J2_ACCESS::kernelAccessIcol( colAllJamp2s, icol ), cxabs2( J_ACCESS::kernelAccessIcolIhelNhelConst( allJamps, icol, 0, nGoodHel ) ) );
+      atomicAdd( &J2_ACCESS::kernelAccessIcol( colAllJamp2s, icol ),
+                 cxabs2( J_ACCESS::kernelAccessIcolIhelNhelConst( allJamps, icol, ihel0, nGoodHel ) ) );
   }
 #endif
 #endif
@@ -1192,7 +1193,7 @@ namespace mg5amcCpu
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
-      fptype* hAllJamps = ghelAllJamps + ighel * nevt; // consistent with ALL-HELICITIES new striding for cuBLAS
+      fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
       fptype* hAllWfs = ( ghelAllWfs ? ghelAllWfs + ighel * nwf * nevt * nw6 * mgOnGpu::nx2 : nullptr );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
@@ -1206,7 +1207,7 @@ namespace mg5amcCpu
     // (1b) Then, in multichannel mode, also compute the running sums over helicities of squared jamp2s within each helicity stream
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
-      fptype* hAllJamps = ghelAllJamps + ighel * nevt; // consistent with ALL-HELICITIES new striding for cuBLAS
+      fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
       gpuLaunchKernelStream( update_jamp2s, gpublocks, gputhreads, ghelStreams[ighel], hAllJamps, colAllJamp2s, cNGoodHel );
     }
 #endif

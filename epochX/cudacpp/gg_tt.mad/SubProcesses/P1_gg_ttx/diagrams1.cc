@@ -106,9 +106,9 @@ namespace mg5amcCpu
     // *** STORE JAMPS ***
     // In CUDA, copy the local jamp to the output global-memory jamp
     //printf( "diagramgroup1: nGoodHel=%d\n", nGoodHel );
+    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
-      //J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps
-      J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, 0, nGoodHel ) = jamp_sv[icol]; // set jamps
+      J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) = jamp_sv[icol]; // set jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
