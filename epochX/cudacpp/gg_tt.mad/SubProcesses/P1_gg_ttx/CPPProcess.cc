@@ -1196,14 +1196,6 @@ namespace mg5amcCpu
       calculate_jamps( ihel, allmomenta, allcouplings, hAllJamps, hAllWfs, ghelStreams[ighel], gpublocks, gputhreads );
 #endif
     }
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // (1b) Then, in multichannel mode, also compute the running sums over helicities of squared jamp2s within each helicity stream
-    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
-    {
-      fptype* hAllJamps = ghelAllJamps + ighel * nevt * ncolor * mgOnGpu::nx2;
-      gpuLaunchKernelStream( update_jamp2s, gpublocks, gputhreads, ghelStreams[ighel], hAllJamps, colAllJamp2s );
-    }
-#endif
     // (2) Then, within each helicity stream, compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
     if( !ghelBlasHandles )
       assert( ghelAllBlasTmp == nullptr ); // HASBLAS=hasNoBlas or CUDACPP_RUNTIME_BLASCOLORSUM not set
