@@ -51,6 +51,7 @@ c
       integer tstrategy(lmaxconfigs)
       integer sprop(maxsproc,-max_branch:-1,lmaxconfigs)
       integer tprid(-max_branch:-1,lmaxconfigs)
+      integer fake_id
       include 'configs.inc'
       data use_config/0,lmaxconfigs*0/
 

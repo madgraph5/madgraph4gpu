@@ -31,6 +31,7 @@ namespace mg5amcCpu
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
+                 const int nGoodHel,             // input: number of good helicities
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
@@ -270,8 +271,10 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
     // *** STORE JAMPS ***
     // In CUDA, copy the local jamp to the output global-memory jamp
+    //printf( "diagramgroup1: nGoodHel=%d\n", nGoodHel );
+    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
-      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps
+      J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) = jamp_sv[icol]; // set jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )

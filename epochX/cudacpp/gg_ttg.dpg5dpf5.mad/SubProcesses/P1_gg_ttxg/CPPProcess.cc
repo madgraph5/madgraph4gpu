@@ -7,7 +7,7 @@
 // Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2025) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.6.3, 2025-06-12
+// MadGraph5_aMC@NLO v. 3.6.4, 2025-09-13
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -481,7 +481,7 @@ namespace mg5amcCpu
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
       gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, cNGoodHel, couplings, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );
       gpuGraphNode_t& node2 = graphNodes[ihel * ndiagramgroups + 1];
       gpuDiagrams( useGraphs, &graph, &graphExec, &node2, &node1, diagramgroup2, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       gpuGraphNode_t& node3 = graphNodes[ihel * ndiagramgroups + 2];
@@ -802,6 +802,8 @@ namespace mg5amcCpu
     {
       const int gpublocks = 1;
       const int gputhreads = maxtry;
+      constexpr int nOneHel = 1; // use a jamp buffer for a single helicity
+      gpuMemcpyToSymbol( dcNGoodHel, &nOneHel, sizeof( int ) );
       // NEW IMPLEMENTATION OF GETGOODHEL (#630): RESET THE RUNNING SUM OVER HELICITIES TO 0 BEFORE ADDING A NEW HELICITY
       gpuMemset( allMEs, 0, maxtry * sizeof( fptype ) );
       gpuMemset( allJamps, 0, maxtry * ncolor * mgOnGpu::nx2 * sizeof( fptype ) );
@@ -812,7 +814,7 @@ namespace mg5amcCpu
 #else
       calculate_jamps( ihel, allmomenta, allcouplings, allJamps, allWfs, 0, gpublocks, gputhreads );
 #endif
-      color_sum_gpu( allMEs, allJamps, nullptr, nullptr, nullptr, gpublocks, gputhreads );
+      gpuLaunchKernel( color_sum_kernel, gpublocks, gputhreads, allMEs, allJamps, nOneHel );
       gpuMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), gpuMemcpyDeviceToHost );
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
       for( int ievt = 0; ievt < maxtry; ++ievt )
@@ -1010,13 +1012,16 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   __global__ void
   update_jamp2s( const fptype_sv* allJamps, // input: jamp[ncolor*2*nevt] for this helicity
-                 fptype* colAllJamp2s )     // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
+                 fptype* colAllJamp2s,      // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
+                 const int nGoodHel )       // input: number of good helicities
   {
     using J_ACCESS = DeviceAccessJamp;
     using J2_ACCESS = DeviceAccessJamp2;
+    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for dcNGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       // NB: atomicAdd is needed after moving to cuda streams with one helicity per stream!
-      atomicAdd( &J2_ACCESS::kernelAccessIcol( colAllJamp2s, icol ), cxabs2( J_ACCESS::kernelAccessIcolConst( allJamps, icol ) ) );
+      atomicAdd( &J2_ACCESS::kernelAccessIcol( colAllJamp2s, icol ),
+                 cxabs2( J_ACCESS::kernelAccessIcolIhelNhelConst( allJamps, icol, ihel0, nGoodHel ) ) );
   }
 #endif
 #endif
@@ -1117,7 +1122,7 @@ namespace mg5amcCpu
             fptype* ghelAllJamps,               // tmp: allJamps super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllWfs,                 // tmp: allWfs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype2* ghelAllBlasTmp,            // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
-            gpuBlasHandle_t* ghelBlasHandles,   // input: cuBLAS/hipBLAS handles (index is ighel: only the first nGoodHel <= ncomb are non-null)
+            gpuBlasHandle_t* pBlasHandle,       // input: cuBLAS/hipBLAS handle
             gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
             const int gpublocks,                // input: cuda gpublocks
             const int gputhreads )              // input: cuda gputhreads
@@ -1149,7 +1154,7 @@ namespace mg5amcCpu
       // nprocesses == 2 may happen for "mirror processes" such as P0_uux_ttx within pp_tt012j (see PR #754)
       constexpr int nprocesses = 1;
       static_assert( nprocesses == 1 || nprocesses == 2, "Assume nprocesses == 1 or 2" );
-      constexpr int process_id = 1; // code generation source: standalone_cudacpp
+      constexpr int process_id = 1; // code generation source: madevent + cudacpp exporter
       static_assert( process_id == 1, "Assume process_id == 1" );
     }
 
@@ -1173,6 +1178,7 @@ namespace mg5amcCpu
     // === PART 0 - INITIALISATION (before calculate_jamps) ===
     // Reset the "matrix elements" - running sums of |M|^2 over helicities for the given event
 #ifdef MGONGPUCPP_GPUIMPL
+    // *** PART 0a - CUDA ***
     const int nevt = gpublocks * gputhreads;
     gpuMemset( allMEs, 0, nevt * sizeof( fptype ) );
     gpuMemset( ghelAllJamps, 0, cNGoodHel * ncolor * mgOnGpu::nx2 * nevt * sizeof( fptype ) );
@@ -1183,6 +1189,7 @@ namespace mg5amcCpu
 #endif
     gpuMemset( ghelAllMEs, 0, cNGoodHel * nevt * sizeof( fptype ) );
 #else
+    // *** PART 0b - C++ ***
     const int npagV = nevt / neppV;
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
@@ -1213,7 +1220,7 @@ namespace mg5amcCpu
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
-      fptype* hAllJamps = ghelAllJamps + ighel * nevt * ncolor * mgOnGpu::nx2;
+      fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
       fptype* hAllWfs = ( ghelAllWfs ? ghelAllWfs + ighel * nwf * nevt * nw6 * mgOnGpu::nx2 : nullptr );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
@@ -1227,36 +1234,12 @@ namespace mg5amcCpu
     // (1b) Then, in multichannel mode, also compute the running sums over helicities of squared jamp2s within each helicity stream
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
-      fptype* hAllJamps = ghelAllJamps + ighel * nevt * ncolor * mgOnGpu::nx2;
-      gpuLaunchKernelStream( update_jamp2s, gpublocks, gputhreads, ghelStreams[ighel], hAllJamps, colAllJamp2s );
+      fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
+      gpuLaunchKernelStream( update_jamp2s, gpublocks, gputhreads, ghelStreams[ighel], hAllJamps, colAllJamp2s, cNGoodHel );
     }
 #endif
-    // (2) Then, within each helicity stream, compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
-    if( !ghelBlasHandles )
-      assert( ghelAllBlasTmp == nullptr ); // HASBLAS=hasNoBlas or CUDACPP_RUNTIME_BLASCOLORSUM not set
-    else
-      assert( ghelAllBlasTmp != nullptr ); // note: this should never happen for HASBLAS=hasNoBlas (a sanity check is in color_sum_gpu)
-    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
-    {
-      fptype* hAllMEs = ghelAllMEs + ighel * nevt;
-      fptype* hAllJamps = ghelAllJamps + ighel * nevt * ncolor * mgOnGpu::nx2;
-#if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-      fptype2* hAllBlasTmp = ( ghelAllBlasTmp != nullptr ? ghelAllBlasTmp + ighel * nevt * ( 2 * ncolor * mgOnGpu::nx2 + 1 ) : nullptr );
-      if( hAllBlasTmp )
-        gpuMemset( hAllBlasTmp, 0, nevt * ( 2 * ncolor * mgOnGpu::nx2 + 1 ) * sizeof( fptype2 ) ); // reset the tmp buffer (bug fix: reset MEs=0)
-#else
-      fptype2* hAllBlasTmp = ( ghelAllBlasTmp != nullptr ? ghelAllBlasTmp + ighel * nevt * ncolor * mgOnGpu::nx2 : nullptr );
-      if( hAllBlasTmp )
-        gpuMemset( hAllBlasTmp, 0, nevt * ncolor * mgOnGpu::nx2 * sizeof( fptype2 ) ); // reset the tmp buffer (just in case...)
-#endif
-#ifndef MGONGPU_HAS_NO_BLAS
-      gpuBlasHandle_t* pBlasHandle = ( ghelBlasHandles ? &( ghelBlasHandles[ighel] ) : nullptr );
-#else /* clang-format off */
-      assert( ghelBlasHandles == nullptr ); // sanity check
-      gpuBlasHandle_t* pBlasHandle = nullptr; // this is a void* (hack to keep the same API in noBLAS builds)
-#endif /* clang-format on */
-      color_sum_gpu( hAllMEs, hAllJamps, hAllBlasTmp, ghelStreams[ighel], pBlasHandle, gpublocks, gputhreads );
-    }
+    // (2) Then compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
+    color_sum_gpu( ghelAllMEs, ghelAllJamps, ghelAllBlasTmp, pBlasHandle, ghelStreams, cNGoodHel, gpublocks, gputhreads );
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
     // (3) Wait for all helicity streams to complete, then finally compute the ME sum over all helicities and choose one helicity and one color
     // Event-by-event random choice of helicity #403 and ME sum over helicities (defer this after the helicity loop to avoid breaking streams parallelism)

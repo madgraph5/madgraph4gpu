@@ -200,6 +200,9 @@ namespace mg5amcCpu
     // The super-buffer of nGoodHel jamp buffers (dynamically allocated because nGoodHel is determined at runtime)
     std::unique_ptr<DeviceBufferSimple> m_pHelJamps;
 
+    // The super-buffer of nGoodHel wavefunction buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelWfs;
+
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // The super-buffer of nGoodHel numerator buffers (dynamically allocated because nGoodHel is determined at runtime)
     std::unique_ptr<DeviceBufferSimple> m_pHelNumerators;
