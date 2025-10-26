@@ -483,11 +483,11 @@ namespace mg5amcCpu
       gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
       gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, cNGoodHel, couplings, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );
       gpuGraphNode_t& node2 = graphNodes[ihel * ndiagramgroups + 1];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node2, &node1, diagramgroup2, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node2, &node1, diagramgroup2, gpublocks, gputhreads, gpustream, wfs, jamps, cNGoodHel, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       gpuGraphNode_t& node3 = graphNodes[ihel * ndiagramgroups + 2];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node3, &node2, diagramgroup3, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node3, &node2, diagramgroup3, gpublocks, gputhreads, gpustream, wfs, jamps, cNGoodHel, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       gpuGraphNode_t& node4 = graphNodes[ihel * ndiagramgroups + 3];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node4, &node3, diagramgroup4, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node4, &node3, diagramgroup4, gpublocks, gputhreads, gpustream, wfs, jamps, cNGoodHel, couplings, channelIds, numerators, denominators, cIPC, cIPD );
       // Case 1 with graphs (gpustream!=0, sigmaKin): create the graph executor if not yet done, then launch the graph executor
       if( useGraphs && gpustream != 0 )
       {
