@@ -316,7 +316,6 @@ namespace mg5amcGpu
     , m_couplings( this->nevt() )
     , m_pHelMEs()
     , m_pHelJamps()
-    , m_pHelWfs()
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     , m_pHelNumerators()
     , m_pHelDenominators()
@@ -329,7 +328,7 @@ namespace mg5amcGpu
     , m_blasColorSum( false )
     , m_blasTf32Tensor( false )
     , m_pHelBlasTmp()
-    , m_helBlasHandles()
+    , m_blasHandle()
 #endif
     , m_helStreams()
     , m_gpublocks( gpublocks )
@@ -355,9 +354,6 @@ namespace mg5amcGpu
     }
     // Create the "one-helicity" jamp buffer that will be used for helicity filtering
     m_pHelJamps.reset( new DeviceBufferSimple( CPPProcess::ncolor * mgOnGpu::nx2 * this->nevt() ) );
-    // Create the "one-helicity" wavefunction buffer that will be used for helicity filtering
-    if constexpr( CPPProcess::ndiagramgroups > 1 )
-      m_pHelWfs.reset( new DeviceBufferSimple( CPPProcess::nwf * CPPProcess::nw6 * mgOnGpu::nx2 * this->nevt() ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Create the "one-helicity" numerator and denominator buffers that will be used for helicity filtering
     m_pHelNumerators.reset( new DeviceBufferSimple( this->nevt() ) );
@@ -423,11 +419,11 @@ namespace mg5amcGpu
   MatrixElementKernelDevice::~MatrixElementKernelDevice()
   {
     //std::cout << "DEBUG: MatrixElementKernelDevice::dtor " << this << std::endl;
+#ifndef MGONGPU_HAS_NO_BLAS
+    if( m_blasHandle ) gpuBlasDestroy( m_blasHandle );
+#endif
     for( int ihel = 0; ihel < CPPProcess::ncomb; ihel++ )
     {
-#ifndef MGONGPU_HAS_NO_BLAS
-      if( m_helBlasHandles[ihel] ) gpuBlasDestroy( m_helBlasHandles[ihel] );
-#endif
       if( m_helStreams[ihel] ) gpuStreamDestroy( m_helStreams[ihel] ); // do not destroy if nullptr
     }
   }
@@ -450,11 +446,10 @@ namespace mg5amcGpu
     // ... 0d1. Compute good helicity mask (a host variable) on the device
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
     const int nevt = m_gpublocks * m_gputhreads;
-    fptype* helWfsData = ( CPPProcess::ndiagramgroups > 1 ? m_pHelWfs->data() : nullptr );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_pHelNumerators->data(), m_pHelDenominators->data(), m_pHelJamps->data(), helWfsData, hstIsGoodHel.data(), nevt );
+    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_pHelJamps->data(), m_pHelNumerators->data(), m_pHelDenominators->data(), hstIsGoodHel.data(), nevt );
 #else
-    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_pHelJamps->data(), helWfsData, hstIsGoodHel.data(), nevt );
+    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_pHelJamps->data(), hstIsGoodHel.data(), nevt );
 #endif
     // ... 0d3. Set good helicity list in host static memory
     int nGoodHel = sigmaKin_setGoodHel( hstIsGoodHel.data() );
@@ -463,28 +458,21 @@ namespace mg5amcGpu
     for( int ighel = 0; ighel < nGoodHel; ighel++ )
       gpuStreamCreate( &m_helStreams[ighel] );
 #ifndef MGONGPU_HAS_NO_BLAS
-    // Create one cuBLAS/hipBLAS handle for each good helicity
-    // Attach a different stream to each cuBLAS/hipBLAS handle
+    // Create one cuBLAS/hipBLAS handle for each good helicity (attached to the default stream)
     if( m_blasColorSum )
-      for( int ighel = 0; ighel < nGoodHel; ighel++ )
-      {
-        checkGpuBlas( gpuBlasCreate( &m_helBlasHandles[ighel] ) );
-        checkGpuBlas( gpuBlasSetStream( m_helBlasHandles[ighel], m_helStreams[ighel] ) );
+    {
+      checkGpuBlas( gpuBlasCreate( &m_blasHandle ) );
 #ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)
-        if( m_blasTf32Tensor )
-          checkGpuBlas( cublasSetMathMode( m_helBlasHandles[ighel], CUBLAS_TF32_TENSOR_OP_MATH ) ); // enable TF32 tensor cores
+      if( m_blasTf32Tensor )
+        checkGpuBlas( cublasSetMathMode( m_blasHandle, CUBLAS_TF32_TENSOR_OP_MATH ) ); // enable TF32 tensor cores
 #endif
-      }
+    }
 #endif
     // ... Create the "many-helicity" super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)
     m_pHelMEs.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
-    // ... Create the "many-helicity" super-buffer of nGoodHel jamp buffers (dynamically allocated because nGoodHel is determined at runtime)
+    // ... Create the "many-helicity" super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)
     // ... (calling reset here deletes the previously created "one-helicity" buffers used for helicity filtering)
     m_pHelJamps.reset( new DeviceBufferSimple( nGoodHel * CPPProcess::ncolor * mgOnGpu::nx2 * nevt ) );
-    // ... Create the "many-helicity" super-buffer of nGoodHel wavefunction buffers (dynamically allocated because nGoodHel is determined at runtime)
-    // ... (calling reset here deletes the previously created "one-helicity" buffers used for helicity filtering)
-    if constexpr( CPPProcess::ndiagramgroups > 1 )
-      m_pHelWfs.reset( new DeviceBufferSimple( nGoodHel * CPPProcess::nwf * CPPProcess::nw6 * mgOnGpu::nx2 * nevt ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // ... Create the "many-helicity" super-buffers of nGoodHel numerator and denominator buffers (dynamically allocated)
     // ... (calling reset here deletes the previously created "one-helicity" buffers used for helicity filtering)
@@ -512,18 +500,17 @@ namespace mg5amcGpu
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
 #ifndef MGONGPU_HAS_NO_BLAS
     fptype2* ghelAllBlasTmp = ( m_blasColorSum ? m_pHelBlasTmp->data() : nullptr );
-    gpuBlasHandle_t* ghelBlasHandles = ( m_blasColorSum ? m_helBlasHandles : nullptr );
+    gpuBlasHandle_t* pBlasHandle = ( m_blasColorSum ? &m_blasHandle : nullptr );
 #else
     fptype2* ghelAllBlasTmp = nullptr;
-    gpuBlasHandle_t* ghelBlasHandles = nullptr;
+    gpuBlasHandle_t* pBlasHandle = nullptr;
 #endif
-    fptype* helWfsData = ( CPPProcess::ndiagramgroups > 1 ? m_pHelWfs->data() : nullptr );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_colJamp2s.data(), m_pHelNumerators->data(), m_pHelDenominators->data(), m_pHelMEs->data(), m_pHelJamps->data(), helWfsData, ghelAllBlasTmp, ghelBlasHandles, m_helStreams, m_gpublocks, m_gputhreads );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_colJamp2s.data(), m_pHelNumerators->data(), m_pHelDenominators->data(), m_pHelMEs->data(), m_pHelJamps->data(), ghelAllBlasTmp, pBlasHandle, m_helStreams, m_gpublocks, m_gputhreads );
 #else
     assert( useChannelIds == false );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_pHelMEs->data(), m_pHelJamps->data(), helWfsData, ghelAllBlasTmp, ghelBlasHandles, m_helStreams, m_gpublocks, m_gputhreads );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_pHelMEs->data(), m_pHelJamps->data(), ghelAllBlasTmp, pBlasHandle, m_helStreams, m_gpublocks, m_gputhreads );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     //std::cout << "DEBUG: MatrixElementKernelDevice::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
@@ -531,7 +518,7 @@ namespace mg5amcGpu
     const unsigned int* pHstChannelIds = ( useChannelIds ? m_hstChannelIds.data() : nullptr );
     MatrixElementKernelBase::updateNevtProcessedByChannel( pHstChannelIds, nevt() );
 #endif
-    checkGpu( gpuPeekAtLastError() );   // not strictly needed, but useful if previous calls were not wrapped in checkGpu
+    checkGpu( gpuPeekAtLastError() );   // is this needed?
     checkGpu( gpuDeviceSynchronize() ); // probably not needed? but it avoids errors in sigmaKin above from appearing later on in random places...
   }
 

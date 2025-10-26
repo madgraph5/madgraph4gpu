@@ -1,10 +1,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2025 CERN and UCLouvain.
+// Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.6.3, 2025-06-12
@@ -657,7 +657,7 @@ namespace mg5amcCpu
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable" // e.g. <<warning: variable ‘couplings_sv’ set but not used [-Wunused-but-set-variable]>>
 #endif
   // Compute the output couplings (e.g. gc10 and gc11) from the input gs
-  template<class G_ACCESS, class CD_ACCESS>
+  template<class G_ACCESS, class C_ACCESS>
   __device__ inline void
   G2COUP( const fptype gs[],
           fptype couplings[],
@@ -667,12 +667,12 @@ namespace mg5amcCpu
     using namespace Parameters_SMEFTsim_topU3l_MwScheme_UFO_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
     DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv, bsmIndepParamPtr );
-    fptype* GC_7s = CD_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_7 );
-    fptype* GC_6s = CD_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_6 );
-    fptype* GC_8s = CD_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_8 );
-    cxtype_sv_ref GC_7s_sv = CD_ACCESS::kernelAccess( GC_7s );
-    cxtype_sv_ref GC_6s_sv = CD_ACCESS::kernelAccess( GC_6s );
-    cxtype_sv_ref GC_8s_sv = CD_ACCESS::kernelAccess( GC_8s );
+    fptype* GC_7s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_7 );
+    fptype* GC_6s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_6 );
+    fptype* GC_8s = C_ACCESS::idcoupAccessBuffer( couplings, idcoup_GC_8 );
+    cxtype_sv_ref GC_7s_sv = C_ACCESS::kernelAccess( GC_7s );
+    cxtype_sv_ref GC_6s_sv = C_ACCESS::kernelAccess( GC_6s );
+    cxtype_sv_ref GC_8s_sv = C_ACCESS::kernelAccess( GC_8s );
     GC_7s_sv = couplings_sv.GC_7;
     GC_6s_sv = couplings_sv.GC_6;
     GC_8s_sv = couplings_sv.GC_8;

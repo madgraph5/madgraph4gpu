@@ -74,18 +74,6 @@
 #define GPUBLAS_OP_N CUBLAS_OP_N
 #define GPUBLAS_OP_T CUBLAS_OP_T
 
-#define gpuGraph_t cudaGraph_t
-#define gpuGraphExec_t cudaGraphExec_t
-#define gpuGraphNode_t cudaGraphNode_t
-#define gpuKernelNodeParams cudaKernelNodeParams
-
-//#define gpuGraphAddDependencies cudaGraphAddDependencies
-#define gpuGraphAddKernelNode cudaGraphAddKernelNode
-#define gpuGraphCreate cudaGraphCreate
-#define gpuGraphExecKernelNodeSetParams cudaGraphExecKernelNodeSetParams
-#define gpuGraphInstantiate cudaGraphInstantiate
-#define gpuGraphLaunch cudaGraphLaunch
-
 //--------------------------------------------------------------------------
 
 #elif defined __HIPCC__
@@ -149,18 +137,6 @@
 #define gpuBlasDgemmStridedBatched hipblasDgemmStridedBatched
 #define GPUBLAS_OP_N HIPBLAS_OP_N
 #define GPUBLAS_OP_T HIPBLAS_OP_T
-
-#define gpuGraph_t hipGraph_t
-#define gpuGraphExec_t hipGraphExec_t
-#define gpuGraphNode_t hipGraphNode_t
-#define gpuKernelNodeParams hipKernelNodeParams
-
-//#define gpuGraphAddDependencies hipGraphAddDependencies
-#define gpuGraphAddKernelNode hipGraphAddKernelNode
-#define gpuGraphExecKernelNodeSetParams hipGraphExecKernelNodeSetParams
-#define gpuGraphCreate hipGraphCreate
-#define gpuGraphInstantiate hipGraphInstantiate
-#define gpuGraphLaunch hipGraphLaunch
 
 #endif
 
