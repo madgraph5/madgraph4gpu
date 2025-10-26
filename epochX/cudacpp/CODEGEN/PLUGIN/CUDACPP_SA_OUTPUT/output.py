@@ -119,7 +119,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/RandomNumberKernels.h', s+'gpu/CommonRandomNumberKernel.cc',
                                       s+'gpu/CurandRandomNumberKernel.cc', s+'gpu/HiprandRandomNumberKernel.cc',
                                       s+'gpu/Bridge.h', s+'gpu/BridgeKernels.cc', s+'gpu/BridgeKernels.h',
-                                      s+'gpu/fbridge.cc', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
+                                      s+'gpu/fbridge.cc', s+'gpu/fbridge.h', s+'gpu/fbridge.inc', s+'gpu/fsampler.cc', s+'gpu/fsampler.inc',
                                       s+'gpu/MadgraphTest.h', s+'gpu/runTest.cc',
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt', s+'gpu/valgrind.h',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
@@ -144,7 +144,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc',
                     'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc',
                     'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h',
-                    'fbridge.cc', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
+                    'fbridge.cc', 'fbridge.h', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc',
                     'MadgraphTest.h', 'runTest.cc',
                     'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h',
                     'cudacpp.mk', # this is generated from a template in Subprocesses but we still link it in P1
