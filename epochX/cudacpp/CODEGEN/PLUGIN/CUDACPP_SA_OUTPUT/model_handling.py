@@ -2089,6 +2089,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
+                 const int nGoodHel,             // input: number of good helicities
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
@@ -2131,6 +2132,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
   diagramgroup%s( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
 %s                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+%s                 const int nGoodHel,             // input: number of good helicities
 %s                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
 %s                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
@@ -2141,8 +2143,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 %s                 fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
 %s                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
 %s                 const fptype* cIPD )%s           // input: GPU __device__ or GPU host address of cIPD"""
-            resH.append(txt%(sidiagg,indent,indent,indent,indent,indent,indent,indent,indent,indent,';'))
-            resCC.append(txt%(sidiagg,indent,indent,indent,indent,indent,indent,indent,indent,indent,' '))
+            resH.append(txt%(sidiagg,indent,indent,indent,indent,indent,indent,indent,indent,indent,indent,';'))
+            resCC.append(txt%(sidiagg,indent,indent,indent,indent,indent,indent,indent,indent,indent,indent,' '))
             resCC.append("""  {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
@@ -2170,8 +2172,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             res2.append("""#ifdef MGONGPUCPP_GPUIMPL
     // *** STORE JAMPS ***
     // In CUDA, copy the local jamp to the output global-memory jamp
+    //printf( \"diagramgroup1: nGoodHel=%d\\n\", nGoodHel );
+    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
-      J_ACCESS::kernelAccessIcol( jamps, icol ) = jamp_sv[icol]; // set jamps
+      J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) = jamp_sv[icol]; // set jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
@@ -2358,7 +2362,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       // Case 0 without graphs (gpustream==0, sigmaKin_getGoodHel): launch all diagram kernels
       // Case 1 with graphs (gpustream!=0, sigmaKin): create graph nodes if not yet done, else update them with new parameters
       gpuGraphNode_t& node1 = graphNodes[ihel * ndiagramgroups + 0];
-      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );""")
+      gpuDiagrams( useGraphs, &graph, &graphExec, &node1, nullptr, diagramgroup1, gpublocks, gputhreads, gpustream, wfs, jamps, cNGoodHel, couplings, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );""")
         for idiagramgroup in range(2,self.ndiagramgroups+1): # only diagram groups 2-N
             res.append('gpuGraphNode_t& node%i = graphNodes[ihel * ndiagramgroups + %i];'%(idiagramgroup,idiagramgroup-1))
             res.append('gpuDiagrams( useGraphs, &graph, &graphExec, &node%i, &node%i, diagramgroup%i, gpublocks, gputhreads, gpustream, wfs, jamps, couplings, channelIds, numerators, denominators, cIPC, cIPD );'%(idiagramgroup,idiagramgroup-1,idiagramgroup))
