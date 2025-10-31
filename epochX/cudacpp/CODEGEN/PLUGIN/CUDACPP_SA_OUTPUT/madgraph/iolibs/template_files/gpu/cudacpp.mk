@@ -57,6 +57,7 @@ endif
 #=== Redefine BACKEND if the current value is 'cppauto'
 
 # Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available: eventually use native instead?)
+BACKEND_ORIG := $(BACKEND)
 ifeq ($(BACKEND),cppauto)
   ifeq ($(UNAME_P),ppc64le)
     override BACKEND = cppsse4
@@ -80,6 +81,11 @@ else
   $(info BACKEND='$(BACKEND)')
 endif
 
+# Create file with the resolved backend in case user chooses 'cppauto'
+BACKEND_LOG ?= .resolved-backend
+ifneq ($(BACKEND_ORIG),$(BACKEND))
+  $(file >$(BACKEND_LOG),$(BACKEND))
+endif
 #-------------------------------------------------------------------------------
 
 #=== Configure the C++ compiler
@@ -1234,5 +1240,10 @@ endif
 # Target: cuda-memcheck (run the CUDA standalone executable gcheck.exe with a small number of events through cuda-memcheck)
 cuda-memcheck: all.$(TAG)
 	$(RUNTIME) $(CUDA_HOME)/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/check_$(GPUSUFFIX).exe -p 2 32 2
+
+# Detect backend (to be used in case of 'cppauto' to give info to the user)
+.PHONY: detect-backend
+detect-backend:
+	@echo "Resolved backend has already been written to $(BACKEND_LOG) at parse time."
 
 #-------------------------------------------------------------------------------
