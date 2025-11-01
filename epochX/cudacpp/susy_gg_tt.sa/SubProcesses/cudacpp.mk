@@ -670,8 +670,8 @@ endif
 #=== Configure build directories and build lockfiles ===
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
-# (Rationale: avoid mixing of builds with different random number generators)
-override TAG = $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)
+# (Rationale: avoid mixing of builds with different random number generators or different BLAS settings)
+override TAG = $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)_$(HASBLAS)
 
 # Export TAG (so that there is no need to check/define it again in cudacpp_src.mk)
 export TAG
