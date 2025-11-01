@@ -1390,6 +1390,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // In C++, this function processes a single event \"page\" or SIMD vector (or for two in \"mixed\" precision mode, nParity=2)
   // *** NB: in C++, calculate_jamps accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+#ifndef MGONGPU_RDC_DIAGRAMS
   INLINE void
   calculate_jamps( int ihel,
                    const fptype* allmomenta,          // input: momenta[nevt*npar*4]
@@ -1404,6 +1405,19 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                    gpuStream_t gpustream,             // input: cuda stream for this helicity
                    const int gpublocks,               // input: cuda gpublocks
                    const int gputhreads )             // input: cuda gputhreads
+#else
+  __global__ void
+  calculate_jamps( int ihel,
+                   const fptype* allmomenta,          // input: momenta[nevt*npar*4]
+                   const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
+                   fptype* allJamps,                  // output: jamp[ncolor*2*nevt] for this helicity
+                   fptype* allWfs,                    // output: wf[nwf*nw6*2*nevt]
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                   const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE (#899/#911)
+                   fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
+                   fptype* allDenominators )          // input/output: multichannel denominators[nevt], add helicity ihel
+#endif
+#endif
 #else
   INLINE void
   calculate_jamps( int ihel,
@@ -1439,15 +1453,24 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     // --- WAVEFUNCTION BUFFERS ---
     // ----------------------------
 #ifndef MGONGPUCPP_GPUIMPL
-    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+    // Local TEMPORARY variables for a subset of Feynman diagrams in the given C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
     // ** NB: wavefunctions only need TRIVIAL ACCESS in C++ code
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     fptype* wfs = reinterpret_cast<fptype*>( w_sv );
 #else
+#ifndef MGONGPU_RDC_DIAGRAMS
     // Global-memory variables for a subset of Feynman diagrams in the given CUDA event (ievt)
     // ** NB: wavefunctions need non-trivial access in CUDA code because of kernel splitting
     fptype* wfs = allWfs;
+#else
+    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt)
+    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    // ** NB: wavefunctions only need TRIVIAL ACCESS in C++ code
+    assert( allWfs == nullptr ); // sanity check
+    cxtype_sv w_sv[nwf][nw6];    // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+    fptype* wfs = reinterpret_cast<fptype*>( w_sv );
+#endif
 #endif
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
@@ -2087,7 +2110,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         resCC = []
         if idiagramgroup == 1:
             txt="""
+#ifndef MGONGPU_RDC_DIAGRAMS
   __global__ void
+#else
+  __device__ void
+#endif
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
@@ -2102,7 +2129,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                  fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
                  const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
                  const fptype* cIPD,             // input: GPU __device__ or GPU host address of cIPD
+#ifndef MGONGPU_RDC_DIAGRAMS
                  const short* cHelFlat,          // input: GPU __device__ or GPU host address of cHel
+#else
+                 const short (*cHel)[CPPProcess::npar], // input: GPU __device__ or GPU host address of cHel
+#endif
                  const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
                  const int ihel )%s               // input: helicity (0 to ncomb)"""
             resH.append(txt%';')
@@ -2118,19 +2149,27 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #endif
 
 #ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_RDC_DIAGRAMS
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
     // (none)
 #endif
+#endif
 
+#ifndef MGONGPU_RDC_DIAGRAMS
     // Reinterpret the flat array pointer for helicities as a multidimensional array pointer
     constexpr int npar = CPPProcess::npar;
     const short (*cHel)[npar] = reinterpret_cast<const short(*)[npar]>( cHelFlat );
+#endif
 """)
         else:
             sidiagg = '%i'%idiagramgroup
             indent = ' '*(len(sidiagg)-1)
             txt="""
+#ifndef MGONGPU_RDC_DIAGRAMS
   __global__ void
+#else
+  __device__ void
+#endif
   diagramgroup%s( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
 %s                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
@@ -2163,11 +2202,13 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         if idiagramgroup > 1:
             resCC.append("""
 #ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_RDC_DIAGRAMS
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
     //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );""")
             for iwf in wfGet: resCC.append('    retrieveWf( wfs, w_cx, nevt, %i );'%iwf)
             if len(wfGet) == 0: resCC.append('    // (none)')
             resCC.append("""#endif
+#endif
 """)
         # 2b - Store jamps and wavefunctions
         if idiagramgroup == 1:
@@ -2199,16 +2240,20 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 """)
         if idiagramgroup == self.ndiagramgroups:
             res2.append("""#ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_RDC_DIAGRAMS
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
     // (none)
+#endif
 #endif""")
         else:
             ###print(idiagramgroup, wfPut)
             res2.append("""#ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_RDC_DIAGRAMS
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
     //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );""")
             for iwf in wfPut: res2.append('    storeWf( wfs, w_cx, nevt, %i );'%iwf)
             if len(wfPut) == 0: res2.append('    // (none)')
+            res2.append('#endif')
             res2.append('#endif')
         resCC += res2
         # 3 - Footer
@@ -2331,6 +2376,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         ###misc.sprint(diag_to_config)
         res.append('\n      // *** DIAGRAMS 1 TO %d ***' % (len(matrix_element.get('diagrams'))) ) # AV
         res.append("""#ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_RDC_DIAGRAMS
+      // === GPU IMPLEMENTATION (DCDIAG=0): each diagram group is an individual kernel ===
       static bool useGraphs = false;
       static bool first = true;
       if( first )
@@ -2380,7 +2427,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         //std::cout << \"(ihel=\" << ihel << \") Launch graph executor \" << &graphExec << \" for graph \" << graph << std::endl;
         checkGpu( gpuGraphLaunch( graphExec, gpustream ) );
       }
-#else""")
+#else
+      // === GPU IMPLEMENTATION (DCDIAG=1): merge all diagram groups into a single kernel ===""")
+        for idiagramgroup in range(1,self.ndiagramgroups+1):
+            if idiagramgroup == 1: res.append('diagramgroup1( wfs, jamps, dcNGoodHel, couplings, channelIds, numerators, denominators, dcIPC, dcIPD, dcHel, momenta, ihel );')
+            else: res.append('diagramgroup%i( wfs, jamps, dcNGoodHel, couplings, channelIds, numerators, denominators, dcIPC, dcIPD );'%idiagramgroup)
+        res.append('#endif')
+        res.append("""#else
+      // === C++ IMPLEMENTATION ===""")
         for idiagramgroup in range(1,self.ndiagramgroups+1):
             if idiagramgroup == 1: res.append('diagramgroup1( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );')
             else: res.append('diagramgroup%i( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD );'%idiagramgroup)

@@ -5,7 +5,7 @@
 
 #-------------------------------------------------------------------------------
 
-#=== Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD are supported
+#=== Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD, DCDIAG are supported
 #=== Configure default values for these variables if no user-defined choices exist
 
 # Set the default BACKEND (CUDA, HIP or C++/SIMD) choice
@@ -32,7 +32,12 @@ ifeq ($(HRDCOD),)
   override HRDCOD = 0
 endif
 
-# Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD are supported
+# Set the default DCDIAG (treat diagram groups as device code and merge them in a single kernel?) choice
+ifeq ($(DCDIAG),)
+  override DCDIAG = 0
+endif
+
+# Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD, DCDIAG are supported
 # (NB: use 'filter' and 'words' instead of 'findstring' because they properly handle whitespace-separated words)
 override SUPPORTED_BACKENDS = cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z cppauto
 ifneq ($(words $(filter $(BACKEND), $(SUPPORTED_BACKENDS))),1)
@@ -54,11 +59,17 @@ ifneq ($(words $(filter $(HRDCOD), $(SUPPORTED_HRDCODS))),1)
   $(error Invalid hrdcod HRDCOD='$(HRDCOD)': supported hrdcods are $(foreach hrdcod,$(SUPPORTED_HRDCODS),'$(hrdcod)'))
 endif
 
-# Print out BACKEND, FPTYPE, HELINL, HRDCOD
+override SUPPORTED_DCDIAGS = 0 1
+ifneq ($(words $(filter $(DCDIAG), $(SUPPORTED_DCDIAGS))),1)
+  $(error Invalid hrdcod DCDIAG='$(DCDIAG)': supported dcdiags are $(foreach dcdiag,$(SUPPORTED_DCDIAGS),'$(dcdiag)'))
+endif
+
+# Print out BACKEND, FPTYPE, HELINL, HRDCOD, DCDIAG
 ###$(info BACKEND='$(BACKEND)')
 ###$(info FPTYPE='$(FPTYPE)')
 ###$(info HELINL='$(HELINL)')
 ###$(info HRDCOD='$(HRDCOD)')
+###$(info HRDCOD='$(DCDIAG)')
 
 #-------------------------------------------------------------------------------
 

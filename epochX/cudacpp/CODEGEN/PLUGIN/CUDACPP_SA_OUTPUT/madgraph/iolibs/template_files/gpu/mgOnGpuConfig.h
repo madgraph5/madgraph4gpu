@@ -89,6 +89,14 @@
 //#undef MGONGPU_HARDCODE_PARAM // default
 ////#define MGONGPU_HARDCODE_PARAM 1
 
+#ifdef MGONGPUCPP_GPUIMPL
+// Choose whether to treat Feynman diagram groups as relocatable device code and merge them into a single kernel,
+// instead of treating each diagram group as an individual GPU kernel
+// By default, treat diagram groups as kernels, but allow this macro to be set from outside with e.g. -DMGONGPU_RDC_DIAGRAMS
+//#undef MGONGPU_RDC_DIAGRAMS // default
+////#define MGONGPU_RDC_DIAGRAMS 1
+#endif
+
 /* clang-format off */
 // Complex type in CUDA: thrust or cucomplex or cxsmpl (CHOOSE ONLY ONE)
 // (NB THIS IS MGONGPU_*CU*CXTYPE_xxx)

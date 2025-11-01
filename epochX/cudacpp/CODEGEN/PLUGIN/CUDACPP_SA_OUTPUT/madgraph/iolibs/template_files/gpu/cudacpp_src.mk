@@ -44,6 +44,7 @@ endif
 ###$(info GPUFLAGS=$(GPUFLAGS))
 ###$(info GPULANGUAGE=$(GPULANGUAGE))
 ###$(info GPUSUFFIX=$(GPUSUFFIX))
+###$(info GPULIBFLAGS=$(GPULIBFLAGS))
 
 #-------------------------------------------------------------------------------
 
@@ -145,9 +146,9 @@ endif
 
 cxx_objects=$(addprefix $(BUILDDIR)/, read_slha_cpp.o)
 ifeq ($(GPUCC),)
-  cxx_objects+=$(addprefix $(BUILDDIR)/, Parameters_%(model)s_cpp.o)
+  cxx_objects+=$(addprefix $(BUILDDIR)/, Parameters_sm_cpp.o)
 else
-  gpu_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s_$(GPUSUFFIX).o)
+  gpu_objects=$(addprefix $(BUILDDIR)/, Parameters_sm_$(GPUSUFFIX).o)
 endif
 
 # Target (and build rules): common (src) library
@@ -158,7 +159,7 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 else
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(gpu_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(GPUCC) -shared -o $@ $(cxx_objects) $(gpu_objects) $(LDFLAGS)
+	$(GPUCC) -shared -o $@ $(cxx_objects) $(gpu_objects) $(LDFLAGS) $(GPULIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------

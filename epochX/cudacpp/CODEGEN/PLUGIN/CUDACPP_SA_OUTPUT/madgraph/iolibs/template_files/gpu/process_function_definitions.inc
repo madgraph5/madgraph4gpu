@@ -22,7 +22,9 @@ namespace mg5amcCpu
   constexpr int nwf = CPPProcess::nwf;       // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
 
+#ifndef MGONGPU_RDC_DIAGRAMS
   constexpr int ndiagramgroups = CPPProcess::ndiagramgroups; // the number of Feynman diagram groups
+#endif
 
   using Parameters_%(model_name)s_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_%(model_name)s_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
@@ -98,7 +100,9 @@ namespace mg5amcCpu
   __device__ __constant__ short dcHel[ncomb][npar];
   __device__ __constant__ int dcNGoodHel;
   __device__ __constant__ int dcGoodHel[ncomb];
+#ifndef MGONGPU_RDC_DIAGRAMS
   static short* cHelFlat = nullptr; // symbol address
+#endif
 #else
   static short cHel[ncomb][npar];
   static short* cHelFlat = (short*)cHel;
@@ -147,7 +151,9 @@ namespace mg5amcCpu
 %(all_helicities)s
 #ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( dcHel, tHel, ncomb * npar * sizeof( short ) );
+#ifndef MGONGPU_RDC_DIAGRAMS
     gpuGetSymbolAddress( (void**)( &cHelFlat ), dcHel );
+#endif
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
@@ -386,9 +392,17 @@ namespace mg5amcCpu
       // NB: color_sum ADDS |M|^2 for one helicity to the running sum of |M|^2 over helicities for the given event(s)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int* allChannelIds = nullptr; // disable multichannel single-diagram enhancement
+#ifndef MGONGPU_RDC_DIAGRAMS
       calculate_jamps( ihel, allmomenta, allcouplings, allJamps, allWfs, allChannelIds, allNumerators, allDenominators, 0, gpublocks, gputhreads );
 #else
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, 0, ihel, allmomenta, allcouplings, allJamps, allWfs, allChannelIds, allNumerators, allDenominators );
+#endif
+#else
+#ifndef MGONGPU_RDC_DIAGRAMS
       calculate_jamps( ihel, allmomenta, allcouplings, allJamps, allWfs, 0, gpublocks, gputhreads );
+#else
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, 0, ihel, allmomenta, allcouplings, allJamps, allWfs );
+#endif
 #endif
       gpuLaunchKernel( color_sum_kernel, gpublocks, gputhreads, allMEs, allJamps, nOneHel );
       gpuMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), gpuMemcpyDeviceToHost );
