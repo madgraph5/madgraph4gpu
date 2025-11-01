@@ -94,13 +94,7 @@ endif
 # Build directory "short" tag (defines target and path to the optional build directory)
 # (Rationale: keep directory names shorter, e.g. do not include random number generator choice)
 # ** NB: using ':=' here ensures that 'cppauto' is used as such before being changed later on!
-ifeq ($(BACKEND),cuda)
-  override DIRTAG := $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_dcd$(DCDIAG)
-else ifeq ($(BACKEND),hip)
-  override DIRTAG := $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_dcd$(DCDIAG)
-else
-  override DIRTAG := $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
-endif
+override DIRTAG := $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)
 
 # Build directory: current directory by default, or build.$(DIRTAG) if USEBUILDDIR==1
 ifeq ($(USEBUILDDIR),1)
