@@ -52,6 +52,7 @@ namespace mg5amcCpu
 #include "diagrams_boilerplate.h"
 
 #ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_RDC_DIAGRAMS
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
     //for( int iwf = 0; iwf < nwf; iwf++ ) retrieveWf( wfs, w_cx, nevt, iwf );
     retrieveWf( wfs, w_cx, nevt, 0 );
@@ -64,6 +65,7 @@ namespace mg5amcCpu
     retrieveWf( wfs, w_cx, nevt, 9 );
     retrieveWf( wfs, w_cx, nevt, 10 );
     retrieveWf( wfs, w_cx, nevt, 11 );
+#endif
 #endif
 
     // *** DIAGRAM 11 OF 16 ***
@@ -141,9 +143,11 @@ namespace mg5amcCpu
 #endif
 
 #ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_RDC_DIAGRAMS
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
     //for( int iwf = 0; iwf < nwf; iwf++ ) storeWf( wfs, w_cx, nevt, iwf );
     // (none)
+#endif
 #endif
   }
 
