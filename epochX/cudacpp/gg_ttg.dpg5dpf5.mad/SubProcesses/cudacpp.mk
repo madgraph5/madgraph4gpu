@@ -610,6 +610,7 @@ ifeq ($(DCDIAG),1)
   ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
     GPUFLAGS += -rdc true
   else ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
+    $(error DCDIAG='$(DCDIAG)' is not supported on HIP)
     GPUFLAGS += -fgpu-rdc
     GPULIBFLAGS += -fgpu-rdc --hip-link
   endif
@@ -958,8 +959,7 @@ $(gpu_fcheckmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRA
 $(gpu_fcheckmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
-	$(GPUCC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) $(GPULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe)
-#	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) -lstdc++ -L$(HIP_HOME)/lib -lamdhip64
+	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) -lstdc++ -L$(HIP_HOME)/lib -lamdhip64
 else
 	$(GPUCC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) $(GPULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe)
 endif
@@ -1061,8 +1061,7 @@ $(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY
 $(gpu_testmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(GTESTLIBS)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
-#	$(FC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) -lstdc++ -lpthread -L$(HIP_HOME)/lib -lamdhip64
-	$(GPUCC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) $(GPULIBFLAGS) -pthread
+	$(FC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) -lstdc++ -lpthread -L$(HIP_HOME)/lib -lamdhip64
 else
 	$(GPUCC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) $(GPULIBFLAGS) -lcuda
 endif
