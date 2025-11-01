@@ -606,7 +606,14 @@ endif
 # Set the build flags appropriate to each DGDIAG choice (example: "make DGDIAG=1")
 $(info DCDIAG='$(DCDIAG)')
 ifeq ($(DCDIAG),1)
-  GPUFLAGS += -DMGONGPU_RDC_DIAGRAMS -rdc true
+  GPUFLAGS += -DMGONGPU_RDC_DIAGRAMS
+  ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
+    GPUFLAGS += -rdc true
+  else ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
+    $(error DCDIAG='$(DCDIAG)' is not supported on HIP)
+    GPUFLAGS += -fgpu-rdc
+    GPULIBFLAGS += -fgpu-rdc --hip-link
+  endif
 else ifneq ($(DCDIAG),0)
   $(error Unknown DCDIAG='$(DCDIAG)': only '0' and '1' are supported)
 endif
