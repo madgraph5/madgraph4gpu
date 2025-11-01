@@ -41,7 +41,11 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#ifndef MGONGPU_RDC_DIAGRAMS
   __global__ void
+#else
+  __device__ void
+#endif
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
@@ -56,13 +60,21 @@ namespace mg5amcCpu
                  fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
                  const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
                  const fptype* cIPD,             // input: GPU __device__ or GPU host address of cIPD
+#ifndef MGONGPU_RDC_DIAGRAMS
                  const short* cHelFlat,          // input: GPU __device__ or GPU host address of cHel
+#else
+                 const short (*cHel)[CPPProcess::npar], // input: GPU __device__ or GPU host address of cHel
+#endif
                  const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
                  const int ihel );               // input: helicity (0 to ncomb)
 
   //--------------------------------------------------------------------------
 
+#ifndef MGONGPU_RDC_DIAGRAMS
   __global__ void
+#else
+  __device__ void
+#endif
   diagramgroup2( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
@@ -80,7 +92,11 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#ifndef MGONGPU_RDC_DIAGRAMS
   __global__ void
+#else
+  __device__ void
+#endif
   diagramgroup3( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
@@ -98,7 +114,11 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+#ifndef MGONGPU_RDC_DIAGRAMS
   __global__ void
+#else
+  __device__ void
+#endif
   diagramgroup4( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
                  fptype* jamps,                  // output jamps[ncolor*2*nevt]

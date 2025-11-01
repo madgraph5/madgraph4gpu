@@ -27,7 +27,11 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
+#ifndef MGONGPU_RDC_DIAGRAMS
   __global__ void
+#else
+  __device__ void
+#endif
   diagramgroup2( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
                  fptype* jamps,                  // output jamps[ncolor*2*nevt]

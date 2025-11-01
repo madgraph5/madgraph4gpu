@@ -369,6 +369,12 @@ namespace mg5amcGpu
     if( first )
     {
       first = false;
+      // Print out whether the code was built with DCDIAG=0 or DCDIAG=1
+#ifndef MGONGPU_RDC_DIAGRAMS
+      std::cout << "INFO: Mode DCDIAG=0 (calculate_jamp is a host function)" << std::endl;
+#else
+      std::cout << "INFO: Mode DCDIAG=1 (calculate_jamp is a GPU kernel)" << std::endl;
+#endif
       // Analyse environment variable CUDACPP_RUNTIME_BLASCOLORSUM
       const char* blasEnv = getenv( "CUDACPP_RUNTIME_BLASCOLORSUM" );
       if( blasEnv && std::string( blasEnv ) != "" )

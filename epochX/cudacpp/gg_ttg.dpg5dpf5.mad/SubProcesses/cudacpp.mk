@@ -16,9 +16,9 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #=== Include cudacpp_config.mk
 
-# Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD are supported (and configure defaults if no user-defined choices exist)
+# Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD, DCDIAG are supported (and set defaults if no user-defined choices exist)
 # Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing.
-# Determine CUDACPP_BUILDDIR from a DIRTAG based on BACKEND, FPTYPE, HELINL, HRDCOD and from the user-defined choice of USEBUILDDIR
+# Determine CUDACPP_BUILDDIR from a DIRTAG based on BACKEND, FPTYPE, HELINL, HRDCOD, DCDIAG and from the user-defined choice of USEBUILDDIR
 include ../../src/cudacpp_config.mk
 
 # Export CUDACPP_BUILDDIR (so that there is no need to check/define it again in cudacpp_src.mk)
@@ -507,7 +507,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD
+#=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, DCDIAG
 
 # Set the build flags appropriate to OMPFLAGS
 $(info OMPFLAGS=$(OMPFLAGS))
@@ -599,6 +599,14 @@ else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
 
+# Set the build flags appropriate to each DGDIAG choice (example: "make DGDIAG=1")
+$(info DCDIAG='$(DCDIAG)')
+ifeq ($(DCDIAG),1)
+  GPUFLAGS += -DMGONGPU_RDC_DIAGRAMS -dc
+else ifneq ($(DCDIAG),0)
+  $(error Unknown DCDIAG='$(DCDIAG)': only '0' and '1' are supported)
+endif
+
 #=== Set the CUDA/HIP/C++ compiler and linker flags appropriate to user-defined choices of HASCURAND, HASHIPRAND
 
 $(info HASCURAND=$(HASCURAND))
@@ -671,7 +679,7 @@ endif
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of builds with different random number generators or different BLAS settings)
-override TAG = $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)_$(HASBLAS)
+override TAG = $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_dcd$(DCDIAG)_$(HASCURAND)_$(HASHIPRAND)_$(HASBLAS)
 
 # Export TAG (so that there is no need to check/define it again in cudacpp_src.mk)
 export TAG
