@@ -351,15 +351,24 @@ namespace mg5amcCpu
     // --- WAVEFUNCTION BUFFERS ---
     // ----------------------------
 #ifndef MGONGPUCPP_GPUIMPL
-    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+    // Local TEMPORARY variables for a subset of Feynman diagrams in the given C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
     // ** NB: wavefunctions only need TRIVIAL ACCESS in C++ code
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     fptype* wfs = reinterpret_cast<fptype*>( w_sv );
 #else
+#ifndef MGONGPU_RDC_DIAGRAMS
     // Global-memory variables for a subset of Feynman diagrams in the given CUDA event (ievt)
     // ** NB: wavefunctions need non-trivial access in CUDA code because of kernel splitting
     fptype* wfs = allWfs;
+#else
+    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt)
+    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    // ** NB: wavefunctions only need TRIVIAL ACCESS in C++ code
+    assert( allWfs != nullptr ); // avoid build warning
+    cxtype_sv w_sv[nwf][nw6];    // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+    fptype* wfs = reinterpret_cast<fptype*>( w_sv );
+#endif
 #endif
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===

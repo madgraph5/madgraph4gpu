@@ -75,7 +75,7 @@ namespace mg5amcCpu
     constexpr int npar = CPPProcess::npar;
     const short (*cHel)[npar] = reinterpret_cast<const short(*)[npar]>( cHelFlat );
 #endif
-    
+
     // *** DIAGRAM 1 OF 16 ***
     // Wavefunction(s) for diagram number 1
     vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], -1, w_fp[0], 0 );
