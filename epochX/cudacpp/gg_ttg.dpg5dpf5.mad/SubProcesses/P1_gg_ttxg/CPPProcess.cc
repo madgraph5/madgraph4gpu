@@ -365,7 +365,7 @@ namespace mg5amcCpu
     // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
     // ** NB: wavefunctions only need TRIVIAL ACCESS in C++ code
-    assert( allWfs != nullptr ); // avoid build warning
+    assert( allWfs == nullptr ); // sanity check
     cxtype_sv w_sv[nwf][nw6];    // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     fptype* wfs = reinterpret_cast<fptype*>( w_sv );
 #endif
