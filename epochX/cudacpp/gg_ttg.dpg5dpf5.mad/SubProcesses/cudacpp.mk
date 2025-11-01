@@ -602,7 +602,7 @@ endif
 # Set the build flags appropriate to each DGDIAG choice (example: "make DGDIAG=1")
 $(info DCDIAG='$(DCDIAG)')
 ifeq ($(DCDIAG),1)
-  GPUFLAGS += -DMGONGPU_RDC_DIAGRAMS -dc
+  GPUFLAGS += -DMGONGPU_RDC_DIAGRAMS -rdc true
 else ifneq ($(DCDIAG),0)
   $(error Unknown DCDIAG='$(DCDIAG)': only '0' and '1' are supported)
 endif
