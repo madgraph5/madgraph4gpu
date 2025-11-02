@@ -159,6 +159,11 @@ if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ 
 # Always test only the .mad/ directories (hardcoded)
 suffs=".mad/"
 
+# Always run tmas tests using the default settings of HELINL, HRDCOD and DCDIAG
+export HELINL=0
+export HRDCOD=0
+export DCDIAG=0
+
 # Switch between double and float builds
 export FPTYPE=$fptype
 if [ "${fptype}" == "f" ]; then
@@ -344,7 +349,7 @@ function runcheck()
   if [ "${cmd/gcheckmax128thr}" != "$cmd" ]; then
     txt="GCHECK(MAX128THR)"
     cmd=${cmd/gcheckmax128thr/check_${backend}} # hack: run cuda/hip check with tput fastest settings
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0_dcd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -lt 128 ]; do (( nthr = nthr * 2 )); (( nblk = nblk / 2 )); done
@@ -352,7 +357,7 @@ function runcheck()
   elif [ "${cmd/gcheckmax8thr}" != "$cmd" ]; then
     txt="GCHECK(MAX8THR)"
     cmd=${cmd/gcheckmax8thr/check_${backend}} # hack: run cuda/hip check with tput fastest settings
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0_dcd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     while [ $nthr -gt 8 ]; do (( nthr = nthr / 2 )); (( nblk = nblk * 2 )); done
@@ -360,14 +365,14 @@ function runcheck()
   elif [ "${cmd/gcheckmax}" != "$cmd" ]; then
     txt="GCHECK(MAX)"
     cmd=${cmd/gcheckmax/check_${backend}} # hack: run cuda/hip check with tput fastest settings
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0_dcd0\/}
     nblk=$(getgridmax | cut -d ' ' -f1)
     nthr=$(getgridmax | cut -d ' ' -f2)
     (( nevt = nblk*nthr ))
   elif [ "${cmd/gcheck}" != "$cmd" ]; then
     txt="GCHECK($NLOOP)"
     cmd=${cmd/gcheck/check_${backend}}
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0_dcd0\/}
     nthr=32
     (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
     (( nloop2 = nblk*nthr )) || true
@@ -376,7 +381,7 @@ function runcheck()
   elif [ "${cmd/check}" != "$cmd" ]; then
     txt="CHECK($NLOOP)"
     cmd=${cmd/check/check_cpp}
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/} # no _dcd0 suffix for C++ builds
     nthr=32
     (( nblk = NLOOP/nthr )) || true # integer division (NB: bash double parenthesis fails if the result is 0)
     (( nloop2 = nblk*nthr )) || true
@@ -404,12 +409,12 @@ function runmadevent()
   cmd=$1
   if [ "${cmd/madevent_cpp}" != "$cmd" ]; then
     tmpin=$(getinputfile -cpp)
-    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.${backend}_${fptype}_inl0_hrd0\/} # no _dcd0 suffix for C++ builds
   elif [ "${cmd/madevent_cuda}" != "$cmd" ]; then
-    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.cuda_${fptype}_inl0_hrd0_dcd0\/}
     tmpin=$(getinputfile -cuda)
   elif [ "${cmd/madevent_hip}" != "$cmd" ]; then
-    cmd=${cmd/.\//.\/build.hip_${fptype}_inl0_hrd0\/}
+    cmd=${cmd/.\//.\/build.hip_${fptype}_inl0_hrd0_dcd0\/}
     tmpin=$(getinputfile -hip)
   else # assume this is madevent_fortran (do not check)
     tmpin=$(getinputfile -fortran)
