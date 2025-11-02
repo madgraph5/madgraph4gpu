@@ -43,6 +43,9 @@ if [ "${bsm}" != "-bsmonly" ]; then
   ./CODEGEN/generateAndCompare.sh -q gq_ttq
   ./CODEGEN/generateAndCompare.sh -q gq_ttq --mad
 
+  ./CODEGEN/generateAndCompare.sh gg_ttg --maxdiagpergroup 5 --mindiagperfile 5
+  ./CODEGEN/generateAndCompare.sh gg_ttg --maxdiagpergroup 5 --mindiagperfile 5 --mad
+
 fi
 
 # BSM processes
@@ -72,7 +75,5 @@ if [ "${bsm}" != "-bsmonly" ]; then
   ./CODEGEN/generateAndCompare.sh -q gg_tt01g --mad
 
   ./CODEGEN/generateAndCompare.sh -q pp_tt012j --mad
-
-  ./CODEGEN/generateAndCompare.sh --mad gg_ttg --maxdiagpergroup 5 --mindiagperfile 5
 
 fi
