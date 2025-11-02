@@ -1384,16 +1384,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   // Evaluate QCD partial amplitudes jamps for this given helicity from Feynman diagrams
   // Also compute running sums over helicities adding jamp2, numerator, denominator
   // (NB: this function no longer handles matrix elements as the color sum has now been moved to a separate function/kernel)
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   // In CUDA, this function processes a single event
   // ** NB1: NEW Nov2024! In CUDA this is now a kernel function (it used to be a device function)
   // ** NB2: NEW Nov2024! in CUDA this now takes a channelId array as input (it used to take a scalar channelId as input)
-  // In C++, this function processes a single event \"page\" or SIMD vector (or for two in \"mixed\" precision mode, nParity=2)
-  // *** NB: in C++, calculate_jamps accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
-#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
 #ifndef MGONGPU_RDC_DIAGRAMS
   INLINE void
-  calculate_jamps( int ihel,
-                   const fptype* allmomenta,          // input: momenta[nevt*npar*4]
+#else
+  __global__ void
+#endif
+  calculate_jamps( const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
                    fptype* allJamps,                  // output: jamp[ncolor*2*nevt] for this helicity
                    fptype* allWfs,                    // output: wf[nwf*nw6*2*nevt]
@@ -1402,26 +1402,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
 #endif
+#ifndef MGONGPU_RDC_DIAGRAMS
                    gpuStream_t gpustream,             // input: cuda stream for this helicity
                    const int gpublocks,               // input: cuda gpublocks
-                   const int gputhreads )             // input: cuda gputhreads
-#else
-  __global__ void
-  calculate_jamps( int ihel,
-                   const fptype* allmomenta,          // input: momenta[nevt*npar*4]
-                   const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
-                   fptype* allJamps,                  // output: jamp[ncolor*2*nevt] for this helicity
-                   fptype* allWfs,                    // output: wf[nwf*nw6*2*nevt]
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE (#899/#911)
-                   fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
-                   fptype* allDenominators )          // input/output: multichannel denominators[nevt], add helicity ihel
+                   const int gputhreads,              // input: cuda gputhreads
 #endif
-#endif
+                   int ihel )
 #else
+  // In C++, this function processes a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
+  // *** NB: in C++, calculate_jamps accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
   INLINE void
-  calculate_jamps( int ihel,
-                   const fptype* allmomenta,          // input: momenta[nevt*npar*4]
+  calculate_jamps( const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
                    cxtype_sv* jamp_sv_1or2,           // output: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -1429,7 +1420,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
 #endif
-                   const int ievt00 )                 // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                   const int ievt00,                  // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                   int ihel )
 #endif
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {

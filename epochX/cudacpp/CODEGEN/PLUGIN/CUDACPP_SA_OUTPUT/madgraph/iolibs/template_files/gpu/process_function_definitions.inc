@@ -393,15 +393,15 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int* allChannelIds = nullptr; // disable multichannel single-diagram enhancement
 #ifndef MGONGPU_RDC_DIAGRAMS
-      calculate_jamps( ihel, allmomenta, allcouplings, allJamps, allWfs, allChannelIds, allNumerators, allDenominators, 0, gpublocks, gputhreads );
+      calculate_jamps( allmomenta, allcouplings, allJamps, allWfs, allChannelIds, allNumerators, allDenominators, 0, gpublocks, gputhreads, ihel );
 #else
-      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, 0, ihel, allmomenta, allcouplings, allJamps, allWfs, allChannelIds, allNumerators, allDenominators );
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, 0, allmomenta, allcouplings, allJamps, allWfs, allChannelIds, allNumerators, allDenominators, ihel );
 #endif
 #else
 #ifndef MGONGPU_RDC_DIAGRAMS
-      calculate_jamps( ihel, allmomenta, allcouplings, allJamps, allWfs, 0, gpublocks, gputhreads );
+      calculate_jamps( allmomenta, allcouplings, allJamps, allWfs, 0, gpublocks, gputhreads, ihel );
 #else
-      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, 0, ihel, allmomenta, allcouplings, allJamps, allWfs );
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, 0, allmomenta, allcouplings, allJamps, allWfs, ihel );
 #endif
 #endif
       gpuLaunchKernel( color_sum_kernel, gpublocks, gputhreads, allMEs, allJamps, nOneHel );
@@ -476,9 +476,9 @@ namespace mg5amcCpu
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL /* clang-format off */
         constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, channelId, allNumerators, allDenominators, ievt00 ); //maxtry?
+        calculate_jamps( allmomenta, allcouplings, jamp_sv_1or2, channelId, allNumerators, allDenominators, ievt00, ihel ); //maxtry?
 #else
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, ievt00 ); //maxtry?
+        calculate_jamps( allmomenta, allcouplings, jamp_sv_1or2, ievt00, ihel ); //maxtry?
 #endif /* clang-format on */
         color_sum_cpu( allMEs, jamp_sv_1or2, ievt00 );
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
