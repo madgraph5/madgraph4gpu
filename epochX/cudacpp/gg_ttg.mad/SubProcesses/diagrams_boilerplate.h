@@ -33,7 +33,11 @@
     // This means that the fi pointer must point to a [RIRIRIRIRIRI] contiguous buffer of size nw6*nx2=12
     // The striding between events is nw6*nx2=12 and this is what W_ACCESS::kernelAccess must respect
     // (En passant, note that this means that events cannot be contiguous in the present code, memory is not coalesced)
+#ifndef MGONGPU_RDC_DIAGRAMS
     cxtype w_cx[nwf][nw6];
+#else
+    cxtype_sv (*w_cx)[nw6] = reinterpret_cast<cxtype_sv(*)[nw6]>( wfs );
+#endif
     fptype* w_fp[nwf];
     for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_cx[iwf] );
 #ifdef __CUDACC__ // this must be __CUDACC__ (not MGONGPUCPP_GPUIMPL)

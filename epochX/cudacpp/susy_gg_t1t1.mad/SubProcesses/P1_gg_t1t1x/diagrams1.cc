@@ -27,7 +27,11 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
+#ifndef MGONGPU_RDC_DIAGRAMS
   __global__ void
+#else
+  __device__ void
+#endif
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
@@ -42,7 +46,11 @@ namespace mg5amcCpu
                  fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
                  const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
                  const fptype* cIPD,             // input: GPU __device__ or GPU host address of cIPD
+#ifndef MGONGPU_RDC_DIAGRAMS
                  const short* cHelFlat,          // input: GPU __device__ or GPU host address of cHel
+#else
+                 const short (*cHel)[CPPProcess::npar], // input: GPU __device__ or GPU host address of cHel
+#endif
                  const fptype* momenta,          // input: momenta[npar*4*nevtORneppV]
                  const int ihel )                // input: helicity (0 to ncomb)
   {
@@ -56,13 +64,17 @@ namespace mg5amcCpu
 #endif
 
 #ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_RDC_DIAGRAMS
     // *** RETRIEVE WAVEFUNCTIONS FROM PREVIOUS DIAGRAM GROUPS ***
     // (none)
 #endif
+#endif
 
+#ifndef MGONGPU_RDC_DIAGRAMS
     // Reinterpret the flat array pointer for helicities as a multidimensional array pointer
     constexpr int npar = CPPProcess::npar;
     const short (*cHel)[npar] = reinterpret_cast<const short(*)[npar]>( cHelFlat );
+#endif
 
     // *** DIAGRAM 1 OF 6 ***
     // Wavefunction(s) for diagram number 1
@@ -146,8 +158,10 @@ namespace mg5amcCpu
 #endif
 
 #ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_RDC_DIAGRAMS
     // *** STORE WAVEFUNCTIONS FOR NEXT DIAGRAM GROUPS ***
     // (none)
+#endif
 #endif
   }
 

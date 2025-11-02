@@ -105,7 +105,9 @@ namespace mg5amcCpu
   constexpr int nwf = CPPProcess::nwf;       // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
   constexpr int ncolor = CPPProcess::ncolor; // the number of leading colors
 
+#ifndef MGONGPU_RDC_DIAGRAMS
   constexpr int ndiagramgroups = CPPProcess::ndiagramgroups; // the number of Feynman diagram groups
+#endif
 
   using Parameters_sm_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
   using Parameters_sm_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
@@ -181,7 +183,9 @@ namespace mg5amcCpu
   __device__ __constant__ short dcHel[ncomb][npar];
   __device__ __constant__ int dcNGoodHel;
   __device__ __constant__ int dcGoodHel[ncomb];
+#ifndef MGONGPU_RDC_DIAGRAMS
   static short* cHelFlat = nullptr; // symbol address
+#endif
 #else
   static short cHel[ncomb][npar];
   static short* cHelFlat = (short*)cHel;
@@ -278,15 +282,16 @@ namespace mg5amcCpu
   // Evaluate QCD partial amplitudes jamps for this given helicity from Feynman diagrams
   // Also compute running sums over helicities adding jamp2, numerator, denominator
   // (NB: this function no longer handles matrix elements as the color sum has now been moved to a separate function/kernel)
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   // In CUDA, this function processes a single event
   // ** NB1: NEW Nov2024! In CUDA this is now a kernel function (it used to be a device function)
   // ** NB2: NEW Nov2024! in CUDA this now takes a channelId array as input (it used to take a scalar channelId as input)
-  // In C++, this function processes a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
-  // *** NB: in C++, calculate_jamps accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
-#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+#ifndef MGONGPU_RDC_DIAGRAMS
   INLINE void
-  calculate_jamps( int ihel,
-                   const fptype* allmomenta,          // input: momenta[nevt*npar*4]
+#else
+  __global__ void
+#endif
+  calculate_jamps( const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
                    fptype* allJamps,                  // output: jamp[ncolor*2*nevt] for this helicity
                    fptype* allWfs,                    // output: wf[nwf*nw6*2*nevt]
@@ -295,13 +300,17 @@ namespace mg5amcCpu
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
 #endif
+#ifndef MGONGPU_RDC_DIAGRAMS
                    gpuStream_t gpustream,             // input: cuda stream for this helicity
                    const int gpublocks,               // input: cuda gpublocks
-                   const int gputhreads )             // input: cuda gputhreads
+                   const int gputhreads,              // input: cuda gputhreads
+#endif
+                   int ihel )
 #else
+  // In C++, this function processes a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
+  // *** NB: in C++, calculate_jamps accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
   INLINE void
-  calculate_jamps( int ihel,
-                   const fptype* allmomenta,          // input: momenta[nevt*npar*4]
+  calculate_jamps( const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
                    cxtype_sv* jamp_sv_1or2,           // output: jamp_sv[ncolor] (f/d) or [2*ncolor] (m) for SIMD event page(s) ievt00 and helicity ihel
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -309,7 +318,8 @@ namespace mg5amcCpu
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
 #endif
-                   const int ievt00 )                 // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                   const int ievt00,                  // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                   int ihel )
 #endif
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
@@ -333,15 +343,24 @@ namespace mg5amcCpu
     // --- WAVEFUNCTION BUFFERS ---
     // ----------------------------
 #ifndef MGONGPUCPP_GPUIMPL
-    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt) or C++ event page (ipagV)
+    // Local TEMPORARY variables for a subset of Feynman diagrams in the given C++ event page (ipagV)
     // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
     // ** NB: wavefunctions only need TRIVIAL ACCESS in C++ code
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
     fptype* wfs = reinterpret_cast<fptype*>( w_sv );
 #else
+#ifndef MGONGPU_RDC_DIAGRAMS
     // Global-memory variables for a subset of Feynman diagrams in the given CUDA event (ievt)
     // ** NB: wavefunctions need non-trivial access in CUDA code because of kernel splitting
     fptype* wfs = allWfs;
+#else
+    // Local TEMPORARY variables for a subset of Feynman diagrams in the given CUDA event (ievt)
+    // [NB these variables are reused several times (and re-initialised each time) within the same event or event page]
+    // ** NB: wavefunctions only need TRIVIAL ACCESS in C++ code
+    assert( allWfs == nullptr ); // sanity check
+    cxtype_sv w_sv[nwf][nw6];    // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+    fptype* wfs = reinterpret_cast<fptype*>( w_sv );
+#endif
 #endif
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
@@ -447,6 +466,8 @@ namespace mg5amcCpu
 
       // *** DIAGRAMS 1 TO 3 ***
 #ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_RDC_DIAGRAMS
+      // === GPU IMPLEMENTATION (DCDIAG=0): each diagram group is an individual kernel ===
       static bool useGraphs = false;
       static bool first = true;
       if( first )
@@ -494,6 +515,11 @@ namespace mg5amcCpu
         checkGpu( gpuGraphLaunch( graphExec, gpustream ) );
       }
 #else
+      // === GPU IMPLEMENTATION (DCDIAG=1): merge all diagram groups into a single kernel ===
+      diagramgroup1( wfs, jamps, dcNGoodHel, couplings, channelIds, numerators, denominators, dcIPC, dcIPD, dcHel, momenta, ihel );
+#endif
+#else
+      // === C++ IMPLEMENTATION ===
       diagramgroup1( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );
 #endif
     }
@@ -536,7 +562,9 @@ namespace mg5amcCpu
       { 1, 1, 1, -1 } };
 #ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( dcHel, tHel, ncomb * npar * sizeof( short ) );
+#ifndef MGONGPU_RDC_DIAGRAMS
     gpuGetSymbolAddress( (void**)( &cHelFlat ), dcHel );
+#endif
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
 #endif
@@ -784,9 +812,17 @@ namespace mg5amcCpu
       // NB: color_sum ADDS |M|^2 for one helicity to the running sum of |M|^2 over helicities for the given event(s)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int* allChannelIds = nullptr; // disable multichannel single-diagram enhancement
-      calculate_jamps( ihel, allmomenta, allcouplings, allJamps, allWfs, allChannelIds, allNumerators, allDenominators, 0, gpublocks, gputhreads );
+#ifndef MGONGPU_RDC_DIAGRAMS
+      calculate_jamps( allmomenta, allcouplings, allJamps, allWfs, allChannelIds, allNumerators, allDenominators, 0, gpublocks, gputhreads, ihel );
 #else
-      calculate_jamps( ihel, allmomenta, allcouplings, allJamps, allWfs, 0, gpublocks, gputhreads );
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, 0, allmomenta, allcouplings, allJamps, allWfs, allChannelIds, allNumerators, allDenominators, ihel );
+#endif
+#else
+#ifndef MGONGPU_RDC_DIAGRAMS
+      calculate_jamps( allmomenta, allcouplings, allJamps, allWfs, 0, gpublocks, gputhreads, ihel );
+#else
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, 0, allmomenta, allcouplings, allJamps, allWfs, ihel );
+#endif
 #endif
       gpuLaunchKernel( color_sum_kernel, gpublocks, gputhreads, allMEs, allJamps, nOneHel );
       gpuMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), gpuMemcpyDeviceToHost );
@@ -860,9 +896,9 @@ namespace mg5amcCpu
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL /* clang-format off */
         constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, channelId, allNumerators, allDenominators, ievt00 ); //maxtry?
+        calculate_jamps( allmomenta, allcouplings, jamp_sv_1or2, channelId, allNumerators, allDenominators, ievt00, ihel ); //maxtry?
 #else
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, ievt00 ); //maxtry?
+        calculate_jamps( allmomenta, allcouplings, jamp_sv_1or2, ievt00, ihel ); //maxtry?
 #endif /* clang-format on */
         color_sum_cpu( allMEs, jamp_sv_1or2, ievt00 );
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
@@ -1199,9 +1235,17 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
-      calculate_jamps( ihel, allmomenta, allcouplings, hAllJamps, hAllWfs, allChannelIds, hAllNumerators, hAllDenominators, ghelStreams[ighel], gpublocks, gputhreads );
+#ifndef MGONGPU_RDC_DIAGRAMS
+      calculate_jamps( allmomenta, allcouplings, hAllJamps, hAllWfs, allChannelIds, hAllNumerators, hAllDenominators, ghelStreams[ighel], gpublocks, gputhreads, ihel );
 #else
-      calculate_jamps( ihel, allmomenta, allcouplings, hAllJamps, hAllWfs, ghelStreams[ighel], gpublocks, gputhreads );
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], allmomenta, allcouplings, hAllJamps, hAllWfs, allChannelIds, hAllNumerators, hAllDenominators, ihel );
+#endif
+#else
+#ifndef MGONGPU_RDC_DIAGRAMS
+      calculate_jamps( allmomenta, allcouplings, hAllJamps, hAllWfs, ghelStreams[ighel], gpublocks, gputhreads, ihel );
+#else
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], allmomenta, allcouplings, hAllJamps, hAllWfs, ihel );
+#endif
 #endif
     }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -1306,9 +1350,9 @@ namespace mg5amcCpu
         cxtype_sv jamp_sv_1or2[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, channelId, allNumerators, allDenominators, ievt00 );
+        calculate_jamps( allmomenta, allcouplings, jamp_sv_1or2, channelId, allNumerators, allDenominators, ievt00, ihel );
 #else
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv_1or2, ievt00 );
+        calculate_jamps( allmomenta, allcouplings, jamp_sv_1or2, ievt00, ihel );
 #endif
         color_sum_cpu( allMEs, jamp_sv_1or2, ievt00 );
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );

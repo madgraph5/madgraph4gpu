@@ -16,9 +16,9 @@ override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
 
 #=== Include cudacpp_config.mk
 
-# Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD are supported (and configure defaults if no user-defined choices exist)
+# Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD, DCDIAG are supported (and set defaults if no user-defined choices exist)
 # Stop with an error if BACKEND=cuda and nvcc is missing or if BACKEND=hip and hipcc is missing.
-# Determine CUDACPP_BUILDDIR from a DIRTAG based on BACKEND, FPTYPE, HELINL, HRDCOD and from the user-defined choice of USEBUILDDIR
+# Determine CUDACPP_BUILDDIR from a DIRTAG based on BACKEND, FPTYPE, HELINL, HRDCOD, DCDIAG and from the user-defined choice of USEBUILDDIR
 include ../../src/cudacpp_config.mk
 
 # Export CUDACPP_BUILDDIR (so that there is no need to check/define it again in cudacpp_src.mk)
@@ -173,6 +173,7 @@ ifeq ($(BACKEND),cuda)
   XCOMPILERFLAG = -Xcompiler
   GPULANGUAGE = cu
   GPUSUFFIX = cuda
+  GPULIBFLAGS =
 
   # Optimization flags
   GPUFLAGS = $(foreach opt, $(OPTFLAGS), $(XCOMPILERFLAG) $(opt))
@@ -190,6 +191,7 @@ ifeq ($(BACKEND),cuda)
   comma:=,
   GPUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
   GPUFLAGS += $(GPUARCHFLAGS)
+  GPULIBFLAGS += $(GPUARCHFLAGS) # avoid "nvlink warning : SM Arch ('sm_52') not found"
 
   # Other NVidia-specific flags
   CUDA_OPTFLAGS = -lineinfo
@@ -236,6 +238,7 @@ else ifeq ($(BACKEND),hip)
   XCOMPILERFLAG =
   GPULANGUAGE = hip
   GPUSUFFIX = hip
+  GPULIBFLAGS =
 
   # Optimization flags
   override OPTFLAGS = -O2 # work around "Memory access fault" in gq_ttq for HIP #806: disable hipcc -O3 optimizations
@@ -279,11 +282,12 @@ else
 
 endif
 
-# Export GPUCC, GPUFLAGS, GPULANGUAGE, GPUSUFFIX (so that there is no need to check/define them again in cudacpp_src.mk)
+# Export GPUCC, GPUFLAGS, GPULANGUAGE, GPUSUFFIX, GPULIBFLAGS (so that there is no need to check/define them again in cudacpp_src.mk)
 export GPUCC
 export GPUFLAGS
 export GPULANGUAGE
 export GPUSUFFIX
+export GPULIBFLAGS
 
 #-------------------------------------------------------------------------------
 
@@ -507,7 +511,7 @@ endif
 
 #-------------------------------------------------------------------------------
 
-#=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD
+#=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD, DCDIAG
 
 # Set the build flags appropriate to OMPFLAGS
 $(info OMPFLAGS=$(OMPFLAGS))
@@ -595,8 +599,26 @@ $(info HRDCOD='$(HRDCOD)')
 ifeq ($(HRDCOD),1)
   CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
   GPUFLAGS += -DMGONGPU_HARDCODE_PARAM
+  ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
+    GPUFLAGS += -fgpu-rdc
+    GPULIBFLAGS += -fgpu-rdc --hip-link
+  endif
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
+endif
+
+# Set the build flags appropriate to each DGDIAG choice (example: "make DGDIAG=1")
+$(info DCDIAG='$(DCDIAG)')
+ifeq ($(DCDIAG),1)
+  GPUFLAGS += -DMGONGPU_RDC_DIAGRAMS
+  ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
+    GPUFLAGS += -rdc true
+  else ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
+    GPUFLAGS += -fgpu-rdc
+    GPULIBFLAGS += -fgpu-rdc --hip-link
+  endif
+else ifneq ($(DCDIAG),0)
+  $(error Unknown DCDIAG='$(DCDIAG)': only '0' and '1' are supported)
 endif
 
 #=== Set the CUDA/HIP/C++ compiler and linker flags appropriate to user-defined choices of HASCURAND, HASHIPRAND
@@ -671,7 +693,7 @@ endif
 
 # Build lockfile "full" tag (defines full specification of build options that cannot be intermixed)
 # (Rationale: avoid mixing of builds with different random number generators or different BLAS settings)
-override TAG = $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_$(HASCURAND)_$(HASHIPRAND)_$(HASBLAS)
+override TAG = $(patsubst cpp%,%,$(BACKEND))_$(FPTYPE)_inl$(HELINL)_hrd$(HRDCOD)_dcd$(DCDIAG)_$(HASCURAND)_$(HASHIPRAND)_$(HASBLAS)
 
 # Export TAG (so that there is no need to check/define it again in cudacpp_src.mk)
 export TAG
@@ -859,7 +881,7 @@ ifneq ($(GPUCC),)
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: $(BUILDDIR)/fbridge_$(GPUSUFFIX).o
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: gpu_objects_lib += $(BUILDDIR)/fbridge_$(GPUSUFFIX).o
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib)
-	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) $(BLASLIBFLAGS)
+	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGS) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) $(BLASLIBFLAGS)
 # Bypass std::filesystem completely to ease portability on LUMI #803
 #ifneq ($(findstring hipcc,$(GPUCC)),)
 #	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
@@ -894,7 +916,7 @@ endif
 $(gpu_checkmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_checkmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_checkmain): $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
-	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
+	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBFLAGS) $(GPULIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------
@@ -921,7 +943,7 @@ $(cxx_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name
 endif
 $(cxx_fcheckmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_cpp.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
+ifneq ($(findstring hipcc,$(GPUCC)),) # C++ exe: link fortran/c++/hip using $FC when hipcc is used #802
 	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(OMPFLAGS) $(BUILDDIR)/fsampler_cpp.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) -lstdc++
 else
 	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(OMPFLAGS) $(BUILDDIR)/fsampler_cpp.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe)
@@ -939,10 +961,10 @@ endif
 $(gpu_fcheckmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_fcheckmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe)
-ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
-	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) -lstdc++ -L$(HIP_HOME)/lib -lamdhip64
+ifneq ($(findstring hipcc,$(GPUCC)),) # GPU exe: link fortran/c++/hip using hipcc (no longer with $FC #802)
+	$(GPUCC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) $(GPULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe)
 else
-	$(GPUCC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe)
+	$(GPUCC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) $(GPULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe)
 endif
 endif
 
@@ -1041,10 +1063,10 @@ else # link only runTest_$(GPUSUFFIX).o (new: in the past, this was linking both
 $(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_testmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(GTESTLIBS)
-ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
-	$(FC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) -lstdc++ -lpthread -L$(HIP_HOME)/lib -lamdhip64
+ifneq ($(findstring hipcc,$(GPUCC)),) # GPU exe: link fortran/c++/hip using hipcc (no longer with $FC #802)
+	$(GPUCC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) $(GPULIBFLAGS) -pthread
 else
-	$(GPUCC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) -lcuda
+	$(GPUCC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) $(GPULIBFLAGS) -lcuda
 endif
 endif
 
