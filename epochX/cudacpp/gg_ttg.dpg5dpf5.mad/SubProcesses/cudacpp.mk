@@ -599,6 +599,10 @@ $(info HRDCOD='$(HRDCOD)')
 ifeq ($(HRDCOD),1)
   CXXFLAGS += -DMGONGPU_HARDCODE_PARAM
   GPUFLAGS += -DMGONGPU_HARDCODE_PARAM
+  ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
+    GPUFLAGS += -fgpu-rdc
+    GPULIBFLAGS += -fgpu-rdc --hip-link
+  endif
 else ifneq ($(HRDCOD),0)
   $(error Unknown HRDCOD='$(HRDCOD)': only '0' and '1' are supported)
 endif
