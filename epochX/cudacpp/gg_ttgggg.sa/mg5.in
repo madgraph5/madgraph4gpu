@@ -1,4 +1,0 @@
-set stdout_level DEBUG
-set zerowidth_tchannel F
-generate g g > t t~ g g g g
-output standalone_cudacpp gg_ttgggg.dpg1000dpf1000.sa
