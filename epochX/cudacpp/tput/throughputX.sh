@@ -19,7 +19,7 @@ export MG5AMC_CHANNELID_DEBUG=1
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-ggttg5]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-ggttg5]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-dcd|-dcdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -48,6 +48,7 @@ bblds=
 fptypes="m" # new default #995 (was "d")
 helinls="0"
 hrdcods="0"
+dcdiags="0"
 rndgen=""
 rmbsmp=""
 
@@ -199,6 +200,14 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-hrdonly" ]; then
     if [ "${hrdcods}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
     hrdcods="1"
+    shift
+  elif [ "$1" == "-dcd" ]; then
+    if [ "${dcdiags}" == "1" ]; then echo "ERROR! Options -dcd and -dcdonly are incompatible"; usage; fi
+    dcdiags="0 1"
+    shift
+  elif [ "$1" == "-dcdonly" ]; then
+    if [ "${dcdiags}" == "0 1" ]; then echo "ERROR! Options -dcd and -dcdonly are incompatible"; usage; fi
+    dcdiags="1"
     shift
   elif [ "$1" == "-common" ]; then
     rndgen=" -${1}"
@@ -393,18 +402,22 @@ for dir in $dirs; do
   # CUDA (epochX - manual/mad)
   # C++  (epochX - manual/mad)
   #=====================================
-  for hrdcod in $hrdcods; do
-    hrdsuf=_hrd${hrdcod}
-    for helinl in $helinls; do
-      for fptype in $fptypes; do
-        for bbld in cuda hip none sse4 avx2 512y 512z; do
-          if [ "${bblds}" == "${bbldsall}" ] || [ "${bblds/${bbld}}" != "${bblds}" ]; then 
-            if [ "${bbld}" == "cuda" ] || [ "${bbld}" == "hip" ]; then
-              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/check_${bbld}.exe"
-            else
-              exes="$exes $dir/build.${bbld}_${fptype}_inl${helinl}${hrdsuf}/check_cpp.exe"
+  for dcdiag in $dcdiags; do
+    dcdsuf=_dcd${dcdiag}
+    for hrdcod in $hrdcods; do
+      hrdsuf=_hrd${hrdcod}
+      for helinl in $helinls; do
+        inlsuf=_inl${helinl}
+        for fptype in $fptypes; do
+          for bbld in cuda hip none sse4 avx2 512y 512z; do
+            if [ "${bblds}" == "${bbldsall}" ] || [ "${bblds/${bbld}}" != "${bblds}" ]; then 
+              if [ "${bbld}" == "cuda" ] || [ "${bbld}" == "hip" ]; then
+                exes="$exes $dir/build.${bbld}_${fptype}${inlsuf}${hrdsuf}${dcdsuf}/check_${bbld}.exe"
+              else
+                exes="$exes $dir/build.${bbld}_${fptype}${inlsuf}${hrdsuf}/check_cpp.exe"
+              fi
             fi
-          fi
+          done
         done
       done
     done
@@ -451,24 +464,28 @@ else
     fi
     if [ "${maketype}" == "-makeclean" ]; then make cleanall; echo; fi
     if [ "${maketype}" == "-makecleanonly" ]; then make cleanall; echo; continue; fi
-    for hrdcod in $hrdcods; do
-      export HRDCOD=$hrdcod
-      for helinl in $helinls; do
-	export HELINL=$helinl
-	for fptype in $fptypes; do
-          export FPTYPE=$fptype
-          if [ "${bblds_dir}" == "${bbldsall}" ]; then
-            make ${makef} ${makej} bldall; echo # (was: allow 'make avxall' again #536)
-          else
-            for bbld in ${bblds_dir}; do
-              make ${makef} ${makej} BACKEND=${bbld}; echo
-            done
-          fi
+    for dcdiag in $dcdiags; do
+      export DCDIAG=$dcdiag
+      for hrdcod in $hrdcods; do
+        export HRDCOD=$hrdcod
+        for helinl in $helinls; do
+	  export HELINL=$helinl
+	  for fptype in $fptypes; do
+            export FPTYPE=$fptype
+            if [ "${bblds_dir}" == "${bbldsall}" ]; then
+              make ${makef} ${makej} bldall; echo # (was: allow 'make avxall' again #536)
+            else
+              for bbld in ${bblds_dir}; do
+                make ${makef} ${makej} BACKEND=${bbld}; echo
+              done
+            fi
+	  done
 	done
       done
     done
     popd >& /dev/null
     export USEBUILDDIR=
+    export DCDIAG=
     export HRDCOD=
     export HELINL=
     export FPTYPE=
@@ -601,8 +618,12 @@ function runNcu() {
   args="$2"
   args="$args$rndgen$rmbsmp"
   ###echoblas=1
-  ###kernels="calculate_jamps color_sum_kernel" # before kernel splitting
-  kernels="diagramgroup1 diagramgroup2 color_sum_kernel" # with kernel splitting
+  if [ "${exe1/dcd1/}" == "${exe}" ]; then
+    ###kernels="calculate_jamps color_sum_kernel" # before diagramgroup splitting
+    kernels="diagramgroup1 diagramgroup2 color_sum_kernel" # with diagramgroup splitting and many kernels (DCDIAG=0)
+  else
+    kernels="calculate_jamps color_sum_kernel" # with diagramgroup splitting and a single kernel (DCDIAG=1)
+  fi
   ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels kernel"; fi # heavy to profile...
   ###if [ "${CUDACPP_RUNTIME_BLASCOLORSUM}" == "1" ]; then kernels="$kernels regex:gemm"; fi # output to be improved...
   for kernel in $kernels; do
@@ -720,6 +741,7 @@ for exe in $exes; do
     if [ "${exe/build.512z}" != "${exe}" ]; then echo "$exe is not supported (no avx512vl in /proc/cpuinfo)"; continue; fi
   fi
   if [ "${exe%%/check_hip*}" != "${exe}" ] && [ "${exe/hrd1/}" != "${exe}" ]; then echo "$exe is not supported (HRDCOD=1 is no longer supported on HIP)"; continue; fi
+  ###if [ "${exe%%/check_hip*}" != "${exe}" ] && [ "${exe/dcd1/}" != "${exe}" ]; then echo "$exe is not supported (DCDIAG=1 is not supported on HIP)"; continue; fi
   if [[ "${exe%%/check_cuda*}" != "${exe}" || "${exe%%/check_hip*}" != "${exe}" ]] && [ "$gpuTxt" == "none" ]; then pattern="${pattern}|EvtsPerSec\[Matrix"; fi
   if [ "${exe%%/heft_gg_bb*}" != "${exe}" ]; then 
     # For heftggbb, use the same settings as for ggtt
