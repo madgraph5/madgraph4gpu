@@ -8,7 +8,7 @@ set +x # not verbose
 set -e # fail on error
 
 scrdir=$(cd $(dirname $0); pwd)
-bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
+bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp (or alpaka in the past)
 topdir=$(cd $scrdir; cd ../../..; pwd)
 
 # Enable OpenMP in tput tests? (#758)
@@ -19,7 +19,7 @@ export MG5AMC_CHANNELID_DEBUG=1
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-ggttg5]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-ggttg5]> [-bldall|-nocuda|-cpponly|-cudaonly|-hiponly|-noneonly|-sse4only|-avx2only|-512yonly|-512zonly] [-sa] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-omp] [-makeonly|-makeclean|-makecleanonly|-dryrun] [-makej] [-3a3b] [-div] [-req] [-detailed] [-gtest(default)|-nogtest] [-scaling] [-v] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -44,7 +44,6 @@ suffs=".mad/"
 
 omp=0
 bblds=
-alpaka=1
 
 fptypes="m" # new default #995 (was "d")
 helinls="0"
@@ -76,8 +75,6 @@ makef="-f cudacpp.mk"
 
 # (Was: workaround to allow 'make avxall' when '-avxall' is specified #536)
 bbldsall="cuda hip cppnone cppsse4 cppavx2 cpp512y cpp512z"
-
-if [ "$bckend" != "alpaka" ]; then alpaka=0; fi # alpaka mode is only available in the alpaka directory
 
 while [ "$1" != "" ]; do
   if [ "$1" == "-eemumu" ]; then
@@ -170,9 +167,6 @@ while [ "$1" != "" ]; do
   elif [ "$1" == "-512zonly" ]; then
     if [ "${bblds}" != "" ]; then echo "ERROR! Incompatible option $1: backend builds are already defined as '$bblds'"; usage; fi
     bblds="512z"
-    shift
-  elif [ "$1" == "-noalpaka" ]; then
-    alpaka=0
     shift
   elif [ "$1" == "-dblonly" ]; then
     if [ "${fptypes}" != "m" ] && [ "${fptypes}" != "d" ]; then echo "ERROR! Options -dblonly, -fltonly, -d_f and -dmf are incompatible"; usage; fi
@@ -311,32 +305,8 @@ if [ "${eemumu}" == "0" ] && [ "${ggtt}" == "0" ] && [ "${ggttg}" == "0" ] && [ 
 ###if [ "${bblds}" == "" ]; then bblds="cuda avx2"; fi # this fails if cuda is not installed
 if [ "${bblds}" == "" ]; then bblds="${bbldsall}"; fi # this succeeds if cuda is not installed because cudacpp.mk excludes it
 
-# Use only the .auto process directories in the alpaka directory
-if [ "$bckend" == "alpaka" ]; then
-  echo "WARNING! alpaka directory: using .auto process directories only"
-  suffs=".auto/"
-fi
-
-# Use only HRDCOD=0 in the alpaka directory (old epochX-golden2 code base)
-if [ "$bckend" == "alpaka" ]; then
-  echo "WARNING! alpaka directory: using HRDCOD=0 only"
-  hrdcods="0"
-fi
-
-# Check whether Alpaka should and can be run
-if [ "${alpaka}" == "1" ]; then
-  if [ "${CUPLA_ROOT}" == "" ]; then echo "ERROR! CUPLA_ROOT is not set!"; exit 1; fi
-  echo "CUPLA_ROOT=$CUPLA_ROOT"
-  if [ ! -d "${CUPLA_ROOT}" ]; then echo "ERROR! $CUPLA_ROOT does not exist!"; exit 1; fi
-  if [ "${ALPAKA_ROOT}" == "" ]; then echo "ERROR! ALPAKA_ROOT is not set!"; exit 1; fi
-  echo "ALPAKA_ROOT=$ALPAKA_ROOT"
-  if [ ! -d "${ALPAKA_ROOT}" ]; then echo "ERROR! $ALPAKA_ROOT does not exist!"; exit 1; fi
-  if [ "${BOOSTINC}" == "" ]; then echo "ERROR! BOOSTINC is not set!"; exit 1; fi
-  echo "BOOSTINC=$BOOSTINC"
-  if [ ! -d "${BOOSTINC}" ]; then echo "ERROR! $BOOSTINC does not exist!"; exit 1; fi  
-else
-  export CUPLA_ROOT=none
-fi
+# Disable Alpaka
+export CUPLA_ROOT=none
 
 # Determine the O/S and the processor architecture for late decisions
 unames=$(uname -s)
@@ -420,27 +390,11 @@ exes=
 for dir in $dirs; do
   
   #=====================================
-  # ALPAKA (epochX - manual/auto)
-  #=====================================
-  for hrdcod in $hrdcods; do
-    hrdsuf=_hrd${hrdcod}
-    if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
-    for helinl in $helinls; do
-      for fptype in $fptypes; do
-        if [ "${alpaka}" == "1" ]; then
-          exes="$exes ${dir}/build.none_${fptype}_inl${helinl}${hrdsuf}/alpcheck.exe"
-        fi
-      done
-    done
-  done
-  
-  #=====================================
   # CUDA (epochX - manual/mad)
   # C++  (epochX - manual/mad)
   #=====================================
   for hrdcod in $hrdcods; do
     hrdsuf=_hrd${hrdcod}
-    if [ "$bckend" == "alpaka" ]; then hrdsuf=""; fi
     for helinl in $helinls; do
       for fptype in $fptypes; do
         for bbld in cuda hip none sse4 avx2 512y 512z; do
@@ -855,10 +809,6 @@ for exe in $exes; do
     exe2=${exe/check/runTest} # replace check_xxx.exe by runTest_xxx.exe
     runTest $exe2 2>&1
     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit 1; fi 
-  fi
-  if [ "${bckend}" != "alpaka" ]; then
-    echo "-------------------------------------------------------------------------"
-    cmpExe $exe
   fi
 done
 ###echo "========================================================================="

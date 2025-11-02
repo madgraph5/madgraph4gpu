@@ -5,14 +5,14 @@
 # Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
-bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
+bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp (or alpaka in the past)
 cd $scrdir
 
 ###echo RUN "'$0 $*'"; exit 1 # FOR DEBUGGING
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-ggttg5]> [-nocuda] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-makeonly] [-makeclean] [-makej] [-scaling] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-ggttg5]> [-nocuda] [-sa] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-makeonly] [-makeclean] [-makej] [-scaling] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -30,7 +30,6 @@ smeftggtttt=
 ggttg5=
 bldall=-bldall
 suffs="mad" # DEFAULT code base: madevent + cudacpp as 2nd exporter (logs_*_mad)
-alpaka=
 fptypes="m" # new default #995 (was "d")
 helinls="0"
 hrdcods="0"
@@ -90,8 +89,6 @@ for arg in $*; do
     bldall=-nocuda
   elif [ "$arg" == "-sa" ]; then
     suffs="sa" # standalone_cudacpp code base (logs_*_sa)
-  elif [ "$arg" == "-noalpaka" ]; then
-    alpaka=$arg
   elif [ "$arg" == "-dblonly" ]; then
     if [ "${fptypes}" != "m" ] && [ "${fptypes}" != "d" ]; then echo "ERROR! Options -dblonly, -fltonly, -d_f and -dmf are incompatible"; usage; fi
     fptypes="d"
@@ -160,12 +157,6 @@ done
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
 if [ "${dlpset}" == "1" ]; then usage; fi
 
-# Use only the .auto process directories in the alpaka directory
-if [ "$bckend" == "alpaka" ]; then
-  echo "WARNING! alpaka directory: using .auto process directories only"
-  suffs="auto"
-fi
-
 #echo "procs=$procs"
 #echo "suffs=$suffs"
 #echo "df=$df"
@@ -191,7 +182,6 @@ for step in $steps; do
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
             args="${proc}${sa}${flt}${inl}${hrd} ${dlp}"
-            args="${args} ${alpaka}" # optionally disable alpaka tests
             args="${args} ${rndgen}" # optionally use common random numbers or curand on host
             args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
             args="${args} ${scaling}" # optionally run scaling tests
