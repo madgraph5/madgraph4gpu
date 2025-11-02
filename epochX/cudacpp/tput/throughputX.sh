@@ -473,9 +473,9 @@ else
 	  for fptype in $fptypes; do
             export FPTYPE=$fptype            
             if [ "${dcdiag}" == "1" ]; then # skip C++ builds for DCDIAG=1 (identical to DCDIAG=0)
-               if [ "${bbldsall/cuda}" != "${bbldsall}" ]; then
+               if [ "${bblds/cuda}" != "${bblds}" ]; then
                  make ${makef} ${makej} BACKEND=cuda; echo
-               elif [ "${bbldsall/hip}" != "${bbldsall}" ]; then
+               elif [ "${bblds/hip}" != "${bblds}" ]; then
                  make ${makef} ${makej} BACKEND=hip; echo
                fi
             elif [ "${bblds_dir}" == "${bbldsall}" ]; then
