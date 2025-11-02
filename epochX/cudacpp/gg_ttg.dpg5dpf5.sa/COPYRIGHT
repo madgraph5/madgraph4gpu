@@ -1,0 +1,58 @@
+Copyright (C) 2020-2025 CERN and UCLouvain.
+Licensed under the GNU Lesser General Public License (version 3 or later).
+All rights not expressly granted are reserved.
+
+The copyright and license notice above cover the CUDACPP code-generating plugin
+of the MadGraph5_aMC@NLO (in the following "MG5aMC") software, and all code
+generated using that plugin. These are collectively referred to as "this work"
+or "the MG5aMC CUDACPP plugin and the code that it generates", or more simply
+as "the MG5aMC CUDACPP plugin", in the following and throughout this work.
+
+The MG5aMC CUDACPP plugin and the code that it generates are based on the
+initial work on porting MG5aMC to GPUs using CUDA and on speeding up MG5aMC on
+CPUs using vectorized C++ by three original authors from CERN and UCLouvain.
+The full development team currently includes the following authors :
+  Stephan Hageboeck (CERN)
+  Daniele Massaro (CERN)
+  Olivier Mattelaer (Universite Catholique de Louvain, original author)
+  Stefan Roiser (CERN, original author)
+  Jorgen Teig (CERN)
+  Andrea Valassi (CERN, original author)
+  Zenny Wettersten (CERN)
+See https://github.com/madgraph5/madgraph4gpu for more details. For the full
+list of authors and collaborators of this work, see the file "AUTHORS" in the
+same directory as this "COPYRIGHT" file in the source code of the plugin.
+
+The MG5aMC CUDACPP plugin and the code that it generates are derived from, and
+are intended to be used in combination with, the MG5aMC software and the code
+that it generates. The MG5aMC software is developed by the MadGraph5_aMC@NLO
+development team and contributors, also known as the "MadTeam", who are the
+owners of its copyright and have licensed it as specified in
+https://github.com/mg5amcnlo/mg5amcnlo/blob/main/madgraph/LICENSE.
+For the full list of authors and contributors of the MG5aMC software, see
+https://github.com/mg5amcnlo/mg5amcnlo/blob/main/madgraph/AUTHORS.
+
+The MG5aMC CUDACPP plugin and the code that it generates are free software;
+you can redistribute them and/or modify them under the terms of the GNU Lesser
+General Public License as published by the Free Software Foundation, either
+version 3 or (at your option) any later version.
+
+This work is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+The GNU Lesser General Public License (LGPL) version 3 is copied verbatim in
+the file "COPYING.LESSER" in the same directory as this "COPYRIGHT" file. It is
+also available at <https://www.gnu.org/licenses/lgpl-3.0.txt>.
+
+This version of the GNU Lesser General Public License incorporates the terms
+and conditions of version 3 of the GNU General Public License (GPL), which is
+copied verbatim in the file "COPYING" in the same directory as this "COPYRIGHT"
+file and is also available at <https://www.gnu.org/licenses/gpl-3.0.txt>.
+
+In line with the license above, the authors emphasise the following points. For
+the developers' and authors' protection, the GPL clearly explains that there is
+no warranty for this free software. For both users' and authors' sake, the GPL
+requires that modified versions be marked as changed, so that their problems
+will not be attributed erroneously to authors of previous versions.
+
