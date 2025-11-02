@@ -943,7 +943,7 @@ $(cxx_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name
 endif
 $(cxx_fcheckmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_cpp.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe)
-ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
+ifneq ($(findstring hipcc,$(GPUCC)),) # C++ exe: link fortran/c++/hip using $FC when hipcc is used #802
 	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(OMPFLAGS) $(BUILDDIR)/fsampler_cpp.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) -lstdc++
 else
 	$(CXX) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(OMPFLAGS) $(BUILDDIR)/fsampler_cpp.o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe)
@@ -961,9 +961,8 @@ endif
 $(gpu_fcheckmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_fcheckmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe)
-ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
+ifneq ($(findstring hipcc,$(GPUCC)),) # GPU exe: link fortran/c++/hip using hipcc (no longer with $FC #802)
 	$(GPUCC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) $(GPULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe)
-#	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) -lstdc++ -L$(HIP_HOME)/lib -lamdhip64
 else
 	$(GPUCC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) $(GPULIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe)
 endif
@@ -1064,8 +1063,7 @@ else # link only runTest_$(GPUSUFFIX).o (new: in the past, this was linking both
 $(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(gpu_testmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(GTESTLIBS)
-ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
-#	$(FC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) -lstdc++ -lpthread -L$(HIP_HOME)/lib -lamdhip64
+ifneq ($(findstring hipcc,$(GPUCC)),) # GPU exe: link fortran/c++/hip using hipcc (no longer with $FC #802)
 	$(GPUCC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) $(GPULIBFLAGS) -pthread
 else
 	$(GPUCC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) $(GPULIBFLAGS) -lcuda
