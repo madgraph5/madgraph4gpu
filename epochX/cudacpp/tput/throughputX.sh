@@ -413,7 +413,7 @@ for dir in $dirs; do
             if [ "${bblds}" == "${bbldsall}" ] || [ "${bblds/${bbld}}" != "${bblds}" ]; then 
               if [ "${bbld}" == "cuda" ] || [ "${bbld}" == "hip" ]; then
                 exes="$exes $dir/build.${bbld}_${fptype}${inlsuf}${hrdsuf}${dcdsuf}/check_${bbld}.exe"
-              else
+              elif [ "${dcdiag}" != "1" ]; then # skip C++ tests for DCDIAG=1 (identical to DCDIAG=0)
                 exes="$exes $dir/build.${bbld}_${fptype}${inlsuf}${hrdsuf}/check_cpp.exe"
               fi
             fi
@@ -471,8 +471,14 @@ else
         for helinl in $helinls; do
 	  export HELINL=$helinl
 	  for fptype in $fptypes; do
-            export FPTYPE=$fptype
-            if [ "${bblds_dir}" == "${bbldsall}" ]; then
+            export FPTYPE=$fptype            
+            if [ "${dcdiag}" == "1" ]; then # skip C++ builds for DCDIAG=1 (identical to DCDIAG=0)
+               if [ "${bbldsall/cuda}" != "${bbldsall}" ]; then
+                 make ${makef} ${makej} BACKEND=cuda; echo
+               elif [ "${bbldsall/hip}" != "${bbldsall}" ]; then
+                 make ${makef} ${makej} BACKEND=hip; echo
+               fi
+            elif [ "${bblds_dir}" == "${bbldsall}" ]; then
               make ${makef} ${makej} bldall; echo # (was: allow 'make avxall' again #536)
             else
               for bbld in ${bblds_dir}; do
