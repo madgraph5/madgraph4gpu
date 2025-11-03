@@ -8,20 +8,22 @@ OMPFLAGS=
 FPTYPE='m'
 HELINL='0'
 HRDCOD='0'
+DCDIAG='0'
 HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.auto_m_inl0_hrd0 for tag=512y_m_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
+Building in BUILDDIR=build.auto_m_inl0_hrd0 for tag=512y_m_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas (USEBUILDDIR == 1)
 make: Nothing to be done for 'gtestlibs'.
 BACKEND=cpp512y (was cppauto)
 OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
+DCDIAG='0'
 HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.auto_f_inl0_hrd0 for tag=512y_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
+Building in BUILDDIR=build.auto_f_inl0_hrd0 for tag=512y_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas (USEBUILDDIR == 1)
 
 make USEBUILDDIR=1 BACKEND=cuda -f cudacpp.mk
 make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
@@ -30,11 +32,12 @@ OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
+DCDIAG='0'
 HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.cuda_f_inl0_hrd0 for tag=cuda_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
-make[1]: Nothing to be done for 'all.cuda_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+Building in BUILDDIR=build.cuda_f_inl0_hrd0_dcd0 for tag=cuda_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.cuda_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas'.
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 
 make USEBUILDDIR=1 BACKEND=cppnone -f cudacpp.mk
@@ -44,11 +47,12 @@ OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
+DCDIAG='0'
 HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.none_f_inl0_hrd0 for tag=none_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
-make[1]: Nothing to be done for 'all.none_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+Building in BUILDDIR=build.none_f_inl0_hrd0 for tag=none_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.none_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas'.
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 
 make USEBUILDDIR=1 BACKEND=cppsse4 -f cudacpp.mk
@@ -58,11 +62,12 @@ OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
+DCDIAG='0'
 HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.sse4_f_inl0_hrd0 for tag=sse4_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
-make[1]: Nothing to be done for 'all.sse4_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+Building in BUILDDIR=build.sse4_f_inl0_hrd0 for tag=sse4_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.sse4_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas'.
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 
 make USEBUILDDIR=1 BACKEND=cppavx2 -f cudacpp.mk
@@ -72,11 +77,12 @@ OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
+DCDIAG='0'
 HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.avx2_f_inl0_hrd0 for tag=avx2_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
-make[1]: Nothing to be done for 'all.avx2_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+Building in BUILDDIR=build.avx2_f_inl0_hrd0 for tag=avx2_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.avx2_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas'.
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 
 make USEBUILDDIR=1 BACKEND=cpp512y -f cudacpp.mk
@@ -86,11 +92,12 @@ OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
+DCDIAG='0'
 HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.512y_f_inl0_hrd0 for tag=512y_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
-make[1]: Nothing to be done for 'all.512y_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+Building in BUILDDIR=build.512y_f_inl0_hrd0 for tag=512y_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.512y_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas'.
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 
 make USEBUILDDIR=1 BACKEND=cpp512z -f cudacpp.mk
@@ -100,14 +107,15 @@ OMPFLAGS=
 FPTYPE='f'
 HELINL='0'
 HRDCOD='0'
+DCDIAG='0'
 HASCURAND=hasCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.512z_f_inl0_hrd0 for tag=512z_f_inl0_hrd0_hasCurand_hasNoHiprand (USEBUILDDIR == 1)
-make[1]: Nothing to be done for 'all.512z_f_inl0_hrd0_hasCurand_hasNoHiprand'.
+Building in BUILDDIR=build.512z_f_inl0_hrd0 for tag=512z_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas (USEBUILDDIR == 1)
+make[1]: Nothing to be done for 'all.512z_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas'.
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux'
 
-DATE: 2025-10-26_21:31:14
+DATE: 2025-11-02_18:04:22
 
 HASBLAS=hasBlas
 CUDACPP_RUNTIME_BLASCOLORSUM=
@@ -115,88 +123,88 @@ CUDACPP_RUNTIME_CUBLASTF32TENSOR=
 CUDACPP_RUNTIME_GPUGRAPHS=
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 =========================================================================
-scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.cuda_f_inl0_hrd0/check_cuda.exe
+scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.cuda_f_inl0_hrd0_dcd0/check_cuda.exe
 ### GPU: scaling test 256 (1 cycle)
-1.239986e+06    1 256
-2.421857e+06    2 256
-4.827570e+06    4 256
-9.341318e+06    8 256
-1.914439e+07   16 256
-3.369543e+07   32 256
-5.946639e+07   64 256
-7.310810e+07  128 256
-8.007312e+07  256 256
-8.388828e+07  512 256
-8.639624e+07 1024 256
+1.183821e+06    1 256
+2.469600e+06    2 256
+4.449543e+06    4 256
+9.208758e+06    8 256
+1.814187e+07   16 256
+3.728500e+07   32 256
+5.956757e+07   64 256
+7.351470e+07  128 256
+8.051481e+07  256 256
+8.492375e+07  512 256
+8.672528e+07 1024 256
 ### GPU: scaling test 32 (1 cycle)
-1.624959e+05    1  32
-3.062362e+05    2  32
-6.245274e+05    4  32
-1.164293e+06    8  32
-2.309042e+06   16  32
-4.600428e+06   32  32
-9.471571e+06   64  32
-1.833401e+07  128  32
-3.500137e+07  256  32
-6.103753e+07  512  32
-7.525279e+07 1024  32
-7.982344e+07 2048  32
-8.899251e+07 4096  32
-9.093044e+07 8192  32
+1.541418e+05    1  32
+3.199040e+05    2  32
+6.180679e+05    4  32
+1.057851e+06    8  32
+2.385712e+06   16  32
+4.580569e+06   32  32
+9.120017e+06   64  32
+1.701011e+07  128  32
+3.521654e+07  256  32
+6.335139e+07  512  32
+7.446697e+07 1024  32
+7.996564e+07 2048  32
+8.841669e+07 4096  32
+9.070981e+07 8192  32
 =========================================================================
-scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.hip_f_inl0_hrd0/check_hip.exe
-Not found: /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.hip_f_inl0_hrd0/check_hip.exe
+scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.hip_f_inl0_hrd0_dcd0/check_hip.exe
+Not found: /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.hip_f_inl0_hrd0_dcd0/check_hip.exe
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.none_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-9.836915e+04    1 256
-1.049568e+05    2 256
-1.052922e+05    4 256
+1.034264e+05    1 256
+1.040552e+05    2 256
+1.048836e+05    4 256
 ### CPU: scaling test 32
-8.829413e+04    1  32
-9.849184e+04    2  32
-1.027462e+05    4  32
+9.380093e+04    1  32
+1.005448e+05    2  32
+1.010284e+05    4  32
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.sse4_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-2.679226e+05    1 256
-2.824168e+05    2 256
-2.877016e+05    4 256
+2.773189e+05    1 256
+2.870934e+05    2 256
+2.776097e+05    4 256
 ### CPU: scaling test 32
-2.467784e+05    1  32
-2.707585e+05    2  32
-2.686795e+05    4  32
+2.275507e+05    1  32
+2.645568e+05    2  32
+2.688166e+05    4  32
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.avx2_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-6.242456e+05    1 256
-6.286143e+05    2 256
-6.327112e+05    4 256
+5.950278e+05    1 256
+6.262737e+05    2 256
+4.868797e+05    4 256
 ### CPU: scaling test 32
-5.734870e+05    1  32
-6.302811e+05    2  32
-5.237874e+05    4  32
+6.219027e+05    1  32
+5.742640e+05    2  32
+6.356806e+05    4  32
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.512y_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-6.571416e+05    1 256
-6.687155e+05    2 256
-6.507847e+05    4 256
+6.398640e+05    1 256
+6.646433e+05    2 256
+6.660280e+05    4 256
 ### CPU: scaling test 32
-6.517577e+05    1  32
-6.641554e+05    2  32
-6.707189e+05    4  32
+6.527415e+05    1  32
+6.207746e+05    2  32
+6.679399e+05    4  32
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gq_ttq.mad/SubProcesses/P1_gux_ttxux/build.512z_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-4.713143e+05    1 256
-4.844764e+05    2 256
-4.864028e+05    4 256
+4.893893e+05    1 256
+4.839896e+05    2 256
+4.872643e+05    4 256
 ### CPU: scaling test 32
-4.757515e+05    1  32
-4.837490e+05    2  32
-4.818207e+05    4  32
+4.726875e+05    1  32
+4.827966e+05    2  32
+4.887119e+05    4  32
 =========================================================================
 
-DATE: 2025-10-26_21:31:34
+DATE: 2025-11-02_18:04:42
 TEST COMPLETED
