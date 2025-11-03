@@ -180,15 +180,32 @@ ifeq ($(BACKEND),cuda)
   # NVidia CUDA architecture flags
   # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
   # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
-  # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
-  # This will embed device code for 70, and PTX for 70+.
+  # Default: detect all compute capability (e.g., "8.0", "8.6", "9.0"), unique and sorted from lowest to higherst
+  # then we embed device code for each compute capability, and for the highest PTX (forward-compatible)
+  # use nvidia-smi and validate output with grep before going forward
+  DETECTED_CC := $(shell nvidia-smi --query-gpu=compute_cap --format=csv,noheader 2>/dev/null | grep -E '^[0-9]+\.[0-9]+$$' | tr -d '.' | sort -un)
   # One may pass MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to the make command to use another value or list of values (see #533).
   # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
-  MADGRAPH_CUDA_ARCHITECTURE ?= 70
-  ###GPUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
-  ###GPUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE)  # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
   comma:=,
-  GPUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
+  MADGRAPH_CUDA_ARCHITECTURE ?= $(foreach arch,$(DETECTED_CC),$(arch)$(comma))
+  # Convert to space-separated list for looping
+  MADGRAPH_CUDA_ARCH_LIST ?= $(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE))
+
+  # Fallback if detection failed (box has CUDA selected but probe failed)
+  ifeq ($(strip $(MADGRAPH_CUDA_ARCH_LIST)),)
+	# Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster)
+	# This will embed device code for 70, and PTX for 70+
+    MADGRAPH_CUDA_ARCHITECTURE := 70
+    MADGRAPH_CUDA_ARCH_LIST := 70
+    $(info Automatic compute capability detection failed; defaulting to $(MADGRAPH_CUDA_ARCHITECTURE))
+    $(info Override with: make MADGRAPH_CUDA_ARCHITECTURE=<comma-separated list of architectures>)
+  endif
+
+  # Build for every detected SM, and add one PTX for the highest SM (forward-compatibility)
+  HIGHEST_SM    := $(lastword $(MADGRAPH_CUDA_ARCH_LIST))
+  GENCODE_FLAGS := $(foreach arch,$(MADGRAPH_CUDA_ARCH_LIST),-gencode arch=compute_$(arch),code=sm_$(arch))
+  GENCODE_PTX   := -gencode arch=compute_$(HIGHEST_SM),code=compute_$(HIGHEST_SM)
+  GPUARCHFLAGS  := $(GENCODE_FLAGS) $(GENCODE_PTX)
   GPUFLAGS += $(GPUARCHFLAGS)
 
   # Other NVidia-specific flags
