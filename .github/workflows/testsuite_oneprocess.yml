@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Oct 2023) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2023-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi, D. Massaro (2023-2025) for the MG5aMC CUDACPP plugin.
 
 #----------------------------------------------------------------------------------------------------------------------------------
 
@@ -279,4 +279,99 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
 
+  madtrex:
+    if: ${{ endsWith(inputs.process, '.mad') }} # Reweighting test to do only in case of madevent
+    runs-on: ubuntu-22.04 # Python 3.12 not yet supported for reweighting
+    needs: codegen
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+
+    - name: split_prnum
+      # See https://stackoverflow.com/a/73467112
+      id: split
+      run: echo "prnum=PR${GITHUB_REF_NAME%%/*}" >> $GITHUB_OUTPUT
+
+    - name: HELLO_MADTREX
+      run: |
+        echo "HELLO_MADTREX ${{ inputs.process }} $(date)"
+        echo "Workflow run_id is ${{ github.run_id }}"
+        echo "Workflow ref_name is ${{ github.ref_name }}"
+        echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
+        echo "Current directory is $(pwd)"
+        echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
+        gh extension install actions/gh-actions-cache
+        REPO=${{ github.repository }}
+        echo "List codegencache keys for this run_id (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+        echo "List codegencache keys for this run_id (end)"
+      env:
+        GH_TOKEN: ${{ github.token }}
+
+    - name: restore_codegen_cache
+      id: codegen-cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          epochX/cudacpp/${{ inputs.process }}
+        key: codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+        restore-keys: |
+          codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+
+    - name: symlink_plugin
+      run: |
+        cd MG5aMC/mg5amcnlo/PLUGIN
+        ln -s ../../MG5aMC_PLUGIN/CUDACPP_OUTPUT ./
+
+    - name: check_f2py
+      run: |
+        # check if f2py is installed, if not, install it
+        if type -P "f2py" &>/dev/null; then
+          echo "f2py is installed"
+        else
+          echo "f2py not found"
+          echo "check if numpy.f2py is present"
+          if python3 -m numpy.f2py -v &>/dev/null; then
+            echo "numpy.f2py is installed correctly, creating wrapper"
+          else
+            echo "numpy.f2py not found, it will be installed"
+            sudo apt update && sudo apt install -y python3-numpy
+            echo "Installation done, now create wrapper"
+          fi
+          mkdir -p "$HOME/.local/bin"
+          echo '#!/usr/bin/env bash' > "$HOME/.local/bin/f2py"
+          echo 'exec python3 -m numpy.f2py "$@"' >> "$HOME/.local/bin/f2py"
+          chmod +x "$HOME/.local/bin/f2py"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH" # this updates path for the subsequent steps
+          export PATH="$HOME/.local/bin:$PATH" # this for the current step
+        fi
+
+        # Validate that "f2py" actually executes (not just resolves)
+        if ! f2py -v &>/dev/null; then
+          echo "f2py resolves but does not execute correctly."
+          echo "Cannot run reweighting!"
+          exit 1
+        fi
+
+    - name: madtrex_test
+      run: |
+          cd epochX/cudacpp
+          ../../.github/workflows/run_madtrex.py ${{ inputs.process }}
+
+    - name: GOODBYE_MADTREX
+      run: |
+        echo "GOODBYE_MADTREX ${{ inputs.process }} $(date)"
+        echo "Workflow run_id is ${{ github.run_id }}"
+        echo "Workflow ref_name is ${{ github.ref_name }}"
+        echo "Workflow PR number is ${{ steps.split.outputs.prnum }}"
+        echo "Current directory is $(pwd)"
+        echo "Current git commit is $(git log --oneline -n1 | cut -d' ' -f1)"
+        REPO=${{ github.repository }}
+        echo "List codegencache keys for this run_id (start)"
+        gh actions-cache list -R $REPO --sort created-at --order asc --key codegencache-${{ runner.os }}-${{ inputs.process }}-${{ github.run_id }}
+        echo "List codegencache keys for this run_id (end)"
+      env:
+        GH_TOKEN: ${{ github.token }}
 #----------------------------------------------------------------------------------------------------------------------------------
