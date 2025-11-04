@@ -326,6 +326,9 @@ namespace mg5amcCpu
   {
 #ifdef MGONGPUCPP_GPUIMPL
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
+#ifdef MGONGPU_RDC_DIAGRAMS
+    using J_ACCESS = DeviceAccessJamp;            // non-trivial access: buffer includes all events
+#endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
@@ -418,7 +421,11 @@ namespace mg5amcCpu
       // (Note: no need to 'reset color flows' i.e. zero allJamps, this is done in sigmaKin and sigmaKin_getGoodHel)
 #ifdef MGONGPUCPP_GPUIMPL
       // In CUDA, write jamps to the output global-memory allJamps [for all events] passed as argument
+      // (write to jamps immediately for DCDIAG=0; write first to a local jamp_cx and eventually to jamps for DCDIAG=1)
       fptype* jamps = allJamps;
+#ifdef MGONGPU_RDC_DIAGRAMS
+      cxtype jamp_cx[ncolor];
+#endif
 #else
       // In C++, write jamps to the output array [for one specific event or SIMD vector] passed as argument
       cxtype_sv* jamp_sv = ( iParity == 0 ? jamp_sv_1or2 : &( jamp_sv_1or2[ncolor] ) );
@@ -517,7 +524,11 @@ namespace mg5amcCpu
       }
 #else
       // === GPU IMPLEMENTATION (DCDIAG=1): merge all diagram groups into a single kernel ===
-      diagramgroup1( wfs, jamps, dcNGoodHel, couplings, channelIds, numerators, denominators, dcIPC, dcIPD, dcHel, momenta, ihel );
+      diagramgroup1( wfs, jamp_cx, couplings, channelIds, numerators, denominators, dcIPC, dcIPD, dcHel, momenta, ihel );
+      // In CUDA (DCDIAG=1), copy the local jamp to the output global-memory jamp
+      constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
+      for( int icol = 0; icol < ncolor; icol++ )
+        J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, dcNGoodHel ) = jamp_cx[icol]; // set jamps
 #endif
 #else
       // === C++ IMPLEMENTATION ===

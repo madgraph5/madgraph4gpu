@@ -17,7 +17,9 @@
     using A_ACCESS = DeviceAccessAmplitudes;            // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;            // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed;       // TRIVIAL access (independent couplings): buffer for one event
+#ifndef MGONGPU_RDC_DIAGRAMS
     using J_ACCESS = DeviceAccessJamp;
+#endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;          // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;        // non-trivial access: buffer includes all events

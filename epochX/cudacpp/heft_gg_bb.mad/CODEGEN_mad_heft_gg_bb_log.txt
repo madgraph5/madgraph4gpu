@@ -149,23 +149,23 @@ FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g g > b b~ HIG<=1 HIW<=1 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_bbx 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 4 [1;30m[model_handling.py at line 1766][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4} [1;30m[model_handling.py at line 1790][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4} [1;30m[model_handling.py at line 1791][0m [0m
-Generated helas calls for 1 subprocesses (4 diagrams) in 0.008 s
-Wrote files for 12 helas calls in 0.076 s
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 4 [1;30m[model_handling.py at line 1773][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4} [1;30m[model_handling.py at line 1797][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4} [1;30m[model_handling.py at line 1798][0m [0m
+Generated helas calls for 1 subprocesses (4 diagrams) in 0.009 s
+Wrote files for 12 helas calls in 0.077 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFS2 routines[0m
-ALOHA: aloha creates 4 routines in  0.246 s
+ALOHA: aloha creates 4 routines in  0.255 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFS2 routines[0m
-ALOHA: aloha creates 8 routines in  0.231 s
+ALOHA: aloha creates 8 routines in  0.243 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -194,9 +194,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.162s
-user	0m1.870s
-sys	0m0.291s
+real	0m2.227s
+user	0m1.923s
+sys	0m0.302s
 Code generation completed in 2 seconds
 ************************************************************
 *                                                          *
