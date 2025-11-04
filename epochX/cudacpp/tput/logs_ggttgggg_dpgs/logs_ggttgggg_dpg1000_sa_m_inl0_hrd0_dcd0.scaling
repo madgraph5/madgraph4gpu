@@ -1,0 +1,8 @@
+6.528545e+00    1  32
+1.223305e+01    2  32
+2.328438e+01    4  32
+4.744050e+01    8  32
+8.862826e+01   16  32
+check_cuda.exe: Assertion `code == gpuSuccess' failed.
+check_cuda.exe: Assertion `code == gpuSuccess' failed.
+check_cuda.exe: Assertion `code == gpuSuccess' failed.
