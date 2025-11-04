@@ -48,11 +48,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                  const int nGoodHel,             // input: number of good helicities
+#else
+                 cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -77,11 +81,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup2( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                  const int nGoodHel,             // input: number of good helicities
+#else
+                 cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -99,11 +107,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup3( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                  const int nGoodHel,             // input: number of good helicities
+#else
+                 cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -121,11 +133,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup4( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                  const int nGoodHel,             // input: number of good helicities
+#else
+                 cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -143,11 +159,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup5( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                  const int nGoodHel,             // input: number of good helicities
+#else
+                 cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -165,11 +185,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup6( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                  const int nGoodHel,             // input: number of good helicities
+#else
+                 cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -187,11 +211,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup7( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                  const int nGoodHel,             // input: number of good helicities
+#else
+                 cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -209,11 +237,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup8( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                  const int nGoodHel,             // input: number of good helicities
+#else
+                 cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -231,11 +263,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup9( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                  const int nGoodHel,             // input: number of good helicities
+#else
+                 cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -253,11 +289,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup10( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                  fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                   const int nGoodHel,             // input: number of good helicities
+#else
+                  cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                   const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                   const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                   const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -275,11 +315,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup11( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                  fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                   const int nGoodHel,             // input: number of good helicities
+#else
+                  cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                   const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                   const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                   const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -297,11 +341,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup12( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                  fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                   const int nGoodHel,             // input: number of good helicities
+#else
+                  cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                   const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                   const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                   const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -319,11 +367,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup13( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                  fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                   const int nGoodHel,             // input: number of good helicities
+#else
+                  cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                   const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                   const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                   const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -341,11 +393,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup14( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                  fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                   const int nGoodHel,             // input: number of good helicities
+#else
+                  cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                   const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                   const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                   const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -363,11 +419,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup15( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                  fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                   const int nGoodHel,             // input: number of good helicities
+#else
+                  cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                   const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                   const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                   const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -385,11 +445,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup16( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                  fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                  fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                   const int nGoodHel,             // input: number of good helicities
+#else
+                  cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                   const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                  cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                   const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                   const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
