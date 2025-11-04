@@ -1427,6 +1427,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   {
 #ifdef MGONGPUCPP_GPUIMPL
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
+#ifdef MGONGPU_RDC_DIAGRAMS
+    using J_ACCESS = DeviceAccessJamp;            // non-trivial access: buffer includes all events
+#endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
@@ -1519,7 +1522,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
       // (Note: no need to 'reset color flows' i.e. zero allJamps, this is done in sigmaKin and sigmaKin_getGoodHel)
 #ifdef MGONGPUCPP_GPUIMPL
       // In CUDA, write jamps to the output global-memory allJamps [for all events] passed as argument
+      // (write to jamps immediately for DCDIAG=0; write first to a local jamp_cx and eventually to jamps for DCDIAG=1)
       fptype* jamps = allJamps;
+#ifdef MGONGPU_RDC_DIAGRAMS
+      cxtype jamp_cx[ncolor];
+#endif
 #else
       // In C++, write jamps to the output array [for one specific event or SIMD vector] passed as argument
       cxtype_sv* jamp_sv = ( iParity == 0 ? jamp_sv_1or2 : &( jamp_sv_1or2[ncolor] ) );
@@ -2109,11 +2116,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #endif
   diagramgroup1( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                 fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                  const int nGoodHel,             // input: number of good helicities
+#else
+                 cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                  const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                  const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                  const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2164,11 +2175,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #endif
   diagramgroup%s( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-%s                 fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+%s                 fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
 %s                 const int nGoodHel,             // input: number of good helicities
+#else
+%s                 cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
 %s                 const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-%s                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+%s                 cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
 %s                 const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
 %s                 const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2176,8 +2191,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 %s                 fptype* denominators,           // input/output: multichannel denominators[nevtORneppV], add helicity ihel
 %s                 const fptype* cIPC,             // input: GPU __device__ or GPU host address of cIPC
 %s                 const fptype* cIPD )%s           // input: GPU __device__ or GPU host address of cIPD"""
-            resH.append(txt%(sidiagg,indent,indent,indent,indent,indent,indent,indent,indent,indent,indent,';'))
-            resCC.append(txt%(sidiagg,indent,indent,indent,indent,indent,indent,indent,indent,indent,indent,' '))
+            resH.append(txt%(sidiagg,indent,indent,indent,indent,indent,indent,indent,indent,indent,indent,indent,';'))
+            resCC.append(txt%(sidiagg,indent,indent,indent,indent,indent,indent,indent,indent,indent,indent,indent,' '))
             resCC.append("""  {
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
@@ -2204,28 +2219,30 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 """)
         # 2b - Store jamps and wavefunctions
         if idiagramgroup == 1:
-            res2.append("""#ifdef MGONGPUCPP_GPUIMPL
+            res2.append("""#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
     //printf( \"diagramgroup1: nGoodHel=%d\\n\", nGoodHel );
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) = jamp_sv[icol]; // set jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] = jamp_sv[icol]; // set jamps
 #endif
 """)
         else:
-            res2.append("""#ifdef MGONGPUCPP_GPUIMPL
+            res2.append("""#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
@@ -2422,10 +2439,14 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #else
       // === GPU IMPLEMENTATION (DCDIAG=1): merge all diagram groups into a single kernel ===""")
         for idiagramgroup in range(1,self.ndiagramgroups+1):
-            if idiagramgroup == 1: res.append('diagramgroup1( wfs, jamps, dcNGoodHel, couplings, channelIds, numerators, denominators, dcIPC, dcIPD, dcHel, momenta, ihel );')
-            else: res.append('diagramgroup%i( wfs, jamps, dcNGoodHel, couplings, channelIds, numerators, denominators, dcIPC, dcIPD );'%idiagramgroup)
-        res.append('#endif')
-        res.append("""#else
+            if idiagramgroup == 1: res.append('diagramgroup1( wfs, jamp_cx, couplings, channelIds, numerators, denominators, dcIPC, dcIPD, dcHel, momenta, ihel );')
+            else: res.append('diagramgroup%i( wfs, jamp_cx, couplings, channelIds, numerators, denominators, dcIPC, dcIPD );'%idiagramgroup)
+        res.append("""// In CUDA (DCDIAG=1), copy the local jamp to the output global-memory jamp
+      constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
+      for( int icol = 0; icol < ncolor; icol++ )
+        J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, dcNGoodHel ) = jamp_cx[icol]; // set jamps
+#endif
+#else
       // === C++ IMPLEMENTATION ===""")
         for idiagramgroup in range(1,self.ndiagramgroups+1):
             if idiagramgroup == 1: res.append('diagramgroup1( wfs, jamp_sv, COUPs, channelIds, numerators, denominators, cIPC, cIPD, cHelFlat, momenta, ihel );')
