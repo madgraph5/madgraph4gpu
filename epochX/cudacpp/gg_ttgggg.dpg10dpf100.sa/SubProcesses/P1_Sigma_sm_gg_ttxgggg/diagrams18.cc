@@ -34,11 +34,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup171( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                   fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                   fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                    const int nGoodHel,             // input: number of good helicities
+#else
+                   cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                    const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                    const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                    const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -304,14 +308,15 @@ namespace mg5amcCpu
     jamp_sv[104] -= amp_sv[0];
     jamp_sv[105] += amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
+#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
@@ -334,11 +339,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup172( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                   fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                   fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                    const int nGoodHel,             // input: number of good helicities
+#else
+                   cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                    const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                    const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                    const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -550,14 +559,15 @@ namespace mg5amcCpu
     jamp_sv[109] -= amp_sv[0];
     jamp_sv[112] += amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
+#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
@@ -581,11 +591,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup173( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                   fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                   fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                    const int nGoodHel,             // input: number of good helicities
+#else
+                   cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                    const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                    const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                    const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -860,14 +874,15 @@ namespace mg5amcCpu
     jamp_sv[76] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[77] -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
+#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
@@ -891,11 +906,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup174( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                   fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                   fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                    const int nGoodHel,             // input: number of good helicities
+#else
+                   cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                    const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                    const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                    const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1359,14 +1378,15 @@ namespace mg5amcCpu
     jamp_sv[91] += amp_sv[0];
     jamp_sv[101] -= amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
+#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
@@ -1393,11 +1413,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup175( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                   fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                   fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                    const int nGoodHel,             // input: number of good helicities
+#else
+                   cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                    const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                    const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                    const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -1737,14 +1761,15 @@ namespace mg5amcCpu
     jamp_sv[33] += amp_sv[0];
     jamp_sv[34] -= amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
+#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
@@ -1777,11 +1802,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup176( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                   fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                   fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                    const int nGoodHel,             // input: number of good helicities
+#else
+                   cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                    const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                    const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                    const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2007,14 +2036,15 @@ namespace mg5amcCpu
     jamp_sv[86] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[87] -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
+#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
@@ -2038,11 +2068,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup177( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                   fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                   fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                    const int nGoodHel,             // input: number of good helicities
+#else
+                   cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                    const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                    const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                    const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2279,14 +2313,15 @@ namespace mg5amcCpu
     jamp_sv[99] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[101] += cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
+#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
@@ -2310,11 +2345,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup178( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                   fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                   fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                    const int nGoodHel,             // input: number of good helicities
+#else
+                   cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                    const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                    const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                    const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2474,14 +2513,15 @@ namespace mg5amcCpu
     jamp_sv[99] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[101] -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
+#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
@@ -2505,11 +2545,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup179( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                   fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                   fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                    const int nGoodHel,             // input: number of good helicities
+#else
+                   cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                    const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                    const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                    const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2699,14 +2743,15 @@ namespace mg5amcCpu
     jamp_sv[79] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[82] -= cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
+#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
@@ -2730,11 +2775,15 @@ namespace mg5amcCpu
 #endif
   diagramgroup180( fptype* wfs,                    // input/output wavefunctions[nwf*2*nw6*nevtORneppV]
 #ifdef MGONGPUCPP_GPUIMPL
-                   fptype* jamps,                  // output jamps[ncolor*2*nevt]
+#ifndef MGONGPU_RDC_DIAGRAMS
+                   fptype* jamps,                  // output jamps[ncolor*2*nevt] for all events
                    const int nGoodHel,             // input: number of good helicities
+#else
+                   cxtype* jamps,                  // output jamps[ncolor] for this event
+#endif
                    const fptype* couplings,        // input: dependent couplings[nevt*ndcoup*2] for all events
 #else
-                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV]
+                   cxtype_sv* jamps,               // output jamps[ncolor*2*neppV] for this event page
                    const fptype** COUPs,           // input: dependent and independent COUPs[nxcoup] for this event page
 #endif
                    const unsigned int* channelIds, // input: channelIds[nevt] for GPU or SCALAR channelId[0] for C++ (1 to #diagrams, 0 to disable SDE)
@@ -2903,14 +2952,15 @@ namespace mg5amcCpu
     jamp_sv[66] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[96] += cxtype( 0, 1 ) * amp_sv[0];
 
-#ifdef MGONGPUCPP_GPUIMPL
+#if defined MGONGPUCPP_GPUIMPL and not defined MGONGPU_RDC_DIAGRAMS
     // *** STORE JAMPS ***
-    // In CUDA, copy the local jamp to the output global-memory jamp
-    constexpr int ihel0 = 0; // the allJamps buffer already points to a specific helicity _within a super-buffer for nGoodHel helicities_
+    // In CUDA (DCDIAG=0), copy the local jamp to the output global-memory jamp
+    constexpr int ihel0 = 0; // allJamps buffer points to a specific helicity _within a super-buffer for nGoodHel helicities_
     for( int icol = 0; icol < ncolor; icol++ )
       J_ACCESS::kernelAccessIcolIhelNhel( jamps, icol, ihel0, nGoodHel ) += jamp_sv[icol]; // update jamps
 #else
     // In C++, copy the local jamp to the output array passed as function argument
+    // In CUDA (DCDIAG=1), copy the local jamp to the output array passed as function argument
     for( int icol = 0; icol < ncolor; icol++ )
       jamps[icol] += jamp_sv[icol]; // update jamps
 #endif
