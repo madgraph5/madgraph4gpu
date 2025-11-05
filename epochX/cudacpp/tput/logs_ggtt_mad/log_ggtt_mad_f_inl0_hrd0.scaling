@@ -115,7 +115,7 @@ Building in BUILDDIR=build.512z_f_inl0_hrd0 for tag=512z_f_inl0_hrd0_dcd0_hasCur
 make[1]: Nothing to be done for 'all.512z_f_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas'.
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx'
 
-DATE: 2025-11-02_17:55:23
+DATE: 2025-11-05_08:03:19
 
 HASBLAS=hasBlas
 CUDACPP_RUNTIME_BLASCOLORSUM=
@@ -125,86 +125,86 @@ On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.cuda_f_inl0_hrd0_dcd0/check_cuda.exe
 ### GPU: scaling test 256 (1 cycle)
-1.235915e+06    1 256
-2.378541e+06    2 256
-4.704347e+06    4 256
-9.365026e+06    8 256
-1.922472e+07   16 256
-3.328241e+07   32 256
-7.357709e+07   64 256
-1.223157e+08  128 256
-1.457356e+08  256 256
-1.650943e+08  512 256
-1.737327e+08 1024 256
+1.173160e+06    1 256
+2.368802e+06    2 256
+4.517262e+06    4 256
+9.558257e+06    8 256
+1.869474e+07   16 256
+3.813780e+07   32 256
+6.877532e+07   64 256
+1.211794e+08  128 256
+1.559412e+08  256 256
+1.666743e+08  512 256
+1.758501e+08 1024 256
 ### GPU: scaling test 32 (1 cycle)
-1.465040e+05    1  32
-3.156581e+05    2  32
-5.849182e+05    4  32
-1.171469e+06    8  32
-2.423095e+06   16  32
-4.986681e+06   32  32
-9.577836e+06   64  32
-1.691444e+07  128  32
-3.899226e+07  256  32
-6.768374e+07  512  32
-1.024573e+08 1024  32
-1.165377e+08 2048  32
-1.317492e+08 4096  32
-1.423999e+08 8192  32
+1.476941e+05    1  32
+3.027379e+05    2  32
+6.224046e+05    4  32
+1.174802e+06    8  32
+2.507358e+06   16  32
+5.104839e+06   32  32
+9.331486e+06   64  32
+1.960090e+07  128  32
+3.415212e+07  256  32
+7.288937e+07  512  32
+1.036726e+08 1024  32
+1.184369e+08 2048  32
+1.342810e+08 4096  32
+1.397913e+08 8192  32
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.hip_f_inl0_hrd0_dcd0/check_hip.exe
 Not found: /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.hip_f_inl0_hrd0_dcd0/check_hip.exe
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.none_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-1.781280e+05    1 256
-1.861810e+05    2 256
-1.875346e+05    4 256
+1.768804e+05    1 256
+1.795080e+05    2 256
+1.883311e+05    4 256
 ### CPU: scaling test 32
-1.775824e+05    1  32
-1.780884e+05    2  32
-1.744119e+05    4  32
+1.491035e+05    1  32
+1.743755e+05    2  32
+1.669628e+05    4  32
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.sse4_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-4.159775e+05    1 256
-4.298172e+05    2 256
-4.263208e+05    4 256
+4.105782e+05    1 256
+3.941123e+05    2 256
+4.252418e+05    4 256
 ### CPU: scaling test 32
-3.869689e+05    1  32
-4.011508e+05    2  32
-4.247680e+05    4  32
+3.785370e+05    1  32
+3.984113e+05    2  32
+3.760359e+05    4  32
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.avx2_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-1.017601e+06    1 256
-9.916697e+05    2 256
-1.012266e+06    4 256
+9.126788e+05    1 256
+9.991063e+05    2 256
+1.002276e+06    4 256
 ### CPU: scaling test 32
-9.815651e+05    1  32
-8.499224e+05    2  32
-9.522321e+05    4  32
+9.075955e+05    1  32
+9.250694e+05    2  32
+8.789217e+05    4  32
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.512y_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-1.031684e+06    1 256
-1.061787e+06    2 256
-1.064576e+06    4 256
+9.554627e+05    1 256
+1.060160e+06    2 256
+1.060552e+06    4 256
 ### CPU: scaling test 32
-9.431460e+05    1  32
-1.049593e+06    2  32
-1.038818e+06    4  32
+1.030596e+06    1  32
+8.460349e+05    2  32
+1.062629e+06    4  32
 =========================================================================
 scalingTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_tt.mad/SubProcesses/P1_gg_ttx/build.512z_f_inl0_hrd0/check_cpp.exe
 ### CPU: scaling test 256
-7.352603e+05    1 256
-7.600014e+05    2 256
-7.563235e+05    4 256
+7.252823e+05    1 256
+7.440217e+05    2 256
+7.609598e+05    4 256
 ### CPU: scaling test 32
-6.977607e+05    1  32
-6.899303e+05    2  32
-7.360298e+05    4  32
+4.804156e+05    1  32
+7.544145e+05    2  32
+6.767760e+05    4  32
 =========================================================================
 
-DATE: 2025-11-02_17:55:44
+DATE: 2025-11-05_08:03:39
 TEST COMPLETED
