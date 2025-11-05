@@ -1,7 +1,7 @@
 MADGRAPH_CUDA_ARCHITECTURE=
-MADGRAPH_HIP_ARCHITECTURE=
+MADGRAPH_HIP_ARCHITECTURE=gfx90a
 HASBLAS=hasBlas
-Working directory (build): /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx
+Working directory (build): /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx
 cudacpp_overlay.mk:132: warning: overriding recipe for target '../../lib/libmodel.a'
 makefile_original.mk:65: warning: ignoring old recipe for target '../../lib/libmodel.a'
 cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgeneric.a'
@@ -19,55 +19,29 @@ makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
 cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
 makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
 
-
-make USEBUILDDIR=1 BACKEND=cuda
-
+make USEBUILDDIR=1 BACKEND=hip
 
 make USEBUILDDIR=1 BACKEND=cppnone
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+
 make USEBUILDDIR=1 BACKEND=cppsse4
+
 make USEBUILDDIR=1 BACKEND=cppavx2
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 
 make USEBUILDDIR=1 BACKEND=cpp512y
-make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 
 make USEBUILDDIR=1 BACKEND=cpp512z
-make[1]: Entering directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Entering directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 cudacpp_overlay.mk:132: warning: overriding recipe for target '../../lib/libmodel.a'
 makefile_original.mk:65: warning: ignoring old recipe for target '../../lib/libmodel.a'
 cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgeneric.a'
 makefile_original.mk:68: warning: ignoring old recipe for target '../../lib/libgeneric.a'
 cudacpp_overlay.mk:134: warning: overriding recipe for target '../../lib/libpdf.a'
 makefile_original.mk:71: warning: ignoring old recipe for target '../../lib/libpdf.a'
-cudacpp_overlay.mk:132: warning: overriding recipe for target '../../lib/libmodel.a'
-makefile_original.mk:65: warning: ignoring old recipe for target '../../lib/libmodel.a'
-cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgeneric.a'
-makefile_original.mk:68: warning: ignoring old recipe for target '../../lib/libgeneric.a'
-cudacpp_overlay.mk:134: warning: overriding recipe for target '../../lib/libpdf.a'
-makefile_original.mk:71: warning: ignoring old recipe for target '../../lib/libpdf.a'
-cudacpp_overlay.mk:132: warning: overriding recipe for target '../../lib/libmodel.a'
-makefile_original.mk:65: warning: ignoring old recipe for target '../../lib/libmodel.a'
-cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgeneric.a'
-makefile_original.mk:68: warning: ignoring old recipe for target '../../lib/libgeneric.a'
-cudacpp_overlay.mk:134: warning: overriding recipe for target '../../lib/libpdf.a'
-makefile_original.mk:71: warning: ignoring old recipe for target '../../lib/libpdf.a'
-cudacpp_overlay.mk:132: warning: overriding recipe for target '../../lib/libmodel.a'
-makefile_original.mk:65: warning: ignoring old recipe for target '../../lib/libmodel.a'
-cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgeneric.a'
-makefile_original.mk:68: warning: ignoring old recipe for target '../../lib/libgeneric.a'
-cudacpp_overlay.mk:134: warning: overriding recipe for target '../../lib/libpdf.a'
-makefile_original.mk:71: warning: ignoring old recipe for target '../../lib/libpdf.a'
-cudacpp_overlay.mk:135: warning: overriding recipe for target '../../lib/libgammaUPC.a'
-makefile_original.mk:74: warning: ignoring old recipe for target '../../lib/libgammaUPC.a'
-cudacpp_overlay.mk:173: warning: overriding recipe for target 'madevent_forhel'
-makefile_original.mk:59: warning: ignoring old recipe for target 'madevent_forhel'
-cudacpp_overlay.mk:176: warning: overriding recipe for target 'gensym'
-makefile_original.mk:62: warning: ignoring old recipe for target 'gensym'
-cudacpp_overlay.mk:180: warning: overriding recipe for target 'matrix1.o'
-makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
 cudacpp_overlay.mk:132: warning: overriding recipe for target '../../lib/libmodel.a'
 makefile_original.mk:65: warning: ignoring old recipe for target '../../lib/libmodel.a'
 cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgeneric.a'
@@ -104,6 +78,35 @@ cudacpp_overlay.mk:176: warning: overriding recipe for target 'gensym'
 makefile_original.mk:62: warning: ignoring old recipe for target 'gensym'
 cudacpp_overlay.mk:180: warning: overriding recipe for target 'matrix1.o'
 makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
+cudacpp_overlay.mk:132: warning: overriding recipe for target '../../lib/libmodel.a'
+makefile_original.mk:65: warning: ignoring old recipe for target '../../lib/libmodel.a'
+cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgeneric.a'
+makefile_original.mk:68: warning: ignoring old recipe for target '../../lib/libgeneric.a'
+cudacpp_overlay.mk:134: warning: overriding recipe for target '../../lib/libpdf.a'
+makefile_original.mk:71: warning: ignoring old recipe for target '../../lib/libpdf.a'
+cudacpp_overlay.mk:135: warning: overriding recipe for target '../../lib/libgammaUPC.a'
+makefile_original.mk:74: warning: ignoring old recipe for target '../../lib/libgammaUPC.a'
+cudacpp_overlay.mk:173: warning: overriding recipe for target 'madevent_forhel'
+makefile_original.mk:59: warning: ignoring old recipe for target 'madevent_forhel'
+cudacpp_overlay.mk:176: warning: overriding recipe for target 'gensym'
+makefile_original.mk:62: warning: ignoring old recipe for target 'gensym'
+cudacpp_overlay.mk:180: warning: overriding recipe for target 'matrix1.o'
+makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
+cudacpp_overlay.mk:132: warning: overriding recipe for target '../../lib/libmodel.a'
+makefile_original.mk:65: warning: ignoring old recipe for target '../../lib/libmodel.a'
+cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgeneric.a'
+makefile_original.mk:68: warning: ignoring old recipe for target '../../lib/libgeneric.a'
+cudacpp_overlay.mk:134: warning: overriding recipe for target '../../lib/libpdf.a'
+makefile_original.mk:71: warning: ignoring old recipe for target '../../lib/libpdf.a'
+cudacpp_overlay.mk:132: warning: overriding recipe for target '../../lib/libmodel.a'
+makefile_original.mk:65: warning: ignoring old recipe for target '../../lib/libmodel.a'
+cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgeneric.a'
+makefile_original.mk:68: warning: ignoring old recipe for target '../../lib/libgeneric.a'
+cudacpp_overlay.mk:134: warning: overriding recipe for target '../../lib/libpdf.a'
+makefile_original.mk:71: warning: ignoring old recipe for target '../../lib/libpdf.a'
+cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
+makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 cudacpp_overlay.mk:135: warning: overriding recipe for target '../../lib/libgammaUPC.a'
 makefile_original.mk:74: warning: ignoring old recipe for target '../../lib/libgammaUPC.a'
 cudacpp_overlay.mk:173: warning: overriding recipe for target 'madevent_forhel'
@@ -122,22 +125,19 @@ cudacpp_overlay.mk:180: warning: overriding recipe for target 'matrix1.o'
 makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
 cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
 makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
 makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
-make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
 makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
 makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
 makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
-make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
-makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
-make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
-make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
+make[1]: Leaving directory '/pfs/lustrep1/users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx'
 
 CUDACPP_RUNTIME_BLASCOLORSUM=
 
@@ -147,10 +147,10 @@ CUDACPP_RUNTIME_GPUGRAPHS=
 
 OMP_NUM_THREADS=
 
-DATE: 2025-11-02_20:37:31
+DATE: 2025-11-04_23:24:06
 
-On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
-Working directory (run): /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx
+On uan02 [CPU: AMD EPYC 7A53 64-Core Processor] [GPU: AMD INSTINCT MI200]:
+Working directory (run): /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx
 
 *** (1) EXECUTE MADEVENT_FORTRAN (create results.dat) ***
 --------------------
@@ -164,18 +164,18 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 0 ! Helicity Sum/event 0=exact
 1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./madevent_fortran < /tmp/avalassi/input_heftggbb_x1_fortran > /tmp/avalassi/output_heftggbb_x1_fortran'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
+Executing ' ./madevent_fortran < /tmp/valassia/input_heftggbb_x1_fortran > /tmp/valassia/output_heftggbb_x1_fortran'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/128
  [NGOODHEL] ngoodhel/ncomb = /
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.016 [2.0160081479755183] fbridge_mode=0
+ [XSECTION] Cross section = 2.016 [2.0160081479755321] fbridge_mode=0
  [UNWEIGHT] Wrote 3371 events (found 6399 events)
- [COUNTERS] PROGRAM TOTAL          :    1.0779s
- [COUNTERS] Fortran Overhead ( 0 ) :    1.0301s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0479s for     8192 events => throughput is 1.71E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    1.1565s
+ [COUNTERS] Fortran Overhead ( 0 ) :    1.1202s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0363s for     8192 events => throughput is 2.25E+05 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
@@ -189,18 +189,18 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 0 ! Helicity Sum/event 0=exact
 1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./madevent_fortran < /tmp/avalassi/input_heftggbb_x1_fortran > /tmp/avalassi/output_heftggbb_x1_fortran'
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
+Executing ' ./madevent_fortran < /tmp/valassia/input_heftggbb_x1_fortran > /tmp/valassia/output_heftggbb_x1_fortran'
+ [OPENMPTH] omp_get_max_threads/nproc = 1/128
  [NGOODHEL] ngoodhel/ncomb = /
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.016 [2.0160081479755183] fbridge_mode=0
+ [XSECTION] Cross section = 2.016 [2.0160081479755321] fbridge_mode=0
  [UNWEIGHT] Wrote 1652 events (found 1657 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4910s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4430s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0480s for     8192 events => throughput is 1.71E+05 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.7467s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.7104s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0363s for     8192 events => throughput is 2.26E+05 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -214,35 +214,35 @@ CUDACPP_RUNTIME_VECSIZEUSED = 8192
 0 ! Helicity Sum/event 0=exact
 1 ! ICONFIG number (1-N) for single-diagram enhancement multi-channel (NB used even if suppress amplitude is 0!)
 --------------------
-Executing ' ./build.none_f_inl0_hrd0/madevent_cpp < /tmp/avalassi/input_heftggbb_x1_cudacpp > /tmp/avalassi/output_heftggbb_x1_cudacpp'
+Executing ' ./build.none_f_inl0_hrd0/madevent_cpp < /tmp/valassia/input_heftggbb_x1_cudacpp > /tmp/valassia/output_heftggbb_x1_cudacpp'
 DEBUG: MEK processed 8192 events across 4 channels { 1 : 8192 }
- [OPENMPTH] omp_get_max_threads/nproc = 1/4
+ [OPENMPTH] omp_get_max_threads/nproc = 1/128
  [NGOODHEL] ngoodhel/ncomb = 16/16
  [XSECTION] VECSIZE_USED = 8192
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 2.016 [2.0160406822335140] fbridge_mode=1
+ [XSECTION] Cross section = 2.016 [2.0160406543052529] fbridge_mode=1
  [UNWEIGHT] Wrote 1653 events (found 1658 events)
- [COUNTERS] PROGRAM TOTAL          :    0.4924s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.4430s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0491s for     8192 events => throughput is 1.67E+05 events/s
- [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0003s
+ [COUNTERS] PROGRAM TOTAL          :    0.7439s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.7067s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0370s for     8192 events => throughput is 2.21E+05 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0002s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (2.0160081479755183) and cpp (2.0160406822335140) differ by less than 4E-4 (1.613795957533526e-05)
+OK! xsec from fortran (2.0160081479755321) and cpp (2.0160406543052529) differ by less than 4E-4 (1.6124106320347664e-05)
 
 *** (2-none) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 ERROR! events.lhe.cpp.1 and events.lhe.ref.1 differ!
-diff /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx/events.lhe.cpp.1 /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx/events.lhe.ref.1 | head -20
+diff /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx/events.lhe.cpp.1 /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/heft_gg_bb.mad/SubProcesses/P1_gg_bbx/events.lhe.ref.1 | head -20
 8102,8116d8101
 < 5 1 1E-03 0.1250010E+03 0.7546771E-02 0.1235066E+00
-<          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.71320499473E+02  0.71320499473E+02  0.00000000000E+00 0.  1.
-<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.54771239790E+02  0.54771239790E+02  0.00000000000E+00 0.  1.
-<          25    2    1    2    0    0  0.00000000000E+00  0.00000000000E+00  0.16549259682E+02  0.12609173926E+03  0.12500099485E+03 0.  9.
-<           5    1    3    3  501    0  0.50303102232E+02  0.36190119942E+02  0.14973002893E+02  0.63925016162E+02  0.47000000000E+01 0. -1.
-<          -5    1    3    3    0  501 -0.50303102232E+02 -0.36190119942E+02  0.15762567893E+01  0.62166723101E+02  0.47000000000E+01 0. -1.
+<          21   -1    0    0  503  502  0.00000000000E+00  0.00000000000E+00  0.71320499550E+02  0.71320499550E+02  0.00000000000E+00 0.  1.
+<          21   -1    0    0  502  503 -0.00000000000E+00 -0.00000000000E+00 -0.54771239731E+02  0.54771239731E+02  0.00000000000E+00 0.  1.
+<          25    2    1    2    0    0  0.00000000000E+00  0.00000000000E+00  0.16549259819E+02  0.12609173928E+03  0.12500099485E+03 0.  9.
+<           5    1    3    3  501    0  0.50303102232E+02  0.36190119942E+02  0.14973002962E+02  0.63925016178E+02  0.47000000000E+01 0. -1.
+<          -5    1    3    3    0  501 -0.50303102232E+02 -0.36190119942E+02  0.15762568567E+01  0.62166723103E+02  0.47000000000E+01 0. -1.
 < <mgrwt>
 < <rscale>  0 0.12500099E+03</rscale>
 < <asrwt>0</asrwt>
