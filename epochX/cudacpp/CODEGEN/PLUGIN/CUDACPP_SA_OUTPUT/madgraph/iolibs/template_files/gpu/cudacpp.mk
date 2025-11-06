@@ -90,6 +90,7 @@ ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
+###CXXFLAGS+= -fconstexpr-ops-limit=536870912 # default*16 (needed in gg_ttggggg)
 
 # Optionally add debug flags to display the full list of flags (eg on Darwin)
 ###CXXFLAGS+= -v
