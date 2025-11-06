@@ -18,6 +18,11 @@
 
 #include "mgOnGpuVectors.h"
 
+#include "MemoryAccessAmplitudes.h"
+#include "MemoryAccessCouplings.h"
+#include "MemoryAccessCouplingsFixed.h"
+#include "MemoryAccessMomenta.h"
+#include "MemoryAccessWavefunctions.h"
 #include "Parameters_%(model_name)s.h"
 
 #include <cassert>

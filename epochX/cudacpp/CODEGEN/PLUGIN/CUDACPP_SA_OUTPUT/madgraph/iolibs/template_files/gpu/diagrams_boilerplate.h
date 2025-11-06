@@ -13,8 +13,6 @@
     //-------------
 
     //using namespace mg5amcGpu;
-    using W_ACCESS = DeviceAccessWavefunctionsTrivial;  // TRIVIAL ACCESS (local variable for one event): buffer for one event
-    using A_ACCESS = DeviceAccessAmplitudes;            // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;            // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed;       // TRIVIAL access (independent couplings): buffer for one event
 #ifndef MGONGPU_RDC_DIAGRAMS
@@ -77,9 +75,6 @@
     //-------------
 
     //using namespace mg5amcCpu;
-    using W_ACCESS = HostAccessWavefunctions;   // non-trivial access (with kernel splitting): buffer includes all events
-    using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (local variable for one event): buffer for one event
-    using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events

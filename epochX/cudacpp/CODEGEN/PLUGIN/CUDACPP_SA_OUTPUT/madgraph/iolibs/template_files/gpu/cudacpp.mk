@@ -971,18 +971,15 @@ endif
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): test objects and test executable
-ifeq ($(GPUCC),)
 $(BUILDDIR)/testxxx_cpp.o: $(GTESTLIBS)
 $(BUILDDIR)/testxxx_cpp.o: INCFLAGS += $(GTESTINC)
 $(BUILDDIR)/testxxx_cpp.o: testxxx_cc_ref.txt
+ifeq ($(GPUCC),)
 $(cxx_testmain): $(BUILDDIR)/testxxx_cpp.o
 $(cxx_testmain): cxx_objects_exe += $(BUILDDIR)/testxxx_cpp.o # Comment out this line to skip the C++ test of xxx functions
 else
-$(BUILDDIR)/testxxx_$(GPUSUFFIX).o: $(GTESTLIBS)
-$(BUILDDIR)/testxxx_$(GPUSUFFIX).o: INCFLAGS += $(GTESTINC)
-$(BUILDDIR)/testxxx_$(GPUSUFFIX).o: testxxx_cc_ref.txt
-$(gpu_testmain): $(BUILDDIR)/testxxx_$(GPUSUFFIX).o
-$(gpu_testmain): gpu_objects_exe += $(BUILDDIR)/testxxx_$(GPUSUFFIX).o # Comment out this line to skip the CUDA/HIP test of xxx functions
+$(gpu_testmain): $(BUILDDIR)/testxxx_cpp.o
+$(gpu_testmain): gpu_objects_exe += $(BUILDDIR)/testxxx_cpp.o # Comment out this line to skip the CUDA/HIP test of xxx functions
 endif
 
 ifneq ($(UNAME_S),Darwin) # Disable testmisc on Darwin (workaround for issue #838)

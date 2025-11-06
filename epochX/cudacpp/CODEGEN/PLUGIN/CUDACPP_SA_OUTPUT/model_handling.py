@@ -218,7 +218,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             output = '%(doublec)s allvertexes[]' % {
                 'doublec': self.type2def['double']}
             comment_output = 'amplitude \'vertex\''
-            template = 'template<class W_ACCESS, class A_ACCESS, class CD_ACCESS>'
+            template = '// [was: template<class W_ACCESS, class A_ACCESS, class CD_ACCESS>]'
         else:
             output = '%(doublec)s all%(spin)s%(id)d[]' % {
                      'doublec': self.type2def['double'],
@@ -226,7 +226,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
-            template = 'template<class W_ACCESS, class CD_ACCESS>'
+            template = '// [was: template<class W_ACCESS, class CD_ACCESS>]'
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
         indent = ' ' * len( '  %s( ' % name )
         out.write('  %(comment)s\n  %(template)s\n  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
@@ -259,6 +259,26 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         """
         out = StringIO()
         out.write('    mgDebug( 0, __FUNCTION__ );\n') # AV
+        if not self.offshell:
+            out.write("""#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using A_ACCESS = DeviceAccessAmplitudes;           // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
+#else
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+    using A_ACCESS = HostAccessAmplitudes;             // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
+#endif /* clang-format on */
+""")
+        else:
+            out.write("""#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
+#else
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
+#endif /* clang-format on */
+""")
         ###argument_var = [name for type,name in self.call_arg] # UNUSED
         for type, name in self.call_arg:
             ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
@@ -2145,11 +2165,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
 #include \"diagrams_boilerplate.h\"
-#ifdef MGONGPUCPP_GPUIMPL
-    using M_ACCESS = DeviceAccessMomenta; // non-trivial access: buffer includes all events
-#else
-    using M_ACCESS = HostAccessMomenta; // non-trivial access: buffer includes all events
-#endif
 
 #ifdef MGONGPUCPP_GPUIMPL
 #ifndef MGONGPU_RDC_DIAGRAMS
@@ -2495,7 +2510,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
         # (AV join using ',': no need to add a space as this is done by format_call later on)
         line = ', '.join(split_line)
-        line = line.replace( 'xxx(', 'xxx<M_ACCESS, W_ACCESS>(' )
+        ###line = line.replace( 'xxx(', 'xxx<M_ACCESS, W_ACCESS>(' ) # REMOVE TEMPLATES!
         line = line.replace( 'w_sv', 'w_fp' )
         # AV2: line2 logic is to have MGONGPU_TEST_DIVERGENCE on the first xxx call
         if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
@@ -2642,10 +2657,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if usesdepcoupl is None: raise Exception('PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?')
             elif usesdepcoupl: caccess = 'CD_ACCESS'
             else: caccess = 'CI_ACCESS'
-            ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, CD_ACCESS>'
-            ###else : arg['routine_name'] += '<W_ACCESS, CD_ACCESS>'
-            if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s>'%caccess
-            else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess
+            ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s>'%caccess # REMOVE TEMPLATES!
+            ###else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess # REMOVE TEMPLATES!
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
                 arg['out'] = 'w_fp[%(out)d]'
