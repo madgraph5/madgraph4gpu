@@ -77,9 +77,9 @@ namespace mg5amcCpu
     ixxxxx( momenta, 0., cHel[ihel][1], +1, w_fp[1], 1 );
     ixxxxx( momenta, 0., cHel[ihel][2], -1, w_fp[2], 2 );
     oxxxxx( momenta, 0., cHel[ihel][3], +1, w_fp[3], 3 );
-    FFV1P0_3( w_fp[1], w_fp[0], COUPs[ndcoup + 0], 1.0, 0., 0., w_fp[4] );
+    FFV1P0_3( w_fp[1], w_fp[0], COUPs[ndcoup + 0], 1.0, indepCoup, 0., 0., w_fp[4] );
     // Amplitude(s) for diagram number 1
-    FFV1_0( w_fp[2], w_fp[3], w_fp[4], COUPs[ndcoup + 0], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[2], w_fp[3], w_fp[4], COUPs[ndcoup + 0], 1.0, indepCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     if( channelId == 1 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
@@ -88,9 +88,9 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 2 OF 2 ***
     // Wavefunction(s) for diagram number 2
-    FFV2_4_3( w_fp[1], w_fp[0], COUPs[ndcoup + 1], 1.0, COUPs[ndcoup + 2], 1.0, cIPD[0], cIPD[1], w_fp[4] );
+    FFV2_4_3( w_fp[1], w_fp[0], COUPs[ndcoup + 1], 1.0, COUPs[ndcoup + 2], 1.0, indepCoup, cIPD[0], cIPD[1], w_fp[4] );
     // Amplitude(s) for diagram number 2
-    FFV2_4_0( w_fp[2], w_fp[3], w_fp[4], COUPs[ndcoup + 1], 1.0, COUPs[ndcoup + 2], 1.0, &amp_fp[0] );
+    FFV2_4_0( w_fp[2], w_fp[3], w_fp[4], COUPs[ndcoup + 1], 1.0, COUPs[ndcoup + 2], 1.0, indepCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
     if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );

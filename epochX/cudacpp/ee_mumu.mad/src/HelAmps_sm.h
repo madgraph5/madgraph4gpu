@@ -935,24 +935,26 @@ namespace mg5amcCpu
   //==========================================================================
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  // [was: template<class W_ACCESS, class A_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV1_0( const fptype allF1[],
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
-  // [was: template<class W_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV1P0_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP[],
             const double Ccoeff,
+            const bool depCoup,
             const fptype M3,
             const fptype W3,
             fptype allV3[] ) ALWAYS_INLINE;
@@ -960,24 +962,26 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  // [was: template<class W_ACCESS, class A_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV2_0( const fptype allF1[],
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
-  // [was: template<class W_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV2_3( const fptype allF1[],
           const fptype allF2[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           const fptype M3,
           const fptype W3,
           fptype allV3[] ) ALWAYS_INLINE;
@@ -985,24 +989,26 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  // [was: template<class W_ACCESS, class A_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV4_0( const fptype allF1[],
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
-  // [was: template<class W_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV4_3( const fptype allF1[],
           const fptype allF2[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           const fptype M3,
           const fptype W3,
           fptype allV3[] ) ALWAYS_INLINE;
@@ -1010,7 +1016,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  // [was: template<class W_ACCESS, class A_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV2_4_0( const fptype allF1[],
             const fptype allF2[],
@@ -1019,12 +1025,13 @@ namespace mg5amcCpu
             const double Ccoeff1,
             const fptype allCOUP2[],
             const double Ccoeff2,
+            const bool depCoup,
             fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
-  // [was: template<class W_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV2_4_3( const fptype allF1[],
             const fptype allF2[],
@@ -1032,6 +1039,7 @@ namespace mg5amcCpu
             const double Ccoeff1,
             const fptype allCOUP2[],
             const double Ccoeff2,
+            const bool depCoup,
             const fptype M3,
             const fptype W3,
             fptype allV3[] ) ALWAYS_INLINE;
@@ -1039,29 +1047,32 @@ namespace mg5amcCpu
   //==========================================================================
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  // [was: template<class W_ACCESS, class A_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV1_0( const fptype allF1[],
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
     using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using A_ACCESS = DeviceAccessAmplitudes;           // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
 #else
     using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
     using A_ACCESS = HostAccessAmplitudes;             // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
 #endif /* clang-format on */
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
-    const cxtype_sv COUP = CI_ACCESS::kernelAccessConst( allCOUP );
+    const cxtype_sv COUP = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP ) : CI_ACCESS::kernelAccessConst( allCOUP ) );
     cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP0 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * V3[4] ) ) + ( F1[3] * ( F2[4] * ( V3[3] - cI * V3[4] ) + F2[5] * ( V3[2] - V3[5] ) ) + ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * V3[4] ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * V3[4] ) + F2[3] * ( V3[2] + V3[5] ) ) ) ) );
@@ -1073,12 +1084,13 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
-  // [was: template<class W_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV1P0_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP[],
             const double Ccoeff,
+            const bool depCoup,
             const fptype M3,
             const fptype W3,
             fptype allV3[] )
@@ -1086,14 +1098,16 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
     using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
 #else
     using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
 #endif /* clang-format on */
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
-    const cxtype_sv COUP = CI_ACCESS::kernelAccessConst( allCOUP );
+    const cxtype_sv COUP = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP ) : CI_ACCESS::kernelAccessConst( allCOUP ) );
     cxtype_sv* V3 = W_ACCESS::kernelAccess( allV3 );
     const cxtype cI = cxmake( 0., 1. );
     V3[0] = +F1[0] + F2[0];
@@ -1111,29 +1125,32 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  // [was: template<class W_ACCESS, class A_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV2_0( const fptype allF1[],
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
     using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using A_ACCESS = DeviceAccessAmplitudes;           // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
 #else
     using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
     using A_ACCESS = HostAccessAmplitudes;             // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
 #endif /* clang-format on */
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
-    const cxtype_sv COUP = CI_ACCESS::kernelAccessConst( allCOUP );
+    const cxtype_sv COUP = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP ) : CI_ACCESS::kernelAccessConst( allCOUP ) );
     cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP1 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * V3[4] ) ) + F1[3] * ( F2[4] * ( V3[3] - cI * V3[4] ) + F2[5] * ( V3[2] - V3[5] ) ) );
@@ -1145,12 +1162,13 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
-  // [was: template<class W_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV2_3( const fptype allF1[],
           const fptype allF2[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           const fptype M3,
           const fptype W3,
           fptype allV3[] )
@@ -1158,14 +1176,16 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
     using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
 #else
     using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
 #endif /* clang-format on */
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
-    const cxtype_sv COUP = CI_ACCESS::kernelAccessConst( allCOUP );
+    const cxtype_sv COUP = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP ) : CI_ACCESS::kernelAccessConst( allCOUP ) );
     cxtype_sv* V3 = W_ACCESS::kernelAccess( allV3 );
     const cxtype cI = cxmake( 0., 1. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
@@ -1185,29 +1205,32 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  // [was: template<class W_ACCESS, class A_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV4_0( const fptype allF1[],
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
     using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using A_ACCESS = DeviceAccessAmplitudes;           // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
 #else
     using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
     using A_ACCESS = HostAccessAmplitudes;             // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
 #endif /* clang-format on */
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
-    const cxtype_sv COUP = CI_ACCESS::kernelAccessConst( allCOUP );
+    const cxtype_sv COUP = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP ) : CI_ACCESS::kernelAccessConst( allCOUP ) );
     cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
@@ -1222,12 +1245,13 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
-  // [was: template<class W_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV4_3( const fptype allF1[],
           const fptype allF2[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           const fptype M3,
           const fptype W3,
           fptype allV3[] )
@@ -1235,14 +1259,16 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
     using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
 #else
     using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
 #endif /* clang-format on */
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
-    const cxtype_sv COUP = CI_ACCESS::kernelAccessConst( allCOUP );
+    const cxtype_sv COUP = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP ) : CI_ACCESS::kernelAccessConst( allCOUP ) );
     cxtype_sv* V3 = W_ACCESS::kernelAccess( allV3 );
     const cxtype cI = cxmake( 0., 1. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
@@ -1265,7 +1291,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  // [was: template<class W_ACCESS, class A_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV2_4_0( const fptype allF1[],
             const fptype allF2[],
@@ -1274,23 +1300,26 @@ namespace mg5amcCpu
             const double Ccoeff1,
             const fptype allCOUP2[],
             const double Ccoeff2,
+            const bool depCoup,
             fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
     using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using A_ACCESS = DeviceAccessAmplitudes;           // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
 #else
     using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
     using A_ACCESS = HostAccessAmplitudes;             // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
 #endif /* clang-format on */
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
-    const cxtype_sv COUP1 = CI_ACCESS::kernelAccessConst( allCOUP1 );
-    const cxtype_sv COUP2 = CI_ACCESS::kernelAccessConst( allCOUP2 );
+    const cxtype_sv COUP1 = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP1 ) : CI_ACCESS::kernelAccessConst( allCOUP1 ) );
+    const cxtype_sv COUP2 = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP2 ) : CI_ACCESS::kernelAccessConst( allCOUP2 ) );
     cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     constexpr fptype one( 1. );
@@ -1305,7 +1334,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
-  // [was: template<class W_ACCESS, class CI_ACCESS>]
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV2_4_3( const fptype allF1[],
             const fptype allF2[],
@@ -1313,6 +1342,7 @@ namespace mg5amcCpu
             const double Ccoeff1,
             const fptype allCOUP2[],
             const double Ccoeff2,
+            const bool depCoup,
             const fptype M3,
             const fptype W3,
             fptype allV3[] )
@@ -1320,15 +1350,17 @@ namespace mg5amcCpu
     mgDebug( 0, __FUNCTION__ );
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
     using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
 #else
     using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
 #endif /* clang-format on */
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
-    const cxtype_sv COUP1 = CI_ACCESS::kernelAccessConst( allCOUP1 );
-    const cxtype_sv COUP2 = CI_ACCESS::kernelAccessConst( allCOUP2 );
+    const cxtype_sv COUP1 = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP1 ) : CI_ACCESS::kernelAccessConst( allCOUP1 ) );
+    const cxtype_sv COUP2 = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP2 ) : CI_ACCESS::kernelAccessConst( allCOUP2 ) );
     cxtype_sv* V3 = W_ACCESS::kernelAccess( allV3 );
     const cxtype cI = cxmake( 0., 1. );
     const fptype OM3 = ( M3 != 0. ? 1. / ( M3 * M3 ) : 0. );
