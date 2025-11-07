@@ -1,73 +1,68 @@
 MADGRAPH_CUDA_ARCHITECTURE=
-MADGRAPH_HIP_ARCHITECTURE=
+MADGRAPH_HIP_ARCHITECTURE=gfx90a
 
 HASBLAS=hasBlas
-Building in /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg
-BACKEND=cpp512y (was cppauto)
+Building in /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg
+BACKEND=cppavx2 (was cppauto)
 OMPFLAGS=
 FPTYPE='m'
 HELINL='0'
 HRDCOD='0'
 DCDIAG='0'
-HASCURAND=hasCurand
+HASCURAND=hasNoCurand
 HASHIPRAND=hasNoHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.auto_m_inl0_hrd0 for tag=512y_m_inl0_hrd0_dcd0_hasCurand_hasNoHiprand_hasBlas (USEBUILDDIR == 1)
+Building in BUILDDIR=build.auto_m_inl0_hrd0 for tag=avx2_m_inl0_hrd0_dcd0_hasNoCurand_hasNoHiprand_hasBlas (USEBUILDDIR == 1)
 make: Nothing to be done for 'gtestlibs'.
-BACKEND='cuda'
+BACKEND='hip'
 OMPFLAGS=
 FPTYPE='m'
 HELINL='0'
 HRDCOD='0'
 DCDIAG='1'
-HASCURAND=hasCurand
-HASHIPRAND=hasNoHiprand
+HASCURAND=hasNoCurand
+HASHIPRAND=hasHiprand
 HASBLAS=hasBlas
-Building in BUILDDIR=build.cuda_m_inl0_hrd0_dcd1 for tag=cuda_m_inl0_hrd0_dcd1_hasCurand_hasNoHiprand_hasBlas (USEBUILDDIR == 1)
-make: Nothing to be done for 'all.cuda_m_inl0_hrd0_dcd1_hasCurand_hasNoHiprand_hasBlas'.
+Building in BUILDDIR=build.hip_m_inl0_hrd0_dcd1 for tag=hip_m_inl0_hrd0_dcd1_hasNoCurand_hasHiprand_hasBlas (USEBUILDDIR == 1)
+make: Nothing to be done for 'all.hip_m_inl0_hrd0_dcd1_hasNoCurand_hasHiprand_hasBlas'.
 
-DATE: 2025-11-05_09:52:34
+DATE: 2025-11-07_17:42:29
 
 HASBLAS=hasBlas
 CUDACPP_RUNTIME_BLASCOLORSUM=
 CUDACPP_RUNTIME_CUBLASTF32TENSOR=
 CUDACPP_RUNTIME_GPUGRAPHS=
-On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
+On uan02 [CPU: AMD EPYC 7A53 64-Core Processor] [GPU: AMD INSTINCT MI200]:
 =========================================================================
-runExe /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg/build.cuda_m_inl0_hrd0_dcd1/check_cuda.exe -p 64 256 10 OMP=
-Process                     = SIGMA_SM_GG_TTXG_CUDA [nvcc 12.0.140 (gcc 11.5.0)] [inlineHel=0] [hardcodePARAM=0]
-Workflow summary            = CUD:MIX+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+runExe /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg/build.hip_m_inl0_hrd0_dcd1/check_hip.exe -p 64 256 10 OMP=
+Process                     = SIGMA_SM_GG_TTXG_HIP [hipcc 6.0.32831 (clang 17.0.0)] [inlineHel=0] [hardcodePARAM=0]
+Workflow summary            = HIP:MIX+CXS:HIRDEV+RMBDEV+MESDEV/none+NAVBRK
 FP precision                = MIXED (NaN/abnormal=0, zero=0)
-EvtsPerSec[Rmb+ME]     (23) = ( 3.944623e+06                 )  sec^-1
-EvtsPerSec[MatrixElems] (3) = ( 4.219415e+06                 )  sec^-1
-EvtsPerSec[MECalcOnly] (3a) = ( 4.239464e+06                 )  sec^-1
-MeanMatrixElemValue         = ( 1.008920e+02 +- 5.001681e+01 )  GeV^-2
-TOTAL       :     0.494899 sec
-     2,129,430,634      cycles                           #    2.827 GHz                       
-     2,989,564,056      instructions                     #    1.40  insn per cycle            
-       0.813050794 seconds time elapsed
+EvtsPerSec[Rmb+ME]     (23) = ( 1.454289e+06                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 1.551812e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 1.553961e+06                 )  sec^-1
+MeanMatrixElemValue         = ( 2.872208e+03 +- 2.725299e+03 )  GeV^-2
+TOTAL       :     0.536669 sec
+     1,463,383,959      cycles:u                         #    2.147 GHz                      (74.49%)
+         3,177,250      stalled-cycles-frontend:u        #    0.22% frontend cycles idle     (73.46%)
+         8,304,563      stalled-cycles-backend:u         #    0.57% backend cycles idle      (72.96%)
+     2,171,324,771      instructions:u                   #    1.48  insn per cycle         
+                                                  #    0.00  stalled cycles per insn  (74.09%)
+       0.687238171 seconds time elapsed
 .........................................................................
-runNcu /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg/build.cuda_m_inl0_hrd0_dcd1/check_cuda.exe -p 64 256 1 [profile kernel calculate_jamps]
-==PROF== Profiling "calculate_jamps": launch__registers_per_thread 254
-==PROF== Profiling "calculate_jamps": sm__sass_average_branch_targets_threads_uniform.pct 100%
-runNcu /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg/build.cuda_m_inl0_hrd0_dcd1/check_cuda.exe -p 64 256 1 [profile kernel color_sum_kernel]
-==PROF== Profiling "color_sum_kernel": launch__registers_per_thread 44
-==PROF== Profiling "color_sum_kernel": sm__sass_average_branch_targets_threads_uniform.pct 0%
 -------------------------------------------------------------------------
-runTest /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg/build.cuda_m_inl0_hrd0_dcd1/runTest_cuda.exe
+runTest /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg/build.hip_m_inl0_hrd0_dcd1/runTest_hip.exe
 [  PASSED  ] 4 tests.
 DEBUG: MEK (no multichannel) processed 512 events across 16 channels { no-multichannel : 512 }
 DEBUG: MEK (channelid array) processed 512 events across 16 channels { 1 : 64, 2 : 32, 3 : 32, 4 : 32, 5 : 32, 6 : 32, 7 : 32, 8 : 32, 9 : 32, 10 : 32, 11 : 32, 12 : 32, 13 : 32, 14 : 32, 15 : 32 }
 -------------------------------------------------------------------------
-cmpExe /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg/build.cuda_m_inl0_hrd0_dcd1/check_cuda.exe --common -p 2 64 2
-cmpExe /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg/build.cuda_m_inl0_hrd0_dcd1/fcheck_cuda.exe 2 64 2
+cmpExe /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg/build.hip_m_inl0_hrd0_dcd1/check_hip.exe --common -p 2 64 2
+cmpExe /users/valassia/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg/build.hip_m_inl0_hrd0_dcd1/fcheck_hip.exe 2 64 2
 Avg ME (C++/GPU)   = 1.413122e+00
 Avg ME (F77/GPU)   = 1.4131213912822083
 Relative difference = 4.3076096170606456e-07
 OK (relative difference <= 5E-3)
 =========================================================================
-Not found: /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/gg_ttg.dpg5dpf5.mad/SubProcesses/P1_gg_ttxg/build.hip_m_inl0_hrd0_dcd1/check_hip.exe
-=========================================================================
 
-DATE: 2025-11-05_09:52:47
+DATE: 2025-11-07_17:42:32
 TEST COMPLETED
