@@ -23,8 +23,8 @@ makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
 make USEBUILDDIR=1 BACKEND=cuda
 
 make USEBUILDDIR=1 BACKEND=cppnone
-
 make USEBUILDDIR=1 BACKEND=cppsse4
+
 make USEBUILDDIR=1 BACKEND=cppavx2
 
 make USEBUILDDIR=1 BACKEND=cpp512y
@@ -42,14 +42,6 @@ cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgene
 makefile_original.mk:68: warning: ignoring old recipe for target '../../lib/libgeneric.a'
 cudacpp_overlay.mk:134: warning: overriding recipe for target '../../lib/libpdf.a'
 makefile_original.mk:71: warning: ignoring old recipe for target '../../lib/libpdf.a'
-cudacpp_overlay.mk:135: warning: overriding recipe for target '../../lib/libgammaUPC.a'
-makefile_original.mk:74: warning: ignoring old recipe for target '../../lib/libgammaUPC.a'
-cudacpp_overlay.mk:173: warning: overriding recipe for target 'madevent_forhel'
-makefile_original.mk:59: warning: ignoring old recipe for target 'madevent_forhel'
-cudacpp_overlay.mk:176: warning: overriding recipe for target 'gensym'
-makefile_original.mk:62: warning: ignoring old recipe for target 'gensym'
-cudacpp_overlay.mk:180: warning: overriding recipe for target 'matrix1.o'
-makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
 cudacpp_overlay.mk:132: warning: overriding recipe for target '../../lib/libmodel.a'
 makefile_original.mk:65: warning: ignoring old recipe for target '../../lib/libmodel.a'
 cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgeneric.a'
@@ -68,22 +60,6 @@ cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgene
 makefile_original.mk:68: warning: ignoring old recipe for target '../../lib/libgeneric.a'
 cudacpp_overlay.mk:134: warning: overriding recipe for target '../../lib/libpdf.a'
 makefile_original.mk:71: warning: ignoring old recipe for target '../../lib/libpdf.a'
-cudacpp_overlay.mk:135: warning: overriding recipe for target '../../lib/libgammaUPC.a'
-makefile_original.mk:74: warning: ignoring old recipe for target '../../lib/libgammaUPC.a'
-cudacpp_overlay.mk:173: warning: overriding recipe for target 'madevent_forhel'
-makefile_original.mk:59: warning: ignoring old recipe for target 'madevent_forhel'
-cudacpp_overlay.mk:176: warning: overriding recipe for target 'gensym'
-makefile_original.mk:62: warning: ignoring old recipe for target 'gensym'
-cudacpp_overlay.mk:180: warning: overriding recipe for target 'matrix1.o'
-makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
-cudacpp_overlay.mk:135: warning: overriding recipe for target '../../lib/libgammaUPC.a'
-makefile_original.mk:74: warning: ignoring old recipe for target '../../lib/libgammaUPC.a'
-cudacpp_overlay.mk:173: warning: overriding recipe for target 'madevent_forhel'
-makefile_original.mk:59: warning: ignoring old recipe for target 'madevent_forhel'
-cudacpp_overlay.mk:176: warning: overriding recipe for target 'gensym'
-makefile_original.mk:62: warning: ignoring old recipe for target 'gensym'
-cudacpp_overlay.mk:180: warning: overriding recipe for target 'matrix1.o'
-makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
 cudacpp_overlay.mk:132: warning: overriding recipe for target '../../lib/libmodel.a'
 makefile_original.mk:65: warning: ignoring old recipe for target '../../lib/libmodel.a'
 cudacpp_overlay.mk:133: warning: overriding recipe for target '../../lib/libgeneric.a'
@@ -100,6 +76,30 @@ cudacpp_overlay.mk:180: warning: overriding recipe for target 'matrix1.o'
 makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
 cudacpp_overlay.mk:135: warning: overriding recipe for target '../../lib/libgammaUPC.a'
 makefile_original.mk:74: warning: ignoring old recipe for target '../../lib/libgammaUPC.a'
+cudacpp_overlay.mk:173: warning: overriding recipe for target 'madevent_forhel'
+makefile_original.mk:59: warning: ignoring old recipe for target 'madevent_forhel'
+cudacpp_overlay.mk:176: warning: overriding recipe for target 'gensym'
+makefile_original.mk:62: warning: ignoring old recipe for target 'gensym'
+cudacpp_overlay.mk:180: warning: overriding recipe for target 'matrix1.o'
+makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
+cudacpp_overlay.mk:135: warning: overriding recipe for target '../../lib/libgammaUPC.a'
+makefile_original.mk:74: warning: ignoring old recipe for target '../../lib/libgammaUPC.a'
+cudacpp_overlay.mk:173: warning: overriding recipe for target 'madevent_forhel'
+makefile_original.mk:59: warning: ignoring old recipe for target 'madevent_forhel'
+cudacpp_overlay.mk:176: warning: overriding recipe for target 'gensym'
+makefile_original.mk:62: warning: ignoring old recipe for target 'gensym'
+cudacpp_overlay.mk:180: warning: overriding recipe for target 'matrix1.o'
+makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
+cudacpp_overlay.mk:135: warning: overriding recipe for target '../../lib/libgammaUPC.a'
+makefile_original.mk:74: warning: ignoring old recipe for target '../../lib/libgammaUPC.a'
+cudacpp_overlay.mk:135: warning: overriding recipe for target '../../lib/libgammaUPC.a'
+makefile_original.mk:74: warning: ignoring old recipe for target '../../lib/libgammaUPC.a'
+cudacpp_overlay.mk:173: warning: overriding recipe for target 'madevent_forhel'
+makefile_original.mk:59: warning: ignoring old recipe for target 'madevent_forhel'
+cudacpp_overlay.mk:176: warning: overriding recipe for target 'gensym'
+makefile_original.mk:62: warning: ignoring old recipe for target 'gensym'
+cudacpp_overlay.mk:180: warning: overriding recipe for target 'matrix1.o'
+makefile_original.mk:78: warning: ignoring old recipe for target 'matrix1.o'
 cudacpp_overlay.mk:173: warning: overriding recipe for target 'madevent_forhel'
 makefile_original.mk:59: warning: ignoring old recipe for target 'madevent_forhel'
 cudacpp_overlay.mk:176: warning: overriding recipe for target 'gensym'
@@ -127,12 +127,12 @@ makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum'
 cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
 makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
-cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
-makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum'
 cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
 makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum'
+cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
+makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
 cudacpp_overlay.mk:278: warning: overriding recipe for target 'clean'
 makefile_original.mk:101: warning: ignoring old recipe for target 'clean'
 make[1]: Leaving directory '/data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum'
@@ -147,7 +147,7 @@ CUDACPP_RUNTIME_GPUGRAPHS=
 
 OMP_NUM_THREADS=
 
-DATE: 2025-11-04_22:58:34
+DATE: 2025-11-07_18:15:15
 
 On itscrd90.cern.ch [CPU: Intel(R) Xeon(R) Silver 4216 CPU] [GPU: 1x Tesla V100S-PCIE-32GB]:
 Working directory (run): /data/avalassi/GPU2025/test-madgraph4gpu/epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum
@@ -173,9 +173,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_eemumu_x1_fortran > /tmp/av
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.09243 [9.2432789448173985E-002] fbridge_mode=0
  [UNWEIGHT] Wrote 3837 events (found 8192 events)
- [COUNTERS] PROGRAM TOTAL          :    0.7589s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.7510s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0079s for     8192 events => throughput is 1.04E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.7566s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.7489s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0077s for     8192 events => throughput is 1.06E+06 events/s
 
 *** (1) EXECUTE MADEVENT_FORTRAN x1 (create events.lhe) ***
 --------------------
@@ -198,9 +198,9 @@ Executing ' ./madevent_fortran < /tmp/avalassi/input_eemumu_x1_fortran > /tmp/av
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.09243 [9.2432789448173985E-002] fbridge_mode=0
  [UNWEIGHT] Wrote 1589 events (found 1593 events)
- [COUNTERS] PROGRAM TOTAL          :    0.2239s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2160s
- [COUNTERS] Fortran MEs      ( 1 ) :    0.0079s for     8192 events => throughput is 1.04E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2238s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2162s
+ [COUNTERS] Fortran MEs      ( 1 ) :    0.0077s for     8192 events => throughput is 1.07E+06 events/s
 
 *** (2-none) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -224,9 +224,9 @@ DEBUG: MEK processed 8192 events across 2 channels { 1 : 8192 }
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.09243 [9.2432777382586498E-002] fbridge_mode=1
  [UNWEIGHT] Wrote 1589 events (found 1593 events)
- [COUNTERS] PROGRAM TOTAL          :    0.2241s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2167s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0072s for     8192 events => throughput is 1.13E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2269s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2196s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0071s for     8192 events => throughput is 1.15E+06 events/s
  [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0002s
 
 *** (2-none) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
@@ -240,12 +240,12 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.5.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.154273e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.553323e+05                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.5.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 1.144200e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 9.562865e+05                 )  sec^-1
 
 *** (2-sse4) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -269,9 +269,9 @@ DEBUG: MEK processed 8192 events across 2 channels { 1 : 8192 }
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.09243 [9.2432774839452045E-002] fbridge_mode=1
  [UNWEIGHT] Wrote 1589 events (found 1593 events)
- [COUNTERS] PROGRAM TOTAL          :    0.2179s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2145s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0032s for     8192 events => throughput is 2.58E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2190s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2156s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0032s for     8192 events => throughput is 2.52E+06 events/s
  [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0002s
 
 *** (2-sse4) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
@@ -285,12 +285,12 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.5.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.750517e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.778283e+06                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.5.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/sse4+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.830934e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.861387e+06                 )  sec^-1
 
 *** (2-avx2) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -312,16 +312,16 @@ DEBUG: MEK processed 8192 events across 2 channels { 1 : 8192 }
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 0.09243 [9.2432774915924193E-002] fbridge_mode=1
+ [XSECTION] Cross section = 0.09243 [9.2432774883336663E-002] fbridge_mode=1
  [UNWEIGHT] Wrote 1589 events (found 1593 events)
- [COUNTERS] PROGRAM TOTAL          :    0.2192s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2172s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0018s for     8192 events => throughput is 4.51E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2223s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2201s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0020s for     8192 events => throughput is 4.07E+06 events/s
  [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0002s
 
 *** (2-avx2) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (9.2432789448173985E-002) and cpp (9.2432774915924193E-002) differ by less than 4E-4 (1.5721963908532643e-07)
+OK! xsec from fortran (9.2432789448173985E-002) and cpp (9.2432774883336663E-002) differ by less than 4E-4 (1.575721928492868e-07)
 
 *** (2-avx2) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -330,12 +330,12 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.5.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.854404e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 5.371289e+06                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.5.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/avx2+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 5.529699e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 5.695756e+06                 )  sec^-1
 
 *** (2-512y) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -357,16 +357,16 @@ DEBUG: MEK processed 8192 events across 2 channels { 1 : 8192 }
  [XSECTION] MultiChannel = TRUE
  [XSECTION] Configuration = 1
  [XSECTION] ChannelId = 1
- [XSECTION] Cross section = 0.09243 [9.2432774915924193E-002] fbridge_mode=1
+ [XSECTION] Cross section = 0.09243 [9.2432774883336663E-002] fbridge_mode=1
  [UNWEIGHT] Wrote 1589 events (found 1593 events)
- [COUNTERS] PROGRAM TOTAL          :    0.2190s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2171s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0017s for     8192 events => throughput is 4.72E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2185s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2166s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0017s for     8192 events => throughput is 4.86E+06 events/s
  [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0002s
 
 *** (2-512y) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
 
-OK! xsec from fortran (9.2432789448173985E-002) and cpp (9.2432774915924193E-002) differ by less than 4E-4 (1.5721963908532643e-07)
+OK! xsec from fortran (9.2432789448173985E-002) and cpp (9.2432774883336663E-002) differ by less than 4E-4 (1.575721928492868e-07)
 
 *** (2-512y) Compare MADEVENT_CPP x1 events.lhe to MADEVENT_FORTRAN events.lhe reference (including colors and helicities) ***
 
@@ -375,12 +375,12 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.5.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 5.549846e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 5.144465e+06                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.5.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512y+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 5.887206e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.133619e+06                 )  sec^-1
 
 *** (2-512z) EXECUTE MADEVENT_CPP x1 (create events.lhe) ***
 --------------------
@@ -404,9 +404,9 @@ DEBUG: MEK processed 8192 events across 2 channels { 1 : 8192 }
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.09243 [9.2432778577464486E-002] fbridge_mode=1
  [UNWEIGHT] Wrote 1589 events (found 1593 events)
- [COUNTERS] PROGRAM TOTAL          :    0.2212s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.2185s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0025s for     8192 events => throughput is 3.23E+06 events/s
+ [COUNTERS] PROGRAM TOTAL          :    0.2172s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.2146s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0024s for     8192 events => throughput is 3.42E+06 events/s
  [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0002s
 
 *** (2-512z) Compare MADEVENT_CPP x1 xsec to MADEVENT_FORTRAN xsec ***
@@ -420,12 +420,12 @@ OK! events.lhe.cpp.1 and events.lhe.ref.1 are identical
 *** EXECUTE CHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.5.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+BRDHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.796570e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.667765e+06                 )  sec^-1
 
 *** EXECUTE CHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CPP [gcc 11.5.0] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CPP:FLT+CXS:CURHST+RMBHST+MESHST/512z+CXVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 4.133462e+06                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 4.136889e+06                 )  sec^-1
 
 *** (3-cuda) EXECUTE MADEVENT_CUDA x1 (create events.lhe) ***
 --------------------
@@ -449,10 +449,10 @@ DEBUG: MEK processed 8192 events across 2 channels { 1 : 8192 }
  [XSECTION] ChannelId = 1
  [XSECTION] Cross section = 0.09243 [9.2432779972212775E-002] fbridge_mode=1
  [UNWEIGHT] Wrote 1589 events (found 1593 events)
- [COUNTERS] PROGRAM TOTAL          :    0.6537s
- [COUNTERS] Fortran Overhead ( 0 ) :    0.6495s
- [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0006s for     8192 events => throughput is 1.27E+07 events/s
- [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0036s
+ [COUNTERS] PROGRAM TOTAL          :    0.6612s
+ [COUNTERS] Fortran Overhead ( 0 ) :    0.6567s
+ [COUNTERS] CudaCpp MEs      ( 2 ) :    0.0007s for     8192 events => throughput is 1.18E+07 events/s
+ [COUNTERS] CudaCpp HEL      ( 3 ) :    0.0038s
 
 *** (3-cuda) Compare MADEVENT_CUDA x1 xsec to MADEVENT_FORTRAN xsec ***
 
@@ -465,42 +465,42 @@ OK! events.lhe.cuda.1 and events.lhe.ref.1 are identical
 *** EXECUTE GCHECK(8192) -p 256 32 1 --bridge ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 12.0.140 (gcc 11.5.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 3.101280e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 3.294816e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(8192) -p 256 32 1 ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 12.0.140 (gcc 11.5.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.671064e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 7.570395e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX) -p 16384 32 1 --bridge ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 12.0.140 (gcc 11.5.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.575705e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.219312e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX) -p 16384 32 1 ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 12.0.140 (gcc 11.5.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 5.891360e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 5.487375e+08                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 --bridge ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 12.0.140 (gcc 11.5.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 7.548174e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.487869e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX128THR) -p 4096 128 1 ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 12.0.140 (gcc 11.5.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 8.267323e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 8.235804e+08                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 --bridge ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 12.0.140 (gcc 11.5.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURHST+RMBHST+BRDDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 6.860969e+07                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 6.032871e+07                 )  sec^-1
 
 *** EXECUTE GCHECK(MAX8THR) -p 65536 8 1 ***
 Process                     = SIGMA_SM_EPEM_MUPMUM_CUDA [nvcc 12.0.140 (gcc 11.5.0)] [inlineHel=0] [hardcodePARAM=0]
 Workflow summary            = CUD:FLT+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
-EvtsPerSec[MECalcOnly] (3a) = ( 2.194127e+08                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.103366e+08                 )  sec^-1
 
 *** (3-hip) WARNING! SKIP MADEVENT_HIP (hip is not supported on this node) ***
 
