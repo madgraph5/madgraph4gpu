@@ -190,6 +190,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             out.write('#include \"%s.h\"\n\n' % self.name)
         args = []
         comment_inputs = [] # AV
+        addDepCoups = False # AV REMOVE TEMPLATES
         for format, argname in self.define_argument_list(couplings):
             if format.startswith('list'):
                 type = self.type2def[format[5:]] # double or complex (instead of list_double or list_complex)
@@ -209,8 +210,13 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 point = self.type2def['pointer_coup']
                 args.append('%s %s%s%s'% (type, point, argname, list_arg))
                 args.append('double Ccoeff%s'% argname[7:]) # OM for 'unary minus' #628
+                addDepCoups = True # AV REMOVE TEMPLATES
             else:
+                if addDepCoups: # AV REMOVE TEMPLATES
+                    addDepCoups = False # AV REMOVE TEMPLATES
+                    args.append('bool depCoup') # AV REMOVE TEMPLATES
                 args.append('%s %s%s'% (type, argname, list_arg))
+        if addDepCoups: args.append('bool depCoup') # AV REMOVE TEMPLATES
         if not self.offshell:
             ###output = '%(doublec)s%(pointer_vertex)s allvertexes' % {
             ###    'doublec': self.type2def['double'],
@@ -218,7 +224,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             output = '%(doublec)s allvertexes[]' % {
                 'doublec': self.type2def['double']}
             comment_output = 'amplitude \'vertex\''
-            template = '// [was: template<class W_ACCESS, class A_ACCESS, class CD_ACCESS>]'
+            template = '// [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]'
         else:
             output = '%(doublec)s all%(spin)s%(id)d[]' % {
                      'doublec': self.type2def['double'],
@@ -226,7 +232,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
-            template = '// [was: template<class W_ACCESS, class CD_ACCESS>]'
+            template = '// [was: template<class W_ACCESS, class CID_ACCESS>]'
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
         indent = ' ' * len( '  %s( ' % name )
         out.write('  %(comment)s\n  %(template)s\n  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
@@ -264,19 +270,23 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using A_ACCESS = DeviceAccessAmplitudes;           // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
 #else
     using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
     using A_ACCESS = HostAccessAmplitudes;             // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
 #endif /* clang-format on */
 """)
         else:
             out.write("""#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
     using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
 #else
     using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
     using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
 #endif /* clang-format on */
 """)
         ###argument_var = [name for type,name in self.call_arg] # UNUSED
@@ -285,7 +295,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if type.startswith('list'):
                 out.write('    const %s* %s = W_ACCESS::kernelAccessConst( all%s );\n' % ( self.type2def[type[5:]+'_v'], name, name ) )
             if name.startswith('COUP'): # AV from cxtype_sv to fptype array (running alphas #373)
-                out.write('    const cxtype_sv %s = CD_ACCESS::kernelAccessConst( all%s );\n' % ( name, name ) )
+                out.write('    const cxtype_sv %s = ( depCoup ? CD_ACCESS::kernelAccessConst( all%s ) : CI_ACCESS::kernelAccessConst( all%s ) );\n' % ( name, name, name ) )
         if not self.offshell:
             vname = 'vertex'
             access = 'A_ACCESS'
@@ -2510,7 +2520,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         split_line = [ str.lstrip(' ').rstrip(' ') for str in split_line] # AV
         # (AV join using ',': no need to add a space as this is done by format_call later on)
         line = ', '.join(split_line)
-        ###line = line.replace( 'xxx(', 'xxx<M_ACCESS, W_ACCESS>(' ) # REMOVE TEMPLATES!
+        ###line = line.replace( 'xxx(', 'xxx<M_ACCESS, W_ACCESS>(' ) # AV REMOVE TEMPLATES!
         line = line.replace( 'w_sv', 'w_fp' )
         # AV2: line2 logic is to have MGONGPU_TEST_DIVERGENCE on the first xxx call
         if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
@@ -2633,7 +2643,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             ###    call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s);'
             ###else: # AV e.g. FFV1_0 (output is amplitude)
             ###    call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s);'
-            call = '%(routine_name)s( %(wf)s%(coup)s%(mass)s%(out)s );'
+            call = '%(routine_name)s( %(wf)s%(coup)s%(depCoup)s%(mass)s%(out)s );'
             # compute wf
             arg = {'routine_name': aloha_writers.combine_name('%s' % l[0], l[1:], outgoing, flag, True),
                    'wf': ('w_fp[%%(%d)d], ' * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
@@ -2654,11 +2664,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                             if usesdepcoupl is None: usesdepcoupl = False
                             elif usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
             # AV FOR PR #434: CI_ACCESS for independent couplings and CD_ACCESS for dependent couplings
+            ###if usesdepcoupl is None: raise Exception('PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?')
+            ###elif usesdepcoupl: caccess = 'CD_ACCESS' # AV REMOVE TEMPLATES!
+            ###else: caccess = 'CI_ACCESS' # AV REMOVE TEMPLATES!
+            ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s>'%caccess # AV REMOVE TEMPLATES!
+            ###else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess # AV REMOVE TEMPLATES!
             if usesdepcoupl is None: raise Exception('PANIC! could not determine if this call uses aS-dependent or aS-independent couplings?')
-            elif usesdepcoupl: caccess = 'CD_ACCESS'
-            else: caccess = 'CI_ACCESS'
-            ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s>'%caccess # REMOVE TEMPLATES!
-            ###else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess # REMOVE TEMPLATES!
+            elif usesdepcoupl: caccess = 'depCoup'
+            else: caccess = 'indepCoup'
+            arg['depCoup'] = '%s, '%caccess
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
                 arg['out'] = 'w_fp[%(out)d]'

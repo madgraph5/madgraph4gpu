@@ -93,6 +93,12 @@
     // GPU or C++
     //-------------
 
+    // Flag distinguishing dependent and independent couplings
+    // (previously this was a template argument CD_ACCESS or CI_ACCESS)
+    const bool depCoup = true;
+    const bool indepCoup = false;
+    static_assert( depCoup == !indepCoup ); // avoid build warnings
+
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
