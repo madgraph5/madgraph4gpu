@@ -90,7 +90,6 @@ ifeq ($(shell $(CXX) --version | grep ^nvc++),)
 endif
 ###CXXFLAGS+= -Ofast # performance is not different from --fast-math
 ###CXXFLAGS+= -g # FOR DEBUGGING ONLY
-###CXXFLAGS+= -fconstexpr-ops-limit=536870912 # default*16 (needed in gg_ttggggg)
 
 # Optionally add debug flags to display the full list of flags (eg on Darwin)
 ###CXXFLAGS+= -v
@@ -807,6 +806,12 @@ endif
 ifeq ($(HASHIPRAND),hasHiprand) # hiprand headers
 $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o: CXXFLAGS += $(HIP_INC)
 endif
+
+# Optionally apply special build flags only to color_sum_cpp.o (e.g. this is needed in gg_ttggggg)
+# For the CPU implementation: increase constexpr-ops-limit by x16 from default 33554432 to 536870912
+# For the GPU implementation: replace const by constexpr in color_sum.cpp
+###$(BUILDDIR)/color_sum_cpp.o: CXXFLAGS+= -fconstexpr-ops-limit=536870912
+###$(BUILDDIR)/color_sum_$(GPUSUFFIX).o: GPUFLAGS+= -DMGONGPU_COLORMATRIX_NOCONSTEXPR
 
 # Avoid "warning: builtin __has_trivial_... is deprecated; use __is_trivially_... instead" in GPUCC with icx2023 (#592)
 ifneq ($(shell $(CXX) --version | egrep '^(Intel)'),)
