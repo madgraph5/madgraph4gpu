@@ -1294,6 +1294,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
         replace_dict['ncolor'] = len(color_amplitudes[0])
+        self.ncolor = len(color_amplitudes[0]) # AV special handling of large color matrices (e.g. gg_ttggggg)
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
         if len(params) == 0: # remove cIPD from OpenMP pragma (issue #349)
             file_lines = file.split('\n')
@@ -1680,6 +1681,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_diagrams_header()
         self.edit_diagrams_h(self.diagram_code_h)
         self.edit_diagrams_cc(self.diagram_code_cc)
+        # Special cudacpp.mk flags for large color sums?
+        cudacpp_mk = os.path.join(self.path, '..', 'cudacpp.mk')
+        with open(cudacpp_mk, 'r') as file: data = file.read()
+        if self.ncolor >= 1000: # AV special handling of large color matrices (needed in gg_ttggggg/5040, not in gg_ttgggg/720)
+            data = data.replace('__LARGECOLORSUM__','')
+        else:
+            data = data.replace('__LARGECOLORSUM__','###')
+        with open(cudacpp_mk, 'w') as file: file.write(data)
 
     # SR - generate CMakeLists.txt file inside the P* directory
     def edit_CMakeLists(self):
