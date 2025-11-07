@@ -334,16 +334,16 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         prepareTest( "ixxxxx", ievt );
         const fptype fmass = mass0[ievt];
-        ixxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, fmass, nhel, nsp, fp_outwfI, ipar0 );
+        ixxxxx( ievt0Momenta, fmass, nhel, nsp, fp_outwfI, ipar0 );
         testwf6( outwfI, "ixxxxx", ievt, nsp, fmass );
-        ixxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, -fmass, nhel, nsp, fp_outwfI, ipar0 );
+        ixxxxx( ievt0Momenta, -fmass, nhel, nsp, fp_outwfI, ipar0 );
         testwf6( outwfI, "ixxxxx", ievt, nsp, -fmass );
       }
       // Test ipzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
       if( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
         prepareTest( "ipzxxx", ievt );
-        ipzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
+        ipzxxx( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfI, "ipzxxx", ievt );
         testwf6( outwf, "ipzxxx", ievt, nsp, 0 );
       }
@@ -351,7 +351,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       if( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
         prepareTest( "imzxxx", ievt );
-        imzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
+        imzxxx( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfI, "imzxxx", ievt );
         testwf6( outwf, "imzxxx", ievt, nsp, 0 );
       }
@@ -359,7 +359,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       if( mass0[ievt] == 0 && isptgt0[ievt] )
       {
         prepareTest( "ixzxxx", ievt );
-        ixzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
+        ixzxxx( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfI, "ixzxxx", ievt );
         testwf6( outwf, "ixzxxx", ievt, nsp, 0 );
       }
@@ -367,34 +367,34 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       {
         prepareTest( "vxxxxx", ievt );
         const fptype vmass = mass0[ievt];
-        vxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, vmass, nhel, nsp, fp_outwf, ipar0 );
+        vxxxxx( ievt0Momenta, vmass, nhel, nsp, fp_outwf, ipar0 );
         testwf6( outwf, "vxxxxx", ievt, nsp, vmass );
-        vxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, -vmass, nhel, nsp, fp_outwf, ipar0 );
+        vxxxxx( ievt0Momenta, -vmass, nhel, nsp, fp_outwf, ipar0 );
         testwf6( outwf, "vxxxxx", ievt, nsp, -vmass );
       }
       // Test sxxxxx - NO ASSUMPTIONS
       {
         prepareTest( "sxxxxx", ievt );
         const fptype smass = mass0[ievt];
-        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nsp, fp_outwf3, ipar0 ); // no mass, no helicity (was "smass>0")
+        sxxxxx( ievt0Momenta, nsp, fp_outwf3, ipar0 ); // no mass, no helicity (was "smass>0")
         testwf6( outwf3, "sxxxxx", ievt, nsp, smass );
-        sxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nsp, fp_outwf3, ipar0 ); // no mass, no helicity (was "smass<0")
+        sxxxxx( ievt0Momenta, nsp, fp_outwf3, ipar0 ); // no mass, no helicity (was "smass<0")
         testwf6( outwf3, "sxxxxx", ievt, nsp, -smass );
       }
       // Test oxxxxx - NO ASSUMPTIONS
       {
         prepareTest( "oxxxxx", ievt );
         const fptype fmass = mass0[ievt];
-        oxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, fmass, nhel, nsp, fp_outwfO, ipar0 );
+        oxxxxx( ievt0Momenta, fmass, nhel, nsp, fp_outwfO, ipar0 );
         testwf6( outwfO, "oxxxxx", ievt, nsp, fmass );
-        oxxxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, -fmass, nhel, nsp, fp_outwfO, ipar0 );
+        oxxxxx( ievt0Momenta, -fmass, nhel, nsp, fp_outwfO, ipar0 );
         testwf6( outwfO, "oxxxxx", ievt, nsp, -fmass );
       }
       // Test opzxxx - ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
       if( mass0[ievt] == 0 && !isptgt0[ievt] && ispzgt0[ievt] )
       {
         prepareTest( "opzxxx", ievt );
-        opzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
+        opzxxx( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfO, "opzxxx", ievt );
         testwf6( outwf, "opzxxx", ievt, nsp, 0 );
       }
@@ -402,7 +402,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       if( mass0[ievt] == 0 && !isptgt0[ievt] && ispzlt0[ievt] )
       {
         prepareTest( "omzxxx", ievt );
-        omzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
+        omzxxx( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfO, "omzxxx", ievt );
         testwf6( outwf, "omzxxx", ievt, nsp, 0 );
       }
@@ -410,7 +410,7 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testxxx )
       if( mass0[ievt] == 0 && isptgt0[ievt] )
       {
         prepareTest( "oxzxxx", ievt );
-        oxzxxx<HostAccessMomenta, HostAccessWavefunctions>( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
+        oxzxxx( ievt0Momenta, nhel, nsp, fp_outwf, ipar0 );
         testwf6two( outwf, outwfO, "oxzxxx", ievt );
         testwf6( outwf, "oxzxxx", ievt, nsp, 0 );
       }

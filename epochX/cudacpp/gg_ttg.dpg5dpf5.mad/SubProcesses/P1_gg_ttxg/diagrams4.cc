@@ -5,11 +5,7 @@
 
 #include "GpuRuntime.h"
 #include "HelAmps_sm.h"
-#include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessChannelIds.h"
-#include "MemoryAccessCouplings.h"
-#include "MemoryAccessCouplingsFixed.h"
-#include "MemoryAccessWavefunctions.h"
 #include "color_sum.h"
 #include "diagrams.h"
 #include "diagrams_header.h"
@@ -69,21 +65,21 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 16 OF 16 ***
     // Wavefunction(s) for diagram number 16
-    VVVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[10] );
-    VVVV3P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[6] );
-    VVVV4P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, 0., 0., w_fp[9] );
+    VVVV1P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, depCoup, 0., 0., w_fp[10] );
+    VVVV3P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, depCoup, 0., 0., w_fp[6] );
+    VVVV4P0_1( w_fp[0], w_fp[1], w_fp[4], COUPs[2], 1.0, depCoup, 0., 0., w_fp[9] );
     // Amplitude(s) for diagram number 16
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[3], w_fp[2], w_fp[10], COUPs[1], 1.0, depCoup, &amp_fp[0] );
     jamp_sv[0] += amp_sv[0];
     jamp_sv[1] -= amp_sv[0];
     jamp_sv[3] -= amp_sv[0];
     jamp_sv[5] += amp_sv[0];
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[3], w_fp[2], w_fp[6], COUPs[1], 1.0, depCoup, &amp_fp[0] );
     jamp_sv[1] -= amp_sv[0];
     jamp_sv[2] += amp_sv[0];
     jamp_sv[3] -= amp_sv[0];
     jamp_sv[4] += amp_sv[0];
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[3], w_fp[2], w_fp[9], COUPs[1], 1.0, depCoup, &amp_fp[0] );
     jamp_sv[0] -= amp_sv[0];
     jamp_sv[2] += amp_sv[0];
     jamp_sv[4] += amp_sv[0];

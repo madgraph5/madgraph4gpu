@@ -5,11 +5,7 @@
 
 #include "GpuRuntime.h"
 #include "HelAmps_MSSM_SLHA2.h"
-#include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessChannelIds.h"
-#include "MemoryAccessCouplings.h"
-#include "MemoryAccessCouplingsFixed.h"
-#include "MemoryAccessWavefunctions.h"
 #include "color_sum.h"
 #include "diagrams.h"
 #include "diagrams_header.h"
@@ -61,11 +57,6 @@ namespace mg5amcCpu
     // A uniform interface for diagramgroupXXX including channelIDs, numerators and denominators is used also #ifndef MGONGPU_SUPPORTS_MULTICHANNEL
     // In that case, however, the boilerplate code asserts that all three pointers all nullptr as a sanity check
 #include "diagrams_boilerplate.h"
-#ifdef MGONGPUCPP_GPUIMPL
-    using M_ACCESS = DeviceAccessMomenta; // non-trivial access: buffer includes all events
-#else
-    using M_ACCESS = HostAccessMomenta; // non-trivial access: buffer includes all events
-#endif
 
 #ifdef MGONGPUCPP_GPUIMPL
 #ifndef MGONGPU_RDC_DIAGRAMS
@@ -82,13 +73,13 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 1 OF 3 ***
     // Wavefunction(s) for diagram number 1
-    vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][0], -1, w_fp[0], 0 );
-    vxxxxx<M_ACCESS, W_ACCESS>( momenta, 0., cHel[ihel][1], -1, w_fp[1], 1 );
-    oxxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2 );
-    ixxxxx<M_ACCESS, W_ACCESS>( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
-    VVV1P0_1<W_ACCESS, CD_ACCESS>( w_fp[0], w_fp[1], COUPs[0], 1.0, 0., 0., w_fp[4] );
+    vxxxxx( momenta, 0., cHel[ihel][0], -1, w_fp[0], 0 );
+    vxxxxx( momenta, 0., cHel[ihel][1], -1, w_fp[1], 1 );
+    oxxxxx( momenta, cIPD[0], cHel[ihel][2], +1, w_fp[2], 2 );
+    ixxxxx( momenta, cIPD[0], cHel[ihel][3], -1, w_fp[3], 3 );
+    VVV1P0_1( w_fp[0], w_fp[1], COUPs[0], 1.0, depCoup, 0., 0., w_fp[4] );
     // Amplitude(s) for diagram number 1
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[2], w_fp[4], COUPs[1], -1.0, &amp_fp[0] );
+    FFV1_0( w_fp[3], w_fp[2], w_fp[4], COUPs[1], -1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -97,9 +88,9 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 2 OF 3 ***
     // Wavefunction(s) for diagram number 2
-    FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[2], w_fp[0], COUPs[1], -1.0, cIPD[0], cIPD[1], w_fp[4] );
+    FFV1_1( w_fp[2], w_fp[0], COUPs[1], -1.0, depCoup, cIPD[0], cIPD[1], w_fp[4] );
     // Amplitude(s) for diagram number 2
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[4], w_fp[1], COUPs[1], -1.0, &amp_fp[0] );
+    FFV1_0( w_fp[3], w_fp[4], w_fp[1], COUPs[1], -1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -107,9 +98,9 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 3 OF 3 ***
     // Wavefunction(s) for diagram number 3
-    FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[3], w_fp[0], COUPs[1], -1.0, cIPD[0], cIPD[1], w_fp[4] );
+    FFV1_2( w_fp[3], w_fp[0], COUPs[1], -1.0, depCoup, cIPD[0], cIPD[1], w_fp[4] );
     // Amplitude(s) for diagram number 3
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[4], w_fp[2], w_fp[1], COUPs[1], -1.0, &amp_fp[0] );
+    FFV1_0( w_fp[4], w_fp[2], w_fp[1], COUPs[1], -1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
