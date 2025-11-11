@@ -114,7 +114,7 @@ $(LIBS): .libs
 	touch $@
 
 $(CUDACPP_BUILDDIR)/.cudacpplibs:
-	$(MAKE) -f $(CUDACPP_MAKEFILE)
+	$(MAKE) VERBOSE=1 -f $(CUDACPP_MAKEFILE)
 	touch $@
 
 # Remove per-library recipes from makefile to avoid duplicate sub-makes
