@@ -60,7 +60,7 @@ endif
 ifeq ($(BACKEND),cppauto)
   ifeq ($(UNAME_P),ppc64le)
     override BACKEND = cppsse4
-  else ifeq ($(UNAME_P),arm)
+  else ifneq (,$(filter $(UNAME_P),arm aarch64))
     override BACKEND = cppsse4
   else ifeq ($(wildcard /proc/cpuinfo),)
     override BACKEND = cppnone
@@ -526,7 +526,7 @@ ifeq ($(UNAME_P),ppc64le)
   else ifeq ($(BACKEND),cpp512z)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on PowerPC for the moment)
   endif
-else ifeq ($(UNAME_P),arm)
+else ifneq (,$(filter $(UNAME_P),arm aarch64))
   ifeq ($(BACKEND),cppsse4)
     override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
   else ifeq ($(BACKEND),cppavx2)
