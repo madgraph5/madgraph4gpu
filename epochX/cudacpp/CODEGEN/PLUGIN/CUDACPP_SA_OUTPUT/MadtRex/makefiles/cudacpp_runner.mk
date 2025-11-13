@@ -60,7 +60,7 @@ endif
 ifeq ($(BACKEND),cppauto)
   ifeq ($(UNAME_P),ppc64le)
     override BACKEND = cppsse4
-  else ifeq ($(UNAME_P),arm)
+  else ifneq (,$(filter $(UNAME_P),arm aarch64))
     override BACKEND = cppsse4
   else ifeq ($(wildcard /proc/cpuinfo),)
     override BACKEND = cppnone
@@ -272,13 +272,25 @@ ifeq ($(UNAME_P),ppc64le)
   endif
 else ifeq ($(UNAME_P),arm)
   ifeq ($(BACKEND),cppsse4)
-    override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
+    override AVXFLAGS = -D__ARM_NEON__ # ARM NEON with 128 width (Q/quadword registers)
   else ifeq ($(BACKEND),cppavx2)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
   else ifeq ($(BACKEND),cpp512y)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
   else ifeq ($(BACKEND),cpp512z)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
+  endif
+else ifeq ($(UNAME_P),aarch64)
+  ifeq ($(BACKEND),cppnone)
+    override AVXFLAGS = -march=armv8-a+nosimd
+  else ifeq ($(BACKEND),cppsse4)
+    override AVXFLAGS = -march=armv8-a+simd -D__ARM_NEON__
+  else ifeq ($(BACKEND),cppavx2)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on aarch64 for the moment)
+  else ifeq ($(BACKEND),cpp512y)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on aarch64 for the moment)
+  else ifeq ($(BACKEND),cpp512z)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on aarch64 for the moment)
   endif
 else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
   ifeq ($(BACKEND),cppnone)
@@ -729,7 +741,7 @@ bld512z:
 ifeq ($(UNAME_P),ppc64le)
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
 bldavxs: bldnone bldsse4
-else ifeq ($(UNAME_P),arm)
+else ifneq (,$(filter $(UNAME_P),arm aarch64))
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
 bldavxs: bldnone bldsse4
 else
