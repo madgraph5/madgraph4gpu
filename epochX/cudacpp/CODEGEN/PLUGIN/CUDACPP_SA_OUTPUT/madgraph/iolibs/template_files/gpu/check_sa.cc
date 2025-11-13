@@ -918,7 +918,7 @@ main( int argc, char** argv )
 #elif defined __ARM_NEON__
   wrkflwtxt += "/neon";
 #else
-  wrkflwtxt += "/????";                                           // no path to this statement
+  wrkflwtxt += "/????"; // no path to this statement
 #endif
   // -- Has cxtype_v::operator[] bracket with non-const reference?
 #if defined MGONGPU_CPPSIMD

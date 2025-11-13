@@ -257,7 +257,7 @@ namespace mg5amcCpu
 #else // AV FIXME! Added by OM for Mac, should identify the correct __xxx__ flag that should be targeted
     // DM now we have an explicit NEON target for ARM
     bool known = false; // __builtin_cpu_supports is not supported
-    bool ok = true; // this is just an assumption!
+    bool ok = true;     // this is just an assumption!
     const std::string tag = "simd arch not defined";
 #endif
 #elif defined __ARM_NEON__ // consider using __BUILTIN_CPU_SUPPORTS__
