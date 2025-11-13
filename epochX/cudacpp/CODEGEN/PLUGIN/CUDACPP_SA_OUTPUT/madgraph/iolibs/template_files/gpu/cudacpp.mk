@@ -1104,7 +1104,7 @@ bld512z:
 ifeq ($(UNAME_P),ppc64le)
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
 bldavxs: bldnone bldsse4
-else ifeq ($(UNAME_P),arm)
+else ifneq (,$(filter $(UNAME_P),arm aarch64))
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
 bldavxs: bldnone bldsse4
 else
