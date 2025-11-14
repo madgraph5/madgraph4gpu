@@ -527,9 +527,11 @@ ifeq ($(UNAME_P),ppc64le)
   else ifeq ($(BACKEND),cpp512z)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on PowerPC for the moment)
   endif
-else ifeq ($(UNAME_P),arm)
-  ifeq ($(BACKEND),cppsse4)
-    override AVXFLAGS = -D__ARM_NEON__ # ARM NEON with 128 width (Q/quadword registers)
+else ifeq ($(UNAME_P),arm) # ARM on Apple silicon
+  ifeq ($(BACKEND),cppnone) # this internally undefines __ARM_NEON
+    override AVXFLAGS = -DMGONGPU_NOARMNEON
+  else ifeq ($(BACKEND),cppsse4) # __ARM_NEON is always defined on Apple silicon
+    override AVXFLAGS =
   else ifeq ($(BACKEND),cppavx2)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
   else ifeq ($(BACKEND),cpp512y)
@@ -537,7 +539,7 @@ else ifeq ($(UNAME_P),arm)
   else ifeq ($(BACKEND),cpp512z)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
   endif
-else ifeq ($(UNAME_P),aarch64)
+else ifeq ($(UNAME_P),aarch64) # ARM on Linux
   ifeq ($(BACKEND),cppnone) # +nosimd ensures __ARM_NEON is absent
     override AVXFLAGS = -march=armv8-a+nosimd
   else ifeq ($(BACKEND),cppsse4) # +simd ensures __ARM_NEON is present (128 width Q/quadword registers)

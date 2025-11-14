@@ -214,6 +214,11 @@ namespace mgOnGpu
 using mgOnGpu::fptype;
 using mgOnGpu::fptype2;
 
+// Undefine ARM_NEON (hack for cppnone on Apple silicon ARM)
+#ifdef MGONGPU_NOARMNEON
+#undef __ARM_NEON
+#endif
+
 // C++ SIMD vectorization width (this will be used to set neppV)
 #ifdef MGONGPUCPP_GPUIMPL // CUDA and HIP implementations have no SIMD
 #undef MGONGPU_CPPSIMD
