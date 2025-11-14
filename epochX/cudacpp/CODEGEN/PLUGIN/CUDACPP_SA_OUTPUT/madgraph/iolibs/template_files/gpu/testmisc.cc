@@ -355,16 +355,18 @@ TEST( XTESTID( MG_EPOCH_PROCESS_ID ), testmisc )
       << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
     EXPECT_NEAR( std::cos( x ), constexpr_cos( x ), std::abs( std::cos( x ) * tolerance ) )
       << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
+#ifndef __aarch64__
     if( !RUNNING_ON_VALGRIND )
     {
       EXPECT_NEAR( std::tan( x ), constexpr_tan( x ), std::abs( std::tan( x ) * tolerance ) )
         << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
     }
     else
+#endif
     {
-      // Higher tolerance when running through valgrind #906
+      // Higher tolerance when running through valgrind #906 (or on aarch64 #1064)
       const long double ctanx = constexpr_tan( x );
-      const long double taninf = 4E14; // declare tan(x) as "infinity if above this threshold
+      const long double taninf = 4E14; // declare tan(x) as "infinity" if above this threshold
       if( ctanx > -taninf && ctanx < taninf )
         EXPECT_NEAR( std::tan( x ), ctanx, std::abs( std::tan( x ) * tolerance ) )
           << "x=" << x << ", x(0to2Pi)=" << mapIn0to2Pi( x ) << ", istep=" << istep;
