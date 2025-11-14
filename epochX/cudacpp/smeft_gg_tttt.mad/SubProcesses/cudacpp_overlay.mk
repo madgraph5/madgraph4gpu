@@ -114,7 +114,7 @@ $(LIBS): .libs
 	touch $@
 
 $(CUDACPP_BUILDDIR)/.cudacpplibs:
-	$(MAKE) -f $(CUDACPP_MAKEFILE)
+	$(MAKE) VERBOSE=1 -f $(CUDACPP_MAKEFILE)
 	touch $@
 
 # Remove per-library recipes from makefile to avoid duplicate sub-makes
@@ -225,7 +225,7 @@ madevent_%_link:
 # Cudacpp bldall targets
 ifeq ($(UNAME_P),ppc64le)
   bldavxs: bldnone bldsse4
-else ifeq ($(UNAME_P),arm)
+else ifneq (,$(filter $(UNAME_P),arm aarch64))
   bldavxs: bldnone bldsse4
 else
   bldavxs: bldnone bldsse4 bldavx2 bld512y bld512z

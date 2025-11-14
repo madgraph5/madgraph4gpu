@@ -7,9 +7,12 @@ THISDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 # Host detection
 UNAME_S := $(shell uname -s)
+UNAME_P := $(shell uname -p)
 
-# Only add AVX2/FMA on non-mac hosts
+# Only add AVX2/FMA on non-mac and non-ARM hosts
 ifeq ($(UNAME_S),Darwin)
+  GTEST_CMAKE_FLAGS :=
+else ifeq ($(UNAME_P),aarch64)
   GTEST_CMAKE_FLAGS :=
 else
   GTEST_CMAKE_FLAGS := -DCMAKE_CXX_FLAGS="-mavx2 -mfma"
