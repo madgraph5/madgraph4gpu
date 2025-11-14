@@ -511,7 +511,7 @@ function usage()
     echo "ERROR! alpaka mode is no longer supported by this script!"; exit 1
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage:   $0 [-q|--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [-c '<cmd>'] <proc>"
+    echo "Usage:   $0 [-q|--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [-c '<cmd>'] [--maxdiagpergroup <dpg>] [ --mindiagperfile <dpf> ] <proc>"
     echo "         (*Note: the --madcpp option exists but code generation fails for it)"
     echo "         (**Note: <proc> will be used as a relative path in ${OUTDIR} and should not contain '/' characters"
     echo "Example: $0 gg_tt --mad"
