@@ -260,9 +260,8 @@ namespace mg5amcCpu
     bool ok = true;     // this is just an assumption!
     const std::string tag = "simd arch not defined";
 #endif
-#elif defined __ARM_NEON__ // consider using __BUILTIN_CPU_SUPPORTS__
+#elif defined __ARM_NEON // consider using __BUILTIN_CPU_SUPPORTS__
     bool known = false; // __builtin_cpu_supports is not supported
-    // See https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions-Available-on-all-Configurations.html
     // See https://stackoverflow.com/q/62783908
     // See https://community.arm.com/arm-community-blogs/b/operating-systems-blog/posts/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
     bool ok = true; // this is just an assumption!

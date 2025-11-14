@@ -915,7 +915,7 @@ main( int argc, char** argv )
 #else
   wrkflwtxt += "/sse4";
 #endif
-#elif defined __ARM_NEON__
+#elif defined __ARM_NEON
   wrkflwtxt += "/neon";
 #else
   wrkflwtxt += "/????"; // no path to this statement
@@ -1031,7 +1031,7 @@ main( int argc, char** argv )
 #else
               << "] ('sse4': SSE4.2, 128bit)" << cxtref << std::endl
 #endif
-#elif defined __ARM_NEON__
+#elif defined __ARM_NEON
               << "Internal loops fptype_sv    = VECTOR[" << neppV
               << "] ('sse4': ARM NEON, 128bit)" << cxtref << std::endl
 #else

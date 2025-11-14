@@ -241,7 +241,7 @@ using mgOnGpu::fptype2;
 #else
 #define MGONGPU_CPPSIMD 4
 #endif
-#elif defined __ARM_NEON__ // C++ "sse4" ARM NEON (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT) [ARM default]
+#elif defined __ARM_NEON // C++ "sse4" ARM NEON (128-bit ie 16-byte): 2 (DOUBLE) or 4 (FLOAT) [ARM default]
 #ifdef MGONGPU_FPTYPE_DOUBLE
 #define MGONGPU_CPPSIMD 2
 #else
