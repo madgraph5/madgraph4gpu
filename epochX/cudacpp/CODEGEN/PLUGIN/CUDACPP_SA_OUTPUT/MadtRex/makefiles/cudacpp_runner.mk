@@ -185,22 +185,34 @@ endif
 
 #=== Configure defaults for OMPFLAGS
 
-# Set the default OMPFLAGS choice
-ifneq ($(findstring hipcc,$(GPUCC)),)
-  override OMPFLAGS = # disable OpenMP MT when using hipcc #802
-else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-  override OMPFLAGS = -fopenmp
-  ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
-else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
-  override OMPFLAGS = -fopenmp
-  ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
-###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
-else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
-  override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
-  ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+# Disable OpenMP by default: enable OpenMP only if USEOPENMP=1 (#758)
+ifeq ($(USEOPENMP),1)
+  ###$(info USEOPENMP==1: will build with OpenMP if possible)
+  ifneq ($(findstring hipcc,$(GPUCC)),)
+    override OMPFLAGS = # disable OpenMP MT when using hipcc #802
+  else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
+    override OMPFLAGS = -fopenmp
+    ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 16'),)
+    ###override OMPFLAGS = # disable OpenMP on clang16 #904
+    $(error OpenMP is not supported by cudacpp on clang16 - issue #904)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 17'),)
+    ###override OMPFLAGS = # disable OpenMP on clang17 #904
+    $(error OpenMP is not supported by cudacpp on clang17 - issue #904)
+  else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
+    override OMPFLAGS = -fopenmp
+    ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
+  ###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
+  else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
+    override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
+    ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+  else
+    override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
+    ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+  endif
 else
-  override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
-  ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+  ###$(info USEOPENMP!=1: will build without OpenMP)
+  override OMPFLAGS =
 endif
 
 #-------------------------------------------------------------------------------
@@ -521,12 +533,12 @@ processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 ###$(info processid_short=$(processid_short))
 
 MG5AMC_CXXLIB = mg5amc_$(processid_short)_cpp
-cxx_objects_lib=$(BUILDDIR)/CPPProcess_cpp.o $(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o
+cxx_objects_lib=$(BUILDDIR)/CPPProcess_cpp.o $(BUILDDIR)/color_sum_cpp.o $(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o
 cxx_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_cpp.o $(BUILDDIR)/RamboSamplingKernels_cpp.o
 
 ifneq ($(GPUCC),)
 MG5AMC_GPULIB = mg5amc_$(processid_short)_$(GPUSUFFIX)
-gpu_objects_lib=$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o $(BUILDDIR)/MatrixElementKernels_$(GPUSUFFIX).o $(BUILDDIR)/BridgeKernels_$(GPUSUFFIX).o $(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o
+gpu_objects_lib=$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o $(BUILDDIR)/color_sum_$(GPUSUFFIX).o $(BUILDDIR)/MatrixElementKernels_$(GPUSUFFIX).o $(BUILDDIR)/BridgeKernels_$(GPUSUFFIX).o $(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o
 gpu_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/RamboSamplingKernels_$(GPUSUFFIX).o
 endif
 
