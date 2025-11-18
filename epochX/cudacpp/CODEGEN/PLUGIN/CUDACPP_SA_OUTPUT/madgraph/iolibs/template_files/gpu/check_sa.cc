@@ -4,7 +4,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: O. Mattelaer (Nov 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2025) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 
 #include "mgOnGpuConfig.h"
@@ -704,6 +704,11 @@ main( int argc, char** argv )
     {
       if( verbose )
       {
+#ifdef MGONGPU_FPTYPE_QUAD
+size_t width = 42;
+#else
+size_t width = 14;
+#endif
         // Display momenta
         std::cout << "Momenta:" << std::endl;
         for( int ipar = 0; ipar < CPPProcess::npar; ipar++ )
@@ -711,10 +716,10 @@ main( int argc, char** argv )
           // NB: 'setw' affects only the next field (of any type)
           std::cout << std::scientific // fixed format: affects all floats (default precision: 6)
                     << std::setw( 4 ) << ipar + 1
-                    << std::setw( 14 ) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 0, ipar )
-                    << std::setw( 14 ) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 1, ipar )
-                    << std::setw( 14 ) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 2, ipar )
-                    << std::setw( 14 ) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 3, ipar )
+                    << std::setw( width ) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 0, ipar )
+                    << std::setw( width ) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 1, ipar )
+                    << std::setw( width ) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 2, ipar )
+                    << std::setw( width ) << MemoryAccessMomenta::ieventAccessIp4IparConst( hstMomenta.data(), ievt, 3, ipar )
                     << std::endl
                     << std::defaultfloat; // default format: affects all floats
         }

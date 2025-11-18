@@ -5,7 +5,7 @@
 ! Copyright (C) 2020-2024 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: O. Mattelaer (Mar 2020) for the MG5aMC CUDACPP plugin.
-! Further modified by: O. Mattelaer, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+! Further modified by: O. Mattelaer, A. Valassi, Z. Wettersten (2020-2025) for the MG5aMC CUDACPP plugin.
 !==========================================================================
   //--------------------------------------------------------------------------
 
@@ -194,7 +194,8 @@
       if( pp == 0. )
       {
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
-        fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
+        // Aliased abs to allow __float128
+        fptype sqm[2] = { fpsqrt( fpabs( fmass ) ), 0. }; // possibility of negative fermion masses
         //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
         sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
         fi[2] = cxmake( ip * sqm[ip], 0 );
@@ -220,7 +221,8 @@
 #else
       // Branch A: pp == 0.
       // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
-      fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses (NB: SCALAR!)
+      // Aliased abs to allow __float128 (irrelevant in SIMD but kept for consistency)
+      fptype sqm[2] = { fpsqrt( fpabs( fmass ) ), 0 }; // possibility of negative fermion masses (NB: SCALAR!)
       sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] );          // AV: removed an abs here (as above)
       const cxtype fiA_2 = ip * sqm[ip];                  // scalar cxtype: real part initialised from fptype, imag part = 0
       const cxtype fiA_3 = im * nsf * sqm[ip];            // scalar cxtype: real part initialised from fptype, imag part = 0
@@ -436,8 +438,8 @@
     vc[1] = cxmake( pvec1 * (fptype)nsv, pvec2 * (fptype)nsv );
     if( vmass != 0. )
     {
-      const int nsvahl = nsv * std::abs( hel );
-      const fptype hel0 = 1. - std::abs( hel );
+      const int nsvahl = nsv * fpabs( hel );
+      const fptype hel0 = 1. - fpabs( hel );
 #ifndef MGONGPU_CPPSIMD
       const fptype_sv pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
       const fptype_sv pp = fpmin( pvec0, fpsqrt( pt2 + ( pvec3 * pvec3 ) ) );
@@ -604,7 +606,8 @@
       if( pp == 0. )
       {
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
-        fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
+        // Aliased abs to allow __float128
+        fptype sqm[2] = { fpsqrt( fpabs( fmass ) ), 0. }; // possibility of negative fermion masses
         //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
         sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
         const int ip = -( ( 1 - nh ) / 2 ) * nhel;  // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
@@ -637,7 +640,8 @@
       const fptype_sv pp = fpmin( pvec0, fpsqrt( p2 ) );
       // Branch A: pp == 0.
       // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
-      fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0 }; // possibility of negative fermion masses
+      // Aliased abs to allow __float128 (irrelevant in SIMD, but for consistency)
+      fptype sqm[2] = { fpsqrt( fpabs( fmass ) ), 0 }; // possibility of negative fermion masses
       sqm[1] = ( fmass < 0 ? -sqm[0] : sqm[0] );          // AV: removed an abs here (as above)
       const int ipA = -( ( 1 - nh ) / 2 ) * nhel;
       const int imA = ( 1 + nh ) / 2 * nhel;

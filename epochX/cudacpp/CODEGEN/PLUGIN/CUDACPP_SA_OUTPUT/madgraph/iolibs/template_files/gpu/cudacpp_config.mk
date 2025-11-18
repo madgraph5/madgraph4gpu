@@ -1,12 +1,20 @@
 # Copyright (C) 2020-2024 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Mar 2024) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi, Z. Wettersten (2024-2025) for the MG5aMC CUDACPP plugin.
 
 #-------------------------------------------------------------------------------
 
 #=== Check that the user-defined choices of BACKEND, FPTYPE, HELINL, HRDCOD are supported
 #=== Configure default values for these variables if no user-defined choices exist
+
+# Include libquadmath if FPTYPE=quad and set backend to cppnone
+ifeq ($(FPTYPE),q)
+  override QUADFLAG = -lquadmath
+  override BACKEND = cppnone
+else
+  override QUADFLAG =
+endif
 
 # Set the default BACKEND (CUDA, HIP or C++/SIMD) choice
 ifeq ($(BACKEND),)
@@ -39,7 +47,7 @@ ifneq ($(words $(filter $(BACKEND), $(SUPPORTED_BACKENDS))),1)
   $(error Invalid backend BACKEND='$(BACKEND)': supported backends are $(foreach backend,$(SUPPORTED_BACKENDS),'$(backend)'))
 endif
 
-override SUPPORTED_FPTYPES = d f m
+override SUPPORTED_FPTYPES = d f m q
 ifneq ($(words $(filter $(FPTYPE), $(SUPPORTED_FPTYPES))),1)
   $(error Invalid fptype FPTYPE='$(FPTYPE)': supported fptypes are $(foreach fptype,$(SUPPORTED_FPTYPES),'$(fptype)'))
 endif
