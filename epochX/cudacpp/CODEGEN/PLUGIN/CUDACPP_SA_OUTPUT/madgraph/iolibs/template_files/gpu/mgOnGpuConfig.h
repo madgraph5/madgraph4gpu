@@ -1,10 +1,15 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jul 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
+
+// When using quad, make sure to include quadmath.h everywhere
+#ifdef MGONGPU_FPTYPE_QUAD
+#include <quadmath.h>
+#endif
 
 // HARDCODED AT CODE GENERATION TIME: DO NOT MODIFY (#473)
 // There are two different code bases for standalone_cudacpp (without multichannel) and madevent+cudacpp (with multichannel)
@@ -61,7 +66,7 @@
 
 // Choose floating point precision (for everything but color algebra #537)
 // If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE_FLOAT, nothing happens (issue #167)
-#if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT
+#if not defined MGONGPU_FPTYPE_DOUBLE and not defined MGONGPU_FPTYPE_FLOAT and not defined MGONGPU_FPTYPE_QUAD
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE_DOUBLE 1 // default
 //#define MGONGPU_FPTYPE_FLOAT 1 // 2x faster
@@ -69,7 +74,8 @@
 
 // Choose floating point precision (for color algebra alone #537)
 // If one of these macros has been set from outside with e.g. -DMGONGPU_FPTYPE2_FLOAT, nothing happens (issue #167)
-#if not defined MGONGPU_FPTYPE2_DOUBLE and not defined MGONGPU_FPTYPE2_FLOAT
+// ZW: including singular flag for quad precision (quad intended for tests, not production)
+#if not defined MGONGPU_FPTYPE2_DOUBLE and not defined MGONGPU_FPTYPE2_FLOAT and not defined MGONGPU_FPTYPE_QUAD
 // Floating point precision (CHOOSE ONLY ONE)
 #define MGONGPU_FPTYPE2_DOUBLE 1 // default
 //#define MGONGPU_FPTYPE2_FLOAT 1 // 2x faster
@@ -177,6 +183,10 @@ namespace mgOnGpu
   // --- Type definitions
 
   // Floating point type (for everything but color algebra #537): fptype
+#ifdef MGONGPU_FPTYPE_QUAD
+  typedef __float128 fptype; // quad precision (16 bytes, fp128)
+  typedef __float128 fptype2; // quad precision (16 bytes, fp128)
+#else
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef double fptype; // double precision (8 bytes, fp64)
 #elif defined MGONGPU_FPTYPE_FLOAT
@@ -189,6 +199,7 @@ namespace mgOnGpu
 #elif defined MGONGPU_FPTYPE2_FLOAT
   typedef float fptype2; // single precision (4 bytes, fp32)
 #endif
+#endif // #ifdef MGONGPU_FPTYPE_QUAD
 
   // --- Platform-specific software implementation details
 
@@ -216,6 +227,8 @@ using mgOnGpu::fptype2;
 
 // C++ SIMD vectorization width (this will be used to set neppV)
 #ifdef MGONGPUCPP_GPUIMPL // CUDA and HIP implementations have no SIMD
+#undef MGONGPU_CPPSIMD
+#elif defined MGONGPU_FPTYPE_QUAD // quad precision: no SIMD
 #undef MGONGPU_CPPSIMD
 #elif defined __AVX512VL__ && defined MGONGPU_PVW512 // C++ "512z" AVX512 with 512 width (512-bit ie 64-byte): 8 (DOUBLE) or 16 (FLOAT)
 #ifdef MGONGPU_FPTYPE_DOUBLE
