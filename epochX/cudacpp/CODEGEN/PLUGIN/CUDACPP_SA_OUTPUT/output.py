@@ -123,6 +123,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/testmisc.cc', s+'gpu/testxxx_cc_ref.txt', s+'gpu/valgrind.h',
                                       s+'gpu/perf.py', s+'gpu/profile.sh',
                                       s+'gpu/cudacpp_overlay.mk', s+'gpu/makefile_wrapper.mk',
+                                      s+'gpu/umami.h', s+'gpu/umami.cc',
                                       s+'CMake/SubProcesses/CMakeLists.txt'],
                      'test': [s+'gpu/cudacpp_test.mk']}
 
@@ -151,6 +152,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'testxxx.cc', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryBuffers.h', # this is generated from a template in Subprocesses but we still link it in P1
                     'MemoryAccessCouplings.h', # this is generated from a template in Subprocesses but we still link it in P1
+                    'umami.h', 'umami.cc',
                     'perf.py', 'profile.sh']
 
     # AV - use template files from PLUGINDIR instead of MG5DIR and change their names

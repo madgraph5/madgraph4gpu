@@ -48,9 +48,23 @@
 #ifdef MGONGPUCPP_GPUIMPL // CUDA OR C++
 
     // *** START OF PART 1a - CUDA (one event per GPU thread) ***
+
     // Use CUDA/HIP streams to process different helicities in parallel (one good helicity per stream)
     // (1) First, within each helicity stream, compute the QCD partial amplitudes jamp's for each helicity
     // In multichannel mode, also compute the running sums over helicities of numerators, denominators and squared jamp2s
+/*#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    unsigned int channelId;
+    if (allrndchannel != nullptr) {
+        // temporarily set this to one if a random number for diagram sampling is
+        // provided so that calculate_wavefunctions fills the allNumerators and
+        // allDenominators arrays
+        channelId = 1;
+    } else {
+        channelId = getChannelId( allChannelIds );
+    }
+
+}
+#endif*/
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
@@ -70,6 +84,21 @@
     // Event-by-event random choice of helicity #403 and ME sum over helicities (defer this after the helicity loop to avoid breaking streams parallelism)
     gpuLaunchKernel( add_and_select_hel, gpublocks, gputhreads, allselhel, allrndhel, ghelAllMEs, allMEs, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    // Event-by-event random choice of channel
+    if ( allrndchannel != nullptr ) {
+      fptype numerator_sum = 0.;
+      for( int ichan = 0; ichan < ndiagrams; ichan++ )
+      {
+        numerator_sum += allNumerators[ievt * processConfig::ndiagrams + ichan];
+        if( allrndchannel[ievt] < numerator_sum / allDenominators[ievt] )
+        {
+          channelId = ichan + 1;
+          break;
+        }
+      }
+      allChannelIdsOut[ievt] = channelId;
+    }
+
     // Event-by-event random choice of color #402
     gpuLaunchKernel( select_col, gpublocks, gputhreads, allselcol, allrndcol, allChannelIds, colAllJamp2s, gpublocks * gputhreads );
 #endif
@@ -111,7 +140,15 @@
       const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      unsigned int channelId = getChannelId( allChannelIds, ievt00 );
+      unsigned int channelId;
+      if (allrndchannel != nullptr) {
+        // temporarily set this to one if a random number for diagram sampling is
+        // provided so that calculate_wavefunctions fills the allNumerators and
+        // allDenominators arrays
+        channelId = 1;
+      } else {
+        channelId = getChannelId( allChannelIds, ievt00 );
+      }
 #endif
       // Running sum of partial amplitudes squared for event by event color selection (#402)
       // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_jamps)
@@ -174,52 +211,79 @@
         }
 #endif
       }
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      // this is a workaround to be able to have different channel ids withing the same
+      // SIMD vector. This should be probably set up in a cleaner way where channelId is
+      // a vector everywhere
+      unsigned int channelIdVec[neppV]; 
+
+      // Event-by-event random choice of channel
+      if ( allrndchannel != nullptr ) {
+        for( int ieppV = 0; ieppV < neppV; ++ieppV )
+        {
+          const int ievt = ievt00 + ieppV;
+          fptype numerator_sum = 0.;
+          for( int ichan = 0; ichan < processConfig::ndiagrams; ichan++ )
+          {
+            numerator_sum += allNumerators[ievt * processConfig::ndiagrams + ichan];
+            if( allrndchannel[ievt] < numerator_sum / allDenominators[ievt] )
+            {
+              channelIdVec[ieppV] = ichan + 1;
+              break;
+            }
+          }
+          allChannelIdsOut[ievt] = channelIdVec[ieppV];
+        }
+      } else {
+        for( int ieppV = 0; ieppV < neppV; ++ieppV ) channelIdVec[ieppV] = channelId;
+      }
+
       // Event-by-event random choice of color #402
       if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
       {
-        if( channelId > mgOnGpu::nchannels )
-        {
-          printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which is greater than nchannels=%%d\n", channelId, mgOnGpu::nchannels );
-          assert( channelId <= mgOnGpu::nchannels ); // SANITY CHECK #919 #910
-        }
-        // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
-        // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
-        const int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
-        if( iconfig <= 0 )
-        {
-          printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which has no associated SDE iconfig\n", channelId );
-          assert( iconfig > 0 ); // SANITY CHECK #917
-        }
-        else if( iconfig > (int)mgOnGpu::nconfigSDE )
-        {
-          printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d (invalid SDE iconfig=%%d\n > nconfig=%%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
-          assert( iconfig <= (int)mgOnGpu::nconfigSDE ); // SANITY CHECK #917
-        }
-        fptype_sv targetamp[ncolor] = { 0 };
-        // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
-        for( int icolC = 0; icolC < ncolor; icolC++ )
-        {
-          if( icolC == 0 )
-            targetamp[icolC] = fptype_sv{ 0 };
-          else
-            targetamp[icolC] = targetamp[icolC - 1];
-          if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
-        }
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        fptype_sv targetamp2[ncolor] = { 0 };
-        for( int icolC = 0; icolC < ncolor; icolC++ )
-        {
-          if( icolC == 0 )
-            targetamp2[icolC] = fptype_sv{ 0 };
-          else
-            targetamp2[icolC] = targetamp2[icolC - 1];
-          // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
-          if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
-        }
-#endif
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
+          channelId = channelIdVec[ieppV];
+          if( channelId > mgOnGpu::nchannels )
+          {
+            printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which is greater than nchannels=%%d\n", channelId, mgOnGpu::nchannels );
+            assert( channelId <= mgOnGpu::nchannels ); // SANITY CHECK #919 #910
+          }
+          // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
+          // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
+          const int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
+          if( iconfig <= 0 )
+          {
+            printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d which has no associated SDE iconfig\n", channelId );
+            assert( iconfig > 0 ); // SANITY CHECK #917
+          }
+          else if( iconfig > (int)mgOnGpu::nconfigSDE )
+          {
+            printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%%d (invalid SDE iconfig=%%d\n > nconfig=%%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
+            assert( iconfig <= (int)mgOnGpu::nconfigSDE ); // SANITY CHECK #917
+          }
+          fptype_sv targetamp[ncolor] = { 0 };
+          // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
+          for( int icolC = 0; icolC < ncolor; icolC++ )
+          {
+            if( icolC == 0 )
+              targetamp[icolC] = fptype_sv{ 0 };
+            else
+              targetamp[icolC] = targetamp[icolC - 1];
+            if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
+          }
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+          fptype_sv targetamp2[ncolor] = { 0 };
+          for( int icolC = 0; icolC < ncolor; icolC++ )
+          {
+            if( icolC == 0 )
+              targetamp2[icolC] = fptype_sv{ 0 };
+            else
+              targetamp2[icolC] = targetamp2[icolC - 1];
+            // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
+            if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
+          }
+#endif
           const int ievt = ievt00 + ieppV;
           //printf( "sigmaKin: ievt=%%4d rndcol=%%f\n", ievt, allrndcol[ievt] );
           for( int icolC = 0; icolC < ncolor; icolC++ )
@@ -277,6 +341,10 @@
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, ghelAllNumerators, ghelAllDenominators, allChannelIds, helcolDenominators[0] );
+    /*if( mulChannelWeight && allChannelIds != nullptr ) {
+        allMEs[ievt] *= allNumerators[ievt * processConfig::ndiagrams + channelId - 1]
+                        / allDenominators[ievt]; // fix segfault #892 (not 'channelIds[0] != 0')
+    }*/
 #else
     gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, helcolDenominators[0] );
 #endif
@@ -288,7 +356,7 @@
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
+      if( mulChannelWeight && allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
       {
         const unsigned int channelId = getChannelId( allChannelIds, ievt0, false );
         fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 * processConfig::ndiagrams );

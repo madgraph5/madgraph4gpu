@@ -728,6 +728,11 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
             const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
+            const fptype* allrndchannel,        // input: random numbers[nevt] for channel sampling
+            unsigned int* allChannelIdsOut,     // output: multichannel channelIds[nevt] (1 to #diagrams)
+            fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
+            bool mulChannelWeight,              // if true, multiply channel weight to ME output
 #endif
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
             int* allselhel,                     // output: helicity selection[nevt]
