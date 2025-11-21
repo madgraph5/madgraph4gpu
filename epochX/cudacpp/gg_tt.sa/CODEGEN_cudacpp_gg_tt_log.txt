@@ -1,3 +1,4 @@
+WARNING:root:[91mpython3.12 support is still experimental. For the moment re-weighting is NOT working and do expect a LOT of syntax warning. We do not advise python3.12 for production for the moment.[0m
 [1;31mNote that this is a development version.
 This version is intended for development/beta testing and NOT for production.
 This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
@@ -48,7 +49,7 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
 
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt.mg
+import /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
@@ -57,7 +58,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.004430294036865234 [0m
+[1;32mDEBUG: model prefixing  takes 0.0018236637115478516 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -150,13 +151,13 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ WEIGHTED<=2 @1  
 INFO: Process has 3 diagrams 
-1 processes with 3 diagrams generated in 0.006 s
+1 processes with 3 diagrams generated in 0.007 s
 Total: 1 processes with 3 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_gg_tt
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 175][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 180][0m [0m
-INFO: Creating subdirectories in directory /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt 
+INFO: Creating subdirectories in directory /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt 
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > t t~ WEIGHTED<=2 @1 
 INFO: Processing color information for process: g g > t t~ @1 
@@ -165,30 +166,30 @@ INFO: Processing color information for process: g g > t t~ @1
 [1;32mDEBUG:    type(fortran_model)=<class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 224][0m [0m
 [1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 225][0m [0m
 [1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'color_sum.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'MemoryAccessChannelIds.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.h', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h', 'cudacpp.mk', 'cudacpp_overlay.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 226][0m [0m
-INFO: Creating files in directory /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx 
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.h
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.cc
-INFO: Created files CPPProcess.h and CPPProcess.cc in directory /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/. 
-Generated helas calls for 1 subprocesses (3 diagrams) in 0.005 s
+INFO: Creating files in directory /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx 
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/. 
+Generated helas calls for 1 subprocesses (3 diagrams) in 0.004 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.121 s
+ALOHA: aloha creates 2 routines in  0.060 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/./HelAmps_sm.h
-INFO: Created file HelAmps_sm.h in directory /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. 
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/./HelAmps_sm.h
+INFO: Created file HelAmps_sm.h in directory /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/./Parameters_sm.h
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/./Parameters_sm.cc
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/./Parameters_sm.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
-INFO: /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. and /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. 
+INFO: /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. and /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. 
 quit
 
-real	0m0.508s
-user	0m0.439s
-sys	0m0.064s
-Code generation completed in 1 seconds
+real	0m1.286s
+user	0m0.361s
+sys	0m0.100s
+Code generation completed in 2 seconds
