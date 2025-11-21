@@ -264,7 +264,7 @@ for gc in $gcs; do
 done"""
             try:
                 result = subprocess.run(
-                    ["bash", "-lc", patch_coupl_write],
+                    ["bash", "-c", patch_coupl_write],
                     cwd=pjoin(self.dir_path, "Source", "MODEL"),
                     text=True,
                     capture_output=True,
