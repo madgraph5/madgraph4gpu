@@ -5,11 +5,7 @@
 
 #include "GpuRuntime.h"
 #include "HelAmps_sm.h"
-#include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessChannelIds.h"
-#include "MemoryAccessCouplings.h"
-#include "MemoryAccessCouplingsFixed.h"
-#include "MemoryAccessWavefunctions.h"
 #include "color_sum.h"
 #include "diagrams.h"
 #include "diagrams_header.h"
@@ -69,7 +65,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3001
     // (none)
     // Amplitude(s) for diagram number 3001
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[332], w_fp[5], w_fp[485], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[332], w_fp[5], w_fp[485], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -148,7 +144,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3002
     // (none)
     // Amplitude(s) for diagram number 3002
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[448], w_fp[2], w_fp[332], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[448], w_fp[2], w_fp[332], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -224,7 +220,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3003
     // (none)
     // Amplitude(s) for diagram number 3003
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[333], w_fp[4], w_fp[485], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[333], w_fp[4], w_fp[485], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -304,7 +300,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3004
     // (none)
     // Amplitude(s) for diagram number 3004
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[450], w_fp[2], w_fp[333], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[450], w_fp[2], w_fp[333], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -382,7 +378,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3005
     // (none)
     // Amplitude(s) for diagram number 3005
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[2], w_fp[335], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[2], w_fp[335], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -394,7 +390,7 @@ namespace mg5amcCpu
     jamp_sv[429] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[633] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[639] -= cxtype( 0, 1 ) * amp_sv[0];
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[2], w_fp[336], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[2], w_fp[336], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -406,7 +402,7 @@ namespace mg5amcCpu
     jamp_sv[405] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[465] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[639] -= cxtype( 0, 1 ) * amp_sv[0];
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[2], w_fp[337], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[2], w_fp[337], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -485,9 +481,9 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 3006 OF 15495 ***
     // Wavefunction(s) for diagram number 3006
-    FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[45], w_fp[325], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[505] );
+    FFV1_2( w_fp[45], w_fp[325], COUPs[1], 1.0, depCoup, cIPD[0], cIPD[1], w_fp[505] );
     // Amplitude(s) for diagram number 3006
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[158], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[158], w_fp[6], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -561,7 +557,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3007
     // (none)
     // Amplitude(s) for diagram number 3007
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[161], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[161], w_fp[5], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -635,7 +631,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3008
     // (none)
     // Amplitude(s) for diagram number 3008
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[497], w_fp[333], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[497], w_fp[333], w_fp[6], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -715,7 +711,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3009
     // (none)
     // Amplitude(s) for diagram number 3009
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[497], w_fp[334], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[497], w_fp[334], w_fp[5], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -796,7 +792,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3010
     // (none)
     // Amplitude(s) for diagram number 3010
-    VVVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[5], w_fp[6], w_fp[497], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV1_0( w_fp[325], w_fp[5], w_fp[6], w_fp[497], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -808,7 +804,7 @@ namespace mg5amcCpu
     jamp_sv[329] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[333] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[345] += cxtype( 0, 1 ) * amp_sv[0];
-    VVVV3_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[5], w_fp[6], w_fp[497], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV3_0( w_fp[325], w_fp[5], w_fp[6], w_fp[497], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -820,7 +816,7 @@ namespace mg5amcCpu
     jamp_sv[323] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[333] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[347] += cxtype( 0, 1 ) * amp_sv[0];
-    VVVV4_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[5], w_fp[6], w_fp[497], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV4_0( w_fp[325], w_fp[5], w_fp[6], w_fp[497], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -899,9 +895,9 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 3011 OF 15495 ***
     // Wavefunction(s) for diagram number 3011
-    FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[156], w_fp[325], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[506] );
+    FFV1_1( w_fp[156], w_fp[325], COUPs[1], 1.0, depCoup, cIPD[0], cIPD[1], w_fp[506] );
     // Amplitude(s) for diagram number 3011
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[442], w_fp[506], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[442], w_fp[506], w_fp[6], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -975,7 +971,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3012
     // (none)
     // Amplitude(s) for diagram number 3012
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[442], w_fp[156], w_fp[334], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[442], w_fp[156], w_fp[334], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1051,7 +1047,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3013
     // (none)
     // Amplitude(s) for diagram number 3013
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[442], w_fp[161], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[442], w_fp[161], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1125,7 +1121,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3014
     // (none)
     // Amplitude(s) for diagram number 3014
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[506], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[506], w_fp[5], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1199,7 +1195,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3015
     // (none)
     // Amplitude(s) for diagram number 3015
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[156], w_fp[333], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[156], w_fp[333], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1275,7 +1271,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3016
     // (none)
     // Amplitude(s) for diagram number 3016
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[158], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[158], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1349,7 +1345,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3017
     // (none)
     // Amplitude(s) for diagram number 3017
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[161], w_fp[333], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[161], w_fp[333], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1425,7 +1421,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3018
     // (none)
     // Amplitude(s) for diagram number 3018
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[158], w_fp[334], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[158], w_fp[334], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1501,7 +1497,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3019
     // (none)
     // Amplitude(s) for diagram number 3019
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[156], w_fp[113], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[156], w_fp[113], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1577,7 +1573,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3020
     // (none)
     // Amplitude(s) for diagram number 3020
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[113], w_fp[497], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[325], w_fp[113], w_fp[497], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1657,7 +1653,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3021
     // (none)
     // Amplitude(s) for diagram number 3021
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[464], w_fp[156], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[464], w_fp[156], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1733,7 +1729,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3022
     // (none)
     // Amplitude(s) for diagram number 3022
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[190], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[190], w_fp[6], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1807,7 +1803,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3023
     // (none)
     // Amplitude(s) for diagram number 3023
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[191], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[191], w_fp[4], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1881,7 +1877,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3024
     // (none)
     // Amplitude(s) for diagram number 3024
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[488], w_fp[332], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[488], w_fp[332], w_fp[6], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -1961,7 +1957,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3025
     // (none)
     // Amplitude(s) for diagram number 3025
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[488], w_fp[334], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[488], w_fp[334], w_fp[4], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2042,7 +2038,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3026
     // (none)
     // Amplitude(s) for diagram number 3026
-    VVVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[4], w_fp[6], w_fp[488], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV1_0( w_fp[325], w_fp[4], w_fp[6], w_fp[488], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2054,7 +2050,7 @@ namespace mg5amcCpu
     jamp_sv[449] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[453] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[465] += cxtype( 0, 1 ) * amp_sv[0];
-    VVVV3_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[4], w_fp[6], w_fp[488], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV3_0( w_fp[325], w_fp[4], w_fp[6], w_fp[488], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2066,7 +2062,7 @@ namespace mg5amcCpu
     jamp_sv[443] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[453] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[467] += cxtype( 0, 1 ) * amp_sv[0];
-    VVVV4_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[4], w_fp[6], w_fp[488], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV4_0( w_fp[325], w_fp[4], w_fp[6], w_fp[488], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2145,9 +2141,9 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 3027 OF 15495 ***
     // Wavefunction(s) for diagram number 3027
-    FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[169], w_fp[325], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[507] );
+    FFV1_1( w_fp[169], w_fp[325], COUPs[1], 1.0, depCoup, cIPD[0], cIPD[1], w_fp[507] );
     // Amplitude(s) for diagram number 3027
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[435], w_fp[507], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[435], w_fp[507], w_fp[6], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2221,7 +2217,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3028
     // (none)
     // Amplitude(s) for diagram number 3028
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[435], w_fp[169], w_fp[334], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[435], w_fp[169], w_fp[334], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2297,7 +2293,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3029
     // (none)
     // Amplitude(s) for diagram number 3029
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[435], w_fp[191], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[435], w_fp[191], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2371,7 +2367,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3030
     // (none)
     // Amplitude(s) for diagram number 3030
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[507], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[507], w_fp[4], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2445,7 +2441,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3031
     // (none)
     // Amplitude(s) for diagram number 3031
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[169], w_fp[332], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[169], w_fp[332], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2521,7 +2517,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3032
     // (none)
     // Amplitude(s) for diagram number 3032
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[190], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[190], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2595,7 +2591,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3033
     // (none)
     // Amplitude(s) for diagram number 3033
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[191], w_fp[332], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[191], w_fp[332], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2671,7 +2667,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3034
     // (none)
     // Amplitude(s) for diagram number 3034
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[190], w_fp[334], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[190], w_fp[334], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2747,7 +2743,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3035
     // (none)
     // Amplitude(s) for diagram number 3035
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[169], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[169], w_fp[86], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2823,7 +2819,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3036
     // (none)
     // Amplitude(s) for diagram number 3036
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[86], w_fp[488], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[325], w_fp[86], w_fp[488], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2903,7 +2899,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3037
     // (none)
     // Amplitude(s) for diagram number 3037
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[459], w_fp[169], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[459], w_fp[169], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -2979,7 +2975,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3038
     // (none)
     // Amplitude(s) for diagram number 3038
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[211], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[211], w_fp[5], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3053,7 +3049,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3039
     // (none)
     // Amplitude(s) for diagram number 3039
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[212], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[212], w_fp[4], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3127,7 +3123,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3040
     // (none)
     // Amplitude(s) for diagram number 3040
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[490], w_fp[332], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[490], w_fp[332], w_fp[5], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3207,7 +3203,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3041
     // (none)
     // Amplitude(s) for diagram number 3041
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[490], w_fp[333], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[490], w_fp[333], w_fp[4], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3288,7 +3284,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3042
     // (none)
     // Amplitude(s) for diagram number 3042
-    VVVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[4], w_fp[5], w_fp[490], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV1_0( w_fp[325], w_fp[4], w_fp[5], w_fp[490], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3300,7 +3296,7 @@ namespace mg5amcCpu
     jamp_sv[569] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[573] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[585] += cxtype( 0, 1 ) * amp_sv[0];
-    VVVV3_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[4], w_fp[5], w_fp[490], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV3_0( w_fp[325], w_fp[4], w_fp[5], w_fp[490], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3312,7 +3308,7 @@ namespace mg5amcCpu
     jamp_sv[563] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[573] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[587] += cxtype( 0, 1 ) * amp_sv[0];
-    VVVV4_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[4], w_fp[5], w_fp[490], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV4_0( w_fp[325], w_fp[4], w_fp[5], w_fp[490], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3391,9 +3387,9 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 3043 OF 15495 ***
     // Wavefunction(s) for diagram number 3043
-    FFV1_1<W_ACCESS, CD_ACCESS>( w_fp[197], w_fp[325], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[508] );
+    FFV1_1( w_fp[197], w_fp[325], COUPs[1], 1.0, depCoup, cIPD[0], cIPD[1], w_fp[508] );
     // Amplitude(s) for diagram number 3043
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[435], w_fp[508], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[435], w_fp[508], w_fp[5], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3467,7 +3463,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3044
     // (none)
     // Amplitude(s) for diagram number 3044
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[435], w_fp[197], w_fp[333], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[435], w_fp[197], w_fp[333], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3543,7 +3539,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3045
     // (none)
     // Amplitude(s) for diagram number 3045
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[435], w_fp[212], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[435], w_fp[212], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3617,7 +3613,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3046
     // (none)
     // Amplitude(s) for diagram number 3046
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[442], w_fp[508], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[442], w_fp[508], w_fp[4], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3691,7 +3687,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3047
     // (none)
     // Amplitude(s) for diagram number 3047
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[442], w_fp[197], w_fp[332], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[442], w_fp[197], w_fp[332], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3767,7 +3763,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3048
     // (none)
     // Amplitude(s) for diagram number 3048
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[442], w_fp[211], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[442], w_fp[211], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3841,7 +3837,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3049
     // (none)
     // Amplitude(s) for diagram number 3049
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[212], w_fp[332], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[212], w_fp[332], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3917,7 +3913,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3050
     // (none)
     // Amplitude(s) for diagram number 3050
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[211], w_fp[333], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[211], w_fp[333], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -3993,7 +3989,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3051
     // (none)
     // Amplitude(s) for diagram number 3051
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[197], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[197], w_fp[66], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4069,7 +4065,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3052
     // (none)
     // Amplitude(s) for diagram number 3052
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[66], w_fp[490], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[325], w_fp[66], w_fp[490], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4149,7 +4145,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3053
     // (none)
     // Amplitude(s) for diagram number 3053
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[456], w_fp[197], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[456], w_fp[197], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4225,7 +4221,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3054
     // (none)
     // Amplitude(s) for diagram number 3054
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[148], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[148], w_fp[6], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4301,7 +4297,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3055
     // (none)
     // Amplitude(s) for diagram number 3055
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[2], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[2], w_fp[68], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4381,7 +4377,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3056
     // (none)
     // Amplitude(s) for diagram number 3056
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[479], w_fp[349], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[479], w_fp[349], w_fp[6], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4469,7 +4465,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3057
     // (none)
     // Amplitude(s) for diagram number 3057
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[479], w_fp[334], w_fp[66], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[479], w_fp[334], w_fp[66], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4557,7 +4553,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3058
     // (none)
     // Amplitude(s) for diagram number 3058
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[479], w_fp[325], w_fp[68], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[479], w_fp[325], w_fp[68], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4646,7 +4642,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3059
     // (none)
     // Amplitude(s) for diagram number 3059
-    VVVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[66], w_fp[6], w_fp[479], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV1_0( w_fp[325], w_fp[66], w_fp[6], w_fp[479], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4666,7 +4662,7 @@ namespace mg5amcCpu
     jamp_sv[587] += amp_sv[0];
     jamp_sv[633] += amp_sv[0];
     jamp_sv[639] -= amp_sv[0];
-    VVVV3_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[66], w_fp[6], w_fp[479], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV3_0( w_fp[325], w_fp[66], w_fp[6], w_fp[479], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4686,7 +4682,7 @@ namespace mg5amcCpu
     jamp_sv[587] += amp_sv[0];
     jamp_sv[645] += amp_sv[0];
     jamp_sv[647] -= amp_sv[0];
-    VVVV4_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[66], w_fp[6], w_fp[479], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV4_0( w_fp[325], w_fp[66], w_fp[6], w_fp[479], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4774,7 +4770,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3060
     // (none)
     // Amplitude(s) for diagram number 3060
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[456], w_fp[501], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[456], w_fp[501], w_fp[6], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4850,7 +4846,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3061
     // (none)
     // Amplitude(s) for diagram number 3061
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[456], w_fp[2], w_fp[334], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[456], w_fp[2], w_fp[334], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -4930,7 +4926,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3062
     // (none)
     // Amplitude(s) for diagram number 3062
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[501], w_fp[66], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[501], w_fp[66], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5006,7 +5002,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3063
     // (none)
     // Amplitude(s) for diagram number 3063
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[2], w_fp[349], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[2], w_fp[349], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5086,7 +5082,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3064
     // (none)
     // Amplitude(s) for diagram number 3064
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[447], w_fp[148], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[447], w_fp[148], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5162,7 +5158,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3065
     // (none)
     // Amplitude(s) for diagram number 3065
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[501], w_fp[68], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[501], w_fp[68], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5242,7 +5238,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3066
     // (none)
     // Amplitude(s) for diagram number 3066
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[148], w_fp[334], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[148], w_fp[334], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5322,7 +5318,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3067
     // (none)
     // Amplitude(s) for diagram number 3067
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[118], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[118], w_fp[5], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5398,7 +5394,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3068
     // (none)
     // Amplitude(s) for diagram number 3068
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[2], w_fp[87], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[2], w_fp[87], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5478,7 +5474,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3069
     // (none)
     // Amplitude(s) for diagram number 3069
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[479], w_fp[350], w_fp[5], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[479], w_fp[350], w_fp[5], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5566,7 +5562,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3070
     // (none)
     // Amplitude(s) for diagram number 3070
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[479], w_fp[333], w_fp[86], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[479], w_fp[333], w_fp[86], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5654,7 +5650,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3071
     // (none)
     // Amplitude(s) for diagram number 3071
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[479], w_fp[325], w_fp[87], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[479], w_fp[325], w_fp[87], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5743,7 +5739,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3072
     // (none)
     // Amplitude(s) for diagram number 3072
-    VVVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[86], w_fp[5], w_fp[479], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV1_0( w_fp[325], w_fp[86], w_fp[5], w_fp[479], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5763,7 +5759,7 @@ namespace mg5amcCpu
     jamp_sv[549] += amp_sv[0];
     jamp_sv[635] += amp_sv[0];
     jamp_sv[645] -= amp_sv[0];
-    VVVV3_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[86], w_fp[5], w_fp[479], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV3_0( w_fp[325], w_fp[86], w_fp[5], w_fp[479], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5783,7 +5779,7 @@ namespace mg5amcCpu
     jamp_sv[549] += amp_sv[0];
     jamp_sv[639] += amp_sv[0];
     jamp_sv[641] -= amp_sv[0];
-    VVVV4_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[86], w_fp[5], w_fp[479], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV4_0( w_fp[325], w_fp[86], w_fp[5], w_fp[479], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5871,7 +5867,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3073
     // (none)
     // Amplitude(s) for diagram number 3073
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[459], w_fp[501], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[459], w_fp[501], w_fp[5], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -5947,7 +5943,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3074
     // (none)
     // Amplitude(s) for diagram number 3074
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[459], w_fp[2], w_fp[333], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[459], w_fp[2], w_fp[333], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6027,7 +6023,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3075
     // (none)
     // Amplitude(s) for diagram number 3075
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[442], w_fp[501], w_fp[86], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[442], w_fp[501], w_fp[86], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6103,7 +6099,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3076
     // (none)
     // Amplitude(s) for diagram number 3076
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[442], w_fp[2], w_fp[350], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[442], w_fp[2], w_fp[350], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6183,7 +6179,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3077
     // (none)
     // Amplitude(s) for diagram number 3077
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[442], w_fp[118], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[442], w_fp[118], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6259,7 +6255,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3078
     // (none)
     // Amplitude(s) for diagram number 3078
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[501], w_fp[87], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[501], w_fp[87], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6339,7 +6335,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3079
     // (none)
     // Amplitude(s) for diagram number 3079
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[118], w_fp[333], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[118], w_fp[333], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6419,7 +6415,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3080
     // (none)
     // Amplitude(s) for diagram number 3080
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[244], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[244], w_fp[4], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6495,7 +6491,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3081
     // (none)
     // Amplitude(s) for diagram number 3081
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[2], w_fp[115], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[2], w_fp[115], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6575,7 +6571,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3082
     // (none)
     // Amplitude(s) for diagram number 3082
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[479], w_fp[332], w_fp[113], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[479], w_fp[332], w_fp[113], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6663,7 +6659,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3083
     // (none)
     // Amplitude(s) for diagram number 3083
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[479], w_fp[351], w_fp[4], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[479], w_fp[351], w_fp[4], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6751,7 +6747,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3084
     // (none)
     // Amplitude(s) for diagram number 3084
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[479], w_fp[325], w_fp[115], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[479], w_fp[325], w_fp[115], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6840,7 +6836,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3085
     // (none)
     // Amplitude(s) for diagram number 3085
-    VVVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[4], w_fp[113], w_fp[479], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV1_0( w_fp[325], w_fp[4], w_fp[113], w_fp[479], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6860,7 +6856,7 @@ namespace mg5amcCpu
     jamp_sv[573] += amp_sv[0];
     jamp_sv[633] += amp_sv[0];
     jamp_sv[635] -= amp_sv[0];
-    VVVV3_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[4], w_fp[113], w_fp[479], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV3_0( w_fp[325], w_fp[4], w_fp[113], w_fp[479], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6880,7 +6876,7 @@ namespace mg5amcCpu
     jamp_sv[573] += amp_sv[0];
     jamp_sv[641] += amp_sv[0];
     jamp_sv[647] -= amp_sv[0];
-    VVVV4_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[4], w_fp[113], w_fp[479], COUPs[2], 1.0, &amp_fp[0] );
+    VVVV4_0( w_fp[325], w_fp[4], w_fp[113], w_fp[479], COUPs[2], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -6968,7 +6964,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3086
     // (none)
     // Amplitude(s) for diagram number 3086
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[435], w_fp[501], w_fp[113], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[435], w_fp[501], w_fp[113], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7044,7 +7040,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3087
     // (none)
     // Amplitude(s) for diagram number 3087
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[435], w_fp[2], w_fp[351], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[435], w_fp[2], w_fp[351], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7124,7 +7120,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3088
     // (none)
     // Amplitude(s) for diagram number 3088
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[435], w_fp[244], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[435], w_fp[244], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7200,7 +7196,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3089
     // (none)
     // Amplitude(s) for diagram number 3089
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[464], w_fp[501], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[464], w_fp[501], w_fp[4], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7276,7 +7272,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3090
     // (none)
     // Amplitude(s) for diagram number 3090
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[464], w_fp[2], w_fp[332], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[464], w_fp[2], w_fp[332], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7356,7 +7352,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3091
     // (none)
     // Amplitude(s) for diagram number 3091
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[501], w_fp[115], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[501], w_fp[115], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7436,7 +7432,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3092
     // (none)
     // Amplitude(s) for diagram number 3092
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[45], w_fp[244], w_fp[332], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[45], w_fp[244], w_fp[332], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7518,7 +7514,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3093
     // (none)
     // Amplitude(s) for diagram number 3093
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[2], w_fp[133], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[2], w_fp[133], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7530,7 +7526,7 @@ namespace mg5amcCpu
     jamp_sv[449] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[567] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[569] += cxtype( 0, 1 ) * amp_sv[0];
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[2], w_fp[134], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[2], w_fp[134], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7542,7 +7538,7 @@ namespace mg5amcCpu
     jamp_sv[449] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[543] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[545] += cxtype( 0, 1 ) * amp_sv[0];
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[505], w_fp[2], w_fp[135], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[505], w_fp[2], w_fp[135], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7624,7 +7620,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3094
     // (none)
     // Amplitude(s) for diagram number 3094
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[133], w_fp[479], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[325], w_fp[133], w_fp[479], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7644,7 +7640,7 @@ namespace mg5amcCpu
     jamp_sv[635] -= amp_sv[0];
     jamp_sv[641] -= amp_sv[0];
     jamp_sv[647] += amp_sv[0];
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[134], w_fp[479], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[325], w_fp[134], w_fp[479], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7664,7 +7660,7 @@ namespace mg5amcCpu
     jamp_sv[639] += amp_sv[0];
     jamp_sv[641] -= amp_sv[0];
     jamp_sv[645] += amp_sv[0];
-    VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[325], w_fp[135], w_fp[479], COUPs[0], 1.0, &amp_fp[0] );
+    VVV1_0( w_fp[325], w_fp[135], w_fp[479], COUPs[0], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7754,7 +7750,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3095
     // (none)
     // Amplitude(s) for diagram number 3095
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[468], w_fp[2], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[468], w_fp[2], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7766,7 +7762,7 @@ namespace mg5amcCpu
     jamp_sv[635] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[641] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[647] += cxtype( 0, 1 ) * amp_sv[0];
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[469], w_fp[2], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[469], w_fp[2], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7778,7 +7774,7 @@ namespace mg5amcCpu
     jamp_sv[639] += cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[641] -= cxtype( 0, 1 ) * amp_sv[0];
     jamp_sv[645] += cxtype( 0, 1 ) * amp_sv[0];
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[470], w_fp[2], w_fp[325], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[470], w_fp[2], w_fp[325], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7858,10 +7854,10 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 3096 OF 15495 ***
     // Wavefunction(s) for diagram number 3096
-    FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[45], w_fp[1], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[505] );
-    FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[505], w_fp[6], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[509] );
+    FFV1_2( w_fp[45], w_fp[1], COUPs[1], 1.0, depCoup, cIPD[0], cIPD[1], w_fp[505] );
+    FFV1_2( w_fp[505], w_fp[6], COUPs[1], 1.0, depCoup, cIPD[0], cIPD[1], w_fp[509] );
     // Amplitude(s) for diagram number 3096
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[509], w_fp[158], w_fp[7], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[509], w_fp[158], w_fp[7], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -7934,9 +7930,9 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 3097 OF 15495 ***
     // Wavefunction(s) for diagram number 3097
-    FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[505], w_fp[7], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[510] );
+    FFV1_2( w_fp[505], w_fp[7], COUPs[1], 1.0, depCoup, cIPD[0], cIPD[1], w_fp[510] );
     // Amplitude(s) for diagram number 3097
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[510], w_fp[158], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[510], w_fp[158], w_fp[6], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -8008,9 +8004,9 @@ namespace mg5amcCpu
 
     // *** DIAGRAM 3098 OF 15495 ***
     // Wavefunction(s) for diagram number 3098
-    FFV1_2<W_ACCESS, CD_ACCESS>( w_fp[505], w_fp[5], COUPs[1], 1.0, cIPD[0], cIPD[1], w_fp[511] );
+    FFV1_2( w_fp[505], w_fp[5], COUPs[1], 1.0, depCoup, cIPD[0], cIPD[1], w_fp[511] );
     // Amplitude(s) for diagram number 3098
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[511], w_fp[161], w_fp[7], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[511], w_fp[161], w_fp[7], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -8083,7 +8079,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3099
     // (none)
     // Amplitude(s) for diagram number 3099
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[510], w_fp[161], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[510], w_fp[161], w_fp[5], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
@@ -8156,7 +8152,7 @@ namespace mg5amcCpu
     // Wavefunction(s) for diagram number 3100
     // (none)
     // Amplitude(s) for diagram number 3100
-    FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[511], w_fp[163], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
+    FFV1_0( w_fp[511], w_fp[163], w_fp[6], COUPs[1], 1.0, depCoup, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Here the code base generated with multichannel support updates numerators_sv and denominators_sv (#473)
 #endif
