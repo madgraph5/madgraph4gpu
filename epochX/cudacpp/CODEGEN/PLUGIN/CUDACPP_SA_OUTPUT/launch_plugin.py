@@ -38,11 +38,27 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
             cudacpp_backend = self.run_card['cudacpp_backend'].lower() # the default value is defined in launch_plugin.py
-            logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
+            if cudacpp_backend in ['cpp', 'cppauto']:
+                backend_log = pjoin(opts["cwd"], ".resolved-backend")
+                # try to remove old file if present
+                breakpoint()
+                try:
+                    os.remove(backend_log)
+                except FileNotFoundError:
+                    pass
+                misc.compile(["-f", "cudacpp.mk", f"BACKEND=cppauto", f"BACKEND_LOG={backend_log}", "detect-backend"], **opts)
+                try:
+                    with open(backend_log, "r") as f:
+                        resolved_backend = f.read().strip()
+                    logger.info(f"Backend '{cudacpp_backend}' resolved as '{resolved_backend}'")
+                    cudacpp_backend = resolved_backend
+                except FileNotFoundError:
+                    raise RuntimeError("Could not resolve cudacpp_backend=cppauto|cpp; ensure Makefile detection runs properly.")
+            logger.info(f"Building madevent in madevent_interface.py with '{cudacpp_backend}' matrix elements")
             if cudacpp_backend in cudacpp_supported_backends :
                 args[0][0] = 'madevent_' + cudacpp_backend + '_link'
             else:
-                raise Exception( "Invalid cudacpp_backend='%s': supported backends are %s"%supported_backends )
+                raise Exception(f"Invalid cudacpp_backend='{cudacpp_backend}': supported backends are [ '" + "', '".join(cudacpp_supported_backends) + "' ]")
             return misc.compile(nb_core=self.options['nb_core'], *args, **opts)
         else:
             return misc.compile(nb_core=self.options['nb_core'], *args, **opts)
