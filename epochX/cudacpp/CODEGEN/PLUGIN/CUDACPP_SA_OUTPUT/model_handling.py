@@ -1451,6 +1451,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
+        self.edit_processConfig() # sub process specific, not to be symlinked from the Subprocesses directory
         self.edit_colorsum() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
@@ -1541,6 +1542,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # Extract color matrix again (this was also in get_matrix_single_process called within get_all_sigmaKin_lines)
         replace_dict['color_matrix_lines'] = self.get_color_matrix_lines(self.matrix_elements[0])
         ff = open(pjoin(self.path, 'color_sum.cc'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
+        
+    def edit_processConfig(self):
+        """Generate process_config.h"""
+        ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_processConfig')
+        template = open(pjoin(self.template_path,'gpu','processConfig.h'),'r').read()
+        replace_dict = {}
+        replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams'))
+        replace_dict['processid_uppercase'] = self.get_process_name().upper()
+        ff = open(pjoin(self.path, 'processConfig.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
 
@@ -1939,7 +1951,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )     // FIX #823
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 * processConfig::ndiagrams );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
 #endif
 #endif
@@ -1953,7 +1965,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       unsigned int channelId = gpu_channelId( allChannelIds );
 #endif
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
-      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+      fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
 #endif""")
         diagrams = matrix_element.get('diagrams')
@@ -1985,8 +1997,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diag_to_config[id_amp]) # BUG #472
                         ###res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % id_amp) # wrong fix for BUG #472
                         res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
-                        res.append("if( channelId == %i ) numerators_sv += cxabs2( amp_sv[0] );" % diagram.get('number'))
-                        res.append("if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );")
+                        diagnum = diagram.get('number')
+                        res.append("if( channelId != 0 )")
+                        res.append("{")
+                        res.append("  numerators_sv[%i] += cxabs2( amp_sv[0] );" % (diagnum-1))
+                        res.append("  denominators_sv += cxabs2( amp_sv[0] );")
+                        res.append("}")
                         res.append("#endif")
                 else:
                     res.append("#ifdef MGONGPU_SUPPORTS_MULTICHANNEL")
