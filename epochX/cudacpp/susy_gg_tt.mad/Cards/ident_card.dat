@@ -232,9 +232,9 @@ mse2 3 3 mdl_RmE23x3
 msl2 1 1 mdl_RmL21x1
 msl2 3 3 mdl_RmL23x3
 msoft 1 mdl_RMx1
+msoft 2 mdl_RMx2
 msoft 21 mdl_mHd2
 msoft 22 mdl_mHu2
-msoft 2 mdl_RMx2
 msoft 3 mdl_RMx3
 msq2 1 1 mdl_RmQ21x1
 msq2 3 3 mdl_RmQ23x3
