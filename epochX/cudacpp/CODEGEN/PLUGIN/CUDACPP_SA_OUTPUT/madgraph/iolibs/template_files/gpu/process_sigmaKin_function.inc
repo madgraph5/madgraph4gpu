@@ -51,15 +51,6 @@
     // Use CUDA/HIP streams to process different helicities in parallel (one good helicity per stream)
     // (1) First, within each helicity stream, compute the QCD partial amplitudes jamp's for each helicity
     // In multichannel mode, also compute the running sums over helicities of numerators, denominators and squared jamp2s
-/* sr 
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    unsigned int channelId = getChannelId( allChannelIds );
-#endif
-    // Running sum of partial amplitudes squared for event by event color selection (#402)
-    // (for the single event processed in calculate_wavefunctions)
-    fptype_sv jamp2_sv[nParity * ncolor] = { 0 };
-    fptype MEs_ighel[ncomb] = { 0 }; // sum of MEs for all good helicities up to ighel (for this event)
-sr */ 
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
