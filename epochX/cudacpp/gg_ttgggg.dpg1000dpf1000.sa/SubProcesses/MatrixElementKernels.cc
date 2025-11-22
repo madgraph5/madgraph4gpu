@@ -258,7 +258,9 @@ namespace mg5amcCpu
 
   void MatrixElementKernelHost::computeMatrixElements( const bool useChannelIds )
   {
+    if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP__DEPCOUPS );
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
+    if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP__SIGMAKIN );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_numerators.data(), m_denominators.data(), nevt() );
@@ -267,6 +269,7 @@ namespace mg5amcCpu
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), nevt() );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
+    if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP_UPDATNEVT );
     //std::cout << "DEBUG: MatrixElementKernelHost::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
     MatrixElementKernelBase::updateNevtProcessedByChannel( pChannelIds, nevt() );
 #endif
@@ -554,7 +557,9 @@ namespace mg5amcGpu
 
   void MatrixElementKernelDevice::computeMatrixElements( const bool useChannelIds )
   {
+    if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP__DEPCOUPS );
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
+    if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP__SIGMAKIN );
 #ifndef MGONGPU_HAS_NO_BLAS
     fptype2* ghelAllBlasTmp = ( m_blasColorSum ? m_pHelBlasTmp->data() : nullptr );
     gpuBlasHandle_t* pBlasHandle = ( m_blasColorSum ? &m_blasHandle : nullptr );
@@ -571,6 +576,7 @@ namespace mg5amcGpu
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_pHelMEs->data(), m_pHelJamps->data(), helWfsData, ghelAllBlasTmp, pBlasHandle, m_helStreams, m_gpublocks, m_gputhreads );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
+    if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP_UPDATNEVT );
     //std::cout << "DEBUG: MatrixElementKernelDevice::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
     copyHostFromDevice( m_hstChannelIds, m_channelIds ); // FIXME?!
     const unsigned int* pHstChannelIds = ( useChannelIds ? m_hstChannelIds.data() : nullptr );
