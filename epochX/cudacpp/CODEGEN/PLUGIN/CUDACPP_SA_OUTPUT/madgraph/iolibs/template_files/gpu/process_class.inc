@@ -1,10 +1,10 @@
 ! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 ! Created by: J. Alwall (Jul 2010) for the MG5aMC CPP backend.
 !==========================================================================
-! Copyright (C) 2020-2024 CERN and UCLouvain.
+! Copyright (C) 2020-2025 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-! Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+! Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 !==========================================================================
   //==========================================================================
   // A class for calculating the matrix elements for
@@ -52,16 +52,24 @@
     static constexpr int ndiagrams = %(ndiagrams)d; // #Feynman diagrams: e.g. 3 for e+ e- -> mu+ mu-
     static constexpr int ncolor = %(ncolor)s; // the number of leading colors: e.g. 1 for e+ e- -> mu+ mu-
 
+    // Process-dependent (and generation-choice-dependent) compile-time constants
+    static constexpr int ndiagramgroups = %(ndiagramgroups)d; // #groups of Feynman diagrams (with at most %(maxdiagramspergroup)d diagrams per group)
+
     // Hardcoded parameters for this process (constant class variables)
     // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]
     // [NB: these parameters (e.g. nwf) are P1-specific, i.e. they are different for different P1 subdirectories (#644)]
-    // [NB: I am currently unable to get the right value of nwf in CPPProcess.h - will hardcode it in CPPProcess.cc instead (#644)]
-    //static const int nwf = ??; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+    // [NB: I was unable to get the right value of nwf in CPPProcess.h directly, so I added it with a hack after generating CPPProcess.cc (#644)]
+    static const int nwf = __NWF__; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+
+    // Process-dependent (but event-independent) parameters and couplings
+    // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
+    // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
+    static const int nIPD = __NIPD__; // SM independent parameters (FIXME? rename as sm_IndepParam?)
+    static const int nIPC = __NIPC__; // SM independent couplings (FIXME? rename as sm_IndepCoupl?)
 
     // Other variables of this instance (???)
     //static const int ninitial = CPPProcess::npari;
     //static const int nexternal = %(nexternal)d; // CPPProcess::npar (nexternal was nioparticles)
-    //static const int nwavefuncs = %(nwavefuncs)d; // (?!?! this should be nwf but export_cpp gives the wrong value here)
     //static const int namplitudes = %(namp)d;
     //static const int ncomb = %(ncomb)d; // CPPProcess::ncomb
 

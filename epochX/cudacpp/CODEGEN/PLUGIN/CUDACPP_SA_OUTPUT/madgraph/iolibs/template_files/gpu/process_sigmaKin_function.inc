@@ -1,10 +1,10 @@
 ! Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 ! Created by: J. Alwall (Jul 2010) for the MG5aMC CPP backend.
 !==========================================================================
-! Copyright (C) 2020-2024 CERN and UCLouvain.
+! Copyright (C) 2020-2025 CERN and UCLouvain.
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-! Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+! Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 !==========================================================================
 #include "GpuAbstraction.h"
 
@@ -48,20 +48,37 @@
 
     // *** START OF PART 1a - CUDA (one event per GPU thread) ***
     // Use CUDA/HIP streams to process different helicities in parallel (one good helicity per stream)
-    // (1) First, within each helicity stream, compute the QCD partial amplitudes jamp's for each helicity
+    // (1a) First, within each helicity stream, compute the QCD partial amplitudes jamp's for each helicity
     // In multichannel mode, also compute the running sums over helicities of numerators, denominators and squared jamp2s
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
       fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
+      fptype* hAllWfs = ( ghelAllWfs ? ghelAllWfs + ighel * nwf * nevt * nw6 * mgOnGpu::nx2 : nullptr );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
-      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
+#ifndef MGONGPU_RDC_DIAGRAMS
+      calculate_jamps( allmomenta, allcouplings, hAllJamps, hAllWfs, allChannelIds, hAllNumerators, hAllDenominators, ghelStreams[ighel], gpublocks, gputhreads, ihel );
 #else
-      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], allmomenta, allcouplings, hAllJamps, hAllWfs, allChannelIds, hAllNumerators, hAllDenominators, ihel );
+#endif
+#else
+#ifndef MGONGPU_RDC_DIAGRAMS
+      calculate_jamps( allmomenta, allcouplings, hAllJamps, hAllWfs, ghelStreams[ighel], gpublocks, gputhreads, ihel );
+#else
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], allmomenta, allcouplings, hAllJamps, hAllWfs, ihel );
+#endif
 #endif
     }
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    // (1b) Then, in multichannel mode, also compute the running sums over helicities of squared jamp2s within each helicity stream
+    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+    {
+      fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
+      gpuLaunchKernelStream( update_jamp2s, gpublocks, gputhreads, ghelStreams[ighel], hAllJamps, colAllJamp2s, cNGoodHel );
+    }
+#endif
     // (2) Then compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
     color_sum_gpu( ghelAllMEs, ghelAllJamps, ghelAllBlasTmp, pBlasHandle, ghelStreams, cNGoodHel, gpublocks, gputhreads );
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
@@ -82,9 +99,9 @@
     // Delay color algebra and ME updates (only on even pages)
     assert( npagV %% 2 == 0 );     // SANITY CHECK for mixed fptypes: two neppV-pages are merged to one 2*neppV-page
     const int npagV2 = npagV / 2; // loop on two SIMD pages (neppV events) at a time
-#else
-    const int npagV2 = npagV;            // loop on one SIMD page (neppV events) at a time
-#endif
+#else /* clang-format off */
+    const int npagV2 = npagV; // loop on one SIMD page (neppV events) at a time
+#endif /* clang-format on */
 #ifdef _OPENMP
     // OMP multithreading #575 (NB: tested only with gcc11 so far)
     // See https://www.openmp.org/specifications/
@@ -106,9 +123,9 @@
     {
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       const int ievt00 = ipagV2 * neppV * 2; // loop on two SIMD pages (neppV events) at a time
-#else
+#else /* clang-format off */
       const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
-#endif
+#endif /* clang-format on */
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       // SCALAR channelId for the whole SIMD neppV2 event page (C++), i.e. one or two neppV event page(s)
       // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a neppV2 SIMD event page
@@ -153,18 +170,21 @@
       for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
-        cxtype_sv jamp_sv[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
+        cxtype_sv jamp_sv_1or2[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
+        calculate_jamps( allmomenta, allcouplings, jamp_sv_1or2, channelId, allNumerators, allDenominators, ievt00, ihel );
 #else
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 );
+        calculate_jamps( allmomenta, allcouplings, jamp_sv_1or2, ievt00, ihel );
 #endif
-        color_sum_cpu( allMEs, jamp_sv, ievt00 );
+        color_sum_cpu( allMEs, jamp_sv_1or2, ievt00 );
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
+        for( int iParity = 0; iParity < nParity; ++iParity )
+          for( int icol = 0; icol < ncolor; icol++ )
+            jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv_1or2[ncolor * iParity + icol] ); // may underflow #831
       }
       // Event-by-event random choice of helicity #403
       for( int ieppV = 0; ieppV < neppV; ++ieppV )

@@ -2,10 +2,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Sep 2010) for the MG5aMC backend.
 //==========================================================================
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.6.4, 2025-09-13
@@ -20,6 +20,11 @@
 
 #include "mgOnGpuVectors.h"
 
+#include "MemoryAccessAmplitudes.h"
+#include "MemoryAccessCouplings.h"
+#include "MemoryAccessCouplingsFixed.h"
+#include "MemoryAccessMomenta.h"
+#include "MemoryAccessWavefunctions.h"
 #include "Parameters_sm.h"
 
 #include <cassert>
@@ -36,18 +41,18 @@ namespace mg5amcCpu
 {
   //--------------------------------------------------------------------------
 
-#ifdef MGONGPU_INLINE_HELAMPS
+  // All helicity amplitude methods must be inline after removing templates
 #define INLINE inline
+#ifdef MGONGPU_INLINE_HELAMPS
 #define ALWAYS_INLINE __attribute__( ( always_inline ) )
 #else
-#define INLINE
 #define ALWAYS_INLINE
 #endif
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ INLINE void
   ixxxxx( const fptype momenta[], // input: momenta
           const fptype fmass,     // input: fermion mass
@@ -61,7 +66,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ INLINE void
   ipzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -75,7 +80,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ INLINE void
   imzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -89,7 +94,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ INLINE void
   ixzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -102,7 +107,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ INLINE void
   vxxxxx( const fptype momenta[], // input: momenta
           const fptype vmass,     // input: vector boson mass
@@ -115,7 +120,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction sc[3] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ INLINE void
   sxxxxx( const fptype momenta[], // input: momenta
           //const fptype,                 // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
@@ -128,7 +133,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ INLINE void
   oxxxxx( const fptype momenta[], // input: momenta
           const fptype fmass,     // input: fermion mass
@@ -142,7 +147,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ INLINE void
   opzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -156,7 +161,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ INLINE void
   omzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -169,7 +174,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ INLINE void
   oxzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -182,7 +187,7 @@ namespace mg5amcCpu
   //==========================================================================
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ void
   ixxxxx( const fptype momenta[], // input: momenta
           const fptype fmass,     // input: fermion mass
@@ -192,6 +197,13 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using M_ACCESS = DeviceAccessMomenta;              // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+#else
+    using M_ACCESS = HostAccessMomenta;                // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+#endif /* clang-format on */
     // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
     // Variables xxxDENOM are a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
     // Variables xxxDENOM are declared as 'volatile' to make sure they are not optimized away on clang! (#724)
@@ -290,7 +302,7 @@ namespace mg5amcCpu
       cxtype_sv chi[2] = { cxmake( (fptype_v)sqp0p3, 0. ),
                            cxternary( sqp0p3 == 0,
                                       cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0 ), 0. ),
-                                      cxmake( (fptype)nh * pvec1, pvec2 ) / (const fptype_v)sqp0p3DENOM ) }; // hack: dummy[ieppV] is not used if sqp0p3[ieppV]==0
+                                      cxmake( (fptype)nh * pvec1, pvec2 ) / (fptype_sv)sqp0p3DENOM ) }; // hack: dummy[ieppV] is not used if sqp0p3[ieppV]==0
 #else
       const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. and pvec2 == 0. and pvec3 < 0. ),
                                           fptype_sv{ 0 },
@@ -321,7 +333,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ void
   ipzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -331,6 +343,13 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using M_ACCESS = DeviceAccessMomenta;              // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+#else
+    using M_ACCESS = HostAccessMomenta;                // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+#endif /* clang-format on */
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
     fi[0] = cxmake( -pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
@@ -357,7 +376,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ void
   imzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -367,6 +386,13 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using M_ACCESS = DeviceAccessMomenta;              // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+#else
+    using M_ACCESS = HostAccessMomenta;                // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+#endif /* clang-format on */
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
     fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
@@ -393,7 +419,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ void
   ixzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -403,6 +429,13 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using M_ACCESS = DeviceAccessMomenta;              // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+#else
+    using M_ACCESS = HostAccessMomenta;                // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+#endif /* clang-format on */
     const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
@@ -438,7 +471,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction vc[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ void
   vxxxxx( const fptype momenta[], // input: momenta
           const fptype vmass,     // input: vector boson mass
@@ -448,6 +481,13 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using M_ACCESS = DeviceAccessMomenta;              // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+#else
+    using M_ACCESS = HostAccessMomenta;                // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+#endif /* clang-format on */
     // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
     // Variables xxxDENOM are a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
     // Variables xxxDENOM are declared as 'volatile' to make sure they are not optimized away on clang! (#724)
@@ -577,7 +617,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction sc[3] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ void
   sxxxxx( const fptype momenta[], // input: momenta
           //const fptype,                 // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
@@ -587,6 +627,13 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using M_ACCESS = DeviceAccessMomenta;              // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+#else
+    using M_ACCESS = HostAccessMomenta;                // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+#endif /* clang-format on */
     const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
@@ -602,7 +649,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ void
   oxxxxx( const fptype momenta[], // input: momenta
           const fptype fmass,     // input: fermion mass
@@ -612,6 +659,13 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using M_ACCESS = DeviceAccessMomenta;              // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+#else
+    using M_ACCESS = HostAccessMomenta;                // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+#endif /* clang-format on */
     // NEW IMPLEMENTATION FIXING FLOATING POINT EXCEPTIONS IN SIMD CODE (#701)
     // Variables xxxDENOM are a hack to avoid division-by-0 FPE while preserving speed (#701 and #727)
     // Variables xxxDENOM are declared as 'volatile' to make sure they are not optimized away on clang! (#724)
@@ -711,7 +765,7 @@ namespace mg5amcCpu
       const cxtype_v chi[2] = { cxmake( (fptype_v)sqp0p3, 0. ),
                                 cxternary( ( sqp0p3 == 0. ),
                                            cxmake( -nhel, 0. ) * fpsqrt( 2. * pvec0 ),
-                                           cxmake( (fptype)nh * pvec1, -pvec2 ) / (const fptype_sv)sqp0p3DENOM ) }; // hack: dummy[ieppV] is not used if sqp0p3[ieppV]==0
+                                           cxmake( (fptype)nh * pvec1, -pvec2 ) / (fptype_v)sqp0p3DENOM ) }; // hack: dummy[ieppV] is not used if sqp0p3[ieppV]==0
 #else
       const fptype_sv sqp0p3 = fpternary( ( pvec1 == 0. ) and ( pvec2 == 0. ) and ( pvec3 < 0. ),
                                           0,
@@ -742,7 +796,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == +PZ > 0)
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ void
   opzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -752,6 +806,13 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using M_ACCESS = DeviceAccessMomenta;              // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+#else
+    using M_ACCESS = HostAccessMomenta;                // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+#endif /* clang-format on */
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
     fo[0] = cxmake( pvec3 * (fptype)nsf, pvec3 * (fptype)nsf );
@@ -778,7 +839,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PX == PY == 0 and E == -PZ > 0)
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ void
   omzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -788,6 +849,13 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using M_ACCESS = DeviceAccessMomenta;              // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+#else
+    using M_ACCESS = HostAccessMomenta;                // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+#endif /* clang-format on */
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
     fo[0] = cxmake( -pvec3 * (fptype)nsf, pvec3 * (fptype)nsf ); // remember pvec0 == -pvec3
@@ -817,7 +885,7 @@ namespace mg5amcCpu
 
   // Compute the output wavefunction fo[6] from the input momenta[npar*4*nevt]
   // ASSUMPTIONS: (FMASS == 0) and (PT > 0)
-  template<class M_ACCESS, class W_ACCESS>
+  // [was: template<class M_ACCESS, class W_ACCESS>]
   __host__ __device__ void
   oxzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
@@ -827,6 +895,13 @@ namespace mg5amcCpu
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using M_ACCESS = DeviceAccessMomenta;              // non-trivial access: buffer includes all events
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+#else
+    using M_ACCESS = HostAccessMomenta;                // non-trivial access: buffer includes all events
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+#endif /* clang-format on */
     const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
@@ -860,24 +935,26 @@ namespace mg5amcCpu
   //==========================================================================
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  template<class W_ACCESS, class A_ACCESS, class C_ACCESS>
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV1_0( const fptype allF1[],
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F1[6]' from the input wavefunctions F2[6], V3[6]
-  template<class W_ACCESS, class C_ACCESS>
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV1_1( const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           const fptype M1,
           const fptype W1,
           fptype allF1[] ) ALWAYS_INLINE;
@@ -885,12 +962,13 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F2[6]' from the input wavefunctions F1[6], V3[6]
-  template<class W_ACCESS, class C_ACCESS>
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV1_2( const fptype allF1[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           const fptype M2,
           const fptype W2,
           fptype allF2[] ) ALWAYS_INLINE;
@@ -898,12 +976,13 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
-  template<class W_ACCESS, class C_ACCESS>
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   FFV1P0_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP[],
             const double Ccoeff,
+            const bool depCoup,
             const fptype M3,
             const fptype W3,
             fptype allV3[] ) ALWAYS_INLINE;
@@ -911,32 +990,45 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6]
-  template<class W_ACCESS, class A_ACCESS, class C_ACCESS>
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ INLINE void
   VVV1_0( const fptype allV1[],
           const fptype allV2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           fptype allvertexes[] ) ALWAYS_INLINE;
 
   //==========================================================================
 
   // Compute the output amplitude 'vertex' from the input wavefunctions F1[6], F2[6], V3[6]
-  template<class W_ACCESS, class A_ACCESS, class C_ACCESS>
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV1_0( const fptype allF1[],
           const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using A_ACCESS = DeviceAccessAmplitudes;           // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
+#else
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+    using A_ACCESS = HostAccessAmplitudes;             // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
+#endif /* clang-format on */
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
-    const cxtype_sv COUP = C_ACCESS::kernelAccessConst( allCOUP );
+    const cxtype_sv COUP = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP ) : CI_ACCESS::kernelAccessConst( allCOUP ) );
     cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     const cxtype_sv TMP0 = ( F1[2] * ( F2[4] * ( V3[2] + V3[5] ) + F2[5] * ( V3[3] + cI * V3[4] ) ) + ( F1[3] * ( F2[4] * ( V3[3] - cI * V3[4] ) + F2[5] * ( V3[2] - V3[5] ) ) + ( F1[4] * ( F2[2] * ( V3[2] - V3[5] ) - F2[3] * ( V3[3] + cI * V3[4] ) ) + F1[5] * ( F2[2] * ( -V3[3] + cI * V3[4] ) + F2[3] * ( V3[2] + V3[5] ) ) ) ) );
@@ -948,20 +1040,30 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F1[6]' from the input wavefunctions F2[6], V3[6]
-  template<class W_ACCESS, class C_ACCESS>
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV1_1( const fptype allF2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           const fptype M1,
           const fptype W1,
           fptype allF1[] )
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
+#else
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
+#endif /* clang-format on */
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
-    const cxtype_sv COUP = C_ACCESS::kernelAccessConst( allCOUP );
+    const cxtype_sv COUP = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP ) : CI_ACCESS::kernelAccessConst( allCOUP ) );
     cxtype_sv* F1 = W_ACCESS::kernelAccess( allF1 );
     const cxtype cI = cxmake( 0., 1. );
     F1[0] = +F2[0] + V3[0];
@@ -980,20 +1082,30 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'F2[6]' from the input wavefunctions F1[6], V3[6]
-  template<class W_ACCESS, class C_ACCESS>
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV1_2( const fptype allF1[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           const fptype M2,
           const fptype W2,
           fptype allF2[] )
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
+#else
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
+#endif /* clang-format on */
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
-    const cxtype_sv COUP = C_ACCESS::kernelAccessConst( allCOUP );
+    const cxtype_sv COUP = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP ) : CI_ACCESS::kernelAccessConst( allCOUP ) );
     cxtype_sv* F2 = W_ACCESS::kernelAccess( allF2 );
     const cxtype cI = cxmake( 0., 1. );
     F2[0] = +F1[0] + V3[0];
@@ -1012,20 +1124,30 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction 'V3[6]' from the input wavefunctions F1[6], F2[6]
-  template<class W_ACCESS, class C_ACCESS>
+  // [was: template<class W_ACCESS, class CID_ACCESS>]
   __device__ void
   FFV1P0_3( const fptype allF1[],
             const fptype allF2[],
             const fptype allCOUP[],
             const double Ccoeff,
+            const bool depCoup,
             const fptype M3,
             const fptype W3,
             fptype allV3[] )
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
+#else
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
+#endif /* clang-format on */
     const cxtype_sv* F1 = W_ACCESS::kernelAccessConst( allF1 );
     const cxtype_sv* F2 = W_ACCESS::kernelAccessConst( allF2 );
-    const cxtype_sv COUP = C_ACCESS::kernelAccessConst( allCOUP );
+    const cxtype_sv COUP = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP ) : CI_ACCESS::kernelAccessConst( allCOUP ) );
     cxtype_sv* V3 = W_ACCESS::kernelAccess( allV3 );
     const cxtype cI = cxmake( 0., 1. );
     V3[0] = +F1[0] + F2[0];
@@ -1043,20 +1165,32 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Compute the output amplitude 'vertex' from the input wavefunctions V1[6], V2[6], V3[6]
-  template<class W_ACCESS, class A_ACCESS, class C_ACCESS>
+  // [was: template<class W_ACCESS, class A_ACCESS, class CID_ACCESS>]
   __device__ void
   VVV1_0( const fptype allV1[],
           const fptype allV2[],
           const fptype allV3[],
           const fptype allCOUP[],
           const double Ccoeff,
+          const bool depCoup,
           fptype allvertexes[] )
   {
     mgDebug( 0, __FUNCTION__ );
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+    using W_ACCESS = DeviceAccessWavefunctionsTrivial; // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using A_ACCESS = DeviceAccessAmplitudes;           // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = DeviceAccessCouplings;           // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = DeviceAccessCouplingsFixed;      // TRIVIAL access (independent couplings): buffer for one event
+#else
+    using W_ACCESS = HostAccessWavefunctions;          // non-trivial access (with kernel splitting): buffer includes all events
+    using A_ACCESS = HostAccessAmplitudes;             // TRIVIAL ACCESS (local variable for one event): buffer for one event
+    using CD_ACCESS = HostAccessCouplings;             // non-trivial access (dependent couplings): buffer includes all events
+    using CI_ACCESS = HostAccessCouplingsFixed;        // TRIVIAL access (independent couplings): buffer for one event
+#endif /* clang-format on */
     const cxtype_sv* V1 = W_ACCESS::kernelAccessConst( allV1 );
     const cxtype_sv* V2 = W_ACCESS::kernelAccessConst( allV2 );
     const cxtype_sv* V3 = W_ACCESS::kernelAccessConst( allV3 );
-    const cxtype_sv COUP = C_ACCESS::kernelAccessConst( allCOUP );
+    const cxtype_sv COUP = ( depCoup ? CD_ACCESS::kernelAccessConst( allCOUP ) : CI_ACCESS::kernelAccessConst( allCOUP ) );
     cxtype_sv* vertex = A_ACCESS::kernelAccess( allvertexes );
     const cxtype cI = cxmake( 0., 1. );
     const fptype_sv P1[4] = { +cxreal( V1[0] ), +cxreal( V1[1] ), +cximag( V1[1] ), +cximag( V1[0] ) };

@@ -1,10 +1,10 @@
 // Copyright (C) 2010 The MadGraph5_aMC@NLO development team and contributors.
 // Created by: J. Alwall (Oct 2010) for the MG5aMC CPP backend.
 //==========================================================================
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2025) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 // MadGraph5_aMC@NLO v. 3.6.4, 2025-09-13
@@ -78,16 +78,24 @@ namespace mg5amcCpu
     static constexpr int ndiagrams = 123; // #Feynman diagrams: e.g. 3 for e+ e- -> mu+ mu-
     static constexpr int ncolor = 24; // the number of leading colors: e.g. 1 for e+ e- -> mu+ mu-
 
+    // Process-dependent (and generation-choice-dependent) compile-time constants
+    static constexpr int ndiagramgroups = 1; // #groups of Feynman diagrams (with at most 2000 diagrams per group)
+
     // Hardcoded parameters for this process (constant class variables)
     // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]
     // [NB: these parameters (e.g. nwf) are P1-specific, i.e. they are different for different P1 subdirectories (#644)]
-    // [NB: I am currently unable to get the right value of nwf in CPPProcess.h - will hardcode it in CPPProcess.cc instead (#644)]
-    //static const int nwf = ??; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+    // [NB: I was unable to get the right value of nwf in CPPProcess.h directly, so I added it with a hack after generating CPPProcess.cc (#644)]
+    static const int nwf = 26; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
+
+    // Process-dependent (but event-independent) parameters and couplings
+    // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
+    // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
+    static const int nIPD = 2; // SM independent parameters (FIXME? rename as sm_IndepParam?)
+    static const int nIPC = 0; // SM independent couplings (FIXME? rename as sm_IndepCoupl?)
 
     // Other variables of this instance (???)
     //static const int ninitial = CPPProcess::npari;
     //static const int nexternal = 6; // CPPProcess::npar (nexternal was nioparticles)
-    //static const int nwavefuncs = 6; // (?!?! this should be nwf but export_cpp gives the wrong value here)
     //static const int namplitudes = 159;
     //static const int ncomb = 64; // CPPProcess::ncomb
 
@@ -129,10 +137,11 @@ namespace mg5amcCpu
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                       fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
-                       fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
+                       fptype* allNumerators,      // output: numerators[nevt], running_sum_over_helicities
+                       fptype* allDenominators,    // output: denominators[nevt], running_sum_over_helicities
 #endif
-                       fptype_sv* allJamps,        // output: jamp[ncolor*2*nevt]
+                       fptype* allJamps,           // output: jamp[ncolor*2*nevt]
+                       fptype* allWfs,             // output: wf[nwf*nw6*2*nevt]
                        bool* isGoodHel,            // output: isGoodHel[ncomb] - device array (GPU device implementation)
                        const int nevt );           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
@@ -141,8 +150,8 @@ namespace mg5amcCpu
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                       fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
-                       fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
+                       fptype* allNumerators,      // output: numerators[nevt], running_sum_over_helicities
+                       fptype* allDenominators,    // output: denominators[nevt], running_sum_over_helicities
 #endif
                        bool* isGoodHel,            // output: isGoodHel[ncomb] - host array (C++ implementation)
                        const int nevt );           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
@@ -162,7 +171,7 @@ namespace mg5amcCpu
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
-            const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
+            const unsigned int* allChannelIds,  // input: channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
 #endif
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
             int* allselhel,                     // output: helicity selection[nevt]
@@ -173,8 +182,9 @@ namespace mg5amcCpu
             fptype* ghelAllDenominators,        // tmp: allDenominators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
-            fptype* ghelAllJamps,               // tmp: allJamps super-buffer[2][ncol][nGoodHel][nevt] for nGoodHel <= ncomb individual helicities
-            fptype2* ghelAllBlasTmp,            // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities
+            fptype* ghelAllJamps,               // tmp: allJamps super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            fptype* ghelAllWfs,                 // tmp: allWfs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            fptype2* ghelAllBlasTmp,            // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             gpuBlasHandle_t* pBlasHandle,       // input: cuBLAS/hipBLAS handle
             gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
             const int gpublocks,                // input: cuda gpublocks
@@ -186,14 +196,14 @@ namespace mg5amcCpu
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
-            const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899)
+            const unsigned int* allChannelIds,  // input: channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899)
 #endif
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
             int* allselhel,                     // output: helicity selection[nevt]
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             int* allselcol,                     // output: helicity selection[nevt]
-            fptype* allNumerators,              // tmp: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,            // tmp: multichannel denominators[nevt], running_sum_over_helicities
+            fptype* allNumerators,              // tmp: numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,            // tmp: denominators[nevt], running_sum_over_helicities
 #endif
             const int nevt );                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif /* clang-format on */

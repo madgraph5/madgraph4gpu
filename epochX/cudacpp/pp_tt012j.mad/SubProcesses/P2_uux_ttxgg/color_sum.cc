@@ -19,6 +19,17 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  // Special handling of very large color matrices (e.g. 520 x 520 in gg_ttggggg)
+#ifdef MGONGPUCPP_GPUIMPL
+#ifndef MGONGPU_COLORMATRIX_NOCONSTEXPR
+#define CONSTEXPR1_COLORMATRIX constexpr
+#define CONSTEXPR2_COLORMATRIX constexpr
+#else
+#define CONSTEXPR1_COLORMATRIX
+#define CONSTEXPR2_COLORMATRIX const
+#endif
+#endif
+
   // *** COLOR MATRIX BELOW ***
 
   // The color denominators (initialize all array elements, with ncolor=12)
@@ -46,7 +57,7 @@ namespace mg5amcCpu
   template<typename T>
   struct NormalizedColorMatrix
   {
-    constexpr __host__ __device__ NormalizedColorMatrix()
+    CONSTEXPR1_COLORMATRIX __host__ NormalizedColorMatrix()
       : value()
     {
       for( int icol = 0; icol < ncolor; icol++ )
@@ -68,7 +79,7 @@ namespace mg5amcCpu
     if( first )
     {
       first = false;
-      constexpr NormalizedColorMatrix<fptype2> normalizedColorMatrix2;
+      CONSTEXPR2_COLORMATRIX NormalizedColorMatrix<fptype2> normalizedColorMatrix2;
       gpuMemcpyToSymbol( s_pNormalizedColorMatrix2, normalizedColorMatrix2.value, ncolor * ncolor * sizeof( fptype2 ) );
     }
   }
