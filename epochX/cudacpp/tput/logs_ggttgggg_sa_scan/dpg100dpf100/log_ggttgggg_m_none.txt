@@ -1,0 +1,65 @@
+INFO: Env variable CUDACPP_RUNTIME_GOODHELICITIES equals "ALL": keep all helicities
+*******************************************************************************
+Process                     = SIGMA_SM_GG_TTXGGGG_CPP [gcc 11.5.0] [inlineHel=0] [hardcodePARAM=0]
+NumBlocksPerGrid            = 1
+NumThreadsPerBlock          = 16
+NumIterations               = 1
+-------------------------------------------------------------------------------
+Workflow summary            = CPP:MIX+CXS:COMMON+RMBHST+MESHST/none+NAVBRK
+FP precision                = MIXED (NaN/abnormal=0, zero=0)
+Complex type                = CXSIMPLE
+RanNumb memory layout       = AOSOA[8] [HARDCODED FOR REPRODUCIBILITY]
+Momenta memory layout       = AOSOA[1] == AOS
+Internal loops fptype_sv    = SCALAR ('none': ~vector[1], no SIMD)
+Random number generation    = COMMON RANDOM HOST (C++ code)
+-------------------------------------------------------------------------------
+HelicityComb Good/Tot       = 256/256
+-------------------------------------------------------------------------------
+NumberOfEntries             = 1
+TotalTime[Rnd+Rmb+ME] (123) = ( 7.181654e+00                 )  sec
+TotalTime[Rambo+ME]    (23) = ( 7.181647e+00                 )  sec
+TotalTime[RndNumGen]    (1) = ( 7.054000e-06                 )  sec
+TotalTime[Rambo]        (2) = ( 1.751100e-05                 )  sec
+TotalTime[MatrixElems]  (3) = ( 7.181629e+00                 )  sec
+MeanTimeInMatrixElems       = ( 7.181629e+00                 )  sec
+[Min,Max]TimeInMatrixElems  = [ 7.181629e+00 ,  7.181629e+00 ]  sec
+TotalTime[MECalcOnly]  (3a) = ( 7.181629e+00                 )  sec
+MeanTimeInMECalcOnly        = ( 7.181629e+00                 )  sec
+[Min,Max]TimeInMECalcOnly   = [ 7.181629e+00 ,  7.181629e+00 ]  sec
+-------------------------------------------------------------------------------
+TotalEventsComputed         = 16
+EvtsPerSec[Rnd+Rmb+ME](123) = ( 2.227899e+00                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 2.227901e+00                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.227907e+00                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.227907e+00                 )  sec^-1
+*******************************************************************************
+NumMatrixElems(notAbnormal) = 16
+MeanMatrixElemValue         = ( 2.707047e-10 +- 1.412454e-10 )  GeV^-8
+[Min,Max]MatrixElemValue    = [ 1.684223e-13 ,  2.137785e-09 ]  GeV^-8
+StdDevMatrixElemValue       = ( 5.649814e-10                 )  GeV^-8
+MeanWeight                  = ( 5.279813e+01 +- 0.000000e+00
+[Min,Max]Weight             = [ 5.279813e+01 ,  5.279813e+01 ]
+StdDevWeight                = ( 0.000000e+00                 )
+*******************************************************************************
+0a ProcInit :     0.000150 sec
+0b MemAlloc :     0.000004 sec
+0c GenCreat :     0.000008 sec
+0e SGoodHel :     0.000016 sec
+1a GenSeed  :     0.000001 sec
+1b GenRnGen :     0.000006 sec
+2a RamboIni :     0.000001 sec
+2b RamboFin :     0.000017 sec
+3a SigmaKin :     7.181629 sec
+4@ UpdtStat :     0.000009 sec
+4a DumpLoop :     0.000001 sec
+8a CompStat :     0.000004 sec
+9a DumpScrn :     0.000084 sec
+9b DumpJson :     0.000001 sec
+TOTAL       :     7.181931 sec
+TOTAL (123) :     7.181654 sec
+TOTAL  (23) :     7.181647 sec
+TOTAL   (1) :     0.000007 sec
+TOTAL   (2) :     0.000018 sec
+TOTAL   (3) :     7.181629 sec
+TOTAL  (3a) :     7.181629 sec
+*******************************************************************************
