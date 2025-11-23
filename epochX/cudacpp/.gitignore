@@ -6,3 +6,5 @@ run_[0-9]*
 events.lhe*
 
 py3_model.pkl
+
+perf.data*

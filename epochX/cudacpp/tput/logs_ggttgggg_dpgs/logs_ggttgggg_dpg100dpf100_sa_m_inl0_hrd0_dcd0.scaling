@@ -1,0 +1,8 @@
+2.885406e+00    1  32
+5.911955e+00    2  32
+1.085650e+01    4  32
+2.121914e+01    8  32
+4.044503e+01   16  32
+check_cuda.exe: Assertion failed   32  32
+check_cuda.exe: Assertion failed   64  32
+check_cuda.exe: Assertion failed  128  32

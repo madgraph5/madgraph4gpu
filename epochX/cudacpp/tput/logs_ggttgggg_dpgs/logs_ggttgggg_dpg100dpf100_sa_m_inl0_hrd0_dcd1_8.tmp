@@ -1,0 +1,71 @@
+INFO: Env variable CUDACPP_RUNTIME_BLASCOLORSUM is empty or not set: disable BLAS
+INFO: Env variable CUDACPP_RUNTIME_GOODHELICITIES equals "ALL": keep all helicities
+*******************************************************************************
+Process                     = SIGMA_SM_GG_TTXGGGG_CUDA [nvcc 12.4.131 (gcc 11.5.0)] [inlineHel=0] [hardcodePARAM=0]
+ [dcDiag=0]
+NumBlocksPerGrid            = 8
+NumThreadsPerBlock          = 32
+NumIterations               = 1
+-------------------------------------------------------------------------------
+Workflow summary            = CUD:MIX+THX:CURDEV+RMBDEV+MESDEV/none+NAVBRK
+FP precision                = MIXED (NaN/abnormal=0, zero=0)
+Complex type                = THRUST::COMPLEX
+RanNumb memory layout       = AOSOA[8] [HARDCODED FOR REPRODUCIBILITY]
+Momenta memory layout       = AOSOA[4]
+Random number generation    = CURAND DEVICE (CUDA code)
+-------------------------------------------------------------------------------
+HelicityComb Good/Tot       = 256/256
+-------------------------------------------------------------------------------
+NumberOfEntries             = 1
+TotalTime[Rnd+Rmb+ME] (123) = ( 1.204722e+00                 )  sec
+TotalTime[Rambo+ME]    (23) = ( 1.199328e+00                 )  sec
+TotalTime[RndNumGen]    (1) = ( 5.393702e-03                 )  sec
+TotalTime[Rambo]        (2) = ( 4.020060e-04                 )  sec
+TotalTime[MatrixElems]  (3) = ( 1.198926e+00                 )  sec
+MeanTimeInMatrixElems       = ( 1.198926e+00                 )  sec
+[Min,Max]TimeInMatrixElems  = [ 1.198926e+00 ,  1.198926e+00 ]  sec
+TotalTime[MECalcOnly]  (3a) = ( 1.198897e+00                 )  sec
+MeanTimeInMECalcOnly        = ( 1.198897e+00                 )  sec
+[Min,Max]TimeInMECalcOnly   = [ 1.198897e+00 ,  1.198897e+00 ]  sec
+-------------------------------------------------------------------------------
+TotalEventsComputed         = 256
+EvtsPerSec[Rnd+Rmb+ME](123) = ( 2.124971e+02                 )  sec^-1
+EvtsPerSec[Rmb+ME]     (23) = ( 2.134528e+02                 )  sec^-1
+EvtsPerSec[MatrixElems] (3) = ( 2.135244e+02                 )  sec^-1
+EvtsPerSec[MECalcOnly] (3a) = ( 2.135295e+02                 )  sec^-1
+*******************************************************************************
+NumMatrixElems(notAbnormal) = 256
+MeanMatrixElemValue         = ( 1.750755e-07 +- 1.584356e-07 )  GeV^-8
+[Min,Max]MatrixElemValue    = [ 1.027814e-14 ,  4.052880e-05 ]  GeV^-8
+StdDevMatrixElemValue       = ( 2.534969e-06                 )  GeV^-8
+MeanWeight                  = ( 5.279813e+01 +- 0.000000e+00
+[Min,Max]Weight             = [ 5.279813e+01 ,  5.279813e+01 ]
+StdDevWeight                = ( 0.000000e+00                 )
+*******************************************************************************
+ 0.. CpHTDg :     0.000013 sec
+ 00 GpuInit :     0.231624 sec
+0a ProcInit :     0.327343 sec
+0b MemAlloc :     0.003195 sec
+0c GenCreat :     0.003138 sec
+0e SGoodHel :     0.017252 sec
+1a GenSeed  :     0.001290 sec
+1b GenRnGen :     0.004104 sec
+2a RamboIni :     0.000282 sec
+2b RamboFin :     0.000086 sec
+2c CpDTHwgt :     0.000019 sec
+2d CpDTHmom :     0.000015 sec
+3a SigmaKin :     1.198897 sec
+3b CpDTHmes :     0.000029 sec
+4@ UpdtStat :     0.000011 sec
+4a DumpLoop :     0.000004 sec
+8a CompStat :     0.000008 sec
+9a DumpScrn :     0.000600 sec
+9b DumpJson :     0.000004 sec
+TOTAL       :     1.787915 sec
+TOTAL (123) :     1.204722 sec
+TOTAL  (23) :     1.199328 sec
+TOTAL   (1) :     0.005394 sec
+TOTAL   (2) :     0.000402 sec
+TOTAL   (3) :     1.198926 sec
+TOTAL  (3a) :     1.198897 sec
+*******************************************************************************

@@ -5,12 +5,14 @@
 # Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
 
 scrdir=$(cd $(dirname $0); pwd)
-bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp or alpaka
+bckend=$(basename $(cd $scrdir; cd ..; pwd)) # cudacpp (or alpaka in the past)
 cd $scrdir
+
+###echo RUN "'$0 $*'"; exit 1 # FOR DEBUGGING
 
 function usage()
 {
-  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt]> [-nocuda] [-sa] [-noalpaka] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-makeonly] [-makeclean] [-makej] [-scaling] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
+  echo "Usage: $0 <processes [-eemumu][-ggtt][-ggttg][-ggttgg][-ggttggg][-gqttq][-heftggbb][-susyggtt][-susyggt1t1][-smeftggtttt][-ggttg5]> [-nocuda] [-sa] [-dblonly|-fltonly|-d_f|-dmf] [-inl|-inlonly] [-hrd|-hrdonly] [-dcd|-dcdonly] [-common|-curhst] [-rmbhst|-bridge] [-noBlas|-blasOn] [-useGraphs] [-makeonly] [-makeclean] [-makej] [-scaling] [-dlp <dyld_library_path>]" # -nofpe is no longer supported
   exit 1
 }
 
@@ -25,15 +27,17 @@ heftggbb=
 susyggtt=
 susyggt1t1=
 smeftggtttt=
+ggttg5=
 bldall=-bldall
 suffs="mad" # DEFAULT code base: madevent + cudacpp as 2nd exporter (logs_*_mad)
-alpaka=
 fptypes="m" # new default #995 (was "d")
 helinls="0"
 hrdcods="0"
+dcdiags="0"
 rndgen=
 rmbsmp=
 blas="" # build with blas but disable it at runtime
+graphs=""
 steps="make test"
 makej=
 scaling=
@@ -77,14 +81,15 @@ for arg in $*; do
   elif [ "$arg" == "-smeftggtttt" ]; then
     if [ "$smeftggtttt" == "" ]; then procs+=${procs:+ }${arg}; fi
     smeftggtttt=$arg
+  elif [ "$arg" == "-ggttg5" ]; then
+    if [ "$ggttg5" == "" ]; then procs+=${procs:+ }${arg}; fi
+    ggttg5=$arg
   elif [ "$arg" == "-cpponly" ]; then
     bldall=-cpponly
   elif [ "$arg" == "-nocuda" ]; then
     bldall=-nocuda
   elif [ "$arg" == "-sa" ]; then
     suffs="sa" # standalone_cudacpp code base (logs_*_sa)
-  elif [ "$arg" == "-noalpaka" ]; then
-    alpaka=$arg
   elif [ "$arg" == "-dblonly" ]; then
     if [ "${fptypes}" != "m" ] && [ "${fptypes}" != "d" ]; then echo "ERROR! Options -dblonly, -fltonly, -d_f and -dmf are incompatible"; usage; fi
     fptypes="d"
@@ -109,6 +114,12 @@ for arg in $*; do
   elif [ "$arg" == "-hrdonly" ]; then
     if [ "${hrdcods}" == "0 1" ]; then echo "ERROR! Options -hrd and -hrdonly are incompatible"; usage; fi
     hrdcods="1"
+  elif [ "$arg" == "-dcd" ]; then
+    if [ "${dcdiags}" == "1" ]; then echo "ERROR! Options -dcd and -dcdonly are incompatible"; usage; fi
+    dcdiags="0 1"
+  elif [ "$arg" == "-dcdonly" ]; then
+    if [ "${dcdiags}" == "0 1" ]; then echo "ERROR! Options -dcd and -dcdonly are incompatible"; usage; fi
+    dcdiags="1"
   elif [ "$arg" == "-common" ]; then
     rndgen=$arg
   elif [ "$arg" == "-curhst" ]; then
@@ -125,6 +136,8 @@ for arg in $*; do
   elif [ "$arg" == "-blasOn" ]; then # build with blas and enable it at runtime
     if [ "${blas}" == "-noBlas" ]; then echo "ERROR! Options -noBlas and -blasOn are incompatible"; usage; fi
     blas=$arg
+  elif [ "$arg" == "-useGraphs" ]; then
+    graphs=$arg
   elif [ "$arg" == "-makeonly" ]; then
     if [ "${steps}" == "make test" ]; then
       steps="make"
@@ -151,17 +164,11 @@ done
 # Workaround for MacOS SIP (SystemIntegrity Protection): set DYLD_LIBRARY_PATH In subprocesses
 if [ "${dlpset}" == "1" ]; then usage; fi
 
-# Use only the .auto process directories in the alpaka directory
-if [ "$bckend" == "alpaka" ]; then
-  echo "WARNING! alpaka directory: using .auto process directories only"
-  suffs="auto"
-fi
-
 #echo "procs=$procs"
 #echo "suffs=$suffs"
-#echo "df=$df"
-#echo "inl=$inl"
-#echo "hrd=$hrd"
+#echo "helinls=$helinls"
+#echo "hrdcods=$hrdcods"
+#echo "dcdiags=$dcdiags"
 #echo "steps=$steps"
 ###exit 0
 
@@ -181,37 +188,42 @@ for step in $steps; do
           inl=; if [ "${helinl}" == "1" ]; then inl=" -inlonly"; fi
           for hrdcod in $hrdcods; do
             hrd=; if [ "${hrdcod}" == "1" ]; then hrd=" -hrdonly"; fi
-            args="${proc}${sa}${flt}${inl}${hrd} ${dlp}"
-            args="${args} ${alpaka}" # optionally disable alpaka tests
-            args="${args} ${rndgen}" # optionally use common random numbers or curand on host
-            args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
-            args="${args} ${scaling}" # optionally run scaling tests
-            args="${args} ${blas}" # optionally build with no blas or instead enable it at runtime
-            ###args="${args} ${nofpe}" # optionally disable FPEs
-            args="${args} ${bldall}" # avx, fptype, helinl and hrdcod are now supported for all processes
-            if [ "${step}" == "makeclean" ]; then
-              printf "\n%80s\n" |tr " " "*"
-              printf "*** ./throughputX.sh -makecleanonly $args"
-              printf "\n%80s\n" |tr " " "*"
-              if ! ./throughputX.sh -makecleanonly $args; then exit 1; fi
-            elif [ "${step}" == "make" ]; then
-              printf "\n%80s\n" |tr " " "*"
-              printf "*** ./throughputX.sh -makeonly ${makej} $args"
-              printf "\n%80s\n" |tr " " "*"
-              if ! ./throughputX.sh -makeonly ${makej} $args; then exit 1; fi
-            else
-              logfile=logs_${proc#-}_${sufflog}/log_${proc#-}_${sufflog}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
-              if [ "${rndgen}" != "" ]; then logfile=${logfile%.txt}_${rndgen#-}.txt; fi
-              if [ "${rmbsmp}" != "" ]; then logfile=${logfile%.txt}_${rmbsmp#-}.txt; fi
-              if [ "${blas}" != "" ]; then logfile=${logfile%.txt}_${blas#-}.txt; fi
-              if [ "${scaling}" != "" ]; then logfile=${logfile%.txt}.scaling; fi
-              printf "\n%80s\n" |tr " " "*"
-              printf "*** ./throughputX.sh $args | tee $logfile"
-              printf "\n%80s\n" |tr " " "*"
-              mkdir -p $(dirname $logfile)
-              ./throughputX.sh $args -gtest | tee $logfile 
-              if [ ${PIPESTATUS[0]} -ne "0" ]; then status=2; fi
-            fi
+            for dcdiag in $dcdiags; do
+              dcd=; if [ "${dcdiag}" == "1" ]; then dcd=" -dcdonly"; fi
+              args="${proc}${sa}${flt}${inl}${hrd}${dcd} ${dlp}"
+              args="${args} ${rndgen}" # optionally use common random numbers or curand on host
+              args="${args} ${rmbsmp}" # optionally use rambo or bridge on host
+              args="${args} ${scaling}" # optionally run scaling tests
+              args="${args} ${blas}" # optionally build with no blas or instead enable it at runtime
+              args="${args} ${graphs}" # optionally run with CUDA Graphs
+              ###args="${args} ${nofpe}" # optionally disable FPEs
+              args="${args} ${bldall}" # avx, fptype, helinl and hrdcod are now supported for all processes
+              if [ "${step}" == "makeclean" ]; then
+                printf "\n%80s\n" |tr " " "*"
+                printf "*** ./throughputX.sh -makecleanonly $args"
+                printf "\n%80s\n" |tr " " "*"
+                if ! ./throughputX.sh -makecleanonly $args; then exit 1; fi
+              elif [ "${step}" == "make" ]; then
+                printf "\n%80s\n" |tr " " "*"
+                printf "*** ./throughputX.sh -makeonly ${makej} $args"
+                printf "\n%80s\n" |tr " " "*"
+                if ! ./throughputX.sh -makeonly ${makej} $args; then exit 1; fi
+              else
+                logfile=logs_${proc#-}_${sufflog}/log_${proc#-}_${sufflog}_${fptype}_inl${helinl}_hrd${hrdcod}.txt
+                if [ "${dcdiag}" == "1" ]; then logfile=${logfile%.txt}_dcd${dcdiag}.txt; fi # add _dcd1 suffix but not _dcd0
+                if [ "${rndgen}" != "" ]; then logfile=${logfile%.txt}_${rndgen#-}.txt; fi
+                if [ "${rmbsmp}" != "" ]; then logfile=${logfile%.txt}_${rmbsmp#-}.txt; fi
+                if [ "${blas}" != "" ]; then logfile=${logfile%.txt}_${blas#-}.txt; fi
+                if [ "${graphs}" != "" ]; then logfile=${logfile%.txt}_graphs.txt; fi
+                if [ "${scaling}" != "" ]; then logfile=${logfile%.txt}.scaling; fi
+                printf "\n%80s\n" |tr " " "*"
+                printf "*** ./throughputX.sh $args | tee $logfile"
+                printf "\n%80s\n" |tr " " "*"
+                mkdir -p $(dirname $logfile)
+                ./throughputX.sh $args -gtest | tee $logfile 
+                if [ ${PIPESTATUS[0]} -ne "0" ]; then status=2; fi
+              fi
+            done
           done
         done
       done

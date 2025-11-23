@@ -44,6 +44,7 @@ endif
 ###$(info GPUFLAGS=$(GPUFLAGS))
 ###$(info GPULANGUAGE=$(GPULANGUAGE))
 ###$(info GPUSUFFIX=$(GPUSUFFIX))
+###$(info GPULIBFLAGS=$(GPULIBFLAGS))
 
 #-------------------------------------------------------------------------------
 
@@ -158,7 +159,7 @@ $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects)
 else
 $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so : $(cxx_objects) $(gpu_objects)
 	@if [ ! -d $(LIBDIR) ]; then echo "mkdir -p $(LIBDIR)"; mkdir -p $(LIBDIR); fi
-	$(GPUCC) -shared -o $@ $(cxx_objects) $(gpu_objects) $(LDFLAGS)
+	$(GPUCC) -shared -o $@ $(cxx_objects) $(gpu_objects) $(LDFLAGS) $(GPULIBFLAGS)
 endif
 
 #-------------------------------------------------------------------------------

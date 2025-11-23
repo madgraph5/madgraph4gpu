@@ -1,7 +1,7 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jul 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef MGONGPUCONFIG_H
 #define MGONGPUCONFIG_H 1
@@ -88,6 +88,14 @@
 // ** NB: Note however that it now only refers to cIPD parameters (cIPC parameters are always accessed through global memory)
 //#undef MGONGPU_HARDCODE_PARAM // default
 ////#define MGONGPU_HARDCODE_PARAM 1
+
+#ifdef MGONGPUCPP_GPUIMPL
+// Choose whether to treat Feynman diagram groups as relocatable device code and merge them into a single kernel,
+// instead of treating each diagram group as an individual GPU kernel
+// By default, treat diagram groups as kernels, but allow this macro to be set from outside with e.g. -DMGONGPU_RDC_DIAGRAMS
+//#undef MGONGPU_RDC_DIAGRAMS // default
+////#define MGONGPU_RDC_DIAGRAMS 1
+#endif
 
 /* clang-format off */
 // Complex type in CUDA: thrust or cucomplex or cxsmpl (CHOOSE ONLY ONE)
