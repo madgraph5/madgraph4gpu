@@ -9,7 +9,13 @@ set -e # exit on error
 OUTFILE=""
 scrdir=$(cd $(dirname ${0}); pwd -P)
 
-if [ "${HOSTNAME}" == "itscrd-a100.cern.ch" ]; then node=a100; else node=rd90; fi
+if [ "${HOSTNAME}" == "itscrd-a100.cern.ch" ]; then
+  node=a100
+elif [ "${HOSTNAME}" == "itgold91.cern.ch" ]; then
+  node=gold
+else
+  node=rd90
+fi
 
 function runDirFpBld()
 {
@@ -55,6 +61,8 @@ function runDirFpBld()
   # Check.exe command
   if [ "${bld}" == "cuda" ]; then cc=cuda; else cc=cpp; fi
   cmd="./build.${bld}_${fp}_inl0_hrd0${dcd}/check_${cc}.exe -p ${arg}"
+  # Use common random numbers to allow comparisons between CUDA/a100 and SIMD/gold
+  cmd="${cmd} --common"
   # Skip helicity filtering (this test is designed for gg_ttgggg+)
   export CUDACPP_RUNTIME_GOODHELICITIES=ALL
   # Banner
@@ -117,9 +125,31 @@ function runggtt4gCuda()
   ###if [ "${OUTFILE}" != "" ]; then echo; echo "Result file: ${OUTFILE}"; cat ${OUTFILE}; fi
 }
 
+function runggtt4gSimd()
+{
+  if [ "$1" != "" ]; then echo "Usage $0"; exit 1; fi
+  fp=m
+  ###OUTFILE=${scrdir}/cs_${node}_ggttgggg_scan_${fp}.txt; \rm -f ${OUTFILE} # save results to file
+  dir100=${scrdir}/../../gg_ttgggg.dpg100dpf100.sa/SubProcesses/P1_Sigma_sm_gg_ttxgggg
+  dir1000=${scrdir}/../../gg_ttgggg.dpg1000dpf1000.sa/SubProcesses/P1_Sigma_sm_gg_ttxgggg
+  ###for dir in $dir100; do # QUICK TEST
+  for dir in $dir100 $dir1000; do
+    ###for bld0 in 512z; do # QUICK TEST
+    for bld0 in none sse4 avx2 512y 512z; do
+      cd $dir
+      runDirFpBld . ${fp} ${bld0} "1 32 1"
+    done
+    echo
+  done
+  ###if [ "${OUTFILE}" != "" ]; then echo; echo "Result file: ${OUTFILE}"; cat ${OUTFILE}; fi
+}
+
 # TEST INDIVIDUAL COMPONENTS
 # See https://unix.stackexchange.com/a/129077
 ###runDirFpBld "$@"
 
 # FOR THE PAPER: GGTTGGGG CUDA
-runggtt4gCuda |& tee ${scrdir}/cs_${node}_ggtt4gCuda.txt
+#runggtt4gCuda |& tee ${scrdir}/cs_${node}_ggtt4gCuda.txt
+
+# FOR THE PAPER: GGTTGGGG SIMD
+#runggtt4gSimd |& tee ${scrdir}/cs_${node}_ggtt4gSimd.txt
