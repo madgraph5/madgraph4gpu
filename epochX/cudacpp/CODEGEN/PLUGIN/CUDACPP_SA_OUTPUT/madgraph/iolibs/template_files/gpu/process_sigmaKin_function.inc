@@ -54,7 +54,7 @@
     // In multichannel mode, also compute the running sums over helicities of numerators, denominators and squared jamp2s
 /*#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     unsigned int channelId;
-    if (allrndchannel != nullptr) {
+    if (allrnddiagram != nullptr) {
         // temporarily set this to one if a random number for diagram sampling is
         // provided so that calculate_wavefunctions fills the allNumerators and
         // allDenominators arrays
@@ -85,18 +85,18 @@
     gpuLaunchKernel( add_and_select_hel, gpublocks, gputhreads, allselhel, allrndhel, ghelAllMEs, allMEs, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of channel
-    if ( allrndchannel != nullptr ) {
+    if ( allrnddiagram != nullptr ) {
       fptype numerator_sum = 0.;
       for( int ichan = 0; ichan < ndiagrams; ichan++ )
       {
         numerator_sum += allNumerators[ievt * processConfig::ndiagrams + ichan];
-        if( allrndchannel[ievt] < numerator_sum / allDenominators[ievt] )
+        if( allrnddiagram[ievt] < numerator_sum / allDenominators[ievt] )
         {
           channelId = ichan + 1;
           break;
         }
       }
-      allChannelIdsOut[ievt] = channelId;
+      allDiagramIdsOut[ievt] = channelId;
     }
 
     // Event-by-event random choice of color #402
@@ -141,7 +141,7 @@
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       unsigned int channelId;
-      if (allrndchannel != nullptr) {
+      if (allrnddiagram != nullptr) {
         // temporarily set this to one if a random number for diagram sampling is
         // provided so that calculate_wavefunctions fills the allNumerators and
         // allDenominators arrays
@@ -215,27 +215,40 @@
       // this is a workaround to be able to have different channel ids withing the same
       // SIMD vector. This should be probably set up in a cleaner way where channelId is
       // a vector everywhere
-      unsigned int channelIdVec[neppV]; 
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      const int vecsize = 2 * neppV;
+#else
+      const int vecsize = neppV;
+#endif
+      unsigned int channelIdVec[vecsize]; 
 
       // Event-by-event random choice of channel
-      if ( allrndchannel != nullptr ) {
-        for( int ieppV = 0; ieppV < neppV; ++ieppV )
+      if ( allrnddiagram != nullptr ) {
+        for( int ieppV = 0; ieppV < vecsize; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
-          fptype numerator_sum = 0.;
-          for( int ichan = 0; ichan < processConfig::ndiagrams; ichan++ )
+          fptype numerator_sum_all = 0.;
+          for( int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
           {
-            numerator_sum += allNumerators[ievt * processConfig::ndiagrams + ichan];
-            if( allrndchannel[ievt] < numerator_sum / allDenominators[ievt] )
+            numerator_sum_all += allNumerators[
+                ievt * processConfig::ndiagrams + mgOnGpu::channel2iconfig[ichan]];
+          }
+          channelIdVec[ieppV] = mgOnGpu::nchannels;
+          fptype numerator_sum = 0.;
+          for( int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
+          {
+            numerator_sum += allNumerators[
+                ievt * processConfig::ndiagrams + mgOnGpu::channel2iconfig[ichan]];
+            if( allrnddiagram[ievt] < numerator_sum / numerator_sum_all )
             {
               channelIdVec[ieppV] = ichan + 1;
               break;
             }
           }
-          allChannelIdsOut[ievt] = channelIdVec[ieppV];
+          allDiagramIdsOut[ievt] = mgOnGpu::channel2iconfig[channelIdVec[ieppV] - 1];
         }
       } else {
-        for( int ieppV = 0; ieppV < neppV; ++ieppV ) channelIdVec[ieppV] = channelId;
+        for( int ieppV = 0; ieppV < vecsize; ++ieppV ) channelIdVec[ieppV] = channelId;
       }
 
       // Event-by-event random choice of color #402

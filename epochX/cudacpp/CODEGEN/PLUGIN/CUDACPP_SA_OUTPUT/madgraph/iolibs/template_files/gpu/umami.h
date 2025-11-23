@@ -106,7 +106,7 @@ UmamiStatus umami_get_meta(UmamiMetaKey meta_key, void* result);
  * @return
  *     UMAMI_SUCCESS on success, error code otherwise
  */
-UmamiStatus umami_initialize(UmamiHandle* handle, const char* param_card_path);
+UmamiStatus umami_initialize(UmamiHandle* handle, char const* param_card_path);
 
 /**
  * Sets the value of a model parameter
@@ -124,7 +124,7 @@ UmamiStatus umami_initialize(UmamiHandle* handle, const char* param_card_path);
  */
 UmamiStatus umami_set_parameter(
     UmamiHandle handle,
-    const char* name,
+    char const* name,
     double parameter_real,
     double parameter_imag
 );
@@ -146,7 +146,7 @@ UmamiStatus umami_set_parameter(
  */
 UmamiStatus umami_get_parameter(
     UmamiHandle handle,
-    const char* name,
+    char const* name,
     double* parameter_real,
     double* parameter_imag
 );
@@ -187,11 +187,11 @@ UmamiStatus umami_matrix_element(
     size_t stride,
     size_t offset,
     size_t input_count,
-    const UmamiInputKey* input_keys,
-    const void** inputs,
+    UmamiInputKey const* input_keys,
+    void const* const* inputs,
     size_t output_count,
-    const UmamiOutputKey* output_keys,
-    void** outputs
+    UmamiOutputKey const* output_keys,
+    void* const* outputs
 );
 
 /**

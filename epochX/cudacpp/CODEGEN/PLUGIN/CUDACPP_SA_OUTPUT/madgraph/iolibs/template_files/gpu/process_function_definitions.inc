@@ -728,7 +728,7 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
             const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
-            const fptype* allrndchannel,        // input: random numbers[nevt] for channel sampling
+            const fptype* allrnddiagram,        // input: random numbers[nevt] for diagram sampling
             unsigned int* allChannelIdsOut,     // output: multichannel channelIds[nevt] (1 to #diagrams)
             fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
             fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
@@ -742,6 +742,7 @@ namespace mg5amcCpu
             fptype* colAllJamp2s,               // tmp: allJamp2s super-buffer for ncolor individual colors, running sum over colors and helicities
             fptype* ghelAllNumerators,          // tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllDenominators,        // tmp: allDenominators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            unsigned int* ghelAllDiagramIdsOut,     // output: multichannel channelIds[nevt] (1 to #diagrams)
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: jamp[2*ncolor*nGoodHel*nevt] super-buffer for nGoodHel <= ncomb individual helicities

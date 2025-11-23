@@ -85,28 +85,33 @@ void transpose_momenta(
 
 __global__ void copy_inputs(
     const double* momenta_in,
-    const double* diagram_random_in,
     const double* helicity_random_in,
     const double* color_random_in,
+    const double* diagram_random_in,
     const double* alpha_s_in,
     fptype* momenta,
-    fptype* diagram_random,
     fptype* helicity_random,
     fptype* color_random,
+    fptype* diagram_random,
     fptype* g_s,
-    unsigned int* channel_index,
+    unsigned int* diagram_index,
     std::size_t count,
-    std::size_t stride
+    std::size_t stride,
+    std::size_t offset
 ) {
     std::size_t i_event = blockDim.x * blockIdx.x + threadIdx.x;
-    channel_index[i_event] = 2;
+    diagram_index[i_event] = 2;
     if (i_event >= count) return;
 
-    transpose_momenta(momenta_in, momenta, i_event, stride);
-    diagram_random[i_event] = diagram_random_in ? diagram_random_in[i_event] : 0.5;
-    helicity_random[i_event] = helicity_random_in ? helicity_random_in[i_event] : 0.5;
-    color_random[i_event] = color_random_in ? color_random_in[i_event] : 0.5;
-    g_s[i_event] = alpha_s_in ? sqrt(4 * M_PI * alpha_s_in[i_event]) : 1.2177157847767195;
+    transpose_momenta(&momenta_in[offset], momenta, i_event, stride);
+    diagram_random[i_event] = diagram_random_in ?
+        diagram_random_in[i_event + offset] : 0.5;
+    helicity_random[i_event] = helicity_random_in ?
+        helicity_random_in[i_event + offset] : 0.5;
+    color_random[i_event] = color_random_in ?
+        color_random_in[i_event + offset] : 0.5;
+    g_s[i_event] = alpha_s_in ?
+        sqrt(4 * M_PI * alpha_s_in[i_event + offset]) : 1.2177157847767195;
 }
 
 __global__ void copy_outputs(
@@ -121,23 +126,24 @@ __global__ void copy_outputs(
     int* color_out,
     int* helicity_out,
     std::size_t count,
-    std::size_t stride
+    std::size_t stride,
+    std::size_t offset
 ) {
     std::size_t i_event = blockDim.x * blockIdx.x + threadIdx.x;
     if (i_event >= count) return;
 
-    if (m2_out) m2_out[i_event] = matrix_elements[i_event];
+    if (m2_out) m2_out[i_event + offset] = matrix_elements[i_event];
     if (amp2_out) {
         double denominator = denominators[i_event];
         for (std::size_t i_diag = 0; i_diag < CPPProcess::ndiagrams; ++i_diag) {
-            amp2_out[stride * i_diag + i_event] = numerators[
+            amp2_out[stride * i_diag + i_event + offset] = numerators[
                 i_event * CPPProcess::ndiagrams + i_diag
             ] / denominator;
         }
     }
-    if (diagram_out) diagram_out[i_event] = 0;
-    if (color_out) color_out[i_event] = color_index[i_event] - 1;
-    if (helicity_out) helicity_out[i_event] = helicity_index[i_event] - 1;
+    if (diagram_out) diagram_out[i_event + offset] = 0;
+    if (color_out) color_out[i_event + offset] = color_index[i_event] - 1;
+    if (helicity_out) helicity_out[i_event + offset] = helicity_index[i_event] - 1;
 }
 
 #endif // MGONGPUCPP_GPUIMPL
@@ -178,7 +184,7 @@ UmamiStatus umami_get_meta(UmamiMetaKey meta_key, void* result) {
 }
 
 
-UmamiStatus umami_initialize(UmamiHandle* handle, const char* param_card_path) {
+UmamiStatus umami_initialize(UmamiHandle* handle, char const* param_card_path) {
     CPPProcess process;
     process.initProc(param_card_path);
     // We don't actually need the CPPProcess instance for anything as it initializes a
@@ -192,7 +198,7 @@ UmamiStatus umami_initialize(UmamiHandle* handle, const char* param_card_path) {
 
 UmamiStatus umami_set_parameter(
     UmamiHandle handle,
-    const char* name,
+    char const* name,
     double parameter_real,
     double parameter_imag
 ) {
@@ -202,7 +208,7 @@ UmamiStatus umami_set_parameter(
 
 UmamiStatus umami_get_parameter(
     UmamiHandle handle,
-    const char* name,
+    char const* name,
     double* parameter_real,
     double* parameter_imag
 ) {
@@ -216,11 +222,11 @@ UmamiStatus umami_matrix_element(
     size_t stride,
     size_t offset,
     size_t input_count,
-    const UmamiInputKey* input_keys,
-    const void** inputs,
+    UmamiInputKey const* input_keys,
+    void const* const* inputs,
     size_t output_count,
-    const UmamiOutputKey* output_keys,
-    void** outputs
+    UmamiOutputKey const* output_keys,
+    void* const* outputs
 ) {
     const double* momenta_in = nullptr;
     const double* alpha_s_in = nullptr;
@@ -308,7 +314,7 @@ UmamiStatus umami_matrix_element(
     fptype *momenta, *couplings, *g_s, *helicity_random, *color_random;
     fptype *matrix_elements, *numerators, *denominators;
     int *helicity_index, *color_index;
-    unsigned int *channel_index;
+    unsigned int *diagram_index;
 
     std::size_t n_coup = mg5amcGpu::Parameters_sm_dependentCouplings::ndcoup;
     gpuMallocAsync(&momenta, rounded_count * CPPProcess::npar * 4 * sizeof(fptype), gpu_stream);
@@ -316,17 +322,29 @@ UmamiStatus umami_matrix_element(
     gpuMallocAsync(&g_s, rounded_count * sizeof(fptype), gpu_stream);
     gpuMallocAsync(&helicity_random, rounded_count * sizeof(fptype), gpu_stream);
     gpuMallocAsync(&color_random, rounded_count * sizeof(fptype), gpu_stream);
+    gpuMallocAsync(&diagram_random, rounded_count * sizeof(fptype), gpu_stream);
     gpuMallocAsync(&matrix_elements, rounded_count * sizeof(fptype), gpu_stream);
-    gpuMallocAsync(&channel_index, rounded_count * sizeof(unsigned int), gpu_stream);
+    gpuMallocAsync(&diagram_index, rounded_count * sizeof(unsigned int), gpu_stream);
     gpuMallocAsync(&numerators, rounded_count * CPPProcess::ndiagrams * sizeof(fptype), gpu_stream);
     gpuMallocAsync(&denominators, rounded_count * sizeof(fptype), gpu_stream);
     gpuMallocAsync(&helicity_index, rounded_count * sizeof(int), gpu_stream);
     gpuMallocAsync(&color_index, rounded_count * sizeof(int), gpu_stream);
 
     copy_inputs<<<n_blocks, n_threads, 0, gpu_stream>>>(
-        momenta_in, random_in, alpha_s_in,
-        momenta, helicity_random, color_random, g_s, channel_index,
-        count, stride
+        momenta_in,
+        random_helicity_in,
+        random_color_in,
+        random_diagram_in,
+        alpha_s_in,
+        momenta,
+        helicity_random,
+        color_random,
+        diagram_random,
+        g_s,
+        diagram_index,
+        count,
+        stride,
+        offset
     );
     computeDependentCouplings<<<n_blocks, n_threads, 0, gpu_stream>>>(g_s, couplings);
     checkGpu(gpuPeekAtLastError());
@@ -347,7 +365,8 @@ UmamiStatus umami_matrix_element(
         color_random,
         matrix_elements,
         nullptr,
-        channel_index,
+        diagram_random,
+        diagram_index,
         numerators,
         denominators,
         false,
@@ -355,9 +374,19 @@ UmamiStatus umami_matrix_element(
         color_index
     );
     copy_outputs<<<n_blocks, n_threads, 0, gpu_stream>>>(
-        denominators, numerators, matrix_elements, color_index, helicity_index,
-        m2_out, amp2_out, diagram_out, color_out, helicity_out,
-        count, stride
+        denominators,
+        numerators,
+        matrix_elements,
+        color_index,
+        helicity_index,
+        m2_out,
+        amp2_out,
+        diagram_out,
+        color_out,
+        helicity_out,
+        count,
+        stride,
+        offset
     );
     checkGpu(gpuPeekAtLastError());
 
@@ -367,7 +396,7 @@ UmamiStatus umami_matrix_element(
     gpuFreeAsync(helicity_random, gpu_stream);
     gpuFreeAsync(color_random, gpu_stream);
     gpuFreeAsync(matrix_elements, gpu_stream);
-    gpuFreeAsync(channel_index, gpu_stream);
+    gpuFreeAsync(diagram_index, gpu_stream);
     gpuFreeAsync(numerators, gpu_stream);
     gpuFreeAsync(denominators, gpu_stream);
     gpuFreeAsync(helicity_index, gpu_stream);
@@ -387,21 +416,25 @@ UmamiStatus umami_matrix_element(
     HostBufferBase<fptype, false> color_random(rounded_count);
     HostBufferBase<fptype, false> diagram_random(rounded_count);
     HostBufferBase<fptype, false> matrix_elements(rounded_count);
-    HostBufferBase<unsigned int, false> channel_index(rounded_count);
+    HostBufferBase<unsigned int, false> diagram_index(rounded_count);
     HostBufferBase<fptype, false> numerators(rounded_count * CPPProcess::ndiagrams);
     HostBufferBase<fptype, false> denominators(rounded_count);
     HostBufferBase<int, false> helicity_index(rounded_count);
     HostBufferBase<int, false> color_index(rounded_count);
 
-    for (std::size_t i_event = 0; i_event < rounded_count; ++i_event) {
-        channel_index[i_event] = 2;
-    }
+    /*for (std::size_t i_event = 0; i_event < rounded_count; ++i_event) {
+        diagram_index[i_event] = 2;
+    }*/
     for (std::size_t i_event = 0; i_event < count; ++i_event) {
-        transpose_momenta(momenta_in, momenta.data(), i_event, stride);
-        helicity_random[i_event] = random_helicity_in ? random_helicity_in[i_event] : 0.5;
-        color_random[i_event] = random_color_in ? random_color_in[i_event] : 0.5;
-        diagram_random[i_event] = random_diagram_in ? random_diagram_in[i_event] : 0.5;
-        g_s[i_event] = alpha_s_in ? sqrt(4 * M_PI * alpha_s_in[i_event]) : 1.2177157847767195;
+        transpose_momenta(&momenta_in[offset], momenta.data(), i_event, stride);
+        helicity_random[i_event] = random_helicity_in ?
+            random_helicity_in[i_event + offset] : 0.5;
+        color_random[i_event] = random_color_in ?
+            random_color_in[i_event + offset] : 0.5;
+        diagram_random[i_event] = random_diagram_in ?
+            random_diagram_in[i_event + offset] : 0.5;
+        g_s[i_event] = alpha_s_in ?
+            sqrt(4 * M_PI * alpha_s_in[i_event + offset]) : 1.2177157847767195;
     }
     computeDependentCouplings(
         g_s.data(), couplings.data(), rounded_count
@@ -428,7 +461,7 @@ UmamiStatus umami_matrix_element(
         matrix_elements.data(),
         nullptr,
         diagram_random.data(),
-        channel_index.data(),
+        diagram_index.data(),
         numerators.data(),
         denominators.data(),
         false,
@@ -443,16 +476,26 @@ UmamiStatus umami_matrix_element(
         std::size_t i_vector = i_event % page_size;
 
         double denominator = denominators[i_event];
-        m2_out[i_event] = matrix_elements[i_event];
-        for (std::size_t i_diag = 0; i_diag < CPPProcess::ndiagrams; ++i_diag) {
-            amp2_out[stride * i_diag + i_event] = numerators[
-                i_page * page_size * CPPProcess::ndiagrams +
-                i_diag * page_size + i_vector
-            ] / denominator;
+        if (m2_out != nullptr) {
+            m2_out[i_event + offset] = matrix_elements[i_event];
         }
-        diagram_out[i_event] = 0;
-        color_out[i_event] = color_index[i_event] - 1;
-        helicity_out[i_event] = helicity_index[i_event] - 1;
+        if (amp2_out != nullptr) {
+            for (std::size_t i_diag = 0; i_diag < CPPProcess::ndiagrams; ++i_diag) {
+                amp2_out[stride * i_diag + i_event + offset] = numerators[
+                    i_page * page_size * CPPProcess::ndiagrams +
+                    i_diag * page_size + i_vector
+                ] / denominator;
+            }
+        }
+        if (diagram_out != nullptr) {
+            diagram_out[i_event + offset] = diagram_index[i_event] - 1;
+        }
+        if (color_out != nullptr) {
+            color_out[i_event + offset] = color_index[i_event] - 1;
+        }
+        if (helicity_out != nullptr) {
+            helicity_out[i_event + offset] = helicity_index[i_event] - 1;
+        }
     }
 #endif // MGONGPUCPP_GPUIMPL
     return UMAMI_SUCCESS;
