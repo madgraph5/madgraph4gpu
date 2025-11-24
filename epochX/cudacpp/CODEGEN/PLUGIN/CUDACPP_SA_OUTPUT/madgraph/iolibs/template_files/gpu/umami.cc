@@ -19,6 +19,9 @@ void* initialize_impl(
     const fptype* momenta,
     const fptype* couplings,
     fptype* matrix_elements,
+#ifdef MGONGPUCPP_GPUIMPL
+    fptype* color_jamps,
+#endif
     fptype* numerators,
     fptype* denominators,
     std::size_t count
@@ -30,7 +33,7 @@ void* initialize_impl(
     bool *is_good_hel_device;
     checkGpu(gpuMalloc(&is_good_hel_device, CPPProcess::ncomb));
     sigmaKin_getGoodHel<<<n_blocks, n_threads, 0>>>(
-        momenta, couplings, matrix_elements, numerators, denominators, is_good_hel_device
+        momenta, couplings, matrix_elements, color_jamps, numerators, denominators, is_good_hel_device
     );
     checkGpu(gpuPeekAtLastError());
     checkGpu(gpuMemcpy(
@@ -49,13 +52,20 @@ void initialize(
     const fptype* momenta,
     const fptype* couplings,
     fptype* matrix_elements,
+#ifdef MGONGPUCPP_GPUIMPL
+    fptype* color_jamps,
+#endif
     fptype* numerators,
     fptype* denominators,
     std::size_t count
 ) {
     // static local initialization is called exactly once in a thread-safe way
     static void* dummy = initialize_impl(
-        momenta, couplings, matrix_elements, numerators, denominators, count
+        momenta, couplings, matrix_elements,
+#ifdef MGONGPUCPP_GPUIMPL
+        color_jamps,
+#endif
+        numerators, denominators, count
     );
 }
 
@@ -148,6 +158,13 @@ __global__ void copy_outputs(
 
 #endif // MGONGPUCPP_GPUIMPL
 
+struct InterfaceInstance {
+    bool initialized = false;
+#ifdef MGONGPUCPP_GPUIMPL
+    gpuStream_t hel_streams[CPPProcess::ncomb];
+#endif
+};
+
 }
 
 extern "C" {
@@ -187,12 +204,14 @@ UmamiStatus umami_get_meta(UmamiMetaKey meta_key, void* result) {
 UmamiStatus umami_initialize(UmamiHandle* handle, char const* param_card_path) {
     CPPProcess process;
     process.initProc(param_card_path);
-    // We don't actually need the CPPProcess instance for anything as it initializes a
-    // global variable. So here we just return a boolean that is used to store whether
-    // the good helicities are initialized
-    *handle = new bool(false);
+    auto instance = new InterfaceInstance();
+    *handle = instance;
+#ifdef MGONGPUCPP_GPUIMPL
+    for (int ihel = 0; ihel < CPPProcess::ncomb; ihel++) {
+        gpuStreamCreate(&instance->hel_streams[ihel]);
+    }
+#endif
     return UMAMI_SUCCESS;
-
 }
 
 
@@ -325,10 +344,13 @@ UmamiStatus umami_matrix_element(
     gpuMallocAsync(&diagram_random, rounded_count * sizeof(fptype), gpu_stream);
     gpuMallocAsync(&matrix_elements, rounded_count * sizeof(fptype), gpu_stream);
     gpuMallocAsync(&diagram_index, rounded_count * sizeof(unsigned int), gpu_stream);
-    gpuMallocAsync(&numerators, rounded_count * CPPProcess::ndiagrams * sizeof(fptype), gpu_stream);
+    gpuMallocAsync(&color_jamps, rounded_count * CPPProcess::ncolor * mgOnGpu::nx2 * sizeof(fptype), gpu_stream);
+    gpuMallocAsync(&numerators, rounded_count * CPPProcess::ndiagrams * CPPProcess::ncomb * sizeof(fptype), gpu_stream);
     gpuMallocAsync(&denominators, rounded_count * sizeof(fptype), gpu_stream);
     gpuMallocAsync(&helicity_index, rounded_count * sizeof(int), gpu_stream);
     gpuMallocAsync(&color_index, rounded_count * sizeof(int), gpu_stream);
+    gpuMallocAsync(&ghel_matrix_elements, rounded_count * CPPProcess::ncomb * sizeof(fptype), gpu_stream);
+    gpuMallocAsync(&ghel_jamps, rounded_count * CPPProcess::ncomb * CPPProcess::ncolor * mgOnGpu::nx2 * sizeof(fptype), gpu_stream);
 
     copy_inputs<<<n_blocks, n_threads, 0, gpu_stream>>>(
         momenta_in,
@@ -348,30 +370,40 @@ UmamiStatus umami_matrix_element(
     );
     computeDependentCouplings<<<n_blocks, n_threads, 0, gpu_stream>>>(g_s, couplings);
     checkGpu(gpuPeekAtLastError());
+    // TODO: make things fully async (requires using events instead of synchronize in
+    //       the sigmaKin implementation)
+    gpuStreamSynchronize(gpu_stream);
 
-    bool& is_initialized = *static_cast<bool*>(handle);
-    if (!is_initialized) {
-        gpuStreamSynchronize(gpu_stream);
+    InterfaceInstance* instance = static_cast<InterfaceInstance*>(handle);
+    if (!instance->initialized) {
         initialize(
-            momenta, couplings, matrix_elements, numerators, denominators, rounded_count
+            momenta, couplings, matrix_elements, color_jamps, numerators, denominators, rounded_count
         );
-        is_initialized = true;
+        instance->initialized = true;
     }
 
-    sigmaKin<<<n_blocks, n_threads, 0, gpu_stream>>>(
+    sigmaKin(
         momenta,
         couplings,
         helicity_random,
         color_random,
-        matrix_elements,
         nullptr,
         diagram_random,
-        diagram_index,
+        matrix_elements,
+        helicity_index,
+        color_index,
+        color_jamps,
         numerators,
         denominators,
+        diagram_index,
         false,
-        helicity_index,
-        color_index
+        ghel_matrix_elements,
+        ghel_jamps,
+        nullptr,
+        nullptr,
+        instance->hel_streams,
+        n_blocks,
+        n_threads
     );
     copy_outputs<<<n_blocks, n_threads, 0, gpu_stream>>>(
         denominators,
@@ -422,9 +454,6 @@ UmamiStatus umami_matrix_element(
     HostBufferBase<int, false> helicity_index(rounded_count);
     HostBufferBase<int, false> color_index(rounded_count);
 
-    /*for (std::size_t i_event = 0; i_event < rounded_count; ++i_event) {
-        diagram_index[i_event] = 2;
-    }*/
     for (std::size_t i_event = 0; i_event < count; ++i_event) {
         transpose_momenta(&momenta_in[offset], momenta.data(), i_event, stride);
         helicity_random[i_event] = random_helicity_in ?
@@ -440,8 +469,8 @@ UmamiStatus umami_matrix_element(
         g_s.data(), couplings.data(), rounded_count
     );
 
-    bool& is_initialized = *static_cast<bool*>(handle);
-    if (!is_initialized) {
+    InterfaceInstance* instance = static_cast<InterfaceInstance*>(handle);
+    if (!instance->initialized) {
         initialize(
             momenta.data(),
             couplings.data(),
@@ -450,7 +479,7 @@ UmamiStatus umami_matrix_element(
             denominators.data(),
             rounded_count
         );
-        is_initialized = true;
+        instance->initialized = true;
     }
 
     sigmaKin(
@@ -503,7 +532,13 @@ UmamiStatus umami_matrix_element(
 
 
 UmamiStatus umami_free(UmamiHandle handle) {
-    delete static_cast<bool*>(handle);
+    InterfaceInstance* instance = static_cast<InterfaceInstance*>(handle);
+#ifdef MGONGPUCPP_GPUIMPL
+    for (int ihel = 0; ihel < CPPProcess::ncomb; ihel++) {
+        if (instance->hel_streams[ihel]) gpuStreamDestroy(instance->hel_streams[ihel]);
+    }
+#endif
+    delete instance;
     return UMAMI_SUCCESS;
 }
 

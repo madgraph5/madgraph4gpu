@@ -70,7 +70,7 @@
       const int ihel = cGoodHel[ighel];
       fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
+      fptype* hAllNumerators = ghelAllNumerators + ighel * nevt * processConfig::ndiagrams;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
       gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
 #else
@@ -353,11 +353,7 @@
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, ghelAllNumerators, ghelAllDenominators, allChannelIds, helcolDenominators[0] );
-    /*if( mulChannelWeight && allChannelIds != nullptr ) {
-        allMEs[ievt] *= allNumerators[ievt * processConfig::ndiagrams + channelId - 1]
-                        / allDenominators[ievt]; // fix segfault #892 (not 'channelIds[0] != 0')
-    }*/
+    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, ghelAllNumerators, ghelAllDenominators, allChannelIds, mulChannelWeight, helcolDenominators[0] );
 #else
     gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, helcolDenominators[0] );
 #endif

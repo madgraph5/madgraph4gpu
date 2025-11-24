@@ -588,8 +588,9 @@ namespace mg5amcCpu
                     fptype* ghelAllNumerators,         // input/tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
                     fptype* ghelAllDenominators,       // input/tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
                     const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
+                    bool mulChannelWeight,             // if true, multiply matrix element by channel weight
 #endif
-                    const fptype globaldenom ) /* clang-format on */
+                    const fptype globaldenom) /* clang-format on */
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
     allMEs[ievt] /= globaldenom;
@@ -601,12 +602,16 @@ namespace mg5amcCpu
       fptype* totAllDenominators = ghelAllDenominators; // reuse "helicity #0" buffer to compute the total over all helicities
       for( int ighel = 1; ighel < dcNGoodHel; ighel++ ) // NB: the loop starts at ighel=1
       {
-        fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
         fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
-        totAllNumerators[ievt] += hAllNumerators[ievt];
         totAllDenominators[ievt] += hAllDenominators[ievt];
+        for( int idiag = 0; idiag < processConfig::ndiagrams; ++idiag) {
+          fptype* hAllNumerators = ghelAllNumerators + (idiag + ighel * nevt) * processConfig::ndiagrams;
+          totAllNumerators[ievt + idiag * processConfig::ndiagrams] += hAllNumerators[ievt];
+        }
       }
-      allMEs[ievt] *= totAllNumerators[ievt] / totAllDenominators[ievt];
+      if (mulChannelWeight) {
+        allMEs[ievt] *= totAllNumerators[ievt] / totAllDenominators[ievt];
+      }
     }
 #endif
     return;
