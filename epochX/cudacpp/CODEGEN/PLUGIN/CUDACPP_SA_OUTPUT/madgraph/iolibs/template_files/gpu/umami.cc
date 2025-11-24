@@ -458,15 +458,15 @@ UmamiStatus umami_matrix_element(
         couplings.data(),
         helicity_random.data(),
         color_random.data(),
-        matrix_elements.data(),
         nullptr,
         diagram_random.data(),
-        diagram_index.data(),
-        numerators.data(),
-        denominators.data(),
-        false,
+        matrix_elements.data(),
         helicity_index.data(),
         color_index.data(),
+        numerators.data(),
+        denominators.data(),
+        diagram_index.data(),
+        false,
         rounded_count
     );
 

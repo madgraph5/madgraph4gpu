@@ -729,10 +729,6 @@ namespace mg5amcCpu
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
             const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
             const fptype* allrnddiagram,        // input: random numbers[nevt] for diagram sampling
-            unsigned int* allChannelIdsOut,     // output: multichannel channelIds[nevt] (1 to #diagrams)
-            fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
-            bool mulChannelWeight,              // if true, multiply channel weight to ME output
 #endif
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
             int* allselhel,                     // output: helicity selection[nevt]
@@ -754,8 +750,10 @@ namespace mg5amcCpu
 #else
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             int* allselcol,                     // output: helicity selection[nevt]
-            fptype* allNumerators,              // tmp: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,            // tmp: multichannel denominators[nevt], running_sum_over_helicities
+            fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
+            unsigned int* allDiagramIdsOut,     // output: multichannel channelIds[nevt] (1 to #diagrams)
+            bool mulChannelWeight,              // if true, multiply channel weight to ME output
 #endif
             const int nevt                      // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif

@@ -87,7 +87,7 @@
     // Event-by-event random choice of channel
     if ( allrnddiagram != nullptr ) {
       fptype numerator_sum = 0.;
-      for( int ichan = 0; ichan < ndiagrams; ichan++ )
+      for( unsigned int ichan = 0; ichan < ndiagrams; ichan++ )
       {
         numerator_sum += allNumerators[ievt * processConfig::ndiagrams + ichan];
         if( allrnddiagram[ievt] < numerator_sum / allDenominators[ievt] )
@@ -228,14 +228,14 @@
         {
           const int ievt = ievt00 + ieppV;
           fptype numerator_sum_all = 0.;
-          for( int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
+          for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
           {
             numerator_sum_all += allNumerators[
                 ievt * processConfig::ndiagrams + mgOnGpu::channel2iconfig[ichan]];
           }
           channelIdVec[ieppV] = mgOnGpu::nchannels;
           fptype numerator_sum = 0.;
-          for( int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
+          for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
           {
             numerator_sum += allNumerators[
                 ievt * processConfig::ndiagrams + mgOnGpu::channel2iconfig[ichan]];
