@@ -157,8 +157,12 @@ namespace mg5amcCpu
   __global__ void
   color_sum_kernel( fptype* allMEs,         // output: allMEs[nevt], add |M|^2 for one specific helicity
                     const fptype* allJamps, // input: jamp[ncolor*2*nevt] for one specific helicity
-                    const int nGoodHel )    // input: number of good helicities
+                    const int nGoodHel,
+                    int nevt)    // input: number of good helicities
   {
+    int ighel = blockIdx.y;
+    allMEs = allMEs + ighel * nevt;           // MEs for one specific helicity ighel
+    allJamps = allJamps + ighel * nevt; // Jamps for one specific helicity ighel
     using J_ACCESS = DeviceAccessJamp;
     fptype jampR[ncolor];
     fptype jampI[ncolor];
@@ -385,13 +389,16 @@ namespace mg5amcCpu
     {
       assert( ghelAllBlasTmp == nullptr );  // sanity check for HASBLAS=hasNoBlas or CUDACPP_RUNTIME_BLASCOLORSUM not set
       // Loop over helicities
-      for( int ighel = 0; ighel < nGoodHel; ighel++ )
+      /*for( int ighel = 0; ighel < nGoodHel; ighel++ )
       {
         fptype* hAllMEs = ghelAllMEs + ighel * nevt;           // MEs for one specific helicity ighel
         const fptype* hAllJamps = ghelAllJamps + ighel * nevt; // Jamps for one specific helicity ighel
         gpuStream_t hStream = ghelStreams[ighel];
         gpuLaunchKernelStream( color_sum_kernel, gpublocks, gputhreads, hStream, hAllMEs, hAllJamps, nGoodHel );
-      }
+      }*/
+      color_sum_kernel<<<dim3(gpublocks,nGoodHel,1), dim3(gputhreads,1,1), 0>>>(
+        ghelAllMEs, ghelAllJamps, nGoodHel, nevt
+      );
     }
     // CASE 2: BLAS
     else

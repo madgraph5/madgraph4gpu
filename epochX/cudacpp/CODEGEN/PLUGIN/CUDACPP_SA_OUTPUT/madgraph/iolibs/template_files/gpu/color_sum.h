@@ -93,7 +93,7 @@ namespace mg5amcCpu
   __global__ void
   color_sum_kernel( fptype* allMEs,         // output: allMEs[nevt], add |M|^2 for one specific helicity
                     const fptype* allJamps, // input: jamp[ncolor*2*nevt] for one specific helicity
-                    const int nGoodHel );   // input: number of good helicities
+                    const int nGoodHel, int nevt );   // input: number of good helicities
 #endif
 
   //--------------------------------------------------------------------------

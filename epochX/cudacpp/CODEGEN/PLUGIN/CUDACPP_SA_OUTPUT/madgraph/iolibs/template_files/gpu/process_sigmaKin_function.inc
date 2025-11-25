@@ -50,7 +50,10 @@
     // Use CUDA/HIP streams to process different helicities in parallel (one good helicity per stream)
     // (1) First, within each helicity stream, compute the QCD partial amplitudes jamp's for each helicity
     // In multichannel mode, also compute the running sums over helicities of numerators, denominators and squared jamp2s
-    for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+
+    calculate_jamps<<<dim3(gpublocks,cNGoodHel,1), dim3(gputhreads,1,1), 0>>>(0, allmomenta, allcouplings, ghelAllJamps, allChannelIds, ghelAllNumerators, ghelAllDenominators, colAllJamp2s, nevt );
+
+    /*for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
       fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
@@ -61,7 +64,7 @@
 #else
       gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );
 #endif
-    }
+    */
     // (2) Then compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
     color_sum_gpu( ghelAllMEs, ghelAllJamps, ghelAllBlasTmp, pBlasHandle, ghelStreams, cNGoodHel, gpublocks, gputhreads );
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed

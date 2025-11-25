@@ -1372,6 +1372,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     //if( debug ) printf( \"calculate_jamps: ievt00=%d ihel=%2d\\n\", ievt00, ihel );
 #else
     //const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+    int ighel = blockIdx.y;
+    ihel = dcGoodHel[ighel];
+    allJamps = allJamps + ighel * nevt;
+    allNumerators = allNumerators + ighel * nevt;
+    allDenominators = allDenominators + ighel * nevt;
     //debug = ( ievt == 0 );
     //if( debug ) printf( \"calculate_jamps: ievt=%6d ihel=%2d\\n\", ievt, ihel );
 #endif /* clang-format on */""")
