@@ -448,8 +448,7 @@ namespace mg5amcCpu
       // NB: color_sum ADDS |M|^2 for one helicity to the running sum of |M|^2 over helicities for the given event(s)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr fptype_sv* allJamp2s = nullptr;        // no need for color selection during helicity filtering
-      constexpr unsigned int* allChannelIds = nullptr; // disable multichannel single-diagram enhancement
-      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, allChannelIds, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
+      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, false, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
 #else
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, gpublocks * gputhreads );
 #endif
@@ -525,8 +524,7 @@ namespace mg5amcCpu
         cxtype_sv jamp_sv[ncolor] = {};  // all zeros
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL /* clang-format off */
-        constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 ); //maxtry?
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, false, allNumerators, allDenominators, jamp2_sv, ievt00 ); //maxtry?
 #else
         calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 ); //maxtry?
 #endif /* clang-format on */
@@ -588,6 +586,7 @@ namespace mg5amcCpu
                     fptype* ghelAllNumerators,         // input/tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
                     fptype* ghelAllDenominators,       // input/tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
                     const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
+                    bool storeChannelWeights,           // if true, compute final multichannel weights
                     bool mulChannelWeight,             // if true, multiply matrix element by channel weight
 #endif
                     const fptype globaldenom) /* clang-format on */
@@ -596,7 +595,7 @@ namespace mg5amcCpu
     allMEs[ievt] /= globaldenom;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const int nevt = gridDim.x * blockDim.x;
-    if( allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
+    if( storeChannelWeights ) // fix segfault #892 (not 'channelIds[0] != 0')
     {
       fptype* totAllNumerators = ghelAllNumerators;     // reuse "helicity #0" buffer to compute the total over all helicities
       fptype* totAllDenominators = ghelAllDenominators; // reuse "helicity #0" buffer to compute the total over all helicities
@@ -604,13 +603,15 @@ namespace mg5amcCpu
       {
         fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
         totAllDenominators[ievt] += hAllDenominators[ievt];
+        fptype* hAllNumerators = ghelAllNumerators + (ievt + ighel * nevt) * processConfig::ndiagrams;
+        fptype* firstNumerator = ghelAllNumerators + ievt * processConfig::ndiagrams;
         for( int idiag = 0; idiag < processConfig::ndiagrams; ++idiag) {
-          fptype* hAllNumerators = ghelAllNumerators + (idiag + ighel * nevt) * processConfig::ndiagrams;
-          totAllNumerators[ievt + idiag * processConfig::ndiagrams] += hAllNumerators[ievt];
+          firstNumerator[idiag] += hAllNumerators[idiag];
         }
       }
       if (mulChannelWeight) {
-        allMEs[ievt] *= totAllNumerators[ievt] / totAllDenominators[ievt];
+        unsigned int channelId = allChannelIds[ievt];
+        allMEs[ievt] *= totAllNumerators[channelId - 1 + ievt * processConfig::ndiagrams] / totAllDenominators[ievt];
       }
     }
 #endif
@@ -674,16 +675,18 @@ namespace mg5amcCpu
     // Event-by-event random choice of channel
     if ( allrnddiagram != nullptr ) {
       fptype numerator_sum = 0.;
-      for( unsigned int ichan = 0; ichan < processConfig::ndiagrams; ichan++ )
+      channelId = mgOnGpu::nchannels;
+      for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
       {
-        numerator_sum += allNumerators[ievt * processConfig::ndiagrams + ichan];
+        numerator_sum += allNumerators[
+            ievt * processConfig::ndiagrams + ichan];
         if( allrnddiagram[ievt] < numerator_sum / allDenominators[ievt] )
         {
           channelId = ichan + 1;
           break;
         }
       }
-      allDiagramIdsOut[ievt] = channelId;
+      allDiagramIdsOut[ievt] = mgOnGpu::channel2iconfig[channelId - 1];
     }
 
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)

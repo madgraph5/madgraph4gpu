@@ -27,22 +27,13 @@ void* initialize_impl(
     std::size_t count
 ) {
     bool is_good_hel[CPPProcess::ncomb];
+    sigmaKin_getGoodHel(
+        momenta, couplings, matrix_elements, numerators, denominators,
 #ifdef MGONGPUCPP_GPUIMPL
-    std::size_t n_threads = 256;
-    bool *is_good_hel_device;
-    gpuMalloc(&is_good_hel_device, CPPProcess::ncomb);
-    sigmaKin_getGoodHel(
-        momenta, couplings, matrix_elements, numerators, denominators, color_jamps, is_good_hel_device, count
+        color_jamps,
+#endif
+        is_good_hel, count
     );
-    checkGpu(gpuPeekAtLastError());
-    gpuMemcpy(
-        is_good_hel, is_good_hel_device, sizeof(is_good_hel), gpuMemcpyDeviceToHost
-    );
-#else // MGONGPUCPP_GPUIMPL
-    sigmaKin_getGoodHel(
-        momenta, couplings, matrix_elements, numerators, denominators, is_good_hel, count
-    );
-#endif // MGONGPUCPP_GPUIMPL
     sigmaKin_setGoodHel(is_good_hel);
     return nullptr;
 }
@@ -103,13 +94,11 @@ __global__ void copy_inputs(
     fptype* color_random,
     fptype* diagram_random,
     fptype* g_s,
-    unsigned int* diagram_index,
     std::size_t count,
     std::size_t stride,
     std::size_t offset
 ) {
     std::size_t i_event = blockDim.x * blockIdx.x + threadIdx.x;
-    diagram_index[i_event] = 2;
     if (i_event >= count) return;
 
     transpose_momenta(&momenta_in[offset], momenta, i_event, stride);
@@ -127,6 +116,7 @@ __global__ void copy_outputs(
     fptype* denominators,
     fptype* numerators,
     fptype* matrix_elements,
+    unsigned int* diagram_index,
     int* color_index,
     int* helicity_index,
     double* m2_out,
@@ -150,7 +140,7 @@ __global__ void copy_outputs(
             ] / denominator;
         }
     }
-    if (diagram_out) diagram_out[i_event + offset] = 0;
+    if (diagram_out) diagram_out[i_event + offset] = diagram_index[i_event] - 1;
     if (color_out) color_out[i_event + offset] = color_index[i_event] - 1;
     if (helicity_out) helicity_out[i_event + offset] = helicity_index[i_event] - 1;
 }
@@ -343,7 +333,7 @@ UmamiStatus umami_matrix_element(
     gpuMallocAsync(&diagram_index, rounded_count * sizeof(unsigned int), gpu_stream);
     gpuMallocAsync(&color_jamps, rounded_count * CPPProcess::ncolor * mgOnGpu::nx2 * sizeof(fptype), gpu_stream);
     gpuMallocAsync(&numerators, rounded_count * CPPProcess::ndiagrams * CPPProcess::ncomb * sizeof(fptype), gpu_stream);
-    gpuMallocAsync(&denominators, rounded_count * sizeof(fptype), gpu_stream);
+    gpuMallocAsync(&denominators, rounded_count * CPPProcess::ncomb * sizeof(fptype), gpu_stream);
     gpuMallocAsync(&helicity_index, rounded_count * sizeof(int), gpu_stream);
     gpuMallocAsync(&color_index, rounded_count * sizeof(int), gpu_stream);
     gpuMallocAsync(&ghel_matrix_elements, rounded_count * CPPProcess::ncomb * sizeof(fptype), gpu_stream);
@@ -360,7 +350,6 @@ UmamiStatus umami_matrix_element(
         color_random,
         diagram_random,
         g_s,
-        diagram_index,
         count,
         stride,
         offset
@@ -406,6 +395,7 @@ UmamiStatus umami_matrix_element(
         denominators,
         numerators,
         matrix_elements,
+        diagram_index,
         color_index,
         helicity_index,
         m2_out,
