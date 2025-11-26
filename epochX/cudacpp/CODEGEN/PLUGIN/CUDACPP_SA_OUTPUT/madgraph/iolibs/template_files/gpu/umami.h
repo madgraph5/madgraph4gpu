@@ -64,7 +64,6 @@ typedef enum {
     UMAMI_IN_RANDOM_DIAGRAM,
     UMAMI_IN_HELICITY_INDEX,
     UMAMI_IN_DIAGRAM_INDEX,
-    UMAMI_IN_GPU_STREAM,
 } UmamiInputKey;
 
 typedef enum {
@@ -73,6 +72,7 @@ typedef enum {
     UMAMI_OUT_COLOR_INDEX,
     UMAMI_OUT_HELICITY_INDEX,
     UMAMI_OUT_DIAGRAM_INDEX,
+    UMAMI_OUT_GPU_STREAM,
     // NLO: born, virtual, poles, counterterms
     // color: LC-ME, FC-ME
 } UmamiOutputKey;

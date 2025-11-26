@@ -84,23 +84,9 @@
     // Event-by-event random choice of helicity #403 and ME sum over helicities (defer this after the helicity loop to avoid breaking streams parallelism)
     gpuLaunchKernel( add_and_select_hel, gpublocks, gputhreads, allselhel, allrndhel, ghelAllMEs, allMEs, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // Event-by-event random choice of channel
-    if ( allrnddiagram != nullptr ) {
-      fptype numerator_sum = 0.;
-      for( unsigned int ichan = 0; ichan < ndiagrams; ichan++ )
-      {
-        numerator_sum += allNumerators[ievt * processConfig::ndiagrams + ichan];
-        if( allrnddiagram[ievt] < numerator_sum / allDenominators[ievt] )
-        {
-          channelId = ichan + 1;
-          break;
-        }
-      }
-      allDiagramIdsOut[ievt] = channelId;
-    }
 
-    // Event-by-event random choice of color #402
-    gpuLaunchKernel( select_col, gpublocks, gputhreads, allselcol, allrndcol, allChannelIds, colAllJamp2s, gpublocks * gputhreads );
+    // Event-by-event random choice of color and diagram #402
+    gpuLaunchKernel( select_col_and_diag, gpublocks, gputhreads, allselcol, allDiagramIdsOut, allrndcol, allrnddiagram, allChannelIds, colAllJamp2s, ghelAllNumerators, ghelAllDenominators, gpublocks * gputhreads );
 #endif
     // *** END OF PART 1a - CUDA (one event per GPU thread) ***
 

@@ -29,16 +29,15 @@ void* initialize_impl(
     bool is_good_hel[CPPProcess::ncomb];
 #ifdef MGONGPUCPP_GPUIMPL
     std::size_t n_threads = 256;
-    std::size_t n_blocks = count / n_threads;
     bool *is_good_hel_device;
-    checkGpu(gpuMalloc(&is_good_hel_device, CPPProcess::ncomb));
-    sigmaKin_getGoodHel<<<n_blocks, n_threads, 0>>>(
-        momenta, couplings, matrix_elements, color_jamps, numerators, denominators, is_good_hel_device
+    gpuMalloc(&is_good_hel_device, CPPProcess::ncomb);
+    sigmaKin_getGoodHel(
+        momenta, couplings, matrix_elements, numerators, denominators, color_jamps, is_good_hel_device, count
     );
     checkGpu(gpuPeekAtLastError());
-    checkGpu(gpuMemcpy(
-        is_good_hel, is_good_hel_device, sizeof(is_good_hel), gpuMemcpyDefault
-    ));
+    gpuMemcpy(
+        is_good_hel, is_good_hel_device, sizeof(is_good_hel), gpuMemcpyDeviceToHost
+    );
 #else // MGONGPUCPP_GPUIMPL
     sigmaKin_getGoodHel(
         momenta, couplings, matrix_elements, numerators, denominators, is_good_hel, count
@@ -249,14 +248,11 @@ UmamiStatus umami_matrix_element(
 ) {
     const double* momenta_in = nullptr;
     const double* alpha_s_in = nullptr;
-    const int* flavor_in = nullptr;
+    const int* flavor_in = nullptr; // TODO: unused
     const double* random_color_in = nullptr;
     const double* random_helicity_in = nullptr;
     const double* random_diagram_in = nullptr;
-    const int* diagram_in = nullptr;
-#ifdef MGONGPUCPP_GPUIMPL
-    const gpuStream_t gpu_stream = nullptr;
-#endif
+    const int* diagram_in = nullptr; // TODO: unused
 
     for (std::size_t i = 0; i < input_count; ++i) {
         const void* input = inputs[i];
@@ -284,19 +280,15 @@ UmamiStatus umami_matrix_element(
         case UMAMI_IN_DIAGRAM_INDEX:
             diagram_in = static_cast<const int*>(input);
             break;
-        case UMAMI_IN_GPU_STREAM:
-#ifdef MGONGPUCPP_GPUIMPL
-            gpu_stream = static_cast<gpuStream_t>(input);
-            break;
-#else
-            return UMAMI_ERROR_UNSUPPORTED_INPUT;
-#endif
         default:
             return UMAMI_ERROR_UNSUPPORTED_INPUT;
         }
     }
     if (!momenta_in) return UMAMI_ERROR_MISSING_INPUT;
 
+#ifdef MGONGPUCPP_GPUIMPL
+    gpuStream_t gpu_stream = nullptr;
+#endif
     double* m2_out = nullptr;
     double* amp2_out = nullptr;
     int* diagram_out = nullptr;
@@ -320,6 +312,11 @@ UmamiStatus umami_matrix_element(
         case UMAMI_OUT_DIAGRAM_INDEX:
             diagram_out = static_cast<int*>(output);
             break;
+#ifdef MGONGPUCPP_GPUIMPL
+        case UMAMI_OUT_GPU_STREAM:
+            gpu_stream = static_cast<gpuStream_t>(output);
+            break;
+#endif
         default:
             return UMAMI_ERROR_UNSUPPORTED_OUTPUT;
         }
@@ -330,8 +327,8 @@ UmamiStatus umami_matrix_element(
     std::size_t n_blocks = (count + n_threads - 1) / n_threads;
     std::size_t rounded_count = n_blocks * n_threads;
 
-    fptype *momenta, *couplings, *g_s, *helicity_random, *color_random;
-    fptype *matrix_elements, *numerators, *denominators;
+    fptype *momenta, *couplings, *g_s, *helicity_random, *color_random, *diagram_random, *color_jamps;
+    fptype *matrix_elements, *numerators, *denominators, *ghel_matrix_elements, *ghel_jamps;
     int *helicity_index, *color_index;
     unsigned int *diagram_index;
 

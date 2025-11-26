@@ -656,16 +656,36 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   __global__ void
-  select_col( int* allselcol,                    // output: color selection[nevt]
-              const fptype* allrndcol,           // input: random numbers[nevt] for color selection
-              const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
-              const fptype_sv* allJamp2s,        // input: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
-              const int nevt )                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  select_col_and_diag( int* allselcol,                    // output: color selection[nevt]
+                       unsigned int* allDiagramIdsOut,    // output: sampled diagram ids
+                       const fptype* allrndcol,           // input: random numbers[nevt] for color selection
+                       const fptype* allrnddiagram,       // input: random numbers[nevt] for diagram selection
+                       const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
+                       const fptype_sv* allJamp2s,        // input: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
+                       const fptype* allNumerators,
+                       const fptype* allDenominators,
+                       const int nevt )                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
     // SCALAR channelId for the current event (CUDA)
     unsigned int channelId = gpu_channelId( allChannelIds );
     // Event-by-event random choice of color #402
+
+    // Event-by-event random choice of channel
+    if ( allrnddiagram != nullptr ) {
+      fptype numerator_sum = 0.;
+      for( unsigned int ichan = 0; ichan < processConfig::ndiagrams; ichan++ )
+      {
+        numerator_sum += allNumerators[ievt * processConfig::ndiagrams + ichan];
+        if( allrnddiagram[ievt] < numerator_sum / allDenominators[ievt] )
+        {
+          channelId = ichan + 1;
+          break;
+        }
+      }
+      allDiagramIdsOut[ievt] = channelId;
+    }
+
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
       if( channelId > mgOnGpu::nchannels )
@@ -743,7 +763,8 @@ namespace mg5amcCpu
             fptype* colAllJamp2s,               // tmp: allJamp2s super-buffer for ncolor individual colors, running sum over colors and helicities
             fptype* ghelAllNumerators,          // tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllDenominators,        // tmp: allDenominators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
-            unsigned int* ghelAllDiagramIdsOut,     // output: multichannel channelIds[nevt] (1 to #diagrams)
+            unsigned int* allDiagramIdsOut,     // output: multichannel channelIds[nevt] (1 to #diagrams)
+            bool mulChannelWeight,              // if true, multiply channel weight to ME output
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: jamp[2*ncolor*nGoodHel*nevt] super-buffer for nGoodHel <= ncomb individual helicities

@@ -356,7 +356,7 @@ namespace mg5amcGpu
     m_pHelJamps.reset( new DeviceBufferSimple( CPPProcess::ncolor * mgOnGpu::nx2 * this->nevt() ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Create the "one-helicity" numerator and denominator buffers that will be used for helicity filtering
-    m_pHelNumerators.reset( new DeviceBufferSimple( this->nevt() ) * CPPProcess::ndiagrams );
+    m_pHelNumerators.reset( new DeviceBufferSimple( this->nevt() * CPPProcess::ndiagrams ) );
     m_pHelDenominators.reset( new DeviceBufferSimple( this->nevt() ) );
 #endif
     // Decide at runtime whether to use BLAS for color sums
