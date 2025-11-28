@@ -41,6 +41,7 @@ UNAME_S := $(shell uname -s)
 # Detect architecture (x86_64, ppc64le...)
 UNAME_P := $(shell uname -p)
 ###$(info UNAME_P='$(UNAME_P)')
+UNAME_M := $(shell uname -m)
 
 #-------------------------------------------------------------------------------
 
@@ -60,7 +61,7 @@ endif
 ifeq ($(BACKEND),cppauto)
   ifeq ($(UNAME_P),ppc64le)
     override BACKEND = cppsse4
-  else ifneq (,$(filter $(UNAME_P),arm aarch64))
+  else ifneq (,$(filter $(UNAME_M),arm64 aarch64))
     override BACKEND = cppsse4
   else ifeq ($(wildcard /proc/cpuinfo),)
     override BACKEND = cppnone
@@ -271,7 +272,7 @@ ifeq ($(UNAME_P),ppc64le)
   else ifeq ($(BACKEND),cpp512z)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on PowerPC for the moment)
   endif
-else ifeq ($(UNAME_P),arm) # ARM on Apple silicon
+else ifeq ($(UNAME_M),arm64) # ARM on Apple silicon
   ifeq ($(BACKEND),cppnone) # this internally undefines __ARM_NEON
     override AVXFLAGS = -DMGONGPU_NOARMNEON
   else ifeq ($(BACKEND),cppsse4) # __ARM_NEON is always defined on Apple silicon
@@ -283,7 +284,7 @@ else ifeq ($(UNAME_P),arm) # ARM on Apple silicon
   else ifeq ($(BACKEND),cpp512z)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
   endif
-else ifeq ($(UNAME_P),aarch64) # ARM on Linux
+else ifeq ($(UNAME_M),aarch64) # ARM on Linux
   ifeq ($(BACKEND),cppnone) # +nosimd ensures __ARM_NEON is absent
     override AVXFLAGS = -march=armv8-a+nosimd
   else ifeq ($(BACKEND),cppsse4) # +simd ensures __ARM_NEON is present (128 width Q/quadword registers)
@@ -744,7 +745,7 @@ bld512z:
 ifeq ($(UNAME_P),ppc64le)
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
 bldavxs: bldnone bldsse4
-else ifneq (,$(filter $(UNAME_P),arm aarch64))
+else ifneq (,$(filter $(UNAME_M),arm64 aarch64))
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
 bldavxs: bldnone bldsse4
 else
