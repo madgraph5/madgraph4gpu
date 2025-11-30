@@ -686,7 +686,7 @@ namespace mg5amcCpu
           break;
         }
       }
-      allDiagramIdsOut[ievt] = mgOnGpu::channel2iconfig[channelId - 1];
+      allDiagramIdsOut[ievt] = channelId;
     }
 
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)

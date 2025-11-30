@@ -214,7 +214,7 @@
               break;
             }
           }
-          allDiagramIdsOut[ievt] = mgOnGpu::channel2iconfig[channelIdVec[ieppV] - 1];
+          allDiagramIdsOut[ievt] = channelIdVec[ieppV];
         }
       }
 
