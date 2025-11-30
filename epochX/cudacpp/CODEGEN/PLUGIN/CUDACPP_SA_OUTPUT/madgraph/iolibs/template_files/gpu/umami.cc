@@ -414,12 +414,16 @@ UmamiStatus umami_matrix_element(
     gpuFreeAsync(g_s, gpu_stream);
     gpuFreeAsync(helicity_random, gpu_stream);
     gpuFreeAsync(color_random, gpu_stream);
+    gpuFreeAsync(diagram_random, gpu_stream);
     gpuFreeAsync(matrix_elements, gpu_stream);
     gpuFreeAsync(diagram_index, gpu_stream);
+    gpuFreeAsync(color_jamps, gpu_stream);
     gpuFreeAsync(numerators, gpu_stream);
     gpuFreeAsync(denominators, gpu_stream);
     gpuFreeAsync(helicity_index, gpu_stream);
     gpuFreeAsync(color_index, gpu_stream);
+    gpuFreeAsync(ghel_matrix_elements, gpu_stream);
+    gpuFreeAsync(ghel_jamps, gpu_stream);
 
 #else // MGONGPUCPP_GPUIMPL
     // need to round to round to double page size for some reason
