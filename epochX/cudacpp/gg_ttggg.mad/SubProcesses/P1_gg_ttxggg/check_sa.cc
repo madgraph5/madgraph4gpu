@@ -305,6 +305,13 @@ main( int argc, char** argv )
     std::cout << "# iterations: " << niter << std::endl;
 
   // *** START THE NEW TIMERS ***
+  mgOnGpu::TimerMap2 timermap2;
+  mgOnGpu::TimerMap2 timermap2tot;
+  timermap2tot.addPartition( 1, "MEK::compMEs" );
+  static bool useMap2 = false;
+  const char* colortimerEnv = getenv( "CUDACPP_RUNTIME_COLORTIMER" );
+  if( colortimerEnv ) useMap2 = true;
+  if( useMap2 ) CPPProcess::pTimerMap( &timermap2 );
   mgOnGpu::TimerMap timermap;
 
   // === STEP 0 - INITIALISE
@@ -660,8 +667,12 @@ main( int argc, char** argv )
     // --- 3a. SigmaKin
     const std::string skinKey = "3a SigmaKin";
     timermap.start( skinKey );
+    timermap2tot.start( 1 );
+    if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP___UNKNOWN );
     constexpr bool useChannelIds = false; // TEMPORARY? disable multi-channel in check.exe and gcheck.exe #466
     pmek->computeMatrixElements( useChannelIds );
+    if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->stop();
+    timermap2tot.stop();
 
     // *** STOP THE NEW OLD-STYLE TIMER FOR MATRIX ELEMENTS (WAVEFUNCTIONS) ***
     wv3atime += timermap.stop(); // calc only
@@ -1219,11 +1230,16 @@ main( int argc, char** argv )
 
   // *** STOP THE NEW TIMERS ***
   timermap.stop();
+  if( useMap2 ) timermap2.stop();
   if( perf )
   {
     std::cout << std::string( SEP79, '*' ) << std::endl;
     timermap.dump();
     std::cout << std::string( SEP79, '*' ) << std::endl;
+    if( useMap2 ) timermap2.dump( "TOTALMEKCMES" );
+    if( useMap2 ) std::cout << std::string( SEP79, '*' ) << std::endl;
+    if( useMap2 ) timermap2tot.dump( "CHECKMEKCMES" );
+    if( useMap2 ) std::cout << std::string( SEP79, '*' ) << std::endl;
   }
 
   // [NB some resources like curand generators will be deleted here when stack-allocated classes go out of scope]
