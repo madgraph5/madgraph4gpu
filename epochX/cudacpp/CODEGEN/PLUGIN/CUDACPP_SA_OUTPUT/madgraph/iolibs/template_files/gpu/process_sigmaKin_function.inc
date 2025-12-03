@@ -201,14 +201,22 @@
         for( int ieppV = 0; ieppV < vecsize; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
-          channelIdVec[ieppV] = mgOnGpu::nchannels;
-          fptype numerator_sum = 0.;
+          fptype numerator_sum = 0., normalization = 0.;
           for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
           {
+            if (mgOnGpu::channel2iconfig[ichan] == -1) continue;
+            normalization += allNumerators[
+                ievt / neppV * neppV * processConfig::ndiagrams +
+                ichan * neppV + ieppV %% neppV];
+          }
+          channelIdVec[ieppV] = mgOnGpu::nchannels;
+          for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
+          {
+            if (mgOnGpu::channel2iconfig[ichan] == -1) continue;
             numerator_sum += allNumerators[
                 ievt / neppV * neppV * processConfig::ndiagrams +
                 ichan * neppV + ieppV %% neppV];
-            if( allrnddiagram[ievt] < numerator_sum / allDenominators[ievt] )
+            if( allrnddiagram[ievt] < numerator_sum / normalization )
             {
               channelIdVec[ieppV] = ichan + 1;
               break;
