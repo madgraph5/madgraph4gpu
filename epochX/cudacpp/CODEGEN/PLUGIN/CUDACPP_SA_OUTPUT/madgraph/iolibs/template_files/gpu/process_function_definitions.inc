@@ -674,13 +674,20 @@ namespace mg5amcCpu
 
     // Event-by-event random choice of channel
     if ( allrnddiagram != nullptr ) {
-      fptype numerator_sum = 0.;
+      fptype numerator_sum = 0., normalization = 0.;
+      for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
+      {
+        if (mgOnGpu::channel2iconfig[ichan] == -1) continue;
+        normalization += allNumerators[
+            ievt * processConfig::ndiagrams + ichan];
+      }
       channelId = mgOnGpu::nchannels;
       for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
       {
+        if (mgOnGpu::channel2iconfig[ichan] == -1) continue;
         numerator_sum += allNumerators[
             ievt * processConfig::ndiagrams + ichan];
-        if( allrnddiagram[ievt] < numerator_sum / allDenominators[ievt] )
+        if( allrnddiagram[ievt] < numerator_sum / normalization )
         {
           channelId = ichan + 1;
           break;
