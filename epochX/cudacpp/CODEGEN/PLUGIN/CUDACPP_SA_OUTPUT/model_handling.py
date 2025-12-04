@@ -391,10 +391,25 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     def get_one_momenta_def(self, i, strfile):
 
 
+
+        #if self.get_P_sign(i) == "-":
+        #    for j in range(4):
+        #        strfile.write("P%(i)d[%(j)d] = -P%(i)d[%(j)d];\n" 
+        #                          % {'i': i, 'j':j})    
+
+        type = self.particles[i-1]
+        if aloha.loop_mode:
+            ptype = 'complex_v'
+            templateval ='%(sign)s %(type)s%(i)d[%(nb)d]' # AV
+        else:
+            ptype = 'double_v'
+            templateval ='%(sign)s%(operator)s( %(type)s%(i)d[%(nb2)d] )' # AV cxreal/cximag
+        if self.nodeclare: strfile.write('     %s P%d[4];' % ( self.type2def[ptype], i) ) # AV
+
         if aloha.loop_mode:
             raise Exception
         else:
-            templateval = 'pIdp4Ievt<M_ACCESS>(allmomenta, %(id)s ,ievt, cNsp, P%(i)d);\n'
+            templateval = 'particle_binary_to_momenta<M_ACCESS>(allmomenta, %(id)s, cNsp, P%(i)d);\n'
             #template ='P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb2)d]%(operator)s;\n'
 
         strfile.write(templateval % {'i': i, 
@@ -404,44 +419,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                                   'id': self.get_P_id(i),
                                   'sign': self.get_P_sign(i)})
         return
-        if self.get_P_sign(i) == "-":
-            for j in range(4):
-                strfile.write("P%(i)d[%(j)d] = -P%(i)d[%(j)d];\n" 
-                                  % {'i': i, 'j':j})    
 
-        type = self.particles[i-1]
-        if aloha.loop_mode:
-            ptype = 'complex_v'
-            templateval ='%(sign)s %(type)s%(i)d[%(nb)d]' # AV
-        else:
-            ptype = 'double_v'
-            templateval ='%(sign)s%(operator)s( %(type)s%(i)d[%(nb2)d] )' # AV cxreal/cximag
-        if self.nodeclare: strfile.write('    const %s P%d[4] = { ' % ( self.type2def[ptype], i) ) # AV
-        nb2 = 0
-        for j in range(4):
-            if not aloha.loop_mode:
-                nb = j
-                if j == 0:
-                    assert not aloha.mp_precision
-                    operator = self.realoperator # not suppose to pass here in mp
-                elif j == 1:
-                    nb2 += 1
-                elif j == 2:
-                    assert not aloha.mp_precision
-                    operator = self.imagoperator # not suppose to pass here in mp
-                elif j ==3:
-                    nb2 -= 1
-            else:
-                operator =''
-                nb = j
-                nb2 = j
-            sign = self.get_P_sign(i) if self.get_P_sign(i) else '+' # AV
-            if self.nodeclare: template = templateval + ( ', ' if j<3 else '' ) # AV
-            else: template ='    P%(i)d[%(j)d] = ' + templateval + ';\n' # AV
-            strfile.write(template % {'j':j,'type': type, 'i': i,
-                        'nb': nb, 'nb2': nb2, 'operator':operator,
-                        'sign': sign}) # AV
-        if self.nodeclare: strfile.write(' };\n') # AV
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # This is called once per FFV function, i.e. once per WriteALOHA instance?
@@ -2217,7 +2195,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             ###    call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s);'
             ###else: # AV e.g. FFV1_0 (output is amplitude)
             ###    call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s);'
-            call = '%(routine_name)s( allmomenta, ipar, cNsp, %(wf)s%(coup)s%(mass)s%(out)s );'
+            call = '%(routine_name)s( momenta, cNsp, %(wf)s%(coup)s%(mass)s%(out)s );'
             misc.sprint(aloha_writers.combine_name('%s' % l[0], l[1:], outgoing, flag, True))
 
             # compute wf
