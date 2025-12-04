@@ -86,10 +86,12 @@ namespace mg5amcCpu
   // Helicity combinations (and filtering of "good" helicity combinations)
 #ifdef MGONGPUCPP_GPUIMPL
   __device__ __constant__ short cHel[ncomb][npar];
+  __device__ __constant__ short cNsp[npar];
   __device__ __constant__ int dcNGoodHel;
   __device__ __constant__ int dcGoodHel[ncomb];
 #else
   static short cHel[ncomb][npar];
+  static short cNsp[npar];
 #endif
   static int cNGoodHel;
   static int cGoodHel[ncomb];
@@ -156,10 +158,13 @@ namespace mg5amcCpu
     // Helicities for the process [NB do keep 'static' for this constexpr array, see issue #283]
     // *** NB There is no automatic check yet that these are in the same order as Fortran! #569 ***
 %(all_helicities)s
+static constexpr short tNsp[npar] = %(all_particle_antiparticles)s
 #ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) );
+    gpuMemcpyToSymbol( cNsp, tNsp, npar * sizeof( short ) );
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
+    memcpy( cNsp, tNsp, npar * sizeof( short ) );
 #endif
 
     // Enable SIGFPE traps for Floating Point Exceptions

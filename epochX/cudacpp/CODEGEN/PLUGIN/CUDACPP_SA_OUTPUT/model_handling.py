@@ -125,6 +125,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     ###nodeclare = False # old behaviour (separate declaration with no initialization)
     nodeclare = True # new behaviour (delayed declaration with initialisation)
 
+
+    def __init__(self, *args, **opts):
+        super().__init__(*args, **opts)
+        self.momentum_size = 0 
+
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def change_number_format(self, number):
         """Formatting the number"""
@@ -186,7 +191,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         for format, argname in self.define_argument_list(couplings):
             if format.startswith('list'):
                 type = self.type2def[format[5:]] # double or complex (instead of list_double or list_complex)
-                comment_inputs.append('%s[6]'%argname) # AV (wavefuncsize=6 is hardcoded also in export_cpp...)
+                comment_inputs.append('%s[4]'%argname) # AV (wavefuncsize=4 hardcoded for new format)
                 ###if not argname.startswith('COUP'): type = self.type2def[format[5:]+'_v'] # AV vectorize (double_v or complex_v)
                 if not argname.startswith('COUP'):
                     type = self.type2def['double'] # AV from cxtype_sv to fptype
@@ -211,7 +216,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             output = '%(doublec)s allvertexes[]' % {
                 'doublec': self.type2def['double']}
             comment_output = 'amplitude \'vertex\''
-            template = 'template<class W_ACCESS, class A_ACCESS, class C_ACCESS>'
+            template = 'template<class W_ACCESS, class A_ACCESS, class C_ACCESS, class M_ACCESS>'
         else:
             output = '%(doublec)s all%(spin)s%(id)d[]' % {
                      'doublec': self.type2def['double'],
@@ -219,7 +224,18 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
-            template = 'template<class W_ACCESS, class C_ACCESS>'
+            template = 'template<class W_ACCESS, class C_ACCESS, class M_ACCESS>'
+
+        # change in order to allow for momenta encoding
+        new_args = ['fptype * allmomenta', 'int ipar', 'short cNsp[]']
+        for a in args:
+            misc.sprint(a)
+            new_args.append(a)
+            if a.startswith('fptype all') and a.endswith('[]') and "allCOUP" not in a:
+                new_args.append('unsigned short pid%s' % a[-3])
+        args = new_args
+
+
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
         indent = ' ' * len( '  %s( ' % name )
         out.write('  %(comment)s\n  %(template)s\n  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
@@ -229,6 +245,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                    'suffix': ( ' ALWAYS_INLINE' if 'is_h' in mode else '' ), # AV - add ALWAYS_INLINE
                    'indent':indent, 'output':output, 'name': name,
                    'args': (',\n' + indent + 'const ').join(args)}) # AV - add const, add indent
+        misc.sprint(out.getvalue()) 
+
         if 'is_h' in mode:
             out.write(';\n')
             out.write('\n  //--------------------------------------------------------------------------\n') # AV add footer
@@ -350,18 +368,47 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 size_p = 4
             else:
                 size_p = 2
-            for i in range(size_p):
-                dict_energy = {'i':i}
-                out.write( '    %s%s[%s] = %s;\n' % ( type, self.outgoing, i, ''.join(p) % dict_energy ) )
+            #for i in range(size_p):
+            #    dict_energy = {'i':i}
+            #    out.write( '    %s%s[%s] = %s;\n' % ( type, self.outgoing, i, ''.join(p) % dict_energy ) )
             if self.declaration.is_used( 'P%s' % self.outgoing ):
                 self.get_one_momenta_def( self.outgoing, out )
         # Returning result
         ###print('."' + out.getvalue() + '"') # AV - FOR DEBUGGING
         return out.getvalue()
 
+    def get_P_id(self, i):
+        """ """ 
+        misc.sprint(self.outgoing, dir(self), self.__dict__)
+        if i == self.outgoing:
+            return " + ".join(["pid%d" %j for j in range(1,1+len(self.particles)) if j!= i])
+        else:
+            return "pid%d" %i
+        raise Exception     
+
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting, add delayed declaration with initialisation)
     # This affects 'P1[0] = ' in HelAmps_sm.cc
     def get_one_momenta_def(self, i, strfile):
+
+
+        if aloha.loop_mode:
+            raise Exception
+        else:
+            templateval = 'pIdp4Ievt<M_ACCESS>(allmomenta, %(id)s ,ievt, cNsp, P%(i)d);\n'
+            #template ='P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb2)d]%(operator)s;\n'
+
+        strfile.write(templateval % {'i': i, 
+                                  'id': self.get_P_id(i),
+                                  'sign': self.get_P_sign(i)})
+        misc.sprint(templateval % {'i': i, 
+                                  'id': self.get_P_id(i),
+                                  'sign': self.get_P_sign(i)})
+        return
+        if self.get_P_sign(i) == "-":
+            for j in range(4):
+                strfile.write("P%(i)d[%(j)d] = -P%(i)d[%(j)d];\n" 
+                                  % {'i': i, 'j':j})    
+
         type = self.particles[i-1]
         if aloha.loop_mode:
             ptype = 'complex_v'
@@ -1252,6 +1299,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # FIXME! Here there should be different code generated depending on MGONGPUCPP_NBSMINDEPPARAM_GT_0 (issue #827)
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
+        replace_dict['all_particle_antiparticles'] = self.get_particle_antiparticle_matrix(self.matrix_elements[0])
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
         replace_dict['ncolor'] = len(color_amplitudes[0])
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
@@ -1261,6 +1309,19 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             file = '\n'.join( file_lines )
         file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_function_definitions.inc (copyright)
         return file
+
+    def get_particle_antiparticle_matrix(self, matrix_element):
+        """Return the particle/antiparticle matrix as a C++ array declaration"""
+        part_anti_part = []
+        misc.sprint(dir(matrix_element))
+        for wf in matrix_element.get_external_wavefunctions():
+            if wf.is_fermion():
+                part_anti_part.append(- (-1) ** wf.get_with_flow('is_part'))
+            else:
+                part_anti_part.append((-1) ** (wf.get('state') == 'initial'))
+        
+        return '{ %s };' % ( ', '.join( str(x) for x in part_anti_part ) )
+
 
     # AV - modify export_cpp.OneProcessExporterGPU method (add debug printouts for multichannel #342)
     def get_sigmaKin_lines(self, color_amplitudes, write=True):
@@ -2030,6 +2091,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         line = ', '.join(split_line)
         line = line.replace( 'xxx(', 'xxx<M_ACCESS, W_ACCESS>(' )
         line = line.replace( 'w_sv', 'w_fp' )
+        misc.sprint(line) 
+        #raise Exception('Debugging stop')
         # AV2: line2 logic is to have MGONGPU_TEST_DIVERGENCE on the first xxx call
         if self.first_get_external and ( ( 'mzxxx' in line ) or ( 'pzxxx' in line ) or ( 'xzxxx' in line ) ) :
             self.first_get_external = False
@@ -2064,14 +2127,15 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
             ###call = call + 'm_pars->%s,'
             call = call
-        call = call + '%+d, w_sv[%d], %d );'
+        call = call + 'cNsp[%d], w_sv[%d], %d );'
         if argument.get('spin') == 1:
             # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
             return call % \
                             (
                                 ###wf.get('mass'),
                                 # For boson, need initial/final here
-                                (-1) ** (wf.get('state') == 'initial'),
+                                #(-1) ** (wf.get('state') == 'initial' ),
+                                wf.get('number_external')-1,
                                 wf.get('me_id')-1,
                                 wf.get('number_external')-1)
         elif argument.is_boson():
@@ -2086,7 +2150,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                             (wf.get('mass'),
                                 wf.get('number_external')-1,
                                 # For boson, need initial/final here
-                                (-1) ** (wf.get('state') == 'initial'),
+                                wf.get('number_external')-1,
+                                #(-1) ** (wf.get('state') == 'initial'),
                                 wf.get('me_id')-1,
                                 wf.get('number_external')-1))
         else:
@@ -2094,7 +2159,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                             (wf.get('mass'),
                                 wf.get('number_external')-1,
                                 # For fermions, need particle/antiparticle
-                                - (-1) ** wf.get_with_flow('is_part'),
+                                wf.get('number_external')-1,
+                                #- (-1) ** wf.get_with_flow('is_part'),
                                 wf.get('me_id')-1,
                                 wf.get('number_external')-1))
 
@@ -2151,7 +2217,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             ###    call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s);'
             ###else: # AV e.g. FFV1_0 (output is amplitude)
             ###    call = '%(routine_name)s(%(wf)s%(coup)s%(mass)s%(out)s);'
-            call = '%(routine_name)s( %(wf)s%(coup)s%(mass)s%(out)s );'
+            call = '%(routine_name)s( allmomenta, ipar, cNsp, %(wf)s%(coup)s%(mass)s%(out)s );'
+            misc.sprint(aloha_writers.combine_name('%s' % l[0], l[1:], outgoing, flag, True))
+
             # compute wf
             arg = {'routine_name': aloha_writers.combine_name('%s' % l[0], l[1:], outgoing, flag, True),
                    'wf': ('w_fp[%%(%d)d], ' * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
@@ -2177,8 +2245,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             else: caccess = 'CI_ACCESS'
             ###if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, C_ACCESS>'
             ###else : arg['routine_name'] += '<W_ACCESS, C_ACCESS>'
-            if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s>'%caccess
-            else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess
+            if arg['routine_name'].endswith( '_0' ) : arg['routine_name'] += '<W_ACCESS, A_ACCESS, %s, M_ACCESS>'%caccess
+            else : arg['routine_name'] += '<W_ACCESS, %s, M_ACCESS>'%caccess
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
                 arg['out'] = 'w_fp[%(out)d]'
