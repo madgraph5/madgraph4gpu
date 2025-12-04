@@ -17,6 +17,15 @@
 #define ALWAYS_INLINE
 #endif
 
+  template<class M_ACCESS>
+  __host__ __device__ INLINE void
+  particle_binary_to_momenta( const fptype momenta[],
+                              const unsigned short parid,
+                              const int ipar,
+                              const short cNsp[],
+                              fptype p[]
+                              ) ALWAYS_INLINE;
+
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
@@ -151,6 +160,33 @@
           fptype wavefunctions[], // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
+
+  //==========================================================================
+
+  template<class M_ACCESS>
+  __host__ __device__ void
+  particle_binary_to_momenta( const fptype momenta[],
+                              const unsigned short parid,
+                              const int ipar,
+                              const short cNsp[],
+                              fptype p[] )
+  {
+    p[0] = 0;
+    p[1] = 0;
+    p[2] = 0;
+    p[3] = 0;
+
+    short ipar = 0;
+    for (const auto & nsp: cNsp) {
+      unsigned short k = parid >> ipar;
+      if (k & 1) {
+        for (int i = 0; i < 4; i++ ) {
+          p[i] += M_ACCESS::kernelAccessIp4IparConst( momenta, i, ipar ) * (fptype)nsp;
+        }
+      }
+      ++ipar;
+    }
+  }
 
   //==========================================================================
 
