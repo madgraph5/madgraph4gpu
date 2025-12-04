@@ -25,7 +25,7 @@
   ixxxxx( const fptype momenta[], // input: momenta
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -39,7 +39,7 @@
   ipzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -53,7 +53,7 @@
   imzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -67,7 +67,7 @@
   ixzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -80,7 +80,7 @@
   vxxxxx( const fptype momenta[], // input: momenta
           const fptype vmass,     // input: vector boson mass
           const int nhel,         // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
-          const int nsv,          // input: +1 (final) or -1 (initial)
+          const short nsv,          // input: +1 (final) or -1 (initial)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -93,7 +93,7 @@
   sxxxxx( const fptype momenta[], // input: momenta
           //const fptype,                 // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
           //const int,                    // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
-          const int nss,          // input: +1 (final) or -1 (initial)
+          const short nss,          // input: +1 (final) or -1 (initial)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -106,7 +106,7 @@
   oxxxxx( const fptype momenta[], // input: momenta
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -120,7 +120,7 @@
   opzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -134,7 +134,7 @@
   omzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -147,7 +147,7 @@
   oxzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -160,7 +160,7 @@
   ixxxxx( const fptype momenta[], // input: momenta
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
@@ -174,8 +174,6 @@
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
-    fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf );
-    fi[1] = cxmake( -pvec1 * (fptype)nsf, -pvec2 * (fptype)nsf );
     const int nh = nhel * nsf;
     if( fmass != 0. )
     {
@@ -197,10 +195,10 @@
         fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
         //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
         sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
-        fi[2] = cxmake( ip * sqm[ip], 0 );
-        fi[3] = cxmake( im * nsf * sqm[ip], 0 );
-        fi[4] = cxmake( ip * nsf * sqm[im], 0 );
-        fi[5] = cxmake( im * sqm[im], 0 );
+        fi[0] = cxmake( ip * sqm[ip], 0 );
+        fi[1] = cxmake( im * nsf * sqm[ip], 0 );
+        fi[2] = cxmake( ip * nsf * sqm[im], 0 );
+        fi[3] = cxmake( im * sqm[im], 0 );
       }
       else
       {
@@ -212,10 +210,10 @@
         const fptype pp3 = fpmax( pp + pvec3, 0. );
         const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
                                 ( pp3 == 0. ? cxmake( -nh, 0. ) : cxmake( nh * pvec1, pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
-        fi[2] = sfomega[0] * chi[im];
-        fi[3] = sfomega[0] * chi[ip];
-        fi[4] = sfomega[1] * chi[im];
-        fi[5] = sfomega[1] * chi[ip];
+        fi[0] = sfomega[0] * chi[im];
+        fi[1] = sfomega[0] * chi[ip];
+        fi[2] = sfomega[1] * chi[im];
+        fi[3] = sfomega[1] * chi[ip];
       }
 #else
       // Branch A: pp == 0.
@@ -246,10 +244,10 @@
       const cxtype_v fiB_5 = sfomega[1] * chi[ip];
       // Choose between the results from branch A and branch B
       const bool_v mask = ( pp == 0. );
-      fi[2] = cxternary( mask, fiA_2, fiB_2 );
-      fi[3] = cxternary( mask, fiA_3, fiB_3 );
-      fi[4] = cxternary( mask, fiA_4, fiB_4 );
-      fi[5] = cxternary( mask, fiA_5, fiB_5 );
+      fi[0] = cxternary( mask, fiA_2, fiB_2 );
+      fi[1] = cxternary( mask, fiA_3, fiB_3 );
+      fi[2] = cxternary( mask, fiA_4, fiB_4 );
+      fi[3] = cxternary( mask, fiA_5, fiB_5 );
 #endif
     }
     else
@@ -273,17 +271,17 @@
 #endif
       if( nh == 1 )
       {
-        fi[2] = cxzero_sv();
-        fi[3] = cxzero_sv();
-        fi[4] = chi[0];
-        fi[5] = chi[1];
+        fi[0] = cxzero_sv();
+        fi[1] = cxzero_sv();
+        fi[2] = chi[0];
+        fi[3] = chi[1];
       }
       else
       {
-        fi[2] = chi[1];
-        fi[3] = chi[0];
-        fi[4] = cxzero_sv();
-        fi[5] = cxzero_sv();
+        fi[0] = chi[1];
+        fi[1] = chi[0];
+        fi[2] = cxzero_sv();
+        fi[3] = cxzero_sv();
       }
     }
     mgDebug( 1, __FUNCTION__ );
@@ -299,29 +297,27 @@
   ipzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
-    fi[0] = cxmake( -pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
-    fi[1] = cxzero_sv();
     const int nh = nhel * nsf;
     const cxtype_sv sqp0p3 = cxmake( fpsqrt( 2. * pvec3 ) * (fptype)nsf, 0. );
-    fi[2] = fi[1];
+    fi[0] = cxzero_sv();
     if( nh == 1 )
     {
-      fi[3] = fi[1];
-      fi[4] = sqp0p3;
+      fi[1] = cxzero_sv();
+      fi[2] = sqp0p3;
     }
     else
     {
-      fi[3] = sqp0p3;
-      fi[4] = fi[1];
+      fi[1] = sqp0p3;
+      fi[2] = cxzero_sv();
     }
-    fi[5] = fi[1];
+    fi[3] = cxzero_sv();
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -335,28 +331,26 @@
   imzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
-    fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
-    fi[1] = cxzero_sv();
     const int nh = nhel * nsf;
     const cxtype_sv chi = cxmake( -(fptype)nhel * fpsqrt( -2. * pvec3 ), 0. );
-    fi[3] = cxzero_sv();
-    fi[4] = cxzero_sv();
+    fi[1] = cxzero_sv();
+    fi[2] = cxzero_sv();
     if( nh == 1 )
     {
-      fi[2] = cxzero_sv();
-      fi[5] = chi;
+      fi[0] = cxzero_sv();
+      fi[3] = chi;
     }
     else
     {
-      fi[2] = chi;
-      fi[5] = cxzero_sv();
+      fi[0] = chi;
+      fi[3] = cxzero_sv();
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -371,7 +365,7 @@
   ixzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
@@ -381,10 +375,6 @@
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
-    //fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf ); // AV: BUG! not the same as ixxxxx
-    //fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf ); // AV: BUG! not the same as ixxxxx
-    fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf ); // AV: BUG FIX
-    fi[1] = cxmake( -pvec1 * (fptype)nsf, -pvec2 * (fptype)nsf ); // AV: BUG FIX
     const int nh = nhel * nsf;
     //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV: why force a float here?
     const fptype_sv sqp0p3 = fpsqrt( pvec0 + pvec3 ) * (fptype)nsf;
@@ -392,17 +382,17 @@
     const cxtype_sv chi1 = cxmake( (fptype)nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
     if( nh == 1 )
     {
-      fi[2] = cxzero_sv();
-      fi[3] = cxzero_sv();
-      fi[4] = chi0;
-      fi[5] = chi1;
+      fi[0] = cxzero_sv();
+      fi[1] = cxzero_sv();
+      fi[2] = chi0;
+      fi[3] = chi1;
     }
     else
     {
-      fi[2] = chi1;
-      fi[3] = chi0;
-      fi[4] = cxzero_sv();
-      fi[5] = cxzero_sv();
+      fi[0] = chi1;
+      fi[1] = chi0;
+      fi[2] = cxzero_sv();
+      fi[3] = cxzero_sv();
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -416,7 +406,7 @@
   vxxxxx( const fptype momenta[], // input: momenta
           const fptype vmass,     // input: vector boson mass
           const int nhel,         // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
-          const int nsv,          // input: +1 (final) or -1 (initial)
+          const short nsv,            // input: +1 (final) or -1 (initial)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
@@ -432,8 +422,6 @@
     cxtype_sv* vc = W_ACCESS::kernelAccess( wavefunctions );
     const fptype sqh = fpsqrt( 0.5 ); // AV this is > 0!
     const fptype hel = nhel;
-    vc[0] = cxmake( pvec0 * (fptype)nsv, pvec3 * (fptype)nsv );
-    vc[1] = cxmake( pvec1 * (fptype)nsv, pvec2 * (fptype)nsv );
     if( vmass != 0. )
     {
       const int nsvahl = nsv * std::abs( hel );
@@ -444,10 +432,10 @@
       const fptype_sv pt = fpmin( pp, fpsqrt( pt2 ) );
       if( pp == 0. )
       {
-        vc[2] = cxmake( 0., 0. );
-        vc[3] = cxmake( -hel * sqh, 0. );
-        vc[4] = cxmake( 0., nsvahl * sqh );
-        vc[5] = cxmake( hel0, 0. );
+        vc[0] = cxmake( 0., 0. );
+        vc[1] = cxmake( -hel * sqh, 0. );
+        vc[2] = cxmake( 0., nsvahl * sqh );
+        vc[3] = cxmake( hel0, 0. );
       }
       else
       {
@@ -455,20 +443,20 @@
         //const fptype emp = pvec / ( vmass * pp ); // this may give a FPE #1011 (why?! maybe when vmass=+-epsilon?)
         const fptype emp = pvec0 / vmass / pp; // workaround for FPE #1011
         //printf( "DEBUG1011 (after emp): emp=%f\n", emp );
-        vc[2] = cxmake( hel0 * pp / vmass, 0. );
-        vc[5] = cxmake( hel0 * pvec3 * emp + hel * pt / pp * sqh, 0. );
+        vc[0] = cxmake( hel0 * pp / vmass, 0. );
+        vc[3] = cxmake( hel0 * pvec3 * emp + hel * pt / pp * sqh, 0. );
         if( pt != 0. )
         {
           const fptype pzpt = pvec3 / ( pp * pt ) * sqh * hel;
-          vc[3] = cxmake( hel0 * pvec1 * emp - pvec1 * pzpt, -nsvahl * pvec2 / pt * sqh );
-          vc[4] = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, nsvahl * pvec1 / pt * sqh );
+          vc[1] = cxmake( hel0 * pvec1 * emp - pvec1 * pzpt, -nsvahl * pvec2 / pt * sqh );
+          vc[2] = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, nsvahl * pvec1 / pt * sqh );
         }
         else
         {
-          vc[3] = cxmake( -hel * sqh, 0. );
+          vc[1] = cxmake( -hel * sqh, 0. );
           // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
-          //vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0. ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV: why abs here?
-          vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
+          //vc[2] = cxmake( 0., nsvahl * ( pvec3 < 0. ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV: why abs here?
+          vc[2] = cxmake( 0., nsvahl * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
         }
       }
 #else
@@ -497,10 +485,10 @@
       // Choose between the results from branch A and branch B (and from branch B1 and branch B2)
       const bool_v mask = ( pp == 0. );
       const bool_v maskB = ( pt != 0. );
-      vc[2] = cxternary( mask, vcA_2, vcB_2 );
-      vc[3] = cxternary( mask, vcA_3, cxternary( maskB, vcB1_3, vcB2_3 ) );
-      vc[4] = cxternary( mask, vcA_4, cxternary( maskB, vcB1_4, vcB2_4 ) );
-      vc[5] = cxternary( mask, vcA_5, vcB_5 );
+      vc[0] = cxternary( mask, vcA_2, vcB_2 );
+      vc[1] = cxternary( mask, vcA_3, cxternary( maskB, vcB1_3, vcB2_3 ) );
+      vc[2] = cxternary( mask, vcA_4, cxternary( maskB, vcB1_4, vcB2_4 ) );
+      vc[3] = cxternary( mask, vcA_5, vcB_5 );
 #endif
     }
     else
@@ -512,21 +500,21 @@
       volatile fptype_sv pt2 = pvec1 * pvec1 + pvec2 * pvec2; // volatile fixes #736
       const fptype_sv pt = fpsqrt( pt2 );
 #endif
-      vc[2] = cxzero_sv();
-      vc[5] = cxmake( hel * pt / pp * sqh, 0. );
+      vc[0] = cxzero_sv();
+      vc[3] = cxmake( hel * pt / pp * sqh, 0. );
 #ifndef MGONGPU_CPPSIMD
       if( pt != 0. )
       {
         const fptype pzpt = pvec3 / ( pp * pt ) * sqh * hel;
-        vc[3] = cxmake( -pvec1 * pzpt, -nsv * pvec2 / pt * sqh );
-        vc[4] = cxmake( -pvec2 * pzpt, nsv * pvec1 / pt * sqh );
+        vc[1] = cxmake( -pvec1 * pzpt, -nsv * pvec2 / pt * sqh );
+        vc[2] = cxmake( -pvec2 * pzpt, nsv * pvec1 / pt * sqh );
       }
       else
       {
-        vc[3] = cxmake( -hel * sqh, 0. );
+        vc[1] = cxmake( -hel * sqh, 0. );
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
-        //vc[4] = cxmake( 0, nsv * ( pvec3 < 0. ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV why abs here?
-        vc[4] = cxmake( 0., nsv * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
+        //vc[2] = cxmake( 0, nsv * ( pvec3 < 0. ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV why abs here?
+        vc[2] = cxmake( 0., nsv * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
       }
 #else
       // Branch A: pt != 0.
@@ -539,8 +527,8 @@
       const cxtype_v vcB_4 = cxmake( 0, (fptype)nsv * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here
       // Choose between the results from branch A and branch B
       const bool_v mask = ( pt != 0. );
-      vc[3] = cxternary( mask, vcA_3, vcB_3 );
-      vc[4] = cxternary( mask, vcA_4, vcB_4 );
+      vc[1] = cxternary( mask, vcA_3, vcB_3 );
+      vc[2] = cxternary( mask, vcA_4, vcB_4 );
 #endif
     }
     mgDebug( 1, __FUNCTION__ );
@@ -555,19 +543,13 @@
   sxxxxx( const fptype momenta[], // input: momenta
           //const fptype,                 // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
           //const int,                    // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
-          const int nss,          // input: +1 (final) or -1 (initial)
+          const short nss,            // input: +1 (final) or -1 (initial)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
-    const fptype_sv& pvec0 = M_ACCESS::kernelAccessIp4IparConst( momenta, 0, ipar );
-    const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
-    const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
-    const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* sc = W_ACCESS::kernelAccess( wavefunctions );
-    sc[2] = cxmake( 1 + fptype_sv{ 0 }, 0 );
-    sc[0] = cxmake( pvec0 * (fptype)nss, pvec3 * (fptype)nss );
-    sc[1] = cxmake( pvec1 * (fptype)nss, pvec2 * (fptype)nss );
+    sc[0] = cxmake( 1 + fptype_sv{ 0 }, 0 );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -580,7 +562,7 @@
   oxxxxx( const fptype momenta[], // input: momenta
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
@@ -594,8 +576,6 @@
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
-    fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
-    fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
     const int nh = nhel * nsf;
     if( fmass != 0. )
     {
@@ -609,10 +589,10 @@
         sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
         const int ip = -( ( 1 - nh ) / 2 ) * nhel;  // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
         const int im = ( 1 + nh ) / 2 * nhel;       // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
-        fo[2] = cxmake( im * sqm[std::abs( ip )], 0 );
-        fo[3] = cxmake( ip * nsf * sqm[std::abs( ip )], 0 );
-        fo[4] = cxmake( im * nsf * sqm[std::abs( im )], 0 );
-        fo[5] = cxmake( ip * sqm[std::abs( im )], 0 );
+        fo[0] = cxmake( im * sqm[std::abs( ip )], 0 );
+        fo[1] = cxmake( ip * nsf * sqm[std::abs( ip )], 0 );
+        fo[2] = cxmake( im * nsf * sqm[std::abs( im )], 0 );
+        fo[3] = cxmake( ip * sqm[std::abs( im )], 0 );
       }
       else
       {
@@ -627,10 +607,10 @@
         const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
                                 ( ( pp3 == 0. ) ? cxmake( -nh, 0. )
                                                 : cxmake( nh * pvec1, -pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
-        fo[2] = sfomeg[1] * chi[im];
-        fo[3] = sfomeg[1] * chi[ip];
-        fo[4] = sfomeg[0] * chi[im];
-        fo[5] = sfomeg[0] * chi[ip];
+        fo[0] = sfomeg[1] * chi[im];
+        fo[1] = sfomeg[1] * chi[ip];
+        fo[2] = sfomeg[0] * chi[im];
+        fo[3] = sfomeg[0] * chi[ip];
       }
 #else
       volatile fptype_sv p2 = pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3; // volatile fixes #736
@@ -667,10 +647,10 @@
       const cxtype_v foB_5 = sfomeg[0] * chi[ipB];
       // Choose between the results from branch A and branch B
       const bool_v mask = ( pp == 0. );
-      fo[2] = cxternary( mask, foA_2, foB_2 );
-      fo[3] = cxternary( mask, foA_3, foB_3 );
-      fo[4] = cxternary( mask, foA_4, foB_4 );
-      fo[5] = cxternary( mask, foA_5, foB_5 );
+      fo[0] = cxternary( mask, foA_2, foB_2 );
+      fo[1] = cxternary( mask, foA_3, foB_3 );
+      fo[2] = cxternary( mask, foA_4, foB_4 );
+      fo[3] = cxternary( mask, foA_5, foB_5 );
 #endif
     }
     else
@@ -694,17 +674,17 @@
 #endif
       if( nh == 1 )
       {
-        fo[2] = chi[0];
-        fo[3] = chi[1];
-        fo[4] = cxzero_sv();
-        fo[5] = cxzero_sv();
+        fo[0] = chi[0];
+        fo[1] = chi[1];
+        fo[2] = cxzero_sv();
+        fo[3] = cxzero_sv();
       }
       else
       {
-        fo[2] = cxzero_sv();
-        fo[3] = cxzero_sv();
-        fo[4] = chi[1];
-        fo[5] = chi[0];
+        fo[0] = cxzero_sv();
+        fo[1] = cxzero_sv();
+        fo[2] = chi[1];
+        fo[3] = chi[0];
       }
     }
     mgDebug( 1, __FUNCTION__ );
@@ -720,28 +700,26 @@
   opzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
-    fo[0] = cxmake( pvec3 * (fptype)nsf, pvec3 * (fptype)nsf );
-    fo[1] = cxzero_sv();
     const int nh = nhel * nsf;
     const cxtype_sv csqp0p3 = cxmake( fpsqrt( 2. * pvec3 ) * (fptype)nsf, 0. );
-    fo[3] = cxzero_sv();
-    fo[4] = cxzero_sv();
+    fo[1] = cxzero_sv();
+    fo[2] = cxzero_sv();
     if( nh == 1 )
     {
-      fo[2] = csqp0p3;
-      fo[5] = cxzero_sv();
+      fo[0] = csqp0p3;
+      fo[3] = cxzero_sv();
     }
     else
     {
-      fo[2] = cxzero_sv();
-      fo[5] = csqp0p3;
+      fo[0] = cxzero_sv();
+      fo[3] = csqp0p3;
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -756,31 +734,29 @@
   omzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
-    fo[0] = cxmake( -pvec3 * (fptype)nsf, pvec3 * (fptype)nsf ); // remember pvec0 == -pvec3
-    fo[1] = cxzero_sv();
     const int nh = nhel * nsf;
     const cxtype_sv chi1 = cxmake( -nhel, 0. ) * fpsqrt( -2. * pvec3 );
     if( nh == 1 )
     {
+      fo[0] = cxzero_sv();
+      fo[1] = chi1;
       fo[2] = cxzero_sv();
-      fo[3] = chi1;
-      fo[4] = cxzero_sv();
-      fo[5] = cxzero_sv();
+      fo[3] = cxzero_sv();
     }
     else
     {
-      fo[2] = cxzero_sv();
-      fo[3] = cxzero_sv();
-      fo[4] = chi1;
-      //fo[5] = chi1; // AV: BUG!
-      fo[5] = cxzero_sv(); // AV: BUG FIX
+      fo[0] = cxzero_sv();
+      fo[1] = cxzero_sv();
+      fo[2] = chi1;
+      //fo[3] = chi1; // AV: BUG!
+      fo[3] = cxzero_sv(); // AV: BUG FIX
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -795,7 +771,7 @@
   oxzxxx( const fptype momenta[], // input: momenta
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
-          const int nsf,          // input: +1 (particle) or -1 (antiparticle)
+          const short nsf,        // input: +1 (particle) or -1 (antiparticle)
           fptype wavefunctions[], // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
@@ -805,8 +781,6 @@
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
-    fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
-    fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
     const int nh = nhel * nsf;
     //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV: why force a float here?
     const fptype_sv sqp0p3 = fpsqrt( pvec0 + pvec3 ) * (fptype)nsf;
@@ -814,17 +788,17 @@
     const cxtype_sv chi1 = cxmake( (fptype)nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
     if( nh == 1 )
     {
-      fo[2] = chi0;
-      fo[3] = chi1;
-      fo[4] = cxzero_sv();
-      fo[5] = cxzero_sv();
+      fo[0] = chi0;
+      fo[1] = chi1;
+      fo[2] = cxzero_sv();
+      fo[3] = cxzero_sv();
     }
     else
     {
-      fo[2] = cxzero_sv();
-      fo[3] = cxzero_sv();
-      fo[4] = chi1;
-      fo[5] = chi0;
+      fo[0] = cxzero_sv();
+      fo[1] = cxzero_sv();
+      fo[2] = chi1;
+      fo[3] = chi0;
     }
     mgDebug( 1, __FUNCTION__ );
     return;
