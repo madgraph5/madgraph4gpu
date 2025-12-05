@@ -21,9 +21,9 @@
   __host__ __device__ INLINE void
   particle_binary_to_momenta( const fptype momenta[],
                               const unsigned short parid,
-                              const int ipar,
                               const short cNsp[],
-                              fptype p[]
+                              const bool sign,
+                              fptype_sv p[]
                               ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
@@ -167,24 +167,26 @@
   __host__ __device__ void
   particle_binary_to_momenta( const fptype momenta[],
                               const unsigned short parid,
-                              const int ipar,
                               const short cNsp[],
-                              fptype p[] )
+                              const bool sign,
+                              fptype_sv p[] )
   {
     p[0] = 0;
     p[1] = 0;
     p[2] = 0;
     p[3] = 0;
 
-    short ipar = 0;
-    for (const auto & nsp: cNsp) {
-      unsigned short k = parid >> ipar;
+    for (short ipar=0;ipar<10;ipar++) {
+      unsigned short k = parid >> (ipar);
       if (k & 1) {
         for (int i = 0; i < 4; i++ ) {
-          p[i] += M_ACCESS::kernelAccessIp4IparConst( momenta, i, ipar ) * (fptype)nsp;
+            if(sign){
+          p[i] -= M_ACCESS::kernelAccessIp4IparConst( momenta, i, ipar )* (fptype)cNsp[ipar];
+            }else{
+          p[i] += M_ACCESS::kernelAccessIp4IparConst( momenta, i, ipar )* (fptype)cNsp[ipar];
+            }
         }
       }
-      ++ipar;
     }
   }
 
@@ -210,7 +212,7 @@
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
     cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
-    const int nh = nhel * nsf;
+    const int nh = nhel * nsf *-1;
     if( fmass != 0. )
     {
 #ifndef MGONGPU_CPPSIMD

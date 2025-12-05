@@ -227,7 +227,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             template = 'template<class W_ACCESS, class C_ACCESS, class M_ACCESS>'
 
         # change in order to allow for momenta encoding
-        new_args = ['fptype * allmomenta', 'int ipar', 'short cNsp[]']
+        new_args = ['fptype * allmomenta', 'short cNsp[]']
         for a in args:
             misc.sprint(a)
             new_args.append(a)
@@ -409,15 +409,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         if aloha.loop_mode:
             raise Exception
         else:
-            templateval = 'particle_binary_to_momenta<M_ACCESS>(allmomenta, %(id)s, cNsp, P%(i)d);\n'
+            templateval = 'particle_binary_to_momenta<M_ACCESS>(allmomenta, %(id)s, cNsp, %(sign)s, P%(i)d);\n'
             #template ='P%(i)d[%(j)d] = %(sign)s%(type)s%(i)d[%(nb2)d]%(operator)s;\n'
 
         strfile.write(templateval % {'i': i, 
                                   'id': self.get_P_id(i),
-                                  'sign': self.get_P_sign(i)})
+                                  'sign': 'true' if self.get_P_sign(i) == '-' else 'false'})
         misc.sprint(templateval % {'i': i, 
                                   'id': self.get_P_id(i),
-                                  'sign': self.get_P_sign(i)})
+                                  'sign': 'true' if self.get_P_sign(i) == '-' else 'false'})
         return
 
 
@@ -1294,10 +1294,18 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         misc.sprint(dir(matrix_element))
         for wf in matrix_element.get_external_wavefunctions():
             if wf.is_fermion():
-                part_anti_part.append(- (-1) ** wf.get_with_flow('is_part'))
+                misc.sprint(helas_call_writers.HelasCallWriter.mother_dict[wf.get_spin_state_number()])
+
+                if helas_call_writers.HelasCallWriter.mother_dict[wf.get_spin_state_number()] == "I":
+                    part_anti_part.append( (-1) ** wf.get_with_flow('is_part'))
+                else:
+                    part_anti_part.append(- (-1) ** wf.get_with_flow('is_part'))
+
             else:
                 part_anti_part.append((-1) ** (wf.get('state') == 'initial'))
         
+        #breakpoint()
+        #raise Exception('Debug stop in get_particle_antiparticle_matrix')
         return '{ %s };' % ( ', '.join( str(x) for x in part_anti_part ) )
 
 
@@ -2200,8 +2208,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
             # compute wf
             arg = {'routine_name': aloha_writers.combine_name('%s' % l[0], l[1:], outgoing, flag, True),
-                   'wf': ('w_fp[%%(%d)d], ' * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
-                   'coup': ('m_pars->%%(coup%d)s, ' * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
+                   'wf': ("w_fp[%%(%d)d],%%(%d_id)d," * len(argument.get('mothers'))) % \
+                                      tuple([i for i in range(len(argument.get('mothers'))) for j in [0,1]]),
+                   #'wf': ('w_fp[%%(%d)d], ' * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
+                   'coup': ('m_pars->%%(coup%d)s, ' * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling')))),
+                   #'wf_id': ("%%(%d_id)d," * len(argument.get('mothers'))) % \
+                   #                   tuple(range(len(argument.get('mothers')))),
                    }
             # AV FOR PR #434: determine if this call needs aS-dependent or aS-independent parameters
             usesdepcoupl = None
