@@ -44,7 +44,11 @@ function runDirFpBld()
     argCpu="256 32 1"
     argGpu="256 32 10"
   elif [ "${proc}" == "gg_ttggg" ]; then
-    argCpu="16 32 1"
+    if [ "${skipCuda}" == "" ]; then
+      argCpu="16 32 1"
+    else
+      argCpu="4 32 1"
+    fi
     ###argGpu="4 32 10" # blas always loses
     ###argGpu="8 32 10" # blas always loses
     argGpu="16 32 10" # blas beats kernel for fptype=d (NB for fptype=f, "4 32 10" has much lower tput!)
@@ -96,11 +100,13 @@ function runDirFp()
   dir=$1
   fp=$2
   cd $1
-  if [ "${HOSTNAME}" == "itscrd-a100.cern.ch" ]; then
-    runDirFpBld . ${fp} cuda-blas-TC
+  if [ "${skipCuda}" == "" ]; then
+    if [ "${HOSTNAME}" == "itscrd-a100.cern.ch" ]; then
+      runDirFpBld . ${fp} cuda-blas-TC
+    fi  
+    runDirFpBld . ${fp} cuda-blas
+    runDirFpBld . ${fp} cuda
   fi
-  runDirFpBld . ${fp} cuda-blas
-  runDirFpBld . ${fp} cuda
   runDirFpBld . ${fp} none
   runDirFpBld . ${fp} sse4
   runDirFpBld . ${fp} avx2
@@ -173,6 +179,9 @@ function runggttgggFp()
   if [ "${OUTFILE}" != "" ]; then echo; echo "Result file: ${OUTFILE}"; cat ${OUTFILE}; fi
 }
 
+# SKIP CUDA?
+skipCuda=
+
 # TEST INDIVIDUAL COMPONENTS
 ###buildDir $*
 ###runDirFpBld $*
@@ -189,3 +198,6 @@ function runggttgggFp()
 #runggttgggFp f
 #runggttgggFp m
 #runggttgggFp d
+
+# FOR THE PAPER: GGTTGGG/SIMD
+#skipCuda=1; cd ${scrdir}/../gg_ttggg.mad/SubProcesses/P1_gg_ttxggg; runDir . | tee ${scrdir}/simd_gold91_raw.txt; cd -
