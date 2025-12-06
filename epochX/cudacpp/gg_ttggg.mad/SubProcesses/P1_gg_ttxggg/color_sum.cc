@@ -216,42 +216,34 @@ namespace mg5amcCpu
     // we gain (not a factor 2...) in speed here as we only loop over the up diagonal part of the matrix.
     // Strangely, CUDA is slower instead, so keep the old implementation for the moment.
     fptype2_sv deltaMEs2 = { 0 };
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-    // Mixed mode: merge two neppV vectors into one neppV2 vector
     fptype2_sv jampR_sv[ncolor];
     fptype2_sv jampI_sv[ncolor];
     for( int icol = 0; icol < ncolor; icol++ )
     {
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+      // Mixed mode with SIMD: merge two neppV vectors into one neppV2 vector
       jampR_sv[icol] = fpvmerge( cxreal( allJamp_sv[icol] ), cxreal( allJamp_sv[ncolor + icol] ) );
       jampI_sv[icol] = fpvmerge( cximag( allJamp_sv[icol] ), cximag( allJamp_sv[ncolor + icol] ) );
-    }
 #else
-    const cxtype_sv* jamp_sv = allJamp_sv;
+      // Mixed mode without SIMD or double/float mode
+      jampR_sv[icol] = cxreal( allJamp_sv[icol] );
+      jampI_sv[icol] = cximag( allJamp_sv[icol] );
 #endif
+    }
     // Loop over icol
     for( int icol = 0; icol < ncolor; icol++ )
     {
       // Diagonal terms
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       fptype2_sv& jampRi_sv = jampR_sv[icol];
       fptype2_sv& jampIi_sv = jampI_sv[icol];
-#else
-      fptype2_sv jampRi_sv = (fptype2_sv)( cxreal( jamp_sv[icol] ) );
-      fptype2_sv jampIi_sv = (fptype2_sv)( cximag( jamp_sv[icol] ) );
-#endif
       fptype2_sv ztempR_sv = cf2.value[icol][icol] * jampRi_sv;
       fptype2_sv ztempI_sv = cf2.value[icol][icol] * jampIi_sv;
       // Loop over jcol
       for( int jcol = icol + 1; jcol < ncolor; jcol++ )
       {
         // Off-diagonal terms
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         fptype2_sv& jampRj_sv = jampR_sv[jcol];
         fptype2_sv& jampIj_sv = jampI_sv[jcol];
-#else
-        fptype2_sv jampRj_sv = (fptype2_sv)( cxreal( jamp_sv[jcol] ) );
-        fptype2_sv jampIj_sv = (fptype2_sv)( cximag( jamp_sv[jcol] ) );
-#endif
         ztempR_sv += cf2.value[icol][jcol] * jampRj_sv;
         ztempI_sv += cf2.value[icol][jcol] * jampIj_sv;
       }
