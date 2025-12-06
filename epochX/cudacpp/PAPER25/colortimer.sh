@@ -200,5 +200,5 @@ skipCuda=
 #runggttgggFp d
 
 # FOR THE PAPER: GGTTGGG/SIMD
-#skipCuda=1; cd ${scrdir}/../gg_ttggg.mad/SubProcesses/P1_gg_ttxggg; runDir . | tee ${scrdir}/simd_gold91_raw.txt; cd -
-#${scrdir}/simdparser.py ${scrdir}/simd_gold91_raw.txt | tee  ${scrdir}/simd_gold91_summary.txt
+skipCuda=1; cd ${scrdir}/../gg_ttggg.mad/SubProcesses/P1_gg_ttxggg; runDir . | tee ${scrdir}/simd_gold91_raw.txt; cd -
+${scrdir}/simdparser.py ${scrdir}/simd_gold91_raw.txt | tee  ${scrdir}/simd_gold91_summary.txt
