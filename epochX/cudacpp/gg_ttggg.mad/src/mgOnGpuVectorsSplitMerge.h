@@ -37,7 +37,7 @@
 #error You must CHOOSE AT MOST ONE of MGONGPU_FPVFUN_SCALAR or MGONGPU_FPVFUN_INITLIST
 #endif
 
-// Headers for intrinsics 
+// Headers for intrinsics
 #ifdef MGONGPU_FPVFUN_INTRINSICS
 #include <x86intrin.h>
 #endif
@@ -62,10 +62,10 @@ namespace mg5amcCpu
     for( int ieppV = 0; ieppV < neppV; ieppV++ )
     {
       out[ieppV] = v1[ieppV];
-      out[ieppV+neppV] = v2[ieppV];
+      out[ieppV + neppV] = v2[ieppV];
     }
     return out;
-  }  
+  }
 
   //--------------------------------------------------------------------------
 
@@ -98,36 +98,39 @@ namespace mg5amcCpu
   fpvmerge_intrinsics( const fptype_v& v1, const fptype_v& v2 )
   {
     // AV's implementation with x86-64 intrinsics (Nov 2025)
-#if MGONGPU_CPPSIMD == 2
+#if MGONGPU_CPPSIMD == 2 /* clang-format off */
     // --- CUDACPP "sse4" ---
-    union { fptype_v v; __m128d i; } u1, u2; // bitcast fptype_v to __m128d
-    u1.v = v1; u2.v = v2;
+    union{ fptype_v v; __m128d i; } u1, u2; // bitcast fptype_v to __m128d
+    union{ __m128 i; fptype2_v v; } u12;    // bitcast __m128 to fptype2_v /* clang-format on */ 
+    u1.v = v1;
+    u2.v = v2;
     __m128 f10 = _mm_cvtpd_ps( u1.i );      // converts 2 doubles to 2 floats into lower 64 bits of of __m128
     __m128 f20 = _mm_cvtpd_ps( u2.i );      // converts 2 doubles to 2 floats into lower 64 bits of of __m128
     __m128 f12 = _mm_movelh_ps( f10, f20 ); // places lower half of f10 then lower half of f20 into f12
-    union { __m128 i; fptype2_v v; } u12;
     u12.i = f12;
     fptype2_v out = u12.v;
-#elif MGONGPU_CPPSIMD == 4
+#elif MGONGPU_CPPSIMD == 4 /* clang-format off */
     // --- CUDACPP "avx2" or "512y" ---
     union { fptype_v v; __m256d i; } u1, u2; // bitcast fptype_v to __m256d
-    u1.v = v1; u2.v = v2;
+    union { __m256 i; fptype2_v v; } u12;    // bitcast __m256 to fptype2_v /* clang-format on */ 
+    u1.v = v1;
+    u2.v = v2;
     __m128 f1 = _mm256_cvtpd_ps( u1.i );             // converts 4 doubles to 4 floats into __m128
     __m128 f2 = _mm256_cvtpd_ps( u2.i );             // converts 4 doubles to 4 floats into __m128
     __m256 f10 = _mm256_castps128_ps256( f1 );       // insert f1 into lower 128 bits of f12
     __m256 f12 = _mm256_insertf128_ps( f10, f2, 1 ); // copy f10 to f12 and insert f2 into higher 128 bits
-    union { __m256 i; fptype2_v v; } u12;
     u12.i = f12;
     fptype2_v out = u12.v;
-#elif MGONGPU_CPPSIMD == 8
+#elif MGONGPU_CPPSIMD == 8 /* clang-format off */
     // --- CUDACPP "512z" ---
     union { fptype_v v; __m512d i; } u1, u2; // bitcast fptype_v to __512d
-    u1.v = v1; u2.v = v2;
+    union { __m512 i; fptype2_v v; } u12;    // bitcast __m512 to fptype2_v /* clang-format on */ 
+    u1.v = v1;
+    u2.v = v2;
     __m256 f1 = _mm512_cvtpd_ps( u1.i );           // converts 8 doubles to 8 floats into __m256
     __m256 f2 = _mm512_cvtpd_ps( u2.i );           // converts 8 doubles to 8 floats into __m256
     __m512 f10 = _mm512_castps256_ps512( f1 );     // insert f1 into lower 256 bits of f12
     __m512 f12 = _mm512_insertf32x8( f10, f2, 1 ); // copy f10 to f12 and insert f2 into higher 256 bits
-    union { __m512 i; fptype2_v v; } u12;
     u12.i = f12;
     fptype2_v out = u12.v;
 #endif
@@ -149,8 +152,8 @@ namespace mg5amcCpu
     stdx::fixed_size_simd<fptype, n_d> sd2( reinterpret_cast<const fptype*>( &v2 ), stdx::element_aligned );
     // Cast each stdx::fixed_size_simd<fptype, n_d> into a stdx::fixed_size_simd<fptype2, n_d>
     // (use static_simd_cast for vectorized double-to-float narrowing: simd_cast can only be used for non-narrowing casts)
-    stdx::fixed_size_simd<fptype2, n_d> sf1 = stdx::static_simd_cast<stdx::fixed_size_simd<fptype2, n_d> >( sd1 );
-    stdx::fixed_size_simd<fptype2, n_d> sf2 = stdx::static_simd_cast<stdx::fixed_size_simd<fptype2, n_d> >( sd2 );
+    stdx::fixed_size_simd<fptype2, n_d> sf1 = stdx::static_simd_cast<stdx::fixed_size_simd<fptype2, n_d>>( sd1 );
+    stdx::fixed_size_simd<fptype2, n_d> sf2 = stdx::static_simd_cast<stdx::fixed_size_simd<fptype2, n_d>>( sd2 );
     // Now concatenate sf1 (low half) and sf2 (high half) into one stdx::fixed_size_simd<fptype2, n_d*2>
     // Many TS implementations provide stdx::simd_cat, but some do not: do a safe copy to buffer instead
     fptype2_v out;
@@ -237,7 +240,7 @@ namespace mg5amcCpu
     fptype_v out = {};
     for( int ieppV = 0; ieppV < neppV; ieppV++ )
     {
-      out[ieppV] = v[ieppV+neppV];
+      out[ieppV] = v[ieppV + neppV];
     }
     return out;
   }
