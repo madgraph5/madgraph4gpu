@@ -6,9 +6,9 @@
 #include "mgOnGpuConfig.h"
 
 // For tests: disable autovectorization in gcc (in the cppnone mode only)
-//#ifndef MGONGPU_CPPSIMD
-//#pragma GCC optimize("no-tree-vectorize")
-//#endif
+#ifndef MGONGPU_CPPSIMD
+#pragma GCC optimize("no-tree-vectorize")
+#endif
 
 #include "color_sum.h"
 
