@@ -15,11 +15,11 @@
 
 // Non-default implementation of fpvmerge using intrinsics (only on x86-64)
 #ifdef __x86_64__
-#define MGONGPU_FPVFUN_INTRINSICS 1 // NON-DEFAULT FOR TESTS
+//#define MGONGPU_FPVFUN_INTRINSICS 1 // NON-DEFAULT FOR TESTS
 #endif
 
 // Non-default scalar implementation of fpvmerge for tests
-//#define MGONGPU_FPVFUN_SCALAR 1 // NON-DEFAULT FOR TESTS
+#define MGONGPU_FPVFUN_SCALAR 1 // NON-DEFAULT FOR TESTS
 
 // Default implementation of fpvmerge using initializer lists
 //#define MGONGPU_FPVFUN_INITLIST 1 // DEFAULT
