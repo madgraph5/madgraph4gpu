@@ -3,9 +3,14 @@
 // Created by: A. Valassi (Sep 2025) for the MG5aMC CUDACPP plugin.
 // Further modified by: A. Valassi (2025) for the MG5aMC CUDACPP plugin.
 
-#include "color_sum.h"
-
 #include "mgOnGpuConfig.h"
+
+// For tests: disable autovectorization in gcc (in the cppnone mode only)
+#ifndef MGONGPU_CPPSIMD
+#pragma GCC optimize("no-tree-vectorize")
+#endif
+
+#include "color_sum.h"
 
 #include "MemoryAccessMatrixElements.h"
 
