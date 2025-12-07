@@ -21,7 +21,6 @@
 
 #include "GpuAbstraction.h"
 #include "Parameters_sm.h"
-#include "timermap2.h"
 
 #include <vector>
 
@@ -64,17 +63,6 @@ namespace mg5amcCpu
     // Accessors (unused so far: add four of them only to fix a clang build warning)
     //bool verbose() const { return m_verbose; }
     bool debug() const { return m_debug; }
-
-    // HACK HACK HACK
-    static mgOnGpu::TimerMap2* pTimerMap( mgOnGpu::TimerMap2* pMap = nullptr );
-    static constexpr size_t TIMERMAP__DEPCOUPS=11;
-    static constexpr size_t TIMERMAP__SIGMAKIN=21;
-    static constexpr size_t TIMERMAP_CALCJAMPS=22;
-    static constexpr size_t TIMERMAP__COLORSUM=23;
-    static constexpr size_t TIMERMAP_UPDJAMPS2=24;
-    static constexpr size_t TIMERMAP_SELHELCOL=25;
-    static constexpr size_t TIMERMAP_UPDATNEVT=31;
-    static constexpr size_t TIMERMAP___UNKNOWN=99;
 
   public:
 

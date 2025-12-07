@@ -30065,27 +30065,6 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  mgOnGpu::TimerMap2*
-  CPPProcess::pTimerMap( mgOnGpu::TimerMap2* ptr )
-  {
-    static mgOnGpu::TimerMap2* s_map = nullptr;
-    if( ptr )
-    {
-      ptr->addPartition( TIMERMAP__DEPCOUPS, "11  DEPCOUPS" );
-      ptr->addPartition( TIMERMAP__SIGMAKIN, "21  SIGMAKIN" );
-      ptr->addPartition( TIMERMAP_CALCJAMPS, "22 CALCJAMPS" );
-      ptr->addPartition( TIMERMAP__COLORSUM, "23  COLORSUM" );
-      ptr->addPartition( TIMERMAP_UPDJAMPS2, "24 UPDJAMPS2" );
-      ptr->addPartition( TIMERMAP_SELHELCOL, "25 SELHELCOL" );
-      ptr->addPartition( TIMERMAP_UPDATNEVT, "31 UPDATNEVT" );
-      ptr->addPartition( TIMERMAP___UNKNOWN, "99 ?UNKNOWN?" );
-      s_map = ptr;
-    }
-    return s_map;
-  }
-
-  //--------------------------------------------------------------------------
-
   CPPProcess::CPPProcess( bool verbose,
                           bool debug )
     : m_verbose( verbose )
@@ -30848,7 +30827,6 @@ namespace mg5amcCpu
     // Use CUDA/HIP streams to process different helicities in parallel (one good helicity per stream)
     // (1) First, within each helicity stream, compute the QCD partial amplitudes jamp's for each helicity
     // In multichannel mode, also compute the running sums over helicities of numerators, denominators and squared jamp2s
-    if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP_CALCJAMPS );
     for( int ighel = 0; ighel < cNGoodHel; ighel++ )
     {
       const int ihel = cGoodHel[ighel];
@@ -30861,14 +30839,11 @@ namespace mg5amcCpu
       gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );
 #endif
     }
-    if( CPPProcess::pTimerMap() ) checkGpu( gpuDeviceSynchronize() );
-    if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP__COLORSUM );
     // (2) Then compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
     color_sum_gpu( ghelAllMEs, ghelAllJamps, ghelAllBlasTmp, pBlasHandle, ghelStreams, cNGoodHel, gpublocks, gputhreads );
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
     // (3) Wait for all helicity streams to complete, then finally compute the ME sum over all helicities and choose one helicity and one color
     // Event-by-event random choice of helicity #403 and ME sum over helicities (defer this after the helicity loop to avoid breaking streams parallelism)
-    if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP_SELHELCOL );
     gpuLaunchKernel( add_and_select_hel, gpublocks, gputhreads, allselhel, allrndhel, ghelAllMEs, allMEs, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
@@ -30954,7 +30929,6 @@ namespace mg5amcCpu
 #endif
       for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
-        if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP_CALCJAMPS );
         const int ihel = cGoodHel[ighel];
         cxtype_sv jamp_sv[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -30963,14 +30937,12 @@ namespace mg5amcCpu
 #else
         calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 );
 #endif
-        if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP__COLORSUM );
         color_sum_cpu( allMEs, jamp_sv, ievt00 );
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
       }
-      if( CPPProcess::pTimerMap() ) CPPProcess::pTimerMap()->start( CPPProcess::TIMERMAP_SELHELCOL );
       // Event-by-event random choice of helicity #403
       for( int ieppV = 0; ieppV < neppV; ++ieppV )
       {
