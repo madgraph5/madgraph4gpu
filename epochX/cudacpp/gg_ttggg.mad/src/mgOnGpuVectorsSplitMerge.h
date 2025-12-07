@@ -19,10 +19,10 @@
 #endif
 
 // Non-default scalar implementation of fpvmerge for tests
-#define MGONGPU_FPVFUN_SCALAR 1 // NON-DEFAULT FOR TESTS
+//#define MGONGPU_FPVFUN_SCALAR 1 // NON-DEFAULT FOR TESTS
 
 // Default implementation of fpvmerge using initializer lists
-//#define MGONGPU_FPVFUN_INITLIST 1 // DEFAULT
+#define MGONGPU_FPVFUN_INITLIST 1 // DEFAULT
 
 // SANITY CHECKS
 #if defined MGONGPU_FPVFUN_INTRINSICS and ( defined MGONGPU_FPVFUN_SCALAR or defined MGONGPU_FPVFUN_INITLIST )
