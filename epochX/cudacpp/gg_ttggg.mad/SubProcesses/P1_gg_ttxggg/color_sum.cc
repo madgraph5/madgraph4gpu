@@ -12,6 +12,8 @@
 
 #include "color_sum.h"
 
+#include "mgOnGpuVectorsSplitMerge.h"
+
 #include "MemoryAccessMatrixElements.h"
 
 #ifdef MGONGPUCPP_GPUIMPL
