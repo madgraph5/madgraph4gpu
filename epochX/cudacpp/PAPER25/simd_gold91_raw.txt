@@ -1,90 +1,90 @@
 
 PROC=gg_ttggg FPTYPE=m BLD=none (ARG='4 32 1')
--> SK with / without timers: 1.266337 / 1.265253 (x1.0009) [chronotimers=0]
--> Jamps    / MEs : 1.232026 / 1.265576 (97.3490%)
--> ColorSum / MEs : 0.033543 / 1.265576 ( 2.6504%)
+-> SK with / without timers: 1.264343 / 1.265628 (x0.9990) [chronotimers=0]
+-> Jamps    / MEs : 1.229941 / 1.263685 (97.3297%)
+-> ColorSum / MEs : 0.033736 / 1.263685 ( 2.6697%)
 -> MeanMatrixElemValue : 3.084497e-07
 
 PROC=gg_ttggg FPTYPE=m BLD=sse4 (ARG='4 32 1')
--> SK with / without timers: 0.645789 / 0.646281 (x0.9992) [chronotimers=0]
--> Jamps    / MEs : 0.616563 / 0.645603 (95.5019%)
--> ColorSum / MEs : 0.029034 / 0.645603 ( 4.4972%)
+-> SK with / without timers: 0.644702 / 0.644743 (x0.9999) [chronotimers=0]
+-> Jamps    / MEs : 0.615487 / 0.644513 (95.4964%)
+-> ColorSum / MEs : 0.029020 / 0.644513 ( 4.5026%)
 -> MeanMatrixElemValue : 3.084497e-07
 
 PROC=gg_ttggg FPTYPE=m BLD=avx2 (ARG='4 32 1')
--> SK with / without timers: 0.288591 / 0.288680 (x0.9997) [chronotimers=0]
--> Jamps    / MEs : 0.274669 / 0.288446 (95.2237%)
--> ColorSum / MEs : 0.013772 / 0.288446 ( 4.7746%)
+-> SK with / without timers: 0.288916 / 0.288384 (x1.0018) [chronotimers=0]
+-> Jamps    / MEs : 0.274972 / 0.288760 (95.2251%)
+-> ColorSum / MEs : 0.013782 / 0.288760 ( 4.7728%)
 -> MeanMatrixElemValue : 3.084497e-07
 
 PROC=gg_ttggg FPTYPE=m BLD=512y (ARG='4 32 1')
--> SK with / without timers: 0.252002 / 0.250416 (x1.0063) [chronotimers=0]
--> Jamps    / MEs : 0.238093 / 0.251875 (94.5282%)
--> ColorSum / MEs : 0.013776 / 0.251875 ( 5.4694%)
+-> SK with / without timers: 0.252163 / 0.251747 (x1.0017) [chronotimers=0]
+-> Jamps    / MEs : 0.238268 / 0.252031 (94.5392%)
+-> ColorSum / MEs : 0.013757 / 0.252031 ( 5.4585%)
 -> MeanMatrixElemValue : 3.084497e-07
 
 PROC=gg_ttggg FPTYPE=m BLD=512z (ARG='4 32 1')
--> SK with / without timers: 0.143373 / 0.143253 (x1.0008) [chronotimers=0]
--> Jamps    / MEs : 0.135976 / 0.143298 (94.8904%)
--> ColorSum / MEs : 0.007317 / 0.143298 ( 5.1061%)
+-> SK with / without timers: 0.143759 / 0.143325 (x1.0030) [chronotimers=0]
+-> Jamps    / MEs : 0.136349 / 0.143683 (94.8957%)
+-> ColorSum / MEs : 0.007329 / 0.143683 ( 5.1008%)
 -> MeanMatrixElemValue : 3.084497e-07
 
 PROC=gg_ttggg FPTYPE=d BLD=none (ARG='4 32 1')
--> SK with / without timers: 1.291267 / 1.290983 (x1.0002) [chronotimers=0]
--> Jamps    / MEs : 1.229413 / 1.290505 (95.2660%)
--> ColorSum / MEs : 0.061085 / 1.290505 ( 4.7334%)
+-> SK with / without timers: 1.285747 / 1.287337 (x0.9988) [chronotimers=0]
+-> Jamps    / MEs : 1.228088 / 1.285060 (95.5666%)
+-> ColorSum / MEs : 0.056965 / 1.285060 ( 4.4329%)
 -> MeanMatrixElemValue : 3.084497e-07
 
 PROC=gg_ttggg FPTYPE=d BLD=sse4 (ARG='4 32 1')
--> SK with / without timers: 0.679265 / 0.679541 (x0.9996) [chronotimers=0]
--> Jamps    / MEs : 0.625087 / 0.678771 (92.0910%)
--> ColorSum / MEs : 0.053678 / 0.678771 ( 7.9081%)
+-> SK with / without timers: 0.679287 / 0.679101 (x1.0003) [chronotimers=0]
+-> Jamps    / MEs : 0.625276 / 0.678767 (92.1194%)
+-> ColorSum / MEs : 0.053485 / 0.678767 ( 7.8797%)
 -> MeanMatrixElemValue : 3.084497e-07
 
 PROC=gg_ttggg FPTYPE=d BLD=avx2 (ARG='4 32 1')
--> SK with / without timers: 0.307650 / 0.305474 (x1.0071) [chronotimers=0]
--> Jamps    / MEs : 0.282247 / 0.307413 (91.8136%)
--> ColorSum / MEs : 0.025162 / 0.307413 ( 8.1851%)
+-> SK with / without timers: 0.305466 / 0.304859 (x1.0020) [chronotimers=0]
+-> Jamps    / MEs : 0.280137 / 0.305195 (91.7895%)
+-> ColorSum / MEs : 0.025052 / 0.305195 ( 8.2085%)
 -> MeanMatrixElemValue : 3.084497e-07
 
 PROC=gg_ttggg FPTYPE=d BLD=512y (ARG='4 32 1')
--> SK with / without timers: 0.268846 / 0.267472 (x1.0051) [chronotimers=0]
--> Jamps    / MEs : 0.243491 / 0.268509 (90.6826%)
--> ColorSum / MEs : 0.025013 / 0.268509 ( 9.3155%)
+-> SK with / without timers: 0.267971 / 0.267551 (x1.0016) [chronotimers=0]
+-> Jamps    / MEs : 0.242411 / 0.267573 (90.5962%)
+-> ColorSum / MEs : 0.025157 / 0.267573 ( 9.4019%)
 -> MeanMatrixElemValue : 3.084497e-07
 
 PROC=gg_ttggg FPTYPE=d BLD=512z (ARG='4 32 1')
--> SK with / without timers: 0.151771 / 0.152244 (x0.9969) [chronotimers=0]
--> Jamps    / MEs : 0.138471 / 0.151637 (91.3174%)
--> ColorSum / MEs : 0.013161 / 0.151637 ( 8.6793%)
+-> SK with / without timers: 0.152311 / 0.152103 (x1.0014) [chronotimers=0]
+-> Jamps    / MEs : 0.139000 / 0.152182 (91.3380%)
+-> ColorSum / MEs : 0.013176 / 0.152182 ( 8.6581%)
 -> MeanMatrixElemValue : 3.084497e-07
 
 PROC=gg_ttggg FPTYPE=f BLD=none (ARG='4 32 1')
--> SK with / without timers: 1.243079 / 1.241068 (x1.0016) [chronotimers=0]
--> Jamps    / MEs : 1.205731 / 1.242245 (97.0606%)
--> ColorSum / MEs : 0.036507 / 1.242245 ( 2.9388%)
+-> SK with / without timers: 1.238727 / 1.238157 (x1.0005) [chronotimers=0]
+-> Jamps    / MEs : 1.204916 / 1.237888 (97.3364%)
+-> ColorSum / MEs : 0.032966 / 1.237888 ( 2.6631%)
 -> MeanMatrixElemValue : 3.084513e-07
 
 PROC=gg_ttggg FPTYPE=f BLD=sse4 (ARG='4 32 1')
--> SK with / without timers: 0.304653 / 0.304589 (x1.0002) [chronotimers=0]
--> Jamps    / MEs : 0.275926 / 0.304385 (90.6503%)
--> ColorSum / MEs : 0.028455 / 0.304385 ( 9.3484%)
+-> SK with / without timers: 0.305181 / 0.304782 (x1.0013) [chronotimers=0]
+-> Jamps    / MEs : 0.276400 / 0.304935 (90.6423%)
+-> ColorSum / MEs : 0.028530 / 0.304935 ( 9.3561%)
 -> MeanMatrixElemValue : 3.084511e-07
 
 PROC=gg_ttggg FPTYPE=f BLD=avx2 (ARG='4 32 1')
--> SK with / without timers: 0.152259 / 0.151808 (x1.0030) [chronotimers=0]
--> Jamps    / MEs : 0.139610 / 0.152115 (91.7792%)
--> ColorSum / MEs : 0.012502 / 0.152115 ( 8.2188%)
+-> SK with / without timers: 0.152035 / 0.151859 (x1.0012) [chronotimers=0]
+-> Jamps    / MEs : 0.139356 / 0.151892 (91.7468%)
+-> ColorSum / MEs : 0.012533 / 0.151892 ( 8.2513%)
 -> MeanMatrixElemValue : 3.084535e-07
 
 PROC=gg_ttggg FPTYPE=f BLD=512y (ARG='4 32 1')
--> SK with / without timers: 0.133624 / 0.133611 (x1.0001) [chronotimers=0]
--> Jamps    / MEs : 0.120817 / 0.133422 (90.5525%)
--> ColorSum / MEs : 0.012602 / 0.133422 ( 9.4452%)
+-> SK with / without timers: 0.134051 / 0.133715 (x1.0025) [chronotimers=0]
+-> Jamps    / MEs : 0.121248 / 0.133840 (90.5918%)
+-> ColorSum / MEs : 0.012589 / 0.133840 ( 9.4060%)
 -> MeanMatrixElemValue : 3.084535e-07
 
 PROC=gg_ttggg FPTYPE=f BLD=512z (ARG='4 32 1')
--> SK with / without timers: 0.076051 / 0.075762 (x1.0038) [chronotimers=0]
--> Jamps    / MEs : 0.069443 / 0.075972 (91.4060%)
--> ColorSum / MEs : 0.006525 / 0.075972 ( 8.5887%)
+-> SK with / without timers: 0.075382 / 0.075510 (x0.9983) [chronotimers=0]
+-> Jamps    / MEs : 0.068814 / 0.075304 (91.3816%)
+-> ColorSum / MEs : 0.006487 / 0.075304 ( 8.6144%)
 -> MeanMatrixElemValue : 3.084536e-07
