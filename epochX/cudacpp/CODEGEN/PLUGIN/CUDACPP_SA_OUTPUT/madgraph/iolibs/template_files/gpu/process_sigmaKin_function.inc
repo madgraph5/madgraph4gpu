@@ -35,7 +35,8 @@
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
       fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-      for( int i = 0; i < processConfig::ndiagrams; ++i ) {
+      for( int i = 0; i < processConfig::ndiagrams; ++i )
+      {
         numerators_sv[i] = fptype_sv{ 0 };
       }
       denominators_sv = fptype_sv{ 0 };
@@ -187,8 +188,9 @@
 #else
       const int vecsize = neppV;
 #endif
-      unsigned int channelIdVec[vecsize]; 
-      if (allChannelIds != nullptr) {
+      unsigned int channelIdVec[vecsize];
+      if (allChannelIds != nullptr)
+      {
         for( int ieppV = 0; ieppV < vecsize; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
@@ -204,18 +206,16 @@
           fptype numerator_sum = 0., normalization = 0.;
           for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
           {
-            if (mgOnGpu::channel2iconfig[ichan] == -1) continue;
-            normalization += allNumerators[
-                ievt / neppV * neppV * processConfig::ndiagrams +
-                ichan * neppV + ieppV %% neppV];
+            if( mgOnGpu::channel2iconfig[ichan] == -1 ) continue;
+            normalization += allNumerators[ievt / neppV * neppV * processConfig::ndiagrams +
+                                           ichan * neppV + ieppV %% neppV];
           }
           channelIdVec[ieppV] = mgOnGpu::nchannels;
           for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
           {
-            if (mgOnGpu::channel2iconfig[ichan] == -1) continue;
-            numerator_sum += allNumerators[
-                ievt / neppV * neppV * processConfig::ndiagrams +
-                ichan * neppV + ieppV %% neppV];
+            if( mgOnGpu::channel2iconfig[ichan] == -1 ) continue;
+            numerator_sum += allNumerators[ievt / neppV * neppV * processConfig::ndiagrams +
+                                           ichan * neppV + ieppV %% neppV];
             if( allrnddiagram[ievt] < numerator_sum / normalization )
             {
               channelIdVec[ieppV] = ichan + 1;
@@ -259,7 +259,7 @@
             else
               targetamp[icolC] = targetamp[icolC - 1];
             if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] +=
-                jamp2_sv[icolC + ncolor * (ieppV / neppV)][ieppV %% neppV];
+              jamp2_sv[icolC + ncolor * (ieppV / neppV)][ieppV %% neppV];
           }
           const int ievt = ievt00 + ieppV;
           //printf( "sigmaKin: ievt=%%4d rndcol=%%f\n", ievt, allrndcol[ievt] );

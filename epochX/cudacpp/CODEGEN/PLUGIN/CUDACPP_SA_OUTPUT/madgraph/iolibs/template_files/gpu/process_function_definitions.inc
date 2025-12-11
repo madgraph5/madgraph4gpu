@@ -447,7 +447,7 @@ namespace mg5amcCpu
       gpuMemset( allMEs, 0, maxtry * sizeof( fptype ) );
       // NB: color_sum ADDS |M|^2 for one helicity to the running sum of |M|^2 over helicities for the given event(s)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      constexpr fptype_sv* allJamp2s = nullptr;        // no need for color selection during helicity filtering
+      constexpr fptype_sv* allJamp2s = nullptr; // no need for color selection during helicity filtering
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, false, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
 #else
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, gpublocks * gputhreads );
@@ -603,9 +603,10 @@ namespace mg5amcCpu
       {
         fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
         totAllDenominators[ievt] += hAllDenominators[ievt];
-        fptype* hAllNumerators = ghelAllNumerators + (ievt + ighel * nevt) * processConfig::ndiagrams;
+        fptype* hAllNumerators = ghelAllNumerators + ( ievt + ighel * nevt ) * processConfig::ndiagrams;
         fptype* firstNumerator = ghelAllNumerators + ievt * processConfig::ndiagrams;
-        for( int idiag = 0; idiag < processConfig::ndiagrams; ++idiag) {
+        for( int idiag = 0; idiag < processConfig::ndiagrams; ++idiag) 
+        {
           firstNumerator[idiag] += hAllNumerators[idiag];
         }
       }
@@ -663,8 +664,8 @@ namespace mg5amcCpu
                        const fptype* allrnddiagram,       // input: random numbers[nevt] for diagram selection
                        const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
                        const fptype_sv* allJamp2s,        // input: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
-                       const fptype* allNumerators,
-                       const fptype* allDenominators,
+                       const fptype* allNumerators,       // input: all numerators
+                       const fptype* allDenominators,     // input: all denominators
                        const int nevt )                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
@@ -673,20 +674,19 @@ namespace mg5amcCpu
     // Event-by-event random choice of color #402
 
     // Event-by-event random choice of channel
-    if ( allrnddiagram != nullptr ) {
+    if( allrnddiagram != nullptr ) 
+    {
       fptype numerator_sum = 0., normalization = 0.;
       for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
       {
-        if (mgOnGpu::channel2iconfig[ichan] == -1) continue;
-        normalization += allNumerators[
-            ievt * processConfig::ndiagrams + ichan];
+        if( mgOnGpu::channel2iconfig[ichan] == -1 ) continue;
+        normalization += allNumerators[ievt * processConfig::ndiagrams + ichan];
       }
       channelId = mgOnGpu::nchannels;
       for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
       {
-        if (mgOnGpu::channel2iconfig[ichan] == -1) continue;
-        numerator_sum += allNumerators[
-            ievt * processConfig::ndiagrams + ichan];
+        if( mgOnGpu::channel2iconfig[ichan] == -1 ) continue;
+        numerator_sum += allNumerators[ievt * processConfig::ndiagrams + ichan];
         if( allrnddiagram[ievt] < numerator_sum / normalization )
         {
           channelId = ichan + 1;
