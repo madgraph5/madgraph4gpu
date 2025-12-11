@@ -96,9 +96,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # AV - keep defaults from aloha_writers.ALOHAWriterForGPU
     ###extension = '.cu'
     ###prefix ='__device__'
-    type2def = {}
-    type2def['pointer_vertex'] = '*' # using complex<double>* vertex
-    type2def['pointer_coup'] = ''
+    type2def = aloha_writers.ALOHAWriterForGPU.type2def
 
     # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
     ###ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
