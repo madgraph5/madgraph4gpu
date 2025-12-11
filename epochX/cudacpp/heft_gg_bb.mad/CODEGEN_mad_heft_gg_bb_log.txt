@@ -130,10 +130,10 @@ output madevent_simd ../TMPOUT/CODEGEN_mad_heft_gg_bb --hel_recycling=False --ve
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4168][0m [0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 175][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 177][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_heft_gg_bb 
 INFO: remove old information in CODEGEN_mad_heft_gg_bb 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 180][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 182][0m [0m
 [1;34mWARNING: File exists /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_bb [0m
 INFO: Creating subdirectories in directory /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_bb 
 [1;34mWARNING: File exists /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_bb/Cards [0m
@@ -152,20 +152,20 @@ INFO: Finding symmetric diagrams for subprocess group gg_bbx
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 4 [1;30m[model_handling.py at line 1564][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3, 4: 4} [1;30m[model_handling.py at line 1588][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3, 4: 4} [1;30m[model_handling.py at line 1589][0m [0m
-Generated helas calls for 1 subprocesses (4 diagrams) in 0.005 s
-Wrote files for 12 helas calls in 1.556 s
+Generated helas calls for 1 subprocesses (4 diagrams) in 0.011 s
+Wrote files for 12 helas calls in 2.377 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFS2 routines[0m
-ALOHA: aloha creates 4 routines in  0.120 s
+ALOHA: aloha creates 4 routines in  0.164 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVS3 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFS2 routines[0m
-ALOHA: aloha creates 8 routines in  0.112 s
+ALOHA: aloha creates 8 routines in  0.125 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -187,17 +187,17 @@ INFO: Use Fortran compiler gfortran
 INFO: Use c++ compiler g++ 
 INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
-[1;32mDEBUG:  result.returncode = [0m 0 [1;30m[output.py at line 273][0m [0m
+[1;32mDEBUG:  result.returncode = [0m 0 [1;30m[output.py at line 275][0m [0m
 Output to directory /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_bb done.
 Type "launch" to generate events from this process, or see
 /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_bb/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m6.775s
-user	0m1.308s
-sys	0m0.633s
-Code generation completed in 7 seconds
+real	0m9.223s
+user	0m1.254s
+sys	0m0.660s
+Code generation completed in 9 seconds
 /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_heft_gg_bb/bin/internal/banner.py:3356: SyntaxWarning: invalid escape sequence '\s'
   function_pat = re.compile('^\s+(?:SUBROUTINE|(?:%(type)s)\s+function)\s+([a-zA-Z]\w*)' \
 ************************************************************

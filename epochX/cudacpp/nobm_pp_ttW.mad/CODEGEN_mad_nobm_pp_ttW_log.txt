@@ -57,7 +57,7 @@ set zerowidth_tchannel F
 import model sm-no_b_mass
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.0017840862274169922 [0m
+[1;32mDEBUG: model prefixing  takes 0.0018579959869384766 [0m
 INFO: Restrict model sm-no_b_mass with file models/sm/restrict_no_b_mass.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -181,7 +181,7 @@ INFO: Process u~ d > t t~ w- added to mirror process d u~ > t t~ w-
 INFO: Process c~ s > t t~ w- added to mirror process s c~ > t t~ w- 
 INFO: Process d~ u > t t~ w+ added to mirror process u d~ > t t~ w+ 
 INFO: Process s~ c > t t~ w+ added to mirror process c s~ > t t~ w+ 
-4 processes with 8 diagrams generated in 0.081 s
+4 processes with 8 diagrams generated in 0.100 s
 Total: 4 processes with 8 diagrams
 add process p p > t t~ w j @1
 INFO: Checking for minimal orders which gives processes. 
@@ -223,17 +223,17 @@ INFO: Process d~ g > t t~ w+ u~ added to mirror process g d~ > t t~ w+ u~
 INFO: Process d~ u > t t~ w+ g added to mirror process u d~ > t t~ w+ g 
 INFO: Process s~ g > t t~ w+ c~ added to mirror process g s~ > t t~ w+ c~ 
 INFO: Process s~ c > t t~ w+ g added to mirror process c s~ > t t~ w+ g 
-12 processes with 144 diagrams generated in 0.265 s
+12 processes with 144 diagrams generated in 0.282 s
 Total: 16 processes with 152 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_nobm_pp_ttW --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  opt['output_options']['vector_size'] = [0m 32 [1;30m[export_v4.py at line 4168][0m [0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 175][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 177][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_nobm_pp_ttW 
 INFO: remove old information in CODEGEN_mad_nobm_pp_ttW 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 180][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 182][0m [0m
 [1;34mWARNING: File exists /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW [0m
 INFO: Creating subdirectories in directory /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW 
 [1;34mWARNING: File exists /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/Cards [0m
@@ -351,18 +351,18 @@ INFO: Finding symmetric diagrams for subprocess group dux_ttxwm
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 2 [1;30m[model_handling.py at line 1564][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1588][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1589][0m [0m
-Generated helas calls for 8 subprocesses (76 diagrams) in 0.101 s
-Wrote files for 212 helas calls in 11.333 s
+Generated helas calls for 8 subprocesses (76 diagrams) in 0.122 s
+Wrote files for 212 helas calls in 17.074 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 3 routines in  0.099 s
+ALOHA: aloha creates 3 routines in  0.141 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 6 routines in  0.101 s
+ALOHA: aloha creates 6 routines in  0.115 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -385,17 +385,17 @@ INFO: Use Fortran compiler gfortran
 INFO: Use c++ compiler g++ 
 INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
-[1;32mDEBUG:  result.returncode = [0m 0 [1;30m[output.py at line 273][0m [0m
+[1;32mDEBUG:  result.returncode = [0m 0 [1;30m[output.py at line 275][0m [0m
 Output to directory /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW done.
 Type "launch" to generate events from this process, or see
 /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m18.260s
-user	0m2.773s
-sys	0m1.309s
-Code generation completed in 19 seconds
+real	0m25.842s
+user	0m2.903s
+sys	0m1.311s
+Code generation completed in 26 seconds
 /shared/roiser/sw/madgraph4gpu/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW/bin/internal/banner.py:3356: SyntaxWarning: invalid escape sequence '\s'
   function_pat = re.compile('^\s+(?:SUBROUTINE|(?:%(type)s)\s+function)\s+([a-zA-Z]\w*)' \
 ************************************************************

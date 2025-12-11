@@ -98,7 +98,7 @@ extern "C"
    * @return
    *     UMAMI_SUCCESS on success, error code otherwise
    */
-  UmamiStatus umami_get_meta(UmamiMetaKey meta_key, void* result);
+  UmamiStatus umami_get_meta( UmamiMetaKey meta_key, void* result );
 
   /**
    * Creates an instance of the matrix element. Each instance is independent, so thread
@@ -112,7 +112,7 @@ extern "C"
    * @return
    *     UMAMI_SUCCESS on success, error code otherwise
    */
-  UmamiStatus umami_initialize(UmamiHandle* handle, char const* param_card_path);
+  UmamiStatus umami_initialize( UmamiHandle* handle, char const* param_card_path );
 
   /**
    * Sets the value of a model parameter
@@ -132,8 +132,7 @@ extern "C"
     UmamiHandle handle,
     char const* name,
     double parameter_real,
-    double parameter_imag
-);
+    double parameter_imag );
 
   /**
    * Retrieves the value of a model parameter
@@ -204,7 +203,7 @@ extern "C"
    * @param handle
    *     handle of a matrix element instance
    */
-  UmamiStatus umami_free(UmamiHandle handle);
+  UmamiStatus umami_free( UmamiHandle handle );
 
 #ifdef __cplusplus
 }

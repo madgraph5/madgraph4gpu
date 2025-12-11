@@ -605,12 +605,13 @@ namespace mg5amcCpu
         totAllDenominators[ievt] += hAllDenominators[ievt];
         fptype* hAllNumerators = ghelAllNumerators + ( ievt + ighel * nevt ) * processConfig::ndiagrams;
         fptype* firstNumerator = ghelAllNumerators + ievt * processConfig::ndiagrams;
-        for( int idiag = 0; idiag < processConfig::ndiagrams; ++idiag) 
+        for( int idiag = 0; idiag < processConfig::ndiagrams; ++idiag )
         {
           firstNumerator[idiag] += hAllNumerators[idiag];
         }
       }
-      if (mulChannelWeight) {
+      if( mulChannelWeight )
+      {
         unsigned int channelId = allChannelIds[ievt];
         allMEs[ievt] *= totAllNumerators[channelId - 1 + ievt * processConfig::ndiagrams] / totAllDenominators[ievt];
       }
@@ -674,7 +675,7 @@ namespace mg5amcCpu
     // Event-by-event random choice of color #402
 
     // Event-by-event random choice of channel
-    if( allrnddiagram != nullptr ) 
+    if( allrnddiagram != nullptr )
     {
       fptype numerator_sum = 0., normalization = 0.;
       for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )

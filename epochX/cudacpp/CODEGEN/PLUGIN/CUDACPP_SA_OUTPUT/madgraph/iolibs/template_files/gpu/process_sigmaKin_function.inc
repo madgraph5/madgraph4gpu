@@ -189,7 +189,7 @@
       const int vecsize = neppV;
 #endif
       unsigned int channelIdVec[vecsize];
-      if (allChannelIds != nullptr)
+      if( allChannelIds != nullptr )
       {
         for( int ieppV = 0; ieppV < vecsize; ++ieppV )
         {
@@ -199,7 +199,8 @@
       }
 
       // Event-by-event random choice of channel
-      if ( allrnddiagram != nullptr ) {
+      if( allrnddiagram != nullptr )
+      {
         for( int ieppV = 0; ieppV < vecsize; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
@@ -259,7 +260,7 @@
             else
               targetamp[icolC] = targetamp[icolC - 1];
             if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] +=
-              jamp2_sv[icolC + ncolor * (ieppV / neppV)][ieppV %% neppV];
+              jamp2_sv[icolC + ncolor * ( ieppV / neppV )][ieppV %% neppV];
           }
           const int ievt = ievt00 + ieppV;
           //printf( "sigmaKin: ievt=%%4d rndcol=%%f\n", ievt, allrndcol[ievt] );
