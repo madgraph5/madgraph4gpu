@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Roiser (Oct 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Roiser, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: D. Massaro, S. Roiser, J. Teig, A. Thete, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 #include "Bridge.h"
 #include "CPPProcess.h"
@@ -44,14 +44,14 @@ extern "C"
    * @param nparF the pointer to the number of external particles in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
    * @param np4F the pointer to the number of momenta components, usually 4, in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY)
    */
-  void fbridgecreate_( CppObjectInFortran** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F )
+  void fbridgecreate_( CppObjectInFortran** ppbridge, const int* piflavorF, const int* pnevtF, const int* pnparF, const int* pnp4F )
   {
 #ifdef MGONGPUCPP_GPUIMPL
     GpuRuntime::setUp();
 #endif
     // (NB: CPPProcess::initProc no longer needs to be executed here because it is called in the Bridge constructor)
     // FIXME: disable OMP in Bridge when called from Fortran
-    *ppbridge = new Bridge<FORTRANFPTYPE>( *pnevtF, *pnparF, *pnp4F );
+    *ppbridge = new Bridge<FORTRANFPTYPE>( *piflavorF, *pnevtF, *pnparF, *pnp4F );
   }
 
   /**

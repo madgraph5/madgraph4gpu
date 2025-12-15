@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: D. Massaro, J. Teig, A. Thete, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 #include "BridgeKernels.h"
 
@@ -31,10 +31,11 @@ namespace mg5amcCpu
                                       BufferMatrixElements& matrixElements, // output: matrix elements
                                       BufferSelectedHelicity& selhel,       // output: helicity selection
                                       BufferSelectedColor& selcol,          // output: color selection
-                                      const size_t nevt )
-    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol )
+                                      const int iflavor,
+                                      const size_t nevt)
+    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol, iflavor )
     , NumberOfEvents( nevt )
-    , m_bridge( nevt, npar, np4 )
+    , m_bridge( iflavor, nevt, npar, np4 )
   {
     if( m_momenta.isOnDevice() ) throw std::runtime_error( "BridgeKernelBase: momenta must be a host array" );
     if( m_matrixElements.isOnDevice() ) throw std::runtime_error( "BridgeKernelBase: matrixElements must be a host array" );
@@ -61,8 +62,9 @@ namespace mg5amcCpu
                                       BufferMatrixElements& matrixElements, // output: matrix elements
                                       BufferSelectedHelicity& selhel,       // output: helicity selection
                                       BufferSelectedColor& selcol,          // output: color selection
-                                      const size_t nevt )
-    : BridgeKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol, nevt )
+                                      const int iflavor,
+                                      const size_t nevt)
+    : BridgeKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol, iflavor, nevt)
     , m_fortranMomenta( nevt )
   {
   }
@@ -114,9 +116,10 @@ namespace mg5amcGpu
                                           BufferMatrixElements& matrixElements, // output: matrix elements
                                           BufferSelectedHelicity& selhel,       // output: helicity selection
                                           BufferSelectedColor& selcol,          // output: color selection
+                                          const int iflavor,
                                           const size_t gpublocks,
-                                          const size_t gputhreads )
-    : BridgeKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol, gpublocks * gputhreads )
+                                          const size_t gputhreads)
+    : BridgeKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol, iflavor, gpublocks * gputhreads)
     , m_fortranMomenta( nevt() )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )

@@ -1,6 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: Z. Wettersten (Oct 2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: D. Massaro, A. Thete, A. Valassi (2025) for the MG5aMC CUDACPP plugin.
 
 #include "Bridge.h"
 #include "CPPProcess.h"
@@ -19,7 +20,7 @@ extern "C"
 
   using FORTRANFPTYPE = double;
 
-  void fbridgecreate_( CppObjectInFortran** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F );
+  void fbridgecreate_( CppObjectInFortran** ppbridge, const int* piflavorF, const int* pnevtF, const int* pnparF, const int* pnp4F );
 
   void fbridgedelete_( CppObjectInFortran** ppbridge );
 
