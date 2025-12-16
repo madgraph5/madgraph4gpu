@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
+// Further modified by: D. Massaro, J. Teig, A. Thete, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
 
 #include "MatrixElementKernels.h"
 
@@ -31,7 +31,8 @@ namespace mg5amcCpu
                                                     const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                                                     BufferMatrixElements& matrixElements, // output: matrix elements
                                                     BufferSelectedHelicity& selhel,       // output: helicity selection
-                                                    BufferSelectedColor& selcol )         // output: color selection
+                                                    BufferSelectedColor& selcol,          // output: color selection
+                                                    const int iflavor )                   // input: flavour
     : m_momenta( momenta )
     , m_gs( gs )
     , m_rndhel( rndhel )
@@ -40,6 +41,7 @@ namespace mg5amcCpu
     , m_matrixElements( matrixElements )
     , m_selhel( selhel )
     , m_selcol( selcol )
+    , m_iflavor( iflavor )
 #ifdef MGONGPU_CHANNELID_DEBUG
     , m_nevtProcessedByChannel()
     , m_tag()
@@ -157,8 +159,9 @@ namespace mg5amcCpu
                                                     BufferMatrixElements& matrixElements, // output: matrix elements
                                                     BufferSelectedHelicity& selhel,       // output: helicity selection
                                                     BufferSelectedColor& selcol,          // output: color selection
+                                                    const int iflavor,                    // input: flavour
                                                     const size_t nevt )
-    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol )
+    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol, iflavor)
     , NumberOfEvents( nevt )
     , m_couplings( nevt )
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -204,9 +207,9 @@ namespace mg5amcCpu
     // ... 0d1. Compute good helicity mask on the host
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), hstIsGoodHel.data(), nevt() );
+    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_iflavor, m_matrixElements.data(), m_numerators.data(), m_denominators.data(), hstIsGoodHel.data(), nevt() );
 #else
-    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt() );
+    sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_iflavor, m_matrixElements.data(), hstIsGoodHel.data(), nevt() );
 #endif
     // ... 0d2. Copy back good helicity list to static memory on the host
     // [FIXME! REMOVE THIS STATIC THAT BREAKS MULTITHREADING?]
@@ -220,10 +223,10 @@ namespace mg5amcCpu
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data(), nevt() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_iflavor, m_rndcol.data(), pChannelIds, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_numerators.data(), m_denominators.data(), nevt() );
 #else
     assert( useChannelIds == false );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), nevt() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_iflavor, m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data(), nevt() );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     //std::cout << "DEBUG: MatrixElementKernelHost::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
@@ -309,9 +312,10 @@ namespace mg5amcGpu
                                                         BufferMatrixElements& matrixElements, // output: matrix elements
                                                         BufferSelectedHelicity& selhel,       // output: helicity selection
                                                         BufferSelectedColor& selcol,          // output: color selection
+                                                        const int iflavor,                    // input: flavour
                                                         const size_t gpublocks,
-                                                        const size_t gputhreads )
-    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol )
+                                                        const size_t gputhreads)
+    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol, iflavor )
     , NumberOfEvents( gpublocks * gputhreads )
     , m_couplings( this->nevt() )
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -369,9 +373,9 @@ namespace mg5amcGpu
     // ... 0d1. Compute good helicity mask on the device
     gpuLaunchKernel( computeDependentCouplings, m_gpublocks, m_gputhreads, m_gs.data(), m_couplings.data() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), devIsGoodHel.data() );
+    gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_iflavor, m_matrixElements.data(), m_numerators.data(), m_denominators.data(), devIsGoodHel.data() );
 #else
-    gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_matrixElements.data(), devIsGoodHel.data() );
+    gpuLaunchKernel( sigmaKin_getGoodHel, m_gpublocks, m_gputhreads, m_momenta.data(), m_couplings.data(), m_iflavor, m_matrixElements.data(), devIsGoodHel.data() );
 #endif
     checkGpu( gpuPeekAtLastError() );
     // ... 0d2. Copy back good helicity mask to the host
@@ -392,10 +396,10 @@ namespace mg5amcGpu
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
-    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
+    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_iflavor, m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), pChannelIds, m_numerators.data(), m_denominators.data(), m_selhel.data(), m_selcol.data() );
 #else
     assert( useChannelIds == false );
-    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
+    gpuLaunchKernelSharedMem( sigmaKin, m_gpublocks, m_gputhreads, sharedMemSize, m_momenta.data(), m_couplings.data(), m_iflavor, m_rndhel.data(), m_rndcol.data(), m_matrixElements.data(), m_selhel.data(), m_selcol.data() );
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     //std::cout << "DEBUG: MatrixElementKernelDevice::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;

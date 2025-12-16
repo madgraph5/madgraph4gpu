@@ -4,7 +4,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: D. Massaro, O. Mattelaer, S. Roiser, J. Teig, A. Thete, A. Valassi (2020-2025) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 %(info_lines)s
@@ -49,6 +49,7 @@ namespace mg5amcCpu
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                       const int iflavor,          // input: index of the flavor combination
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                        fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
@@ -59,6 +60,7 @@ namespace mg5amcCpu
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                       const int iflavor,          // input: index of the flavor combination
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                        fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
@@ -79,6 +81,7 @@ namespace mg5amcCpu
   __global__ void
   sigmaKin( const fptype* allmomenta,           // input: momenta[nevt*npar*4]
             const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
+            const int iflavor,                  // input: index of the flavor combination
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
@@ -94,6 +97,7 @@ namespace mg5amcCpu
   __global__ void
   sigmaKin( const fptype* allmomenta,           // input: momenta[nevt*npar*4]
             const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
+            const int iflavor,                  // input: index of the flavor combination
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities

@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
+// Further modified by: D. Massaro, J. Teig, A. Thete, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef MATRIXELEMENTKERNELS_H
 #define MATRIXELEMENTKERNELS_H 1
@@ -33,7 +33,8 @@ namespace mg5amcCpu
                              const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              BufferSelectedHelicity& selhel,       // output: helicity selection
-                             BufferSelectedColor& selcol );        // output: color selection
+                             BufferSelectedColor& selcol,          // output: color selection
+                             const int iflavor );
 
   public:
 
@@ -90,6 +91,9 @@ namespace mg5amcCpu
     // The buffer for the output color selection
     BufferSelectedColor& m_selcol;
 
+    // The index of the flavor combination to compute
+    const int m_iflavor;
+
 #ifdef MGONGPU_CHANNELID_DEBUG
     // The events-per-channel counter for debugging
     std::map<size_t, size_t> m_nevtProcessedByChannel;
@@ -116,7 +120,8 @@ namespace mg5amcCpu
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              BufferSelectedHelicity& selhel,       // output: helicity selection
                              BufferSelectedColor& selcol,          // output: color selection
-                             const size_t nevt );
+                             const int iflavor,                    // input: flavour
+                             const size_t nevt);
 
     // Destructor
     virtual ~MatrixElementKernelHost();
@@ -168,6 +173,7 @@ namespace mg5amcCpu
                                BufferMatrixElements& matrixElements, // output: matrix elements
                                BufferSelectedHelicity& selhel,       // output: helicity selection
                                BufferSelectedColor& selcol,          // output: color selection
+                               const int iflavor,                    // input: flavour
                                const size_t gpublocks,
                                const size_t gputhreads );
 

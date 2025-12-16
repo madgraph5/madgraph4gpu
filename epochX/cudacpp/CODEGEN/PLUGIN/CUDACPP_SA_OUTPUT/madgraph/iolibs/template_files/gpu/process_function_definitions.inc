@@ -19,6 +19,7 @@ namespace mg5amcCpu
   constexpr int nw6 = CPPProcess::nw6;     // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
   constexpr int npar = CPPProcess::npar;   // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
   constexpr int ncomb = CPPProcess::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
+  constexpr int nmaxflavor = CPPProcess::nmaxflavor; // the maximum number of flavor combinations
 
   // [NB: I am currently unable to get the right value of nwf in CPPProcess.h - will hardcode it in CPPProcess.cc instead (#644)]
   //using CPPProcess::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
@@ -88,10 +89,12 @@ namespace mg5amcCpu
   // Helicity combinations (and filtering of "good" helicity combinations)
 #ifdef MGONGPUCPP_GPUIMPL
   __device__ __constant__ short cHel[ncomb][npar];
+  __device__ __constant__ short cFlavors[nmaxflavor][npar];
   __device__ __constant__ int cNGoodHel;
   __device__ __constant__ int cGoodHel[ncomb];
 #else
   static short cHel[ncomb][npar];
+  static short cFlavors[nmaxflavor][npar];
   static int cNGoodHel;
   static int cGoodHel[ncomb];
 #endif
@@ -307,6 +310,7 @@ namespace mg5amcCpu
   __global__ void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                       const int iflavor,          // input: index of the flavor combination
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                        fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
@@ -323,9 +327,9 @@ namespace mg5amcCpu
       constexpr fptype_sv* jamp2_sv = nullptr; // no need for color selection during helicity filtering
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, iflavor, allMEs, channelId, allNumerators, allDenominators, jamp2_sv );
 #else
-      calculate_wavefunctions( ihel, allmomenta, allcouplings, allMEs, jamp2_sv );
+      calculate_wavefunctions( ihel, allmomenta, allcouplings, iflavor, allMEs, jamp2_sv );
 #endif
       if( allMEs[ievt] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
       {
@@ -338,6 +342,7 @@ namespace mg5amcCpu
   void
   sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
                        const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
+                       const int iflavor,          // input: index of the flavor combination
                        fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
                        fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
@@ -445,6 +450,7 @@ namespace mg5amcCpu
   __global__ void /* clang-format off */
   sigmaKin( const fptype* allmomenta,           // input: momenta[nevt*npar*4]
             const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
+            const int iflavor,          // input: index of the flavor combination
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
