@@ -48,27 +48,27 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
 
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt.mg
+import /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
 set zerowidth_tchannel F
 set auto_convert_model T
 save options auto_convert_model
-save configuration file to /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/mg5amcnlo/input/mg5_configuration.txt
+save configuration file to /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/mg5amcnlo/input/mg5_configuration.txt
 import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t
-[1;60mINFO: download model from http://feynrules.irmp.ucl.ac.be/raw-attachment/wiki/SMEFT/SMEFTsim_topU3l_MwScheme_UFO.tar.gz to the following directory: /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/mg5amcnlo/models [0m
---2025-10-22 11:49:03--  http://feynrules.irmp.ucl.ac.be/raw-attachment/wiki/SMEFT/SMEFTsim_topU3l_MwScheme_UFO.tar.gz
+[1;60mINFO: download model from http://feynrules.irmp.ucl.ac.be/raw-attachment/wiki/SMEFT/SMEFTsim_topU3l_MwScheme_UFO.tar.gz to the following directory: /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/mg5amcnlo/models [0m
+--2025-12-16 13:01:27--  http://feynrules.irmp.ucl.ac.be/raw-attachment/wiki/SMEFT/SMEFTsim_topU3l_MwScheme_UFO.tar.gz
 Resolving feynrules.irmp.ucl.ac.be (feynrules.irmp.ucl.ac.be)... 130.104.48.109
 Connecting to feynrules.irmp.ucl.ac.be (feynrules.irmp.ucl.ac.be)|130.104.48.109|:80... connected.
 HTTP request sent, awaiting response... 200 Ok
 Length: 80562 (79K) [application/x-tar]
 Saving to: ‘tmp.tgz’
 
-     0K .......... .......... .......... .......... .......... 63%  830K 0s
-    50K .......... .......... ........                        100%  124M=0.06s
+     0K .......... .......... .......... .......... .......... 63%  846K 0s
+    50K .......... .......... ........                        100% 51.5M=0.06s
 
-2025-10-22 11:49:03 (1.27 MB/s) - ‘tmp.tgz’ saved [80562/80562]
+2025-12-16 13:01:28 (1.29 MB/s) - ‘tmp.tgz’ saved [80562/80562]
 
 SMEFTsim_topU3l_MwScheme_UFO/
 SMEFTsim_topU3l_MwScheme_UFO/__init__.py
@@ -89,7 +89,7 @@ SMEFTsim_topU3l_MwScheme_UFO/lorentz.py
 SMEFTsim_topU3l_MwScheme_UFO/vertices.py
 SMEFTsim_topU3l_MwScheme_UFO/restrict_SMlimit_massless.dat
 fail to load model but auto_convert_model is on True. Trying to convert the model
-convert model /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/mg5amcnlo/models/SMEFTsim_topU3l_MwScheme_UFO
+convert model /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/mg5amcnlo/models/SMEFTsim_topU3l_MwScheme_UFO
 retry the load of the model
 import model SMEFTsim_topU3l_MwScheme_UFO -massless_4t
 INFO: load particles 
@@ -107,7 +107,7 @@ INFO: load vertices
 [1;32mDEBUG: MG5 converter defines FFFF26 to Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjP(-5,1)*ProjP(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjP(-5,3)*ProjP(-3,1) + Gamma(-2,-4,-3)*Gamma(-2,2,-6)*Gamma(-1,-6,-5)*Gamma(-1,4,-4)*ProjM(-5,1)*ProjM(-3,3) + Gamma(-2,-4,-3)*Gamma(-2,4,-6)*Gamma(-1,-6,-5)*Gamma(-1,2,-4)*ProjM(-5,3)*ProjM(-3,1) [0m
 [1;32mDEBUG: MG5 converter defines FFFF27 to ProjP(2,1)*ProjP(4,3) + ProjM(2,1)*ProjM(4,3) [0m
 [1;32mDEBUG: MG5 converter defines FFFF112 to ProjM(2,3)*ProjM(4,1) + ProjP(2,3)*ProjP(4,1) [0m
-[1;32mDEBUG: model prefixing  takes 0.07803130149841309 [0m
+[1;32mDEBUG: model prefixing  takes 0.08467459678649902 [0m
 INFO: Change particles name to pass to MG5 convention 
 Defined multiparticle p = g u c d s u~ c~ d~ s~
 Defined multiparticle j = g u c d s u~ c~ d~ s~
@@ -125,13 +125,13 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=4: WEIGTHED IS QCD+2*QED+99*SMHLOOP+99*NP+99*NPshifts+99*NPprop+99*NPcpv+NPcbb+NPcbB+NPcbBB+NPcbd1+NPcbd8+NPcbe+NPcbG+NPcbH+NPcbj1+NPcbj8+NPcbl+NPcbu1+NPcbu8+NPcbW+NPcdB+NPcdd1+NPcdd8+NPcdG+NPcdH+NPcdW+NPceB+NPced+NPcee+NPceH+NPceu+NPceW+NPcG+NPcGtil+NPcH+NPcHB+NPcHbox+NPcHbq+NPcHBtil+NPcHd+NPcHDD+NPcHe+NPcHG+NPcHGtil+NPcHj1+NPcHj3+NPcHl1+NPcHl3+NPcHQ1+NPcHQ3+NPcHt+NPcHtb+NPcHu+NPcHud+NPcHW+NPcHWB+NPcHWBtil+NPcHWtil+NPcjd1+NPcjd8+NPcje+NPcjj11+NPcjj18+NPcjj31+NPcjj38+NPcjQbd1+NPcjQbd8+NPcjQtu1+NPcjQtu8+NPcjtQd1+NPcjtQd8+NPcju1+NPcju8+NPcjujd1+NPcjujd11+NPcjujd8+NPcjujd81+NPcjuQb1+NPcjuQb8+NPcld+NPcle+NPclebQ+NPcledj+NPcleju1+NPcleju3+NPcleQt1+NPcleQt3+NPclj1+NPclj3+NPcll+NPcll1+NPclu+NPcQb1+NPcQb8+NPcQd1+NPcQd8+NPcQe+NPcQj11+NPcQj18+NPcQj31+NPcQj38+NPcQl1+NPcQl3+NPcQQ1+NPcQQ8+NPcQt1+NPcQt8+NPcQtjd1+NPcQtjd8+NPcQtQb1+NPcQtQb8+NPcQu1+NPcQu8+NPcQujb1+NPcQujb8+NPctB+NPctb1+NPctb8+NPctd1+NPctd8+NPcte+NPctG+NPctH+NPctj1+NPctj8+NPctl+NPctt+NPctu1+NPctu8+NPctW+NPcuB+NPcud1+NPcud8+NPcuG+NPcuH+NPcutbd1+NPcutbd8+NPcuu1+NPcuu8+NPcuW+NPcW+NPcWtil+NPQjujb8 
 INFO: Trying process: g g > t t~ t t~ WEIGHTED<=4 @1  
 INFO: Process has 72 diagrams 
-1 processes with 72 diagrams generated in 2.695 s
+1 processes with 72 diagrams generated in 3.113 s
 Total: 1 processes with 72 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 175][0m [0m
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 180][0m [0m
-INFO: Creating subdirectories in directory /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt 
+INFO: Creating subdirectories in directory /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt 
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > t t~ t t~ WEIGHTED<=4 @1 
 INFO: Processing color information for process: g g > t t~ t t~ @1 
@@ -140,18 +140,18 @@ INFO: Processing color information for process: g g > t t~ t t~ @1
 [1;32mDEBUG:    type(fortran_model)=<class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_GPUFOHelasCallWriter'> [1;30m[output.py at line 224][0m [0m
 [1;32mDEBUG:    type(me)=<class 'int'> me=0 [1;30m[output.py at line 225][0m [0m
 [1;32mDEBUG:  "need to link", self.to_link_in_P = [0m need to link ['nvtx.h', 'timer.h', 'timermap.h', 'ompnumthreads.h', 'GpuRuntime.h', 'GpuAbstraction.h', 'color_sum.h', 'MemoryAccessHelpers.h', 'MemoryAccessVectors.h', 'MemoryAccessMatrixElements.h', 'MemoryAccessMomenta.h', 'MemoryAccessRandomNumbers.h', 'MemoryAccessWeights.h', 'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h', 'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h', 'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h', 'MemoryAccessChannelIds.h', 'EventStatistics.h', 'CommonRandomNumbers.h', 'CrossSectionKernels.cc', 'CrossSectionKernels.h', 'MatrixElementKernels.cc', 'MatrixElementKernels.h', 'RamboSamplingKernels.cc', 'RamboSamplingKernels.h', 'RandomNumberKernels.h', 'CommonRandomNumberKernel.cc', 'CurandRandomNumberKernel.cc', 'HiprandRandomNumberKernel.cc', 'Bridge.h', 'BridgeKernels.cc', 'BridgeKernels.h', 'fbridge.cc', 'fbridge.h', 'fbridge.inc', 'fsampler.cc', 'fsampler.inc', 'MadgraphTest.h', 'runTest.cc', 'testmisc.cc', 'testxxx_cc_ref.txt', 'valgrind.h', 'cudacpp.mk', 'cudacpp_overlay.mk', 'testxxx.cc', 'MemoryBuffers.h', 'MemoryAccessCouplings.h', 'perf.py', 'profile.sh'] [1;30m[output.py at line 226][0m [0m
-INFO: Creating files in directory /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx 
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/./CPPProcess.h
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/./CPPProcess.cc
-INFO: Created files CPPProcess.h and CPPProcess.cc in directory /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/. 
-Generated helas calls for 1 subprocesses (72 diagrams) in 0.127 s
+INFO: Creating files in directory /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx 
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/./CPPProcess.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/./CPPProcess.cc
+INFO: Created files CPPProcess.h and CPPProcess.cc in directory /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/SubProcesses/P1_Sigma_SMEFTsim_topU3l_MwScheme_UFO_gg_ttxttx/. 
+Generated helas calls for 1 subprocesses (72 diagrams) in 0.181 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV5 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV9 routines[0m
 ALOHA: aloha creates VVVV10 routines[0m
-ALOHA: aloha creates 5 routines in  0.281 s
+ALOHA: aloha creates 5 routines in  0.223 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV5
 <class 'aloha.create_aloha.AbstractRoutine'> VVV5
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -161,17 +161,17 @@ ALOHA: aloha creates 5 routines in  0.281 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV9
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV10
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/./HelAmps_SMEFTsim_topU3l_MwScheme_UFO.h
-INFO: Created file HelAmps_SMEFTsim_topU3l_MwScheme_UFO.h in directory /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/. 
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/./HelAmps_SMEFTsim_topU3l_MwScheme_UFO.h
+INFO: Created file HelAmps_SMEFTsim_topU3l_MwScheme_UFO.h in directory /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/./Parameters_SMEFTsim_topU3l_MwScheme_UFO.h
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/./Parameters_SMEFTsim_topU3l_MwScheme_UFO.cc
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/./Parameters_SMEFTsim_topU3l_MwScheme_UFO.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/./Parameters_SMEFTsim_topU3l_MwScheme_UFO.cc
 INFO: Created files Parameters_SMEFTsim_topU3l_MwScheme_UFO.h and Parameters_SMEFTsim_topU3l_MwScheme_UFO.cc in directory 
-INFO: /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/. and /home/dmass/Development/madgraph4gpu/release-v1.01.01/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/. 
+INFO: /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/. and /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_cudacpp_smeft_gg_tttt/src/. 
 quit
 
-real	0m4.417s
-user	0m3.862s
-sys	0m0.114s
+real	0m4.901s
+user	0m4.338s
+sys	0m0.145s
 Code generation completed in 5 seconds
