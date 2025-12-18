@@ -259,8 +259,13 @@
               targetamp[icolC] = 0;
             else
               targetamp[icolC] = targetamp[icolC - 1];
+#ifdef MGONGPU_CPPSIMD
             if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] +=
               jamp2_sv[icolC + ncolor * ( ieppV / neppV )][ieppV %% neppV];
+#else
+            if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] +=
+              jamp2_sv[icolC + ncolor * ( ieppV / neppV )];
+#endif
           }
           const int ievt = ievt00 + ieppV;
           //printf( "sigmaKin: ievt=%%4d rndcol=%%f\n", ievt, allrndcol[ievt] );
