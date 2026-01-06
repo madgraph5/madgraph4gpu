@@ -1,18 +1,20 @@
 C Copyright (C) 2020-2024 CERN and UCLouvain.
 C Licensed under the GNU Lesser General Public License (version 3 or later).
 C Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
-C Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+C Further modified by: D. Massaro, A. Thete, A. Valassi (2022-2026) for the MG5aMC CUDACPP plugin.
 
 C
 C Create a Bridge and return its pointer
 C - PBRIDGE: the memory address of the C++ Bridge
+C - IFLAV:   the index to the flavor combination to consider
 C - NEVT:    the number of events in the Fortran arrays
 C - NPAR:    the number of external particles in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
 C - NP4:     the number of momenta components, usually 4, in the Fortran arrays (KEPT FOR SANITY CHECKS ONLY: remove it?)
 C
       INTERFACE
-         SUBROUTINE FBRIDGECREATE(PBRIDGE, NEVT, NPAR, NP4)
+         SUBROUTINE FBRIDGECREATE(PBRIDGE, IFLAVOR, NEVT, NPAR, NP4)
          INTEGER*8 PBRIDGE
+         INTEGER   IFLAVOR
          INTEGER*4 NEVT
          INTEGER*4 NPAR
          INTEGER*4 NP4
