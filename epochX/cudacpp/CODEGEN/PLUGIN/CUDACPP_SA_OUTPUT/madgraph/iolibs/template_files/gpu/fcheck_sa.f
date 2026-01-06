@@ -1,7 +1,7 @@
 C Copyright (C) 2020-2024 CERN and UCLouvain.
 C Licensed under the GNU Lesser General Public License (version 3 or later).
 C Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
-C Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+C Further modified by: D. Massaro, A. Thete, A. Valassi (2022-2026) for the MG5aMC CUDACPP plugin.
 
       PROGRAM FCHECK_SA
       IMPLICIT NONE
@@ -24,6 +24,9 @@ c     INTEGER IEXTERNAL
       INTEGER*4 SELCOL(NEVTMAX) ! not yet used
       DOUBLE PRECISION MES_SUM ! use REAL*16 for quadruple precision
       INTEGER NEVTOK ! exclude nan/abnormal MEs
+      INTEGER IFLAVOR ! index of the flavor combination to calculate
+
+      IFLAVOR=1
 C
 C READ COMMAND LINE ARGUMENTS
 C (NB: most errors will crash the program !)
@@ -38,6 +41,7 @@ C
         WRITE(6,*) "GPUBLOCKS=  ", NARG1
         WRITE(6,*) "GPUTHREADS= ", NARG2
         WRITE(6,*) "NITERATIONS=", NARG3
+        WRITE(6,*) "IFLAV=      ", IFLAVOR
         NEVT = NARG1 * NARG2
         NITER = NARG3
         IF ( NEVT > NEVTMAX ) THEN
@@ -55,7 +59,7 @@ C USE SAMPLER AND BRIDGE
 C
       NEVTOK = 0
       MES_SUM = 0
-      CALL FBRIDGECREATE(BRIDGE, NEVT, NEXTERNAL, NP4) ! this must be at the beginning as it initialises the CUDA device
+      CALL FBRIDGECREATE(BRIDGE, IFLAVOR, NEVT, NEXTERNAL, NP4) ! this must be at the beginning as it initialises the CUDA device
       CALL FSAMPLERCREATE(SAMPLER, NEVT, NEXTERNAL, NP4)
       DO IITER = 1, NITER
         CALL FSAMPLERSEQUENCE(SAMPLER, MOMENTA)
