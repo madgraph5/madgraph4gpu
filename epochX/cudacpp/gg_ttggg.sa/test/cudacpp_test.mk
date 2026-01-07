@@ -1,9 +1,19 @@
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Hageboeck (Dec 2020) for the CUDACPP plugin.
-# Further modified by: A. Valassi (2020-2024) for the CUDACPP plugin.
+# Further modified by: S. Roiser, A. Valassi (2020-2025) for the CUDACPP plugin.
 
 THISDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+# Host detection
+UNAME_S := $(shell uname -s)
+
+# Only add AVX2/FMA on non-mac hosts
+ifeq ($(UNAME_S),Darwin)
+  GTEST_CMAKE_FLAGS :=
+else
+  GTEST_CMAKE_FLAGS := -DCMAKE_CXX_FLAGS="-mavx2 -mfma"
+endif
 
 # Compiler-specific googletest build directory (#125 and #738)
 # In epochX, CXXNAMESUFFIX=_$(CXXNAME) is exported from cudacpp.mk
@@ -19,11 +29,11 @@ CXXFLAGS += -Igoogletest/googletest/include/ -std=c++11
 all: googletest/$(INSTALLDIR)/lib64/libgtest.a
 
 googletest/CMakeLists.txt:
-	git clone https://github.com/google/googletest.git -b release-1.11.0 googletest
+	git clone https://github.com/google/googletest.git -b v1.17.0 googletest
 
 googletest/$(BUILDDIR)/Makefile: googletest/CMakeLists.txt
 	mkdir -p googletest/$(BUILDDIR)
-	cd googletest/$(BUILDDIR) && cmake -DCMAKE_INSTALL_PREFIX:PATH=$(THISDIR)/googletest/install -DBUILD_GMOCK=OFF ../
+	cd googletest/$(BUILDDIR) && cmake -DCMAKE_INSTALL_PREFIX:PATH=$(THISDIR)/googletest/install $(GTEST_CMAKE_FLAGS) -DBUILD_GMOCK=OFF ../
 
 googletest/$(BUILDDIR)/lib/libgtest.a: googletest/$(BUILDDIR)/Makefile
 	$(MAKE) -C googletest/$(BUILDDIR)

@@ -253,7 +253,7 @@ function getgridmax()
   elif [ "${ggttg}" == "1" ]; then
     echo 16384 32 # same total grid dimension as 2048 256
   elif [ "${ggttgg}" == "1" ]; then
-    echo 16384 32 # same total grid dimension as 2048 256
+    echo 512 32 # same total grid dimension as 64 256 (new sep2025: even 1024/32 aborts in max8thr mode)
   elif [ "${ggttggg}" == "1" ]; then
     echo 512 32 # same total grid dimension as 64 256
   elif [ "${gguu}" == "1" ]; then
@@ -478,8 +478,14 @@ function runmadevent()
 # PART 1 - build madevent
 ##########################################################################
 
+echo MADGRAPH_CUDA_ARCHITECTURE=${MADGRAPH_CUDA_ARCHITECTURE}
+echo MADGRAPH_HIP_ARCHITECTURE=${MADGRAPH_HIP_ARCHITECTURE}
+
 unset GTEST_ROOT
 unset LOCALGTEST
+
+export HASBLAS=hasBlas
+echo HASBLAS=${HASBLAS}
 
 for suff in $suffs; do
 
@@ -510,6 +516,12 @@ if [ "${maketype}" == "-makeonly" ]; then printf "\nMAKE COMPLETED\n"; exit 0; f
 ##########################################################################
 # PART 2 - run madevent
 ##########################################################################
+
+unset CUDACPP_RUNTIME_BLASCOLORSUM
+printf "\nCUDACPP_RUNTIME_BLASCOLORSUM=$CUDACPP_RUNTIME_BLASCOLORSUM\n"
+
+unset CUDACPP_RUNTIME_CUBLASTF32TENSOR
+printf "\nCUDACPP_RUNTIME_CUBLASTF32TENSOR=$CUDACPP_RUNTIME_CUBLASTF32TENSOR\n"
 
 printf "\nOMP_NUM_THREADS=$OMP_NUM_THREADS\n"
 

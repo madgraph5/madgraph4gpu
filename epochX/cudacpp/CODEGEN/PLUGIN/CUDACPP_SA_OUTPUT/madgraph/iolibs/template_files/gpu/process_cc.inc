@@ -14,6 +14,7 @@
 
 #include "mgOnGpuConfig.h"
 
+#include "GpuRuntime.h"
 %(hel_amps_h)s
 #include "MemoryAccessAmplitudes.h"
 #include "MemoryAccessChannelIds.h"
@@ -23,6 +24,7 @@
 #include "MemoryAccessMatrixElements.h"
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
+#include "color_sum.h"
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #include "MemoryAccessDenominators.h"
