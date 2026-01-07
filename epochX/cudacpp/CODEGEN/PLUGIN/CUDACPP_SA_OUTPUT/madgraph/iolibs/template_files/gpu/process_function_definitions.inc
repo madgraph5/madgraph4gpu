@@ -16,6 +16,7 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
+  constexpr int np4 = CPPProcess::np4;     // dimensions of 4-momenta (E, px, py, pz)
   constexpr int nw6 = CPPProcess::nw6;     // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
   constexpr int npar = CPPProcess::npar;   // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
   constexpr int ncomb = CPPProcess::ncomb; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
@@ -117,8 +118,10 @@ namespace mg5amcCpu
 %(all_helicities)s
 #ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( cHel, tHel, ncomb * npar * sizeof( short ) );
+    gpuMemcpyToSymbol( cFlavors, tFlavors, nmaxflavor * npar * sizeof( short ) );
 #else
     memcpy( cHel, tHel, ncomb * npar * sizeof( short ) );
+    memcpy( cFlavors, tFlavors, nmaxflavor * npar * sizeof( short ) );
 #endif
 #ifdef MGONGPUCPP_DEBUG
     fpeEnable(); // enable SIGFPE traps for Floating Point Exceptions
