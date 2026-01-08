@@ -528,6 +528,33 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  int
+  broken_symmetry( const int iflavor )
+  {
+    int old_factor = 1;
+    int pid[] = {81, -81};
+    int nincoming = 2;
+    int nexternal = CPPProcess::npar;
+    for (int i = 0; i < (nexternal - nincoming); i++ )
+    {
+      if(pid[i] == 0)
+        continue;
+      int n_tot = 1;
+      for (int j = i + 1; j < (nexternal - nincoming); j++ )
+      {
+        if((pid[i] == pid[j]) && (cFlavors[iflavor][i] == cFlavors[iflavor][j]))
+        {
+          pid[j] = 0;
+          n_tot = n_tot + 1;
+          old_factor = old_factor/n_tot;
+        }
+      }
+    }
+    return old_factor;
+  }
+
+  //--------------------------------------------------------------------------
+
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   __global__ void
   normalise_output( fptype* allMEs,                    // output: allMEs[nevt], |M|^2 running_sum_over_helicities
@@ -536,10 +563,11 @@ namespace mg5amcCpu
                     fptype* ghelAllDenominators,       // input/tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
                     const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
 #endif
-                    const fptype globaldenom ) /* clang-format on */
+                    const fptype globaldenom,
+                    const fptype broken_sym_factor ) /* clang-format on */
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
-    allMEs[ievt] /= globaldenom;
+    allMEs[ievt] /= (globaldenom * broken_sym_factor);
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const int nevt = gridDim.x * blockDim.x;
     if( allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
@@ -717,6 +745,8 @@ namespace mg5amcCpu
 
     // Denominators: spins, colors and identical particles
     constexpr int helcolDenominators[1] = { %(den_factors)s }; // assume nprocesses == 1 (#272 and #343)
+    // Broken symmetry factor
+    const int broken_sym_factor = broken_symmetry(iflavor);
 
 #ifndef MGONGPUCPP_GPUIMPL
     //assert( (size_t)(allmomenta) %% mgOnGpu::cppAlign == 0 ); // SANITY CHECK: require SIMD-friendly alignment [COMMENT OUT TO TEST MISALIGNED ACCESS]
