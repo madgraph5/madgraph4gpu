@@ -5,8 +5,8 @@ GLOBAL_FLAG=-O3 -ffast-math -fbounds-check
 MACFLAG=
 MG5AMC_VERSION=SpecifiedByMG5aMCAtRunTime
 PYTHIA8_PATH=NotInstalled
-STDLIB_FLAG=
 STDLIB=-lstdc++
+STDLIB_FLAG=
 #end_of_make_opts_variables
 
 BIASLIBDIR=../../../lib/

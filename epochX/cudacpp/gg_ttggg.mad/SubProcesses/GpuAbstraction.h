@@ -49,6 +49,9 @@
 #define gpuStream_t cudaStream_t
 #define gpuStreamCreate( pStream ) checkGpu( cudaStreamCreate( pStream ) )
 #define gpuStreamDestroy( stream ) checkGpu( cudaStreamDestroy( stream ) )
+#define gpuMallocAsync( ptr, size, stream ) checkGpu( cudaMallocAsync( ptr, size, stream ) )
+#define gpuFreeAsync( ptr, stream ) checkGpu( cudaFreeAsync( ptr, stream ) )
+#define gpuStreamSynchronize( stream ) checkGpu( cudaStreamSynchronize( stream ) )
 
 #define gpuBlasStatus_t cublasStatus_t
 #define GPUBLAS_STATUS_SUCCESS CUBLAS_STATUS_SUCCESS
@@ -113,6 +116,9 @@
 #define gpuStream_t hipStream_t
 #define gpuStreamCreate( pStream ) checkGpu( hipStreamCreate( pStream ) )
 #define gpuStreamDestroy( stream ) checkGpu( hipStreamDestroy( stream ) )
+#define gpuMallocAsync( ptr, size, stream ) checkGpu( hipMallocAsync( ptr, size, stream ) )
+#define gpuFreeAsync( ptr, stream ) checkGpu( hipFreeAsync( ptr, stream ) )
+#define gpuStreamSynchronize( stream ) checkGpu( hipStreamSynchronize( stream ) )
 
 #define gpuBlasStatus_t hipblasStatus_t
 #define GPUBLAS_STATUS_SUCCESS HIPBLAS_STATUS_SUCCESS

@@ -27,6 +27,7 @@
 #include "MemoryAccessMomenta.h"
 #include "MemoryAccessWavefunctions.h"
 #include "color_sum.h"
+#include "processConfig.h"
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #include "MemoryAccessDenominators.h"
@@ -98,6 +99,69 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+  __device__ INLINE unsigned int getChannelId( const unsigned int* allChannelIds
+#ifndef MGONGPUCPP_GPUIMPL
+                                               ,
+                                               const int ievt00,
+                                               bool sanityCheckMixedPrecision = true
+#endif
+  )
+  {
+    unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
+#ifdef MGONGPUCPP_GPUIMPL
+    using CID_ACCESS = DeviceAccessChannelIds; // non-trivial access: buffer includes all events
+    // SCALAR channelId for the current event (CUDA) or for the whole SIMD event page (C++)
+    // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a SIMD event page
+    if( allChannelIds != nullptr )
+    {
+      const unsigned int* channelIds = allChannelIds;                            // fix #899 (distinguish channelIds and allChannelIds)
+      const uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds ); // fix #895 (compute this only once for all diagrams)
+      // NB: channelIds_sv is a scalar in CUDA
+      channelId = channelIds_sv;
+      assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
+    }
+#else // Cuda or C++
+    using CID_ACCESS = HostAccessChannelIds; // non-trivial access: buffer includes all events
+    // SCALAR channelId for the whole SIMD neppV2 event page (C++), i.e. one or two neppV event page(s)
+    // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a neppV2 SIMD event page
+    // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
+    if( allChannelIds != nullptr )
+    {
+      // First - and/or only - neppV page of channels (iParity=0 => ievt0 = ievt00 + 0 * neppV)
+      const unsigned int* channelIds = CID_ACCESS::ieventAccessRecordConst( allChannelIds, ievt00 ); // fix bug #899/#911
+      uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds );                           // fix #895 (compute this only once for all diagrams)
+#ifndef MGONGPU_CPPSIMD
+      // NB: channelIds_sv is a scalar in no-SIMD C++
+      channelId = channelIds_sv;
+#else
+      // NB: channelIds_sv is a vector in SIMD C++
+      channelId = channelIds_sv[0];    // element[0]
+      for( int i = 1; i < neppV; ++i ) // elements[1...neppV-1]
+      {
+        assert( channelId == channelIds_sv[i] ); // SANITY CHECK #898: check that all events in a SIMD vector have the same channelId
+      }
+#endif
+      assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
+      if( sanityCheckMixedPrecision )
+      {
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+        // Second neppV page of channels (iParity=1 => ievt0 = ievt00 + 1 * neppV)
+        const unsigned int* channelIds2 = CID_ACCESS::ieventAccessRecordConst( allChannelIds, ievt00 + neppV ); // fix bug #899/#911
+        uint_v channelIds2_v = CID_ACCESS::kernelAccessConst( channelIds2 );                                    // fix #895 (compute this only once for all diagrams)
+        // **NB! in "mixed" precision, using SIMD, calculate_wavefunctions computes MEs for TWO neppV pages with a single channelId! #924
+        for( int i = 0; i < neppV; ++i )
+        {
+          assert( channelId == channelIds2_v[i] ); // SANITY CHECKS #898 #924: all events in the 2nd SIMD vector have the same channelId as that of the 1st SIMD vector
+        }
+#endif
+      }
+    }
+#endif // MGONGPUCPP_GPUIMPL
+    return channelId;
+  }
+#endif // MGONGPU_SUPPORTS_MULTICHANNEL
+
   constexpr int nw6 = CPPProcess::nw6;       // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
   constexpr int npar = CPPProcess::npar;     // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
   constexpr int ncomb = CPPProcess::ncomb;   // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
@@ -239,7 +303,7 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
                    fptype* allJamps,                  // output: jamp[2*ncolor*nevt] buffer for one helicity _within a super-buffer for dcNGoodHel helicities_
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE (#899/#911)
+                   bool storeChannelWeights,
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
                    fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
@@ -248,7 +312,7 @@ namespace mg5amcCpu
 #else
                    cxtype_sv* allJamp_sv,             // output: jamp_sv[ncolor] (float/double) or jamp_sv[2*ncolor] (mixed) for this helicity
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                   const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
+                   bool storeChannelWeights,
                    fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
                    fptype_sv* jamp2_sv,               // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
@@ -344,7 +408,8 @@ namespace mg5amcCpu
       const fptype* COUPs[nxcoup];
       for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* numerators = allNumerators;
+      const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread) in grid
+      fptype* numerators = &allNumerators[ievt * processConfig::ndiagrams];
       fptype* denominators = allDenominators;
 #endif
 #else
@@ -357,7 +422,7 @@ namespace mg5amcCpu
       for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )     // FIX #823
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 * processConfig::ndiagrams );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
 #endif
 #endif
@@ -366,12 +431,8 @@ namespace mg5amcCpu
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#ifdef MGONGPUCPP_GPUIMPL
-      // SCALAR channelId for the current event (CUDA)
-      unsigned int channelId = gpu_channelId( allChannelIds );
-#endif
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
-      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+      fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
 #endif
 
@@ -430,8 +491,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 2
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[5], w_fp[8], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 2 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[1] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -450,8 +514,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 3
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[4], w_fp[9], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 3 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[2] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -470,8 +537,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 4
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[6], w_fp[7], w_fp[10], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 4 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[3] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -491,8 +561,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 5
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[11], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 5 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[4] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -505,8 +578,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 6
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[11], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 6 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[5] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[12] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
@@ -521,8 +597,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 7
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[11], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 7 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[6] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -535,8 +614,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 8
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[14], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 8 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[7] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[22] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -549,8 +631,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 9
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[14], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 9 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[8] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[18] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
@@ -565,8 +650,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 10
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[14], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 10 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[9] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -579,8 +667,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 11
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[16], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 11 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[10] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -593,8 +684,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 12
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[2], w_fp[9], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 12 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[11] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[1] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
@@ -609,8 +703,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 13
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[16], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 13 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[12] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -623,8 +720,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 14
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[2], w_fp[8], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 14 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[13] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -639,8 +739,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 15
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[16], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 15 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[14] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
@@ -655,8 +758,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 16
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 16 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[15] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[16] += amp_sv[0];
       jamp_sv[17] -= amp_sv[0];
@@ -673,8 +779,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 17
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[8], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 17 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[16] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[3] -= amp_sv[0];
 
@@ -686,8 +795,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 18
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 18 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[17] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[5] -= amp_sv[0];
 
@@ -699,8 +811,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 19
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[12], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 19 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[18] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -714,8 +829,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 20
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[6], w_fp[5], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 20 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[19] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
@@ -730,8 +848,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 21
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[9], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 21 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[20] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -744,8 +865,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 22
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[12], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 22 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[21] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -758,8 +882,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 23
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[18], w_fp[4], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 23 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[22] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[1] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
@@ -774,8 +901,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 24
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[8], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 24 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[23] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -788,8 +918,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 25
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[12], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 25 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[24] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -802,8 +935,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 26
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[19], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 26 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[25] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[1] -= amp_sv[0];
 
@@ -815,8 +951,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 27
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[9], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 27 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[26] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[4] -= amp_sv[0];
 
@@ -828,8 +967,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 28
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[19], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 28 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[27] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] -= amp_sv[0];
 
@@ -841,8 +983,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 29
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[8], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 29 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[28] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[2] -= amp_sv[0];
 
@@ -854,8 +999,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 30
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[19], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 30 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[29] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -868,8 +1016,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 31
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[10], w_fp[17], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 31 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[30] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[1] -= amp_sv[0];
@@ -910,8 +1061,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 33
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[20], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 33 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[32] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[11] -= amp_sv[0];
 
@@ -923,8 +1077,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 34
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 34 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[33] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[9] -= amp_sv[0];
 
@@ -936,8 +1093,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 35
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[9], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 35 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[34] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -950,8 +1110,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 36
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[6], w_fp[5], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 36 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[35] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[9] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
@@ -966,8 +1129,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 37
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 37 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[36] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[9] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -980,8 +1146,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 38
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[14], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 38 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[37] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[21] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -994,8 +1163,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 39
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[18], w_fp[4], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 39 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[38] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[11] += amp_sv[0];
       jamp_sv[15] -= amp_sv[0];
@@ -1010,8 +1182,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 40
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[20], w_fp[2], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 40 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[39] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[11] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1024,8 +1199,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 41
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[11], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 41 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[40] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[15] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[17] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1038,8 +1216,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 42
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[23], w_fp[11], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 42 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[41] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[17] -= amp_sv[0];
 
@@ -1051,8 +1232,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 43
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[11], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 43 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[42] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[15] -= amp_sv[0];
 
@@ -1064,8 +1248,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 44
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[23], w_fp[14], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 44 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[43] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[23] -= amp_sv[0];
 
@@ -1077,8 +1264,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 45
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[20], w_fp[14], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 45 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[44] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[21] -= amp_sv[0];
 
@@ -1090,8 +1280,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 46
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[23], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 46 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[45] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[17] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[23] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1104,8 +1297,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 47
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[10], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 47 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[46] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[9] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
@@ -1143,8 +1339,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 49
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 49 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[48] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[11] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1157,8 +1356,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 50
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[9], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 50 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[49] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[6] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -1173,8 +1375,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 51
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[9], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 51 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[50] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[8] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1187,8 +1392,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 52
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[20], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 52 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[51] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1201,8 +1409,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 53
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 53 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[52] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[3] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
@@ -1217,8 +1428,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 54
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[14], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 54 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[53] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[19] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1231,8 +1445,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 55
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[20], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 55 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[54] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[2] += amp_sv[0];
       jamp_sv[3] -= amp_sv[0];
@@ -1247,8 +1464,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 56
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[2], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 56 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[55] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[10] += amp_sv[0];
       jamp_sv[11] -= amp_sv[0];
@@ -1263,8 +1483,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 57
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[18], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 57 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[56] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[3] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1317,8 +1540,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 59
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[5], w_fp[21], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 59 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[58] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1337,8 +1563,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 60
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[7], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 60 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[59] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1357,8 +1586,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 61
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[14], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 61 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[60] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[19] += amp_sv[0];
       jamp_sv[20] -= amp_sv[0];
@@ -1373,8 +1605,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 62
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[14], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 62 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[61] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[20] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[21] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1387,8 +1622,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 63
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[2], w_fp[21], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 63 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[62] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[2] += amp_sv[0];
       jamp_sv[6] -= amp_sv[0];
@@ -1403,8 +1641,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 64
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[20], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 64 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[63] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[2] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[12] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1418,8 +1659,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 65
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 65 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[64] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[9] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1432,8 +1676,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 66
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[9], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 66 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[65] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[7] += amp_sv[0];
       jamp_sv[8] -= amp_sv[0];
@@ -1448,8 +1695,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 67
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[9], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 67 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[66] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[10] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1462,8 +1712,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 68
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[23], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 68 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[67] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1476,8 +1729,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 69
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 69 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[68] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[5] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
@@ -1492,8 +1748,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 70
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[11], w_fp[20], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 70 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[69] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[13] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[16] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1506,8 +1765,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 71
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[23], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 71 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[70] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[4] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
@@ -1522,8 +1784,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 72
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 72 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[71] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[8] += amp_sv[0];
       jamp_sv[9] -= amp_sv[0];
@@ -1538,8 +1803,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 73
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[20], w_fp[6], w_fp[7], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 73 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[72] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1592,8 +1860,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 75
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[4], w_fp[12], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 75 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[74] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1612,8 +1883,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 76
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[7], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 76 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[75] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[5] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] += cxtype( 0, 1 ) * amp_sv[0];
@@ -1632,8 +1906,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 77
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[11], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 77 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[76] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[13] += amp_sv[0];
       jamp_sv[14] -= amp_sv[0];
@@ -1648,8 +1925,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 78
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[11], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 78 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[77] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[14] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[15] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1662,8 +1942,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 79
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[2], w_fp[12], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 79 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[78] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[4] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
@@ -1678,8 +1961,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 80
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[23], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 80 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[79] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[4] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[18] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1692,8 +1978,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 81
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[23], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 81 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[80] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[7] -= amp_sv[0];
 
@@ -1705,8 +1994,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 82
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[9], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 82 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[81] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[10] -= amp_sv[0];
 
@@ -1718,8 +2010,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 83
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[23], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 83 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[82] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[6] -= amp_sv[0];
 
@@ -1731,8 +2026,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 84
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[9], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 84 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[83] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[8] -= amp_sv[0];
 
@@ -1744,8 +2042,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 85
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[23], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 85 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[84] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[6] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[7] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1758,8 +2059,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 86
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[9], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 86 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[85] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[6] += amp_sv[0];
       jamp_sv[7] -= amp_sv[0];
@@ -1774,8 +2078,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 87
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[11], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 87 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[86] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[16] -= amp_sv[0];
 
@@ -1787,8 +2094,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 88
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[20], w_fp[5], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 88 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[87] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[13] -= amp_sv[0];
 
@@ -1800,8 +2110,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 89
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[14], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 89 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[88] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[22] -= amp_sv[0];
 
@@ -1813,8 +2126,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 90
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[24], w_fp[4], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 90 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[89] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[19] -= amp_sv[0];
 
@@ -1826,8 +2142,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 91
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[22], w_fp[2], w_fp[10], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 91 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[90] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[16] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[22] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1840,8 +2159,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 92
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[16], w_fp[2], w_fp[23], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 92 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[91] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[3] += amp_sv[0];
       jamp_sv[5] -= amp_sv[0];
@@ -1890,8 +2212,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 94
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[5], w_fp[22], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 94 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[93] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1910,8 +2235,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 95
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[6], w_fp[5], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 95 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[94] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1930,8 +2258,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 96
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[14], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 96 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[95] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[18] += amp_sv[0];
       jamp_sv[19] -= amp_sv[0];
@@ -1946,8 +2277,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 97
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[24], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 97 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[96] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[18] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[19] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -1960,8 +2294,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 98
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[2], w_fp[22], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 98 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[97] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += amp_sv[0];
       jamp_sv[2] -= amp_sv[0];
@@ -1976,8 +2313,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 99
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 99 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[98] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[8] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[14] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2024,8 +2364,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 101
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[7], w_fp[4], w_fp[6], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 101 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[100] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[4] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2044,8 +2387,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 102
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[18], w_fp[4], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 102 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[101] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[1] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[2] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2064,8 +2410,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 103
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[11], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 103 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[102] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[12] += amp_sv[0];
       jamp_sv[13] -= amp_sv[0];
@@ -2080,8 +2429,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 104
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[3], w_fp[20], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 104 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[103] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[12] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[13] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2094,8 +2446,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 105
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[2], w_fp[6], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 105 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[104] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[1] += amp_sv[0];
       jamp_sv[4] -= amp_sv[0];
@@ -2110,8 +2465,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 106
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[2], w_fp[18], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 106 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[105] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[10] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[20] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2158,8 +2516,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 108
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[10], w_fp[25], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 108 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[107] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[0] += cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[1] -= cxtype( 0, 1 ) * amp_sv[0];
@@ -2178,8 +2539,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 109
       VVV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[1], w_fp[7], w_fp[23], COUPs[0], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 109 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[108] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[3] -= cxtype( 0, 1 ) * amp_sv[0];
       jamp_sv[5] += cxtype( 0, 1 ) * amp_sv[0];
@@ -2198,8 +2562,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 110
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[13], w_fp[20], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 110 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[109] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[12] -= amp_sv[0];
 
@@ -2211,8 +2578,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 111
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[21], w_fp[11], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 111 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[110] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[14] -= amp_sv[0];
 
@@ -2224,8 +2594,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 112
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[15], w_fp[24], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 112 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[111] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[18] -= amp_sv[0];
 
@@ -2237,8 +2610,11 @@ namespace mg5amcCpu
       // Amplitude(s) for diagram number 113
       FFV1_0<W_ACCESS, A_ACCESS, CD_ACCESS>( w_fp[12], w_fp[14], w_fp[1], COUPs[1], 1.0, &amp_fp[0] );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( channelId == 113 ) numerators_sv += cxabs2( amp_sv[0] );
-      if( channelId != 0 ) denominators_sv += cxabs2( amp_sv[0] );
+      if( storeChannelWeights )
+      {
+        numerators_sv[112] += cxabs2( amp_sv[0] );
+        denominators_sv += cxabs2( amp_sv[0] );
+      }
 #endif
       jamp_sv[20] -= amp_sv[0];
 
@@ -2877,9 +3253,8 @@ namespace mg5amcCpu
       gpuMemset( allMEs, 0, maxtry * sizeof( fptype ) );
       // NB: color_sum ADDS |M|^2 for one helicity to the running sum of |M|^2 over helicities for the given event(s)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      constexpr fptype_sv* allJamp2s = nullptr;        // no need for color selection during helicity filtering
-      constexpr unsigned int* allChannelIds = nullptr; // disable multichannel single-diagram enhancement
-      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, allChannelIds, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
+      constexpr fptype_sv* allJamp2s = nullptr; // no need for color selection during helicity filtering
+      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, false, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
 #else
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, gpublocks * gputhreads );
 #endif
@@ -2955,8 +3330,7 @@ namespace mg5amcCpu
         cxtype_sv jamp_sv[ncolor] = {};  // all zeros
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL /* clang-format off */
-        constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 ); //maxtry?
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, false, allNumerators, allDenominators, jamp2_sv, ievt00 ); //maxtry?
 #else
         calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 ); //maxtry?
 #endif /* clang-format on */
@@ -3018,25 +3392,35 @@ namespace mg5amcCpu
                     fptype* ghelAllNumerators,         // input/tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
                     fptype* ghelAllDenominators,       // input/tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
                     const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
+                    bool storeChannelWeights,           // if true, compute final multichannel weights
+                    bool mulChannelWeight,             // if true, multiply matrix element by channel weight
 #endif
-                    const fptype globaldenom ) /* clang-format on */
+                    const fptype globaldenom) /* clang-format on */
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
     allMEs[ievt] /= globaldenom;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const int nevt = gridDim.x * blockDim.x;
-    if( allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
+    if( storeChannelWeights ) // fix segfault #892 (not 'channelIds[0] != 0')
     {
       fptype* totAllNumerators = ghelAllNumerators;     // reuse "helicity #0" buffer to compute the total over all helicities
       fptype* totAllDenominators = ghelAllDenominators; // reuse "helicity #0" buffer to compute the total over all helicities
       for( int ighel = 1; ighel < dcNGoodHel; ighel++ ) // NB: the loop starts at ighel=1
       {
-        fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
         fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
-        totAllNumerators[ievt] += hAllNumerators[ievt];
         totAllDenominators[ievt] += hAllDenominators[ievt];
+        fptype* hAllNumerators = ghelAllNumerators + ( ievt + ighel * nevt ) * processConfig::ndiagrams;
+        fptype* firstNumerator = ghelAllNumerators + ievt * processConfig::ndiagrams;
+        for( int idiag = 0; idiag < processConfig::ndiagrams; ++idiag )
+        {
+          firstNumerator[idiag] += hAllNumerators[idiag];
+        }
       }
-      allMEs[ievt] *= totAllNumerators[ievt] / totAllDenominators[ievt];
+      if( mulChannelWeight )
+      {
+        unsigned int channelId = allChannelIds[ievt];
+        allMEs[ievt] *= totAllNumerators[channelId - 1 + ievt * processConfig::ndiagrams] / totAllDenominators[ievt];
+      }
     }
 #endif
     return;
@@ -3081,16 +3465,44 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
   __global__ void
-  select_col( int* allselcol,                    // output: color selection[nevt]
-              const fptype* allrndcol,           // input: random numbers[nevt] for color selection
-              const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
-              const fptype_sv* allJamp2s,        // input: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
-              const int nevt )                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+  select_col_and_diag( int* allselcol,                    // output: color selection[nevt]
+                       unsigned int* allDiagramIdsOut,    // output: sampled diagram ids
+                       const fptype* allrndcol,           // input: random numbers[nevt] for color selection
+                       const fptype* allrnddiagram,       // input: random numbers[nevt] for diagram selection
+                       const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
+                       const fptype_sv* allJamp2s,        // input: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
+                       const fptype* allNumerators,       // input: all numerators
+                       const fptype* allDenominators,     // input: all denominators
+                       const int nevt )                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
     // SCALAR channelId for the current event (CUDA)
     unsigned int channelId = gpu_channelId( allChannelIds );
     // Event-by-event random choice of color #402
+
+    // Event-by-event random choice of channel
+    if( allrnddiagram != nullptr )
+    {
+      fptype numerator_sum = 0., normalization = 0.;
+      for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
+      {
+        if( mgOnGpu::channel2iconfig[ichan] == -1 ) continue;
+        normalization += allNumerators[ievt * processConfig::ndiagrams + ichan];
+      }
+      channelId = mgOnGpu::nchannels;
+      for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
+      {
+        if( mgOnGpu::channel2iconfig[ichan] == -1 ) continue;
+        numerator_sum += allNumerators[ievt * processConfig::ndiagrams + ichan];
+        if( allrnddiagram[ievt] < numerator_sum / normalization )
+        {
+          channelId = ichan + 1;
+          break;
+        }
+      }
+      allDiagramIdsOut[ievt] = channelId;
+    }
+
     if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
     {
       if( channelId > mgOnGpu::nchannels )
@@ -3158,6 +3570,7 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
             const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
+            const fptype* allrnddiagram,        // input: random numbers[nevt] for diagram sampling
 #endif
             fptype* allMEs,                     // output: allMEs[nevt], |M|^2 final_avg_over_helicities
             int* allselhel,                     // output: helicity selection[nevt]
@@ -3167,6 +3580,8 @@ namespace mg5amcCpu
             fptype* colAllJamp2s,               // tmp: allJamp2s super-buffer for ncolor individual colors, running sum over colors and helicities
             fptype* ghelAllNumerators,          // tmp: allNumerators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllDenominators,        // tmp: allDenominators super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
+            unsigned int* allDiagramIdsOut,     // output: multichannel channelIds[nevt] (1 to #diagrams)
+            bool mulChannelWeight,              // if true, multiply channel weight to ME output
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: jamp[2*ncolor*nGoodHel*nevt] super-buffer for nGoodHel <= ncomb individual helicities
@@ -3178,8 +3593,10 @@ namespace mg5amcCpu
 #else
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             int* allselcol,                     // output: helicity selection[nevt]
-            fptype* allNumerators,              // tmp: multichannel numerators[nevt], running_sum_over_helicities
-            fptype* allDenominators,            // tmp: multichannel denominators[nevt], running_sum_over_helicities
+            fptype* allNumerators,              // output: multichannel numerators[nevt], running_sum_over_helicities
+            fptype* allDenominators,            // output: multichannel denominators[nevt], running_sum_over_helicities
+            unsigned int* allDiagramIdsOut,     // output: multichannel channelIds[nevt] (1 to #diagrams)
+            bool mulChannelWeight,              // if true, multiply channel weight to ME output
 #endif
             const int nevt                      // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif
@@ -3207,7 +3624,6 @@ namespace mg5amcCpu
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;   // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators; // non-trivial access: buffer includes all events
-    using CID_ACCESS = HostAccessChannelIds;   // non-trivial access: buffer includes all events
 #endif
 #endif
 
@@ -3223,7 +3639,7 @@ namespace mg5amcCpu
     gpuMemset( ghelAllJamps, 0, cNGoodHel * ncolor * mgOnGpu::nx2 * nevt * sizeof( fptype ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     gpuMemset( colAllJamp2s, 0, ncolor * nevt * sizeof( fptype ) );
-    gpuMemset( ghelAllNumerators, 0, cNGoodHel * nevt * sizeof( fptype ) );
+    gpuMemset( ghelAllNumerators, 0, cNGoodHel * processConfig::ndiagrams * nevt * sizeof( fptype ) );
     gpuMemset( ghelAllDenominators, 0, cNGoodHel * nevt * sizeof( fptype ) );
 #endif
     gpuMemset( ghelAllMEs, 0, cNGoodHel * nevt * sizeof( fptype ) );
@@ -3237,11 +3653,14 @@ namespace mg5amcCpu
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv = fptype_sv{ 0 };
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+      fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 * processConfig::ndiagrams );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
-      fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+      fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-      numerators_sv = fptype_sv{ 0 };
+      for( int i = 0; i < processConfig::ndiagrams; ++i )
+      {
+        numerators_sv[i] = fptype_sv{ 0 };
+      }
       denominators_sv = fptype_sv{ 0 };
 #endif
     }
@@ -3253,6 +3672,7 @@ namespace mg5amcCpu
 #ifdef MGONGPUCPP_GPUIMPL // CUDA OR C++
 
     // *** START OF PART 1a - CUDA (one event per GPU thread) ***
+
     // Use CUDA/HIP streams to process different helicities in parallel (one good helicity per stream)
     // (1) First, within each helicity stream, compute the QCD partial amplitudes jamp's for each helicity
     // In multichannel mode, also compute the running sums over helicities of numerators, denominators and squared jamp2s
@@ -3261,9 +3681,10 @@ namespace mg5amcCpu
       const int ihel = cGoodHel[ighel];
       fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
+      fptype* hAllNumerators = ghelAllNumerators + ighel * nevt * processConfig::ndiagrams;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
-      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
+      bool storeChannelWeights = allChannelIds != nullptr || allrnddiagram != nullptr;
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, storeChannelWeights, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
 #else
       gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );
 #endif
@@ -3274,9 +3695,15 @@ namespace mg5amcCpu
     // (3) Wait for all helicity streams to complete, then finally compute the ME sum over all helicities and choose one helicity and one color
     // Event-by-event random choice of helicity #403 and ME sum over helicities (defer this after the helicity loop to avoid breaking streams parallelism)
     gpuLaunchKernel( add_and_select_hel, gpublocks, gputhreads, allselhel, allrndhel, ghelAllMEs, allMEs, gpublocks * gputhreads );
+
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // Event-by-event random choice of color #402
-    gpuLaunchKernel( select_col, gpublocks, gputhreads, allselcol, allrndcol, allChannelIds, colAllJamp2s, gpublocks * gputhreads );
+    bool storeChannelWeights = allChannelIds != nullptr || allrnddiagram != nullptr;
+    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, ghelAllNumerators, ghelAllDenominators, allChannelIds, storeChannelWeights, mulChannelWeight, helcolDenominators[0] );
+
+    // Event-by-event random choice of color and diagram #402
+    gpuLaunchKernel( select_col_and_diag, gpublocks, gputhreads, allselcol, allDiagramIdsOut, allrndcol, allrnddiagram, allChannelIds, colAllJamp2s, ghelAllNumerators, ghelAllDenominators, gpublocks * gputhreads );
+#else
+    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, helcolDenominators[0] );
 #endif
     // *** END OF PART 1a - CUDA (one event per GPU thread) ***
 
@@ -3315,40 +3742,6 @@ namespace mg5amcCpu
 #else
       const int ievt00 = ipagV2 * neppV; // loop on one SIMD page (neppV events) at a time
 #endif
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      // SCALAR channelId for the whole SIMD neppV2 event page (C++), i.e. one or two neppV event page(s)
-      // The cudacpp implementation ASSUMES (and checks! #898) that all channelIds are the same in a neppV2 SIMD event page
-      // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
-      unsigned int channelId = 0; // disable multichannel single-diagram enhancement unless allChannelIds != nullptr
-      if( allChannelIds != nullptr )
-      {
-        // First - and/or only - neppV page of channels (iParity=0 => ievt0 = ievt00 + 0 * neppV)
-        const unsigned int* channelIds = CID_ACCESS::ieventAccessRecordConst( allChannelIds, ievt00 ); // fix bug #899/#911
-        uint_sv channelIds_sv = CID_ACCESS::kernelAccessConst( channelIds );                           // fix #895 (compute this only once for all diagrams)
-#ifndef MGONGPU_CPPSIMD
-        // NB: channelIds_sv is a scalar in no-SIMD C++
-        channelId = channelIds_sv;
-#else
-        // NB: channelIds_sv is a vector in SIMD C++
-        channelId = channelIds_sv[0];    // element[0]
-        for( int i = 1; i < neppV; ++i ) // elements[1...neppV-1]
-        {
-          assert( channelId == channelIds_sv[i] ); // SANITY CHECK #898: check that all events in a SIMD vector have the same channelId
-        }
-#endif
-        assert( channelId > 0 ); // SANITY CHECK: scalar channelId must be > 0 if multichannel is enabled (allChannelIds != nullptr)
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        // Second neppV page of channels (iParity=1 => ievt0 = ievt00 + 1 * neppV)
-        const unsigned int* channelIds2 = CID_ACCESS::ieventAccessRecordConst( allChannelIds, ievt00 + neppV ); // fix bug #899/#911
-        uint_v channelIds2_v = CID_ACCESS::kernelAccessConst( channelIds2 );                                    // fix #895 (compute this only once for all diagrams)
-        // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
-        for( int i = 0; i < neppV; ++i )
-        {
-          assert( channelId == channelIds2_v[i] ); // SANITY CHECKS #898 #924: all events in the 2nd SIMD vector have the same channelId as that of the 1st SIMD vector
-        }
-#endif
-      }
-#endif
       // Running sum of partial amplitudes squared for event by event color selection (#402)
       // (jamp2[nParity][ncolor][neppV] for the SIMD vector - or the two SIMD vectors - of events processed in calculate_jamps)
       fptype_sv jamp2_sv[nParity * ncolor] = {};
@@ -3362,7 +3755,8 @@ namespace mg5amcCpu
         cxtype_sv jamp_sv[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 );
+        bool storeChannelWeights = allChannelIds != nullptr || allrnddiagram != nullptr;
+        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, storeChannelWeights, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
         calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 );
 #endif
@@ -3410,82 +3804,97 @@ namespace mg5amcCpu
         }
 #endif
       }
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
-      // Event-by-event random choice of color #402
-      if( channelId != 0 ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
-      {
-        if( channelId > mgOnGpu::nchannels )
-        {
-          printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d which is greater than nchannels=%d\n", channelId, mgOnGpu::nchannels );
-          assert( channelId <= mgOnGpu::nchannels ); // SANITY CHECK #919 #910
-        }
-        // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
-        // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
-        const int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
-        if( iconfig <= 0 )
-        {
-          printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d which has no associated SDE iconfig\n", channelId );
-          assert( iconfig > 0 ); // SANITY CHECK #917
-        }
-        else if( iconfig > (int)mgOnGpu::nconfigSDE )
-        {
-          printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d (invalid SDE iconfig=%d\n > nconfig=%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
-          assert( iconfig <= (int)mgOnGpu::nconfigSDE ); // SANITY CHECK #917
-        }
-        fptype_sv targetamp[ncolor] = { 0 };
-        // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
-        for( int icolC = 0; icolC < ncolor; icolC++ )
-        {
-          if( icolC == 0 )
-            targetamp[icolC] = fptype_sv{ 0 };
-          else
-            targetamp[icolC] = targetamp[icolC - 1];
-          if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
-        }
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        fptype_sv targetamp2[ncolor] = { 0 };
-        for( int icolC = 0; icolC < ncolor; icolC++ )
-        {
-          if( icolC == 0 )
-            targetamp2[icolC] = fptype_sv{ 0 };
-          else
-            targetamp2[icolC] = targetamp2[icolC - 1];
-          // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
-          if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
-        }
+      const int vecsize = 2 * neppV;
+#else
+      const int vecsize = neppV;
 #endif
-        for( int ieppV = 0; ieppV < neppV; ++ieppV )
+      unsigned int channelIdVec[vecsize];
+      if( allChannelIds != nullptr )
+      {
+        for( int ieppV = 0; ieppV < vecsize; ++ieppV )
         {
+          const int ievt = ievt00 + ieppV;
+          channelIdVec[ieppV] = allChannelIds[ievt];
+        }
+      }
+
+      // Event-by-event random choice of channel
+      if( allrnddiagram != nullptr )
+      {
+        for( int ieppV = 0; ieppV < vecsize; ++ieppV )
+        {
+          const int ievt = ievt00 + ieppV;
+          fptype numerator_sum = 0., normalization = 0.;
+          for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
+          {
+            if( mgOnGpu::channel2iconfig[ichan] == -1 ) continue;
+            normalization += allNumerators[ievt / neppV * neppV * processConfig::ndiagrams +
+                                           ichan * neppV + ieppV % neppV];
+          }
+          channelIdVec[ieppV] = mgOnGpu::nchannels;
+          for( unsigned int ichan = 0; ichan < mgOnGpu::nchannels; ichan++ )
+          {
+            if( mgOnGpu::channel2iconfig[ichan] == -1 ) continue;
+            numerator_sum += allNumerators[ievt / neppV * neppV * processConfig::ndiagrams +
+                                           ichan * neppV + ieppV % neppV];
+            if( allrnddiagram[ievt] < numerator_sum / normalization )
+            {
+              channelIdVec[ieppV] = ichan + 1;
+              break;
+            }
+          }
+          allDiagramIdsOut[ievt] = channelIdVec[ieppV];
+        }
+      }
+
+      // Event-by-event random choice of color #402
+      if( allChannelIds != nullptr || allrnddiagram != nullptr ) // no event-by-event choice of color if channelId == 0 (fix FPE #783)
+      {
+        for( int ieppV = 0; ieppV < vecsize; ++ieppV )
+        {
+          unsigned int channelId = channelIdVec[ieppV];
+          if( channelId > mgOnGpu::nchannels )
+          {
+            printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d which is greater than nchannels=%d\n", channelId, mgOnGpu::nchannels );
+            assert( channelId <= mgOnGpu::nchannels ); // SANITY CHECK #919 #910
+          }
+          // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
+          // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
+          const int iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
+          if( iconfig <= 0 )
+          {
+            printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d which has no associated SDE iconfig\n", channelId );
+            assert( iconfig > 0 ); // SANITY CHECK #917
+          }
+          else if( iconfig > (int)mgOnGpu::nconfigSDE )
+          {
+            printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d (invalid SDE iconfig=%d\n > nconfig=%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
+            assert( iconfig <= (int)mgOnGpu::nconfigSDE ); // SANITY CHECK #917
+          }
+          fptype targetamp[ncolor] = { 0 };
+          // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
+          for( int icolC = 0; icolC < ncolor; icolC++ )
+          {
+            if( icolC == 0 )
+              targetamp[icolC] = 0;
+            else
+              targetamp[icolC] = targetamp[icolC - 1];
+            if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] +=
+              jamp2_sv[icolC + ncolor * ( ieppV / neppV )][ieppV % neppV];
+          }
           const int ievt = ievt00 + ieppV;
           //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
           for( int icolC = 0; icolC < ncolor; icolC++ )
           {
-#if defined MGONGPU_CPPSIMD
-            // Add volatile here to avoid SIGFPE crashes in FPTYPE=f cpp512z builds (#845)
-            volatile const bool okcol = allrndcol[ievt] < ( targetamp[icolC][ieppV] / targetamp[ncolor - 1][ieppV] );
-#else
-            const bool okcol = allrndcol[ievt] < ( targetamp[icolC] / targetamp[ncolor - 1] );
-#endif
-            if( okcol )
+            if( allrndcol[ievt] < ( targetamp[icolC] / targetamp[ncolor - 1] ) )
             {
               allselcol[ievt] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
               //printf( "sigmaKin: ievt=%d icol=%d\n", ievt, icolC+1 );
               break;
             }
           }
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-          const int ievt2 = ievt00 + ieppV + neppV;
-          //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt2, allrndcol[ievt2] );
-          for( int icolC = 0; icolC < ncolor; icolC++ )
-          {
-            if( allrndcol[ievt2] < ( targetamp2[icolC][ieppV] / targetamp2[ncolor - 1][ieppV] ) )
-            {
-              allselcol[ievt2] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
-              //printf( "sigmaKin: ievt2=%d icol=%d\n", ievt2, icolC+1 );
-              break;
-            }
-          }
-#endif
         }
       }
       else
@@ -3510,13 +3919,7 @@ namespace mg5amcCpu
     // Get the final |M|^2 as an average over helicities/colors of the running sum of |M|^2 over helicities for the given event
     // [NB 'sum over final spins, average over initial spins', eg see
     // https://www.uzh.ch/cmsssl/physik/dam/jcr:2e24b7b1-f4d7-4160-817e-47b13dbf1d7c/Handout_4_2016-UZH.pdf]
-#ifdef MGONGPUCPP_GPUIMPL
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, ghelAllNumerators, ghelAllDenominators, allChannelIds, helcolDenominators[0] );
-#else
-    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, helcolDenominators[0] );
-#endif
-#else
+#ifndef MGONGPUCPP_GPUIMPL
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
     {
       const int ievt0 = ipagV * neppV;
@@ -3524,13 +3927,14 @@ namespace mg5amcCpu
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
       MEs_sv /= helcolDenominators[0];
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-      if( allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
+      if( mulChannelWeight && allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
       {
-        fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
+        const unsigned int channelId = getChannelId( allChannelIds, ievt0, false );
+        fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 * processConfig::ndiagrams );
         fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
-        fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
+        fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
         fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-        MEs_sv *= numerators_sv / denominators_sv;
+        MEs_sv *= numerators_sv[channelId - 1] / denominators_sv;
       }
 #endif
       //for( int ieppV = 0; ieppV < neppV; ieppV++ )
