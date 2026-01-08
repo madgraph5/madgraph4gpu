@@ -473,9 +473,9 @@ namespace mg5amcCpu
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL /* clang-format off */
         constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 ); //maxtry?
+        calculate_jamps( ihel, allmomenta, allcouplings, iflavor, jamp_sv, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 ); //maxtry?
 #else
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 ); //maxtry?
+        calculate_jamps( ihel, allmomenta, allcouplings, iflavor, jamp_sv, ievt00 ); //maxtry?
 #endif /* clang-format on */
         color_sum_cpu( allMEs, jamp_sv, ievt00 );
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
@@ -671,8 +671,8 @@ namespace mg5amcCpu
   void /* clang-format off */
   sigmaKin( const fptype* allmomenta,           // input: momenta[nevt*npar*4]
             const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
-            const int iflavor,          // input: index of the flavor combination
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
+            const int iflavor,                  // input: index of the flavor combination
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
             const unsigned int* allChannelIds,  // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable single-diagram enhancement (fix #899/#911)
