@@ -1172,6 +1172,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
+        replace_dict['nmaxflavor'] = len(self.matrix_elements[0].get_external_flavors_with_iden()) # number of flavor combinations
         if( write ): # ZW: added dict return for uses in child exporters. Default argument is True so no need to modify other calls to this function
             file = self.read_template_file(self.process_class_template) % replace_dict 
             file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
@@ -1250,6 +1251,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # FIXME! Here there should be different code generated depending on MGONGPUCPP_NBSMINDEPPARAM_GT_0 (issue #827)
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
+        replace_dict['all_flavors'] = self.get_flavor_matrix(self.matrix_elements[0])
+        replace_dict['all_flavors'] = replace_dict['all_flavors'].replace('flavors', 'tFlavors')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
         replace_dict['ncolor'] = len(color_amplitudes[0])
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
@@ -1753,6 +1756,15 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         for helicities in matrix_element.get_helicity_matrix(allow_reverse=True): # AV was False: different order in Fortran and cudacpp! #569
             helicity_line_list.append( '{ ' + ', '.join(['%d'] * len(helicities)) % tuple(helicities) + ' }' ) # AV
         return helicity_line + ',\n      '.join(helicity_line_list) + ' };' # AV
+
+    def get_flavor_matrix(self, matrix_element):
+        """Return the flavor matrix definition lines for this matrix element"""
+        flavor_line = '    static constexpr short flavors[nmaxflavor][npar] = {\n      '; # (this is tFlavors)
+        flavor_line_list = []
+        for flavors in matrix_element.get_external_flavors_with_iden():
+            # get only the index 0 one because the other ones have same matrix element
+            flavor_line_list.append( '{ ' + ', '.join(['%d'] * len(flavors[0])) % tuple(flavors[0]) + ' }' )
+        return flavor_line + ',\n      '.join(flavor_line_list) + ' };'
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
     def get_reset_jamp_lines(self, color_amplitudes):
