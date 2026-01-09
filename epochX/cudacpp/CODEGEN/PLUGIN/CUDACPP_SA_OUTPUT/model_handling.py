@@ -2079,7 +2079,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
             ###call = call + 'm_pars->%s,'
             call = call
-        call = call + '%+d, w_sv[%d], %d );'
+        # Add flavor and the related ALOHA object
+        call = call + '%+d, cFlavors[iflavor][%d], aloha_obj[%d], %d );'
         if argument.get('spin') == 1:
             # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
             return call % \
@@ -2088,6 +2089,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                 # For boson, need initial/final here
                                 (-1) ** (wf.get('state') == 'initial'),
                                 wf.get('me_id')-1,
+                                wf.get('number_external')-1,
                                 wf.get('number_external')-1)
         elif argument.is_boson():
             ###misc.sprint(call)
@@ -2102,6 +2104,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                 wf.get('number_external')-1,
                                 # For boson, need initial/final here
                                 (-1) ** (wf.get('state') == 'initial'),
+                                wf.get('number_external')-1,
                                 wf.get('me_id')-1,
                                 wf.get('number_external')-1))
         else:
@@ -2110,6 +2113,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                 wf.get('number_external')-1,
                                 # For fermions, need particle/antiparticle
                                 - (-1) ** wf.get_with_flow('is_part'),
+                                wf.get('number_external')-1,
                                 wf.get('me_id')-1,
                                 wf.get('number_external')-1))
 
@@ -2169,7 +2173,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             call = '%(routine_name)s( %(wf)s%(coup)s%(mass)s%(out)s );'
             # compute wf
             arg = {'routine_name': aloha_writers.combine_name('%s' % l[0], l[1:], outgoing, flag, True),
-                   'wf': ('w_fp[%%(%d)d], ' * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
+                   'wf': ('aloha_obj[%%(%d)d], ' * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
                    'coup': ('m_pars->%%(coup%d)s, ' * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
                    }
             # AV FOR PR #434: determine if this call needs aS-dependent or aS-independent parameters
@@ -2196,7 +2200,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
-                arg['out'] = 'w_fp[%(out)d]'
+                arg['out'] = 'aloha_obj[%(out)d]'
                 if aloha.complex_mass:
                     arg['mass'] = 'm_pars->%(CM)s, '
                 else:
@@ -2211,6 +2215,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             call_function = lambda wf: self.format_coupling(
                                          call % wf.get_helas_call_dict(index=0))
         # Add the constructed function to wavefunction or amplitude dictionary
+        breakpoint()
         if isinstance(argument, helas_objects.HelasWavefunction):
             self.add_wavefunction(argument.get_call_key(), call_function)
         else:
