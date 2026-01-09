@@ -1388,12 +1388,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     // ** NB: in other words, amplitudes and wavefunctions still have TRIVIAL ACCESS: there is currently no need
     // ** NB: to have large memory structurs for wavefunctions/amplitudes in all events (no kernel splitting yet)!
     //MemoryBufferWavefunctions w_buffer[nwf]{ neppV };
-    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+    // Create memory for both momenta and wavefunctions separately, and later wrap them in ALOHAOBJ
+    fptype_sv pvec_sv[nwf][np4];
+    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is 4: spin wavefunctions, momenta are no more included, see before)
     cxtype_sv amp_sv[1];      // invariant amplitude for one given Feynman diagram
 
     // Proof of concept for using fptype* in the interface
     fptype* w_fp[nwf];
-    for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
+    // Wrap the memory into ALOHAOBJ
+    ALOHAOBJ aloha_obj[nwf];
+    for( int iwf = 0; iwf < nwf; iwf++ ) aloha_obj[iwf] = ALOHAOBJ{pvec_sv[iwf], w_sv[iwf]};
     fptype* amp_fp;
     amp_fp = reinterpret_cast<fptype*>( amp_sv );
 
