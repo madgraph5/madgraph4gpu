@@ -118,6 +118,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     type2def['double_v'] = 'fptype_sv'
     type2def['complex_v'] = 'cxtype_sv'
 
+    type2def['aloha_ref'] = '&'
+
     # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
     # AV new option: declare C++ variable type only when they are defined?
     ###nodeclare = False # old behaviour (separate declaration with no initialization)
@@ -191,7 +193,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     argname = 'all'+argname
                 list_arg = '[]'
             else:
-                type = self.type2def[format]
+                type = self.type2def[format] + ' ' + self.type2def['aloha_ref']
                 list_arg = ''
             if argname.startswith('COUP'):
                 type = self.type2def['double'] # AV from cxtype_sv to fptype array (running alphas #373)
@@ -211,9 +213,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             comment_output = 'amplitude \'vertex\''
             template = 'template<class W_ACCESS, class A_ACCESS, class C_ACCESS>'
         else:
-            output = '%(doublec)s all%(spin)s%(id)d[]' % {
-                     'doublec': self.type2def['double'],
+            alohatype = 'aloha%s' % self.particles[self.outgoing -1]
+            output = '%(doublec)s %(aloha_ref)s %(spin)s%(id)d' % {
+                     'doublec': self.type2def[alohatype],
                      'spin': self.particles[self.outgoing -1],
+                     'aloha_ref': self.type2def['aloha_ref'], 
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
@@ -2215,7 +2219,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             call_function = lambda wf: self.format_coupling(
                                          call % wf.get_helas_call_dict(index=0))
         # Add the constructed function to wavefunction or amplitude dictionary
-        breakpoint()
         if isinstance(argument, helas_objects.HelasWavefunction):
             self.add_wavefunction(argument.get_call_key(), call_function)
         else:
