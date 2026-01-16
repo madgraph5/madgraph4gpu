@@ -27,17 +27,8 @@
 
       // main constructor
       ALOHAOBJ() = default;
-      #ifdef MGONGPUCPP_GPUIMPL
       __host__ __device__ ALOHAOBJ(fptype_sv * pvec_sv, cxtype_sv * w_sv, int flv = -1)
-          : pvec(pvec_sv), flv_index(flv) {
-        w = reinterpret_cast<fptype*>(w_sv);
-      }
-      #else
-      ALOHAOBJ(fptype_sv * pvec_sv, cxtype_sv * w_sv, int flv = -1)
-          : pvec(pvec_sv), flv_index(flv) {
-        w = reinterpret_cast<fptype*>(w_sv);
-      }
-      #endif
+          : pvec(pvec_sv), w(reinterpret_cast<fptype*>(w_sv)), (flv_index(flv) {}
   };
 
   //--------------------------------------------------------------------------
