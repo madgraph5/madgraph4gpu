@@ -257,8 +257,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         ###argument_var = [name for type,name in self.call_arg] # UNUSED
         for type, name in self.call_arg:
             ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
-            if type.startswith('list'):
-                out.write('    const %s* %s = W_ACCESS::kernelAccessConst( all%s );\n' % ( self.type2def[type[5:]+'_v'], name, name ) )
+            if type.startswith('aloha'):
+                out.write('    const %s* w%s = W_ACCESS::kernelAccessConst( %s.w );\n' % ( self.type2def[type], name, name ) )
             if name.startswith('COUP'): # AV from cxtype_sv to fptype array (running alphas #373)
                 out.write('    const cxtype_sv %s = C_ACCESS::kernelAccessConst( all%s );\n' % ( name, name ) )
         if not self.offshell:
@@ -266,9 +266,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             access = 'A_ACCESS'
             allvname = 'allvertexes'
         else:
-            vname = '%(spin)s%(id)d' % { 'spin': self.particles[self.outgoing -1], 'id': self.outgoing }
+            vname = 'w%(spin)s%(id)d' % { 'spin': self.particles[self.outgoing -1], 'id': self.outgoing }
             access = 'W_ACCESS'
-            allvname = 'all'+vname
+            allvname = vname+".w"
         out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
         # define the complex number CI = 0+1j
         if add_i:
