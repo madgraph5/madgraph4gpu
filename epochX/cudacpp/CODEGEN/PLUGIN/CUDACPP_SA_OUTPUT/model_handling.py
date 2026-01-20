@@ -125,6 +125,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     ###nodeclare = False # old behaviour (separate declaration with no initialization)
     nodeclare = True # new behaviour (delayed declaration with initialisation)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.outname = 'w%s%s' % (self.particles[self.outgoing-1], self.outgoing)
+        self.momentum_size = 0 # for ALOHAOBJ implementation the momentum is separated from the wavefunctions
+
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def change_number_format(self, number):
         """Formatting the number"""
@@ -457,7 +462,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                                                                   self.offshell)
             if 'L' not in self.tag:
                 coeff = 'denom'
-                mydict = {}
+                mydict = {'particle': OffShellParticle}
                 if self.type2def['pointer_coup'] in ['*']:
                     mydict['pre_coup'] = '(*'
                     mydict['post_coup'] = ')'
@@ -483,16 +488,16 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                             mydict['denom'] = self.routine.denominator
                             out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( %(denom)s )\n' % mydict) # AV
                     else:
-                        out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( ( P%(i)s[0] * P%(i)s[0] ) - ( P%(i)s[1] * P%(i)s[1] ) - ( P%(i)s[2] * P%(i)s[2] ) - ( P%(i)s[3] * P%(i)s[3] ) - M%(i)s * ( M%(i)s - cI * W%(i)s ) );\n' % mydict) # AV
+                        out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( ( %(particle)s.pvec[0] * %(particle)s.pvec[0] ) - ( %(particle)s.pvec[1] * %(particle)s.pvec[1] ) - ( %(particle)s.pvec[2] * %(particle)s.pvec[2] ) - ( %(particle)s.pvec[3] * %(particle)s.pvec[3] ) - M%(i)s * ( M%(i)s - cI * W%(i)s ) );\n' % mydict) # AV
                 else:
                     if self.routine.denominator:
                         raise Exception('modify denominator are not compatible with complex mass scheme')
                     # This affects 'denom = COUP' in HelAmps_sm.cc
-                    out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( ( P%(i)s[0] * P%(i)s[0] ) - ( P%(i)s[1] *P%(i)s[1] ) - ( P%(i)s[2] * P%(i)s[2] ) - ( P%(i)s[3] * P%(i)s[3] ) - ( M%(i)s * M%(i)s ) );\n' % mydict) # AV
+                    out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( ( %(particle)s.pvec[0] * %(particle)s.pvec[0] ) - ( %(particle)s.pvec[1] *%(particle)s.pvec[1] ) - ( %(particle)s.pvec[2] * %(particle)s.pvec[2] ) - ( %(particle)s.pvec[3] * %(particle)s.pvec[3] ) - ( M%(i)s * M%(i)s ) );\n' % mydict) # AV
                 ###self.declaration.add(('complex','denom')) # AV moved earlier (or simply removed)
                 if aloha.loop_mode: ptype = 'list_complex'
                 else: ptype = 'list_double'
-                self.declaration.add((ptype,'P%s' % self.outgoing))
+                #self.declaration.add((ptype,'P%s' % self.outgoing))
             else:
                 coeff = 'COUP'
             for ind in numerator.listindices():
@@ -544,6 +549,17 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         else:
             text = '%(factors)s'
         return text % data
+
+    def shift_indices(self, match):
+        """shift the indices for non impulsion object"""
+        if match.group('var').startswith('P'):
+            shift = 0
+            particle_num = int(match.group('var').strip('P'))
+            particle = self.particles[particle_num-1]
+            return '%s.pvec[%s]' % (particle, int(match.group('num')) + shift) 
+        else:
+            shift =  -1
+            return 'w%s[%s]' % (match.group('var'), int(match.group('num')) + shift)
 
     # OM - overload aloha_writers.WriteALOHA and ALOHAWriterForCPP methods (handle 'unary minus' #628)
     def change_var_format(self, obj):
