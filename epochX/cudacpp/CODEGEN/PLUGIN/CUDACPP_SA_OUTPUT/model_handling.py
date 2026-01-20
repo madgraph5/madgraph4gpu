@@ -343,10 +343,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 continue
             elif self.offshell:
                 if len(p) == 0 :
-                    p.append('{0}{1}{2}[%(i)s]'.format(signs[i],type,i+1,type)) # AV for clang-format (ugly!)
+                    p.append('{0}{1}{2}.pvec[%(i)s]'.format(signs[i],type,i+1,type)) # AV for clang-format (ugly!)
                 else:
                     p.append(' ')
-                    p.append('{0} {1}{2}[%(i)s]'.format(signs[i],type,i+1,type))
+                    p.append('{0} {1}{2}.pvec[%(i)s]'.format(signs[i],type,i+1,type))
             if self.declaration.is_used('P%s' % (i+1)):
                 self.get_one_momenta_def(i+1, out)
         # Define the resulting momenta
@@ -356,10 +356,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if aloha.loop_mode:
                 size_p = 4
             else:
-                size_p = 2
+                size_p = 4
             for i in range(size_p):
                 dict_energy = {'i':i}
-                out.write( '    %s%s[%s] = %s;\n' % ( type, self.outgoing, i, ''.join(p) % dict_energy ) )
+                out.write( '    %s%s.pvec[%s] = %s;\n' % ( type, self.outgoing, i, ''.join(p) % dict_energy ) )
             if self.declaration.is_used( 'P%s' % self.outgoing ):
                 self.get_one_momenta_def( self.outgoing, out )
         # Returning result
@@ -372,35 +372,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         type = self.particles[i-1]
         if aloha.loop_mode:
             ptype = 'complex_v'
-            templateval ='%(sign)s %(type)s%(i)d[%(nb)d]' # AV
         else:
             ptype = 'double_v'
-            templateval ='%(sign)s%(operator)s( %(type)s%(i)d[%(nb2)d] )' # AV cxreal/cximag
+        templateval ='%(sign)s%(type)s%(i)d.pvec[%(j)d]'
         if self.nodeclare: strfile.write('    const %s P%d[4] = { ' % ( self.type2def[ptype], i) ) # AV
-        nb2 = 0
         for j in range(4):
-            if not aloha.loop_mode:
-                nb = j
-                if j == 0:
-                    assert not aloha.mp_precision
-                    operator = self.realoperator # not suppose to pass here in mp
-                elif j == 1:
-                    nb2 += 1
-                elif j == 2:
-                    assert not aloha.mp_precision
-                    operator = self.imagoperator # not suppose to pass here in mp
-                elif j ==3:
-                    nb2 -= 1
-            else:
-                operator =''
-                nb = j
-                nb2 = j
             sign = self.get_P_sign(i) if self.get_P_sign(i) else '+' # AV
             if self.nodeclare: template = templateval + ( ', ' if j<3 else '' ) # AV
             else: template ='    P%(i)d[%(j)d] = ' + templateval + ';\n' # AV
-            strfile.write(template % {'j':j,'type': type, 'i': i,
-                        'nb': nb, 'nb2': nb2, 'operator':operator,
-                        'sign': sign}) # AV
+            strfile.write(template % {'j':j,'type': type, 'i': i, 'sign': sign}) # AV
         if self.nodeclare: strfile.write(' };\n') # AV
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
@@ -462,7 +442,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                                                                   self.offshell)
             if 'L' not in self.tag:
                 coeff = 'denom'
-                mydict = {'particle': OffShellParticle}
+                mydict = {}
                 if self.type2def['pointer_coup'] in ['*']:
                     mydict['pre_coup'] = '(*'
                     mydict['post_coup'] = ')'
@@ -488,16 +468,16 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                             mydict['denom'] = self.routine.denominator
                             out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( %(denom)s )\n' % mydict) # AV
                     else:
-                        out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( ( %(particle)s.pvec[0] * %(particle)s.pvec[0] ) - ( %(particle)s.pvec[1] * %(particle)s.pvec[1] ) - ( %(particle)s.pvec[2] * %(particle)s.pvec[2] ) - ( %(particle)s.pvec[3] * %(particle)s.pvec[3] ) - M%(i)s * ( M%(i)s - cI * W%(i)s ) );\n' % mydict) # AV
+                        out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( ( P%(i)s[0] * P%(i)s[0] ) - ( P%(i)s[1] * P%(i)s[1] ) - ( P%(i)s[2] * P%(i)s[2] ) - ( P%(i)s[3] * P%(i)s[3] ) - M%(i)s * ( M%(i)s - cI * W%(i)s ) );\n' % mydict) # AV
                 else:
                     if self.routine.denominator:
                         raise Exception('modify denominator are not compatible with complex mass scheme')
                     # This affects 'denom = COUP' in HelAmps_sm.cc
-                    out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( ( %(particle)s.pvec[0] * %(particle)s.pvec[0] ) - ( %(particle)s.pvec[1] *%(particle)s.pvec[1] ) - ( %(particle)s.pvec[2] * %(particle)s.pvec[2] ) - ( %(particle)s.pvec[3] * %(particle)s.pvec[3] ) - ( M%(i)s * M%(i)s ) );\n' % mydict) # AV
+                    out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( ( P%(i)s[0] * P%(i)s[0] ) - ( P%(i)s[1] *P%(i)s[1] ) - ( P%(i)s[2] * P%(i)s[2] ) - ( P%(i)s[3] * P%(i)s[3] ) - ( M%(i)s * M%(i)s ) );\n' % mydict) # AV
                 ###self.declaration.add(('complex','denom')) # AV moved earlier (or simply removed)
                 if aloha.loop_mode: ptype = 'list_complex'
                 else: ptype = 'list_double'
-                #self.declaration.add((ptype,'P%s' % self.outgoing))
+                self.declaration.add((ptype,'P%s' % self.outgoing))
             else:
                 coeff = 'COUP'
             for ind in numerator.listindices():
@@ -554,9 +534,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         """shift the indices for non impulsion object"""
         if match.group('var').startswith('P'):
             shift = 0
-            particle_num = int(match.group('var').strip('P'))
-            particle = self.particles[particle_num-1]
-            return '%s.pvec[%s]' % (particle, int(match.group('num')) + shift) 
+            return '%s[%s]' % (match.group('var'), int(match.group('num')) + shift) 
         else:
             shift =  -1
             return 'w%s[%s]' % (match.group('var'), int(match.group('num')) + shift)
