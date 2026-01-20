@@ -258,7 +258,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         for type, name in self.call_arg:
             ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
             if type.startswith('aloha'):
-                out.write('    const %s* w%s = W_ACCESS::kernelAccessConst( %s.w );\n' % ( self.type2def[type], name, name ) )
+                out.write('    const cxtype_sv* w%s = W_ACCESS::kernelAccessConst( %s.w );\n' % ( name, name ) )
             if name.startswith('COUP'): # AV from cxtype_sv to fptype array (running alphas #373)
                 out.write('    const cxtype_sv %s = C_ACCESS::kernelAccessConst( all%s );\n' % ( name, name ) )
         if not self.offshell:
