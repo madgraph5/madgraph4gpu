@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P0_gg_ttx ]
         precision: [ d , f , m ]
         backend: [ cppnone, cppauto ]
       fail-fast: false
@@ -47,7 +47,7 @@ jobs:
       FC: gfortran-14 # see #971
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum, epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum, epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P0_gg_ttx ]
         precision: [ d , f , m ]
         backend: [ cppnone, cppsse4 ]
       fail-fast: false
@@ -70,7 +70,7 @@ jobs:
       FC: gfortran
     strategy:
       matrix:
-        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg ]
+        folder: [ epochX/cudacpp/ee_mumu.mad/SubProcesses/P1_epem_mupmum , epochX/cudacpp/gg_ttgg.mad/SubProcesses/P1_gg_ttxgg , epochX/cudacpp/pp_tt012j.mad/SubProcesses/P0_gg_ttx ]
         precision: [ d , f , m ]
         backend: [ cppauto, cuda ]
       fail-fast: false
