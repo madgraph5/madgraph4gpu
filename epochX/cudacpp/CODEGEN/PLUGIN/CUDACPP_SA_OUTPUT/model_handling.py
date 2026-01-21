@@ -201,7 +201,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 list_arg = '[]' # AV from cxtype_sv to fptype array (running alphas #373)
                 point = self.type2def['pointer_coup']
                 args.append('%s %s%s%s'% (type, point, argname, list_arg))
-                args.append('double Ccoeff%s'% argname[7:]) # OM for 'unary minus' #628
+                args.append('fptype Ccoeff%s'% argname[7:]) # OM for 'unary minus' #628 | ZW: changed from 'double' to 'fptype' for quad
             else:
                 args.append('%s %s%s'% (type, argname, list_arg))
         if not self.offshell:
@@ -805,7 +805,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         for param in params:
             res_strings.append( "%s" % param.expr )
         res = "\n".join(res_strings)
-        res = res.replace('ABS(','std::abs(') # for SMEFT #614 and #616
+        res = res.replace('ABS(','fpabs(') # for SMEFT #614 and #616
         return res
 
     # AV - replace export_cpp.UFOModelConverterCPP method (eventually split writing of parameters and fixes for Majorana particles #622)
@@ -823,7 +823,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
                     res_strings.append( prefix+"  constexpr double %(W)s = %(W)s_sign * %(W)s_abs;" % { 'W' : particle.get('width') } )
                 else:
                     res_strings.append( prefix+"  if( %s < 0 )" % particle.get('mass'))
-                    res_strings.append( prefix+"    %(width)s = -std::abs( %(width)s );" % {"width": particle.get('width')})
+                    res_strings.append( prefix+"    %(width)s = -fpabs( %(width)s );" % {"width": particle.get('width')})
         if len( res_strings ) != 0 : res_strings = [ prefix + "  // Fixes for Majorana particles" ] + res_strings
         if not hardcoded: return '\n' + '\n'.join(res_strings) if res_strings else ''
         else: return '\n' + '\n'.join(res_strings) + '\n' if res_strings else '\n'

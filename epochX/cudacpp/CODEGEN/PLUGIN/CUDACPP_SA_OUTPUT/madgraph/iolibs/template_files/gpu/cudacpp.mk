@@ -1,7 +1,7 @@
 # Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-# Further modified by: S. Hageboeck, D. Massaro, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2025) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Hageboeck, D. Massaro, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2025) for the MG5aMC CUDACPP plugin.
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
@@ -11,6 +11,17 @@ override CUDACPP_MAKEFILE := $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 
 #=== NB: different names (e.g. cudacpp.mk and cudacpp_src.mk) are used in the Subprocess and src directories
 override CUDACPP_SRC_MAKEFILE = cudacpp_src.mk
+
+#-------------------------------------------------------------------------------
+
+#=== Include the common MG5aMC Makefile options
+
+# OM: including make_opts is crucial for MG5aMC flag consistency/documentation
+# AV: disable the inclusion of make_opts if the file has not been generated (standalone cudacpp)
+# ZW: need to include make_opts prior to cudacpp_config.mk to pass flags for quadmath
+ifneq ($(wildcard ../../Source/make_opts),)
+  include ../../Source/make_opts
+endif
 
 #-------------------------------------------------------------------------------
 
@@ -41,16 +52,6 @@ UNAME_S := $(shell uname -s)
 # Detect architecture (x86_64, ppc64le...)
 UNAME_P := $(shell uname -p)
 ###$(info UNAME_P='$(UNAME_P)')
-
-#-------------------------------------------------------------------------------
-
-#=== Include the common MG5aMC Makefile options
-
-# OM: including make_opts is crucial for MG5aMC flag consistency/documentation
-# AV: disable the inclusion of make_opts if the file has not been generated (standalone cudacpp)
-ifneq ($(wildcard ../../Source/make_opts),)
-  include ../../Source/make_opts
-endif
 
 #-------------------------------------------------------------------------------
 
@@ -581,8 +582,10 @@ else ifeq ($(FPTYPE),f)
 else ifeq ($(FPTYPE),m)
   CXXFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_FLOAT
   GPUFLAGS += -DMGONGPU_FPTYPE_DOUBLE -DMGONGPU_FPTYPE2_FLOAT
-else
-  $(error Unknown FPTYPE='$(FPTYPE)': only 'd', 'f' and 'm' are supported)
+else ifeq ($(FPTYPE),q)
+  CXXFLAGS += -DMGONGPU_FPTYPE_QUAD
+else ifeq
+  $(error Unknown FPTYPE='$(FPTYPE)': only 'd', 'f', 'm' and 'q' are supported)
 endif
 
 # Set the build flags appropriate to each HELINL choice (example: "make HELINL=1")
@@ -815,7 +818,7 @@ endif
 # (NB do not include CUDA_INC here! add it only for NVTX or curand #679)
 $(BUILDDIR)/%%_cpp.o : %%.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS) -c $< -o $@ $(QUADFLAG)
 
 # Generic target and build rules: objects from CUDA or HIP compilation
 ifneq ($(GPUCC),)
@@ -851,7 +854,7 @@ endif
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(BUILDDIR)/fbridge_cpp.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: cxx_objects_lib += $(BUILDDIR)/fbridge_cpp.o
 $(LIBDIR)/lib$(MG5AMC_CXXLIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib)
-	$(CXX) -shared -o $@ $(cxx_objects_lib) $(CXXLIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(CXX) -shared -o $@ $(cxx_objects_lib) $(CXXLIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) $(QUADFLAG)
 
 ifneq ($(GPUCC),)
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: $(BUILDDIR)/fbridge_$(GPUSUFFIX).o
@@ -879,7 +882,7 @@ endif
 ###$(cxx_checkmain): LIBFLAGS += $(CXXLIBFLAGSASAN)
 $(cxx_checkmain): LIBFLAGS += $(CXXLIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
 $(cxx_checkmain): $(BUILDDIR)/check_sa_cpp.o $(LIBDIR)/lib$(MG5AMC_CXXLIB).so $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o
-	$(CXX) -o $@ $(BUILDDIR)/check_sa_cpp.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o $(RNDLIBFLAGS)
+	$(CXX) -o $@ $(BUILDDIR)/check_sa_cpp.o $(OMPFLAGS) -ldl -pthread $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_CXXLIB) $(cxx_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_cpp.o $(BUILDDIR)/HiprandRandomNumberKernel_cpp.o $(RNDLIBFLAGS) $(QUADFLAG)
 
 ifneq ($(GPUCC),)
 ###$(gpu_checkmain): LIBFLAGS += $(GPULIBFLAGSASAN)

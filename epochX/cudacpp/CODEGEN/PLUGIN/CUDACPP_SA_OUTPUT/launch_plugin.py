@@ -36,8 +36,13 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
                 {'override FPTYPE': self.run_card['floating_type'] })
             misc.sprint('FPTYPE checked')
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
+            
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
             cudacpp_backend = self.run_card['cudacpp_backend'].lower() # the default value is defined in launch_plugin.py
+            if self.run_card['floating_type'] == 'q':
+                if cudacpp_backend not in [ 'fortran', 'cppnone' ]:
+                    misc.sprint("WARNING: cudacpp_backend='%s' does not support quad precision. Switching to 'cppnone' backend."%cudacpp_backend)
+                    cudacpp_backend = 'cppnone'
             logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
             if cudacpp_backend in cudacpp_supported_backends :
                 args[0][0] = 'madevent_' + cudacpp_backend + '_link'
@@ -86,7 +91,7 @@ class CPPRunCard(banner_mod.RunCardLO):
         super().default_setup()
         self.add_param('floating_type', 'm', include=False, hidden=True,
                        fct_mod=(self.reset_makeopts,(),{}),
-                       allowed=['m','d','f'],
+                       allowed=['m','d','f', 'q'],
                        comment='floating point precision: f (single), d (double), m (mixed: double for amplitudes, single for colors)'
                        )
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]

@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
 
 #include "CrossSectionKernels.h"
 
@@ -18,18 +18,15 @@
 // *** NB: Attempts with __attribute__((optimize("-fno-fast-math"))) were unsatisfactory  ***
 // ******************************************************************************************
 
-inline bool
-fp_is_nan( const fptype& fp )
-{
-  //#pragma clang diagnostic push
-  //#pragma clang diagnostic ignored "-Wtautological-compare" // for icpx2021/clang13 (https://stackoverflow.com/a/15864661)
-  return std::isnan( fp ); // always false for clang in fast math mode (tautological compare)?
-  //#pragma clang diagnostic pop
-}
 
 inline bool
 fp_is_abnormal( const fptype& fp )
 {
+#ifdef MGONGPUCPP_GPUIMPL
+using namespace mg5amcGpu;
+#else
+using namespace mg5amcCpu;
+#endif
   if( fp_is_nan( fp ) ) return true;
   if( fp != fp ) return true;
   return false;
@@ -46,6 +43,9 @@ fp_is_zero( const fptype& fp )
 inline const char*
 fp_show_class( const fptype& fp )
 {
+#ifdef MGONGPU_FPTYPE_QUAD // not bothering to implement the full fpclassify for quad
+  return "quad";
+#else
   switch( std::fpclassify( fp ) )
   {
     case FP_INFINITE: return "Inf";
@@ -55,11 +55,17 @@ fp_show_class( const fptype& fp )
     case FP_ZERO: return "zero";
     default: return "unknown";
   }
+#endif
 }
 
 inline void
 debug_me_is_abnormal( const fptype& me, size_t ievtALL )
 {
+#ifdef MGONGPUCPP_GPUIMPL
+using namespace mg5amcGpu;
+#else
+using namespace mg5amcCpu;
+#endif
   std::cout << "DEBUG[" << ievtALL << "]"
             << " ME=" << me
             << " fpisabnormal=" << fp_is_abnormal( me )
@@ -67,12 +73,12 @@ debug_me_is_abnormal( const fptype& me, size_t ievtALL )
             << " (me==me)=" << ( me == me )
             << " (me==me+1)=" << ( me == me + 1 )
             << " isnan=" << fp_is_nan( me )
-            << " isfinite=" << std::isfinite( me )
-            << " isnormal=" << std::isnormal( me )
+            << " isfinite=" << fp_is_infinite( me )
+            << " isnormal=" << fp_is_normal( me )
             << " is0=" << ( me == 0 )
             << " is1=" << ( me == 1 )
-            << " abs(ME)=" << std::abs( me )
-            << " isnan=" << fp_is_nan( std::abs( me ) )
+            << " abs(ME)=" << fpabs( me )
+            << " isnan=" << fp_is_nan( fpabs( me ) )
             << std::endl;
 }
 
@@ -172,8 +178,8 @@ namespace mg5amcCpu
       const fptype& me = MemoryAccessMatrixElements::ieventAccessConst( m_matrixElements.data(), ievt );
       const fptype& wg = MemoryAccessWeights::ieventAccessConst( m_samplingWeights.data(), ievt );
       if( fp_is_abnormal( me ) ) continue;
-      stats.sqsMEdiff += std::pow( me - stats.refME, 2 );
-      stats.sqsWGdiff += std::pow( wg - stats.refWG, 2 );
+      stats.sqsMEdiff += (double)fppow( me - stats.refME, 2 );
+      stats.sqsWGdiff += (double)fppow( wg - stats.refWG, 2 );
     }
     // FOURTH PASS: UPDATE THE OVERALL STATS BY ADDING THE NEW STATS
     m_stats += stats;
