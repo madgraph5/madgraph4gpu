@@ -383,6 +383,123 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             strfile.write(template % {'j':j,'type': type, 'i': i, 'sign': sign}) # AV
         if self.nodeclare: strfile.write(' };\n') # AV
 
+    def get_coupling_def(self):
+        """Define the coupling constant"""
+        # This is the same as the parent class method, but adapted for CUDACPP types
+
+        nb_coupling = 0 
+        for ftype, name in self.declaration:
+            if name.startswith('COUP'):
+                nb_coupling += 1
+
+        out = StringIO()
+        if 'M' not in self.tag:
+            if self.particles[0] != 'F':
+                return ''
+            # no matrix coupling, so a single coupling, so this is diagonal in flavor space
+            # but still need to check !
+            elif self.outgoing == 0  or self.particles[self.outgoing-1] not in ['F']:
+                if not self.outgoing:
+                    fail = "vertex = cxzero_sv();"
+                else:
+                    fail = 'for(int i=0; i<%s%d.np4; i++) { w%s%d[i] = cxzero_sv(); }' % (self.particles[self.outgoing-1], self.outgoing, self.particles[self.outgoing-1], self.outgoing)
+
+                out.write('    const int & flv_index1 = F1.flv_index;\n')
+                out.write('    const int & flv_index2 = F2.flv_index;\n')
+                out.write('    if(flv_index1 != flv_index2 || flv_index1 == -1) {\n')
+                out.write('      %s\n' % fail)
+                out.write('      return;\n')
+                out.write('    }\n')
+            else:
+                incoming = [i+1 for i in range(len(self.particles)) if i+1 != self.outgoing and self.particles[self.outgoing-1] == 'F'][0]
+                outgoing = self.outgoing
+                out.write('    F%i.flv_index = F%i.flv_index;\n' % (outgoing, incoming))
+
+            return out.getvalue()
+
+        if self.outgoing == 0  or self.particles[self.outgoing-1] not in ['F']:
+            if not self.outgoing:
+                fail = "vertex = cxzero_sv();"
+            else:
+                fail = 'for(int i=0; i<%s%d.np4; i++) { w%s%d[i] = cxzero_sv(); }' % (self.particles[self.outgoing-1], self.outgoing, self.particles[self.outgoing-1], self.outgoing)
+
+            out.write('    const int & flv_index1 = F1.flv_index;\n')
+            out.write('    const int & flv_index2 = F2.flv_index;\n')
+            if nb_coupling >1:
+                for i in range(1,nb_coupling+1):
+                    out.write('    int zero_coup%i = 0;\n' % i)
+                out.write('    if(flv_index1 != flv_index2 || flv_index1 == -1) {\n')
+                out.write('      %s\n' % fail)
+                out.write('      return;\n')
+                out.write('    }\n')
+            out.write('    if(flv_index1 == -1 || flv_index2 == -1) {\n')
+            out.write('      %s\n' % fail)
+            out.write('      return;\n')
+            out.write('    }\n')
+            if nb_coupling == 1:
+                out.write('    if(MCOUP.partner[flv_index1] != flv_index2) {\n')
+                out.write('      %s\n' % fail)
+                out.write('      return;\n')
+                out.write('    }\n')
+            else:
+                for i in range(1,nb_coupling+1):
+                    out.write('    if(MCOUP%i.partner[flv_index1] != flv_index2 || MCOUP%i.partner2[flv_index1] != flv_index2) {\n' %(i,i))
+                    out.write('      zero_coup%i = 1;\n' % i)
+                    out.write('      COUP%i = cxzero_sv();\n' % i)
+                    out.write('    }\n')
+            if nb_coupling ==1:
+                out.write('    COUP = *MCOUP.val[flv_index1];\n')
+            else:
+                for i in range(1,nb_coupling+1):
+                    out.write('    if(zero_coup%i ==0) { COUP%i = *MCOUP%i.val[flv_index1]; }\n' % (i,i,i))
+        else:
+            incoming = [i+1 for i in range(len(self.particles)) if i+1 != self.outgoing and self.particles[self.outgoing-1] == 'F'][0]
+            if incoming %2 == 1:
+                outgoing = self.outgoing
+                out.write('    int flv_index%i = F%i.flv_index;\n' % (incoming, incoming))
+                out.write('    if(flv_index%i == -1) {\n' %(incoming))
+                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      F%i.flv_index = -1;\n' % outgoing)
+                out.write('      return;\n')
+                out.write('    }\n')
+                if nb_coupling == 1:
+                    out.write('    int flv_index2 = MCOUP.partner[flv_index%i];\n' %(incoming))
+                else:
+                    out.write('    int flv_index2 = MCOUP1.partner[flv_index%i];\n' %(incoming))
+                    for i in range(2,nb_coupling+1):
+                        out.write('    if(flv_index2 == -1){flv_index2 = MCOUP%i.partner[flv_index%i];}' %(i, incoming)) 
+                out.write('    if(flv_index2 == -1){\n')
+                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      F%i.flv_index = -1;\n' % outgoing)
+                out.write('      return;\n')
+                out.write('    }\n')
+                out.write('    F%i.flv_index = flv_index2;\n' % outgoing)
+            else:
+                outgoing = self.outgoing
+                out.write('    int flv_index%i = F%i.flv_index;\n' % (incoming,incoming))
+                out.write('    if(flv_index%i == -1){\n' %(incoming))
+                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      F%i.flv_index = -1;\n' % outgoing)
+                out.write('      return;\n')
+                out.write('    }\n')
+                if nb_coupling == 1:
+                    out.write('    int flv_index1 = MCOUP.partner2[flv_index%i];\n' %(incoming))
+                else:
+                    out.write('    int flv_index1 = MCOUP1.partner2[flv_index%i];\n' %(incoming))
+                    for i in range(2,nb_coupling+1):
+                        out.write('    if(flv_index1 == -1) { flv_index1 = MCOUP%i.partner2[flv_index%i]; }' %(i, incoming))
+                out.write('    if(flv_index1 == -1){\n')
+                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      F%i.flv_index = -1;\n' % outgoing)
+                out.write('      return;\n')
+                out.write('    }\n')
+                out.write('    F%i.flv_index = flv_index1;\n' % outgoing)
+ 
+            for ftype, name in self.declaration:
+                if name.startswith('COUP'):
+                    out.write('    %s = *M%s.val[flv_index1];\n' % (name, name))
+        return out.getvalue()
+
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # This is called once per FFV function, i.e. once per WriteALOHA instance?
     # It is called by WriteALOHA.write, after get_header_txt, get_declaration_txt, get_momenta_txt, before get_foot_txt
