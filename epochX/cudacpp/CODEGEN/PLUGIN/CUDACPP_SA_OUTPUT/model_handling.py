@@ -271,10 +271,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             access = 'A_ACCESS'
             allvname = 'allvertexes'
         else:
-            vname = 'w%(spin)s%(id)d' % { 'spin': self.particles[self.outgoing -1], 'id': self.outgoing }
+            vname = '%(spin)s%(id)d' % { 'spin': self.particles[self.outgoing -1], 'id': self.outgoing }
             access = 'W_ACCESS'
             allvname = vname+".w"
-        out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
+        out.write('    cxtype_sv* w%s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
