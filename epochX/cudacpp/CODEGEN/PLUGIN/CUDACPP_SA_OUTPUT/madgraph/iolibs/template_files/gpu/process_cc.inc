@@ -17,6 +17,7 @@
 #include "GpuRuntime.h"
 %(hel_amps_h)s
 #include "MemoryAccessAmplitudes.h"
+#include "MemoryAccessIflavorVec.h"
 #include "MemoryAccessChannelIds.h"
 #include "MemoryAccessCouplings.h"
 #include "MemoryAccessCouplingsFixed.h"

@@ -1436,7 +1436,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   calculate_jamps( int ihel,
                    const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
-                   const int iflavor,                 // input: index of the flavor combination
+                   const unsigned int* iflavorVec,    // input: indices of the flavor combinations
 #ifdef MGONGPUCPP_GPUIMPL
                    fptype* allJamps,                  // output: jamp[2*ncolor*nevt] buffer for one helicity _within a super-buffer for dcNGoodHel helicities_
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -1466,6 +1466,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+    using F_ACCESS = DeviceAccessIflavorVec;      // non-trivial access: buffer includes all events
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
@@ -1477,6 +1478,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+    using F_ACCESS = HostAccessIflavorVec;      // non-trivial access: buffer includes all events
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
@@ -1508,8 +1510,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is 4: spin wavefunctions, momenta are no more included, see before)
     cxtype_sv amp_sv[1];      // invariant amplitude for one given Feynman diagram
 
-    // Proof of concept for using fptype* in the interface
-    fptype* w_fp[nwf];
     // Wrap the memory into ALOHAOBJ
     ALOHAOBJ aloha_obj[nwf];
     for( int iwf = 0; iwf < nwf; iwf++ ) aloha_obj[iwf] = ALOHAOBJ{pvec_sv[iwf], w_sv[iwf]};
@@ -2085,7 +2085,17 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
       fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-#endif""")
+#endif
+      // Scalar iflavor for the current event
+      // for GPU it is an int
+      // for SIMD it is also an int, since it is constant across the SIMD vector
+      const uint_sv iflavor_sv = F_ACCESS::kernelAccessConst( iflavorVec );
+#ifdef MGONGPUCPP_GPUIMPL
+      const unsigned int iflavor = iflavor_sv;
+#else
+      const unsigned int iflavor = reinterpret_cast<unsigned int*>(iflavor_sv)[0];
+#endif
+""")
         diagrams = matrix_element.get('diagrams')
         diag_to_config = {}
         if multi_channel_map:
