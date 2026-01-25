@@ -6,6 +6,8 @@
 import os
 import sys
 
+import math
+
 # AV - PLUGIN_NAME can be one of PLUGIN/CUDACPP_OUTPUT or MG5aMC_PLUGIN/CUDACPP_OUTPUT
 PLUGIN_NAME = __name__.rsplit('.',1)[0]
 
@@ -1370,6 +1372,19 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['all_flavors'] = replace_dict['all_flavors'].replace('flavors', 'tFlavors')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
         replace_dict['ncolor'] = len(color_amplitudes[0])
+        # broken_symmetry_factor function
+        data = self.matrix_elements[0].get('processes')[0].get_final_ids_after_decay()
+        pids = str(data).replace('[', '{').replace(']', '}')
+        replace_dict['get_pid'] = ' const int pid[] = %s;' % (pids)
+        replace_dict['get_old_symmmetry_value'] = 1
+        done = []
+        for value in data:
+            if value not in done:
+                done.append(value)
+                replace_dict['get_old_symmmetry_value'] *= math.factorial(data.count(value)) 
+        _, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
+        replace_dict['nincoming'] = nincoming
+
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
         if len(params) == 0: # remove cIPD from OpenMP pragma (issue #349)
             file_lines = file.split('\n')
@@ -1701,7 +1716,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # will be smaller than the true number of diagram. This is fine for color
         # but maybe not for something else.
         nb_diag = max(config[0] for config in config_subproc_map)
-        import math
         ndigits = str(int(math.log10(nb_diag))+1+1) # the additional +1 is for the -sign
         # Output which diagrams correspond ot a channel to get information for valid color
         lines = []

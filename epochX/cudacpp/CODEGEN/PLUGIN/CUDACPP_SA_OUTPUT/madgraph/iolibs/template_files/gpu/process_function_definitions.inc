@@ -529,25 +529,25 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-  int
-  broken_symmetry( const int iflavor )
+  __device__ int
+  broken_symmetry_factor( const int iflavor )
   {
-    int old_factor = 1;
-    int pid[] = {81, -81};
-    int nincoming = 2;
-    int nexternal = CPPProcess::npar;
-    for (int i = 0; i < (nexternal - nincoming); i++ )
+    int old_factor = %(get_old_symmmetry_value)s;
+    %(get_pid)s
+    const int nincoming = %(nincoming)d;
+    const int nexternal = CPPProcess::npar;
+    for (int i = 0; i < (nexternal - nincoming); i++)
     {
       if(pid[i] == 0)
         continue;
       int n_tot = 1;
-      for (int j = i + 1; j < (nexternal - nincoming); j++ )
+      for (int j = i + 1; j < (nexternal - nincoming); j++)
       {
         if((pid[i] == pid[j]) && (cFlavors[iflavor][i] == cFlavors[iflavor][j]))
         {
           pid[j] = 0;
           n_tot = n_tot + 1;
-          old_factor = old_factor/n_tot;
+          old_factor = old_factor / n_tot;
         }
       }
     }
@@ -568,7 +568,7 @@ namespace mg5amcCpu
                     const fptype globaldenom ) /* clang-format on */
   {
     const int ievt = blockDim.x * blockIdx.x + threadIdx.x; // index of event (thread)
-    allMEs[ievt] /= (globaldenom * broken_symmetry(iflavorVec[ievt]));
+    allMEs[ievt] /= (globaldenom * broken_symmetry_factor(iflavorVec[ievt]));
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const int nevt = gridDim.x * blockDim.x;
     if( allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
