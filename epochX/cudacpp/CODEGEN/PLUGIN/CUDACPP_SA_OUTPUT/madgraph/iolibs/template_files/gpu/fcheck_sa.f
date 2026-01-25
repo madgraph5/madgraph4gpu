@@ -17,6 +17,7 @@ C Further modified by: D. Massaro, A. Thete, A. Valassi (2022-2026) for the MG5a
 c     INTEGER IEXTERNAL
       DOUBLE PRECISION MOMENTA(0:NP4-1, NEXTERNAL, NEVTMAX) ! c-array momenta[nevt][nexternal][np4]
       DOUBLE PRECISION GS(NEVTMAX)
+      INTEGER IFLAV_VEC(NEVTMAX) ! index of the flavor combination to calculate
       DOUBLE PRECISION RNDHEL(NEVTMAX) ! not yet used
       DOUBLE PRECISION RNDCOL(NEVTMAX) ! not yet used
       DOUBLE PRECISION MES(NEVTMAX)
@@ -24,9 +25,8 @@ c     INTEGER IEXTERNAL
       INTEGER*4 SELCOL(NEVTMAX) ! not yet used
       DOUBLE PRECISION MES_SUM ! use REAL*16 for quadruple precision
       INTEGER NEVTOK ! exclude nan/abnormal MEs
-      INTEGER IFLAVOR ! index of the flavor combination to calculate
 
-      IFLAVOR=1
+      IFLAV_VEC(:) = 1
 C
 C READ COMMAND LINE ARGUMENTS
 C (NB: most errors will crash the program !)
@@ -41,7 +41,6 @@ C
         WRITE(6,*) "GPUBLOCKS=  ", NARG1
         WRITE(6,*) "GPUTHREADS= ", NARG2
         WRITE(6,*) "NITERATIONS=", NARG3
-        WRITE(6,*) "IFLAV=      ", IFLAVOR
         NEVT = NARG1 * NARG2
         NITER = NARG3
         IF ( NEVT > NEVTMAX ) THEN
@@ -59,7 +58,7 @@ C USE SAMPLER AND BRIDGE
 C
       NEVTOK = 0
       MES_SUM = 0
-      CALL FBRIDGECREATE(BRIDGE, IFLAVOR, NEVT, NEXTERNAL, NP4) ! this must be at the beginning as it initialises the CUDA device
+      CALL FBRIDGECREATE(BRIDGE, NEVT, NEXTERNAL, NP4) ! this must be at the beginning as it initialises the CUDA device
       CALL FSAMPLERCREATE(SAMPLER, NEVT, NEXTERNAL, NP4)
       DO IITER = 1, NITER
         CALL FSAMPLERSEQUENCE(SAMPLER, MOMENTA)
@@ -67,7 +66,7 @@ C
           GS(IEVT) = 1.2177157847767195 ! fixed G for aS=0.118 (hardcoded for now in check_sa.cc, fcheck_sa.f, runTest.cc)
         END DO
         CALL FBRIDGESEQUENCE_NOMULTICHANNEL(BRIDGE, MOMENTA, GS, ! TEMPORARY? disable multi-channel in fcheck.exe and fgcheck.exe #466
-     &    RNDHEL, RNDCOL, MES, SELHEL, SELCOL, .FALSE.) ! do not quit after computing helicities
+     &    IFLAV_VEC, RNDHEL, RNDCOL, MES, SELHEL, SELCOL, .FALSE.) ! do not quit after computing helicities
         DO IEVT = 1, NEVT
 c         DO IEXTERNAL = 1, NEXTERNAL
 c           WRITE(6,*) 'MOMENTA', IEVT, IEXTERNAL,
