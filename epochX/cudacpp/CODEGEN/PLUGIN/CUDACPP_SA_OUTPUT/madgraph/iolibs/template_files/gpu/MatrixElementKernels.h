@@ -31,13 +31,13 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     MatrixElementKernelBase( const BufferMomenta& momenta,         // input: momenta
                              const BufferGs& gs,                   // input: gs for alphaS
+                             const BufferIflavorVec& iflavorVec,   // input: flavor indices for the flavor combination
                              const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                              const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                              const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              BufferSelectedHelicity& selhel,       // output: helicity selection
-                             BufferSelectedColor& selcol,          // output: color selection
-                             const int iflavor );
+                             BufferSelectedColor& selcol);          // output: color selection
 
   public:
 
@@ -76,6 +76,9 @@ namespace mg5amcCpu
     // The buffer for the gs to calculate the alphaS values
     const BufferGs& m_gs;
 
+    // The buffer for the flavor indices for the flavor combination
+    const BufferIflavorVec& m_iflavorVec;
+
     // The buffer for the random numbers for helicity selection
     const BufferRndNumHelicity& m_rndhel;
 
@@ -93,9 +96,6 @@ namespace mg5amcCpu
 
     // The buffer for the output color selection
     BufferSelectedColor& m_selcol;
-
-    // The index of the flavor combination to compute
-    const int m_iflavor;
 
 #ifdef MGONGPU_CHANNELID_DEBUG
     // The events-per-channel counter for debugging
@@ -117,13 +117,13 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
                              const BufferGs& gs,                   // input: gs for alphaS
+                             const BufferIflavorVec& iflavorVec,   // input: flavor indices for the flavor combination
                              const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                              const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                              const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              BufferSelectedHelicity& selhel,       // output: helicity selection
                              BufferSelectedColor& selcol,          // output: color selection
-                             const int iflavor,                    // input: flavour
                              const size_t nevt);
 
     // Destructor
@@ -170,13 +170,13 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
                                const BufferGs& gs,                   // input: gs for alphaS
+                               const BufferIflavorVec& iflavorVec,   // input: flavor indices for the flavor combination
                                const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                                const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                                const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                                BufferMatrixElements& matrixElements, // output: matrix elements
                                BufferSelectedHelicity& selhel,       // output: helicity selection
                                BufferSelectedColor& selcol,          // output: color selection
-                               const int iflavor,                    // input: flavour
                                const size_t gpublocks,
                                const size_t gputhreads );
 

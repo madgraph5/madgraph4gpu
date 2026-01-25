@@ -85,7 +85,7 @@ namespace mg5amcCpu
    * @param np4F number of momenta components, usually 4, in Fortran arrays
    * (KEPT FOR SANITY CHECKS ONLY)
    */
-    Bridge( int iflavorF, unsigned int nevtF, unsigned int nparF, unsigned int np4F );
+    Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F );
 
     /**
    * Destructor
@@ -115,6 +115,7 @@ namespace mg5amcCpu
    * @param momenta the pointer to the input 4-momenta
    * @param gs the pointer to the input Gs (running QCD coupling constant
    * alphas)
+   * @param iflavorVec the index of the flavor combination
    * @param rndhel the pointer to the input random numbers for helicity
    * selection
    * @param rndcol the pointer to the input random numbers for color selection
@@ -125,7 +126,7 @@ namespace mg5amcCpu
    * @param selcol the pointer to the output selected colors
    * @param goodHelOnly quit after computing good helicities?
    */
-    void gpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, const FORTRANFPTYPE* rndhel, const FORTRANFPTYPE* rndcol, const unsigned int* channelIds, FORTRANFPTYPE* mes, int* selhel, int* selcol, const bool goodHelOnly = false );
+    void gpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, const unsigned int* iflavorVec, const FORTRANFPTYPE* rndhel, const FORTRANFPTYPE* rndcol, const unsigned int* channelIds, FORTRANFPTYPE* mes, int* selhel, int* selcol, const bool goodHelOnly = false );
 #else
     /**
    * Sequence to be executed for the vectorized CPU matrix element calculation
@@ -133,6 +134,7 @@ namespace mg5amcCpu
    * @param momenta the pointer to the input 4-momenta
    * @param gs the pointer to the input Gs (running QCD coupling constant
    * alphas)
+   * @param iflavorVec the index of the flavor combination
    * @param rndhel the pointer to the input random numbers for helicity
    * selection
    * @param rndcol the pointer to the input random numbers for color selection
@@ -143,7 +145,7 @@ namespace mg5amcCpu
    * @param selcol the pointer to the output selected colors
    * @param goodHelOnly quit after computing good helicities?
    */
-    void cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, const FORTRANFPTYPE* rndhel, const FORTRANFPTYPE* rndcol, const unsigned int* channelIds, FORTRANFPTYPE* mes, int* selhel, int* selcol, const bool goodHelOnly = false );
+    void cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, const unsigned int* iflavorVec, const FORTRANFPTYPE* rndhel, const FORTRANFPTYPE* rndcol, const unsigned int* channelIds, FORTRANFPTYPE* mes, int* selhel, int* selcol, const bool goodHelOnly = false );
 #endif
 
     // Return the number of good helicities (-1 initially when they have not yet
@@ -155,7 +157,6 @@ namespace mg5amcCpu
     constexpr int nTotHel() const { return CPPProcess::ncomb; }
 
   private:
-    int m_iflavor;       // the index to the flavor combination to be calculated
     unsigned int m_nevt; // number of events
     int m_nGoodHel;      // the number of good helicities (-1 initially when they have
                          // not yet been calculated)
@@ -168,12 +169,14 @@ namespace mg5amcCpu
     DeviceBuffer<FORTRANFPTYPE, sizePerEventMomenta> m_devMomentaF;
     DeviceBufferMomenta m_devMomentaC;
     DeviceBufferGs m_devGs;
+    DeviceBufferIflavorVec m_devIflavorVec;
     DeviceBufferRndNumHelicity m_devRndHel;
     DeviceBufferRndNumColor m_devRndCol;
     DeviceBufferMatrixElements m_devMEs;
     DeviceBufferSelectedHelicity m_devSelHel;
     DeviceBufferSelectedColor m_devSelCol;
     DeviceBufferChannelIds m_devChannelIds;
+    PinnedHostBufferIflavorVec m_hstIflavorVec;
     PinnedHostBufferGs m_hstGs;
     PinnedHostBufferRndNumHelicity m_hstRndHel;
     PinnedHostBufferRndNumColor m_hstRndCol;
@@ -189,6 +192,7 @@ namespace mg5amcCpu
 #else
     HostBufferMomenta m_hstMomentaC;
     HostBufferGs m_hstGs;
+    HostBufferIflavorVec m_hstIflavorVec;
     HostBufferRndNumHelicity m_hstRndHel;
     HostBufferRndNumColor m_hstRndCol;
     HostBufferMatrixElements m_hstMEs;
@@ -223,13 +227,14 @@ namespace mg5amcCpu
   //
 
   template<typename FORTRANFPTYPE>
-  Bridge<FORTRANFPTYPE>::Bridge( int iflavorF, unsigned int nevtF, unsigned int nparF, unsigned int np4F)
-    : m_iflavor( iflavorF ), m_nevt( nevtF ), m_nGoodHel( -1 )
+  Bridge<FORTRANFPTYPE>::Bridge( unsigned int nevtF, unsigned int nparF, unsigned int np4F)
+    : m_nevt( nevtF ), m_nGoodHel( -1 )
 #ifdef MGONGPUCPP_GPUIMPL
     , m_gputhreads( 256 )                  // default number of gpu threads
     , m_gpublocks( m_nevt / m_gputhreads ) // this ensures m_nevt <= m_gpublocks*m_gputhreads
     , m_devMomentaF( m_nevt )
     , m_devMomentaC( m_nevt )
+    , m_devIflavorVec( m_nevt )
     , m_devGs( m_nevt )
     , m_devRndHel( m_nevt )
     , m_devRndCol( m_nevt )
@@ -241,6 +246,7 @@ namespace mg5amcCpu
     , m_hstMomentaC( m_nevt )
 #endif
     , m_hstGs( m_nevt )
+    , m_hstIflavorVec( m_nevt )
     , m_hstRndHel( m_nevt )
     , m_hstRndCol( m_nevt )
     , m_hstMEs( m_nevt )
@@ -276,14 +282,14 @@ namespace mg5amcCpu
               << std::endl;
 #endif
     m_pmek.reset( new MatrixElementKernelDevice(
-      m_devMomentaC, m_devGs, m_devRndHel, m_devRndCol, m_devChannelIds, m_devMEs, m_devSelHel, m_devSelCol, m_gpublocks, m_gputhreads, m_iflavor ) );
+      m_devMomentaC, m_devGs, m_devIflavorVec, m_devRndHel, m_devRndCol, m_devChannelIds, m_devMEs, m_devSelHel, m_devSelCol, m_gpublocks, m_gputhreads) );
 #else
 #ifdef MGONGPUCPP_VERBOSE
     std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")"
               << std::endl;
 #endif
     m_pmek.reset( new MatrixElementKernelHost(
-      m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstChannelIds, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt, m_iflavor ) );
+      m_hstMomentaC, m_hstGs, m_hstIflavorVec, m_hstRndHel, m_hstRndCol, m_hstChannelIds, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
 #endif // MGONGPUCPP_GPUIMPL
     // Create a process object, read param card and set parameters
     // FIXME: the process instance can happily go out of scope because it is only
@@ -341,6 +347,7 @@ paramCard; #endif
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::gpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
+                                            const unsigned int* iflavorVec,
                                             const FORTRANFPTYPE* rndhel,
                                             const FORTRANFPTYPE* rndcol,
                                             const unsigned int* channelIds,
@@ -383,10 +390,13 @@ paramCard; #endif
     // else ... // no need to initialize m_hstChannel: it is allocated with
     // gpuMallocHost and NOT initialized in PinnedHostBufferBase, but it is NOT
     // used later on
+    // initialise iflavorVec
+    memcpy( m_hstIflavorVec.data(), iflavorVec, m_nevt * sizeof( unsigned int ) );
     copyDeviceFromHost( m_devGs, m_hstGs );
     copyDeviceFromHost( m_devRndHel, m_hstRndHel );
     copyDeviceFromHost( m_devRndCol, m_hstRndCol );
     if( useChannelIds ) copyDeviceFromHost( m_devChannelIds, m_hstChannelIds );
+    copyDeviceFromHost( m_devIflavorVec, m_hstIflavorVec );
     if( m_nGoodHel < 0 )
     {
       m_nGoodHel = m_pmek->computeGoodHelicities();
@@ -421,6 +431,7 @@ paramCard; #endif
   template<typename FORTRANFPTYPE>
   void Bridge<FORTRANFPTYPE>::cpu_sequence( const FORTRANFPTYPE* momenta,
                                             const FORTRANFPTYPE* gs,
+                                            const unsigned int* iflavorVec,
                                             const FORTRANFPTYPE* rndhel,
                                             const FORTRANFPTYPE* rndcol,
                                             const unsigned int* channelIds,
@@ -447,6 +458,8 @@ paramCard; #endif
       memcpy( m_hstChannelIds.data(), channelIds, m_nevt * sizeof( unsigned int ) );
     // else ... // no need to initialize m_hstChannel: it is allocated and default
     // initialized in HostBufferBase (and it is not used later on anyway)
+    // initialise iflavorVec
+    memcpy( m_hstIflavorVec.data(), iflavorVec, m_nevt * sizeof( unsigned int ) );
     if( m_nGoodHel < 0 )
     {
       m_nGoodHel = m_pmek->computeGoodHelicities();

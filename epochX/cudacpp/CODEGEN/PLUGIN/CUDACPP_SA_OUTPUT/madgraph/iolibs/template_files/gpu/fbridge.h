@@ -20,13 +20,14 @@ extern "C"
 
   using FORTRANFPTYPE = double;
 
-  void fbridgecreate_( CppObjectInFortran** ppbridge, const int* piflavorF, const int* pnevtF, const int* pnparF, const int* pnp4F );
+  void fbridgecreate_( CppObjectInFortran** ppbridge, const int* pnevtF, const int* pnparF, const int* pnp4F );
 
   void fbridgedelete_( CppObjectInFortran** ppbridge );
 
   void fbridgesequence_( CppObjectInFortran** ppbridge,
                          const FORTRANFPTYPE* momenta,
                          const FORTRANFPTYPE* gs,
+                         const unsigned int* iflavorVec,
                          const FORTRANFPTYPE* rndhel,
                          const FORTRANFPTYPE* rndcol,
                          const unsigned int* channelIds,
@@ -38,6 +39,7 @@ extern "C"
   void fbridgesequence_nomultichannel_( CppObjectInFortran** ppbridge,
                                         const FORTRANFPTYPE* momenta,
                                         const FORTRANFPTYPE* gs,
+                                        const unsigned int* iflavorVec,
                                         const FORTRANFPTYPE* rndhel,
                                         const FORTRANFPTYPE* rndcol,
                                         FORTRANFPTYPE* mes,
