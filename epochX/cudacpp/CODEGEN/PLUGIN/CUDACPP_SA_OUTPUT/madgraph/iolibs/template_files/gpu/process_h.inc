@@ -48,29 +48,29 @@ namespace mg5amcCpu
 
 #ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
   void
-  sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
-                       const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
-                       const int iflavor,          // input: index of the flavor combination
-                       fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+  sigmaKin_getGoodHel( const fptype* allmomenta,       // input: momenta[nevt*npar*4]
+                       const fptype* allcouplings,     // input: couplings[nevt*ndcoup*2]
+                       const unsigned int* iflavorVec, // input: index of the flavor combination
+                       fptype* allMEs,                 // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                       fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
-                       fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
+                       fptype* allNumerators,          // output: multichannel numerators[nevt], running_sum_over_helicities
+                       fptype* allDenominators,        // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                       fptype_sv* allJamps,        // output: jamp[ncolor*2*nevt]
-                       bool* isGoodHel,            // output: isGoodHel[ncomb] - device array (GPU device implementation)
-                       const int nevt );           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                       fptype_sv* allJamps,            // output: jamp[ncolor*2*nevt]
+                       bool* isGoodHel,                // output: isGoodHel[ncomb] - device array (GPU device implementation)
+                       const int nevt );               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
   void
-  sigmaKin_getGoodHel( const fptype* allmomenta,   // input: momenta[nevt*npar*4]
-                       const fptype* allcouplings, // input: couplings[nevt*ndcoup*2]
-                       const int iflavor,          // input: index of the flavor combination
-                       fptype* allMEs,             // output: allMEs[nevt], |M|^2 final_avg_over_helicities
+  sigmaKin_getGoodHel( const fptype* allmomenta,       // input: momenta[nevt*npar*4]
+                       const fptype* allcouplings,     // input: couplings[nevt*ndcoup*2]
+                       const unsigned int* iflavorVec, // input: index of the flavor combination
+                       fptype* allMEs,                 // output: allMEs[nevt], |M|^2 final_avg_over_helicities
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                       fptype* allNumerators,      // output: multichannel numerators[nevt], running_sum_over_helicities
-                       fptype* allDenominators,    // output: multichannel denominators[nevt], running_sum_over_helicities
+                       fptype* allNumerators,          // output: multichannel numerators[nevt], running_sum_over_helicities
+                       fptype* allDenominators,        // output: multichannel denominators[nevt], running_sum_over_helicities
 #endif
-                       bool* isGoodHel,            // output: isGoodHel[ncomb] - host array (C++ implementation)
-                       const int nevt );           // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+                       bool* isGoodHel,                // output: isGoodHel[ncomb] - host array (C++ implementation)
+                       const int nevt );               // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #endif /* clang-format on */
 
   //--------------------------------------------------------------------------
@@ -84,7 +84,7 @@ namespace mg5amcCpu
   void
   sigmaKin( const fptype* allmomenta,           // input: momenta[nevt*npar*4]
             const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
-            const int iflavor,                  // input: index of the flavor combination
+            const unsigned int* iflavorVec,     // input: index of the flavor combination
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
@@ -109,7 +109,7 @@ namespace mg5amcCpu
   void
   sigmaKin( const fptype* allmomenta,           // input: momenta[nevt*npar*4]
             const fptype* allcouplings,         // input: couplings[nevt*ndcoup*2]
-            const int iflavor,                  // input: index of the flavor combination
+            const unsigned int* iflavorVec,     // input: index of the flavor combination
             const fptype* allrndhel,            // input: random numbers[nevt] for helicity selection
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
             const fptype* allrndcol,            // input: random numbers[nevt] for color selection
