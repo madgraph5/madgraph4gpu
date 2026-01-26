@@ -397,7 +397,7 @@ main( int argc, char** argv )
     //hstChannelIds[i] = channelId; // AV ChannelId arrays are not needed in check.exe (fix #892) as long as check.exe uses no-multichannel (see #896)
     //if ( i > 0 ) hstGs[i] = 0; // try hardcoding G only for event 0
     //hstGs[i] = i;
-    hstIflavorVec[i] = 0; // Fill with 1, all equal and same flavor combination
+    hstIflavorVec[i] = 1; // Fill with 1, all equal and same flavor combination
   }
 
   // Memory buffers for matrix elements
