@@ -2107,7 +2107,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 #ifdef MGONGPUCPP_GPUIMPL
       const unsigned int iflavor = iflavor_sv;
 #else
-      const unsigned int iflavor = reinterpret_cast<unsigned int*>(iflavor_sv)[0];
+      const unsigned int iflavor = reinterpret_cast<const unsigned int*>(&iflavor_sv)[0];
 #endif
 """)
         diagrams = matrix_element.get('diagrams')
