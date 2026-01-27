@@ -108,7 +108,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterCPP):
                                       s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
                                       s+'gpu/MemoryAccessGs.h', s+'gpu/MemoryAccessCouplingsFixed.h',
                                       s+'gpu/MemoryAccessNumerators.h', s+'gpu/MemoryAccessDenominators.h',
-                                      s+'gpu/MemoryAccessChannelIds.h', 'MemoryAccessIflavorVec.h',
+                                      s+'gpu/MemoryAccessChannelIds.h', s+'gpu/MemoryAccessIflavorVec.h',
                                       s+'gpu/EventStatistics.h', s+'gpu/CommonRandomNumbers.h',
                                       s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
                                       s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',

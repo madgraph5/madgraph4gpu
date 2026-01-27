@@ -1,7 +1,6 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2026 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
-// Created by: S. Roiser (Dec 2023, based on earlier work by A. Valassi) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2024) for the MG5aMC CUDACPP plugin.
+// Created by: D. Massaro (Jan 2026, based on earlier work by A. Valassi) for the MG5aMC CUDACPP plugin.
 
 #ifndef MemoryAccessIflavorVec_H
 #define MemoryAccessIflavorVec_H 1
