@@ -1967,6 +1967,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
         self.wanted_ordered_dep_couplings = []
         self.wanted_ordered_indep_couplings = []
+        self.wanted_ordered_flv_couplings = []
+
+        self.flv_couplings_map = {}
         super().__init__(*args,**opts)
 
 
@@ -2013,6 +2016,12 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 aliastxt = 'COUPD'
                 name = 'cIPC'
             elif coup.startswith("FLV"):
+                if coup not in [coup.name for coup in self.wanted_ordered_flv_couplings]:
+                    flv_coup = self.flv_couplings_map[coup]
+                    self.wanted_ordered_flv_couplings.append(flv_coup)
+                    for indep_coup in set(flv_coup.flavors.values()):
+                        if indep_coup not in self.wanted_ordered_indep_couplings:
+                            self.wanted_ordered_indep_couplings.append(indep_coup)
                 alias = self.couporderflv
                 aliastxt = 'flvCOUP'
                 name = 'cIPCflv'
@@ -2060,7 +2069,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
             if newcoup:
                 self.couplings2order = self.couporderdep | self.couporderindep
-        model.cudacpp_wanted_ordered_couplings = self.wanted_ordered_dep_couplings + self.wanted_ordered_indep_couplings 
+        model.cudacpp_wanted_ordered_couplings = self.wanted_ordered_dep_couplings + self.wanted_ordered_indep_couplings + self.wanted_ordered_flv_couplings
         return call
 
     # AV - new method for formatting wavefunction/amplitude calls
@@ -2364,6 +2373,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 if isinstance(coup, base_objects.FLV_Coupling):
                     if usesdepcoupl is None: usesdepcoupl = False
                     elif usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
+                    self.flv_couplings_map[coup.name] = coup
                     continue
                 if coup.startswith('-'): 
                     coup = coup[1:]
