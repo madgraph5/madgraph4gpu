@@ -225,11 +225,11 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterCPP):
         out = super().generate_subprocess_directory(subproc_group, fortran_model, me)
         return out
     # AV (default from OM's tutorial) - add a debug printout
-    def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
+    def convert_model(self, model, wanted_lorentz=[], wanted_couplings=[]):
         if hasattr(model , 'cudacpp_wanted_ordered_couplings'):
-            wanted_coupling = model.cudacpp_wanted_ordered_couplings
+            wanted_couplings = model.cudacpp_wanted_ordered_couplings
             del model.cudacpp_wanted_ordered_couplings
-        return super().convert_model(model, wanted_lorentz, wanted_coupling)
+        return super().convert_model(model, wanted_lorentz, wanted_couplings)
 
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):

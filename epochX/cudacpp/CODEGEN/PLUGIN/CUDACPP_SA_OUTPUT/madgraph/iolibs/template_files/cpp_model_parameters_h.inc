@@ -20,6 +20,22 @@
 
 #include "constexpr_math.h"
 
+// Define FLV_COUPLING struct
+struct FVL_COUPLING {
+  static constexpr int max_flavor = %(max_flavor)d;
+
+  int partner1[max_flavor];
+  int partner2[max_flavor];
+  cxtype* value[max_flavor]; // because it will refer already calculated couplings
+
+  FLV_COUPLING() {
+    for (int i = 0; i < max_flavor; ++i) {
+        partner1[i] = -1;
+        partner2[i] = -1;
+    }
+  }
+};
+
 //==========================================================================
 
 // AV Jan 2024 (PR #625): this ugly #define was the only way I found to avoid creating arrays[nBsm] in CPPProcess.cc if nBsm is 0
@@ -54,6 +70,10 @@ namespace mg5amcCpu
     %(dependent_parameters)s
 
     %(dependent_couplings)s
+
+    %(flavor_independent_couplings)s
+
+    %(flavor_dependent_couplings)s
 
     // Set parameters that are unchanged during the run
     void setIndependentParameters( SLHAReader& slha );

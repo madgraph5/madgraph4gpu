@@ -800,6 +800,21 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         else : res = '    ' + res # add leading '  ' after the '// Model' line
         return res
 
+    def write_flv_couplings(self, params):
+        """Write out the lines of independent parameters"""
+
+        def_flv = []
+        # For each parameter, write name = expr;
+        for coupl in params:
+            for key, c in coupl.flavors.items():
+                # get first/second index
+                k1, k2 = [i for i in key if i!=0]
+                def_flv.append('%(name)s.partner1[%(in)i] = %(out)i;' % {'name': coupl.name,'in': k1-1, 'out': k2-1})
+                def_flv.append('%(name)s.partner2[%(out)i] = %(in)i;' % {'name': coupl.name,'in': k1-1, 'out': k2-1})
+                def_flv.append('%(name)s.value[%(in)i] = &%(coupl)s;' % {'name': coupl.name,'in': k1-1, 'coupl': c})
+
+        return "\n  ".join(def_flv)
+
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
         res = self.super_write_set_parameters_donotfixMajorana(params)
@@ -986,12 +1001,19 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['dependent_parameters'] = '// Model parameters dependent on aS\n' + '\n'.join( params_dep )
         coups_dep = [ '    //' + line[4:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(list(self.coups_dep.values())).split('\n') ]
         replace_dict['dependent_couplings'] = '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
+        replace_dict['flavor_independent_couplings'] = \
+                                    "// Model flavor couplings independent of aS\n" + \
+                                    self.write_parameters([c for c in self.coups_flv_indep])
+        replace_dict['flavor_dependent_couplings'] = \
+                                    "// Model flavor couplings dependent of aS\n" + \
+                                    self.write_parameters([c for c in self.coups_flv_dep])                                    
         set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
                              if line.startswith( '  aS =' ) else
                              line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
         replace_dict['set_independent_parameters'] += self.super_write_set_parameters_onlyfixMajorana( hardcoded=False ) # add fixes for Majorana particles only in the aS-indep parameters #622
         replace_dict['set_independent_parameters'] += '\n  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;' # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
+        replace_dict['set_flv_couplings'] = self.write_flv_couplings(self.coups_flv_dep+self.coups_flv_indep)    
         if len(bsmparam_indep_real_used) + len(bsmparam_indep_complex_used) > 0:
             for ipar, par in enumerate( bsmparam_indep_real_used ):
                 replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s;' % ( ipar, par )
@@ -1109,6 +1131,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupoutdcoup2'] = ''
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
         nbsmparam_indep_all_used = len( bsmparam_indep_real_used ) + 2 * len( bsmparam_indep_complex_used )
+        replace_dict['max_flavor'] = max(len(ids) for ids in self.model['merged_particles'].values())
         replace_dict['bsmdefine'] = '#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1' if nbsmparam_indep_all_used > 0 else '#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0'
         replace_dict['nbsmip'] = nbsmparam_indep_all_used # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
         replace_dict['hasbsmip'] = '' if nbsmparam_indep_all_used > 0 else '//'
@@ -1220,7 +1243,17 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     def prepare_couplings(self, wanted_couplings = []):
         super().prepare_couplings(wanted_couplings)
         # the two lines below fix #748, i.e. they re-order the dictionary keys following the order in wanted_couplings
-        running_wanted_couplings = [value for value in wanted_couplings if value in self.coups_dep]
+
+        def all_str(wanted_couplings):
+            str_repr = []
+            for coup in wanted_couplings:
+                if isinstance(coup, base_objects.FLV_Coupling):
+                    str_repr.append(coup.name)
+                else:
+                    str_repr.append(coup)
+            return str_repr
+
+        running_wanted_couplings = [value for value in all_str(wanted_couplings) if value in self.coups_dep]
         ordered_dict = [(k, self.coups_dep[k]) for k in running_wanted_couplings]
         self.coups_dep = dict((x, y) for x, y in ordered_dict)
 
@@ -1229,6 +1262,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 import madgraph.iolibs.files as files
 import madgraph.various.misc as misc
 import madgraph.iolibs.export_v4 as export_v4
+import madgraph.core.base_objects as base_objects
 # AV - define a custom OneProcessExporter
 # (NB: enable this via PLUGIN_ProcessExporter.oneprocessclass in output.py)
 # (NB: use this directly also in PLUGIN_UFOModelConverter.read_template_file)
@@ -1954,6 +1988,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         if not hasattr(self, 'couporderdep'):
             self.couporderdep = {}
             self.couporderindep = {}
+            self.couporderflv = {}
         for coup in re.findall(self.findcoupling, call):
             if coup == 'ZERO':
                 ###call = call.replace('pars->ZERO', '0.')
@@ -1977,6 +2012,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 alias = self.couporderdep
                 aliastxt = 'COUPD'
                 name = 'cIPC'
+            elif coup.startswith("FLV"):
+                alias = self.couporderflv
+                aliastxt = 'flvCOUP'
+                name = 'cIPCflv'
             else:
                 if coup not in self.wanted_ordered_indep_couplings: 
                     self.wanted_ordered_indep_couplings.append(coup)
@@ -1991,7 +2030,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     else:
                         alias[coup] = alias[list(alias)[-1]]+1
                 else:
-                    alias[coup] = len(alias)
+                    alias[coup] = len(alias) # this works perfectly also for FLV couplings
                 ###if alias == self.couporderdep: # bug #821! this is incorrectly true when both dictionaries are empty!
                 if aliastxt == 'COUPD':
                     for k in self.couporderindep:
@@ -2010,6 +2049,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 call = call.replace('CI_ACCESS', 'CD_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     'COUPs[%s], %s' % (alias[coup], '1.0' if not sign else '-1.0')) 
+            elif name == 'cIPCflv':
+                call = call.replace('CD_ACCESS', 'CI_ACCESS')
+                call = call.replace('m_pars->%s%s' % (sign, coup),
+                                    'flvCOUPs[%s], %s' % (alias[coup], '1.0' if not sign else '-1.0'))
             else:
                 call = call.replace('CD_ACCESS', 'CI_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
@@ -2318,6 +2361,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # AV FOR PR #434: determine if this call needs aS-dependent or aS-independent parameters
             usesdepcoupl = None
             for coup in argument.get('coupling'):
+                if isinstance(coup, base_objects.FLV_Coupling):
+                    if usesdepcoupl is None: usesdepcoupl = False
+                    elif usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
+                    continue
                 if coup.startswith('-'): 
                     coup = coup[1:]
                 # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)

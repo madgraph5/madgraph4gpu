@@ -48,6 +48,7 @@ void
 Parameters_%(model_name)s::setIndependentCouplings()
 {
   %(set_independent_couplings)s
+  %(set_flv_couplings)s
 }
 
 /*
