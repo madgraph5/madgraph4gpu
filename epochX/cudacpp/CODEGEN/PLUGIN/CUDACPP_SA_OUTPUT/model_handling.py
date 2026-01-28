@@ -1345,6 +1345,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['hel_amps_cc'] = '#include \"HelAmps_%s.cc\"' % self.model_name # AV
         coupling = [''] * len(self.couplings2order)
         params = [''] * len(self.params2order)
+        flv_couplings = [''] * len(self.couporderflv)
         for coup, pos in self.couplings2order.items():
             coupling[pos] = coup
         for para, pos in self.params2order.items():
@@ -1399,6 +1400,79 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nIPD=0'
             replace_dict['cipddump'] = ''
             replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nIPD=0'
+
+        # flavor couplings
+        for flv_coup, pos in self.couporderflv.items():
+            flv_couplings[pos] = flv_coup
+        replace_dict['nipf'] = len(flv_couplings)
+        breakpoint()
+        if len(flv_couplings):
+            nMF = max(len(ids) for ids in self.model['merged_particles'].values())
+            # we have 3 arrays:
+            #  - all partner1 arrays combined
+            #  - all partner2 arrays combines
+            #  - all value arrays combined
+            replace_dict['cipfassign'] = """int tIPF_partner1[nMF * nIPF];
+    int tIPF_partner2[nMF * nIPF];
+    cxtype tIPF_value[nMF * nIPF];
+    const FLV_COUPLING tFLV[nIPF] = { m_pars->%s };
+    for (int i = 0; i < nIPF; ++i) {
+      memcpy( tIPF_partner1, &(tFLV[i].partner1), nMF * sizeof( int )    );
+      memcpy( tIPF_partner2, &(tFLV[i].partner2), nMF * sizeof( int )    );
+      memcpy( tIPF_value   , &(tFLV[i].value)   , nMF * sizeof( cxtype ) );
+    }""" % ( ', m_pars->'.join(flv_couplings) )
+            replace_dict['cipfdevice'] = """__device__ __constant__ int cIPF_partner1[nMF * nIPF];
+    __device__ __constant__ int cIPF_partner2[nMF * nIPF];
+    __device__ __constant__ fptype cIPF_value[nMF * nIPF * 2];"""
+            replace_dict['cipfstatic'] = """static int cIPF_partner1[nMF * nIPF];
+    static int cIPF_partner2[nMF * nIPF];
+    static fptype cIPF_value[nMF * nIPF * 2];"""
+            replace_dict['cipf2tipfSym'] = """gpuMemcpyToSymbol( cIPF_partner1, tIPF_partner1, nMF * nIPF * sizeof( int )    );
+    gpuMemcpyToSymbol( cIPF_partner2, tIPF_partner2, nMF * nIPF * sizeof( int )    );
+    gpuMemcpyToSymbol( cIPF_value   , tIPF_value   , nMF * nIPF * sizeof( cxtype ) );"""
+            replace_dict['cipf2tipf'] = """memcpy( cIPF_partner1, tIPF_partner1, nMF * nIPF * sizeof( int )    );
+    memcpy( cIPF_partner2, tIPF_partner2, nMF * nIPF * sizeof( int )    );
+    memcpy( cIPF_value   , tIPF_value   , nMF * nIPF * sizeof( cxtype ) );"""
+            replace_dict['cipfdump'] = '''
+    //for ( int i=0; i < nIPD; i++ ) {
+    //  std::cout << std::setprecision(17) << "tIPF[i].partner1 = { ";
+    //  for ( int j=0; j < nMF-1; j++ ) std::cout << std::setprecision(17) << tIPF[i].partner1[j] << ", ";
+    //  std::cout << std::setprecision(17) << tIPF[i].partner1[nMF-1] << " }" << std::endl;
+    //  std::cout << std::setprecision(17) << "tIPF[i].partner2 = { ";
+    //  for ( int j=0; j < nMF-1; j++ ) std::cout << std::setprecision(17) << tIPF[i].partner2[j] << ", ";
+    //  std::cout << std::setprecision(17) << tIPF[i].partner2[nMF-1] << " }" << std::endl;
+    //  std::cout << std::setprecision(17) << "tIPF[i].value = { ";
+    //  for ( int j=0; j < nMF-1; j++ ) std::cout << std::setprecision(17) << tIPF[i].value[j] << ", ";
+    //  std::cout << std::setprecision(17) << tIPF[i].value[nMF-1] << " }" << std::endl;
+    //}
+'''
+            coup_str_hrd_partner1 = '__device__ const int cIPF_partner1[nMF * nIPF] = { '
+            coup_str_hrd_partner2 = '__device__ const int cIPF_partner2[nMF * nIPF] = { '
+            coup_str_hrd_value    = '__device__ const fptype cIPF_value[nMF * nIPF * 2] = { '
+            for flv_coup in flv_couplings:
+                coup_str_hrd_partner1 += ( ('Parameters_%(model_name)s::%(coup)s.param1' % {"model_name": self.model_name, "coup": flv_coup} + '[%d], ') * nMF) % ( *range(nMF), )
+                coup_str_hrd_partner2 += ( ('Parameters_%(model_name)s::%(coup)s.param2' % {"model_name": self.model_name, "coup": flv_coup} + '[%d], ') * nMF) % ( *range(nMF), )
+                value_string = '(fptype)Parameters_%(model_name)s::%(coup)s.value' % {"model_name": self.model_name, "coup": flv_coup}
+                range_ids = [ [ i, i ] for i in range(nMF) ]
+                coup_str_hrd_value += ( ( value_string + '[%d].real(), ' + value_string + '[%d].imag(), ' ) * nMF) % ( *[ j for i in range_ids for j in i ], )
+            coup_str_hrd_partner1 = coup_str_hrd_partner1[:-2] + ' };'
+            coup_str_hrd_partner2 = coup_str_hrd_partner2[:-2] + ' };'
+            coup_str_hrd_value    = coup_str_hrd_value[:-2] + ' };'
+            replace_dict['cipfhrdcod'] = '%s\n  %s\n  %s' % (coup_str_hrd_partner1, coup_str_hrd_partner2, coup_str_hrd_value)
+        else:
+            replace_dict['cipfassign'] = ''
+            replace_dict['cipfdevice'] = """__device__ __constant__ int* cIPF_partner1 = nullptr; // unused as nIPF=0'
+    __device__ __constant__ int* cIPF_partner2 = nullptr; // unused as nIPF=0'
+    __device__ __constant__ fptype* cIPF_value = nullptr; // unused as nIPF=0'"""
+            replace_dict['cipfstatic'] = """static int* cIPF_partner1 = nullptr; // unused as nIPF=0'
+    static int* cIPF_partner2 = nullptr; // unused as nIPF=0'
+    static fptype* cIPF_value = nullptr; // unused as nIPF=0'"""
+            replace_dict['cipf2tipfSym'] = ''
+            replace_dict['cipf2tipf'] = ''
+            replace_dict['cipfdump'] = ''
+            replace_dict['cipfhrdcod'] = """__device__ const int* cIPF_partner1 = nullptr; // unused as nIPF=0'
+    __device__ const int* cIPF_partner2 = nullptr; // unused as nIPF=0'
+    __device__ const fptype* cIPF_value = nullptr; // unused as nIPF=0'"""
         # FIXME! Here there should be different code generated depending on MGONGPUCPP_NBSMINDEPPARAM_GT_0 (issue #827)
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
@@ -1471,6 +1545,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             ###misc.sprint( 'after get_matrix_element_calls', self.matrix_elements[0].get_number_of_wavefunctions() ) # CORRECT value of nwf, eg 5 for gg_tt
             assert len(self.matrix_elements) == 1 # how to handle if this is not true?
             self.couplings2order = self.helas_call_writer.couplings2order
+            self.couporderflv = self.helas_call_writer.couporderflv
             self.params2order = self.helas_call_writer.params2order
             ret_lines.append("""
   // Evaluate QCD partial amplitudes jamps for this given helicity from Feynman diagrams

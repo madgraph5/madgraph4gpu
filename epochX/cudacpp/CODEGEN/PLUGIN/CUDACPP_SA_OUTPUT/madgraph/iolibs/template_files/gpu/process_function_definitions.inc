@@ -44,19 +44,27 @@ namespace mg5amcCpu
   // Note: in the Python code generator, nIPD == nparam, while nIPC <= nicoup, because (see #823)
   // nIPC may vary from one P*/CPPProcess.cc to another, while nicoup is defined in src/Param.h and is common to all P*
   constexpr int nIPC = %(nipc)i; // SM independent couplings used in this CPPProcess.cc (FIXME? rename as sm_IndepCoupl?)
+  // nIPF are the number of SM independent flavor couplings, of type FLV_COUPLING
+  constexpr int nMF = FLV_COUPLING::max_flavor;
+  constexpr int nIPF = %(nipf)i;
   static_assert( nIPC <= nicoup );
   static_assert( nIPD >= 0 ); // Hack to avoid build warnings when nIPD==0 is unused
   static_assert( nIPC >= 0 ); // Hack to avoid build warnings when nIPC==0 is unused
+  static_assert( nMF >= 0 );  // Hack to avoid build warnings when nMF ==0 is unused
+  static_assert( nIPF >= 0 ); // Hack to avoid build warnings when nIPF==0 is unused
 #ifdef MGONGPU_HARDCODE_PARAM
   %(cipdhrdcod)s
   %(cipchrdcod)s
+  %(cipfhrdcod)s
 #else
 #ifdef MGONGPUCPP_GPUIMPL
   %(cipddevice)s
   %(cipcdevice)s
+  %(cipfdevice)s
 #else
   %(cipdstatic)s
   %(cipcstatic)s
+  %(cipfstatic)s
 #endif
 #endif
 
@@ -211,9 +219,11 @@ namespace mg5amcCpu
     // Then copy them to CUDA constant memory (issue #39) or its C++ emulation in file-scope static memory
     %(cipdassign)s
     %(cipcassign)s
+    %(cipfassign)s
 #ifdef MGONGPUCPP_GPUIMPL
     %(cipd2tipdSym)s
     %(cipc2tipcSym)s
+    %(cipf2tipfSym)s
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_%(model_name)s::nBsmIndepParam > 0 )
       gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_%(model_name)s::nBsmIndepParam * sizeof( double ) );
@@ -221,11 +231,12 @@ namespace mg5amcCpu
 #else
     %(cipd2tipd)s
     %(cipc2tipc)s
+    %(cipf2tipf)s
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
     if( Parameters_%(model_name)s::nBsmIndepParam > 0 )
       memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_%(model_name)s::nBsmIndepParam * sizeof( double ) );
 #endif
-#endif%(cipddump)s%(cipcdump)s
+#endif%(cipddump)s%(cipcdump)s%(cipfdump)s
     //for ( int i=0; i<Parameters_%(model_name)s::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
