@@ -7,6 +7,7 @@ import os
 import sys
 
 import math
+import re
 
 # AV - PLUGIN_NAME can be one of PLUGIN/CUDACPP_OUTPUT or MG5aMC_PLUGIN/CUDACPP_OUTPUT
 PLUGIN_NAME = __name__.rsplit('.',1)[0]
@@ -202,13 +203,21 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 type = self.type2def[format] + ' ' + self.type2def['aloha_ref']
                 list_arg = ''
+            misc.sprint(argname,self.tag)
             if argname.startswith('COUP'):
                 type = self.type2def['double'] # AV from cxtype_sv to fptype array (running alphas #373)
-                argname = 'all'+argname # AV from cxtype_sv to fptype array (running alphas #373)
-                list_arg = '[]' # AV from cxtype_sv to fptype array (running alphas #373)
-                point = self.type2def['pointer_coup']
+                if 'M' in self.tag:
+                    type = 'FLV_COUPLING_VIEW'
+                    argname = argname.replace('COUP','MCOUP')
+                    list_arg = ""
+                    point = self.type2def['aloha_ref']
+                else:
+                    argname = 'all'+argname # AV from cxtype_sv to fptype array (running alphas #373)
+                    list_arg = '[]' # AV from cxtype_sv to fptype array (running alphas #373)
+                    point = self.type2def['pointer_coup']
                 args.append('%s %s%s%s'% (type, point, argname, list_arg))
-                args.append('double Ccoeff%s'% argname[7:]) # OM for 'unary minus' #628
+                coeff_n = re.search(r"\d?+$", argname).group()
+                args.append('double Ccoeff%s'% coeff_n) # OM for 'unary minus' #628
             else:
                 args.append('%s %s%s'% (type, argname, list_arg))
         if not self.offshell:
@@ -267,7 +276,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if type.startswith('aloha'):
                 out.write('    const cxtype_sv* w%s = W_ACCESS::kernelAccessConst( %s.w );\n' % ( name, name ) )
             if name.startswith('COUP'): # AV from cxtype_sv to fptype array (running alphas #373)
-                out.write('    const cxtype_sv %s = C_ACCESS::kernelAccessConst( all%s );\n' % ( name, name ) )
+                if 'M' in self.tag:
+                    out.write('    cxtype_sv %s;\n' % name )
+                else:
+                    out.write('    const cxtype_sv %s = C_ACCESS::kernelAccessConst( all%s );\n' % ( name, name ) )
         if not self.offshell:
             vname = 'vertex'
             access = 'A_ACCESS'
@@ -439,21 +451,21 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             out.write('      return;\n')
             out.write('    }\n')
             if nb_coupling == 1:
-                out.write('    if(MCOUP.partner[flv_index1] != flv_index2) {\n')
+                out.write('    if(MCOUP.partner1[flv_index1] != flv_index2) {\n')
                 out.write('      %s\n' % fail)
                 out.write('      return;\n')
                 out.write('    }\n')
             else:
                 for i in range(1,nb_coupling+1):
-                    out.write('    if(MCOUP%i.partner[flv_index1] != flv_index2 || MCOUP%i.partner2[flv_index1] != flv_index2) {\n' %(i,i))
+                    out.write('    if(MCOUP%i.partner1[flv_index1] != flv_index2 || MCOUP%i.partner2[flv_index1] != flv_index2) {\n' %(i,i))
                     out.write('      zero_coup%i = 1;\n' % i)
                     out.write('      COUP%i = cxzero_sv();\n' % i)
                     out.write('    }\n')
             if nb_coupling ==1:
-                out.write('    COUP = *MCOUP.val[flv_index1];\n')
+                out.write('    COUP = C_ACCESS::kernelAccess( MCOUP.val[flv_index1] );\n')
             else:
                 for i in range(1,nb_coupling+1):
-                    out.write('    if(zero_coup%i ==0) { COUP%i = *MCOUP%i.val[flv_index1]; }\n' % (i,i,i))
+                    out.write('    if(zero_coup%i ==0) { COUP%i = C_ACCESS::kernelAccess( MCOUP%i.val[flv_index1] ); }\n' % (i,i,i))
         else:
             incoming = [i+1 for i in range(len(self.particles)) if i+1 != self.outgoing and self.particles[self.outgoing-1] == 'F'][0]
             if incoming %2 == 1:
@@ -465,11 +477,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out.write('      return;\n')
                 out.write('    }\n')
                 if nb_coupling == 1:
-                    out.write('    int flv_index2 = MCOUP.partner[flv_index%i];\n' %(incoming))
+                    out.write('    int flv_index2 = MCOUP.partner1[flv_index%i];\n' %(incoming))
                 else:
-                    out.write('    int flv_index2 = MCOUP1.partner[flv_index%i];\n' %(incoming))
+                    out.write('    int flv_index2 = MCOUP1.partner1[flv_index%i];\n' %(incoming))
                     for i in range(2,nb_coupling+1):
-                        out.write('    if(flv_index2 == -1){flv_index2 = MCOUP%i.partner[flv_index%i];}' %(i, incoming)) 
+                        out.write('    if(flv_index2 == -1){flv_index2 = MCOUP%i.partner1[flv_index%i];}' %(i, incoming)) 
                 out.write('    if(flv_index2 == -1){\n')
                 out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
                 out.write('      F%i.flv_index = -1;\n' % outgoing)
@@ -499,7 +511,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
  
             for ftype, name in self.declaration:
                 if name.startswith('COUP'):
-                    out.write('    %s = *M%s.val[flv_index1];\n' % (name, name))
+                    out.write('    %s = C_ACCESS::kernelAccess( M%s.value[flv_index1] );\n' % (name, name))
         return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
@@ -1405,7 +1417,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         for flv_coup, pos in self.couporderflv.items():
             flv_couplings[pos] = flv_coup
         replace_dict['nipf'] = len(flv_couplings)
-        breakpoint()
         if len(flv_couplings):
             nMF = max(len(ids) for ids in self.model['merged_particles'].values())
             # we have 3 arrays:
@@ -2099,7 +2110,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                             self.wanted_ordered_indep_couplings.append(indep_coup)
                 alias = self.couporderflv
                 aliastxt = 'flvCOUP'
-                name = 'cIPCflv'
+                name = 'flvCOUPs'
             else:
                 if coup not in self.wanted_ordered_indep_couplings: 
                     self.wanted_ordered_indep_couplings.append(coup)
@@ -2133,10 +2144,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 call = call.replace('CI_ACCESS', 'CD_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     'COUPs[%s], %s' % (alias[coup], '1.0' if not sign else '-1.0')) 
-            elif name == 'cIPCflv':
+            elif name == 'flvCOUPs':
                 call = call.replace('CD_ACCESS', 'CI_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
-                                    'flvCOUPs[%s], %s' % (alias[coup], '1.0' if not sign else '-1.0'))
+                                    '%s[%s], %s' % (name, alias[coup], '1.0' if not sign else '-1.0'))
             else:
                 call = call.replace('CD_ACCESS', 'CI_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
