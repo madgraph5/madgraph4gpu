@@ -2214,6 +2214,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
 #endif
 #endif
+      // Create an array of views over the Flavor Couplings
+      FLV_COUPLING_VIEW flvCOUPs[nIPF];
+      for ( int idflv = 0; idflv < nIPF; idflv++ )
+        flvCOUPs[idflv] = FLV_COUPLING_VIEW{ cIPF_partner1, cIPF_partner1, cIPF_value, idflv * nMF };
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }

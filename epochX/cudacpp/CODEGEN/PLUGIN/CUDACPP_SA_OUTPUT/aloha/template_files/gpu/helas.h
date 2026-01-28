@@ -31,6 +31,22 @@
           : pvec(pvec_sv), w(reinterpret_cast<fptype*>(w_sv)), flv_index(flv) {}
   };
 
+  struct FVL_COUPLING_VIEW {
+
+      const int* partner1;
+      const int* partner2;
+      const cxtype* value;
+
+      __host__ __device__ __forceinline__
+      FLV_COUPLING_VIEW(const int* partner1_base,
+                        const int* partner2_base,
+                        const cxtype* value_base,
+                        const int n)
+      : partner1(partner1_base + n),
+        partner2(partner2_base + n),
+        value(value_base + n) {}
+  };
+
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
