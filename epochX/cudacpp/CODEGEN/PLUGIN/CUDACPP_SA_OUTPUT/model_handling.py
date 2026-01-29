@@ -1433,11 +1433,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
       memcpy( tIPF_value   , &(tFLV[i].value)   , nMF * sizeof( cxtype ) );
     }""" % ( ', m_pars->'.join(flv_couplings) )
             replace_dict['cipfdevice'] = """__device__ __constant__ int cIPF_partner1[nMF * nIPF];
-    __device__ __constant__ int cIPF_partner2[nMF * nIPF];
-    __device__ __constant__ fptype cIPF_value[nMF * nIPF * 2];"""
+  __device__ __constant__ int cIPF_partner2[nMF * nIPF];
+  __device__ __constant__ fptype cIPF_value[nMF * nIPF * 2];"""
             replace_dict['cipfstatic'] = """static int cIPF_partner1[nMF * nIPF];
-    static int cIPF_partner2[nMF * nIPF];
-    static fptype cIPF_value[nMF * nIPF * 2];"""
+  static int cIPF_partner2[nMF * nIPF];
+  static fptype cIPF_value[nMF * nIPF * 2];"""
             replace_dict['cipf2tipfSym'] = """gpuMemcpyToSymbol( cIPF_partner1, tIPF_partner1, nMF * nIPF * sizeof( int )    );
     gpuMemcpyToSymbol( cIPF_partner2, tIPF_partner2, nMF * nIPF * sizeof( int )    );
     gpuMemcpyToSymbol( cIPF_value   , tIPF_value   , nMF * nIPF * sizeof( cxtype ) );"""
