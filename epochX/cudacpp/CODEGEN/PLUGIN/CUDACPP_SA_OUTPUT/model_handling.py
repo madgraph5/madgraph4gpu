@@ -463,10 +463,16 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     out.write('      COUP%i = cxzero_sv();\n' % i)
                     out.write('    }\n')
             if nb_coupling ==1:
-                out.write('    COUP = C_ACCESS::kernelAccessConst( MCOUP.value + flv_index1 );\n')
+                # the coupling is a complex number but in this case it is represented as a sequence of real numbers
+                # so, when we need to shift within the array, we need to double the shift width to account for
+                # both real and imaginary parts
+                out.write('    COUP = C_ACCESS::kernelAccessConst( MCOUP.value + 2*flv_index1 );\n')
             else:
                 for i in range(1,nb_coupling+1):
-                    out.write('    if(zero_coup%i ==0) { COUP%i = C_ACCESS::kernelAccessConst( MCOUP%i.value + flv_index1 ); }\n' % (i,i,i))
+                    # the coupling is a complex number but in this case it is represented as a sequence of real numbers
+                    # so, when we need to shift within the array, we need to double the shift width to account for
+                    # both real and imaginary parts
+                    out.write('    if(zero_coup%i ==0) { COUP%i = C_ACCESS::kernelAccessConst( MCOUP%i.value + 2*flv_index1 ); }\n' % (i,i,i))
         else:
             incoming = [i+1 for i in range(len(self.particles)) if i+1 != self.outgoing and self.particles[self.outgoing-1] == 'F'][0]
             if incoming %2 == 1:
@@ -512,7 +518,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
  
             for ftype, name in self.declaration:
                 if name.startswith('COUP'):
-                    out.write('    %s = C_ACCESS::kernelAccessConst( M%s.value + flv_index1 );\n' % (name, name))
+                    # the coupling is a complex number but in this case it is represented as a sequence of real numbers
+                    # so, when we need to shift within the array, we need to double the shift width to account for
+                    # both real and imaginary parts
+                    out.write('    %s = C_ACCESS::kernelAccessConst( M%s.value + 2*flv_index1 );\n' % (name, name))
         return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
@@ -1429,9 +1438,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     cxtype tIPF_value[nMF * nIPF];
     const FLV_COUPLING tFLV[nIPF] = { m_pars->%s };
     for (int i = 0; i < nIPF; ++i) {
-      memcpy( tIPF_partner1, &(tFLV[i].partner1), nMF * sizeof( int )    );
-      memcpy( tIPF_partner2, &(tFLV[i].partner2), nMF * sizeof( int )    );
-      memcpy( tIPF_value   , &(tFLV[i].value)   , nMF * sizeof( cxtype ) );
+      memcpy( tIPF_partner1 + i * nMF, tFLV[i].partner1, nMF * sizeof( int ) );
+      memcpy( tIPF_partner2 + i * nMF, tFLV[i].partner2, nMF * sizeof( int ) );
+      for (int j = 0; j < nMF; ++j)
+        tIPF_value[i * nMF + j] = *tFLV[i].value[j] ? *tFLV[i].value[j] : cxtype{}; // guard from null pointers
     }""" % ( ', m_pars->'.join(flv_couplings) )
             replace_dict['cipfdevice'] = """__device__ __constant__ int cIPF_partner1[nMF * nIPF];
   __device__ __constant__ int cIPF_partner2[nMF * nIPF];
@@ -2018,7 +2028,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         flavor_line_list = []
         for flavors in matrix_element.get_external_flavors_with_iden():
             # get only the index 0 one because the other ones have same matrix element
-            flavor_line_list.append( '{ ' + ', '.join(['%d'] * len(flavors[0])) % tuple(flavors[0]) + ' }' )
+            # additionally they will be used as indices in some cases (e.g. matrix flavor couplings)
+            # so we need to subtract 1 because FORTRAN indices starts from 1, and C++ from zero
+            cpp_flavors = list(map(lambda f: f-1, flavors[0]))
+            flavor_line_list.append( '{ ' + ', '.join(['%d'] * len(cpp_flavors)) % tuple(cpp_flavors) + ' }' )
         return flavor_line + ',\n      '.join(flavor_line_list) + ' };'
 
     # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
