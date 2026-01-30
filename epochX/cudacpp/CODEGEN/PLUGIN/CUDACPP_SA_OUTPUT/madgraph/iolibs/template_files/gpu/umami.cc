@@ -324,7 +324,7 @@ extern "C"
     int *helicity_index, *color_index;
     unsigned int* diagram_index;
 
-    std::size_t n_coup = mg5amcGpu::Parameters_sm_dependentCouplings::ndcoup;
+    std::size_t n_coup = mg5amcGpu::Parameters_dependentCouplings::ndcoup;
     gpuMallocAsync( &momenta, rounded_count * CPPProcess::npar * 4 * sizeof( fptype ), gpu_stream );
     gpuMallocAsync( &couplings, rounded_count * n_coup * 2 * sizeof( fptype ), gpu_stream );
     gpuMallocAsync( &g_s, rounded_count * sizeof( fptype ), gpu_stream );
@@ -430,7 +430,7 @@ extern "C"
     std::size_t rounded_count = ( count + page_size2 - 1 ) / page_size2 * page_size2;
 
     HostBufferBase<fptype, false> momenta( rounded_count * CPPProcess::npar * 4 );
-    HostBufferBase<fptype, false> couplings( rounded_count * mg5amcCpu::Parameters_sm_dependentCouplings::ndcoup * 2 );
+    HostBufferBase<fptype, false> couplings( rounded_count * mg5amcCpu::Parameters_dependentCouplings::ndcoup * 2 );
     HostBufferBase<fptype, false> g_s( rounded_count );
     HostBufferBase<fptype, false> helicity_random( rounded_count );
     HostBufferBase<fptype, false> color_random( rounded_count );

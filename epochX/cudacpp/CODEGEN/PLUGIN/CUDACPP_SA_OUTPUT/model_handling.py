@@ -862,7 +862,6 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # Then do everything else
         replace_dict = self.default_replace_dict
         replace_dict['info_lines'] = PLUGIN_export_cpp.get_mg5_info_lines()
-        replace_dict['model_name'] = self.model_name
         params_indep = [ line.replace('aS, ','')
                          for line in self.write_parameters(self.params_indep).split('\n') ]
         replace_dict['independent_parameters'] = '// Model parameters independent of aS\n    //double aS; // now retrieved event-by-event (as G) from Fortran (running alphas #373)\n' + '\n'.join( params_indep )
@@ -912,7 +911,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['hardcoded_dependent_couplings'] = '\n'.join( hrd_coups_dep )
         replace_dict['nicoup'] = len( self.coups_indep )
         if len( self.coups_indep ) > 0 :
-            iicoup = [ '    //constexpr size_t ixcoup_%s = %d + Parameters_%s_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, id, self.model_name) for (id, par) in enumerate(self.coups_indep) ]
+            iicoup = [ '    //constexpr size_t ixcoup_%s = %d + Parameters_dependentCouplings::ndcoup; // out of ndcoup+nicoup' % (par.name, id) for (id, par) in enumerate(self.coups_indep) ]
             replace_dict['iicoup'] = '\n'.join( iicoup )
         else:
             replace_dict['iicoup'] = '    // NB: there are no aS-independent couplings in this physics process'
@@ -1012,6 +1011,25 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         file_h = self.read_template_file(self.param_template_h) % replace_dict
         file_cc = self.read_template_file(self.param_template_cc) % replace_dict
         return file_h, file_cc
+
+    def write_parameter_class_files(self):
+        # Rename Parameters_%(model_name).h/cc to Parameters.h/cc
+        super().write_parameter_class_files()
+
+        # compute the paths the legacy method wrote
+        h_dir = os.path.join(self.dir_path, self.include_dir)
+        cc_dir = os.path.join(self.dir_path, self.cc_file_dir)
+
+        src_h = os.path.join(h_dir, "Parameters_%s.h" % self.model_name)
+        src_cc = os.path.join(cc_dir, "Parameters_%s.cc" % self.model_name)
+
+        dst_h = os.path.join(h_dir, "Parameters.h")
+        dst_cc = os.path.join(cc_dir, "Parameters.cc")
+
+        if os.path.exists(src_h):
+            os.replace(src_h, dst_h)
+        if os.path.exists(src_cc):
+            os.replace(src_cc, dst_cc)
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def generate_parameters_class_files(self):
@@ -1185,7 +1203,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     def get_process_function_definitions(self, write=True):
         """The complete class definition for the process"""
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU,self).get_process_function_definitions(write=False) # defines replace_dict['initProc_lines']
-        replace_dict['hardcoded_initProc_lines'] = replace_dict['initProc_lines'].replace( 'm_pars->', 'Parameters_%s::' % self.model_name )
+        replace_dict['hardcoded_initProc_lines'] = replace_dict['initProc_lines'].replace( 'm_pars->', 'Parameters::')
         couplings2order_indep = []
         ###replace_dict['ncouplings'] = len(self.couplings2order)
         ###replace_dict['ncouplingstimes2'] = 2 * replace_dict['ncouplings']
@@ -1217,7 +1235,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipc2tipc'] = 'memcpy( cIPC, tIPC, nIPC * sizeof( cxtype ) );'
             replace_dict['cipcdump'] = '\n    //for ( int i=0; i<nIPC; i++ ) std::cout << std::setprecision(17) << "tIPC[i] = " << tIPC[i] << std::endl;'
             coup_str_hrd = '__device__ const fptype cIPC[nIPC * 2] = { '
-            for coup in coupling_indep : coup_str_hrd += '(fptype)Parameters_%s::%s.real(), (fptype)Parameters_%s::%s.imag(), ' % ( self.model_name, coup, self.model_name, coup ) # AV only indep!
+            for coup in coupling_indep : coup_str_hrd += '(fptype)Parameters::%s.real(), (fptype)Parameters::%s.imag(), ' % ( coup, coup ) # AV only indep!
             coup_str_hrd = coup_str_hrd[:-2] + ' };'
             replace_dict['cipchrdcod'] = coup_str_hrd
         else:
@@ -1238,7 +1256,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipd2tipd'] = 'memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) );'
             replace_dict['cipddump'] = '\n    //for ( int i=0; i<nIPD; i++ ) std::cout << std::setprecision(17) << "tIPD[i] = " << tIPD[i] << std::endl;'
             param_str_hrd = '__device__ const fptype cIPD[nIPD] = { '
-            for para in params : param_str_hrd += '(fptype)Parameters_%s::%s, ' % ( self.model_name, para )
+            for para in params : param_str_hrd += '(fptype)Parameters::%s, ' % ( para )
             param_str_hrd = param_str_hrd[:-2] + ' };'
             replace_dict['cipdhrdcod'] = param_str_hrd
         else:

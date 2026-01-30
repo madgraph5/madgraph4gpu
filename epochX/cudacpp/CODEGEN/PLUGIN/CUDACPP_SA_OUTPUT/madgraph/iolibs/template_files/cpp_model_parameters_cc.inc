@@ -10,7 +10,7 @@
 %(info_lines)s
 //==========================================================================
 
-#include "Parameters_%(model_name)s.h"
+#include "Parameters.h"
 
 #include <iomanip>
 #include <iostream>
@@ -24,19 +24,19 @@ using namespace mg5amcCpu;
 #ifndef MGONGPU_HARDCODE_PARAM
 
 // Initialize static instance
-Parameters_%(model_name)s* Parameters_%(model_name)s::instance = 0;
+Parameters* Parameters::instance = 0;
 
 // Function to get static instance - only one instance per program
-Parameters_%(model_name)s*
-Parameters_%(model_name)s::getInstance()
+Parameters*
+Parameters::getInstance()
 {
   if( instance == 0 )
-    instance = new Parameters_%(model_name)s();
+    instance = new Parameters();
   return instance;
 }
 
 void
-Parameters_%(model_name)s::setIndependentParameters( SLHAReader& slha )
+Parameters::setIndependentParameters( SLHAReader& slha )
 {
   zero = 0;                         // define "zero"
   ZERO = 0;                         // define "zero"
@@ -45,20 +45,20 @@ Parameters_%(model_name)s::setIndependentParameters( SLHAReader& slha )
 }
 
 void
-Parameters_%(model_name)s::setIndependentCouplings()
+Parameters::setIndependentCouplings()
 {
   %(set_independent_couplings)s
 }
 
 /*
 void
-Parameters_%(model_name)s::setDependentParameters() // now computed event-by-event (running alphas #373)
+Parameters::setDependentParameters() // now computed event-by-event (running alphas #373)
 {
   %(set_dependent_parameters)s
 }
 
 void
-Parameters_%(model_name)s::setDependentCouplings() // now computed event-by-event (running alphas #373)
+Parameters::setDependentCouplings() // now computed event-by-event (running alphas #373)
 {
   %(set_dependent_couplings)s
 }
@@ -68,32 +68,32 @@ Parameters_%(model_name)s::setDependentCouplings() // now computed event-by-even
 
 // Routines for printing out parameters
 void
-Parameters_%(model_name)s::printIndependentParameters()
+Parameters::printIndependentParameters()
 {
-  std::cout << "%(model_name)s model parameters independent of event kinematics:" << std::endl;
+  std::cout << "model parameters independent of event kinematics:" << std::endl;
   std::cout << "(Warning: aS in the runcard is ignored because event-by-event Gs are hardcoded or retrieved from Fortran)" << std::endl;
   %(print_independent_parameters)s
 }
 
 void
-Parameters_%(model_name)s::printIndependentCouplings()
+Parameters::printIndependentCouplings()
 {
-  std::cout << "%(model_name)s model couplings independent of event kinematics:" << std::endl;
+  std::cout << "model couplings independent of event kinematics:" << std::endl;
   %(print_independent_couplings)s
 }
 
 /*
 void
-Parameters_%(model_name)s::printDependentParameters() // now computed event-by-event (running alphas #373)
+Parameters::printDependentParameters() // now computed event-by-event (running alphas #373)
 {
-  std::cout << "%(model_name)s model parameters dependent on event kinematics:" << std::endl;
+  std::cout << "model parameters dependent on event kinematics:" << std::endl;
   %(print_dependent_parameters)s
 }
 
 void
-Parameters_%(model_name)s::printDependentCouplings() // now computed event-by-event (running alphas #373)
+Parameters::printDependentCouplings() // now computed event-by-event (running alphas #373)
 {
-  std::cout << "%(model_name)s model couplings dependent on event kinematics:" << std::endl;
+  std::cout << "model couplings dependent on event kinematics:" << std::endl;
   %(print_dependent_couplings)s
 }
 */

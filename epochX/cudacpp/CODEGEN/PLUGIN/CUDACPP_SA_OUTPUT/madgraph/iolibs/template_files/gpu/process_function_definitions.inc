@@ -87,8 +87,8 @@ namespace mg5amcCpu
   // [NB: I am currently unable to get the right value of nwf in CPPProcess.h - will hardcode it in CPPProcess.cc instead (#644)]
   //using CPPProcess::nwf; // #wavefunctions = #external (npar) + #internal: e.g. 5 for e+ e- -> mu+ mu- (1 internal is gamma or Z)
 
-  using Parameters_%(model_name)s_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
-  using Parameters_%(model_name)s_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
+  using Parameters_dependentCouplings::ndcoup;   // #couplings that vary event by event (depend on running alphas QCD)
+  using Parameters_independentCouplings::nicoup; // #couplings that are fixed for all events (do not depend on running alphas QCD)
 
   // The number of SIMD vectors of events processed by calculate_jamps
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
@@ -126,12 +126,12 @@ namespace mg5amcCpu
   // For simplicity, keep this code hardcoded also for SM processes (a nullptr is needed as in the case nBsm == 0)
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
 #ifdef MGONGPU_HARDCODE_PARAM
-  __device__ const double* bsmIndepParam = Parameters_%(model_name)s::mdl_bsmIndepParam;
+  __device__ const double* bsmIndepParam = Parameters::mdl_bsmIndepParam;
 #else
 #ifdef MGONGPUCPP_GPUIMPL
-  __device__ __constant__ double bsmIndepParam[Parameters_%(model_name)s::nBsmIndepParam];
+  __device__ __constant__ double bsmIndepParam[Parameters::nBsmIndepParam];
 #else
-  static double bsmIndepParam[Parameters_%(model_name)s::nBsmIndepParam];
+  static double bsmIndepParam[Parameters::nBsmIndepParam];
 #endif
 #endif
 #else
@@ -243,7 +243,7 @@ namespace mg5amcCpu
   CPPProcess::initProc( const std::string& param_card_name )
   {
     // Instantiate the model class and set parameters that stay fixed during run
-    m_pars = Parameters_%(model_name)s::getInstance();
+    m_pars = Parameters::getInstance();
     SLHAReader slha( param_card_name, m_verbose );
     m_pars->setIndependentParameters( slha );
     m_pars->setIndependentCouplings();
@@ -269,18 +269,18 @@ namespace mg5amcCpu
     %(cipd2tipdSym)s
     %(cipc2tipcSym)s
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
-    if( Parameters_%(model_name)s::nBsmIndepParam > 0 )
-      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_%(model_name)s::nBsmIndepParam * sizeof( double ) );
+    if( Parameters::nBsmIndepParam > 0 )
+      gpuMemcpyToSymbol( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters::nBsmIndepParam * sizeof( double ) );
 #endif
 #else
     %(cipd2tipd)s
     %(cipc2tipc)s
 #ifdef MGONGPUCPP_NBSMINDEPPARAM_GT_0
-    if( Parameters_%(model_name)s::nBsmIndepParam > 0 )
-      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters_%(model_name)s::nBsmIndepParam * sizeof( double ) );
+    if( Parameters::nBsmIndepParam > 0 )
+      memcpy( bsmIndepParam, m_pars->mdl_bsmIndepParam, Parameters::nBsmIndepParam * sizeof( double ) );
 #endif
 #endif%(cipddump)s%(cipcdump)s
-    //for ( int i=0; i<Parameters_%(model_name)s::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
+    //for ( int i=0; i<Parameters::nBsmIndepParam; i++ ) std::cout << std::setprecision(17) << "m_pars->mdl_bsmIndepParam[i] = " << m_pars->mdl_bsmIndepParam[i] << std::endl;
   }
 #else
   // Initialize process (with hardcoded parameters)
@@ -290,10 +290,10 @@ namespace mg5amcCpu
     // Use hardcoded physics parameters
     if( m_verbose )
     {
-      Parameters_%(model_name)s::printIndependentParameters();
-      Parameters_%(model_name)s::printIndependentCouplings();
-      //Parameters_%(model_name)s::printDependentParameters(); // now computed event-by-event (running alphas #373)
-      //Parameters_%(model_name)s::printDependentCouplings(); // now computed event-by-event (running alphas #373)
+      Parameters::printIndependentParameters();
+      Parameters::printIndependentCouplings();
+      //Parameters::printDependentParameters(); // now computed event-by-event (running alphas #373)
+      //Parameters::printDependentCouplings(); // now computed event-by-event (running alphas #373)
     }
     %(hardcoded_initProc_lines)s
 #ifdef MGONGPUCPP_GPUIMPL

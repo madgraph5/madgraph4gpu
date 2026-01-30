@@ -145,9 +145,9 @@ endif
 
 cxx_objects=$(addprefix $(BUILDDIR)/, read_slha_cpp.o)
 ifeq ($(GPUCC),)
-  cxx_objects+=$(addprefix $(BUILDDIR)/, Parameters_%(model)s_cpp.o)
+  cxx_objects+=$(addprefix $(BUILDDIR)/, Parameters_cpp.o)
 else
-  gpu_objects=$(addprefix $(BUILDDIR)/, Parameters_%(model)s_$(GPUSUFFIX).o)
+  gpu_objects=$(addprefix $(BUILDDIR)/, Parameters_$(GPUSUFFIX).o)
 endif
 
 # Target (and build rules): common (src) library

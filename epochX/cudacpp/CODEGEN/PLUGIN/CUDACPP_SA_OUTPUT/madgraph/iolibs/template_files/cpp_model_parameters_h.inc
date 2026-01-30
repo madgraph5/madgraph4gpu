@@ -10,8 +10,8 @@
 %(info_lines)s
 //==========================================================================
 
-#ifndef Parameters_%(model_name)s_H
-#define Parameters_%(model_name)s_H
+#ifndef Parameters_H
+#define Parameters_H
 
 #include "mgOnGpuConfig.h"
 
@@ -38,11 +38,11 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  class Parameters_%(model_name)s
+  class Parameters
   {
   public:
 
-    static Parameters_%(model_name)s* getInstance();
+    static Parameters* getInstance();
 
     // Define "zero"
     double zero, ZERO;
@@ -85,7 +85,7 @@ namespace mg5amcCpu
 
   private:
 
-    static Parameters_%(model_name)s* instance;
+    static Parameters* instance;
   };
 
 } // end namespace mg5amcGpu/mg5amcCpu
@@ -103,7 +103,7 @@ namespace mg5amcCpu
 #endif
 {
   // Hardcoded constexpr physics parameters
-  namespace Parameters_%(model_name)s // keep the same name rather than HardcodedParameters_%(model_name)s for simplicity
+  namespace Parameters // keep the same name rather than HardcodedParameters for simplicity
   {
     // Model parameters independent of aS
     constexpr double zero = 0;
@@ -145,7 +145,7 @@ namespace mg5amcGpu
 namespace mg5amcCpu
 #endif
 {
-  namespace Parameters_%(model_name)s_dependentCouplings
+  namespace Parameters_dependentCouplings
   {
     constexpr size_t ndcoup = %(ndcoup)d; // #couplings that vary event by event because they depend on the running alphas QCD
 %(idcoup)s
@@ -164,10 +164,10 @@ namespace mg5amcCpu
     __host__ __device__ inline const DependentCouplings_sv computeDependentCouplings_fromG( const fptype_sv& G_sv, const double* bsmIndepParamPtr )
     {
 #ifdef MGONGPU_HARDCODE_PARAM
-      using namespace Parameters_%(model_name)s;
+      using namespace Parameters;
 #else%(eftspecial0)s
 #endif
-      // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters_%(model_name)s) because:
+      // NB: hardcode cxtype cI(0,1) instead of cxtype (or hardcoded cxsmpl) mdl_complexi (which exists in Parameters) because:
       // (1) mdl_complexi is always (0,1); (2) mdl_complexi is undefined in device code; (3) need cxsmpl conversion to cxtype in code below
       const cxtype cI( 0., 1. );
       DependentCouplings_sv out;
@@ -204,7 +204,7 @@ namespace mg5amcCpu
 
   //==========================================================================
 
-  namespace Parameters_%(model_name)s_independentCouplings
+  namespace Parameters_independentCouplings
   {
     constexpr size_t nicoup = %(nicoup)d; // #couplings that are fixed for all events because they do not depend on the running alphas QCD
 %(iicoup)s
@@ -224,7 +224,7 @@ namespace mg5amcCpu
           const double* bsmIndepParamPtr )
   {
     mgDebug( 0, __FUNCTION__ );
-    using namespace Parameters_%(model_name)s_dependentCouplings;
+    using namespace Parameters_dependentCouplings;
     const fptype_sv& gs_sv = G_ACCESS::kernelAccessConst( gs );
     DependentCouplings_sv couplings_sv = computeDependentCouplings_fromG( gs_sv, bsmIndepParamPtr );
 %(dcoupaccessbuffer)s%(dcoupkernelaccess)s%(dcoupcompute)s
@@ -237,4 +237,4 @@ namespace mg5amcCpu
 
 //==========================================================================
 
-#endif // Parameters_%(model_name)s_H
+#endif // Parameters_H

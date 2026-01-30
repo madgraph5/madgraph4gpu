@@ -18,7 +18,7 @@
 
 #include "mgOnGpuVectors.h"
 
-#include "Parameters_%(model_name)s.h"
+#include "Parameters.h"
 
 #include <cassert>
 //#include <cmath>
