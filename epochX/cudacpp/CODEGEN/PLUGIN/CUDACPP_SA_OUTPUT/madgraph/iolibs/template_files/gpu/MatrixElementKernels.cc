@@ -35,13 +35,13 @@ namespace mg5amcCpu
                                                     BufferSelectedColor& selcol )         // output: color selection
     : m_momenta( momenta )
     , m_gs( gs )
+    , m_iflavorVec( iflavorVec )
     , m_rndhel( rndhel )
     , m_rndcol( rndcol )
     , m_channelIds( channelIds )
     , m_matrixElements( matrixElements )
     , m_selhel( selhel )
     , m_selcol( selcol )
-    , m_iflavor( iflavor )
 #ifdef MGONGPU_CHANNELID_DEBUG
     , m_nevtProcessedByChannel()
     , m_tag()

@@ -288,7 +288,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             vname = '%(spin)s%(id)d' % { 'spin': self.particles[self.outgoing -1], 'id': self.outgoing }
             access = 'W_ACCESS'
             allvname = vname+".w"
-        out.write('    cxtype_sv* w%s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
+            vname = "w" + vname
+        out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
@@ -414,7 +415,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             # but still need to check !
             elif self.outgoing == 0  or self.particles[self.outgoing-1] not in ['F']:
                 if not self.outgoing:
-                    fail = "vertex = cxzero_sv();"
+                    fail = "*vertex = cxzero_sv();"
                 else:
                     fail = 'for(int i=0; i<%s%d.np4; i++) { w%s%d[i] = cxzero_sv(); }' % (self.particles[self.outgoing-1], self.outgoing, self.particles[self.outgoing-1], self.outgoing)
 
@@ -433,7 +434,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
         if self.outgoing == 0  or self.particles[self.outgoing-1] not in ['F']:
             if not self.outgoing:
-                fail = "vertex = cxzero_sv();"
+                fail = "*vertex = cxzero_sv();"
             else:
                 fail = 'for(int i=0; i<%s%d.np4; i++) { w%s%d[i] = cxzero_sv(); }' % (self.particles[self.outgoing-1], self.outgoing, self.particles[self.outgoing-1], self.outgoing)
 
@@ -462,10 +463,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     out.write('      COUP%i = cxzero_sv();\n' % i)
                     out.write('    }\n')
             if nb_coupling ==1:
-                out.write('    COUP = C_ACCESS::kernelAccess( MCOUP.val[flv_index1] );\n')
+                out.write('    COUP = C_ACCESS::kernelAccessConst( MCOUP.value + flv_index1 );\n')
             else:
                 for i in range(1,nb_coupling+1):
-                    out.write('    if(zero_coup%i ==0) { COUP%i = C_ACCESS::kernelAccess( MCOUP%i.val[flv_index1] ); }\n' % (i,i,i))
+                    out.write('    if(zero_coup%i ==0) { COUP%i = C_ACCESS::kernelAccessConst( MCOUP%i.value + flv_index1 ); }\n' % (i,i,i))
         else:
             incoming = [i+1 for i in range(len(self.particles)) if i+1 != self.outgoing and self.particles[self.outgoing-1] == 'F'][0]
             if incoming %2 == 1:
@@ -511,7 +512,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
  
             for ftype, name in self.declaration:
                 if name.startswith('COUP'):
-                    out.write('    %s = C_ACCESS::kernelAccess( M%s.value[flv_index1] );\n' % (name, name))
+                    out.write('    %s = C_ACCESS::kernelAccessConst( M%s.value + flv_index1 );\n' % (name, name))
         return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
@@ -1494,7 +1495,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # broken_symmetry_factor function
         data = self.matrix_elements[0].get('processes')[0].get_final_ids_after_decay()
         pids = str(data).replace('[', '{').replace(']', '}')
-        replace_dict['get_pid'] = ' const int pid[] = %s;' % (pids)
+        replace_dict['get_pid'] = 'int pid[] = %s;' % (pids)
         replace_dict['get_old_symmmetry_value'] = 1
         done = []
         for value in data:
@@ -2228,7 +2229,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       // Create an array of views over the Flavor Couplings
       FLV_COUPLING_VIEW flvCOUPs[nIPF];
       for ( int idflv = 0; idflv < nIPF; idflv++ )
-        flvCOUPs[idflv] = FLV_COUPLING_VIEW{ cIPF_partner1, cIPF_partner1, cIPF_value, idflv * nMF };
+        flvCOUPs[idflv] = FLV_COUPLING_VIEW{ cIPF_partner1, cIPF_partner2, cIPF_value, idflv * nMF };
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }

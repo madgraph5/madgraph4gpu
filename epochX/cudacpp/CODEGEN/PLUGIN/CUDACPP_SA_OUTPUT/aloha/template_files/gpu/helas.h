@@ -25,26 +25,26 @@
       fptype * w;
       int flv_index;
 
-      // main constructor
-      ALOHAOBJ() = default;
+      __host__ __device__ ALOHAOBJ() = default;
       __host__ __device__ ALOHAOBJ(fptype_sv * pvec_sv, cxtype_sv * w_sv, int flv = -1)
           : pvec(pvec_sv), w(reinterpret_cast<fptype*>(w_sv)), flv_index(flv) {}
   };
 
-  struct FVL_COUPLING_VIEW {
+  struct FLV_COUPLING_VIEW {
 
       const int* partner1;
       const int* partner2;
-      const cxtype* value;
+      const fptype* value;
 
-      __host__ __device__ __forceinline__
+      __host__ __device__ FLV_COUPLING_VIEW() = default;
+      __host__ __device__
       FLV_COUPLING_VIEW(const int* partner1_base,
                         const int* partner2_base,
-                        const cxtype* value_base,
+                        const fptype* value_base,
                         const int n)
       : partner1(partner1_base + n),
         partner2(partner2_base + n),
-        value(value_base + n) {}
+        value(value_base + 2*n) {}
   };
 
   //--------------------------------------------------------------------------
