@@ -492,6 +492,24 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
+  // A base class encapsulating a memory buffer for channel ids
+  typedef BufferBase<unsigned int> BufferIflavorVec;
+
+  // The size (number of elements) per event in a memory buffer for channel ids
+  constexpr size_t sizePerEventIflavorVec = 1;
+
+#ifndef MGONGPUCPP_GPUIMPL // fix #893 (not __CUDACC__)
+  // A class encapsulating a C++ host buffer for channel ids
+  typedef HostBuffer<unsigned int, sizePerEventIflavorVec, HostBufferALIGNED> HostBufferIflavorVec;
+#else
+  // A class encapsulating a CUDA pinned host buffer for channel ids
+  typedef PinnedHostBuffer<unsigned int, sizePerEventIflavorVec> PinnedHostBufferIflavorVec;
+  // A class encapsulating a CUDA device buffer for channel ids
+  typedef DeviceBuffer<unsigned int, sizePerEventIflavorVec> DeviceBufferIflavorVec;
+#endif
+
+  //--------------------------------------------------------------------------
+
   // A base class encapsulating a memory buffer for helicity selection
   typedef BufferBase<int> BufferSelectedHelicity;
 

@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: S. Roiser (Oct 2021) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Roiser, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: D. Massaro, S. Roiser, J. Teig, A. Thete, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
 
 #include "Bridge.h"
 #include "CPPProcess.h"
@@ -88,6 +88,7 @@ extern "C"
   void fbridgesequence_( CppObjectInFortran** ppbridge,
                          const FORTRANFPTYPE* momenta,
                          const FORTRANFPTYPE* gs,
+                         const unsigned int* iflavorVec,
                          const FORTRANFPTYPE* rndhel,
                          const FORTRANFPTYPE* rndcol,
                          const unsigned int* channelIds,
@@ -102,11 +103,11 @@ extern "C"
 #ifdef MGONGPUCPP_GPUIMPL
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, channelIds, mes, selhel, selcol, *pgoodHelOnly );
+    pbridge->gpu_sequence( momenta, gs, iflavorVec, rndhel, rndcol, channelIds, mes, selhel, selcol, *pgoodHelOnly );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, channelIds, mes, selhel, selcol, *pgoodHelOnly );
+    pbridge->cpu_sequence( momenta, gs, iflavorVec, rndhel, rndcol, channelIds, mes, selhel, selcol, *pgoodHelOnly );
 #endif
   }
 
@@ -127,6 +128,7 @@ extern "C"
   void fbridgesequence_nomultichannel_( CppObjectInFortran** ppbridge,
                                         const FORTRANFPTYPE* momenta,
                                         const FORTRANFPTYPE* gs,
+                                        const unsigned int* iflavorVec,
                                         const FORTRANFPTYPE* rndhel,
                                         const FORTRANFPTYPE* rndcol,
                                         FORTRANFPTYPE* mes,
@@ -135,7 +137,7 @@ extern "C"
                                         const bool* pgoodHelOnly )
   {
     //printf("fbridgesequence_nomultichannel_ goodHelOnly=%d\n", ( *pgoodHelOnly ? 1 : 0 ) );
-    fbridgesequence_( ppbridge, momenta, gs, rndhel, rndcol, nullptr, mes, selhel, selcol, pgoodHelOnly );
+    fbridgesequence_( ppbridge, momenta, gs, iflavorVec, rndhel, rndcol, nullptr, mes, selhel, selcol, pgoodHelOnly );
   }
 
   /**

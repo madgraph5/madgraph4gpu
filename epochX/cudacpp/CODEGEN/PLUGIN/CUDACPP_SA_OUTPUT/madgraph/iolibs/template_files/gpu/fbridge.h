@@ -1,6 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: Z. Wettersten (Oct 2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: D. Massaro, A. Thete, A. Valassi (2025) for the MG5aMC CUDACPP plugin.
 
 #include "Bridge.h"
 #include "CPPProcess.h"
@@ -26,6 +27,7 @@ extern "C"
   void fbridgesequence_( CppObjectInFortran** ppbridge,
                          const FORTRANFPTYPE* momenta,
                          const FORTRANFPTYPE* gs,
+                         const unsigned int* iflavorVec,
                          const FORTRANFPTYPE* rndhel,
                          const FORTRANFPTYPE* rndcol,
                          const unsigned int* channelIds,
@@ -37,6 +39,7 @@ extern "C"
   void fbridgesequence_nomultichannel_( CppObjectInFortran** ppbridge,
                                         const FORTRANFPTYPE* momenta,
                                         const FORTRANFPTYPE* gs,
+                                        const unsigned int* iflavorVec,
                                         const FORTRANFPTYPE* rndhel,
                                         const FORTRANFPTYPE* rndcol,
                                         FORTRANFPTYPE* mes,

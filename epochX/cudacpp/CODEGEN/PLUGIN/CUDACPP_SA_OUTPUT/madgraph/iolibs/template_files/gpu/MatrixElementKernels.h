@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
+// Further modified by: D. Massaro, J. Teig, A. Thete, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef MATRIXELEMENTKERNELS_H
 #define MATRIXELEMENTKERNELS_H 1
@@ -31,12 +31,13 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     MatrixElementKernelBase( const BufferMomenta& momenta,         // input: momenta
                              const BufferGs& gs,                   // input: gs for alphaS
+                             const BufferIflavorVec& iflavorVec,   // input: flavor indices for the flavor combination
                              const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                              const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                              const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              BufferSelectedHelicity& selhel,       // output: helicity selection
-                             BufferSelectedColor& selcol );        // output: color selection
+                             BufferSelectedColor& selcol);          // output: color selection
 
   public:
 
@@ -74,6 +75,9 @@ namespace mg5amcCpu
 
     // The buffer for the gs to calculate the alphaS values
     const BufferGs& m_gs;
+
+    // The buffer for the flavor indices for the flavor combination
+    const BufferIflavorVec& m_iflavorVec;
 
     // The buffer for the random numbers for helicity selection
     const BufferRndNumHelicity& m_rndhel;
@@ -113,13 +117,14 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     MatrixElementKernelHost( const BufferMomenta& momenta,         // input: momenta
                              const BufferGs& gs,                   // input: gs for alphaS
+                             const BufferIflavorVec& iflavorVec,   // input: flavor indices for the flavor combination
                              const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                              const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                              const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                              BufferMatrixElements& matrixElements, // output: matrix elements
                              BufferSelectedHelicity& selhel,       // output: helicity selection
                              BufferSelectedColor& selcol,          // output: color selection
-                             const size_t nevt );
+                             const size_t nevt);
 
     // Destructor
     virtual ~MatrixElementKernelHost();
@@ -165,6 +170,7 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     MatrixElementKernelDevice( const BufferMomenta& momenta,         // input: momenta
                                const BufferGs& gs,                   // input: gs for alphaS
+                               const BufferIflavorVec& iflavorVec,   // input: flavor indices for the flavor combination
                                const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                                const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                                const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement

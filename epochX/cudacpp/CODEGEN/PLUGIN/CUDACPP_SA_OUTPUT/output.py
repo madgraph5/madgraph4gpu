@@ -49,14 +49,12 @@ from . import launch_plugin
 
 # AV - define the plugin's process exporter
 # (NB: this is the plugin's main class, enabled in the new_output dictionary in __init__.py)
-class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
+class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterCPP):
     # Class structure information
     #  - object
     #  - VirtualExporter(object) [in madgraph/iolibs/export_v4.py]
     #  - ProcessExporterCPP(VirtualExporter) [in madgraph/iolibs/export_cpp.py]
-    #  - ProcessExporterGPU(ProcessExporterCPP) [in madgraph/iolibs/export_cpp.py]
-    #      Note: only change class attribute
-    #  - PLUGIN_ProcessExporter(ProcessExporterGPU)
+    #  - PLUGIN_ProcessExporter(ProcessExporterCPP)
     #      This class
 
     # Below are the class variable that are defined in export_v4.VirtualExporter
@@ -73,9 +71,9 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     # Below are the class variable that are defined in export_cpp.ProcessExporterGPU
     # AV - keep defaults from export_cpp.ProcessExporterGPU
     # Decide which type of merging is used [madevent/madweight]
-    ###grouped_mode = False
+    grouped_mode = False
     # Other options
-    ###default_opt = {'clean': False, 'complex_mass':False, 'export_format':'madevent', 'mp': False, 'v5_model': True }
+    default_opt = {'clean': False, 'complex_mass':False, 'export_format':'madevent', 'mp': False, 'v5_model': True }
 
     # AV - keep defaults from export_cpp.ProcessExporterGPU
     # AV - used in MadGraphCmd.do_output to assign export_cpp.ExportCPPFactory to MadGraphCmd._curr_exporter (if cpp or gpu)
@@ -110,7 +108,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                                       s+'gpu/MemoryAccessAmplitudes.h', s+'gpu/MemoryAccessWavefunctions.h',
                                       s+'gpu/MemoryAccessGs.h', s+'gpu/MemoryAccessCouplingsFixed.h',
                                       s+'gpu/MemoryAccessNumerators.h', s+'gpu/MemoryAccessDenominators.h',
-                                      s+'gpu/MemoryAccessChannelIds.h',
+                                      s+'gpu/MemoryAccessChannelIds.h', s+'gpu/MemoryAccessIflavorVec.h',
                                       s+'gpu/EventStatistics.h', s+'gpu/CommonRandomNumbers.h',
                                       s+'gpu/CrossSectionKernels.cc', s+'gpu/CrossSectionKernels.h',
                                       s+'gpu/MatrixElementKernels.cc', s+'gpu/MatrixElementKernels.h',
@@ -136,7 +134,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
                     'MemoryAccessAmplitudes.h', 'MemoryAccessWavefunctions.h',
                     'MemoryAccessGs.h', 'MemoryAccessCouplingsFixed.h',
                     'MemoryAccessNumerators.h', 'MemoryAccessDenominators.h',
-                    'MemoryAccessChannelIds.h',
+                    'MemoryAccessChannelIds.h', 'MemoryAccessIflavorVec.h',
                     'EventStatistics.h', 'CommonRandomNumbers.h',
                     'CrossSectionKernels.cc', 'CrossSectionKernels.h',
                     'MatrixElementKernels.cc', 'MatrixElementKernels.h',
@@ -229,11 +227,11 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         out = super().generate_subprocess_directory(subproc_group, fortran_model, me)
         return out
     # AV (default from OM's tutorial) - add a debug printout
-    def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
+    def convert_model(self, model, wanted_lorentz=[], wanted_couplings=[]):
         if hasattr(model , 'cudacpp_wanted_ordered_couplings'):
-            wanted_coupling = model.cudacpp_wanted_ordered_couplings
+            wanted_couplings = model.cudacpp_wanted_ordered_couplings
             del model.cudacpp_wanted_ordered_couplings
-        return super().convert_model(model, wanted_lorentz, wanted_coupling)
+        return super().convert_model(model, wanted_lorentz, wanted_couplings)
 
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):

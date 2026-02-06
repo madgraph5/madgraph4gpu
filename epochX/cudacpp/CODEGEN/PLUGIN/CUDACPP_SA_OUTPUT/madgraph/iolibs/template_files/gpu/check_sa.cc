@@ -4,7 +4,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: O. Mattelaer (Nov 2020) for the MG5aMC CUDACPP plugin.
-// Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: S. Hageboeck, D. Massaro, O. Mattelaer, S. Roiser, J. Teig, A. Thete, A. Valassi (2020-2026) for the MG5aMC CUDACPP plugin.
 //==========================================================================
 
 #include "mgOnGpuConfig.h"
@@ -379,6 +379,14 @@ main( int argc, char** argv )
   DeviceBufferChannelIds devChannelIds( nevt );
 #endif
 
+  // Memory buffer for iflavorVec
+#ifndef MGONGPUCPP_GPUIMPL
+  HostBufferIflavorVec hstIflavorVec( nevt );
+#else
+  PinnedHostBufferIflavorVec hstIflavorVec( nevt );
+  DeviceBufferIflavorVec devIflavorVec( nevt );
+#endif
+
   // Hardcode Gs for now (eventually they should come from Fortran MadEvent)
   // Hardcode channelID to 0
   //constexpr unsigned int channelId = 0; // TEMPORARY? disable multi-channel in check.exe and gcheck.exe #466
@@ -389,6 +397,7 @@ main( int argc, char** argv )
     //hstChannelIds[i] = channelId; // AV ChannelId arrays are not needed in check.exe (fix #892) as long as check.exe uses no-multichannel (see #896)
     //if ( i > 0 ) hstGs[i] = 0; // try hardcoding G only for event 0
     //hstGs[i] = i;
+    hstIflavorVec[i] = 1; // Fill with 1, all equal and same flavor combination
   }
 
   // Memory buffers for matrix elements
@@ -510,17 +519,17 @@ main( int argc, char** argv )
   if( !bridge )
   {
 #ifdef MGONGPUCPP_GPUIMPL
-    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devRndHel, devRndCol, devChannelIds, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads ) );
+    pmek.reset( new MatrixElementKernelDevice( devMomenta, devGs, devIflavorVec, devRndHel, devRndCol, devChannelIds, devMatrixElements, devSelHel, devSelCol, gpublocks, gputhreads) );
 #else
-    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstChannelIds, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
+    pmek.reset( new MatrixElementKernelHost( hstMomenta, hstGs, hstIflavorVec, hstRndHel, hstRndCol, hstChannelIds, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
 #endif
   }
   else
   {
 #ifdef MGONGPUCPP_GPUIMPL
-    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstRndHel, hstRndCol, hstChannelIds, hstMatrixElements, hstSelHel, hstSelCol, gpublocks, gputhreads ) );
+    pmek.reset( new BridgeKernelDevice( hstMomenta, hstGs, hstIflavorVec, hstRndHel, hstRndCol, hstChannelIds, hstMatrixElements, hstSelHel, hstSelCol, gpublocks, gputhreads ) );
 #else
-    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstRndHel, hstRndCol, hstChannelIds, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
+    pmek.reset( new BridgeKernelHost( hstMomenta, hstGs, hstIflavorVec, hstRndHel, hstRndCol, hstChannelIds, hstMatrixElements, hstSelHel, hstSelCol, nevt ) );
 #endif
   }
   int nGoodHel = 0; // the number of good helicities (out of ncomb)
@@ -643,6 +652,8 @@ main( int argc, char** argv )
     const std::string gKey = "0.. CpHTDg";
     rambtime += timermap.start( gKey ); // FIXME! NOT A RAMBO TIMER!
     copyDeviceFromHost( devGs, hstGs );
+    copyDeviceFromHost( devIflavorVec, hstIflavorVec );
+    copyDeviceFromHost( devChannelIds, hstChannelIds );
 #endif
 
     // --- 0e. SGoodHel

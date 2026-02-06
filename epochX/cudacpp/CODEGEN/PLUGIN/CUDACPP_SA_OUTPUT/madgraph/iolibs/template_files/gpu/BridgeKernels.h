@@ -1,7 +1,7 @@
 // Copyright (C) 2020-2024 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: D. Massaro, J. Teig, A. Thete, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
 
 #ifndef BRIDGEKERNELS_H
 #define BRIDGEKERNELS_H 1
@@ -28,13 +28,14 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     BridgeKernelBase( const BufferMomenta& momenta,         // input: momenta
                       const BufferGs& gs,                   // input: gs for alphaS
+                      const BufferIflavorVec& iflavorVec,   // input: flavor indices for the flavor combination
                       const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                       const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                       const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       BufferSelectedHelicity& selhel,       // output: helicity selection
                       BufferSelectedColor& selcol,          // output: color selection
-                      const size_t nevt );
+                      const size_t nevt);
 
     // Destructor
     virtual ~BridgeKernelBase() {}
@@ -59,13 +60,14 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     BridgeKernelHost( const BufferMomenta& momenta,         // input: momenta
                       const BufferGs& gs,                   // input: gs for alphaS
+                      const BufferIflavorVec& iflavorVec,   // input: flavor indices for the flavor combination
                       const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                       const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                       const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
                       BufferMatrixElements& matrixElements, // output: matrix elements
                       BufferSelectedHelicity& selhel,       // output: helicity selection
                       BufferSelectedColor& selcol,          // output: color selection
-                      const size_t nevt );
+                      const size_t nevt);
 
     // Destructor
     virtual ~BridgeKernelHost() {}
@@ -100,6 +102,7 @@ namespace mg5amcCpu
     // Constructor from existing input and output buffers
     BridgeKernelDevice( const BufferMomenta& momenta,         // input: momenta
                         const BufferGs& gs,                   // input: gs for alphaS
+                        const BufferIflavorVec& iflavorVec,   // input: flavor indices for the flavor combination
                         const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
                         const BufferRndNumColor& rndcol,      // input: random numbers for color selection
                         const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
@@ -107,7 +110,7 @@ namespace mg5amcCpu
                         BufferSelectedHelicity& selhel,       // output: helicity selection
                         BufferSelectedColor& selcol,          // output: color selection
                         const size_t gpublocks,
-                        const size_t gputhreads );
+                        const size_t gputhreads);
 
     // Destructor
     virtual ~BridgeKernelDevice() {}

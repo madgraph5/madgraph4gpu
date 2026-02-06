@@ -6,6 +6,9 @@
 import os
 import sys
 
+import math
+import re
+
 # AV - PLUGIN_NAME can be one of PLUGIN/CUDACPP_OUTPUT or MG5aMC_PLUGIN/CUDACPP_OUTPUT
 PLUGIN_NAME = __name__.rsplit('.',1)[0]
 
@@ -96,9 +99,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # AV - keep defaults from aloha_writers.ALOHAWriterForGPU
     ###extension = '.cu'
     ###prefix ='__device__'
-    type2def = {}
-    type2def['pointer_vertex'] = '*' # using complex<double>* vertex
-    type2def['pointer_coup'] = ''
+    type2def = aloha_writers.ALOHAWriterForGPU.type2def
 
     # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
     ###ci_definition = 'cxtype cI = cxtype(0., 1.);\n'
@@ -120,10 +121,17 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     type2def['double_v'] = 'fptype_sv'
     type2def['complex_v'] = 'cxtype_sv'
 
+    type2def['aloha_ref'] = '&'
+
     # AV - modify C++ code from aloha_writers.ALOHAWriterForGPU
     # AV new option: declare C++ variable type only when they are defined?
     ###nodeclare = False # old behaviour (separate declaration with no initialization)
     nodeclare = True # new behaviour (delayed declaration with initialisation)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.outname = 'w%s%s' % (self.particles[self.outgoing-1], self.outgoing)
+        self.momentum_size = 0 # for ALOHAOBJ implementation the momentum is separated from the wavefunctions
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     def change_number_format(self, number):
@@ -193,15 +201,23 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     argname = 'all'+argname
                 list_arg = '[]'
             else:
-                type = self.type2def[format]
+                type = self.type2def[format] + ' ' + self.type2def['aloha_ref']
                 list_arg = ''
+            misc.sprint(argname,self.tag)
             if argname.startswith('COUP'):
                 type = self.type2def['double'] # AV from cxtype_sv to fptype array (running alphas #373)
-                argname = 'all'+argname # AV from cxtype_sv to fptype array (running alphas #373)
-                list_arg = '[]' # AV from cxtype_sv to fptype array (running alphas #373)
-                point = self.type2def['pointer_coup']
+                if 'M' in self.tag:
+                    type = 'FLV_COUPLING_VIEW'
+                    argname = argname.replace('COUP','MCOUP')
+                    list_arg = ""
+                    point = self.type2def['aloha_ref']
+                else:
+                    argname = 'all'+argname # AV from cxtype_sv to fptype array (running alphas #373)
+                    list_arg = '[]' # AV from cxtype_sv to fptype array (running alphas #373)
+                    point = self.type2def['pointer_coup']
                 args.append('%s %s%s%s'% (type, point, argname, list_arg))
-                args.append('double Ccoeff%s'% argname[7:]) # OM for 'unary minus' #628
+                coeff_n = re.search(r"\d?+$", argname).group()
+                args.append('double Ccoeff%s'% coeff_n) # OM for 'unary minus' #628
             else:
                 args.append('%s %s%s'% (type, argname, list_arg))
         if not self.offshell:
@@ -213,9 +229,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             comment_output = 'amplitude \'vertex\''
             template = 'template<class W_ACCESS, class A_ACCESS, class C_ACCESS>'
         else:
-            output = '%(doublec)s all%(spin)s%(id)d[]' % {
-                     'doublec': self.type2def['double'],
+            alohatype = 'aloha%s' % self.particles[self.outgoing -1]
+            output = '%(doublec)s %(aloha_ref)s %(spin)s%(id)d' % {
+                     'doublec': self.type2def[alohatype],
                      'spin': self.particles[self.outgoing -1],
+                     'aloha_ref': self.type2def['aloha_ref'], 
                      'id': self.outgoing}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
@@ -255,10 +273,13 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         ###argument_var = [name for type,name in self.call_arg] # UNUSED
         for type, name in self.call_arg:
             ###out.write('    %s %s;\n' % ( type, name ) ) # FOR DEBUGGING
-            if type.startswith('list'):
-                out.write('    const %s* %s = W_ACCESS::kernelAccessConst( all%s );\n' % ( self.type2def[type[5:]+'_v'], name, name ) )
+            if type.startswith('aloha'):
+                out.write('    const cxtype_sv* w%s = W_ACCESS::kernelAccessConst( %s.w );\n' % ( name, name ) )
             if name.startswith('COUP'): # AV from cxtype_sv to fptype array (running alphas #373)
-                out.write('    const cxtype_sv %s = C_ACCESS::kernelAccessConst( all%s );\n' % ( name, name ) )
+                if 'M' in self.tag:
+                    out.write('    cxtype_sv %s;\n' % name )
+                else:
+                    out.write('    const cxtype_sv %s = C_ACCESS::kernelAccessConst( all%s );\n' % ( name, name ) )
         if not self.offshell:
             vname = 'vertex'
             access = 'A_ACCESS'
@@ -266,7 +287,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         else:
             vname = '%(spin)s%(id)d' % { 'spin': self.particles[self.outgoing -1], 'id': self.outgoing }
             access = 'W_ACCESS'
-            allvname = 'all'+vname
+            allvname = vname+".w"
+            vname = "w" + vname
         out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
         # define the complex number CI = 0+1j
         if add_i:
@@ -336,10 +358,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 continue
             elif self.offshell:
                 if len(p) == 0 :
-                    p.append('{0}{1}{2}[%(i)s]'.format(signs[i],type,i+1,type)) # AV for clang-format (ugly!)
+                    p.append('{0}{1}{2}.pvec[%(i)s]'.format(signs[i],type,i+1,type)) # AV for clang-format (ugly!)
                 else:
                     p.append(' ')
-                    p.append('{0} {1}{2}[%(i)s]'.format(signs[i],type,i+1,type))
+                    p.append('{0} {1}{2}.pvec[%(i)s]'.format(signs[i],type,i+1,type))
             if self.declaration.is_used('P%s' % (i+1)):
                 self.get_one_momenta_def(i+1, out)
         # Define the resulting momenta
@@ -349,10 +371,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if aloha.loop_mode:
                 size_p = 4
             else:
-                size_p = 2
+                size_p = 4
             for i in range(size_p):
                 dict_energy = {'i':i}
-                out.write( '    %s%s[%s] = %s;\n' % ( type, self.outgoing, i, ''.join(p) % dict_energy ) )
+                out.write( '    %s%s.pvec[%s] = %s;\n' % ( type, self.outgoing, i, ''.join(p) % dict_energy ) )
             if self.declaration.is_used( 'P%s' % self.outgoing ):
                 self.get_one_momenta_def( self.outgoing, out )
         # Returning result
@@ -365,36 +387,142 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         type = self.particles[i-1]
         if aloha.loop_mode:
             ptype = 'complex_v'
-            templateval ='%(sign)s %(type)s%(i)d[%(nb)d]' # AV
         else:
             ptype = 'double_v'
-            templateval ='%(sign)s%(operator)s( %(type)s%(i)d[%(nb2)d] )' # AV cxreal/cximag
+        templateval ='%(sign)s%(type)s%(i)d.pvec[%(j)d]'
         if self.nodeclare: strfile.write('    const %s P%d[4] = { ' % ( self.type2def[ptype], i) ) # AV
-        nb2 = 0
         for j in range(4):
-            if not aloha.loop_mode:
-                nb = j
-                if j == 0:
-                    assert not aloha.mp_precision
-                    operator = self.realoperator # not suppose to pass here in mp
-                elif j == 1:
-                    nb2 += 1
-                elif j == 2:
-                    assert not aloha.mp_precision
-                    operator = self.imagoperator # not suppose to pass here in mp
-                elif j ==3:
-                    nb2 -= 1
-            else:
-                operator =''
-                nb = j
-                nb2 = j
             sign = self.get_P_sign(i) if self.get_P_sign(i) else '+' # AV
             if self.nodeclare: template = templateval + ( ', ' if j<3 else '' ) # AV
             else: template ='    P%(i)d[%(j)d] = ' + templateval + ';\n' # AV
-            strfile.write(template % {'j':j,'type': type, 'i': i,
-                        'nb': nb, 'nb2': nb2, 'operator':operator,
-                        'sign': sign}) # AV
+            strfile.write(template % {'j':j,'type': type, 'i': i, 'sign': sign}) # AV
         if self.nodeclare: strfile.write(' };\n') # AV
+
+    def get_coupling_def(self):
+        """Define the coupling constant"""
+        # This is the same as the parent class method, but adapted for CUDACPP types
+
+        nb_coupling = 0 
+        for ftype, name in self.declaration:
+            if name.startswith('COUP'):
+                nb_coupling += 1
+
+        out = StringIO()
+        if 'M' not in self.tag:
+            if self.particles[0] != 'F':
+                return ''
+            # no matrix coupling, so a single coupling, so this is diagonal in flavor space
+            # but still need to check !
+            elif self.outgoing == 0  or self.particles[self.outgoing-1] not in ['F']:
+                if not self.outgoing:
+                    fail = "*vertex = cxzero_sv();"
+                else:
+                    fail = 'for(int i=0; i<%s%d.np4; i++) { w%s%d[i] = cxzero_sv(); }' % (self.particles[self.outgoing-1], self.outgoing, self.particles[self.outgoing-1], self.outgoing)
+
+                out.write('    const int & flv_index1 = F1.flv_index;\n')
+                out.write('    const int & flv_index2 = F2.flv_index;\n')
+                out.write('    if(flv_index1 != flv_index2 || flv_index1 == -1) {\n')
+                out.write('      %s\n' % fail)
+                out.write('      return;\n')
+                out.write('    }\n')
+            else:
+                incoming = [i+1 for i in range(len(self.particles)) if i+1 != self.outgoing and self.particles[self.outgoing-1] == 'F'][0]
+                outgoing = self.outgoing
+                out.write('    F%i.flv_index = F%i.flv_index;\n' % (outgoing, incoming))
+
+            return out.getvalue()
+
+        if self.outgoing == 0  or self.particles[self.outgoing-1] not in ['F']:
+            if not self.outgoing:
+                fail = "*vertex = cxzero_sv();"
+            else:
+                fail = 'for(int i=0; i<%s%d.np4; i++) { w%s%d[i] = cxzero_sv(); }' % (self.particles[self.outgoing-1], self.outgoing, self.particles[self.outgoing-1], self.outgoing)
+
+            out.write('    const int & flv_index1 = F1.flv_index;\n')
+            out.write('    const int & flv_index2 = F2.flv_index;\n')
+            if nb_coupling >1:
+                for i in range(1,nb_coupling+1):
+                    out.write('    int zero_coup%i = 0;\n' % i)
+                out.write('    if(flv_index1 != flv_index2 || flv_index1 == -1) {\n')
+                out.write('      %s\n' % fail)
+                out.write('      return;\n')
+                out.write('    }\n')
+            out.write('    if(flv_index1 == -1 || flv_index2 == -1) {\n')
+            out.write('      %s\n' % fail)
+            out.write('      return;\n')
+            out.write('    }\n')
+            if nb_coupling == 1:
+                out.write('    if(MCOUP.partner1[flv_index1] != flv_index2) {\n')
+                out.write('      %s\n' % fail)
+                out.write('      return;\n')
+                out.write('    }\n')
+            else:
+                for i in range(1,nb_coupling+1):
+                    out.write('    if(MCOUP%i.partner1[flv_index1] != flv_index2 || MCOUP%i.partner2[flv_index1] != flv_index2) {\n' %(i,i))
+                    out.write('      zero_coup%i = 1;\n' % i)
+                    out.write('      COUP%i = cxzero_sv();\n' % i)
+                    out.write('    }\n')
+            if nb_coupling ==1:
+                # the coupling is a complex number but in this case it is represented as a sequence of real numbers
+                # so, when we need to shift within the array, we need to double the shift width to account for
+                # both real and imaginary parts
+                out.write('    COUP = C_ACCESS::kernelAccessConst( MCOUP.value + 2*flv_index1 );\n')
+            else:
+                for i in range(1,nb_coupling+1):
+                    # the coupling is a complex number but in this case it is represented as a sequence of real numbers
+                    # so, when we need to shift within the array, we need to double the shift width to account for
+                    # both real and imaginary parts
+                    out.write('    if(zero_coup%i ==0) { COUP%i = C_ACCESS::kernelAccessConst( MCOUP%i.value + 2*flv_index1 ); }\n' % (i,i,i))
+        else:
+            incoming = [i+1 for i in range(len(self.particles)) if i+1 != self.outgoing and self.particles[self.outgoing-1] == 'F'][0]
+            if incoming %2 == 1:
+                outgoing = self.outgoing
+                out.write('    int flv_index%i = F%i.flv_index;\n' % (incoming, incoming))
+                out.write('    if(flv_index%i == -1) {\n' %(incoming))
+                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      F%i.flv_index = -1;\n' % outgoing)
+                out.write('      return;\n')
+                out.write('    }\n')
+                if nb_coupling == 1:
+                    out.write('    int flv_index2 = MCOUP.partner1[flv_index%i];\n' %(incoming))
+                else:
+                    out.write('    int flv_index2 = MCOUP1.partner1[flv_index%i];\n' %(incoming))
+                    for i in range(2,nb_coupling+1):
+                        out.write('    if(flv_index2 == -1){flv_index2 = MCOUP%i.partner1[flv_index%i];}' %(i, incoming)) 
+                out.write('    if(flv_index2 == -1){\n')
+                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      F%i.flv_index = -1;\n' % outgoing)
+                out.write('      return;\n')
+                out.write('    }\n')
+                out.write('    F%i.flv_index = flv_index2;\n' % outgoing)
+            else:
+                outgoing = self.outgoing
+                out.write('    int flv_index%i = F%i.flv_index;\n' % (incoming,incoming))
+                out.write('    if(flv_index%i == -1){\n' %(incoming))
+                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      F%i.flv_index = -1;\n' % outgoing)
+                out.write('      return;\n')
+                out.write('    }\n')
+                if nb_coupling == 1:
+                    out.write('    int flv_index1 = MCOUP.partner2[flv_index%i];\n' %(incoming))
+                else:
+                    out.write('    int flv_index1 = MCOUP1.partner2[flv_index%i];\n' %(incoming))
+                    for i in range(2,nb_coupling+1):
+                        out.write('    if(flv_index1 == -1) { flv_index1 = MCOUP%i.partner2[flv_index%i]; }' %(i, incoming))
+                out.write('    if(flv_index1 == -1){\n')
+                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      F%i.flv_index = -1;\n' % outgoing)
+                out.write('      return;\n')
+                out.write('    }\n')
+                out.write('    F%i.flv_index = flv_index1;\n' % outgoing)
+ 
+            for ftype, name in self.declaration:
+                if name.startswith('COUP'):
+                    # the coupling is a complex number but in this case it is represented as a sequence of real numbers
+                    # so, when we need to shift within the array, we need to double the shift width to account for
+                    # both real and imaginary parts
+                    out.write('    %s = C_ACCESS::kernelAccessConst( M%s.value + 2*flv_index1 );\n' % (name, name))
+        return out.getvalue()
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # This is called once per FFV function, i.e. once per WriteALOHA instance?
@@ -543,6 +671,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             text = '%(factors)s'
         return text % data
 
+    def shift_indices(self, match):
+        """shift the indices for non impulsion object"""
+        if match.group('var').startswith('P'):
+            shift = 0
+            return '%s[%s]' % (match.group('var'), int(match.group('num')) + shift) 
+        else:
+            shift =  -1
+            return 'w%s[%s]' % (match.group('var'), int(match.group('num')) + shift)
+
     # OM - overload aloha_writers.WriteALOHA and ALOHAWriterForCPP methods (handle 'unary minus' #628)
     def change_var_format(self, obj):
         """ """
@@ -684,6 +821,21 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         if res == '' : res = '    // (none)'
         else : res = '    ' + res # add leading '  ' after the '// Model' line
         return res
+
+    def write_flv_couplings(self, params):
+        """Write out the lines of independent parameters"""
+
+        def_flv = []
+        # For each parameter, write name = expr;
+        for coupl in params:
+            for key, c in coupl.flavors.items():
+                # get first/second index
+                k1, k2 = [i for i in key if i!=0]
+                def_flv.append('%(name)s.partner1[%(in)i] = %(out)i;' % {'name': coupl.name,'in': k1-1, 'out': k2-1})
+                def_flv.append('%(name)s.partner2[%(out)i] = %(in)i;' % {'name': coupl.name,'in': k1-1, 'out': k2-1})
+                def_flv.append('%(name)s.value[%(in)i] = &%(coupl)s;' % {'name': coupl.name,'in': k1-1, 'coupl': c})
+
+        return "\n  ".join(def_flv)
 
     # AV - overload export_cpp.UFOModelConverterCPP method (improve formatting)
     def write_set_parameters(self, params):
@@ -870,12 +1022,19 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         replace_dict['dependent_parameters'] = '// Model parameters dependent on aS\n' + '\n'.join( params_dep )
         coups_dep = [ '    //' + line[4:] + ' // now computed event-by-event (running alphas #373)' for line in self.write_parameters(list(self.coups_dep.values())).split('\n') ]
         replace_dict['dependent_couplings'] = '// Model couplings dependent on aS\n' + '\n'.join( coups_dep )
+        replace_dict['flavor_independent_couplings'] = \
+                                    "// Model flavor couplings independent of aS\n" + \
+                                    self.write_parameters([c for c in self.coups_flv_indep])
+        replace_dict['flavor_dependent_couplings'] = \
+                                    "// Model flavor couplings dependent of aS\n" + \
+                                    self.write_parameters([c for c in self.coups_flv_dep])                                    
         set_params_indep = [ line.replace('aS','//aS') + ' // now retrieved event-by-event (as G) from Fortran (running alphas #373)'
                              if line.startswith( '  aS =' ) else
                              line for line in self.write_set_parameters(self.params_indep).split('\n') ]
         replace_dict['set_independent_parameters'] = '\n'.join( set_params_indep )
         replace_dict['set_independent_parameters'] += self.super_write_set_parameters_onlyfixMajorana( hardcoded=False ) # add fixes for Majorana particles only in the aS-indep parameters #622
         replace_dict['set_independent_parameters'] += '\n  // BSM parameters that do not depend on alphaS but are needed in the computation of alphaS-dependent couplings;' # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
+        replace_dict['set_flv_couplings'] = self.write_flv_couplings(self.coups_flv_dep+self.coups_flv_indep)    
         if len(bsmparam_indep_real_used) + len(bsmparam_indep_complex_used) > 0:
             for ipar, par in enumerate( bsmparam_indep_real_used ):
                 replace_dict['set_independent_parameters'] += '\n  mdl_bsmIndepParam[%i] = %s;' % ( ipar, par )
@@ -993,6 +1152,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
             replace_dict['dcoupoutdcoup2'] = ''
         # Require HRDCOD=1 in EFT and special handling in EFT for fptype=float using SIMD
         nbsmparam_indep_all_used = len( bsmparam_indep_real_used ) + 2 * len( bsmparam_indep_complex_used )
+        replace_dict['max_flavor'] = max(len(ids) for ids in self.model['merged_particles'].values())
         replace_dict['bsmdefine'] = '#define MGONGPUCPP_NBSMINDEPPARAM_GT_0 1' if nbsmparam_indep_all_used > 0 else '#undef MGONGPUCPP_NBSMINDEPPARAM_GT_0'
         replace_dict['nbsmip'] = nbsmparam_indep_all_used # NB this is now done also for 'sm' processes (no check on model name, see PR #824)
         replace_dict['hasbsmip'] = '' if nbsmparam_indep_all_used > 0 else '//'
@@ -1123,7 +1283,17 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
     def prepare_couplings(self, wanted_couplings = []):
         super().prepare_couplings(wanted_couplings)
         # the two lines below fix #748, i.e. they re-order the dictionary keys following the order in wanted_couplings
-        running_wanted_couplings = [value for value in wanted_couplings if value in self.coups_dep]
+
+        def all_str(wanted_couplings):
+            str_repr = []
+            for coup in wanted_couplings:
+                if isinstance(coup, base_objects.FLV_Coupling):
+                    str_repr.append(coup.name)
+                else:
+                    str_repr.append(coup)
+            return str_repr
+
+        running_wanted_couplings = [value for value in all_str(wanted_couplings) if value in self.coups_dep]
         ordered_dict = [(k, self.coups_dep[k]) for k in running_wanted_couplings]
         self.coups_dep = dict((x, y) for x, y in ordered_dict)
 
@@ -1132,6 +1302,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
 import madgraph.iolibs.files as files
 import madgraph.various.misc as misc
 import madgraph.iolibs.export_v4 as export_v4
+import madgraph.core.base_objects as base_objects
 # AV - define a custom OneProcessExporter
 # (NB: enable this via PLUGIN_ProcessExporter.oneprocessclass in output.py)
 # (NB: use this directly also in PLUGIN_UFOModelConverter.read_template_file)
@@ -1192,6 +1363,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
+        replace_dict['nmaxflavor'] = len(self.matrix_elements[0].get_external_flavors_with_iden()) # number of flavor combinations
         if( write ): # ZW: added dict return for uses in child exporters. Default argument is True so no need to modify other calls to this function
             file = self.read_template_file(self.process_class_template) % replace_dict 
             file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
@@ -1213,6 +1385,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['hel_amps_cc'] = '#include \"HelAmps_%s.cc\"' % self.model_name # AV
         coupling = [''] * len(self.couplings2order)
         params = [''] * len(self.params2order)
+        flv_couplings = [''] * len(self.couporderflv)
         for coup, pos in self.couplings2order.items():
             coupling[pos] = coup
         for para, pos in self.params2order.items():
@@ -1267,11 +1440,99 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['cipd2tipd'] = '//memcpy( cIPD, tIPD, nIPD * sizeof( fptype ) ); // nIPD=0'
             replace_dict['cipddump'] = ''
             replace_dict['cipdhrdcod'] = '//__device__ const fptype* cIPD = nullptr; // unused as nIPD=0'
+
+        # flavor couplings
+        for flv_coup, pos in self.couporderflv.items():
+            flv_couplings[pos] = flv_coup
+        replace_dict['nipf'] = len(flv_couplings)
+        if len(flv_couplings):
+            nMF = max(len(ids) for ids in self.model['merged_particles'].values())
+            # we have 3 arrays:
+            #  - all partner1 arrays combined
+            #  - all partner2 arrays combines
+            #  - all value arrays combined
+            replace_dict['cipfassign'] = """int tIPF_partner1[nMF * nIPF];
+    int tIPF_partner2[nMF * nIPF];
+    cxtype tIPF_value[nMF * nIPF];
+    const FLV_COUPLING tFLV[nIPF] = { m_pars->%s };
+    for (int i = 0; i < nIPF; ++i) {
+      memcpy( tIPF_partner1 + i * nMF, tFLV[i].partner1, nMF * sizeof( int ) );
+      memcpy( tIPF_partner2 + i * nMF, tFLV[i].partner2, nMF * sizeof( int ) );
+      for (int j = 0; j < nMF; ++j)
+        tIPF_value[i * nMF + j] = *tFLV[i].value[j] ? *tFLV[i].value[j] : cxtype{}; // guard from null pointers
+    }""" % ( ', m_pars->'.join(flv_couplings) )
+            replace_dict['cipfdevice'] = """__device__ __constant__ int cIPF_partner1[nMF * nIPF];
+  __device__ __constant__ int cIPF_partner2[nMF * nIPF];
+  __device__ __constant__ fptype cIPF_value[nMF * nIPF * 2];"""
+            replace_dict['cipfstatic'] = """static int cIPF_partner1[nMF * nIPF];
+  static int cIPF_partner2[nMF * nIPF];
+  static fptype cIPF_value[nMF * nIPF * 2];"""
+            replace_dict['cipf2tipfSym'] = """gpuMemcpyToSymbol( cIPF_partner1, tIPF_partner1, nMF * nIPF * sizeof( int )    );
+    gpuMemcpyToSymbol( cIPF_partner2, tIPF_partner2, nMF * nIPF * sizeof( int )    );
+    gpuMemcpyToSymbol( cIPF_value   , tIPF_value   , nMF * nIPF * sizeof( cxtype ) );"""
+            replace_dict['cipf2tipf'] = """memcpy( cIPF_partner1, tIPF_partner1, nMF * nIPF * sizeof( int )    );
+    memcpy( cIPF_partner2, tIPF_partner2, nMF * nIPF * sizeof( int )    );
+    memcpy( cIPF_value   , tIPF_value   , nMF * nIPF * sizeof( cxtype ) );"""
+            replace_dict['cipfdump'] = '''
+    //for ( int i=0; i < nIPD; i++ ) {
+    //  std::cout << std::setprecision(17) << "tIPF[i].partner1 = { ";
+    //  for ( int j=0; j < nMF-1; j++ ) std::cout << std::setprecision(17) << tIPF[i].partner1[j] << ", ";
+    //  std::cout << std::setprecision(17) << tIPF[i].partner1[nMF-1] << " }" << std::endl;
+    //  std::cout << std::setprecision(17) << "tIPF[i].partner2 = { ";
+    //  for ( int j=0; j < nMF-1; j++ ) std::cout << std::setprecision(17) << tIPF[i].partner2[j] << ", ";
+    //  std::cout << std::setprecision(17) << tIPF[i].partner2[nMF-1] << " }" << std::endl;
+    //  std::cout << std::setprecision(17) << "tIPF[i].value = { ";
+    //  for ( int j=0; j < nMF-1; j++ ) std::cout << std::setprecision(17) << tIPF[i].value[j] << ", ";
+    //  std::cout << std::setprecision(17) << tIPF[i].value[nMF-1] << " }" << std::endl;
+    //}
+'''
+            coup_str_hrd_partner1 = '__device__ const int cIPF_partner1[nMF * nIPF] = { '
+            coup_str_hrd_partner2 = '__device__ const int cIPF_partner2[nMF * nIPF] = { '
+            coup_str_hrd_value    = '__device__ const fptype cIPF_value[nMF * nIPF * 2] = { '
+            for flv_coup in flv_couplings:
+                coup_str_hrd_partner1 += ( ('Parameters_%(model_name)s::%(coup)s.param1' % {"model_name": self.model_name, "coup": flv_coup} + '[%d], ') * nMF) % ( *range(nMF), )
+                coup_str_hrd_partner2 += ( ('Parameters_%(model_name)s::%(coup)s.param2' % {"model_name": self.model_name, "coup": flv_coup} + '[%d], ') * nMF) % ( *range(nMF), )
+                value_string = '(fptype)Parameters_%(model_name)s::%(coup)s.value' % {"model_name": self.model_name, "coup": flv_coup}
+                range_ids = [ [ i, i ] for i in range(nMF) ]
+                coup_str_hrd_value += ( ( value_string + '[%d].real(), ' + value_string + '[%d].imag(), ' ) * nMF) % ( *[ j for i in range_ids for j in i ], )
+            coup_str_hrd_partner1 = coup_str_hrd_partner1[:-2] + ' };'
+            coup_str_hrd_partner2 = coup_str_hrd_partner2[:-2] + ' };'
+            coup_str_hrd_value    = coup_str_hrd_value[:-2] + ' };'
+            replace_dict['cipfhrdcod'] = '%s\n  %s\n  %s' % (coup_str_hrd_partner1, coup_str_hrd_partner2, coup_str_hrd_value)
+        else:
+            replace_dict['cipfassign'] = ''
+            replace_dict['cipfdevice'] = """__device__ __constant__ int* cIPF_partner1 = nullptr; // unused as nIPF=0'
+    __device__ __constant__ int* cIPF_partner2 = nullptr; // unused as nIPF=0'
+    __device__ __constant__ fptype* cIPF_value = nullptr; // unused as nIPF=0'"""
+            replace_dict['cipfstatic'] = """static int* cIPF_partner1 = nullptr; // unused as nIPF=0'
+    static int* cIPF_partner2 = nullptr; // unused as nIPF=0'
+    static fptype* cIPF_value = nullptr; // unused as nIPF=0'"""
+            replace_dict['cipf2tipfSym'] = ''
+            replace_dict['cipf2tipf'] = ''
+            replace_dict['cipfdump'] = ''
+            replace_dict['cipfhrdcod'] = """__device__ const int* cIPF_partner1 = nullptr; // unused as nIPF=0'
+    __device__ const int* cIPF_partner2 = nullptr; // unused as nIPF=0'
+    __device__ const fptype* cIPF_value = nullptr; // unused as nIPF=0'"""
         # FIXME! Here there should be different code generated depending on MGONGPUCPP_NBSMINDEPPARAM_GT_0 (issue #827)
         replace_dict['all_helicities'] = self.get_helicity_matrix(self.matrix_elements[0])
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
+        replace_dict['all_flavors'] = self.get_flavor_matrix(self.matrix_elements[0])
+        replace_dict['all_flavors'] = replace_dict['all_flavors'].replace('flavors', 'tFlavors')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
         replace_dict['ncolor'] = len(color_amplitudes[0])
+        # broken_symmetry_factor function
+        data = self.matrix_elements[0].get('processes')[0].get_final_ids_after_decay()
+        pids = str(data).replace('[', '{').replace(']', '}')
+        replace_dict['get_pid'] = 'int pid[] = %s;' % (pids)
+        replace_dict['get_old_symmmetry_value'] = 1
+        done = []
+        for value in data:
+            if value not in done:
+                done.append(value)
+                replace_dict['get_old_symmmetry_value'] *= math.factorial(data.count(value)) 
+        _, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
+        replace_dict['nincoming'] = nincoming
+
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
         if len(params) == 0: # remove cIPD from OpenMP pragma (issue #349)
             file_lines = file.split('\n')
@@ -1324,6 +1585,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             ###misc.sprint( 'after get_matrix_element_calls', self.matrix_elements[0].get_number_of_wavefunctions() ) # CORRECT value of nwf, eg 5 for gg_tt
             assert len(self.matrix_elements) == 1 # how to handle if this is not true?
             self.couplings2order = self.helas_call_writer.couplings2order
+            self.couporderflv = self.helas_call_writer.couporderflv
             self.params2order = self.helas_call_writer.params2order
             ret_lines.append("""
   // Evaluate QCD partial amplitudes jamps for this given helicity from Feynman diagrams
@@ -1338,6 +1600,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
   calculate_jamps( int ihel,
                    const fptype* allmomenta,          // input: momenta[nevt*npar*4]
                    const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
+                   const unsigned int* iflavorVec,    // input: indices of the flavor combinations
 #ifdef MGONGPUCPP_GPUIMPL
                    fptype* allJamps,                  // output: jamp[2*ncolor*nevt] buffer for one helicity _within a super-buffer for dcNGoodHel helicities_
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
@@ -1367,6 +1630,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = DeviceAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+    using F_ACCESS = DeviceAccessIflavorVec;      // non-trivial access: buffer includes all events
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = DeviceAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = DeviceAccessDenominators;  // non-trivial access: buffer includes all events
@@ -1378,6 +1642,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
     using CI_ACCESS = HostAccessCouplingsFixed; // TRIVIAL access (independent couplings): buffer for one event
+    using F_ACCESS = HostAccessIflavorVec;      // non-trivial access: buffer includes all events
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
@@ -1404,12 +1669,14 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     // ** NB: in other words, amplitudes and wavefunctions still have TRIVIAL ACCESS: there is currently no need
     // ** NB: to have large memory structurs for wavefunctions/amplitudes in all events (no kernel splitting yet)!
     //MemoryBufferWavefunctions w_buffer[nwf]{ neppV };
-    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is often 6, the dimension of spin 1/2 or spin 1 particles)
+    // Create memory for both momenta and wavefunctions separately, and later wrap them in ALOHAOBJ
+    fptype_sv pvec_sv[nwf][np4];
+    cxtype_sv w_sv[nwf][nw6]; // particle wavefunctions within Feynman diagrams (nw6 is 4: spin wavefunctions, momenta are no more included, see before)
     cxtype_sv amp_sv[1];      // invariant amplitude for one given Feynman diagram
 
-    // Proof of concept for using fptype* in the interface
-    fptype* w_fp[nwf];
-    for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
+    // Wrap the memory into ALOHAOBJ
+    ALOHAOBJ aloha_obj[nwf];
+    for( int iwf = 0; iwf < nwf; iwf++ ) aloha_obj[iwf] = ALOHAOBJ{pvec_sv[iwf], w_sv[iwf]};
     fptype* amp_fp;
     amp_fp = reinterpret_cast<fptype*>( amp_sv );
 
@@ -1610,7 +1877,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # will be smaller than the true number of diagram. This is fine for color
         # but maybe not for something else.
         nb_diag = max(config[0] for config in config_subproc_map)
-        import math
         ndigits = str(int(math.log10(nb_diag))+1+1) # the additional +1 is for the -sign
         # Output which diagrams correspond ot a channel to get information for valid color
         lines = []
@@ -1786,6 +2052,18 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             helicity_line_list.append( '{ ' + ', '.join(['%d'] * len(helicities)) % tuple(helicities) + ' }' ) # AV
         return helicity_line + ',\n      '.join(helicity_line_list) + ' };' # AV
 
+    def get_flavor_matrix(self, matrix_element):
+        """Return the flavor matrix definition lines for this matrix element"""
+        flavor_line = '    static constexpr short flavors[nmaxflavor][npar] = {\n      '; # (this is tFlavors)
+        flavor_line_list = []
+        for flavors in matrix_element.get_external_flavors_with_iden():
+            # get only the index 0 one because the other ones have same matrix element
+            # additionally they will be used as indices in some cases (e.g. matrix flavor couplings)
+            # so we need to subtract 1 because FORTRAN indices starts from 1, and C++ from zero
+            cpp_flavors = list(map(lambda f: f-1, flavors[0]))
+            flavor_line_list.append( '{ ' + ', '.join(['%d'] * len(cpp_flavors)) % tuple(cpp_flavors) + ' }' )
+        return flavor_line + ',\n      '.join(flavor_line_list) + ' };'
+
     # AV - overload the export_cpp.OneProcessExporterGPU method (just to add some comments...)
     def get_reset_jamp_lines(self, color_amplitudes):
         """Get lines to reset jamps"""
@@ -1819,6 +2097,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
         self.wanted_ordered_dep_couplings = []
         self.wanted_ordered_indep_couplings = []
+        self.wanted_ordered_flv_couplings = []
+
+        self.flv_couplings_map = {}
         super().__init__(*args,**opts)
 
 
@@ -1840,6 +2121,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         if not hasattr(self, 'couporderdep'):
             self.couporderdep = {}
             self.couporderindep = {}
+            self.couporderflv = {}
         for coup in re.findall(self.findcoupling, call):
             if coup == 'ZERO':
                 ###call = call.replace('pars->ZERO', '0.')
@@ -1863,6 +2145,16 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 alias = self.couporderdep
                 aliastxt = 'COUPD'
                 name = 'cIPC'
+            elif coup.startswith("FLV"):
+                if coup not in [coup.name for coup in self.wanted_ordered_flv_couplings]:
+                    flv_coup = self.flv_couplings_map[coup]
+                    self.wanted_ordered_flv_couplings.append(flv_coup)
+                    for indep_coup in set(flv_coup.flavors.values()):
+                        if indep_coup not in self.wanted_ordered_indep_couplings:
+                            self.wanted_ordered_indep_couplings.append(indep_coup)
+                alias = self.couporderflv
+                aliastxt = 'flvCOUP'
+                name = 'flvCOUPs'
             else:
                 if coup not in self.wanted_ordered_indep_couplings: 
                     self.wanted_ordered_indep_couplings.append(coup)
@@ -1877,7 +2169,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     else:
                         alias[coup] = alias[list(alias)[-1]]+1
                 else:
-                    alias[coup] = len(alias)
+                    alias[coup] = len(alias) # this works perfectly also for FLV couplings
                 ###if alias == self.couporderdep: # bug #821! this is incorrectly true when both dictionaries are empty!
                 if aliastxt == 'COUPD':
                     for k in self.couporderindep:
@@ -1896,6 +2188,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 call = call.replace('CI_ACCESS', 'CD_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
                                     'COUPs[%s], %s' % (alias[coup], '1.0' if not sign else '-1.0')) 
+            elif name == 'flvCOUPs':
+                call = call.replace('CD_ACCESS', 'CI_ACCESS')
+                call = call.replace('m_pars->%s%s' % (sign, coup),
+                                    '%s[%s], %s' % (name, alias[coup], '1.0' if not sign else '-1.0'))
             else:
                 call = call.replace('CD_ACCESS', 'CI_ACCESS')
                 call = call.replace('m_pars->%s%s' % (sign, coup),
@@ -1903,7 +2199,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
 
             if newcoup:
                 self.couplings2order = self.couporderdep | self.couporderindep
-        model.cudacpp_wanted_ordered_couplings = self.wanted_ordered_dep_couplings + self.wanted_ordered_indep_couplings 
+        model.cudacpp_wanted_ordered_couplings = self.wanted_ordered_dep_couplings + self.wanted_ordered_indep_couplings + self.wanted_ordered_flv_couplings
         return call
 
     # AV - new method for formatting wavefunction/amplitude calls
@@ -1974,6 +2270,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
 #endif
 #endif
+      // Create an array of views over the Flavor Couplings
+      FLV_COUPLING_VIEW flvCOUPs[nIPF];
+      for ( int idflv = 0; idflv < nIPF; idflv++ )
+        flvCOUPs[idflv] = FLV_COUPLING_VIEW{ cIPF_partner1, cIPF_partner2, cIPF_value, idflv * nMF };
 
       // Reset color flows (reset jamp_sv) at the beginning of a new event or event page
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
@@ -1982,7 +2282,17 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
       fptype_sv* numerators_sv = NUM_ACCESS::kernelAccessP( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
-#endif""")
+#endif
+      // Scalar iflavor for the current event
+      // for GPU it is an int
+      // for SIMD it is also an int, since it is constant across the SIMD vector
+      const uint_sv iflavor_sv = F_ACCESS::kernelAccessConst( iflavorVec );
+#ifdef MGONGPUCPP_GPUIMPL
+      const unsigned int iflavor = iflavor_sv;
+#else
+      const unsigned int iflavor = reinterpret_cast<const unsigned int*>(&iflavor_sv)[0];
+#endif
+""")
         diagrams = matrix_element.get('diagrams')
         diag_to_config = {}
         if multi_channel_map:
@@ -2095,7 +2405,8 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
             ###call = call + 'm_pars->%s,'
             call = call
-        call = call + '%+d, w_sv[%d], %d );'
+        # Add flavor and the related ALOHA object
+        call = call + '%+d, cFlavors[iflavor][%d], aloha_obj[%d], %d );'
         if argument.get('spin') == 1:
             # AV This seems to be for scalars (spin==1???), pass neither mass nor helicity (#351)
             return call % \
@@ -2104,6 +2415,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                 # For boson, need initial/final here
                                 (-1) ** (wf.get('state') == 'initial'),
                                 wf.get('me_id')-1,
+                                wf.get('number_external')-1,
                                 wf.get('number_external')-1)
         elif argument.is_boson():
             ###misc.sprint(call)
@@ -2118,6 +2430,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                 wf.get('number_external')-1,
                                 # For boson, need initial/final here
                                 (-1) ** (wf.get('state') == 'initial'),
+                                wf.get('number_external')-1,
                                 wf.get('me_id')-1,
                                 wf.get('number_external')-1))
         else:
@@ -2126,6 +2439,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                                 wf.get('number_external')-1,
                                 # For fermions, need particle/antiparticle
                                 - (-1) ** wf.get_with_flow('is_part'),
+                                wf.get('number_external')-1,
                                 wf.get('me_id')-1,
                                 wf.get('number_external')-1))
 
@@ -2185,12 +2499,17 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             call = '%(routine_name)s( %(wf)s%(coup)s%(mass)s%(out)s );'
             # compute wf
             arg = {'routine_name': aloha_writers.combine_name('%s' % l[0], l[1:], outgoing, flag, True),
-                   'wf': ('w_fp[%%(%d)d], ' * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
+                   'wf': ('aloha_obj[%%(%d)d], ' * len(argument.get('mothers'))) % tuple(range(len(argument.get('mothers')))),
                    'coup': ('m_pars->%%(coup%d)s, ' * len(argument.get('coupling'))) % tuple(range(len(argument.get('coupling'))))
                    }
             # AV FOR PR #434: determine if this call needs aS-dependent or aS-independent parameters
             usesdepcoupl = None
             for coup in argument.get('coupling'):
+                if isinstance(coup, base_objects.FLV_Coupling):
+                    if usesdepcoupl is None: usesdepcoupl = False
+                    elif usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
+                    self.flv_couplings_map[coup.name] = coup
+                    continue
                 if coup.startswith('-'): 
                     coup = coup[1:]
                 # Use the same implementation as in UFOModelConverterCPP.prepare_couplings (assume self.model is the same)
@@ -2212,7 +2531,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             else : arg['routine_name'] += '<W_ACCESS, %s>'%caccess
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
-                arg['out'] = 'w_fp[%(out)d]'
+                arg['out'] = 'aloha_obj[%(out)d]'
                 if aloha.complex_mass:
                     arg['mass'] = 'm_pars->%(CM)s, '
                 else:

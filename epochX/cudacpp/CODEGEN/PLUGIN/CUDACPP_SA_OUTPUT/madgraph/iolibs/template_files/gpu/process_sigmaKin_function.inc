@@ -62,9 +62,9 @@
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt * processConfig::ndiagrams;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
       bool storeChannelWeights = allChannelIds != nullptr || allrnddiagram != nullptr;
-      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, storeChannelWeights, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, iflavorVec, hAllJamps, storeChannelWeights, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
 #else
-      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, iflavorVec, hAllJamps, nevt );
 #endif
     }
     // (2) Then compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
@@ -76,12 +76,12 @@
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     bool storeChannelWeights = allChannelIds != nullptr || allrnddiagram != nullptr;
-    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, ghelAllNumerators, ghelAllDenominators, allChannelIds, storeChannelWeights, mulChannelWeight, helcolDenominators[0] );
+    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, iflavorVec, ghelAllNumerators, ghelAllDenominators, allChannelIds, storeChannelWeights, mulChannelWeight, helcolDenominators[0] );
 
     // Event-by-event random choice of color and diagram #402
     gpuLaunchKernel( select_col_and_diag, gpublocks, gputhreads, allselcol, allDiagramIdsOut, allrndcol, allrnddiagram, allChannelIds, colAllJamp2s, ghelAllNumerators, ghelAllDenominators, gpublocks * gputhreads );
 #else
-    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, helcolDenominators[0] );
+    gpuLaunchKernel( normalise_output, gpublocks, gputhreads, allMEs, iflavorVec, helcolDenominators[0] );
 #endif
     // *** END OF PART 1a - CUDA (one event per GPU thread) ***
 
@@ -134,9 +134,9 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
         bool storeChannelWeights = allChannelIds != nullptr || allrnddiagram != nullptr;
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, storeChannelWeights, allNumerators, allDenominators, jamp2_sv, ievt00 );
+        calculate_jamps( ihel, allmomenta, allcouplings, iflavorVec, jamp_sv, storeChannelWeights, allNumerators, allDenominators, jamp2_sv, ievt00 );
 #else
-        calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 );
+        calculate_jamps( ihel, allmomenta, allcouplings, iflavorVec, jamp_sv, ievt00 );
 #endif
         color_sum_cpu( allMEs, jamp_sv, ievt00 );
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
@@ -308,7 +308,7 @@
       const int ievt0 = ipagV * neppV;
       fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
       fptype_sv& MEs_sv = E_ACCESS::kernelAccess( MEs );
-      MEs_sv /= helcolDenominators[0];
+      MEs_sv /= (helcolDenominators[0] * broken_symmetry_factor(iflavorVec[ievt0]));
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       if( mulChannelWeight && allChannelIds != nullptr ) // fix segfault #892 (not 'channelIds[0] != 0')
       {
