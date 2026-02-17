@@ -1063,7 +1063,7 @@
     const cxtype_sv* win = W_ACCESS::kernelAccessConst( Ain.w );
     cxtype_sv* wout = W_ACCESS::kernelAccess( Aout.w );
 
-    cxtype_sv q[5];
+    cxtype_sv q[5]; //Todo: can it be just fptype?
     fptype_sv n[5];
     cxtype_sv w0[5], w1[5];
 

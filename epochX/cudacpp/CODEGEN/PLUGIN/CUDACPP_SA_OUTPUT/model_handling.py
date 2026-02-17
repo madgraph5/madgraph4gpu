@@ -5,6 +5,10 @@
 
 import os
 import sys
+from aloha import unitary_gauge
+
+#FD gauge check
+fd_gauge = (unitary_gauge == 3)
 
 import math
 import re
@@ -671,12 +675,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 coeff = 'COUP'
             shift = 1 - 1 #to correspond to the shift in fortran indicies with -1 for C++
-<<<<<<< HEAD
-            if fd_gauge and self.outname[0] == "S":
-=======
             if fd_gauge and "S" in self.outname:
->>>>>>> parton_grouping
-                shift = 5 - 1 #to correspond to the shift in fortran indicies with -1 for C++
             for ind in numerator.listindices():
                 # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cc
                 ###out.write('    %s[%d]= %s*%s;\n' % (self.outname,
@@ -737,6 +736,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             return 'w%s[%s]' % (match.group('var'), int(match.group('num')) + shift)
 
     # OM - overload aloha_writers.WriteALOHA and ALOHAWriterForCPP methods (handle 'unary minus' #628)
+    # should be ok for FD gauge
     def change_var_format(self, obj):
         """ """
         if obj.startswith('COUP'):
@@ -855,14 +855,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                                    'id': self.outgoing}
         for i, name in enumerate(lor_list):
             data['name'] = name
-<<<<<<< HEAD
-            data['coup'] = 'MCOUP%d' % (i + 1)
-=======
             if 'M' in data['addon']:
                 data['coup'] = 'MCOUP%d' % (i + 1)
             else:
                 data['coup'] = 'allCOUP%d' % (1+i)
->>>>>>> parton_grouping
 
             if i == 0:
                 if not offshell:
