@@ -17,7 +17,7 @@
 #define ALWAYS_INLINE
 #endif
 // why dont we have rotxxx
-// why dont we have CombineAmpFD done in the
+// why dont we have CombineAmpFD done in the not need
 // is dble our equivalent
 
 
@@ -976,10 +976,10 @@
 #else
     const fptype_sv qabs = fpsqrt(qabs2);
     const bool_v qsign = (qabs > 0.);
-    n[0] = fpternary( q[0] >= 0. , 1. , -1.);
-    n[1] = fternary( qsign , -q[1] / qabs , 0. );
-    n[2] = fternary( qsign , -q[1] / qabs , 0. );
-    n[3] = fternary( qsign , -q[1] / qabs , fpternary( q[0] >= 0. , 1. , -1.));
+    n[0] = fpternary( q[0].real() >= 0. , 1. , -1.);
+    n[1] = fternary( qsign , -q[1].real() / qabs , 0. );
+    n[2] = fternary( qsign , -q[1].real() / qabs , 0. );
+    n[3] = fternary( qsign , -q[1].real() / qabs , fpternary( q[0].real() >= 0. , 1. , -1.));
     n[4] = static_cast<fptype_sv>(0.);
 #endif
  }
@@ -996,7 +996,8 @@
     *d = 1.0 / (q2 - mass*mass);
   }
 //--------------------------------------------------------------------------
-//
+// multiply by propagation factor from m and wawefunctionsin[] and output them
+// as wavefunctionout[]
   template< class W_ACCESS>
   __host__ __device__ INLINE void
   multiply_propagator_factor(
@@ -1009,15 +1010,11 @@
     cxtype_sv* win = W_ACCESS::kernelAccessConst( wavefunctionsin );
     cxtype_sv* wout = W_ACCESS::kernelAccess( wavefunctionsout );
 
-    cxtype_sv q[5];
+    cxtype_sv q[5]; //Todo: can it be just fptype?
     fptype_sv n[5];
     cxtype_sv w0[5], w1[5];
 
     const cxtype_sv cI = cxmake(0., 1.)
-
-    // Copy first two components
-    wout[0] = win[0];
-    wout[1] = win[1];
 
     // Construct q
     q[0] = -win[0].real();
@@ -1025,6 +1022,10 @@
     q[2] = -win[1].imag();
     q[3] = -win[0].imag();
     q[4] = -cI*m;
+
+    // Copy first two components TODO: are they the same (no need to copy/race condition)...
+    wout[0] = win[0];
+    wout[1] = win[1];
 
     define_gauge_dir(q, n);
 

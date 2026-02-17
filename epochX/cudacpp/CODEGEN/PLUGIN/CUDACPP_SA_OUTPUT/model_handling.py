@@ -5,6 +5,10 @@
 
 import os
 import sys
+from aloha import unitary_gauge
+
+#FD gauge check
+fd_gauge = (unitary_gauge == 3)
 
 # AV - PLUGIN_NAME can be one of PLUGIN/CUDACPP_OUTPUT or MG5aMC_PLUGIN/CUDACPP_OUTPUT
 PLUGIN_NAME = __name__.rsplit('.',1)[0]
@@ -242,7 +246,16 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     def get_foot_txt(self):
         """Prototype for language specific footer"""
         ###return '}\n'
-        return '  }\n\n  //--------------------------------------------------------------------------' # AV
+
+        text = ' '
+        if fd_gauge:
+            if self.outgoing and 'P1N' not in self.tag:
+                name = self.particles[self.outgoing-1]
+                if name.startswith('S','V'):
+                    text += '      multiply_propagator_factor(all%(name)s%(i)s,,%(mass)s%(i)s, all%(name)s%(i)s)\n' % \
+                            {'name':name, 'mass': 'M%s' % name[1:], 'i': self.outgoing }
+        text += '  }\n\n  //--------------------------------------------------------------------------' # AV
+        return text
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # This affects HelAmps_sm.cc
@@ -268,6 +281,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             access = 'W_ACCESS'
             allvname = 'all'+vname
         out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
+        if fd_gauge:
+            out.write('    cxtype_sv CZERO(0.,0.); \n')
+            #out.writh('    int i; \n')
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
@@ -285,11 +301,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 elif name[0] in ['F','V']:
                     if aloha.loop_mode:
                         size = 8
+                    elif fd_gauge and name[0] == 'V':
+                        size = 7
                     else:
                         size = 6
                 elif name[0] == 'S':
                     if aloha.loop_mode:
                         size = 5
+                    elif fd_gauge:
+                        size = 7
                     else:
                         size = 3
                 elif name[0] in ['R','T']:
@@ -355,7 +375,14 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out.write( '    %s%s[%s] = %s;\n' % ( type, self.outgoing, i, ''.join(p) % dict_energy ) )
             if self.declaration.is_used( 'P%s' % self.outgoing ):
                 self.get_one_momenta_def( self.outgoing, out )
-        # Returning result
+
+        if self.offshell and fd_gauge:
+            type = self.particles[self.outgoing-1]
+            if type in ['S','V']:
+                for i in range(3,8):
+                    cppindex = i -1
+                    out.write(" %(type)s%(out)s[%(ind)s] = CZERO ;\n" % {'type': type, 'out':self.outgoing, 'ind':cppindex})
+                # Returning result
         ###print('."' + out.getvalue() + '"') # AV - FOR DEBUGGING
         return out.getvalue()
 
@@ -493,6 +520,9 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 self.declaration.add((ptype,'P%s' % self.outgoing))
             else:
                 coeff = 'COUP'
+            #shift = 1 ask what does it do
+            #if fd_gauge:
+            #    shift = 5
             for ind in numerator.listindices():
                 # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cc
                 ###out.write('    %s[%d]= %s*%s;\n' % (self.outname,
@@ -544,6 +574,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         return text % data
 
     # OM - overload aloha_writers.WriteALOHA and ALOHAWriterForCPP methods (handle 'unary minus' #628)
+    # should be ok for FD gauge
     def change_var_format(self, obj):
         """ """
         if obj.startswith('COUP'):
