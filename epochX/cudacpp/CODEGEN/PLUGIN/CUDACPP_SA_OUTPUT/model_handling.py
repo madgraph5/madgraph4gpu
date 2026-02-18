@@ -251,8 +251,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         if fd_gauge:
             if self.outgoing and 'P1N' not in self.tag:
                 name = self.particles[self.outgoing-1]
-                if name.startswith('S','V'):
-                    text += '      multiply_propagator_factor(all%(name)s%(i)s,,%(mass)s%(i)s, all%(name)s%(i)s)\n' % \
+                if name.startswith(('S','V')):
+                    text += '      multiply_propagator_factor<W_ACCESS>(all%(name)s%(i)s,%(mass)s%(i)s, all%(name)s%(i)s);\n' % \
                             {'name':name, 'mass': 'M%s' % name[1:], 'i': self.outgoing }
         text += '  }\n\n  //--------------------------------------------------------------------------' # AV
         return text
@@ -520,14 +520,14 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 self.declaration.add((ptype,'P%s' % self.outgoing))
             else:
                 coeff = 'COUP'
-            #shift = 1 ask what does it do
-            #if fd_gauge:
-            #    shift = 5
+            shift = 1 - 1 #to correspond to the shift in fortran indicies with -1 for C++
+            if fd_gauge and self.outname[0] == "S":
+                shift = 5 - 1 #to correspond to the shift in fortran indicies with -1 for C++
             for ind in numerator.listindices():
                 # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cc
                 ###out.write('    %s[%d]= %s*%s;\n' % (self.outname,
                 out.write('    %s[%d] = %s * %s;\n' % (self.outname, # AV
-                                        self.pass_to_HELAS(ind), coeff,
+                                        self.pass_to_HELAS(ind) + shift, coeff,
                                         self.write_obj(numerator.get_rep(ind))))
         out.write('    mgDebug( 1, __FUNCTION__ );\n') # AV
         out.write('    return;\n') # AV
@@ -1202,6 +1202,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ###replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions() # how do I get HERE the right value of nwf, e.g. 5 for gg_tt?
         nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
         replace_dict['nincoming'] = nincoming
+        replace_dict['nwave'] = 6 + (fd_gauge)
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
