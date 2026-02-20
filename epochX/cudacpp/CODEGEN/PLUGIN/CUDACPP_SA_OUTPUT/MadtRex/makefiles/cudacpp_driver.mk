@@ -57,7 +57,7 @@ endif
 
 #=== Redefine BACKEND if the current value is 'cppauto'
 
-# Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available: eventually use native instead?)
+# Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available)
 ifeq ($(BACKEND),cppauto)
   ifeq ($(UNAME_P),ppc64le)
     override BACKEND = cppsse4
@@ -68,13 +68,17 @@ ifeq ($(BACKEND),cppauto)
     ###$(warning Using BACKEND='$(BACKEND)' because host SIMD features cannot be read from /proc/cpuinfo)
   else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
     override BACKEND = cpp512y
-  else
+  else ifeq ($(shell grep -m1 -c avx2 /proc/cpuinfo),1)
     override BACKEND = cppavx2
     ###ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
     ###  $(warning Using BACKEND='$(BACKEND)' because host does not support avx512vl)
     ###else
     ###  $(warning Using BACKEND='$(BACKEND)' because this is faster than avx512vl for clang)
     ###endif
+  else ifeq ($(shell grep -m1 -c sse4_2 /proc/cpuinfo),1)
+    override BACKEND = cppsse4
+  else
+    override BACKEND = cppnone
   endif
   $(info BACKEND=$(BACKEND) (was cppauto))
 else
@@ -342,22 +346,34 @@ endif
 
 #=== Configure defaults for OMPFLAGS
 
-# Set the default OMPFLAGS choice
-ifneq ($(findstring hipcc,$(GPUCC)),)
-  override OMPFLAGS = # disable OpenMP MT when using hipcc #802
-else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-  override OMPFLAGS = -fopenmp
-  ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
-else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
-  override OMPFLAGS = -fopenmp
-  ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
-###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
-else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
-  override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
-  ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+# Disable OpenMP by default: enable OpenMP only if USEOPENMP=1 (#758)
+ifeq ($(USEOPENMP),1)
+  ###$(info USEOPENMP==1: will build with OpenMP if possible)
+  ifneq ($(findstring hipcc,$(GPUCC)),)
+    override OMPFLAGS = # disable OpenMP MT when using hipcc #802
+  else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
+    override OMPFLAGS = -fopenmp
+    ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 16'),)
+    ###override OMPFLAGS = # disable OpenMP on clang16 #904
+    $(error OpenMP is not supported by cudacpp on clang16 - issue #904)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 17'),)
+    ###override OMPFLAGS = # disable OpenMP on clang17 #904
+    $(error OpenMP is not supported by cudacpp on clang17 - issue #904)
+  else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
+    override OMPFLAGS = -fopenmp
+    ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
+  ###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
+  else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
+    override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
+    ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+  else
+    override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
+    ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+  endif
 else
-  override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
-  ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+  ###$(info USEOPENMP!=1: will build without OpenMP)
+  override OMPFLAGS =
 endif
 
 #-------------------------------------------------------------------------------
