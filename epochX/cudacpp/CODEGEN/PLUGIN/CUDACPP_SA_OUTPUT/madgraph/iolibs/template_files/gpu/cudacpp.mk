@@ -56,7 +56,7 @@ endif
 
 #=== Redefine BACKEND if the current value is 'cppauto'
 
-# Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available: eventually use native instead?)
+# Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available)
 BACKEND_ORIG := $(BACKEND)
 ifeq ($(BACKEND),cppauto)
   ifeq ($(UNAME_P),ppc64le)
@@ -68,13 +68,17 @@ ifeq ($(BACKEND),cppauto)
     ###$(warning Using BACKEND='$(BACKEND)' because host SIMD features cannot be read from /proc/cpuinfo)
   else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
     override BACKEND = cpp512y
-  else
+  else ifeq ($(shell grep -m1 -c avx2 /proc/cpuinfo),1)
     override BACKEND = cppavx2
     ###ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
     ###  $(warning Using BACKEND='$(BACKEND)' because host does not support avx512vl)
     ###else
     ###  $(warning Using BACKEND='$(BACKEND)' because this is faster than avx512vl for clang)
     ###endif
+  else ifeq ($(shell grep -m1 -c sse4_2 /proc/cpuinfo),1)
+    override BACKEND = cppsse4
+  else
+    override BACKEND = cppnone
   endif
   $(info BACKEND=$(BACKEND) (was cppauto))
 else
