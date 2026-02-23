@@ -16,6 +16,7 @@ endif
 # Basic uname helpers (if not already set)
 UNAME_S ?= $(shell uname -s)
 UNAME_P ?= $(shell uname -p)
+UNAME_M ?= $(shell uname -m)
 
 # Enable the C preprocessor https://gcc.gnu.org/onlinedocs/gfortran/Preprocessing-Options.html
 FFLAGS+= -cpp
@@ -114,7 +115,7 @@ $(LIBS): .libs
 	touch $@
 
 $(CUDACPP_BUILDDIR)/.cudacpplibs:
-	$(MAKE) -f $(CUDACPP_MAKEFILE)
+	$(MAKE) VERBOSE=1 -f $(CUDACPP_MAKEFILE)
 	touch $@
 
 # Remove per-library recipes from makefile to avoid duplicate sub-makes
@@ -225,7 +226,7 @@ madevent_%_link:
 # Cudacpp bldall targets
 ifeq ($(UNAME_P),ppc64le)
   bldavxs: bldnone bldsse4
-else ifeq ($(UNAME_P),arm)
+else ifneq (,$(filter $(UNAME_M),arm64 aarch64))
   bldavxs: bldnone bldsse4
 else
   bldavxs: bldnone bldsse4 bldavx2 bld512y bld512z
