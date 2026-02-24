@@ -16,12 +16,7 @@
 #define INLINE
 #define ALWAYS_INLINE
 #endif
-// why dont we have rotxxx
-// why dont we have CombineAmpFD done in the not need
-// is dble our equivalent
 
-
-// ------------
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
@@ -157,35 +152,7 @@
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
 
-
-//--------------------------------------------------------------------------
-
-  // Compute the direction n[5] of the gauge q[5]
-  __host__ __device__ INLINE void
-  define_gauge_dir(const fptype q[], //input: gauge
-                   fptype n[]        //output: direction
-                  ) ALWAYS_INLINE;
-
-
-  //--------------------------------------------------------------------------
-  // Compute a propagator factor d out of gauge q[5] and a mass
-  __host__ __device__ INLINE void
-  calculate_propagator_factor(const fptype_sv q[5],    //input: gauge
-                                 const fptype_sv mass, //input: mass
-                                 fptype_sv *d          //output: propagator factor
-                              ) ALWAYS_INLINE;
-
-  //--------------------------------------------------------------------------
-  // multiply by propagation factor from m and wawefunctionsin[] and output them
-  // as wavefunctionout[]
-  template< class W_ACCESS>
-  __host__ __device__ INLINE void
-  multiply_propagator_factor(
-                            const fptype wavefunctionsin[],
-                            const fptype m,
-                            fptype wavefunctionsout[]
-                            ) ALWAYS_INLINE;
-//==========================================================================
+  //==========================================================================
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
   template<class M_ACCESS, class W_ACCESS>
@@ -462,23 +429,11 @@
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* vc = W_ACCESS::kernelAccess( wavefunctions ); // needs to be size 7 instead of 6
+    cxtype_sv* vc = W_ACCESS::kernelAccess( wavefunctions );
     const fptype sqh = fpsqrt( 0.5 ); // AV this is > 0!
     const fptype hel = nhel;
     vc[0] = cxmake( pvec0 * (fptype)nsv, pvec3 * (fptype)nsv );
     vc[1] = cxmake( pvec1 * (fptype)nsv, pvec2 * (fptype)nsv );
-
-    // FD gauge
-    const cxtype_sv cI = cxmake( static_cast<fptype_sv>( 0.),static_cast<fptype_sv>( 1.) );
-#ifdef MGONGPU_CPPSIMD
-    fptype_sv nA[5];
-    fptype_sv nB[5];
-#endif
-    fptype_sv n[5];
-    fptype_sv nk;
-    const fptype_sv zero(0.);
-    const fptype_sv one(0.);
-
     if( vmass != 0. )
     {
       const int nsvahl = nsv * std::abs( hel );
@@ -516,40 +471,7 @@
           vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
         }
       }
-
-      //FD gauge
-      if( pp > 0. )
-      {
-        n[0] = ( pvec0 >= zero) ? one : -one;
-        n[1] = -pvec1/pp;
-        n[2] = -pvec2/pp;
-        n[3] = -pvec3/pp;
-        n[4] = zero;
-      }
-      else
-      {
-        n[0] = ( pvec0 >= zero) ? one : -one;
-        n[1] = static_cast<fptype_sv>(0.);
-        n[2] = static_cast<fptype_sv>(0.);
-        n[3] =  ( pvec0 >= zero) ? -one : one;
-      }
-
-      nk = n[0]*pvec0 - n[1]*pvec1 - n[2]*pvec2 - n[3]*pvec3;
-
-      if ( std::abs(nhel) == 1.)
-      {
-        vc[6] = cxzero_sv();
-      }
-      else{
-        vc[2] = cxmake( -vmass/nk * n[0], zero );
-        vc[3] = cxmake( -vmass/nk * n[1], zero );
-        vc[4] = cxmake( -vmass/nk * n[2], zero );
-        vc[5] = cxmake( -vmass/nk * n[3], zero );
-        vc[6] = cxmake( -nsv*cI);
-      }
-
 #else
-
       volatile fptype_sv pt2 = ( pvec1 * pvec1 ) + ( pvec2 * pvec2 );
       volatile fptype_sv p2 = pt2 + ( pvec3 * pvec3 ); // volatile fixes #736
       const fptype_sv pp = fpmin( pvec0, fpsqrt( p2 ) );
@@ -579,37 +501,6 @@
       vc[3] = cxternary( mask, vcA_3, cxternary( maskB, vcB1_3, vcB2_3 ) );
       vc[4] = cxternary( mask, vcA_4, cxternary( maskB, vcB1_4, vcB2_4 ) );
       vc[5] = cxternary( mask, vcA_5, vcB_5 );
-
-      //FD gauge
-      //branch A
-      nA[0] = fpternary( pvec0 >= zero , one , -one);
-      nA[1] = -pvec1/pp;
-      nA[2] = -pvec2/pp;
-      nA[3] = -pvec3/pp;
-      nA[4] = zero;
-
-      //branch B
-      nB[0] = nA[0];
-      nB[1] = zero;
-      nB[2] = zero;
-      nB[3] = -nA[0];
-
-      const fptype_sv b_A = fpternary(pp > zero, one , zero);
-      const fptype_sv b_B = fpternary(pp <= zero , one , zero);
-
-      n[0] = nA[0]*b_A + nB[0]*b_B;
-      n[1] = nA[1]*b_A + nB[1]*b_B;
-      n[2] = nA[2]*b_A + nB[2]*b_B;
-      n[3] = nA[3]*b_A + nB[3]*b_B;
-
-      nk = n[0]*pvec0 - n[1]*pvec1 - n[2]*pvec2 - n[3]*pvec3;
-
-      const bool_v mask3(hel0 == 0.);
-      vc[2] = cxternary( mask3, vc[2], cxmake( -vmass/nk * n[0], zero));
-      vc[3] = cxternary( mask3, vc[3], cxmake( -vmass/nk * n[1], zero));
-      vc[4] = cxternary( mask3, vc[4], cxmake( -vmass/nk * n[2], zero));
-      vc[5] = cxternary( mask3, vc[5], cxmake( -vmass/nk * n[3], zero));
-      vc[6] = cxternary( mask3, -nsv*cI, cxzero_sv());
 #endif
     }
     else
@@ -651,8 +542,6 @@
       vc[3] = cxternary( mask, vcA_3, vcB_3 );
       vc[4] = cxternary( mask, vcA_4, vcB_4 );
 #endif
-      //FD gauge
-      vc[6] = cxzero_sv();
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -675,18 +564,10 @@
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* sc = W_ACCESS::kernelAccess( wavefunctions ); //for FD gauge need to be sc[20], even though only 0-6 is set here
-
+    cxtype_sv* sc = W_ACCESS::kernelAccess( wavefunctions );
+    sc[2] = cxmake( 1 + fptype_sv{ 0 }, 0 );
     sc[0] = cxmake( pvec0 * (fptype)nss, pvec3 * (fptype)nss );
     sc[1] = cxmake( pvec1 * (fptype)nss, pvec2 * (fptype)nss );
-
-    sc[2] = cxmake( 0 + fptype_sv{ 0 }, 0 );
-    //FD gauge
-    sc[2] = cxmake( 0 + fptype_sv{ 0 }, 0 );
-    sc[2] = cxmake( 0 + fptype_sv{ 0 }, 0 );
-    sc[2] = cxmake( 0 + fptype_sv{ 0 }, 0 );
-    sc[6] = cxmake( 1 + fptype_sv{ 0 }, 0 );
-
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -949,136 +830,4 @@
     return;
   }
 
-  //--------------------------------------------------------------------------
-  // Compute the direction n[5] of the gauge q[5]
-  __host__ __device__ INLINE void
-  define_gauge_dir(const cxtype_sv q[5], //input: gauge
-                 fptype_sv n[5]        //output: direction
-                )
- {
-   const fptype_sv qabs2 = q[1].real()*q[1].real()
-                       + q[2].real()*q[2].real()
-                       + q[3].real()*q[3].real();
-
-   const fptype_sv one = 1.;
-   const fptype_sv zero = 0.;
-
-#ifndef MGONGPU_CPPSIMD
-
-    if (qabs2 > 0.0)
-    {
-      const fptype_sv qabs = fpsqrt(qabs2);
-
-      n[0] = fpternary( q[0].real() >= 0. , one , -one);
-      n[1] = -q[1].real() / qabs;
-      n[2] = -q[2].real() / qabs;
-      n[3] = -q[3].real() / qabs;
-      n[4] = zero;
-    }
-    else
-    {
-      n[0] = fpternary( q[0].real() >= 0. , one , -one );
-      n[1] = zero;
-      n[2] = zero;
-      n[3] = fpternary( q[0].real() >= 0. , -one , one);
-      n[4] = zero;
-    }
-#else
-    const fptype_sv qabs = fpsqrt(qabs2);
-    const bool_v qsign = (qabs > 0.);
-    n[0] = fpternary( q[0].real() >= 0. , one , -one);
-    n[1] = fpternary( qsign , -q[1].real() / qabs , zero );
-    n[2] = fpternary( qsign , -q[1].real() / qabs , zero );
-    n[3] = fpternary( qsign , -q[1].real() / qabs , fpternary( q[0].real() >= 0. , one , -one));
-    n[4] = zero;
-#endif
- }
-
-//--------------------------------------------------------------------------
-// Compute propagator factor n[5] of the gauge q[5]
-
-  __host__ __device__ INLINE void
-  calculate_propagator_factor(const cxtype_sv q[5],
-                                 const fptype_sv mass,
-                                 fptype_sv *d)
-  {
-    const fptype_sv one = 1.;
-    const fptype_sv  q2 = q[0].real()*q[0].real() - ( q[1].real()*q[1].real() + q[2].real()*q[2].real() + q[3].real()*q[3].real() );
-    *d = one / (q2 - mass*mass);
-  }
-//--------------------------------------------------------------------------
-// multiply by propagation factor from m and wawefunctionsin[] and output them
-// as wavefunctionout[]
-  template< class W_ACCESS>
-  __host__ __device__ INLINE void
-  multiply_propagator_factor(
-                              const fptype wavefunctionsin[],
-                              const fptype m,
-                              fptype wavefunctionsout[]
-                             )
-  {
-
-    const cxtype_sv* win = W_ACCESS::kernelAccessConst( wavefunctionsin );
-    cxtype_sv* wout = W_ACCESS::kernelAccess( wavefunctionsout );
-
-    cxtype_sv q[5];
-    fptype_sv n[5];
-    cxtype_sv w0[5], w1[5];
-
-    const cxtype_sv cI = cxmake(static_cast<fptype_sv>(0.), static_cast<fptype_sv>(1.));
-
-    // Construct q
-    q[0] = -win[0].real();
-    q[1] = -win[1].real();
-    q[2] = -win[1].imag();
-    q[3] = -win[0].imag();
-    q[4] = -cI*m;
-
-    // Copy first two components
-    wout[0] = win[0];
-    wout[1] = win[1];
-
-    define_gauge_dir(q, n);
-
-    w0[0] = win[2];
-    w0[1] = win[3];
-    w0[2] = win[4];
-    w0[3] = win[5];
-    w0[4] = win[6];
-
-    fptype_sv nq =
-          n[0]*q[0].real()
-        - n[1]*q[1].real()
-        - n[2]*q[2].real()
-        - n[3]*q[3].real();
-
-    fptype_sv d;
-    calculate_propagator_factor(q, m, &d);
-
-    cxtype_sv js1 =
-        ( n[0]*w0[0]
-        - n[1]*w0[1]
-        - n[2]*w0[2]
-        - n[3]*w0[3] ) / nq;
-
-    cxtype_sv js2 =
-        ( q[0]*w0[0]
-        - q[1]*w0[1]
-        - q[2]*w0[2]
-        - q[3]*w0[3]
-        - cxconj(q[4]) * w0[4] ) / nq;
-
-    w1[0] = w0[0] - q[0]*js1 - n[0]*js2;
-    w1[1] = w0[1] - q[1]*js1 - n[1]*js2;
-    w1[2] = w0[2] - q[2]*js1 - n[2]*js2;
-    w1[3] = w0[3] - q[3]*js1 - n[3]*js2;
-    w1[4] = w0[4] - q[4]*js1 - n[4]*js2;
-
-    wout[2] = w1[0];
-    wout[3] = w1[1];
-    wout[4] = w1[2];
-    wout[5] = w1[3];
-    wout[6] = w1[4];
-  }
-  //--------------------------------------------------------------------------
   //==========================================================================

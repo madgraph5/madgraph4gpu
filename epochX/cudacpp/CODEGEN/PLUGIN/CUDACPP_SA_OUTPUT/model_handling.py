@@ -5,6 +5,7 @@
 
 import os
 import sys
+import re
 from aloha import unitary_gauge
 
 #FD gauge check
@@ -115,6 +116,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # AV - improve formatting
     ###type2def['int'] = 'int '
     type2def['int'] = 'int'
+    type2def['int_v'] = 'int'
     ###type2def['double'] = 'fptype '
     type2def['double'] = 'fptype'
     ###type2def['complex'] = 'cxtype '
@@ -172,13 +174,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # [NB: this exists in ALOHAWriterForGPU but essentially falls back to ALOHAWriterForCPP]
     # [NB: no, actually this exists twice(!) in ForGPU and the 2nd version is not trivial! but I keep the ForCPP version]
     # This affects HelAmps_sm.h and HelAmps_sm.cc
-    def get_header_txt(self, name=None, couplings=None,mode=''):
+    def get_header_txt(self, name=None, couplings=None,mode='', combined=False):
         """Define the Header of the fortran file. This include
             - function tag
             - definition of variable
         """
         if name is None:
             name = self.name
+        if fd_gauge and name.count("_") > 1:  # FIXME ugly hack to get right header
+            combined = True
         if mode=='':
             mode = self.mode
         out = StringIO()
@@ -208,12 +212,16 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 args.append('double Ccoeff%s'% argname[7:]) # OM for 'unary minus' #628
             else:
                 args.append('%s %s%s'% (type, argname, list_arg))
+
+        indent = ' ' * len( '  %s( ' % name )
         if not self.offshell:
             ###output = '%(doublec)s%(pointer_vertex)s allvertexes' % {
             ###    'doublec': self.type2def['double'],
             ###    'pointer_vertex': self.type2def['pointer_vertex']}
             output = '%(doublec)s allvertexes[]' % {
                 'doublec': self.type2def['double']}
+            if combined:
+                output = output + ', ' + '\n%(indent)s%(doublec)s alltmp[]' % {'doublec': self.type2def['double'], 'indent': indent}
             comment_output = 'amplitude \'vertex\''
             template = 'template<class W_ACCESS, class A_ACCESS, class C_ACCESS>'
         else:
@@ -221,11 +229,14 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'doublec': self.type2def['double'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
+            if combined:
+                output = output + ', ' + '\n%(indent)s%(doublec)s all%(spin)stmp[]' % {'doublec': self.type2def['double'],
+                                                                                    'spin': self.particles[self.outgoing -1],
+                                                                                    'indent': indent}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
             template = 'template<class W_ACCESS, class C_ACCESS>'
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
-        indent = ' ' * len( '  %s( ' % name )
         out.write('  %(comment)s\n  %(template)s\n  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
                   {'comment': comment, # AV - add comment
                    'template': template, # AV - add template
@@ -243,23 +254,25 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # This affects HelAmps_sm.cc
-    def get_foot_txt(self):
+    def get_foot_txt(self, combine=False):
         """Prototype for language specific footer"""
         ###return '}\n'
 
         text = ' '
-        if fd_gauge:
+        if not combine and fd_gauge:
             if self.outgoing and 'P1N' not in self.tag:
                 name = self.particles[self.outgoing-1]
                 if name.startswith(('S','V')):
                     text += '      multiply_propagator_factor<W_ACCESS>(all%(name)s%(i)s,%(mass)s%(i)s, all%(name)s%(i)s);\n' % \
                             {'name':name, 'mass': 'M%s' % name[1:], 'i': self.outgoing }
+        text +='    mgDebug( 1, __FUNCTION__ );\n'
+        text +='    return;\n'
         text += '  }\n\n  //--------------------------------------------------------------------------' # AV
         return text
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # This affects HelAmps_sm.cc
-    def get_declaration_txt(self, add_i=True):
+    def get_declaration_txt(self, add_i=True, combined=False):
         """ Prototype for how to write the declaration of variable
             Include the symmetry line (entry FFV_2)
         """
@@ -281,6 +294,16 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             access = 'W_ACCESS'
             allvname = 'all'+vname
         out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
+        if combined:
+            if not self.offshell:
+                vname = 'tmp'
+                allvname = 'alltmp'
+                access = 'A_ACCESS'
+            else:
+                vname = '%(spin)stmp' % { 'spin': self.particles[self.outgoing -1]}
+                access = 'W_ACCESS'
+                allvname = 'all'+vname
+            out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
         if fd_gauge:
             out.write('    cxtype_sv CZERO(0.,0.); \n')
             #out.writh('    int i; \n')
@@ -327,7 +350,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 codedict[fullname] = '%s %s' % (self.type2def[type+'_v'], fullname) # AV vectorize, add to codedict
             ###print(fullname, codedict[fullname]) # FOR DEBUGGING
-            if self.nodeclare:
+            if  self.nodeclare:
                 self.declaration.codedict = codedict # AV new behaviour (delayed declaration with initialisation)
             else:
                 out.write('    %s;\n' % codedict[fullname] ) # AV old behaviour (separate declaration with no initialization)
@@ -381,7 +404,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             if type in ['S','V']:
                 for i in range(3,8):
                     cppindex = i -1
-                    out.write(" %(type)s%(out)s[%(ind)s] = CZERO ;\n" % {'type': type, 'out':self.outgoing, 'ind':cppindex})
+                    out.write("    %(type)s%(out)s[%(ind)s] = CZERO ;\n" % {'type': type, 'out':self.outgoing, 'ind':cppindex})
                 # Returning result
         ###print('."' + out.getvalue() + '"') # AV - FOR DEBUGGING
         return out.getvalue()
@@ -529,8 +552,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out.write('    %s[%d] = %s * %s;\n' % (self.outname, # AV
                                         self.pass_to_HELAS(ind) + shift, coeff,
                                         self.write_obj(numerator.get_rep(ind))))
-        out.write('    mgDebug( 1, __FUNCTION__ );\n') # AV
-        out.write('    return;\n') # AV
+        #out.write('    mgDebug( 1, __FUNCTION__ );\n') # AV
+        #out.write('    return;\n') # AV
         ###return out.getvalue() # AV
         # AV check if one, two, half or quarter are used and need to be defined (ugly hack for #291: can this be done better?)
         out2 = StringIO()
@@ -647,6 +670,103 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         ###print('....."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
         return file_str.getvalue()
 
+
+    # FS overload of upstream function
+    # used mainly for FD gauge
+    def write_combined_cc(self, lor_names, offshell=None, sym=True, mode=''):
+        "Return the content of the .cc file linked to multiple lorentz call."
+        # Set some usefull command
+        if offshell is None:
+            offshell = self.offshell
+
+        name = combine_name(self.routine.name, lor_names, offshell, self.tag)
+        self.name = name
+        # write head - momenta - body - foot
+        text = StringIO()
+        routine = StringIO()
+        data = {}  # for the formating of the line
+
+
+        # write header
+        new_couplings = ['COUP%s' % (i + 1) for i in range(len(lor_names) + 1)]
+        text.write(self.get_header_txt(name=name, couplings=new_couplings, mode=mode, combined=True))
+        # Define which part of the routine should be called
+        data['addon'] = ''.join(self.tag) + '_%s' % self.offshell
+
+        # how to call the routine
+        argument = [name for format, name in self.define_argument_list(new_couplings)]
+        index = argument.index('COUP1')
+        data['before_coup'] = ','.join('all' + arg for arg in argument[:index])
+        data['after_coup'] = ','.join(argument[index + len(lor_names) + 1:])
+        if data['after_coup']:
+            data['after_coup'] = ',' + data['after_coup']
+
+        # to define accesses
+        if name.endswith('_0'):
+            data['access'] = '<W_ACCESS,A_ACCESS,C_ACCESS>'
+        else:
+            data['access'] = '<W_ACCESS,C_ACCESS>'
+
+        # names of functions to be combined
+        lor_list = (self.routine.name,) + lor_names
+        line = "    %(name)s%(addon)s%(access)s(%(before_coup)s,%(coup)s,%(ccoef)s%(after_coup)s,all%(out)s);\n"
+        main = '%(spin)s%(id)d' % {'spin': self.particles[self.offshell - 1],
+                                   'id': self.outgoing}
+        for i, name in enumerate(lor_list):
+            data['name'] = name
+            data['coup'] = 'allCOUP%d' % (i + 1)
+
+            if i == 0:
+                if not offshell:
+                    data['out'] = 'vertexes'
+                else:
+                    data['out'] = main
+            elif i == 1:
+                if self.offshell:
+                    type = self.particles[self.offshell - 1]
+                    self.declaration.add(('list_complex', '%stmp' % type))
+                else:
+                    type = ''
+                    self.declaration.add(('complex', '%stmp' % type))
+                data['out'] = '%stmp' % type
+            data['ccoef'] = 'Ccoeff%d' % (i + 1)
+            routine.write(line % data)
+            if i:
+                if not offshell:
+                    routine.write('    (*vertex) = (*vertex) + (*tmp);\n')
+                else:
+                    size = self.type_to_size[self.particles[offshell - 1]] - 2
+                    # routine.write(""" i= %s;\nwhile (i < %s)\n{\n""" % (self.momentum_size, self.momentum_size + size))
+                    # routine.write(" %(main)s[i] = %(main)s[i] + %(tmp)s[i];\n i++;\n" % \
+                    # {'main': main, 'tmp': data['out']})
+                    # routine.write('}\n')
+                    routine.write('   //unrolled upstream while\n')
+                    for index in range(self.momentum_size,
+                                       self.momentum_size + size):  # unrolling the upstream loop -1 for cpp
+                        routine.write('    %(main)s[%(index)d] = %(main)s[%(index)d] + %(tmp)s[%(index)d];\n' % \
+                                      {'main': main, 'tmp': data['out'], 'index': index})
+                    self.declaration.add(('int', 'i'))
+        self.declaration.discard(('complex', 'COUP'))
+        self.declaration.discard(('complex', 'denom'))
+        if self.outgoing:
+            self.declaration.discard(('list_double', 'P%s' % self.outgoing))
+            self.declaration.discard(('double', 'OM%s' % self.outgoing))
+
+        tmtmt = aloha.aloha_lib.KERNEL.reduced_expr2
+
+        for name in aloha.aloha_lib.KERNEL.reduced_expr2:
+            self.declaration.discard(('complex', name))
+
+        # clean pointless declaration
+        # self.declaration.discard
+        text.write(self.get_declaration_txt(add_i=False, combined=True))
+        text.write(routine.getvalue())
+        text.write(self.get_foot_txt())
+
+        text = text.getvalue()
+        return text
+
+
 #------------------------------------------------------------------------------------
 
 from os.path import join as pjoin
@@ -693,7 +813,11 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###path = pjoin(MG5DIR, 'aloha','template_files')
         path = pjoin(PLUGINDIR, 'aloha', 'template_files')
         out = []
-        if ext == 'h': file = open(pjoin(path, self.helas_h)).read()
+        if not fd_gauge:
+            helas_temp_file = self.helas_h
+        else:
+            helas_temp_file = self.helas_h.replace('.h', '_fd.h')
+        if ext == 'h': file = open(pjoin(path, helas_temp_file)).read()
         else: file = open(pjoin(path, self.helas_cc)).read()
         file = '\n'.join( file.split('\n')[9:] ) # skip first 9 lines in helas.h/cu (copyright including ALOHA)
         out.append( file )
@@ -1099,7 +1223,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # Read in the template .h and .cc files, stripped of compiler commands and namespaces
         template_h_files = self.read_aloha_template_files(ext = 'h')
         template_cc_files = self.read_aloha_template_files(ext = 'cc')
-        aloha_model = create_aloha.AbstractALOHAModel(self.model.get('name'), explicit_combine=True)
+        if(fd_gauge):
+            aloha_model = create_aloha.AbstractALOHAModel(self.model.get('name'), explicit_combine=False)
+        else:
+            aloha_model = create_aloha.AbstractALOHAModel(self.model.get('name'), explicit_combine=True)
         aloha_model.add_Lorentz_object(self.model.get('lorentz'))
         if self.wanted_lorentz:
             aloha_model.compute_subset(self.wanted_lorentz)
@@ -1425,8 +1552,20 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     fptype* w_fp[nwf];
     for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
     fptype* amp_fp;
-    amp_fp = reinterpret_cast<fptype*>( amp_sv );
-
+    amp_fp = reinterpret_cast<fptype*>( amp_sv );""")
+            if fd_gauge:
+                ret_lines.append("""
+    // special temporary array to hold F/Vtmp values in the combined vertex functions while using the FD gauge
+    cxtype_sv w_tmp_sv[nw6]; 
+    fptype* w_tmp_fp;
+    w_tmp_fp = reinterpret_cast<fptype*>( w_tmp_sv );
+    
+    // special one value to hold tmp vertex value inside the combined vertex functions while using the FD gauge
+    cxtype amp_tmp_sv[1];
+    fptype* amp_tmp_fp;
+    amp_tmp_fp = reinterpret_cast<fptype*>( amp_tmp_sv );
+    """)
+            ret_lines.append("""
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
@@ -2214,14 +2353,19 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
                 arg['out'] = 'w_fp[%(out)d]'
+                if fd_gauge and len(l) > 1: #FIXME: this is a hack to avoid a bug in the FD code
+                    arg['out'] = arg['out'] + ", &w_tmp_fp[0]"
                 if aloha.complex_mass:
                     arg['mass'] = 'm_pars->%(CM)s, '
                 else:
                     arg['mass'] = 'm_pars->%(M)s, m_pars->%(W)s, '
+
             else:
                 #arg['out'] = '&amp_sv[%(out)d]'
                 arg['out'] = '&amp_fp[%(out)d]'
                 arg['out2'] = 'amp_sv[%(out)d]'
+                if fd_gauge and len(l) > 1: #FIXME: this is a hack to avoid a bug in the FD code
+                    arg['out'] = arg['out'] + ", &amp_tmp_fp[0]"
                 arg['mass'] = ''
             call = call % arg
             # Now we have a line correctly formatted
@@ -2233,4 +2377,82 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         else:
             self.add_amplitude(argument.get_call_key(), call_function)
 
+
+def combine_name(name, other_names, outgoing, tag=None, unknown_propa=False):
+    """ build the name for combined aloha function """
+
+    def myHash(target_string):
+        suffix = ''
+        if '%(propa)s' in target_string:
+            target_string = target_string.replace('%(propa)s', '')
+            suffix = '%(propa)s'
+
+        if len(target_string) < 50:
+            return '%s%s' % (target_string, suffix)
+        else:
+            return 'ALOHA_%s%s' % (str(hash(target_string.lower())).replace('-', 'm'), suffix)
+
+    if tag and any(t.startswith('P') for t in tag[:-1]):
+        # propagator need to be the last entry for the tag
+        for i, t in enumerate(tag):
+            if t.startswith('P'):
+                tag.pop(i)
+                tag.append(t)
+                break
+
+    # Two possible scheme FFV1C1_2_X or FFV1__FFV2C1_X
+    # If they are all in FFVX scheme then use the first
+    p = re.compile(r'^(?P<type>[RFSVT]{2,})(?P<id>\d+)$')
+    routine = ''
+    if p.search(name):
+        base, id = p.search(name).groups()
+        routine = name
+        for s in other_names:
+            try:
+                base2, id2 = p.search(s).groups()
+            except Exception:
+                routine = ''
+                break  # one matching not good -> other scheme
+            if base != base2:
+                routine = ''
+                break  # one matching not good -> other scheme
+            else:
+                routine += '_%s' % id2
+
+    if routine:
+        if tag is not None:
+            routine += ''.join(tag)
+        if unknown_propa and outgoing:
+            routine += '%(propa)s'
+        if outgoing is not None:
+            return myHash(routine) + '_%s' % outgoing
+        #            return routine +'_%s' % outgoing
+        else:
+            return myHash(routine)
+    #            return routine
+
+    if tag is not None:
+        addon = ''.join(tag)
+    else:
+        addon = ''
+        if 'C' in name:
+            short_name, addon = name.split('C', 1)
+            try:
+                addon = 'C' + str(int(addon))
+            except Exception:
+                addon = ''
+            else:
+                name = short_name
+    if unknown_propa:
+        addon += '%(propa)s'
+
+    #    if outgoing is not None:
+    #        return '_'.join((name,) + tuple(other_names)) + addon + '_%s' % outgoing
+    #    else:
+    #        return '_'.join((name,) + tuple(other_names)) + addon
+
+    if outgoing is not None:
+        return myHash('_'.join((name,) + tuple(other_names))) + addon + '_%s' % outgoing
+    else:
+        return myHash('_'.join((name,) + tuple(other_names))) + addon
 #------------------------------------------------------------------------------------
