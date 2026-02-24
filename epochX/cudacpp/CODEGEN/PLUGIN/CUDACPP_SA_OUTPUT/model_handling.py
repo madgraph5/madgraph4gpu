@@ -761,7 +761,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         # self.declaration.discard
         text.write(self.get_declaration_txt(add_i=False, combined=True))
         text.write(routine.getvalue())
-        text.write(self.get_foot_txt())
+        text.write(self.get_foot_txt(combine=True))
 
         text = text.getvalue()
         return text
