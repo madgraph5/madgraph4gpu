@@ -962,8 +962,8 @@
                        + q[2].real()*q[2].real()
                        + q[3].real()*q[3].real();
 
-   const fptype_sv one = 1.;
-   const fptype_sv zero = 0.;
+   const fptype_sv one = 1. + fptype_sv{0};
+   const fptype_sv zero = 0. + fptype_sv{0};
 
 #ifndef MGONGPU_CPPSIMD
 
@@ -1001,10 +1001,10 @@
 
   __host__ __device__ INLINE void
   calculate_propagator_factor(const cxtype_sv q[5],
-                                 const fptype_sv mass,
+                                 const fptype mass,
                                  fptype_sv *d)
   {
-    const fptype_sv one = 1.;
+    const fptype_sv one = 1. + fptype_sv{0};
     const fptype_sv  q2 = q[0].real()*q[0].real() - ( q[1].real()*q[1].real() + q[2].real()*q[2].real() + q[3].real()*q[3].real() );
     *d = one / (q2 - mass*mass);
   }
