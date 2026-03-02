@@ -3353,7 +3353,7 @@ class RunCard(ConfigFile):
     def retro_compatible_custom_fct(lines, mode=None):
 
         f77_type = ['real*8', 'integer', 'double precision', 'logical']
-        function_pat = re.compile('^\s+(?:SUBROUTINE|(?:%(type)s)\s+function)\s+([a-zA-Z]\w*)' \
+        function_pat = re.compile(r'^\s+(?:SUBROUTINE|(?:%(type)s)\s+function)\s+([a-zA-Z]\w*)' \
                                 % {'type':'|'.join(f77_type)}, re.I+re.M)
         include_pat = re.compile(r"\s+include\s+[\'\"]([\w\./]*)") 
         
