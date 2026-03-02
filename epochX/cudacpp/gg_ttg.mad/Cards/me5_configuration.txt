@@ -235,7 +235,7 @@
 # pineappl = pineappl
 
 
-#mg5_path = /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/mg5amcnlo 
+#mg5_path = /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/mg5amcnlo 
 
 # MG5 MAIN DIRECTORY
-#mg5_path = /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/mg5amcnlo
+#mg5_path = /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/mg5amcnlo
