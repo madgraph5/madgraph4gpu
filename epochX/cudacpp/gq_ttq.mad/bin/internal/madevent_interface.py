@@ -3675,7 +3675,7 @@ Beware that this can be dangerous for local multicore runs.""")
         devnull.close()
     
     ############################################################################ 
-    def do_comine_iteration(self, line):
+    def do_combine_iteration(self, line):
         """Not in help: Combine a given iteration combine_iteration Pdir Gdir S|R step
             S is for survey 
             R is for refine
@@ -5634,6 +5634,19 @@ tar -czf split_$1.tar.gz split_$1
                 misc.gzip(filename)              
             else:
                 logger.info('No valid files for delphes plot')
+
+    def do_compile(self, line):
+        """compile the current directory    """
+
+        args = self.split_arg(line)
+        self.ask_run_configuration(mode='parton')
+        self.run_card = banner_mod.RunCard(pjoin(self.me_dir, 'Cards', 'run_card.dat'))
+        self.configure_directory(html_opening =False)
+
+        for Pdir in self.get_Pdir():
+            misc.sprint(Pdir)
+            self.compile(['gensym'], cwd=Pdir)
+            self.compile(['madevent_forhel'], cwd=Pdir)
 
     ############################################################################
     def do_syscalc(self, line):

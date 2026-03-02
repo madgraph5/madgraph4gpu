@@ -1,8 +1,6 @@
-[1;31mNote that this is a development version.
-This version is intended for development/beta testing and NOT for production.
-This version has not been fully tested (if at all) and might have limited user support (if at all)[0m
 Running MG5 in debug mode
 Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
+[1;32mDEBUG:  alltag = [0m ['r989', 'v3.6.6'] [1;30m[madgraph_interface.py at line 216][0m [0m
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -15,11 +13,8 @@ Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.4                 2025-09-13         *
-[1;31m*                                                          *[1;0m
-[1;31m*          WARNING: UNKNOWN DEVELOPMENT VERSION.           *[1;0m
-[1;31m*            WARNING: DO NOT USE FOR PRODUCTION            *[1;0m
-[1;31m*                                                          *[1;0m
+*         VERSION 3.6.6                 2025-10-30         *
+*         GIT v3.6.6                          HEAD         *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *              http://madgraph.phys.ucl.ac.be/             *
@@ -48,7 +43,7 @@ Note that you can still compile and run aMC@NLO with the built-in PDFs
 
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
-import /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j.mg
+import /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j.mg
 The import format was not given, so we guess it as command
 set stdout_level DEBUG
 set output information to level: 10
@@ -56,7 +51,7 @@ set zerowidth_tchannel F
 define j = p
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.004682302474975586 [0m
+[1;32mDEBUG: model prefixing  takes 0.0022420883178710938 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -167,7 +162,7 @@ INFO: Process u~ u > t t~ added to mirror process u u~ > t t~
 INFO: Process c~ c > t t~ added to mirror process c c~ > t t~ 
 INFO: Process d~ d > t t~ added to mirror process d d~ > t t~ 
 INFO: Process s~ s > t t~ added to mirror process s s~ > t t~ 
-5 processes with 7 diagrams generated in 0.027 s
+5 processes with 7 diagrams generated in 0.013 s
 Total: 5 processes with 7 diagrams
 add process p p > t t~ j @1
 INFO: Checking for minimal orders which gives processes. 
@@ -207,7 +202,7 @@ INFO: Process d~ g > t t~ d~ added to mirror process g d~ > t t~ d~
 INFO: Process d~ d > t t~ g added to mirror process d d~ > t t~ g 
 INFO: Process s~ g > t t~ s~ added to mirror process g s~ > t t~ s~ 
 INFO: Process s~ s > t t~ g added to mirror process s s~ > t t~ g 
-13 processes with 76 diagrams generated in 0.111 s
+13 processes with 76 diagrams generated in 0.055 s
 Total: 18 processes with 83 diagrams
 add process p p > t t~ j j @2
 INFO: Checking for minimal orders which gives processes. 
@@ -373,7 +368,7 @@ INFO: Process s~ u~ > t t~ u~ s~ added to mirror process u~ s~ > t t~ u~ s~
 INFO: Process s~ c~ > t t~ c~ s~ added to mirror process c~ s~ > t t~ c~ s~ 
 INFO: Process s~ d~ > t t~ d~ s~ added to mirror process d~ s~ > t t~ d~ s~ 
 INFO: Crossed process found for s~ s~ > t t~ s~ s~, reuse diagrams. 
-65 processes with 1119 diagrams generated in 1.506 s
+65 processes with 1119 diagrams generated in 0.790 s
 Total: 83 processes with 1202 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -384,10 +379,10 @@ output madevent_simd ../TMPOUT/CODEGEN_mad_pp_tt012j --hel_recycling=False --vec
 INFO: initialize a new directory: CODEGEN_mad_pp_tt012j 
 INFO: remove old information in CODEGEN_mad_pp_tt012j 
 [1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 180][0m [0m
-[1;34mWARNING: File exists /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j [0m
-INFO: Creating subdirectories in directory /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j 
-[1;34mWARNING: File exists /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards [0m
-[1;34mWARNING: File exists /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses [0m
+[1;34mWARNING: File exists /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j [0m
+INFO: Creating subdirectories in directory /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j 
+[1;34mWARNING: File exists /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards [0m
+[1;34mWARNING: File exists /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/SubProcesses [0m
 INFO: Organizing processes into subprocess groups 
 INFO: Generating Helas calls for process: g g > t t~ g g WEIGHTED<=4 @2 
 INFO: Processing color information for process: g g > t t~ g g @2 
@@ -688,22 +683,22 @@ INFO: Finding symmetric diagrams for subprocess group uux_ttx
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 1 [1;30m[model_handling.py at line 1552][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1} [1;30m[model_handling.py at line 1576][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1} [1;30m[model_handling.py at line 1577][0m [0m
-Generated helas calls for 18 subprocesses (372 diagrams) in 1.081 s
-Wrote files for 810 helas calls in 2.308 s
+Generated helas calls for 18 subprocesses (372 diagrams) in 0.526 s
+Wrote files for 810 helas calls in 1.203 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 5 routines in  0.269 s
+ALOHA: aloha creates 5 routines in  0.104 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 routines[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVVV1 routines[0m
 ALOHA: aloha creates VVVV3 routines[0m
 ALOHA: aloha creates VVVV4 routines[0m
-ALOHA: aloha creates 10 routines in  0.219 s
+ALOHA: aloha creates 10 routines in  0.114 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -716,32 +711,32 @@ ALOHA: aloha creates 10 routines in  0.219 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV3
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV4
 <class 'aloha.create_aloha.AbstractRoutine'> VVVV4
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./HelAmps_sm.h
-INFO: Created file HelAmps_sm.h in directory /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./HelAmps_sm.h
+INFO: Created file HelAmps_sm.h in directory /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
 super_write_set_parameters_onlyfixMajorana (hardcoded=False)
 super_write_set_parameters_onlyfixMajorana (hardcoded=True)
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.h
-FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.cc
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.h
+FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/./Parameters_sm.cc
 INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory 
-INFO: /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. and /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
+INFO: /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. and /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/src/. 
 The option zerowidth_tchannel is modified [True] but will not be written in the configuration files.
 If you want to make this value the default for future session, you can run 'save options --all'
-save configuration file to /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt
+save configuration file to /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt
 INFO: Use Fortran compiler gfortran 
 INFO: Use c++ compiler g++ 
 INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
 [1;32mDEBUG:  result.returncode = [0m 0 [1;30m[output.py at line 273][0m [0m
-Output to directory /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j done.
+Output to directory /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j done.
 Type "launch" to generate events from this process, or see
-/home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/README
+/home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/README
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m9.987s
-user	0m8.742s
-sys	0m1.169s
-Code generation completed in 10 seconds
+real	0m5.320s
+user	0m4.683s
+sys	0m0.550s
+Code generation completed in 5 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *
@@ -754,7 +749,7 @@ Code generation completed in 10 seconds
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.4                                    *
+*         VERSION 3.6.6                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -762,9 +757,9 @@ Code generation completed in 10 seconds
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
-INFO: load configuration from /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
-INFO: load configuration from /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 treatcards run
@@ -783,7 +778,7 @@ launch in debug mode
 *                   *        * *        *                  *
 *                 *                       *                *
 *                                                          *
-*         VERSION 3.6.4                                    *
+*         VERSION 3.6.6                                    *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *    https://server06.fynu.ucl.ac.be/projects/madgraph     *
@@ -791,9 +786,9 @@ launch in debug mode
 *               Type 'help' for in-line help.              *
 *                                                          *
 ************************************************************
-INFO: load configuration from /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
-INFO: load configuration from /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
-INFO: load configuration from /home/dmass/Development/madgraph4gpu/1068-cppauto-deduction/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/mg5amcnlo/input/mg5_configuration.txt  
+INFO: load configuration from /home/dmass/Development/madgraph4gpu/ci_3.6.6/MG5aMC/TMPOUT/CODEGEN_mad_pp_tt012j/Cards/me5_configuration.txt  
 Using default eps viewer "evince". Set another one in ./input/mg5_configuration.txt
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 treatcards param
