@@ -76,6 +76,6 @@ else:
     # NB! Do not use '(1,00,01)' here: leading zeros in decimal integer literals are not permitted in python (#1013)
     __version__ = (1,1,1)
 
-    minimal_mg5amcnlo_version = (3,6,4)
+    minimal_mg5amcnlo_version = (3,6,5)
     maximal_mg5amcnlo_version = (1000,1000,1000)
     latest_validated_version = (3,6,5)
