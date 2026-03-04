@@ -1556,12 +1556,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             if fd_gauge:
                 ret_lines.append("""
     // special temporary array to hold F/Vtmp values in the combined vertex functions while using the FD gauge
-    cxtype_sv w_tmp_sv[nw6]; 
+    alignas(sizeof(cxtype_sv)/2) cxtype_sv w_tmp_sv[nw6]; //to ensure proper aligment for vector instructions
     fptype* w_tmp_fp;
     w_tmp_fp = reinterpret_cast<fptype*>( w_tmp_sv );
     
     // special one value to hold tmp vertex value inside the combined vertex functions while using the FD gauge
-    cxtype amp_tmp_sv[1];
+    alignas(sizeof(cxtype_sv)/2) cxtype amp_tmp_sv[1]; //to ensure proper aligment for vector instructions
     fptype* amp_tmp_fp;
     amp_tmp_fp = reinterpret_cast<fptype*>( amp_tmp_sv );
     """)
