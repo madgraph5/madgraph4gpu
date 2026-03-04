@@ -399,7 +399,7 @@ function codeGenAndDiff()
   else
     outprocauto=${MG5AMC_HOME}/${outproc}
   fi
-  gcp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
+  cp -dpr ${MG5AMC_HOME}/${outproc}_log.txt ${outprocauto}/
   # Output directories: examples ee_mumu.sa for cudacpp, eemumu.auto for alpaka and gridpacks, eemumu.cpp or eemumu.gpu for cpp and gpu
   autosuffix=sa
   if [ "${SCRBCK}" == "gridpack" ]; then
@@ -418,7 +418,7 @@ function codeGenAndDiff()
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
   rm -rf ${OUTDIR}/${proc}.${autosuffix}.BKP
   if [ -d ${OUTDIR}/${proc}.${autosuffix} ]; then mv ${OUTDIR}/${proc}.${autosuffix} ${OUTDIR}/${proc}.${autosuffix}.BKP; fi
-  gcp -dpr ${outprocauto} ${OUTDIR}/${proc}.${autosuffix}
+  cp -dpr ${outprocauto} ${OUTDIR}/${proc}.${autosuffix}
   echo -e "\nOutput source code has been copied to ${OUTDIR}/${proc}.${autosuffix}"
   # Add file mg5.in as in Stephan's runCodegen.sh script
   cat ${MG5AMC_HOME}/${outproc}.mg | sed "s|${outproc}|${proc}.${autosuffix}|" > ${OUTDIR}/${proc}.${autosuffix}/mg5.in
