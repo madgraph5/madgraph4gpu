@@ -1561,7 +1561,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     w_tmp_fp = reinterpret_cast<fptype*>( w_tmp_sv );
     
     // special one value to hold tmp vertex value inside the combined vertex functions while using the FD gauge
-    alignas(sizeof(cxtype_sv)/2) cxtype amp_tmp_sv[1]; //to ensure proper aligment for vector instructions
+    alignas(sizeof(cxtype_sv)/2) cxtype_sv amp_tmp_sv[1]; //to ensure proper aligment for vector instructions
     fptype* amp_tmp_fp;
     amp_tmp_fp = reinterpret_cast<fptype*>( amp_tmp_sv );
     """)
