@@ -265,7 +265,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 if name.startswith(('S','V')):
                     text += '      multiply_propagator_factor<W_ACCESS>(all%(name)s%(i)s,%(mass)s%(i)s, all%(name)s%(i)s);\n' % \
                             {'name':name, 'mass': 'M%s' % name[1:], 'i': self.outgoing }
-        text +='    mgDebug( 1, __FUNCTION__ );\n'
+        text +='   mgDebug( 1, __FUNCTION__ );\n'
         text +='    return;\n'
         text += '  }\n\n  //--------------------------------------------------------------------------' # AV
         return text
