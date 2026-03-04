@@ -305,7 +305,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 allvname = 'all'+vname
             out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
         if fd_gauge:
-            out.write('    cxtype_sv CZERO(0.,0.); \n')
+            out.write('    cxtype_sv CZERO=cxzero_sv(); \n')
             #out.writh('    int i; \n')
         # define the complex number CI = 0+1j
         if add_i:
