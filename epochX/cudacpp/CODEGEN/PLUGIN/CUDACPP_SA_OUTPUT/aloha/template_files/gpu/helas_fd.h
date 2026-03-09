@@ -606,7 +606,7 @@
 
       nk = n[0]*pvec0 - n[1]*pvec1 - n[2]*pvec2 - n[3]*pvec3;
 
-      const bool_v mask3(abs(nhel) == 1);
+      const bool_v mask3 = { (abs(nhel) == 1 ? 1 : 0) }; // first element replicated
       vc[2] = cxternary( mask3, vc[2], cxmake( -vmass/nk * n[0], zero));
       vc[3] = cxternary( mask3, vc[3], cxmake( -vmass/nk * n[1], zero));
       vc[4] = cxternary( mask3, vc[4], cxmake( -vmass/nk * n[2], zero));
