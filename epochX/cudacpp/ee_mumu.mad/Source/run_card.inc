@@ -58,6 +58,10 @@
 
       IEVO_EVA = 0
 
+      EVAORDER = 0
+
+      EVA_XCUT = 1
+
       SCALEFACT = 1.000000000000000D+00
 
       ICKKW = 0
