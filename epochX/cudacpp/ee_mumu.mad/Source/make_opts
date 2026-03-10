@@ -30,6 +30,14 @@ MACFLAG=
 endif
 endif
 
+# set the flag for dynamical library
+ifeq ($(UNAME), Darwin)
+DYNLIBFLAG=-dynamiclib
+RPATHFLAG=-install_name @rpath/
+else
+DYNLIBFLAG=-shared -fPIC
+RPATHFLAG=-Wl,-soname,
+endif
 
 ifeq ($(origin CXXFLAGS),undefined)
 CXXFLAGS= -O $(STDLIB_FLAG) $(MACFLAG)

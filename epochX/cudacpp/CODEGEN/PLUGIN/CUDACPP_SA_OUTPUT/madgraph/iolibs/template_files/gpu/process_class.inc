@@ -42,7 +42,7 @@
 
     // Process-independent compile-time constants
     static constexpr int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
-    static constexpr int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+    static constexpr int nw6 = %(nwave)d; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
 
     // Process-dependent compile-time constants
     static constexpr int npari = %(nincoming)d; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
