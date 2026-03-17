@@ -1329,7 +1329,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ###replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions() # how do I get HERE the right value of nwf, e.g. 5 for gg_tt?
         nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
         replace_dict['nincoming'] = nincoming
-        replace_dict['nwave'] = 6 + (fd_gauge)
+        replace_dict['nwave'] = 6
+        if (fd_gauge): replace_dict['nwave'] += 1
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
