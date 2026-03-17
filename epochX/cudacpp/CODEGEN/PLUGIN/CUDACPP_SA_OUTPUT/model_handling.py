@@ -674,7 +674,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # FS overload of upstream function
     # used mainly for FD gauge
     def write_combined_cc(self, lor_names, offshell=None, sym=True, mode=''):
-        "Return the content of the .cc file linked to multiple lorentz call."
+        """Return the content of the .cc file linked to multiple lorentz call."""
         # Set some usefull command
         if offshell is None:
             offshell = self.offshell
