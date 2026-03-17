@@ -1441,7 +1441,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
       memcpy( tIPF_partner1 + i * nMF, tFLV[i].partner1, nMF * sizeof( int ) );
       memcpy( tIPF_partner2 + i * nMF, tFLV[i].partner2, nMF * sizeof( int ) );
       for (int j = 0; j < nMF; ++j)
-        tIPF_value[i * nMF + j] = *tFLV[i].value[j] ? *tFLV[i].value[j] : cxtype{}; // guard from null pointers
+        tIPF_value[i * nMF + j] = tFLV[i].value[j] ? *tFLV[i].value[j] : cxtype{}; // guard from null pointers
     }""" % ( ', m_pars->'.join(flv_couplings) )
             replace_dict['cipfdevice'] = """__device__ __constant__ int cIPF_partner1[nMF * nIPF];
   __device__ __constant__ int cIPF_partner2[nMF * nIPF];
