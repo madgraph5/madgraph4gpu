@@ -41,7 +41,7 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          int flv,                // input: flavor index
+          const int flv,          // input: flavor index
           ALOHAOBJ & fi,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -56,7 +56,7 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle),
-          int flv,                // input: flavor index
+          const int flv,          // input: flavor index
           ALOHAOBJ & fi,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -71,7 +71,7 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          int flv,                // input: flavor index
+          const int flv,          // input: flavor index
           ALOHAOBJ & fi,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -85,7 +85,7 @@
           const fptype vmass,     // input: vector boson mass
           const int nhel,         // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
           const int nsv,          // input: +1 (final) or -1 (initial)
-          int flv,                // input: flavor index
+          const int flv,          // input: flavor index
           ALOHAOBJ & vc,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -99,6 +99,7 @@
           //const fptype,                 // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
           //const int,                    // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
           const int nss,          // input: +1 (final) or -1 (initial)
+          const int flv,          // input: flavor index
           ALOHAOBJ & sc,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -112,7 +113,7 @@
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          int flv,                // input: flavor index
+          const int flv,          // input: flavor index
           ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -127,7 +128,7 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          int flv,                // input: flavor index
+          const int flv,          // input: flavor index
           ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -142,7 +143,7 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          int flv,                // input: flavor index
+          const int flv,          // input: flavor index
           ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
@@ -156,7 +157,7 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          int flv,                // input: flavor index
+          const int flv,          // input: flavor index
           ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
