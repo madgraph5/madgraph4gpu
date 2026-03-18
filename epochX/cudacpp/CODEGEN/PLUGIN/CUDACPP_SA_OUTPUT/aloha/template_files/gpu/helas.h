@@ -17,36 +17,6 @@
 #define ALWAYS_INLINE
 #endif
 
-  // ALOHA-style object for easy flavor consolidation and non-template API
-  struct ALOHAOBJ {
-
-      static constexpr int np4 = 4;
-      fptype_sv * pvec;
-      fptype * w;
-      int flv_index;
-
-      __host__ __device__ ALOHAOBJ() = default;
-      __host__ __device__ ALOHAOBJ(fptype_sv * pvec_sv, cxtype_sv * w_sv, int flv = -1)
-          : pvec(pvec_sv), w(reinterpret_cast<fptype*>(w_sv)), flv_index(flv) {}
-  };
-
-  struct FLV_COUPLING_VIEW {
-
-      const int* partner1;
-      const int* partner2;
-      const fptype* value;
-
-      __host__ __device__ FLV_COUPLING_VIEW() = default;
-      __host__ __device__
-      FLV_COUPLING_VIEW(const int* partner1_base,
-                        const int* partner2_base,
-                        const fptype* value_base,
-                        const int n)
-      : partner1(partner1_base + n),
-        partner2(partner2_base + n),
-        value(value_base + 2*n) {}
-  };
-
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
