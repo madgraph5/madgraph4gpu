@@ -26,7 +26,8 @@
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavour
+          ALOHAOBJ & fi,          // output: aloha objects
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
 
@@ -40,7 +41,8 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavor index
+          ALOHAOBJ & fi,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
 
@@ -54,7 +56,8 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavor index
+          ALOHAOBJ & fi,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
 
@@ -68,7 +71,8 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavor index
+          ALOHAOBJ & fi,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
 
@@ -81,7 +85,8 @@
           const fptype vmass,     // input: vector boson mass
           const int nhel,         // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
           const int nsv,          // input: +1 (final) or -1 (initial)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavor index
+          ALOHAOBJ & vc,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
 
@@ -94,7 +99,8 @@
           //const fptype,                 // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
           //const int,                    // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
           const int nss,          // input: +1 (final) or -1 (initial)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavor index
+          ALOHAOBJ & sc,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
 
@@ -107,7 +113,8 @@
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavor index
+          ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
 
@@ -121,7 +128,8 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavor index
+          ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
 
@@ -135,7 +143,8 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavor index
+          ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
 
@@ -148,7 +157,8 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavor index
+          ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar          // input: particle# out of npar
           ) ALWAYS_INLINE;
 
@@ -188,7 +198,8 @@
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavour
+          ALOHAOBJ & fi,          // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -200,9 +211,12 @@
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
-    fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf );
-    fi[1] = cxmake( -pvec1 * (fptype)nsf, -pvec2 * (fptype)nsf );
+    cxtype_sv* w = W_ACCESS::kernelAccess( fi.w );
+    fi.pvec[0] = -pvec0 * (fptype)nsf;
+    fi.pvec[1] = -pvec1 * (fptype)nsf;
+    fi.pvec[2] = -pvec2 * (fptype)nsf;
+    fi.pvec[3] = -pvec3 * (fptype)nsf;
+    fi.flv_index = flv;
     const int nh = nhel * nsf;
     if( fmass != 0. )
     {
