@@ -54,7 +54,7 @@ namespace mg5amcCpu
 #ifdef __clang__
   typedef fptype fptype_v __attribute__( ( ext_vector_type( neppV ) ) ); // RRRR
 #else
-  typedef fptype fptype_v __attribute__( ( vector_size( neppV * sizeof( fptype ) ) ) ); // RRRR
+  typedef fptype fptype_v __attribute__( ( vector_size( neppV * sizeof( fptype ) ), aligned( neppV * sizeof( fptype ) ) ) ); // RRRR
 #endif
 
   // Mixed fptypes #537: float for color algebra and double elsewhere
@@ -65,7 +65,7 @@ namespace mg5amcCpu
 #ifdef __clang__
   typedef fptype2 fptype2_v __attribute__( ( ext_vector_type( neppV2 ) ) ); // RRRRRRRR
 #else
-  typedef fptype2 fptype2_v __attribute__( ( vector_size( neppV2 * sizeof( fptype2 ) ) ) ); // RRRRRRRR
+  typedef fptype2 fptype2_v __attribute__( ( vector_size( neppV2 * sizeof( fptype2 ) ), aligned( neppV2 * sizeof( fptype2 ) ) ) ); // RRRRRRRR
 #endif
 #else
   typedef fptype_v fptype2_v;
@@ -123,14 +123,14 @@ namespace mg5amcCpu
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( ext_vector_type( neppV ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT
-  typedef int bool_v __attribute__( ( ext_vector_type( neppV ) ) );                         // bbbb
+  typedef int bool_v __attribute__( ( ext_vector_type( neppV ) ) );                                                                // bbbb
 #endif
 #else // gcc
-  typedef unsigned int uint_v __attribute__( ( vector_size( neppV * sizeof( unsigned int ) ) ) );
+  typedef unsigned int uint_v __attribute__( ( vector_size( neppV * sizeof( unsigned int ) ), aligned( neppV * sizeof( unsigned int ) ) ) );
 #if defined MGONGPU_FPTYPE_DOUBLE
-  typedef long int bool_v __attribute__( ( vector_size( neppV * sizeof( long int ) ) ) ); // bbbb
+  typedef long int bool_v __attribute__( ( vector_size( neppV * sizeof( long int ) ), aligned( neppV * sizeof( long int ) ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT
-  typedef int bool_v __attribute__( ( vector_size( neppV * sizeof( int ) ) ) ); // bbbb
+  typedef int bool_v __attribute__( ( vector_size( neppV * sizeof( int ) ), aligned( neppV * sizeof( int ) ) ) ); // bbbb
 #endif
 #endif
 
