@@ -54,7 +54,7 @@ namespace mg5amcCpu
 #ifdef __clang__
   typedef fptype fptype_v __attribute__( ( ext_vector_type( neppV ) ) ); // RRRR
 #else
-  typedef fptype fptype_v __attribute__( ( vector_size( neppV * sizeof(fptype) ), aligned( neppV * sizeof(fptype) ) ) ); // RRRR
+  typedef fptype fptype_v __attribute__( ( vector_size( neppV * sizeof( fptype ) ), aligned( neppV * sizeof( fptype ) ) ) ); // RRRR
 #endif
 
   // Mixed fptypes #537: float for color algebra and double elsewhere
@@ -123,7 +123,7 @@ namespace mg5amcCpu
 #if defined MGONGPU_FPTYPE_DOUBLE
   typedef long int bool_v __attribute__( ( ext_vector_type( neppV ) ) ); // bbbb
 #elif defined MGONGPU_FPTYPE_FLOAT
-  typedef int bool_v __attribute__( ( ext_vector_type( neppV ) ) );                         // bbbb
+  typedef int bool_v __attribute__( ( ext_vector_type( neppV ) ) );                                                                // bbbb
 #endif
 #else // gcc
   typedef unsigned int uint_v __attribute__( ( vector_size( neppV * sizeof( unsigned int ) ), aligned( neppV * sizeof( unsigned int ) ) ) );
