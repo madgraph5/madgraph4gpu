@@ -350,7 +350,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 codedict[fullname] = '%s %s' % (self.type2def[type+'_v'], fullname) # AV vectorize, add to codedict
             ###print(fullname, codedict[fullname]) # FOR DEBUGGING
-            if  self.nodeclare:
+            if self.nodeclare:
                 self.declaration.codedict = codedict # AV new behaviour (delayed declaration with initialisation)
             else:
                 out.write('    %s;\n' % codedict[fullname] ) # AV old behaviour (separate declaration with no initialization)
@@ -2427,10 +2427,8 @@ def combine_name(name, other_names, outgoing, tag=None, unknown_propa=False):
             routine += '%(propa)s'
         if outgoing is not None:
             return myHash(routine) + '_%s' % outgoing
-        #            return routine +'_%s' % outgoing
         else:
             return myHash(routine)
-    #            return routine
 
     if tag is not None:
         addon = ''.join(tag)
@@ -2446,11 +2444,6 @@ def combine_name(name, other_names, outgoing, tag=None, unknown_propa=False):
                 name = short_name
     if unknown_propa:
         addon += '%(propa)s'
-
-    #    if outgoing is not None:
-    #        return '_'.join((name,) + tuple(other_names)) + addon + '_%s' % outgoing
-    #    else:
-    #        return '_'.join((name,) + tuple(other_names)) + addon
 
     if outgoing is not None:
         return myHash('_'.join((name,) + tuple(other_names))) + addon + '_%s' % outgoing

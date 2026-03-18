@@ -16,12 +16,7 @@
 #define INLINE
 #define ALWAYS_INLINE
 #endif
-// why dont we have rotxxx
-// why dont we have CombineAmpFD done in the not need
-// is dble our equivalent
 
-
-// ------------
   //--------------------------------------------------------------------------
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
@@ -162,29 +157,28 @@
 
   // Compute the direction n[5] of the gauge q[5]
   __host__ __device__ INLINE void
-  define_gauge_dir(const fptype q[], //input: gauge
-                   fptype n[]        //output: direction
-                  ) ALWAYS_INLINE;
+  define_gauge_dir( const fptype q[], // input: gauge
+                    fptype n[]        // output: direction
+                    ) ALWAYS_INLINE;
 
 
   //--------------------------------------------------------------------------
   // Compute a propagator factor d out of gauge q[5] and a mass
   __host__ __device__ INLINE void
-  calculate_propagator_factor(const fptype_sv q[5],    //input: gauge
-                                 const fptype_sv mass, //input: mass
-                                 fptype_sv *d          //output: propagator factor
-                              ) ALWAYS_INLINE;
+  calculate_propagator_factor( const fptype_sv q[5], // input: gauge
+                               const fptype_sv mass, // input: mass
+                               fptype_sv *d          // output: propagator factor
+                               ) ALWAYS_INLINE;
 
   //--------------------------------------------------------------------------
   // multiply by propagation factor from m and wawefunctionsin[] and output them
   // as wavefunctionout[]
   template< class W_ACCESS>
   __host__ __device__ INLINE void
-  multiply_propagator_factor(
-                            const fptype wavefunctionsin[],
-                            const fptype m,
-                            fptype wavefunctionsout[]
-                            ) ALWAYS_INLINE;
+  multiply_propagator_factor( const fptype wavefunctionsin[], // input: wavefunctions
+                              const fptype m,                 // input: mass
+                              fptype wavefunctionsout[]       // output: wavefunctions
+                              ) ALWAYS_INLINE;
 //==========================================================================
 
   // Compute the output wavefunction fi[6] from the input momenta[npar*4*nevt]
@@ -954,9 +948,8 @@
   //--------------------------------------------------------------------------
   // Compute the direction n[5] of the gauge q[5]
   __host__ __device__ INLINE void
-  define_gauge_dir(const cxtype_sv q[5], //input: gauge
-                 fptype_sv n[5]        //output: direction
-                )
+  define_gauge_dir( const cxtype_sv q[5], // input: gauge
+                    fptype_sv n[5] )      // output: direction
  {
    const fptype_sv qabs2 = q[1].real()*q[1].real()
                        + q[2].real()*q[2].real()
@@ -1000,9 +993,9 @@
 // Compute propagator factor n[5] of the gauge q[5]
 
   __host__ __device__ INLINE void
-  calculate_propagator_factor(const cxtype_sv q[5],
-                                 const fptype mass,
-                                 fptype_sv *d)
+  calculate_propagator_factor( const cxtype_sv q[5], // input: gauge
+                               const fptype mass,    // input: mass
+                               fptype_sv *d )        // output: propagator factor
   {
     const fptype_sv one = 1. + fptype_sv{0};
     const fptype_sv  q2 = q[0].real()*q[0].real() - ( q[1].real()*q[1].real() + q[2].real()*q[2].real() + q[3].real()*q[3].real() );
@@ -1013,11 +1006,9 @@
 // as wavefunctionout[]
   template< class W_ACCESS>
   __host__ __device__ INLINE void
-  multiply_propagator_factor(
-                              const fptype wavefunctionsin[],
-                              const fptype m,
-                              fptype wavefunctionsout[]
-                             )
+  multiply_propagator_factor( const fptype wavefunctionsin[], // input: wavefunctions
+                              const fptype m,                 // input: mass
+                              fptype wavefunctionsout[] )     // output: wavefunctions
   {
 
     const cxtype_sv* win = W_ACCESS::kernelAccessConst( wavefunctionsin );
