@@ -238,10 +238,10 @@
         fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
         //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
         sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
-        fi[2] = cxmake( ip * sqm[ip], 0 );
-        fi[3] = cxmake( im * nsf * sqm[ip], 0 );
-        fi[4] = cxmake( ip * nsf * sqm[im], 0 );
-        fi[5] = cxmake( im * sqm[im], 0 );
+        w[0] = cxmake( ip * sqm[ip], 0 );
+        w[1] = cxmake( im * nsf * sqm[ip], 0 );
+        w[2] = cxmake( ip * nsf * sqm[im], 0 );
+        w[3] = cxmake( im * sqm[im], 0 );
       }
       else
       {
@@ -253,10 +253,10 @@
         const fptype pp3 = fpmax( pp + pvec3, 0. );
         const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
                                 ( pp3 == 0. ? cxmake( -nh, 0. ) : cxmake( nh * pvec1, pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
-        fi[2] = sfomega[0] * chi[im];
-        fi[3] = sfomega[0] * chi[ip];
-        fi[4] = sfomega[1] * chi[im];
-        fi[5] = sfomega[1] * chi[ip];
+        w[0] = sfomega[0] * chi[im];
+        w[1] = sfomega[0] * chi[ip];
+        w[2] = sfomega[1] * chi[im];
+        w[3] = sfomega[1] * chi[ip];
       }
 #else
       // Branch A: pp == 0.
@@ -287,10 +287,10 @@
       const cxtype_v fiB_5 = sfomega[1] * chi[ip];
       // Choose between the results from branch A and branch B
       const bool_v mask = ( pp == 0. );
-      fi[2] = cxternary( mask, fiA_2, fiB_2 );
-      fi[3] = cxternary( mask, fiA_3, fiB_3 );
-      fi[4] = cxternary( mask, fiA_4, fiB_4 );
-      fi[5] = cxternary( mask, fiA_5, fiB_5 );
+      w[0] = cxternary( mask, fiA_2, fiB_2 );
+      w[1] = cxternary( mask, fiA_3, fiB_3 );
+      w[2] = cxternary( mask, fiA_4, fiB_4 );
+      w[3] = cxternary( mask, fiA_5, fiB_5 );
 #endif
     }
     else
@@ -314,17 +314,17 @@
 #endif
       if( nh == 1 )
       {
-        fi[2] = cxzero_sv();
-        fi[3] = cxzero_sv();
-        fi[4] = chi[0];
-        fi[5] = chi[1];
+        w[0] = cxzero_sv();
+        w[1] = cxzero_sv();
+        w[2] = chi[0];
+        w[3] = chi[1];
       }
       else
       {
-        fi[2] = chi[1];
-        fi[3] = chi[0];
-        fi[4] = cxzero_sv();
-        fi[5] = cxzero_sv();
+        w[0] = chi[1];
+        w[1] = chi[0];
+        w[2] = cxzero_sv();
+        w[3] = cxzero_sv();
       }
     }
     mgDebug( 1, __FUNCTION__ );
@@ -341,28 +341,32 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavour
+          ALOHAOBJ & fi,          // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
-    fi[0] = cxmake( -pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
-    fi[1] = cxzero_sv();
+    cxtype_sv* w = W_ACCESS::kernelAccess( fi.w );
+    fi.pvec[0] = -pvec3 * (fptype)nsf;
+    fi.pvec[1] = fptype_sv{ 0 };
+    fi.pvec[2] = fptype_sv{ 0 };
+    fi.pvec[3] = -pvec3 * (fptype)nsf;
+    fi.flv_index = flv;
     const int nh = nhel * nsf;
     const cxtype_sv sqp0p3 = cxmake( fpsqrt( 2. * pvec3 ) * (fptype)nsf, 0. );
-    fi[2] = fi[1];
+    w[0] = cxmake( fi.pvec[1], fi.pvec[2] );
     if( nh == 1 )
     {
-      fi[3] = fi[1];
-      fi[4] = sqp0p3;
+      w[1] = cxmake( fi.pvec[1], fi.pvec[2] );
+      w[2] = sqp0p3;
     }
     else
     {
-      fi[3] = sqp0p3;
-      fi[4] = fi[1];
+      w[1] = sqp0p3;
+      w[2] = cxmake( fi.pvec[1], fi.pvec[2] );
     }
-    fi[5] = fi[1];
+    w[3] = cxmake( fi.pvec[1], fi.pvec[2] );
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -377,27 +381,31 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavour
+          ALOHAOBJ & fi,          // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
-    fi[0] = cxmake( pvec3 * (fptype)nsf, -pvec3 * (fptype)nsf );
-    fi[1] = cxzero_sv();
+    cxtype_sv* w = W_ACCESS::kernelAccess( fi.w );
+    fi.pvec[0] =  pvec3 * (fptype)nsf;
+    fi.pvec[1] = fptype_sv{ 0 };
+    fi.pvec[2] = fptype_sv{ 0 };
+    fi.pvec[3] = -pvec3 * (fptype)nsf;
+    fi.flv_index = flv;
     const int nh = nhel * nsf;
     const cxtype_sv chi = cxmake( -(fptype)nhel * fpsqrt( -2. * pvec3 ), 0. );
-    fi[3] = cxzero_sv();
-    fi[4] = cxzero_sv();
+    w[1] = cxzero_sv();
+    w[2] = cxzero_sv();
     if( nh == 1 )
     {
-      fi[2] = cxzero_sv();
-      fi[5] = chi;
+      w[0] = cxzero_sv();
+      w[3] = chi;
     }
     else
     {
-      fi[2] = chi;
-      fi[5] = cxzero_sv();
+      w[0] = chi;
+      w[3] = cxzero_sv();
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -413,7 +421,8 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavour
+          ALOHAOBJ & fi,          // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -421,11 +430,12 @@
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fi = W_ACCESS::kernelAccess( wavefunctions );
-    //fi[0] = cxmake( -pvec0 * nsf, -pvec2 * nsf ); // AV: BUG! not the same as ixxxxx
-    //fi[1] = cxmake( -pvec0 * nsf, -pvec1 * nsf ); // AV: BUG! not the same as ixxxxx
-    fi[0] = cxmake( -pvec0 * (fptype)nsf, -pvec3 * (fptype)nsf ); // AV: BUG FIX
-    fi[1] = cxmake( -pvec1 * (fptype)nsf, -pvec2 * (fptype)nsf ); // AV: BUG FIX
+    cxtype_sv* w = W_ACCESS::kernelAccess( fi.w );
+    fi.pvec[0] = -pvec0 * (fptype)nsf;
+    fi.pvec[1] = -pvec1 * (fptype)nsf;
+    fi.pvec[2] = -pvec2 * (fptype)nsf;
+    fi.pvec[3] = -pvec3 * (fptype)nsf;
+    fi.flv_index = flv;
     const int nh = nhel * nsf;
     //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV: why force a float here?
     const fptype_sv sqp0p3 = fpsqrt( pvec0 + pvec3 ) * (fptype)nsf;
@@ -433,17 +443,17 @@
     const cxtype_sv chi1 = cxmake( (fptype)nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
     if( nh == 1 )
     {
-      fi[2] = cxzero_sv();
-      fi[3] = cxzero_sv();
-      fi[4] = chi0;
-      fi[5] = chi1;
+      w[0] = cxzero_sv();
+      w[1] = cxzero_sv();
+      w[2] = chi0;
+      w[3] = chi1;
     }
     else
     {
-      fi[2] = chi1;
-      fi[3] = chi0;
-      fi[4] = cxzero_sv();
-      fi[5] = cxzero_sv();
+      w[0] = chi1;
+      w[1] = chi0;
+      w[2] = cxzero_sv();
+      w[3] = cxzero_sv();
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -458,7 +468,8 @@
           const fptype vmass,     // input: vector boson mass
           const int nhel,         // input: -1, 0 (only if vmass!=0) or +1 (helicity of vector boson)
           const int nsv,          // input: +1 (final) or -1 (initial)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavour
+          ALOHAOBJ & vc,          // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -470,11 +481,14 @@
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* vc = W_ACCESS::kernelAccess( wavefunctions ); // needs to be size 7 instead of 6
+    cxtype_sv* w = W_ACCESS::kernelAccess( vc.w );
+    vc.pvec[0] = pvec0 * (fptype)nsv;
+    vc.pvec[1] = pvec1 * (fptype)nsv;
+    vc.pvec[2] = pvec2 * (fptype)nsv;
+    vc.pvec[3] = pvec3 * (fptype)nsv;
+    vc.flv_index = flv;
     const fptype sqh = fpsqrt( 0.5 ); // AV this is > 0!
     const fptype hel = nhel;
-    vc[0] = cxmake( pvec0 * (fptype)nsv, pvec3 * (fptype)nsv );
-    vc[1] = cxmake( pvec1 * (fptype)nsv, pvec2 * (fptype)nsv );
 
     // FD gauge
      const cxtype_sv cI = cxmake( 0 + fptype_sv{ 0 },  1 + fptype_sv{ 0 }  );
@@ -497,10 +511,10 @@
       const fptype_sv pt = fpmin( pp, fpsqrt( pt2 ) );
       if( pp == 0. )
       {
-        vc[2] = cxmake( 0., 0. );
-        vc[3] = cxmake( -hel * sqh, 0. );
-        vc[4] = cxmake( 0., nsvahl * sqh );
-        vc[5] = cxmake( hel0, 0. );
+        w[0] = cxmake( 0., 0. );
+        w[1] = cxmake( -hel * sqh, 0. );
+        w[2] = cxmake( 0., nsvahl * sqh );
+        w[3] = cxmake( hel0, 0. );
       }
       else
       {
@@ -508,20 +522,20 @@
         //const fptype emp = pvec / ( vmass * pp ); // this may give a FPE #1011 (why?! maybe when vmass=+-epsilon?)
         const fptype emp = pvec0 / vmass / pp; // workaround for FPE #1011
         //printf( "DEBUG1011 (after emp): emp=%f\n", emp );
-        vc[2] = cxmake( hel0 * pp / vmass, 0. );
-        vc[5] = cxmake( hel0 * pvec3 * emp + hel * pt / pp * sqh, 0. );
+        w[0] = cxmake( hel0 * pp / vmass, 0. );
+        w[3] = cxmake( hel0 * pvec3 * emp + hel * pt / pp * sqh, 0. );
         if( pt != 0. )
         {
           const fptype pzpt = pvec3 / ( pp * pt ) * sqh * hel;
-          vc[3] = cxmake( hel0 * pvec1 * emp - pvec1 * pzpt, -nsvahl * pvec2 / pt * sqh );
-          vc[4] = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, nsvahl * pvec1 / pt * sqh );
+          w[1] = cxmake( hel0 * pvec1 * emp - pvec1 * pzpt, -nsvahl * pvec2 / pt * sqh );
+          w[2] = cxmake( hel0 * pvec2 * emp - pvec2 * pzpt, nsvahl * pvec1 / pt * sqh );
         }
         else
         {
-          vc[3] = cxmake( -hel * sqh, 0. );
+          w[1] = cxmake( -hel * sqh, 0. );
           // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
           //vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0. ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV: why abs here?
-          vc[4] = cxmake( 0., nsvahl * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
+          w[2] = cxmake( 0., nsvahl * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
         }
       }
 
@@ -550,11 +564,11 @@
         vc[6] = cxzero_sv();
       }
       else{
-        vc[2] = cxmake( -vmass/nk * n[0], zero );
-        vc[3] = cxmake( -vmass/nk * n[1], zero );
-        vc[4] = cxmake( -vmass/nk * n[2], zero );
-        vc[5] = cxmake( -vmass/nk * n[3], zero );
-        vc[6] = static_cast<fptype>(nsv)*cI;
+        w[0] = cxmake( -vmass/nk * n[0], zero );
+        w[1] = cxmake( -vmass/nk * n[1], zero );
+        w[2] = cxmake( -vmass/nk * n[2], zero );
+        w[3] = cxmake( -vmass/nk * n[3], zero );
+        w[4] = static_cast<fptype>(nsv)*cI;
       }
 
 #else
@@ -584,10 +598,10 @@
       // Choose between the results from branch A and branch B (and from branch B1 and branch B2)
       const bool_v mask = ( pp == 0. );
       const bool_v maskB = ( pt != 0. );
-      vc[2] = cxternary( mask, vcA_2, vcB_2 );
-      vc[3] = cxternary( mask, vcA_3, cxternary( maskB, vcB1_3, vcB2_3 ) );
-      vc[4] = cxternary( mask, vcA_4, cxternary( maskB, vcB1_4, vcB2_4 ) );
-      vc[5] = cxternary( mask, vcA_5, vcB_5 );
+      w[0] = cxternary( mask, vcA_2, vcB_2 );
+      w[1] = cxternary( mask, vcA_3, cxternary( maskB, vcB1_3, vcB2_3 ) );
+      w[2] = cxternary( mask, vcA_4, cxternary( maskB, vcB1_4, vcB2_4 ) );
+      w[3] = cxternary( mask, vcA_5, vcB_5 );
 
       //FD gauge
       //branch A
@@ -615,11 +629,11 @@
       nk = n[0]*pvec0 - n[1]*pvec1 - n[2]*pvec2 - n[3]*pvec3;
 
       const bool_v mask3 = { (abs(nhel) == 1 ? 1 : 0) }; // first element replicated
-      vc[2] = cxternary( mask3, vc[2], cxmake( -vmass/nk * n[0], zero));
-      vc[3] = cxternary( mask3, vc[3], cxmake( -vmass/nk * n[1], zero));
-      vc[4] = cxternary( mask3, vc[4], cxmake( -vmass/nk * n[2], zero));
-      vc[5] = cxternary( mask3, vc[5], cxmake( -vmass/nk * n[3], zero));
-      vc[6] = cxternary( mask3, cxzero_sv(), -static_cast<fptype>(nsv)*cI);
+      w[0] = cxternary( mask3, vc[2], cxmake( -vmass/nk * n[0], zero));
+      w[1] = cxternary( mask3, vc[3], cxmake( -vmass/nk * n[1], zero));
+      w[2] = cxternary( mask3, vc[4], cxmake( -vmass/nk * n[2], zero));
+      w[3] = cxternary( mask3, vc[5], cxmake( -vmass/nk * n[3], zero));
+      w[4] = cxternary( mask3, cxzero_sv(), -static_cast<fptype>(nsv)*cI);
 #endif
     }
     else
@@ -631,21 +645,21 @@
       volatile fptype_sv pt2 = pvec1 * pvec1 + pvec2 * pvec2; // volatile fixes #736
       const fptype_sv pt = fpsqrt( pt2 );
 #endif
-      vc[2] = cxzero_sv();
-      vc[5] = cxmake( hel * pt / pp * sqh, 0. );
+      w[0] = cxzero_sv();
+      w[3] = cxmake( hel * pt / pp * sqh, 0. );
 #ifndef MGONGPU_CPPSIMD
       if( pt != 0. )
       {
         const fptype pzpt = pvec3 / ( pp * pt ) * sqh * hel;
-        vc[3] = cxmake( -pvec1 * pzpt, -nsv * pvec2 / pt * sqh );
-        vc[4] = cxmake( -pvec2 * pzpt, nsv * pvec1 / pt * sqh );
+        w[1] = cxmake( -pvec1 * pzpt, -nsv * pvec2 / pt * sqh );
+        w[2] = cxmake( -pvec2 * pzpt, nsv * pvec1 / pt * sqh );
       }
       else
       {
-        vc[3] = cxmake( -hel * sqh, 0. );
+        w[1] = cxmake( -hel * sqh, 0. );
         // NB: Do not use "abs" for floats! It returns an integer with no build warning! Use std::abs!
-        //vc[4] = cxmake( 0, nsv * ( pvec3 < 0. ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV why abs here?
-        vc[4] = cxmake( 0., nsv * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
+        //w[2] = cxmake( 0, nsv * ( pvec3 < 0. ? -std::abs( sqh ) : std::abs( sqh ) ) ); // AV why abs here?
+        w[2] = cxmake( 0., nsv * ( pvec3 < 0. ? -sqh : sqh ) ); // AV: removed an abs here
       }
 #else
       // Branch A: pt != 0.
@@ -658,11 +672,11 @@
       const cxtype_v vcB_4 = cxmake( 0, (fptype)nsv * fpternary( ( pvec3 < 0 ), -sqh, sqh ) ); // AV: removed an abs here
       // Choose between the results from branch A and branch B
       const bool_v mask = ( pt != 0. );
-      vc[3] = cxternary( mask, vcA_3, vcB_3 );
-      vc[4] = cxternary( mask, vcA_4, vcB_4 );
+      w[1] = cxternary( mask, vcA_3, vcB_3 );
+      w[2] = cxternary( mask, vcA_4, vcB_4 );
 #endif
       //FD gauge
-      vc[6] = cxzero_sv();
+      w[4] = cxzero_sv();
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -677,7 +691,8 @@
           //const fptype,                 // WARNING: input "smass" unused (missing in Fortran) - scalar boson mass
           //const int,                    // WARNING: input "nhel" unused (missing in Fortran) - scalar has no helicity!
           const int nss,          // input: +1 (final) or -1 (initial)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavour
+          ALOHAOBJ &sc,           // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -685,17 +700,20 @@
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* sc = W_ACCESS::kernelAccess( wavefunctions ); //for FD gauge need to be sc[20], even though only 0-6 is set here
+    cxtype_sv* w = W_ACCESS::kernelAccess( sc.w );
 
-    sc[0] = cxmake( pvec0 * (fptype)nss, pvec3 * (fptype)nss );
-    sc[1] = cxmake( pvec1 * (fptype)nss, pvec2 * (fptype)nss );
+    sc.pvec[0] = pvec0 * (fptype)nss;
+    sc.pvec[1] = pvec1 * (fptype)nss;
+    sc.pvec[2] = pvec2 * (fptype)nss;
+    sc.pvec[3] = pvec3 * (fptype)nss;
 
-    sc[2] = cxmake( 0 + fptype_sv{ 0 }, 0 );
+    sc.flv_index = flv;
+    w[0] = cxmake( 0 + fptype_sv{ 0 }, 0 );
     //FD gauge
-    sc[3] = cxmake( 0 + fptype_sv{ 0 }, 0 );
-    sc[4] = cxmake( 0 + fptype_sv{ 0 }, 0 );
-    sc[5] = cxmake( 0 + fptype_sv{ 0 }, 0 );
-    sc[6] = cxmake( 1 + fptype_sv{ 0 }, 0 );
+    w[1] = cxmake( 0 + fptype_sv{ 0 }, 0 );
+    w[2] = cxmake( 0 + fptype_sv{ 0 }, 0 );
+    w[3] = cxmake( 0 + fptype_sv{ 0 }, 0 );
+    w[4] = cxmake( 1 + fptype_sv{ 0 }, 0 );
 
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -710,7 +728,8 @@
           const fptype fmass,     // input: fermion mass
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          int flv,                // input: flavour
+          ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -722,9 +741,12 @@
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
-    fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
-    fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
+    cxtype_sv* w = W_ACCESS::kernelAccess( fo.w );
+    fo.pvec[0] = pvec0 * (fptype)nsf;
+    fo.pvec[1] = pvec1 * (fptype)nsf;
+    fo.pvec[2] = pvec2 * (fptype)nsf;
+    fo.pvec[3] = pvec3 * (fptype)nsf;
+    fo.flv_index = flv;
     const int nh = nhel * nsf;
     if( fmass != 0. )
     {
@@ -738,10 +760,10 @@
         sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
         const int ip = -( ( 1 - nh ) / 2 ) * nhel;  // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
         const int im = ( 1 + nh ) / 2 * nhel;       // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
-        fo[2] = cxmake( im * sqm[std::abs( ip )], 0 );
-        fo[3] = cxmake( ip * nsf * sqm[std::abs( ip )], 0 );
-        fo[4] = cxmake( im * nsf * sqm[std::abs( im )], 0 );
-        fo[5] = cxmake( ip * sqm[std::abs( im )], 0 );
+        w[0] = cxmake( im * sqm[std::abs( ip )], 0 );
+        w[1] = cxmake( ip * nsf * sqm[std::abs( ip )], 0 );
+        w[2] = cxmake( im * nsf * sqm[std::abs( im )], 0 );
+        w[3] = cxmake( ip * sqm[std::abs( im )], 0 );
       }
       else
       {
@@ -756,10 +778,10 @@
         const cxtype chi[2] = { cxmake( fpsqrt( pp3 * (fptype)0.5 / pp ), 0. ),
                                 ( ( pp3 == 0. ) ? cxmake( -nh, 0. )
                                                 : cxmake( nh * pvec1, -pvec2 ) / fpsqrt( 2. * pp * pp3 ) ) };
-        fo[2] = sfomeg[1] * chi[im];
-        fo[3] = sfomeg[1] * chi[ip];
-        fo[4] = sfomeg[0] * chi[im];
-        fo[5] = sfomeg[0] * chi[ip];
+        w[0] = sfomeg[1] * chi[im];
+        w[1] = sfomeg[1] * chi[ip];
+        w[2] = sfomeg[0] * chi[im];
+        w[3] = sfomeg[0] * chi[ip];
       }
 #else
       volatile fptype_sv p2 = pvec1 * pvec1 + pvec2 * pvec2 + pvec3 * pvec3; // volatile fixes #736
@@ -796,10 +818,10 @@
       const cxtype_v foB_5 = sfomeg[0] * chi[ipB];
       // Choose between the results from branch A and branch B
       const bool_v mask = ( pp == 0. );
-      fo[2] = cxternary( mask, foA_2, foB_2 );
-      fo[3] = cxternary( mask, foA_3, foB_3 );
-      fo[4] = cxternary( mask, foA_4, foB_4 );
-      fo[5] = cxternary( mask, foA_5, foB_5 );
+      w[0] = cxternary( mask, foA_2, foB_2 );
+      w[1] = cxternary( mask, foA_3, foB_3 );
+      w[2] = cxternary( mask, foA_4, foB_4 );
+      w[3] = cxternary( mask, foA_5, foB_5 );
 #endif
     }
     else
@@ -823,17 +845,17 @@
 #endif
       if( nh == 1 )
       {
-        fo[2] = chi[0];
-        fo[3] = chi[1];
-        fo[4] = cxzero_sv();
-        fo[5] = cxzero_sv();
+        w[0] = chi[0];
+        w[1] = chi[1];
+        w[2] = cxzero_sv();
+        w[3] = cxzero_sv();
       }
       else
       {
-        fo[2] = cxzero_sv();
-        fo[3] = cxzero_sv();
-        fo[4] = chi[1];
-        fo[5] = chi[0];
+        w[0] = cxzero_sv();
+        w[1] = cxzero_sv();
+        w[2] = chi[1];
+        w[3] = chi[0];
       }
     }
     mgDebug( 1, __FUNCTION__ );
@@ -850,27 +872,31 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavour
+          ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
-    fo[0] = cxmake( pvec3 * (fptype)nsf, pvec3 * (fptype)nsf );
-    fo[1] = cxzero_sv();
+    cxtype_sv* w = W_ACCESS::kernelAccess( fo.w );
+    fo.pvec[0] = pvec3 * (fptype)nsf;
+    fo.pvec[1] = fptype_sv{ 0 };
+    fo.pvec[2] = fptype_sv{ 0 };
+    fo.pvec[3] = pvec3 * (fptype)nsf;
+    fo.flv_index = flv;
     const int nh = nhel * nsf;
     const cxtype_sv csqp0p3 = cxmake( fpsqrt( 2. * pvec3 ) * (fptype)nsf, 0. );
-    fo[3] = cxzero_sv();
-    fo[4] = cxzero_sv();
+    w[1] = cxzero_sv();
+    w[2] = cxzero_sv();
     if( nh == 1 )
     {
-      fo[2] = csqp0p3;
-      fo[5] = cxzero_sv();
+      w[0] = csqp0p3;
+      w[3] = cxzero_sv();
     }
     else
     {
-      fo[2] = cxzero_sv();
-      fo[5] = csqp0p3;
+      w[0] = cxzero_sv();
+      w[3] = csqp0p3;
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -886,30 +912,34 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavour
+          ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
-    fo[0] = cxmake( -pvec3 * (fptype)nsf, pvec3 * (fptype)nsf ); // remember pvec0 == -pvec3
-    fo[1] = cxzero_sv();
+    cxtype_sv* w = W_ACCESS::kernelAccess( fo.w );
+    fo.pvec[0] = -pvec3 * (fptype)nsf;
+    fo.pvec[1] = fptype_sv{ 0 };
+    fo.pvec[2] = fptype_sv{ 0 };
+    fo.pvec[3] = pvec3 * (fptype)nsf;
+    fo.flv_index = flv;
     const int nh = nhel * nsf;
     const cxtype_sv chi1 = cxmake( -nhel, 0. ) * fpsqrt( -2. * pvec3 );
     if( nh == 1 )
     {
-      fo[2] = cxzero_sv();
-      fo[3] = chi1;
-      fo[4] = cxzero_sv();
-      fo[5] = cxzero_sv();
+      w[0] = cxzero_sv();
+      w[1] = chi1;
+      w[2] = cxzero_sv();
+      w[3] = cxzero_sv();
     }
     else
     {
-      fo[2] = cxzero_sv();
-      fo[3] = cxzero_sv();
-      fo[4] = chi1;
-      //fo[5] = chi1; // AV: BUG!
-      fo[5] = cxzero_sv(); // AV: BUG FIX
+      w[0] = cxzero_sv();
+      w[1] = cxzero_sv();
+      w[2] = chi1;
+      //w[3] = chi1; // AV: BUG!
+      w[3] = cxzero_sv(); // AV: BUG FIX
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -925,7 +955,8 @@
           //const fptype fmass,   // [skip: ASSUME fermion mass==0]
           const int nhel,         // input: -1 or +1 (helicity of fermion)
           const int nsf,          // input: +1 (particle) or -1 (antiparticle)
-          fptype wavefunctions[], // output: wavefunctions
+          const int flv,          // input: flavour
+          ALOHAOBJ & fo,          // output: wavefunctions
           const int ipar )        // input: particle# out of npar
   {
     mgDebug( 0, __FUNCTION__ );
@@ -933,9 +964,12 @@
     const fptype_sv& pvec1 = M_ACCESS::kernelAccessIp4IparConst( momenta, 1, ipar );
     const fptype_sv& pvec2 = M_ACCESS::kernelAccessIp4IparConst( momenta, 2, ipar );
     const fptype_sv& pvec3 = M_ACCESS::kernelAccessIp4IparConst( momenta, 3, ipar );
-    cxtype_sv* fo = W_ACCESS::kernelAccess( wavefunctions );
-    fo[0] = cxmake( pvec0 * (fptype)nsf, pvec3 * (fptype)nsf );
-    fo[1] = cxmake( pvec1 * (fptype)nsf, pvec2 * (fptype)nsf );
+    cxtype_sv* w = W_ACCESS::kernelAccess( fo.w );
+    fo.pvec[0] = pvec0 * (fptype)nsf;
+    fo.pvec[1] = pvec1 * (fptype)nsf;
+    fo.pvec[2] = pvec2 * (fptype)nsf;
+    fo.pvec[3] = pvec3 * (fptype)nsf;
+    fo.flv_index = flv;
     const int nh = nhel * nsf;
     //const float sqp0p3 = sqrtf( pvec0 + pvec3 ) * nsf; // AV: why force a float here?
     const fptype_sv sqp0p3 = fpsqrt( pvec0 + pvec3 ) * (fptype)nsf;
@@ -943,17 +977,17 @@
     const cxtype_sv chi1 = cxmake( (fptype)nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
     if( nh == 1 )
     {
-      fo[2] = chi0;
-      fo[3] = chi1;
-      fo[4] = cxzero_sv();
-      fo[5] = cxzero_sv();
+      w[0] = chi0;
+      w[1] = chi1;
+      w[2] = cxzero_sv();
+      w[3] = cxzero_sv();
     }
     else
     {
-      fo[2] = cxzero_sv();
-      fo[3] = cxzero_sv();
-      fo[4] = chi1;
-      fo[5] = chi0;
+      w[0] = cxzero_sv();
+      w[1] = cxzero_sv();
+      w[2] = chi1;
+      w[3] = chi0;
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -961,6 +995,7 @@
 
   //--------------------------------------------------------------------------
   // Compute the direction n[5] of the gauge q[5]
+  // TODO: Utilise pvec instead of the whole q
   __host__ __device__ INLINE void
   define_gauge_dir( const cxtype_sv q[5], // input: gauge
                     fptype_sv n[5] )      // output: direction
@@ -1004,8 +1039,7 @@
  }
 
 //--------------------------------------------------------------------------
-// Compute propagator factor n[5] of the gauge q[5]
-
+// Compute propagator factor d  from the gauge q[5] and mass
   __host__ __device__ INLINE void
   calculate_propagator_factor( const cxtype_sv q[5], // input: gauge
                                const fptype mass,    // input: mass
@@ -1015,18 +1049,19 @@
     const fptype_sv  q2 = q[0].real()*q[0].real() - ( q[1].real()*q[1].real() + q[2].real()*q[2].real() + q[3].real()*q[3].real() );
     *d = one / (q2 - mass*mass);
   }
+
 //--------------------------------------------------------------------------
-// multiply by propagation factor from m and wawefunctionsin[] and output them
-// as wavefunctionout[]
+// Multiply the wavefunction by propagator factor from momenta and m 
+// TODO: check if d should not be used 
   template< class W_ACCESS>
   __host__ __device__ INLINE void
-  multiply_propagator_factor( const fptype wavefunctionsin[], // input: wavefunctions
-                              const fptype m,                 // input: mass
-                              fptype wavefunctionsout[] )     // output: wavefunctions
+  multiply_propagator_factor( const ALOHAOBJ & Ain, // input: wavefunctions
+                              const fptype m,       // input: mass
+                              ALOHAOBJ Aout )       // output: wavefunctions
   {
 
-    const cxtype_sv* win = W_ACCESS::kernelAccessConst( wavefunctionsin );
-    cxtype_sv* wout = W_ACCESS::kernelAccess( wavefunctionsout );
+    const cxtype_sv* win = W_ACCESS::kernelAccessConst( Ain );
+    cxtype_sv* wout = W_ACCESS::kernelAccess( Aout );
 
     fptype_sv d;
     cxtype_sv q[5];
@@ -1035,24 +1070,26 @@
 
     const cxtype_sv cI = cxmake( 0 + fptype_sv{ 0 },  1. + fptype_sv{ 0 }  );
 
-    // Construct q
-    q[0] = cxmake( -win[0].real(), 0.);
-    q[1] = cxmake( -win[1].real(), 0.);
-    q[2] = cxmake( -win[1].imag(), 0.);
-    q[3] = cxmake( -win[0].imag(), 0.);
+    // Construct q from momenta
+    q[0] = cxmake( -Ain.pvec[0], 0.);
+    q[1] = cxmake( -Ain.pvec[1], 0.);
+    q[2] = cxmake( -Ain.pvec[2], 0.);
+    q[3] = cxmake( -Ain.pvec[3], 0.);
     q[4] = -cI*m;
 
-    // Copy first two components
-    wout[0] = win[0];
-    wout[1] = win[1];
+    // Copy the momenta 
+    Aout.pvec[0] = Ain.pvec[0];
+    Aout.pvec[0] = Ain.pvec[0];
+    Aout.pvec[0] = Ain.pvec[0];
+    Aout.pvec[0] = Ain.pvec[0];
 
     define_gauge_dir(q, n);
 
-    w0[0] = win[2];
-    w0[1] = win[3];
-    w0[2] = win[4];
-    w0[3] = win[5];
-    w0[4] = win[6];
+    w0[0] = win[0];
+    w0[1] = win[1];
+    w0[2] = win[2];
+    w0[3] = win[3];
+    w0[4] = win[4];
 
     fptype_sv nq =
           n[0]*q[0].real()
@@ -1081,11 +1118,11 @@
     w1[3] = w0[3] - q[3]*js1 - n[3]*js2;
     w1[4] = w0[4] - q[4]*js1 - n[4]*js2;
 
-    wout[2] = w1[0];
-    wout[3] = w1[1];
-    wout[4] = w1[2];
-    wout[5] = w1[3];
-    wout[6] = w1[4];
+    wout[0] = w1[0];
+    wout[1] = w1[1];
+    wout[2] = w1[2];
+    wout[3] = w1[3];
+    wout[4] = w1[4];
   }
   //--------------------------------------------------------------------------
   //==========================================================================
