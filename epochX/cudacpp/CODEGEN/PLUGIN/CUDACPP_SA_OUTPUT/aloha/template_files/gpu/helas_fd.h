@@ -1051,8 +1051,8 @@
   }
 
 //--------------------------------------------------------------------------
-// Multiply the wavefunction by propagator factor from momenta and m 
-// TODO: check if d should not be used 
+// Multiply the wavefunction by propagator factor from momenta and m
+// TODO: check if d should not be used
   template< class W_ACCESS>
   __host__ __device__ INLINE void
   multiply_propagator_factor( const ALOHAOBJ & Ain, // input: wavefunctions
@@ -1063,7 +1063,6 @@
     const cxtype_sv* win = W_ACCESS::kernelAccessConst( Ain.w );
     cxtype_sv* wout = W_ACCESS::kernelAccess( Aout.w );
 
-    fptype_sv d;
     cxtype_sv q[5];
     fptype_sv n[5];
     cxtype_sv w0[5], w1[5];
@@ -1096,8 +1095,6 @@
         - n[1]*q[1].real()
         - n[2]*q[2].real()
         - n[3]*q[3].real();
-
-    calculate_propagator_factor(q, m, &d);
 
     cxtype_sv js1 =
         ( n[0]*w0[0]
