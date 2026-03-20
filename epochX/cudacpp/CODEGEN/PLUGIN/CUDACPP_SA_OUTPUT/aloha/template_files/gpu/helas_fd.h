@@ -990,18 +990,6 @@
  }
 
 //--------------------------------------------------------------------------
-// Compute propagator factor n[5] of the gauge q[5]
-
-  __host__ __device__ INLINE void
-  calculate_propagator_factor( const cxtype_sv q[5], // input: gauge
-                               const fptype mass,    // input: mass
-                               fptype_sv *d )        // output: propagator factor
-  {
-    const fptype_sv one = 1. + fptype_sv{0};
-    const fptype_sv  q2 = q[0].real()*q[0].real() - ( q[1].real()*q[1].real() + q[2].real()*q[2].real() + q[3].real()*q[3].real() );
-    *d = one / (q2 - mass*mass);
-  }
-//--------------------------------------------------------------------------
 // multiply by propagation factor from m and wawefunctionsin[] and output them
 // as wavefunctionout[]
   template< class W_ACCESS>
@@ -1014,7 +1002,6 @@
     const cxtype_sv* win = W_ACCESS::kernelAccessConst( wavefunctionsin );
     cxtype_sv* wout = W_ACCESS::kernelAccess( wavefunctionsout );
 
-    fptype_sv d;
     cxtype_sv q[5];
     fptype_sv n[5];
     cxtype_sv w0[5], w1[5];
@@ -1045,8 +1032,6 @@
         - n[1]*q[1].real()
         - n[2]*q[2].real()
         - n[3]*q[3].real();
-
-    calculate_propagator_factor(q, m, &d);
 
     cxtype_sv js1 =
         ( n[0]*w0[0]
