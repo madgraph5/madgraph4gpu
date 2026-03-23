@@ -1828,7 +1828,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     aloha_obj_tmp[0] = ALOHAOBJ{pvec_sv_tmp[0], w_sv_tmp[0]};
     
     // special one value to hold tmp vertex value inside the combined vertex functions while using the FD gauge
-    cxtype_sv amp_tmp_sv; //to ensure proper aligment for vector instructions
+    cxtype_sv amp_tmp_sv[1]; //to ensure proper aligment for vector instructions
     fptype* amp_tmp_fp;
     amp_tmp_fp = reinterpret_cast<fptype*>( amp_tmp_sv );
     """)
