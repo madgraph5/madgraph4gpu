@@ -561,7 +561,7 @@
 
       if ( abs(nhel) == 1)
       {
-        vc[6] = cxzero_sv();
+        w[4] = cxzero_sv();
       }
       else{
         w[0] = cxmake( -vmass/nk * n[0], zero );
@@ -629,10 +629,10 @@
       nk = n[0]*pvec0 - n[1]*pvec1 - n[2]*pvec2 - n[3]*pvec3;
 
       const bool_v mask3 = { (abs(nhel) == 1 ? 1 : 0) }; // first element replicated
-      w[0] = cxternary( mask3, vc[2], cxmake( -vmass/nk * n[0], zero));
-      w[1] = cxternary( mask3, vc[3], cxmake( -vmass/nk * n[1], zero));
-      w[2] = cxternary( mask3, vc[4], cxmake( -vmass/nk * n[2], zero));
-      w[3] = cxternary( mask3, vc[5], cxmake( -vmass/nk * n[3], zero));
+      w[0] = cxternary( mask3, w[0], cxmake( -vmass/nk * n[0], zero));
+      w[1] = cxternary( mask3, w[1], cxmake( -vmass/nk * n[1], zero));
+      w[2] = cxternary( mask3, w[2], cxmake( -vmass/nk * n[2], zero));
+      w[3] = cxternary( mask3, w[3], cxmake( -vmass/nk * n[3], zero));
       w[4] = cxternary( mask3, cxzero_sv(), -static_cast<fptype>(nsv)*cI);
 #endif
     }
@@ -1060,8 +1060,8 @@
                               ALOHAOBJ Aout )       // output: wavefunctions
   {
 
-    const cxtype_sv* win = W_ACCESS::kernelAccessConst( Ain );
-    cxtype_sv* wout = W_ACCESS::kernelAccess( Aout );
+    const cxtype_sv* win = W_ACCESS::kernelAccessConst( Ain.w );
+    cxtype_sv* wout = W_ACCESS::kernelAccess( Aout.w );
 
     fptype_sv d;
     cxtype_sv q[5];
