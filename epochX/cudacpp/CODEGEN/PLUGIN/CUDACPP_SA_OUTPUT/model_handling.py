@@ -1520,6 +1520,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
         replace_dict['nmaxflavor'] = len(self.matrix_elements[0].get_external_flavors_with_iden()) # number of flavor combinations
+        replace_dict['nwave'] = 4
+        if (fd_gauge): replace_dict['nwave'] += 1
         if( write ): # ZW: added dict return for uses in child exporters. Default argument is True so no need to modify other calls to this function
             file = self.read_template_file(self.process_class_template) % replace_dict 
             file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
