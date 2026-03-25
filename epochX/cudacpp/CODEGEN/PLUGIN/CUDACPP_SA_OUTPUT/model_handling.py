@@ -247,11 +247,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'aloha_ref': self.type2def['aloha_ref'], 
                      'id': self.outgoing}
             if combined:
-                output = output + ', ' + '\n%(indent)s%(doublec)s %(aloha_ref)s %(spin)stmp%' % {
-                                                                                    'doublec': self.type2def[alohatype],
-                                                                                    'spin': self.particles[self.outgoing -1],
-                                                                                    'aloha_ref': self.type2def['aloha_ref'], 
-                                                                                    'indent': indent}
+                    output = output + ', ' + '\n{indent}{doublec} {aloha_ref} {spin}tmp'.format(
+                        doublec=self.type2def[alohatype],
+                        aloha_ref= self.type2def['aloha_ref'],
+                        spin=self.particles[self.outgoing -1],
+                        indent=indent,
+                    )
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
             template = 'template<class W_ACCESS, class C_ACCESS>'
@@ -830,7 +831,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         # how to call the routine
         argument = [name for format, name in self.define_argument_list(new_couplings)]
         index = argument.index('COUP1')
-        data['before_coup'] = ','.join('all' + arg for arg in argument[:index])
+        data['before_coup'] = ','.join(' ' + arg for arg in argument[:index])
         data['after_coup'] = ','.join(argument[index + len(lor_names) + 1:])
         if data['after_coup']:
             data['after_coup'] = ',' + data['after_coup']
@@ -843,26 +844,27 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
         # names of functions to be combined
         lor_list = (self.routine.name,) + lor_names
-        line = "    %(name)s%(addon)s%(access)s(%(before_coup)s,%(coup)s,%(ccoef)s%(after_coup)s,all%(out)s);\n"
+        line = "    %(name)s%(addon)s%(access)s(%(before_coup)s,%(coup)s,%(ccoef)s%(after_coup)s,%(out)s);\n"
         main = '%(spin)s%(id)d' % {'spin': self.particles[self.offshell - 1],
                                    'id': self.outgoing}
         for i, name in enumerate(lor_list):
             data['name'] = name
-            data['coup'] = 'allCOUP%d' % (i + 1)
+            data['coup'] = 'MCOUP%d' % (i + 1)
 
             if i == 0:
                 if not offshell:
-                    data['out'] = 'vertexes'
+                    data['out'] = 'allvertexes'
                 else:
                     data['out'] = main
             elif i == 1:
                 if self.offshell:
                     type = self.particles[self.offshell - 1]
                     self.declaration.add(('list_complex', '%stmp' % type))
+                    data['out'] = '%stmp' % type
                 else:
                     type = ''
                     self.declaration.add(('complex', '%stmp' % type))
-                data['out'] = '%stmp' % type
+                    data['out'] = 'all%stmp' % type
             data['ccoef'] = 'Ccoeff%d' % (i + 1)
             routine.write(line % data)
             if i:
@@ -877,7 +879,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     routine.write('   //unrolled upstream while\n')
                     for index in range(self.momentum_size,
                                        self.momentum_size + size):  # unrolling the upstream loop -1 for cpp
-                        routine.write('    %(main)s[%(index)d] = %(main)s[%(index)d] + %(tmp)s[%(index)d];\n' % \
+                        routine.write('    w%(main)s[%(index)d] = w%(main)s[%(index)d] + w%(tmp)s[%(index)d];\n' % \
                                       {'main': main, 'tmp': data['out'], 'index': index})
                     self.declaration.add(('int', 'i'))
         self.declaration.discard(('complex', 'COUP'))
@@ -895,7 +897,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         # self.declaration.discard
         text.write(self.get_declaration_txt(add_i=False, combined=True))
         text.write(routine.getvalue())
-        text.write(self.get_foot_txt(combine=True))
+        text.write(self.get_foot_txt(combined=True))
 
         text = text.getvalue()
         return text
