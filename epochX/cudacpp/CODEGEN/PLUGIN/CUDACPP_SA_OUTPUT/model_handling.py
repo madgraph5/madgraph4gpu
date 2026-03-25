@@ -528,7 +528,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 outgoing = self.outgoing
                 out.write('    int flv_index%i = F%i.flv_index;\n' % (incoming, incoming))
                 out.write('    if(flv_index%i == -1) {\n' %(incoming))
-                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      for(int i=0; i<F%i.nw6; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
                 out.write('      F%i.flv_index = -1;\n' % outgoing)
                 out.write('      return;\n')
                 out.write('    }\n')
@@ -539,7 +539,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     for i in range(2,nb_coupling+1):
                         out.write('    if(flv_index2 == -1){flv_index2 = MCOUP%i.partner1[flv_index%i];}' %(i, incoming)) 
                 out.write('    if(flv_index2 == -1){\n')
-                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      for(int i=0; i<F%i.nw6; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
                 out.write('      F%i.flv_index = -1;\n' % outgoing)
                 out.write('      return;\n')
                 out.write('    }\n')
@@ -548,7 +548,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 outgoing = self.outgoing
                 out.write('    int flv_index%i = F%i.flv_index;\n' % (incoming,incoming))
                 out.write('    if(flv_index%i == -1){\n' %(incoming))
-                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      for(int i=0; i<F%i.nw6; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
                 out.write('      F%i.flv_index = -1;\n' % outgoing)
                 out.write('      return;\n')
                 out.write('    }\n')
@@ -559,7 +559,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     for i in range(2,nb_coupling+1):
                         out.write('    if(flv_index1 == -1) { flv_index1 = MCOUP%i.partner2[flv_index%i]; }' %(i, incoming))
                 out.write('    if(flv_index1 == -1){\n')
-                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      for(int i=0; i<F%i.nw6; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
                 out.write('      F%i.flv_index = -1;\n' % outgoing)
                 out.write('      return;\n')
                 out.write('    }\n')

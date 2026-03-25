@@ -36,7 +36,8 @@ namespace mg5amcCpu
   // ALOHA-style object for easy flavor consolidation and non-template API
   struct ALOHAOBJ {
 
-      static constexpr int np4 = 4;
+      static constexpr int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
+      static constexpr int nw6 = %(nwave)d; // dimensions of each wavefunction (notice, this is +1 in case of FD gauge)
       fptype_sv * pvec;
       fptype * w;
       int flv_index;
