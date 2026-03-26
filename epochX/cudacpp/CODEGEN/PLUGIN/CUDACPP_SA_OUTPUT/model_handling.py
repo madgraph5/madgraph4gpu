@@ -2242,7 +2242,18 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         self.wanted_ordered_indep_couplings = []
         self.wanted_ordered_flv_couplings = []
 
+        # the following is based on the fact that model = args[0]
+        # builds a map FLV_Coupling name : value to be used when writing
+        # the HELAS
+        model = args[0]
         self.flv_couplings_map = {}
+        for interaction in model.interactions:
+            all_couplings = interaction["couplings"]
+            for coupling in all_couplings.values():
+                if not isinstance(coupling, base_objects.FLV_Coupling):
+                    continue
+                self.flv_couplings_map[coupling.name] = coupling
+
         super().__init__(*args,**opts)
 
 
@@ -2650,7 +2661,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 if isinstance(coup, base_objects.FLV_Coupling):
                     if usesdepcoupl is None: usesdepcoupl = False
                     elif usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
-                    self.flv_couplings_map[coup.name] = coup
                     continue
                 if coup.startswith('-'): 
                     coup = coup[1:]
