@@ -358,6 +358,8 @@ class FortranExporterBridge(export_v4.ProcessExporterFortranMEGroup):
       SAVE FIRST_CHID
       DATA FIRST_CHID/.TRUE./
 
+      INCLUDE 'cluster.inc'  ! for IGRAPHS common block (MLM per-event color selection)
+
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'coupl.inc' ! for ALL_G
       INCLUDE 'fbridge.inc'
