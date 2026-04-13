@@ -578,11 +578,18 @@ else
     override AVXFLAGS = -march=skylake-avx512 -mprefer-vector-width=256 # AVX512 with 256 width (ymm registers) [DEFAULT for gcc]
   else ifeq ($(BACKEND),cpp512z)
     override AVXFLAGS = -march=skylake-avx512 -DMGONGPU_PVW512 # AVX512 with 512 width (zmm registers)
+  else ifeq ($(BACKEND),cppfat)
+    override AVXFLAGS = -march=x86-64 # Fat binary: dispatcher uses baseline x86-64; per-SIMD objects use their own -march flags (see below)
   endif
 endif
 # For the moment, use AVXFLAGS everywhere (in C++ builds): eventually, use them only in encapsulated implementations?
 ifeq ($(GPUCC),)
   CXXFLAGS+= $(AVXFLAGS)
+endif
+
+# Add the MGONGPU_CPPFAT flag when building the fat binary backend
+ifeq ($(BACKEND),cppfat)
+  CXXFLAGS += -DMGONGPU_CPPFAT
 endif
 
 # Set the build flags appropriate to each FPTYPE choice (example: "make FPTYPE=f")
@@ -839,6 +846,60 @@ $(BUILDDIR)/%_$(GPUSUFFIX).o : %.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	$(GPUCC) $(CPPFLAGS) $(INCFLAGS) $(GPUFLAGS) -c -x $(GPULANGUAGE) $< -o $@
 endif
 
+# Per-SIMD compilation rules for the fat binary (BACKEND=cppfat).
+# Each SIMD variant of CPPProcess.cc and color_sum.cc is compiled with the appropriate
+# -march flag and -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_<level>, placing all symbols in a
+# versioned namespace. The dispatcher (MatrixElementKernels.cc) links them all together.
+ifeq ($(BACKEND),cppfat)
+# Strip AVXFLAGS (which is -march=x86-64 for cppfat) from per-SIMD compilations; add per-SIMD -march
+CXXFLAGS_NOFAT := $(filter-out -march%,$(CXXFLAGS)) $(filter-out -DMGONGPU_PVW512,$(CXXFLAGS))
+CXXFLAGS_FAT_NONE := $(CXXFLAGS_NOFAT) -march=x86-64
+CXXFLAGS_FAT_SSE4 := $(CXXFLAGS_NOFAT) -march=nehalem
+CXXFLAGS_FAT_AVX2 := $(CXXFLAGS_NOFAT) -march=haswell
+CXXFLAGS_FAT_512Y := $(CXXFLAGS_NOFAT) -march=skylake-avx512 -mprefer-vector-width=256
+CXXFLAGS_FAT_512Z := $(CXXFLAGS_NOFAT) -march=skylake-avx512 -DMGONGPU_PVW512
+
+$(BUILDDIR)/CPPProcess_none_cpp.o: CPPProcess.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_NONE) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_none -c $< -o $@
+
+$(BUILDDIR)/CPPProcess_sse4_cpp.o: CPPProcess.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_SSE4) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_sse4 -c $< -o $@
+
+$(BUILDDIR)/CPPProcess_avx2_cpp.o: CPPProcess.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_AVX2) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_avx2 -c $< -o $@
+
+$(BUILDDIR)/CPPProcess_512y_cpp.o: CPPProcess.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_512Y) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_512y -c $< -o $@
+
+$(BUILDDIR)/CPPProcess_512z_cpp.o: CPPProcess.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_512Z) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_512z -c $< -o $@
+
+$(BUILDDIR)/color_sum_none_cpp.o: color_sum.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_NONE) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_none -c $< -o $@
+
+$(BUILDDIR)/color_sum_sse4_cpp.o: color_sum.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_SSE4) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_sse4 -c $< -o $@
+
+$(BUILDDIR)/color_sum_avx2_cpp.o: color_sum.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_AVX2) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_avx2 -c $< -o $@
+
+$(BUILDDIR)/color_sum_512y_cpp.o: color_sum.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_512Y) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_512y -c $< -o $@
+
+$(BUILDDIR)/color_sum_512z_cpp.o: color_sum.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_512Z) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_512z -c $< -o $@
+endif
+
 #-------------------------------------------------------------------------------
 
 # Target (and build rules): common (src) library
@@ -853,7 +914,21 @@ processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 ###$(info processid_short=$(processid_short))
 
 MG5AMC_CXXLIB = mg5amc_$(processid_short)_cpp
+
+# For the fat binary backend (cppfat), CPPProcess and color_sum are compiled multiple times,
+# once per SIMD level with a versioned namespace. All other objects are compiled once with the
+# baseline x86-64 flags (no SIMD). The dispatcher (MatrixElementKernels.cc) links all versions.
+ifeq ($(BACKEND),cppfat)
+cppfat_objects_none=$(BUILDDIR)/CPPProcess_none_cpp.o $(BUILDDIR)/color_sum_none_cpp.o
+cppfat_objects_sse4=$(BUILDDIR)/CPPProcess_sse4_cpp.o $(BUILDDIR)/color_sum_sse4_cpp.o
+cppfat_objects_avx2=$(BUILDDIR)/CPPProcess_avx2_cpp.o $(BUILDDIR)/color_sum_avx2_cpp.o
+cppfat_objects_512y=$(BUILDDIR)/CPPProcess_512y_cpp.o $(BUILDDIR)/color_sum_512y_cpp.o
+cppfat_objects_512z=$(BUILDDIR)/CPPProcess_512z_cpp.o $(BUILDDIR)/color_sum_512z_cpp.o
+cppfat_objects_all=$(cppfat_objects_none) $(cppfat_objects_sse4) $(cppfat_objects_avx2) $(cppfat_objects_512y) $(cppfat_objects_512z)
+cxx_objects_lib=$(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o $(cppfat_objects_all)
+else
 cxx_objects_lib=$(BUILDDIR)/CPPProcess_cpp.o $(BUILDDIR)/color_sum_cpp.o $(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o
+endif
 cxx_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_cpp.o $(BUILDDIR)/RamboSamplingKernels_cpp.o
 
 ifneq ($(GPUCC),)
@@ -1107,6 +1182,10 @@ bld512y:
 bld512z:
 	@echo
 	$(MAKE) USEBUILDDIR=1 BACKEND=cpp512z -f $(CUDACPP_MAKEFILE)
+
+bldfat:
+	@echo
+	$(MAKE) USEBUILDDIR=1 BACKEND=cppfat -f $(CUDACPP_MAKEFILE)
 
 ifeq ($(UNAME_P),ppc64le)
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4

@@ -288,7 +288,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 }
-#endif
+#endif // !MGONGPUCPP_GPUIMPL
 
 //============================================================================
 
@@ -523,5 +523,209 @@ namespace mg5amcGpu
 
 }
 #endif
+
+//============================================================================
+
+// Fat binary implementation: runtime dispatch to the best available SIMD level.
+// This section is compiled unconditionally (no MGONGPUCPP_GPUIMPL guard) for C++ builds.
+// It provides forward declarations for the per-SIMD namespaces (mg5amcCpu_none,
+// mg5amcCpu_sse4, mg5amcCpu_avx2, mg5amcCpu_512y, mg5amcCpu_512z) and implements
+// MatrixElementKernelHostFat, which detects the host CPU at construction time and
+// delegates all computations to the best available SIMD version.
+
+#ifndef MGONGPUCPP_GPUIMPL
+
+// Forward declarations for per-SIMD namespaces.
+// These are resolved at link time to the object files compiled with appropriate -march flags.
+// All signatures mirror the C++ (non-GPU) versions declared in CPPProcess.h.
+
+#define MG5AMC_CPPFAT_FORWARD_DECLARE( NS )                                                  \
+  namespace NS                                                                                \
+  {                                                                                           \
+    void computeDependentCouplings( const fptype* allgs,                                     \
+                                    fptype* allcouplings,                                    \
+                                    const int nevt );                                        \
+    void sigmaKin_getGoodHel( const fptype* allmomenta,                                      \
+                               const fptype* allcouplings,                                   \
+                               fptype* allMEs,                                               \
+                               MGONGPU_CPPFAT_SIGMAKIN_GETHEL_NUMDEN_PARAMS                  \
+                               bool* isGoodHel,                                              \
+                               const int nevt );                                             \
+    int sigmaKin_setGoodHel( const bool* isGoodHel );                                        \
+    void sigmaKin( const fptype* allmomenta,                                                  \
+                   const fptype* allcouplings,                                               \
+                   const fptype* allrndhel,                                                  \
+                   MGONGPU_CPPFAT_SIGMAKIN_NUMDEN_PARAMS                                     \
+                   fptype* allMEs,                                                           \
+                   int* allselhel,                                                           \
+                   MGONGPU_CPPFAT_SIGMAKIN_SEL_PARAMS                                        \
+                   const int nevt );                                                         \
+  }
+
+// The multichannel-dependent parameters differ between builds
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#define MGONGPU_CPPFAT_SIGMAKIN_GETHEL_NUMDEN_PARAMS \
+  fptype* allNumerators,                             \
+  fptype* allDenominators,
+#define MGONGPU_CPPFAT_SIGMAKIN_NUMDEN_PARAMS \
+  const fptype* allrndcol,                    \
+  const unsigned int* allChannelIds,
+#define MGONGPU_CPPFAT_SIGMAKIN_SEL_PARAMS \
+  int* allselcol,                          \
+  fptype* allNumerators,                   \
+  fptype* allDenominators,
+#else
+#define MGONGPU_CPPFAT_SIGMAKIN_GETHEL_NUMDEN_PARAMS /*nothing*/
+#define MGONGPU_CPPFAT_SIGMAKIN_NUMDEN_PARAMS        /*nothing*/
+#define MGONGPU_CPPFAT_SIGMAKIN_SEL_PARAMS           /*nothing*/
+#endif
+
+MG5AMC_CPPFAT_FORWARD_DECLARE( mg5amcCpu_none )
+MG5AMC_CPPFAT_FORWARD_DECLARE( mg5amcCpu_sse4 )
+MG5AMC_CPPFAT_FORWARD_DECLARE( mg5amcCpu_avx2 )
+MG5AMC_CPPFAT_FORWARD_DECLARE( mg5amcCpu_512y )
+MG5AMC_CPPFAT_FORWARD_DECLARE( mg5amcCpu_512z )
+
+#undef MG5AMC_CPPFAT_FORWARD_DECLARE
+#undef MGONGPU_CPPFAT_SIGMAKIN_GETHEL_NUMDEN_PARAMS
+#undef MGONGPU_CPPFAT_SIGMAKIN_NUMDEN_PARAMS
+#undef MGONGPU_CPPFAT_SIGMAKIN_SEL_PARAMS
+
+namespace mg5amcCpu
+{
+
+  //--------------------------------------------------------------------------
+
+  MatrixElementKernelHostFat::MatrixElementKernelHostFat( const BufferMomenta& momenta,
+                                                          const BufferGs& gs,
+                                                          const BufferRndNumHelicity& rndhel,
+                                                          const BufferRndNumColor& rndcol,
+                                                          const BufferChannelIds& channelIds,
+                                                          BufferMatrixElements& matrixElements,
+                                                          BufferSelectedHelicity& selhel,
+                                                          BufferSelectedColor& selcol,
+                                                          const size_t nevt )
+    : MatrixElementKernelBase( momenta, gs, rndhel, rndcol, channelIds, matrixElements, selhel, selcol )
+    , NumberOfEvents( nevt )
+    , m_selectedSimd( detectBestSimd( /*verbose=*/true ) )
+    , m_couplings( nevt )
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    , m_numerators( nevt )
+    , m_denominators( nevt )
+#endif
+  {
+    if( m_momenta.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHostFat: momenta must be a host array" );
+    if( m_matrixElements.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHostFat: matrixElements must be a host array" );
+    if( m_channelIds.isOnDevice() ) throw std::runtime_error( "MatrixElementKernelHostFat: channelIds must be a device array" );
+    if( this->nevt() != m_momenta.nevt() ) throw std::runtime_error( "MatrixElementKernelHostFat: nevt mismatch with momenta" );
+    if( this->nevt() != m_matrixElements.nevt() ) throw std::runtime_error( "MatrixElementKernelHostFat: nevt mismatch with matrixElements" );
+    if( this->nevt() != m_channelIds.nevt() ) throw std::runtime_error( "MatrixElementKernelHostFat: nevt mismatch with channelIds" );
+    constexpr int neppM = MemoryAccessMomenta::neppM; // AOSOA layout
+    static_assert( ispoweroftwo( neppM ), "neppM is not a power of 2" );
+    if( nevt % neppM != 0 )
+    {
+      std::ostringstream sstr;
+      sstr << "MatrixElementKernelHostFat: nevt should be a multiple of neppM=" << neppM;
+      throw std::runtime_error( sstr.str() );
+    }
+  }
+
+  //--------------------------------------------------------------------------
+
+  MatrixElementKernelHostFat::~MatrixElementKernelHostFat() {}
+
+  //--------------------------------------------------------------------------
+
+  // Detect the best SIMD level available on the current CPU at runtime.
+  SimdLevel MatrixElementKernelHostFat::detectBestSimd( const bool verbose )
+  {
+#if defined( __x86_64__ ) || defined( __i386__ )
+    if( __builtin_cpu_supports( "avx512vl" ) )
+    {
+      if( verbose ) std::cout << "INFO: Fat binary: selected SIMD level avx512z (AVX512VL with 512-bit width)" << std::endl;
+      return SimdLevel::avx512z;
+    }
+    if( __builtin_cpu_supports( "avx512f" ) )
+    {
+      if( verbose ) std::cout << "INFO: Fat binary: selected SIMD level avx512y (AVX512 with 256-bit width)" << std::endl;
+      return SimdLevel::avx512y;
+    }
+    if( __builtin_cpu_supports( "avx2" ) )
+    {
+      if( verbose ) std::cout << "INFO: Fat binary: selected SIMD level avx2 (AVX2 with 256-bit width)" << std::endl;
+      return SimdLevel::avx2;
+    }
+    if( __builtin_cpu_supports( "sse4.2" ) )
+    {
+      if( verbose ) std::cout << "INFO: Fat binary: selected SIMD level sse4 (SSE4.2 with 128-bit width)" << std::endl;
+      return SimdLevel::sse4;
+    }
+    if( verbose ) std::cout << "INFO: Fat binary: selected SIMD level none (no SIMD)" << std::endl;
+    return SimdLevel::none;
+#else
+    // Non-x86: use sse4 (covers ARM NEON/Power VSX) or none
+    if( verbose ) std::cout << "INFO: Fat binary: selected SIMD level sse4 (non-x86 platform)" << std::endl;
+    return SimdLevel::sse4;
+#endif
+  }
+
+  //--------------------------------------------------------------------------
+
+// Convenience macro to dispatch to the correct per-SIMD namespace
+#define MG5AMC_CPPFAT_DISPATCH( CALL )                       \
+  switch( m_selectedSimd )                                    \
+  {                                                           \
+    case SimdLevel::avx512z: mg5amcCpu_512z::CALL; break;    \
+    case SimdLevel::avx512y: mg5amcCpu_512y::CALL; break;    \
+    case SimdLevel::avx2:    mg5amcCpu_avx2::CALL; break;    \
+    case SimdLevel::sse4:    mg5amcCpu_sse4::CALL; break;    \
+    default:                 mg5amcCpu_none::CALL; break;    \
+  }
+
+  int MatrixElementKernelHostFat::computeGoodHelicities()
+  {
+    HostBufferHelicityMask hstIsGoodHel( CPPProcess::ncomb );
+    MG5AMC_CPPFAT_DISPATCH( computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() ) )
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    MG5AMC_CPPFAT_DISPATCH( sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), m_numerators.data(), m_denominators.data(), hstIsGoodHel.data(), nevt() ) )
+#else
+    MG5AMC_CPPFAT_DISPATCH( sigmaKin_getGoodHel( m_momenta.data(), m_couplings.data(), m_matrixElements.data(), hstIsGoodHel.data(), nevt() ) )
+#endif
+    int nGoodHel = 0;
+    switch( m_selectedSimd )
+    {
+      case SimdLevel::avx512z: nGoodHel = mg5amcCpu_512z::sigmaKin_setGoodHel( hstIsGoodHel.data() ); break;
+      case SimdLevel::avx512y: nGoodHel = mg5amcCpu_512y::sigmaKin_setGoodHel( hstIsGoodHel.data() ); break;
+      case SimdLevel::avx2:    nGoodHel = mg5amcCpu_avx2::sigmaKin_setGoodHel( hstIsGoodHel.data() ); break;
+      case SimdLevel::sse4:    nGoodHel = mg5amcCpu_sse4::sigmaKin_setGoodHel( hstIsGoodHel.data() ); break;
+      default:                 nGoodHel = mg5amcCpu_none::sigmaKin_setGoodHel( hstIsGoodHel.data() ); break;
+    }
+    return nGoodHel;
+  }
+
+  //--------------------------------------------------------------------------
+
+  void MatrixElementKernelHostFat::computeMatrixElements( const bool useChannelIds )
+  {
+    MG5AMC_CPPFAT_DISPATCH( computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() ) )
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
+    MG5AMC_CPPFAT_DISPATCH( sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_numerators.data(), m_denominators.data(), nevt() ) )
+#else
+    assert( useChannelIds == false );
+    MG5AMC_CPPFAT_DISPATCH( sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), nevt() ) )
+#endif
+#ifdef MGONGPU_CHANNELID_DEBUG
+    MatrixElementKernelBase::updateNevtProcessedByChannel( pChannelIds, nevt() );
+#endif
+  }
+
+#undef MG5AMC_CPPFAT_DISPATCH
+
+  //--------------------------------------------------------------------------
+
+} // namespace mg5amcCpu
+
+#endif // !MGONGPUCPP_GPUIMPL
 
 //============================================================================
