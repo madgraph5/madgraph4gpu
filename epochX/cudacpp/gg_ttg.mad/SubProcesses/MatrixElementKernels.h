@@ -156,66 +156,6 @@ namespace mg5amcCpu
 
   //--------------------------------------------------------------------------
 
-#ifndef MGONGPUCPP_GPUIMPL
-  // Enum for the SIMD level selected at runtime in a fat binary
-  enum class SimdLevel { none, sse4, avx2, avx512y, avx512z };
-
-  // A class encapsulating matrix element calculations on a CPU host, with runtime
-  // dispatch to the best available SIMD implementation (for use in a fat binary).
-  // The fat binary contains per-SIMD versions of CPPProcess/color_sum compiled into
-  // separate versioned namespaces (mg5amcCpu_none, mg5amcCpu_sse4, mg5amcCpu_avx2,
-  // mg5amcCpu_512y, mg5amcCpu_512z). At construction time, this class detects the
-  // host CPU capabilities and delegates all ME computations to the best version.
-  class MatrixElementKernelHostFat final : public MatrixElementKernelBase, public NumberOfEvents
-  {
-  public:
-
-    // Constructor from existing input and output buffers
-    MatrixElementKernelHostFat( const BufferMomenta& momenta,         // input: momenta
-                                const BufferGs& gs,                   // input: gs for alphaS
-                                const BufferRndNumHelicity& rndhel,   // input: random numbers for helicity selection
-                                const BufferRndNumColor& rndcol,      // input: random numbers for color selection
-                                const BufferChannelIds& channelIds,   // input: channel ids for single-diagram enhancement
-                                BufferMatrixElements& matrixElements, // output: matrix elements
-                                BufferSelectedHelicity& selhel,       // output: helicity selection
-                                BufferSelectedColor& selcol,          // output: color selection
-                                const size_t nevt );
-
-    // Destructor
-    virtual ~MatrixElementKernelHostFat();
-
-    // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
-    int computeGoodHelicities() override final;
-
-    // Compute matrix elements
-    void computeMatrixElements( const bool useChannelIds ) override final;
-
-    // Is this a host or device kernel?
-    bool isOnDevice() const override final { return false; }
-
-    // Detect the best available SIMD level on the current CPU
-    static SimdLevel detectBestSimd( const bool verbose = false );
-
-  private:
-
-    // The selected SIMD level (detected once at construction time)
-    SimdLevel m_selectedSimd;
-
-    // The buffer for the event-by-event couplings that depends on alphas QCD
-    HostBufferCouplings m_couplings;
-
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // The buffer for the event-by-event numerators of multichannel factors
-    HostBufferNumerators m_numerators;
-
-    // The buffer for the event-by-event denominators of multichannel factors
-    HostBufferDenominators m_denominators;
-#endif
-  };
-#endif
-
-  //--------------------------------------------------------------------------
-
 #ifdef MGONGPUCPP_GPUIMPL
   // A class encapsulating matrix element calculations on a GPU device
   class MatrixElementKernelDevice : public MatrixElementKernelBase, public NumberOfEvents

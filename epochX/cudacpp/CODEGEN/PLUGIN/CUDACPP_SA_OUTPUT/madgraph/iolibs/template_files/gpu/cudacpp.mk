@@ -883,6 +883,11 @@ CXXFLAGS_FAT_AVX2 := $(CXXFLAGS_NOFAT) -march=haswell
 CXXFLAGS_FAT_512Y := $(CXXFLAGS_NOFAT) -march=skylake-avx512 -mprefer-vector-width=256
 CXXFLAGS_FAT_512Z := $(CXXFLAGS_NOFAT) -march=skylake-avx512 -DMGONGPU_PVW512
 
+# Identify the process-specific Parameters_<model>.cc source file in src/.
+# It must be defined here (before the rules below) so $(PARAMETERS_STEM) is expanded at parse time.
+PARAMETERS_SRC := $(wildcard ../../src/Parameters_*.cc)
+PARAMETERS_STEM := $(basename $(notdir $(PARAMETERS_SRC)))
+
 $(BUILDDIR)/CPPProcess_none_cpp.o: CPPProcess.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_NONE) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_none -c $< -o $@
@@ -922,6 +927,42 @@ $(BUILDDIR)/color_sum_512y_cpp.o: color_sum.cc *.h ../../src/*.h $(BUILDDIR)/.bu
 $(BUILDDIR)/color_sum_512z_cpp.o: color_sum.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
 	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
 	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_512Z) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_512z -c $< -o $@
+
+# Per-SIMD compilation rules for Parameters_<model>.cc.
+# Parameters_<model> is model-specific (e.g. Parameters_sm.cc) and must be compiled per SIMD level
+# because CPPProcess.cc includes Parameters_<model>.h, which uses the mg5amcCpu namespace macro.
+# When the macro is active, Parameters_<model>::getInstance() etc. end up in the versioned namespace,
+# so the matching definitions must also be compiled into that namespace.
+$(BUILDDIR)/$(PARAMETERS_STEM)_none_cpp.o: $(PARAMETERS_SRC) ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_NONE) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_none -c $< -o $@
+
+$(BUILDDIR)/$(PARAMETERS_STEM)_sse4_cpp.o: $(PARAMETERS_SRC) ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_SSE4) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_sse4 -c $< -o $@
+
+$(BUILDDIR)/$(PARAMETERS_STEM)_avx2_cpp.o: $(PARAMETERS_SRC) ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_AVX2) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_avx2 -c $< -o $@
+
+$(BUILDDIR)/$(PARAMETERS_STEM)_512y_cpp.o: $(PARAMETERS_SRC) ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_512Y) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_512y -c $< -o $@
+
+$(BUILDDIR)/$(PARAMETERS_STEM)_512z_cpp.o: $(PARAMETERS_SRC) ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_512Z) -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_512z -c $< -o $@
+
+# Base (compatibility) objects compiled without MGONGPU_SIMD_NAMESPACE, staying in mg5amcCpu namespace.
+# These provide mg5amcCpu::CPPProcess (for check_sa.cc and param_card reading) and
+# mg5amcCpu::sigmaKin (for MatrixElementKernelHost, the non-fat fallback kernel).
+$(BUILDDIR)/CPPProcess_base_cpp.o: CPPProcess.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_NONE) -c $< -o $@
+
+$(BUILDDIR)/color_sum_base_cpp.o: color_sum.cc *.h ../../src/*.h $(BUILDDIR)/.build.$(TAG)
+	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
+	$(CXX) $(CPPFLAGS) $(INCFLAGS) $(CXXFLAGS_FAT_NONE) -c $< -o $@
 endif
 
 #-------------------------------------------------------------------------------
@@ -939,16 +980,19 @@ processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 
 MG5AMC_CXXLIB = mg5amc_$(processid_short)_cpp
 
-# For the fat binary backend (cppfat), CPPProcess and color_sum are compiled multiple times,
-# once per SIMD level with a versioned namespace. All other objects are compiled once with the
-# baseline x86-64 flags (no SIMD). The dispatcher (MatrixElementKernels.cc) links all versions.
+# For the fat binary backend (cppfat), CPPProcess, color_sum, and Parameters_<model> are compiled
+# multiple times, once per SIMD level with a versioned namespace. Parameters_<model> must be compiled
+# per SIMD level because CPPProcess.cc references it, and when CPPProcess.cc is compiled with
+# -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_<level>, all mg5amcCpu:: references (including Parameters_<model>)
+# are renamed to mg5amcCpu_<level>::. The dispatcher (MatrixElementKernels.cc) links all versions.
 ifeq ($(BACKEND),cppfat)
-cppfat_objects_none=$(BUILDDIR)/CPPProcess_none_cpp.o $(BUILDDIR)/color_sum_none_cpp.o
-cppfat_objects_sse4=$(BUILDDIR)/CPPProcess_sse4_cpp.o $(BUILDDIR)/color_sum_sse4_cpp.o
-cppfat_objects_avx2=$(BUILDDIR)/CPPProcess_avx2_cpp.o $(BUILDDIR)/color_sum_avx2_cpp.o
-cppfat_objects_512y=$(BUILDDIR)/CPPProcess_512y_cpp.o $(BUILDDIR)/color_sum_512y_cpp.o
-cppfat_objects_512z=$(BUILDDIR)/CPPProcess_512z_cpp.o $(BUILDDIR)/color_sum_512z_cpp.o
-cppfat_objects_all=$(cppfat_objects_none) $(cppfat_objects_sse4) $(cppfat_objects_avx2) $(cppfat_objects_512y) $(cppfat_objects_512z)
+cppfat_objects_none=$(BUILDDIR)/CPPProcess_none_cpp.o $(BUILDDIR)/color_sum_none_cpp.o $(BUILDDIR)/$(PARAMETERS_STEM)_none_cpp.o
+cppfat_objects_sse4=$(BUILDDIR)/CPPProcess_sse4_cpp.o $(BUILDDIR)/color_sum_sse4_cpp.o $(BUILDDIR)/$(PARAMETERS_STEM)_sse4_cpp.o
+cppfat_objects_avx2=$(BUILDDIR)/CPPProcess_avx2_cpp.o $(BUILDDIR)/color_sum_avx2_cpp.o $(BUILDDIR)/$(PARAMETERS_STEM)_avx2_cpp.o
+cppfat_objects_512y=$(BUILDDIR)/CPPProcess_512y_cpp.o $(BUILDDIR)/color_sum_512y_cpp.o $(BUILDDIR)/$(PARAMETERS_STEM)_512y_cpp.o
+cppfat_objects_512z=$(BUILDDIR)/CPPProcess_512z_cpp.o $(BUILDDIR)/color_sum_512z_cpp.o $(BUILDDIR)/$(PARAMETERS_STEM)_512z_cpp.o
+cppfat_objects_base=$(BUILDDIR)/CPPProcess_base_cpp.o $(BUILDDIR)/color_sum_base_cpp.o
+cppfat_objects_all=$(cppfat_objects_base) $(cppfat_objects_none) $(cppfat_objects_sse4) $(cppfat_objects_avx2) $(cppfat_objects_512y) $(cppfat_objects_512z)
 cxx_objects_lib=$(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o $(cppfat_objects_all)
 else
 cxx_objects_lib=$(BUILDDIR)/CPPProcess_cpp.o $(BUILDDIR)/color_sum_cpp.o $(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o

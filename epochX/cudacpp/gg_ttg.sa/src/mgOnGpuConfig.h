@@ -305,14 +305,4 @@ ispoweroftwo( int n )
 #endif
 #endif
 
-// For fat binary builds: when MGONGPU_SIMD_NAMESPACE is defined externally (e.g. -DMGONGPU_SIMD_NAMESPACE=mg5amcCpu_avx2),
-// redefine mg5amcCpu to the versioned namespace for SIMD-sensitive translation units (CPPProcess, color_sum).
-// This allows compiling those translation units multiple times with different -march flags,
-// each time placing all symbols in a distinct versioned namespace, for runtime dispatch in a fat binary.
-// Files that are NOT SIMD-sensitive (MatrixElementKernels, BridgeKernels, fbridge etc.) are compiled
-// without MGONGPU_SIMD_NAMESPACE and therefore continue to use the standard mg5amcCpu namespace.
-#if defined MGONGPU_SIMD_NAMESPACE && !defined MGONGPUCPP_GPUIMPL
-#define mg5amcCpu MGONGPU_SIMD_NAMESPACE
-#endif
-
 #endif // MGONGPUCONFIG_H
