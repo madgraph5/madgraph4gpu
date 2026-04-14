@@ -46,6 +46,9 @@ namespace mg5amcCpu
     // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
     virtual int computeGoodHelicities() = 0;
 
+    // Set the per-event MLM graph array (nullptr = no MLM matching; must be called before computeMatrixElements if needed)
+    void setigraph( const int* igraph ) { m_igraph = igraph; }
+
     // Compute matrix elements
     virtual void computeMatrixElements( const bool useChannelIds ) = 0;
 
@@ -83,6 +86,9 @@ namespace mg5amcCpu
 
     // The buffer for the channel ids for single-diagram enhancement
     const BufferChannelIds& m_channelIds;
+
+    // The per-event MLM graph array (nullptr = no MLM; set via setigraph before computeMatrixElements)
+    const int* m_igraph = nullptr;
 
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;

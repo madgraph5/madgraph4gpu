@@ -591,7 +591,7 @@ namespace mg5amcCpu
   select_col( int* allselcol,                    // output: color selection[nevt]
               const fptype* allrndcol,           // input: random numbers[nevt] for color selection
               const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE enhancement (fix #899/#911)
-              const int* allIgraph,             // input: per-event MLM graph (0 = no MLM); nullptr if no MLM
+              const int* allIgraph,              // input: per-event MLM graph (0 = no MLM); nullptr if no MLM
               const fptype_sv* allJamp2s,        // input: jamp2[ncolor][nevt] for color choice (nullptr if disabled)
               const int nevt )                   // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
   {

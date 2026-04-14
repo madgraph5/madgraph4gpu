@@ -208,7 +208,7 @@
       // Event-by-event random choice of color #402
       // Use per-event MLM graph if provided, otherwise use channel2iconfig
       const int igraph1_page = ( allIgraph != nullptr ) ? allIgraph[ievt00] : 0; // all events in SIMD page share the same igraph
-      if( channelId != 0 || igraph1_page != 0 ) // no event-by-event choice of color if both channelId and igraph are 0 (fix FPE #783)
+      if( channelId != 0 || igraph1_page != 0 )                                  // no event-by-event choice of color if both channelId and igraph are 0 (fix FPE #783)
       {
         // Determine iconfig: use per-event MLM graph if provided, otherwise use channel2iconfig
         int iconfig;

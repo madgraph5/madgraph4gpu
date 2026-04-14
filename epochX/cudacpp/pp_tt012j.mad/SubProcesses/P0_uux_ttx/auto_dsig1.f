@@ -360,6 +360,9 @@ C
       DOUBLE PRECISION P1(0:3, NEXTERNAL)
       INTEGER IVEC, CURR_WARP, IWARP, NB_WARP_USED
       INTEGER CHANNELS(VECSIZE_MEMMAX)
+C     Per-event MLM graph: igraphs(1) from REWGT (0 = no MLM)
+      INTEGER IGRAPH(VECSIZE_MEMMAX)
+      COMMON/VEC_IGRAPH/IGRAPH
 C     
 C     DATA
 C     
@@ -372,6 +375,7 @@ C     BEGIN CODE
 C     ----------
       SELECTED_HEL(:) = 0
       SELECTED_COL(:) = 0
+      IGRAPH(:) = 0
 
       IF(IMODE.EQ.1)THEN
         NFACT = DSIG1(ALL_PP(0,1,1), ALL_WGT(1), IMODE)
@@ -498,7 +502,7 @@ C         Select a flavor combination (need to do here for right sign)
         ENDDO  ! end loop on IWARP/IVEC	 
       ENDDO  ! end loop on the CURR_WARP
       CALL SMATRIX1_MULTI(P_MULTI, HEL_RAND, COL_RAND, CHANNELS,
-     $  ALL_OUT , SELECTED_HEL, SELECTED_COL, VECSIZE_USED)
+     $  IGRAPH, ALL_OUT , SELECTED_HEL, SELECTED_COL, VECSIZE_USED)
 
 
       DO CURR_WARP=1, NB_WARP_USED
@@ -571,7 +575,7 @@ C           Call UNWGT to unweight and store events
 
 
       SUBROUTINE SMATRIX1_MULTI(P_MULTI, HEL_RAND, COL_RAND, CHANNELS,
-     $  OUT, SELECTED_HEL, SELECTED_COL, VECSIZE_USED)
+     $  IGRAPH, OUT, SELECTED_HEL, SELECTED_COL, VECSIZE_USED)
 
       IMPLICIT NONE
 
@@ -584,6 +588,8 @@ C           Call UNWGT to unweight and store events
       DOUBLE PRECISION HEL_RAND(VECSIZE_MEMMAX)
       DOUBLE PRECISION COL_RAND(VECSIZE_MEMMAX)
       INTEGER CHANNELS(VECSIZE_MEMMAX)
+C     Per-event MLM graph: igraphs(1) from REWGT (0 = no MLM)
+      INTEGER IGRAPH(VECSIZE_MEMMAX)
       DOUBLE PRECISION OUT(VECSIZE_MEMMAX)
       INTEGER SELECTED_HEL(VECSIZE_MEMMAX)
       INTEGER SELECTED_COL(VECSIZE_MEMMAX)
@@ -601,6 +607,8 @@ C           Call UNWGT to unweight and store events
       LOGICAL FIRST_CHID
       SAVE FIRST_CHID
       DATA FIRST_CHID/.TRUE./
+
+      INCLUDE 'cluster.inc'  ! for IGRAPHS common block (MLM per-event color selection)
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'coupl.inc'  ! for ALL_G
@@ -653,7 +661,7 @@ C       ======================================================
         IF ( FIRST ) THEN  ! exclude first pass (helicity filtering) from timers (#461)
           CALL COUNTERS_SMATRIX1MULTI_START( 1, VECSIZE_USED )  ! cudacppHEL=1
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE,  ! multi channel disabled for helicity filtering
-     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
+     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, IGRAPH, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .TRUE.)  ! quit after computing helicities
           FIRST = .FALSE.
 C         ! This is a workaround for
@@ -677,7 +685,7 @@ C         ENDIF
         CALL COUNTERS_SMATRIX1MULTI_START( 0, VECSIZE_USED )  ! cudacppMEs=0
         IF ( .NOT. MULTI_CHANNEL ) THEN
           CALL FBRIDGESEQUENCE_NOMULTICHANNEL( FBRIDGE_PBRIDGE,  ! multi channel disabled
-     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, OUT2,
+     &      P_MULTI, ALL_G, HEL_RAND, COL_RAND, IGRAPH, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .FALSE.)  ! do not quit after computing helicities
         ELSE
           IF( SDE_STRAT.NE.1 ) THEN
@@ -685,7 +693,7 @@ C         ENDIF
             STOP
           ENDIF
           CALL FBRIDGESEQUENCE(FBRIDGE_PBRIDGE, P_MULTI, ALL_G,  ! multi channel enabled
-     &      HEL_RAND, COL_RAND, CHANNELS, OUT2,
+     &      HEL_RAND, COL_RAND, CHANNELS, IGRAPH, OUT2,
      &      SELECTED_HEL2, SELECTED_COL2, .FALSE.)  ! do not quit after computing helicities
         ENDIF
         CALL COUNTERS_SMATRIX1MULTI_STOP( 0 )  ! cudacppMEs=0
