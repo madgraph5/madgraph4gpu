@@ -1,5 +1,4 @@
 Running MG5 in debug mode
-('WARNING: loading of madgraph too slow!!!', 0.5027971267700195)
 Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin MG5aMC_PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.7.0. 
 It has been validated for the last time with version: 3.6.5[0m
@@ -57,7 +56,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.010428905487060547 [0m
+[1;32mDEBUG: model prefixing  takes 0.0032498836517333984 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -150,7 +149,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ WEIGHTED<=2 @1  
 INFO: Process has 3 diagrams 
-1 processes with 3 diagrams generated in 0.029 s
+1 processes with 3 diagrams generated in 0.006 s
 Total: 1 processes with 3 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_gg_tt
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -169,11 +168,11 @@ INFO: Creating files in directory /home/dmass/Development/madgraph4gpu/copilot-i
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.h
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/. 
-Generated helas calls for 1 subprocesses (3 diagrams) in 0.021 s
+Generated helas calls for 1 subprocesses (3 diagrams) in 0.005 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.362 s
+ALOHA: aloha creates 2 routines in  0.096 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -188,7 +187,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. and /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. 
 quit
 
-real	0m1.704s
-user	0m1.443s
-sys	0m0.212s
-Code generation completed in 2 seconds
+real	0m0.525s
+user	0m0.446s
+sys	0m0.073s
+Code generation completed in 0 seconds

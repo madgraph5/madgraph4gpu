@@ -1,5 +1,4 @@
 Running MG5 in debug mode
-('WARNING: loading of madgraph too slow!!!', 0.5544004440307617)
 Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin MG5aMC_PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.7.0. 
 It has been validated for the last time with version: 3.6.5[0m
@@ -57,7 +56,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.008105278015136719 [0m
+[1;32mDEBUG: model prefixing  takes 0.0036313533782958984 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -149,7 +148,7 @@ INFO: Checking for minimal orders which gives processes.
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying process: e+ e- > mu+ mu- WEIGHTED<=4 @1  
 INFO: Process has 2 diagrams 
-1 processes with 2 diagrams generated in 0.014 s
+1 processes with 2 diagrams generated in 0.004 s
 Total: 1 processes with 2 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_ee_mumu --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -178,19 +177,19 @@ INFO: Finding symmetric diagrams for subprocess group epem_mupmum
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 2 [1;30m[model_handling.py at line 1724][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1748][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1749][0m [0m
-Generated helas calls for 1 subprocesses (2 diagrams) in 0.009 s
-Wrote files for 8 helas calls in 0.185 s
+Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
+Wrote files for 8 helas calls in 0.063 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
-ALOHA: aloha creates 3 routines in  0.353 s
+ALOHA: aloha creates 3 routines in  0.177 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 7 routines in  0.374 s
+ALOHA: aloha creates 7 routines in  0.232 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -221,10 +220,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m5.692s
-user	0m4.638s
-sys	0m0.843s
-Code generation completed in 6 seconds
+real	0m3.100s
+user	0m2.713s
+sys	0m0.346s
+Code generation completed in 3 seconds
 ************************************************************
 *                                                          *
 *                      W E L C O M E to                    *

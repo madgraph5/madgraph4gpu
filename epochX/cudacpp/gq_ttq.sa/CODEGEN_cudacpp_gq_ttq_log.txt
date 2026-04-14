@@ -55,7 +55,7 @@ set zerowidth_tchannel F
 define q = u c d s u~ c~ d~ s~
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.009302139282226562 [0m
+[1;32mDEBUG: model prefixing  takes 0.003228902816772461 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -164,7 +164,7 @@ INFO: Crossed process found for g u~ > t t~ u~, reuse diagrams.
 INFO: Crossed process found for g c~ > t t~ c~, reuse diagrams. 
 INFO: Crossed process found for g d~ > t t~ d~, reuse diagrams. 
 INFO: Crossed process found for g s~ > t t~ s~, reuse diagrams. 
-8 processes with 40 diagrams generated in 0.148 s
+8 processes with 40 diagrams generated in 0.077 s
 Total: 8 processes with 40 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_gq_ttq
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -200,11 +200,11 @@ INFO: Creating files in directory /home/dmass/Development/madgraph4gpu/copilot-i
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gux_ttxux/./CPPProcess.h
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gux_ttxux/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/SubProcesses/P1_Sigma_sm_gux_ttxux/. 
-Generated helas calls for 2 subprocesses (10 diagrams) in 0.065 s
+Generated helas calls for 2 subprocesses (10 diagrams) in 0.039 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates VVV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.226 s
+ALOHA: aloha creates 2 routines in  0.160 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -220,7 +220,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/. and /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_gq_ttq/src/. 
 quit
 
-real	0m1.590s
-user	0m1.312s
-sys	0m0.233s
-Code generation completed in 1 seconds
+real	0m0.725s
+user	0m0.646s
+sys	0m0.070s
+Code generation completed in 0 seconds
