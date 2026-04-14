@@ -637,8 +637,72 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
   // Detect the best SIMD level available on the current CPU at runtime.
+  // If the environment variable MGONGPU_SIMD_LEVEL is set to one of the
+  // recognised level names (avx512z, avx512y, avx2, sse4, none) the
+  // requested level is used *provided* the hardware actually supports it.
+  // An unsupported or unrecognised value triggers a warning and falls back
+  // to auto-detection.  This allows benchmarking a lower SIMD tier on a
+  // machine that supports a higher one, e.g.:
+  //   MGONGPU_SIMD_LEVEL=avx2 ./check_cpp.exe   # force AVX2 on AVX512 HW
   SimdLevel MatrixElementKernelHostFat::detectBestSimd( const bool verbose )
   {
+    // --- optional user override via MGONGPU_SIMD_LEVEL ---
+    const char* simdEnv = getenv( "MGONGPU_SIMD_LEVEL" );
+    if( simdEnv != nullptr )
+    {
+      const std::string requested( simdEnv );
+      SimdLevel req = SimdLevel::none; // initialised to keep compiler happy
+      bool knownLevel = true;
+      if( requested == "avx512z" )
+        req = SimdLevel::avx512z;
+      else if( requested == "avx512y" )
+        req = SimdLevel::avx512y;
+      else if( requested == "avx2" )
+        req = SimdLevel::avx2;
+      else if( requested == "sse4" )
+        req = SimdLevel::sse4;
+      else if( requested == "none" )
+        req = SimdLevel::none;
+      else
+      {
+        std::cerr << "WARNING: MGONGPU_SIMD_LEVEL='" << requested
+                  << "' is not recognised (valid values: avx512z avx512y avx2 sse4 none)."
+                  << " Falling back to auto-detection." << std::endl;
+        knownLevel = false;
+      }
+      if( knownLevel )
+      {
+        // Safety check: refuse to use a level the hardware cannot execute.
+        bool hwOk = false;
+#if defined( __x86_64__ ) || defined( __i386__ )
+        switch( req )
+        {
+          case SimdLevel::avx512z: hwOk = __builtin_cpu_supports( "avx512vl" ); break;
+          case SimdLevel::avx512y: hwOk = __builtin_cpu_supports( "avx512f" );  break;
+          case SimdLevel::avx2:    hwOk = __builtin_cpu_supports( "avx2" );     break;
+          case SimdLevel::sse4:    hwOk = __builtin_cpu_supports( "sse4.2" );   break;
+          case SimdLevel::none:    hwOk = true;                                 break;
+        }
+#else
+        // Non-x86: only sse4 (NEON/VSX) and none are meaningful overrides.
+        hwOk = ( req == SimdLevel::sse4 || req == SimdLevel::none );
+#endif
+        if( hwOk )
+        {
+          if( verbose )
+            std::cout << "INFO: Fat binary: MGONGPU_SIMD_LEVEL override: selected SIMD level "
+                      << requested << std::endl;
+          return req;
+        }
+        else
+        {
+          std::cerr << "WARNING: MGONGPU_SIMD_LEVEL='" << requested
+                    << "' is not supported by this CPU."
+                    << " Falling back to auto-detection." << std::endl;
+        }
+      }
+    }
+    // --- auto-detection ---
 #if defined( __x86_64__ ) || defined( __i386__ )
     if( __builtin_cpu_supports( "avx512vl" ) )
     {
