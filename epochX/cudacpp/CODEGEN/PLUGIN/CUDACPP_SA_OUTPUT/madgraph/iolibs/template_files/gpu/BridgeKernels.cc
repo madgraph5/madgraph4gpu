@@ -90,7 +90,7 @@ namespace mg5amcCpu
   {
     constexpr bool goodHelOnly = false;
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
-    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_igraph1, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
+    m_bridge.cpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_igraph, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------
@@ -149,7 +149,7 @@ namespace mg5amcGpu
   {
     constexpr bool goodHelOnly = false;
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
-    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_igraph1, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
+    m_bridge.gpu_sequence( m_fortranMomenta.data(), m_gs.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_igraph, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), goodHelOnly );
   }
 
   //--------------------------------------------------------------------------

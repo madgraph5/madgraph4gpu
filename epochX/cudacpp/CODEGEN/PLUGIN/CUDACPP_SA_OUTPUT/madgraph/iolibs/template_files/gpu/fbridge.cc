@@ -91,7 +91,7 @@ extern "C"
                          const FORTRANFPTYPE* rndhel,
                          const FORTRANFPTYPE* rndcol,
                          const unsigned int* channelIds,
-                         const int* igraph1,
+                         const int* igraph,
                          FORTRANFPTYPE* mes,
                          int* selhel,
                          int* selcol,
@@ -103,11 +103,11 @@ extern "C"
 #ifdef MGONGPUCPP_GPUIMPL
     // Use the device/GPU implementation in the CUDA library
     // (there is also a host implementation in this library)
-    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, channelIds, igraph1, mes, selhel, selcol, *pgoodHelOnly );
+    pbridge->gpu_sequence( momenta, gs, rndhel, rndcol, channelIds, igraph, mes, selhel, selcol, *pgoodHelOnly );
 #else
     // Use the host/CPU implementation in the C++ library
     // (there is no device implementation in this library)
-    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, channelIds, igraph1, mes, selhel, selcol, *pgoodHelOnly );
+    pbridge->cpu_sequence( momenta, gs, rndhel, rndcol, channelIds, igraph, mes, selhel, selcol, *pgoodHelOnly );
 #endif
   }
 
@@ -130,14 +130,14 @@ extern "C"
                                         const FORTRANFPTYPE* gs,
                                         const FORTRANFPTYPE* rndhel,
                                         const FORTRANFPTYPE* rndcol,
-                                        const int* igraph1,
+                                        const int* igraph,
                                         FORTRANFPTYPE* mes,
                                         int* selhel,
                                         int* selcol,
                                         const bool* pgoodHelOnly )
   {
     //printf("fbridgesequence_nomultichannel_ goodHelOnly=%d\n", ( *pgoodHelOnly ? 1 : 0 ) );
-    fbridgesequence_( ppbridge, momenta, gs, rndhel, rndcol, nullptr, igraph1, mes, selhel, selcol, pgoodHelOnly );
+    fbridgesequence_( ppbridge, momenta, gs, rndhel, rndcol, nullptr, igraph, mes, selhel, selcol, pgoodHelOnly );
   }
 
   /**

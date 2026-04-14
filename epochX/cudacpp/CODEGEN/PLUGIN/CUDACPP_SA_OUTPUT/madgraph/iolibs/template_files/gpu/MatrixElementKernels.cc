@@ -220,7 +220,7 @@ namespace mg5amcCpu
     computeDependentCouplings( m_gs.data(), m_couplings.data(), m_gs.size() );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_igraph1, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_numerators.data(), m_denominators.data(), nevt() );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_igraph, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_numerators.data(), m_denominators.data(), nevt() );
 #else
     assert( useChannelIds == false );
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), nevt() );
@@ -504,7 +504,7 @@ namespace mg5amcGpu
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
-    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_igraph1, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_colJamp2s.data(), m_pHelNumerators->data(), m_pHelDenominators->data(), m_pHelMEs->data(), m_pHelJamps->data(), ghelAllBlasTmp, pBlasHandle, m_helStreams, m_gpublocks, m_gputhreads );
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_igraph, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_colJamp2s.data(), m_pHelNumerators->data(), m_pHelDenominators->data(), m_pHelMEs->data(), m_pHelJamps->data(), ghelAllBlasTmp, pBlasHandle, m_helStreams, m_gpublocks, m_gputhreads );
 #else
     assert( useChannelIds == false );
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_pHelMEs->data(), m_pHelJamps->data(), ghelAllBlasTmp, pBlasHandle, m_helStreams, m_gpublocks, m_gputhreads );

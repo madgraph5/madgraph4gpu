@@ -70,7 +70,7 @@
     gpuLaunchKernel( add_and_select_hel, gpublocks, gputhreads, allselhel, allrndhel, ghelAllMEs, allMEs, gpublocks * gputhreads );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // Event-by-event random choice of color #402
-    gpuLaunchKernel( select_col, gpublocks, gputhreads, allselcol, allrndcol, allChannelIds, allIgraph1, colAllJamp2s, gpublocks * gputhreads );
+    gpuLaunchKernel( select_col, gpublocks, gputhreads, allselcol, allrndcol, allChannelIds, allIgraph, colAllJamp2s, gpublocks * gputhreads );
 #endif
     // *** END OF PART 1a - CUDA (one event per GPU thread) ***
 
@@ -94,7 +94,7 @@
     // - firstprivate: give each thread its own copy, and initialise with value from outside
 #define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-#define _OMPLIST1 , allDenominators, allNumerators, allChannelIds, allIgraph1, mgOnGpu::icolamp, mgOnGpu::channel2iconfig
+#define _OMPLIST1 , allDenominators, allNumerators, allChannelIds, allIgraph, mgOnGpu::icolamp, mgOnGpu::channel2iconfig
 #else
 #define _OMPLIST1
 #endif
@@ -207,8 +207,8 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
       // Event-by-event random choice of color #402
       // Use per-event MLM graph if provided, otherwise use channel2iconfig
-      const int igraph1_page = ( allIgraph1 != nullptr ) ? allIgraph1[ievt00] : 0; // all events in SIMD page share the same igraph1
-      if( channelId != 0 || igraph1_page != 0 ) // no event-by-event choice of color if both channelId and igraph1 are 0 (fix FPE #783)
+      const int igraph1_page = ( allIgraph != nullptr ) ? allIgraph[ievt00] : 0; // all events in SIMD page share the same igraph
+      if( channelId != 0 || igraph1_page != 0 ) // no event-by-event choice of color if both channelId and igraph are 0 (fix FPE #783)
       {
         // Determine iconfig: use per-event MLM graph if provided, otherwise use channel2iconfig
         int iconfig;
@@ -298,7 +298,7 @@
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
           const int ievt = ievt00 + ieppV;
-          allselcol[ievt] = 0; // no color selected in Fortran range [1,ncolor] if both channelId and igraph1 are 0 (see #931)
+          allselcol[ievt] = 0; // no color selected in Fortran range [1,ncolor] if both channelId and igraph are 0 (see #931)
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
           const int ievt2 = ievt00 + ieppV + neppV;
           allselcol[ievt2] = 0; // no color selected in Fortran range [1,ncolor] if channelId == 0 (see #931)
