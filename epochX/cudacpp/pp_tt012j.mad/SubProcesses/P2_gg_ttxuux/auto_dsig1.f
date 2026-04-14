@@ -558,8 +558,8 @@ C           Call UNWGT to unweight and store events
       IMPLICIT NONE
 
       INCLUDE 'nexternal.inc'
-      INCLUDE '../../Source/vector.inc'  ! defines VECSIZE_MEMMAX
       INCLUDE 'maxamps.inc'
+      INCLUDE 'cluster.inc'  ! for IGRAPHS common block (MLM per-event color selection); also defines VECSIZE_MEMMAX via vector.inc
       INTEGER                 NCOMB
       PARAMETER (             NCOMB=64)
       DOUBLE PRECISION P_MULTI(0:3, NEXTERNAL, VECSIZE_MEMMAX)
@@ -585,8 +585,6 @@ C     Per-event MLM graph: igraphs(1) from REWGT (0 = no MLM)
       LOGICAL FIRST_CHID
       SAVE FIRST_CHID
       DATA FIRST_CHID/.TRUE./
-
-      INCLUDE 'cluster.inc'  ! for IGRAPHS common block (MLM per-event color selection)
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
       INCLUDE 'coupl.inc'  ! for ALL_G
