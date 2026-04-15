@@ -15,7 +15,7 @@ It has been validated for the last time with version: 3.6.5[0m
 *                 *                       *                *
 *                                                          *
 *         VERSION 3.7.0                 2026-01-05         *
-*         GIT r991-3-gc39fc765a  copilot/fix-mlm-issue-phase-space         *
+*         GIT r991-7-g69b7ec3d4  copilot/fix-mlm-issue-phase-space         *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *              http://madgraph.phys.ucl.ac.be/             *
@@ -56,7 +56,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.002843141555786133 [0m
+[1;32mDEBUG: model prefixing  takes 0.0035247802734375 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -149,7 +149,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t t~ WEIGHTED<=2 @1  
 INFO: Process has 3 diagrams 
-1 processes with 3 diagrams generated in 0.006 s
+1 processes with 3 diagrams generated in 0.008 s
 Total: 1 processes with 3 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_gg_tt --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -179,15 +179,15 @@ INFO: Finding symmetric diagrams for subprocess group gg_ttx
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1748][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1749][0m [0m
 Generated helas calls for 1 subprocesses (3 diagrams) in 0.006 s
-Wrote files for 10 helas calls in 0.056 s
+Wrote files for 10 helas calls in 0.118 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.079 s
+ALOHA: aloha creates 2 routines in  0.106 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 4 routines in  0.068 s
+ALOHA: aloha creates 4 routines in  0.088 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -214,9 +214,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m1.804s
-user	0m1.509s
-sys	0m0.277s
+real	0m2.327s
+user	0m1.937s
+sys	0m0.356s
 Code generation completed in 2 seconds
 ************************************************************
 *                                                          *

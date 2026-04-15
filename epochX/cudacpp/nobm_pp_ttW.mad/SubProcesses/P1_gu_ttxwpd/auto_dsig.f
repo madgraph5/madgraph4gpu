@@ -1204,7 +1204,7 @@ C
       END
 
 
-      SUBROUTINE SELECT_COLOR(RCOL, JAMP2, ICONFIG, IPROC, ICOL)
+      SUBROUTINE SELECT_COLOR(RCOL, JAMP2, ICONFIG, IPROC, ICOL, IVEC)
       IMPLICIT NONE
       INCLUDE 'nexternal.inc'
       INCLUDE 'maxamps.inc'  ! for the definition of maxflow
@@ -1219,10 +1219,13 @@ C
       DOUBLE PRECISION JAMP2(0:MAXFLOW)
       INTEGER ICONFIG  ! amplitude selected
       INTEGER IPROC  ! matrix element selected
+      INTEGER IVEC
 C     
 C     argument OUT
 C     
       INTEGER ICOL
+      INTEGER IGRAPH(VECSIZE_MEMMAX)
+      COMMON/VEC_IGRAPH/IGRAPH
 C     
 C     local
 C     
@@ -1234,7 +1237,11 @@ C
       DOUBLE PRECISION XTARGET
 
       IF (ICKKW.GT.0) THEN
-        ICONFIG = IGRAPHS(1)
+        IF (IVEC.EQ.0) THEN
+          ICONFIG = IGRAPHS(1)
+        ELSE
+          ICONFIG = VEC_IGRAPH(IVEC)
+        ENDIF
       ENDIF
 
 

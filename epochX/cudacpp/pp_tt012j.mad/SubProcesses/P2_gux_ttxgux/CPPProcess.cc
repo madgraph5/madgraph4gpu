@@ -1832,71 +1832,61 @@ namespace mg5amcCpu
       }
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL // multichannel enabled (random color choice)
       // Event-by-event random choice of color #402
-      // Use per-event MLM graph if provided, otherwise use channel2iconfig
-      const int igraph1_page = ( allIgraph != nullptr ) ? allIgraph[ievt00] : 0; // all events in SIMD page share the same igraph
-      if( channelId != 0 || igraph1_page != 0 )                                  // no event-by-event choice of color if both channelId and igraph are 0 (fix FPE #783)
+      // NB: with MLM, different events in a SIMD page may have different igraph values, so iconfig must be per-event
+      for( int ieppV = 0; ieppV < neppV; ++ieppV )
       {
-        // Determine iconfig: use per-event MLM graph if provided, otherwise use channel2iconfig
-        int iconfig;
-        if( igraph1_page != 0 )
+        const int ievt = ievt00 + ieppV;
+        // Use per-event MLM graph if provided, otherwise use channel2iconfig
+        const int igraph1_ievt = ( allIgraph != nullptr ) ? allIgraph[ievt] : 0; // per-event igraph (may differ across SIMD page with MLM)
+        if( channelId != 0 || igraph1_ievt != 0 )                                // no event-by-event choice of color if both channelId and igraph are 0 (fix FPE #783)
         {
-          iconfig = igraph1_page; // use MLM-matched graph directly as iconfig (F-indexed, 1-based)
-        }
-        else
-        {
-          if( channelId > mgOnGpu::nchannels )
+          // Determine iconfig: use per-event MLM graph if provided, otherwise use channel2iconfig
+          int iconfig;
+          if( igraph1_ievt != 0 )
           {
-            printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d which is greater than nchannels=%d\n", channelId, mgOnGpu::nchannels );
-            assert( channelId <= mgOnGpu::nchannels ); // SANITY CHECK #919 #910
+            iconfig = igraph1_ievt; // use MLM-matched graph directly as iconfig (F-indexed, 1-based)
           }
-          // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
-          // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
-          iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
-          if( iconfig <= 0 )
-          {
-            printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d which has no associated SDE iconfig\n", channelId );
-            assert( iconfig > 0 ); // SANITY CHECK #917
-          }
-          else if( iconfig > (int)mgOnGpu::nconfigSDE )
-          {
-            printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d (invalid SDE iconfig=%d\n > nconfig=%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
-            assert( iconfig <= (int)mgOnGpu::nconfigSDE ); // SANITY CHECK #917
-          }
-        }
-        fptype_sv targetamp[ncolor] = { 0 };
-        // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
-        for( int icolC = 0; icolC < ncolor; icolC++ )
-        {
-          if( icolC == 0 )
-            targetamp[icolC] = fptype_sv{ 0 };
           else
-            targetamp[icolC] = targetamp[icolC - 1];
-          if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
-        }
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-        fptype_sv targetamp2[ncolor] = { 0 };
-        for( int icolC = 0; icolC < ncolor; icolC++ )
-        {
-          if( icolC == 0 )
-            targetamp2[icolC] = fptype_sv{ 0 };
-          else
-            targetamp2[icolC] = targetamp2[icolC - 1];
-          // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
-          if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC];
-        }
+          {
+            if( channelId > mgOnGpu::nchannels )
+            {
+              printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d which is greater than nchannels=%d\n", channelId, mgOnGpu::nchannels );
+              assert( channelId <= mgOnGpu::nchannels ); // SANITY CHECK #919 #910
+            }
+            // NB (see #877): in the array channel2iconfig, the input index uses C indexing (channelId -1), the output index uses F indexing (iconfig)
+            // NB (see #917): mgOnGpu::channel2iconfig returns an int (which may be -1), not an unsigned int!
+            iconfig = mgOnGpu::channel2iconfig[channelId - 1]; // map N_diagrams to N_config <= N_diagrams configs (fix LHE color mismatch #856: see also #826, #852, #853)
+            if( iconfig <= 0 )
+            {
+              printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d which has no associated SDE iconfig\n", channelId );
+              assert( iconfig > 0 ); // SANITY CHECK #917
+            }
+            else if( iconfig > (int)mgOnGpu::nconfigSDE )
+            {
+              printf( "INTERNAL ERROR! Cannot choose an event-by-event random color for channelId=%d (invalid SDE iconfig=%d\n > nconfig=%d)", channelId, iconfig, mgOnGpu::nconfigSDE );
+              assert( iconfig <= (int)mgOnGpu::nconfigSDE ); // SANITY CHECK #917
+            }
+          }
+          // NB (see #877): explicitly use 'icolC' rather than 'icol' to indicate that icolC uses C indexing in [0, N_colors-1]
+          // NB: targetamp is a scalar fptype (not fptype_sv) - iconfig is per-event so we extract the scalar lane from jamp2_sv
+          fptype targetamp[ncolor] = { 0 };
+          for( int icolC = 0; icolC < ncolor; icolC++ )
+          {
+            if( icolC == 0 )
+              targetamp[icolC] = fptype{ 0 };
+            else
+              targetamp[icolC] = targetamp[icolC - 1];
+              // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
+#if defined MGONGPU_CPPSIMD
+            if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC][ieppV];
+#else
+            if( mgOnGpu::icolamp[iconfig - 1][icolC] ) targetamp[icolC] += jamp2_sv[icolC];
 #endif
-        for( int ieppV = 0; ieppV < neppV; ++ieppV )
-        {
-          const int ievt = ievt00 + ieppV;
+          }
           //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt, allrndcol[ievt] );
           for( int icolC = 0; icolC < ncolor; icolC++ )
           {
-#if defined MGONGPU_CPPSIMD
-            // Add volatile here to avoid SIGFPE crashes in FPTYPE=f cpp512z builds (#845)
-            volatile const bool okcol = allrndcol[ievt] < ( targetamp[icolC][ieppV] / targetamp[ncolor - 1][ieppV] );
-#else
             const bool okcol = allrndcol[ievt] < ( targetamp[icolC] / targetamp[ncolor - 1] );
-#endif
             if( okcol )
             {
               allselcol[ievt] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
@@ -1904,32 +1894,52 @@ namespace mg5amcCpu
               break;
             }
           }
+        }
+        else
+        {
+          allselcol[ievt] = 0; // no color selected in Fortran range [1,ncolor] if both channelId and igraph are 0 (see #931)
+        }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-          const int ievt2 = ievt00 + ieppV + neppV;
+        const int ievt2 = ievt00 + ieppV + neppV;
+        const int igraph1_ievt2 = ( allIgraph != nullptr ) ? allIgraph[ievt2] : 0; // per-event igraph (may differ across SIMD page with MLM)
+        if( channelId != 0 || igraph1_ievt2 != 0 )                                 // no event-by-event choice of color if both channelId and igraph are 0 (fix FPE #783)
+        {
+          // Determine iconfig2: use per-event MLM graph if provided, otherwise use channel2iconfig
+          int iconfig2;
+          if( igraph1_ievt2 != 0 )
+          {
+            iconfig2 = igraph1_ievt2; // use MLM-matched graph directly as iconfig (F-indexed, 1-based)
+          }
+          else
+          {
+            iconfig2 = mgOnGpu::channel2iconfig[channelId - 1]; // same channelId as for ievt (sanity checks already done above)
+          }
+          fptype targetamp2[ncolor] = { 0 };
+          for( int icolC = 0; icolC < ncolor; icolC++ )
+          {
+            if( icolC == 0 )
+              targetamp2[icolC] = fptype{ 0 };
+            else
+              targetamp2[icolC] = targetamp2[icolC - 1];
+            // NB (see #877): in the array icolamp, the input index uses C indexing (iconfig -1)
+            if( mgOnGpu::icolamp[iconfig2 - 1][icolC] ) targetamp2[icolC] += jamp2_sv[ncolor + icolC][ieppV];
+          }
           //printf( "sigmaKin: ievt=%4d rndcol=%f\n", ievt2, allrndcol[ievt2] );
           for( int icolC = 0; icolC < ncolor; icolC++ )
           {
-            if( allrndcol[ievt2] < ( targetamp2[icolC][ieppV] / targetamp2[ncolor - 1][ieppV] ) )
+            if( allrndcol[ievt2] < ( targetamp2[icolC] / targetamp2[ncolor - 1] ) )
             {
               allselcol[ievt2] = icolC + 1; // NB Fortran [1,ncolor], cudacpp [0,ncolor-1]
               //printf( "sigmaKin: ievt2=%d icol=%d\n", ievt2, icolC+1 );
               break;
             }
           }
-#endif
         }
-      }
-      else
-      {
-        for( int ieppV = 0; ieppV < neppV; ++ieppV )
+        else
         {
-          const int ievt = ievt00 + ieppV;
-          allselcol[ievt] = 0; // no color selected in Fortran range [1,ncolor] if both channelId and igraph are 0 (see #931)
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-          const int ievt2 = ievt00 + ieppV + neppV;
           allselcol[ievt2] = 0; // no color selected in Fortran range [1,ncolor] if channelId == 0 (see #931)
-#endif
         }
+#endif
       }
 #endif // multichannel enabled (random color choice)
     }
