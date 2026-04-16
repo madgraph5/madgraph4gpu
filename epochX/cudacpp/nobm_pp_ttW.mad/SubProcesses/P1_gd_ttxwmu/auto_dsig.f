@@ -1241,6 +1241,10 @@ C
           ICONFIG = IGRAPHS(1)
         ELSE
           ICONFIG = VEC_IGRAPH(IVEC)
+          IF(ICONFIG.EQ.0)THEN
+            ICOL =0
+            RETURN
+          ENDIF
         ENDIF
       ENDIF
 

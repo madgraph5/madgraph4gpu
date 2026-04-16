@@ -15,7 +15,7 @@ It has been validated for the last time with version: 3.6.5[0m
 *                 *                       *                *
 *                                                          *
 *         VERSION 3.7.0                 2026-01-05         *
-*         GIT r991-7-g69b7ec3d4  copilot/fix-mlm-issue-phase-space         *
+*         GIT r991-8-gf0884cb7d               HEAD         *
 *                                                          *
 *    The MadGraph5_aMC@NLO Development Team - Find us at   *
 *              http://madgraph.phys.ucl.ac.be/             *
@@ -548,7 +548,7 @@ INFO: Please specify coupling orders to bypass this step.
 INFO: Trying coupling order WEIGHTED<=2: WEIGTHED IS QCD+2*QED 
 INFO: Trying process: g g > t1 t1~ WEIGHTED<=2 @1  
 INFO: Process has 6 diagrams 
-1 processes with 6 diagrams generated in 0.099 s
+1 processes with 6 diagrams generated in 0.087 s
 Total: 1 processes with 6 diagrams
 output standalone_cudacpp ../TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -567,12 +567,12 @@ INFO: Creating files in directory /home/dmass/Development/madgraph4gpu/copilot-i
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_t1t1x/./CPPProcess.h
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_t1t1x/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/SubProcesses/P1_Sigma_MSSM_SLHA2_gg_t1t1x/. 
-Generated helas calls for 1 subprocesses (6 diagrams) in 0.007 s
+Generated helas calls for 1 subprocesses (6 diagrams) in 0.008 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates VSS1 routines[0m
 ALOHA: aloha creates VVSS1 routines[0m
-ALOHA: aloha creates 3 routines in  0.112 s
+ALOHA: aloha creates 3 routines in  0.099 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
 <class 'aloha.create_aloha.AbstractRoutine'> VSS1
@@ -588,7 +588,7 @@ INFO: Created files Parameters_MSSM_SLHA2.h and Parameters_MSSM_SLHA2.cc in dire
 INFO: /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/. and /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_cudacpp_susy_gg_t1t1/src/. 
 quit
 
-real	0m1.212s
-user	0m1.118s
-sys	0m0.083s
+real	0m1.068s
+user	0m0.985s
+sys	0m0.076s
 Code generation completed in 1 seconds
