@@ -171,7 +171,7 @@ jobs:
     strategy:
       fail-fast: false # e.g. do not stop 'd' job if 'f' job has failed (fail-fast is true by default)
       matrix:
-        fptype: [d]
+        fptype: [d, f, m]
 
     env:
       FPTYPE: ${{ matrix.fptype }}
@@ -257,11 +257,7 @@ jobs:
 
     - name: tput_test
       run: .github/workflows/testsuite_oneprocess.sh tput_test ${{ inputs.process }}
-   # - name: Breakpoint
-   #   uses: namespacelabs/breakpoint-action@v0
-   #   with:
-   #     duration: 30m
-   #     authorized-users: oliviermattelaer, qubitol
+
     - name: tmad_test
       run: .github/workflows/testsuite_oneprocess.sh tmad_test ${{ inputs.process }}
 
