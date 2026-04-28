@@ -1,3 +1,4 @@
+WARNING:root:[91mpython3.12+ support: For reweighting feature, please use 3.6.X release.[0m
 Running MG5 in debug mode
 Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin MG5aMC_PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.7.0. 
@@ -45,6 +46,7 @@ Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (inclu
 Note that you can still compile and run aMC@NLO with the built-in PDFs
  MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
 
+set lhapdf to /home/dmass/Apps/HEPTools/lhapdf6_py3/bin/lhapdf-config
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 Using default gzip "pigz". Set another one in ./input/mg5_configuration.txt
 import /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_mad_ee_mumu.mg
@@ -56,7 +58,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.003152132034301758 [0m
+[1;32mDEBUG: model prefixing  takes 0.003051280975341797 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -148,7 +150,7 @@ INFO: Checking for minimal orders which gives processes.
 INFO: Please specify coupling orders to bypass this step. 
 INFO: Trying process: e+ e- > mu+ mu- WEIGHTED<=4 @1  
 INFO: Process has 2 diagrams 
-1 processes with 2 diagrams generated in 0.004 s
+1 processes with 2 diagrams generated in 0.003 s
 Total: 1 processes with 2 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_ee_mumu --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -178,18 +180,18 @@ INFO: Finding symmetric diagrams for subprocess group epem_mupmum
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1748][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1749][0m [0m
 Generated helas calls for 1 subprocesses (2 diagrams) in 0.004 s
-Wrote files for 8 helas calls in 0.058 s
+Wrote files for 8 helas calls in 0.049 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
-ALOHA: aloha creates 3 routines in  0.118 s
+ALOHA: aloha creates 3 routines in  0.112 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 7 routines in  0.189 s
+ALOHA: aloha creates 7 routines in  0.184 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -220,9 +222,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m2.243s
-user	0m1.791s
-sys	0m0.326s
+real	0m1.899s
+user	0m1.615s
+sys	0m0.272s
 Code generation completed in 2 seconds
 ************************************************************
 *                                                          *

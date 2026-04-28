@@ -1,3 +1,4 @@
+WARNING:root:[91mpython3.12+ support: For reweighting feature, please use 3.6.X release.[0m
 Running MG5 in debug mode
 Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin MG5aMC_PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.7.0. 
@@ -45,6 +46,7 @@ Please set the 'lhapdf' variable to the (absolute) /PATH/TO/lhapdf-config (inclu
 Note that you can still compile and run aMC@NLO with the built-in PDFs
  MG5_aMC> set lhapdf /PATH/TO/lhapdf-config
 
+set lhapdf to /home/dmass/Apps/HEPTools/lhapdf6_py3/bin/lhapdf-config
 Using default web browser "firefox". Set another one in ./input/mg5_configuration.txt
 Using default gzip "pigz". Set another one in ./input/mg5_configuration.txt
 import /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/TMPOUT/CODEGEN_mad_nobm_pp_ttW.mg
@@ -55,7 +57,7 @@ set zerowidth_tchannel F
 import model sm-no_b_mass
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.003126382827758789 [0m
+[1;32mDEBUG: model prefixing  takes 0.002887248992919922 [0m
 INFO: Restrict model sm-no_b_mass with file models/sm/restrict_no_b_mass.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -179,7 +181,7 @@ INFO: Process u~ d > t t~ w- added to mirror process d u~ > t t~ w-
 INFO: Process c~ s > t t~ w- added to mirror process s c~ > t t~ w- 
 INFO: Process d~ u > t t~ w+ added to mirror process u d~ > t t~ w+ 
 INFO: Process s~ c > t t~ w+ added to mirror process c s~ > t t~ w+ 
-4 processes with 8 diagrams generated in 0.080 s
+4 processes with 8 diagrams generated in 0.067 s
 Total: 4 processes with 8 diagrams
 add process p p > t t~ w j @1
 INFO: Checking for minimal orders which gives processes. 
@@ -221,7 +223,7 @@ INFO: Process d~ g > t t~ w+ u~ added to mirror process g d~ > t t~ w+ u~
 INFO: Process d~ u > t t~ w+ g added to mirror process u d~ > t t~ w+ g 
 INFO: Process s~ g > t t~ w+ c~ added to mirror process g s~ > t t~ w+ c~ 
 INFO: Process s~ c > t t~ w+ g added to mirror process c s~ > t t~ w+ g 
-12 processes with 144 diagrams generated in 0.478 s
+12 processes with 144 diagrams generated in 0.454 s
 Total: 16 processes with 152 diagrams
 output madevent_simd ../TMPOUT/CODEGEN_mad_nobm_pp_ttW --hel_recycling=False --vector_size=32
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
@@ -349,18 +351,18 @@ INFO: Finding symmetric diagrams for subprocess group dux_ttxwm
 [1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 2 [1;30m[model_handling.py at line 1724][0m [0m
 [1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1748][0m [0m
 [1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2} [1;30m[model_handling.py at line 1749][0m [0m
-Generated helas calls for 8 subprocesses (76 diagrams) in 0.174 s
-Wrote files for 212 helas calls in 0.602 s
+Generated helas calls for 8 subprocesses (76 diagrams) in 0.127 s
+Wrote files for 212 helas calls in 0.633 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 3 routines in  0.123 s
+ALOHA: aloha creates 3 routines in  0.142 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
-ALOHA: aloha creates 6 routines in  0.154 s
+ALOHA: aloha creates 6 routines in  0.121 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -390,9 +392,9 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m4.432s
-user	0m3.751s
-sys	0m0.613s
+real	0m4.417s
+user	0m3.753s
+sys	0m0.584s
 Code generation completed in 4 seconds
 ************************************************************
 *                                                          *

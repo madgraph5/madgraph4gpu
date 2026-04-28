@@ -1138,7 +1138,8 @@ namespace mg5amcCpu
     // *** PART 0a - CUDA ***
     const int nevt = gpublocks * gputhreads;
     gpuMemset( allMEs, 0, nevt * sizeof( fptype ) );
-    gpuMemset( ghelAllJamps, 0, cNGoodHel * ncolor * mgOnGpu::nx2 * nevt * sizeof( fptype ) );
+    // all function parameter are type int, the first is casted to size_t to avoid integer overflow if the product is greater than max(int)
+    gpuMemset( ghelAllJamps, 0, static_cast<size_t>( cNGoodHel ) * ncolor * mgOnGpu::nx2 * nevt * sizeof( fptype ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     gpuMemset( colAllJamp2s, 0, ncolor * nevt * sizeof( fptype ) );
     gpuMemset( ghelAllNumerators, 0, cNGoodHel * nevt * sizeof( fptype ) );
