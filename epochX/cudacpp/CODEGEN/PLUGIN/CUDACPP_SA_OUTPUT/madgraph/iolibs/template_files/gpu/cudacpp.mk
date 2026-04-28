@@ -89,7 +89,7 @@ endif
 # Create file with the resolved backend in case user chooses 'cppauto'
 BACKEND_LOG ?= .resolved-backend
 ifneq ($(BACKEND_ORIG),$(BACKEND))
-  $(file >$(BACKEND_LOG),$(BACKEND))
+  $(shell echo '$(BACKEND)' > $(BACKEND_LOG))
 endif
 #-------------------------------------------------------------------------------
 
