@@ -849,7 +849,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                                    'id': self.outgoing}
         for i, name in enumerate(lor_list):
             data['name'] = name
-            data['coup'] = 'MCOUP%d' % (i + 1)
+            if 'M' in data['addon']:
+                data['coup'] = 'MCOUP%d' % (i + 1)
+            else:
+                data['coup'] = 'allCOUP%d' % (1+i)
 
             if i == 0:
                 if not offshell:
