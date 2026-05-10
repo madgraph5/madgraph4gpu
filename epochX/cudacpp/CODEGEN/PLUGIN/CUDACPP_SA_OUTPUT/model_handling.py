@@ -528,7 +528,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 outgoing = self.outgoing
                 out.write('    int flv_index%i = F%i.flv_index;\n' % (incoming, incoming))
                 out.write('    if(flv_index%i == -1) {\n' %(incoming))
-                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      for(int i=0; i<F%i.nw6; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
                 out.write('      F%i.flv_index = -1;\n' % outgoing)
                 out.write('      return;\n')
                 out.write('    }\n')
@@ -539,7 +539,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     for i in range(2,nb_coupling+1):
                         out.write('    if(flv_index2 == -1){flv_index2 = MCOUP%i.partner1[flv_index%i];}' %(i, incoming)) 
                 out.write('    if(flv_index2 == -1){\n')
-                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      for(int i=0; i<F%i.nw6; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
                 out.write('      F%i.flv_index = -1;\n' % outgoing)
                 out.write('      return;\n')
                 out.write('    }\n')
@@ -548,7 +548,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 outgoing = self.outgoing
                 out.write('    int flv_index%i = F%i.flv_index;\n' % (incoming,incoming))
                 out.write('    if(flv_index%i == -1){\n' %(incoming))
-                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      for(int i=0; i<F%i.nw6; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
                 out.write('      F%i.flv_index = -1;\n' % outgoing)
                 out.write('      return;\n')
                 out.write('    }\n')
@@ -559,7 +559,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     for i in range(2,nb_coupling+1):
                         out.write('    if(flv_index1 == -1) { flv_index1 = MCOUP%i.partner2[flv_index%i]; }' %(i, incoming))
                 out.write('    if(flv_index1 == -1){\n')
-                out.write('      for(int i=0; i<F%i.np4; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
+                out.write('      for(int i=0; i<F%i.nw6; i++) { wF%i[i] = cxzero_sv(); }\n' % (outgoing, outgoing))
                 out.write('      F%i.flv_index = -1;\n' % outgoing)
                 out.write('      return;\n')
                 out.write('    }\n')
@@ -671,7 +671,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 coeff = 'COUP'
             shift = 1 - 1 #to correspond to the shift in fortran indicies with -1 for C++
+<<<<<<< HEAD
             if fd_gauge and self.outname[0] == "S":
+=======
+            if fd_gauge and "S" in self.outname:
+>>>>>>> parton_grouping
                 shift = 5 - 1 #to correspond to the shift in fortran indicies with -1 for C++
             for ind in numerator.listindices():
                 # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cc
@@ -728,6 +732,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             return '%s[%s]' % (match.group('var'), int(match.group('num')) + shift) 
         else:
             shift =  -1
+            if fd_gauge and match.group('var').startswith('S'):
+                shift += 4
             return 'w%s[%s]' % (match.group('var'), int(match.group('num')) + shift)
 
     # OM - overload aloha_writers.WriteALOHA and ALOHAWriterForCPP methods (handle 'unary minus' #628)
@@ -849,7 +855,14 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                                    'id': self.outgoing}
         for i, name in enumerate(lor_list):
             data['name'] = name
+<<<<<<< HEAD
             data['coup'] = 'MCOUP%d' % (i + 1)
+=======
+            if 'M' in data['addon']:
+                data['coup'] = 'MCOUP%d' % (i + 1)
+            else:
+                data['coup'] = 'allCOUP%d' % (1+i)
+>>>>>>> parton_grouping
 
             if i == 0:
                 if not offshell:
@@ -2272,7 +2285,18 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         self.wanted_ordered_indep_couplings = []
         self.wanted_ordered_flv_couplings = []
 
+        # the following is based on the fact that model = args[0]
+        # builds a map FLV_Coupling name : value to be used when writing
+        # the HELAS
+        model = args[0]
         self.flv_couplings_map = {}
+        for interaction in model.interactions:
+            all_couplings = interaction["couplings"]
+            for coupling in all_couplings.values():
+                if not isinstance(coupling, base_objects.FLV_Coupling):
+                    continue
+                self.flv_couplings_map[coupling.name] = coupling
+
         super().__init__(*args,**opts)
 
 
@@ -2681,7 +2705,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                 if isinstance(coup, base_objects.FLV_Coupling):
                     if usesdepcoupl is None: usesdepcoupl = False
                     elif usesdepcoupl: raise Exception('PANIC! this call seems to use both aS-dependent and aS-independent couplings?')
-                    self.flv_couplings_map[coup.name] = coup
                     continue
                 if coup.startswith('-'): 
                     coup = coup[1:]

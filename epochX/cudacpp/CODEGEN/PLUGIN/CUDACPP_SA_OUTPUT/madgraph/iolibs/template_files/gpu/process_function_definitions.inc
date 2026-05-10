@@ -615,7 +615,7 @@ namespace mg5amcCpu
       int n_tot = 1;
       for (int j = i + 1; j < (nexternal - nincoming); j++)
       {
-        if((pid[i] == pid[j]) && (cFlavors[iflavor][i] == cFlavors[iflavor][j]))
+        if((pid[i] == pid[j]) && (cFlavors[iflavor][nincoming + i] == cFlavors[iflavor][nincoming + j]))
         {
           pid[j] = 0;
           n_tot = n_tot + 1;

@@ -708,7 +708,7 @@
     sc.pvec[3] = pvec3 * (fptype)nss;
 
     sc.flv_index = flv;
-    w[0] = cxmake( 0 + fptype_sv{ 0 }, 0 );
+    w[0] = cxmake( 1 + fptype_sv{ 0 }, 0 );
     //FD gauge
     w[1] = cxmake( 0 + fptype_sv{ 0 }, 0 );
     w[2] = cxmake( 0 + fptype_sv{ 0 }, 0 );
@@ -1009,11 +1009,11 @@
 
 #ifndef MGONGPU_CPPSIMD
 
-    if (qabs2 > 0.0)
+    if (qabs2 > 0.f)
     {
       const fptype_sv qabs = fpsqrt(qabs2);
 
-      n[0] = fpternary( q[0].real() >= 0. , one , -one);
+      n[0] = fpternary( q[0].real() >= 0.f , one , -one);
       n[1] = -q[1].real() / qabs;
       n[2] = -q[2].real() / qabs;
       n[3] = -q[3].real() / qabs;
@@ -1021,19 +1021,19 @@
     }
     else
     {
-      n[0] = fpternary( q[0].real() >= 0. , one , -one );
+      n[0] = fpternary( q[0].real() >= 0.f , one , -one );
       n[1] = zero;
       n[2] = zero;
-      n[3] = fpternary( q[0].real() >= 0. , one , -one); //possible error in Fortran
+      n[3] = fpternary( q[0].real() >= 0.f , -one , one); //possible error in Fortran
       n[4] = zero;
     }
 #else
     const fptype_sv qabs = fpsqrt(qabs2);
-    const bool_v qsign = (qabs2 > 0.);
-    n[0] = fpternary( q[0].real() >= 0. , one , -one);
+    const bool_v qsign = (qabs2 > 0.f);
+    n[0] = fpternary( q[0].real() >= 0.f , one , -one);
     n[1] = fpternary( qsign , -q[1].real() / qabs , zero );
     n[2] = fpternary( qsign , -q[2].real() / qabs , zero );
-    n[3] = fpternary( qsign , -q[3].real() / qabs , fpternary( q[0].real() >= 0. , one , -one));
+    n[3] = fpternary( qsign , -q[3].real() / qabs , fpternary( q[0].real() >= 0.f , one , -one));
     n[4] = zero;
 #endif
  }
