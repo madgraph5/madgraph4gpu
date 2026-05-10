@@ -671,7 +671,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             else:
                 coeff = 'COUP'
             shift = 1 - 1 #to correspond to the shift in fortran indicies with -1 for C++
-            if fd_gauge and self.outname[0] == "S":
+            if fd_gauge and "S" in self.outname:
                 shift = 5 - 1 #to correspond to the shift in fortran indicies with -1 for C++
             for ind in numerator.listindices():
                 # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cc
@@ -728,6 +728,8 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             return '%s[%s]' % (match.group('var'), int(match.group('num')) + shift) 
         else:
             shift =  -1
+            if fd_gauge and match.group('var').startswith('S'):
+                shift += 4
             return 'w%s[%s]' % (match.group('var'), int(match.group('num')) + shift)
 
     # OM - overload aloha_writers.WriteALOHA and ALOHAWriterForCPP methods (handle 'unary minus' #628)
