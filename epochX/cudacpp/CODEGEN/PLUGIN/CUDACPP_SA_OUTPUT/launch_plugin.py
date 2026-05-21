@@ -41,7 +41,6 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
             if cudacpp_backend in ['cpp', 'cppauto']:
                 backend_log = pjoin(opts["cwd"], ".resolved-backend")
                 # try to remove old file if present
-                breakpoint()
                 try:
                     os.remove(backend_log)
                 except FileNotFoundError:

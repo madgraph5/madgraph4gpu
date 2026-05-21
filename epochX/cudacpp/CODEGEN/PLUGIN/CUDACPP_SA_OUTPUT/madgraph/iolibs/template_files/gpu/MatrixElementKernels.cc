@@ -476,7 +476,8 @@ namespace mg5amcGpu
     m_pHelMEs.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
     // ... Create the "many-helicity" super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)
     // ... (calling reset here deletes the previously created "one-helicity" buffers used for helicity filtering)
-    m_pHelJamps.reset( new DeviceBufferSimple( nGoodHel * CPPProcess::ncolor * mgOnGpu::nx2 * nevt ) );
+    // all function parameter are type int, the first is casted to size_t to avoid integer overflow if the product is greater than max(int)
+    m_pHelJamps.reset( new DeviceBufferSimple( static_cast<size_t>( nGoodHel ) * CPPProcess::ncolor * mgOnGpu::nx2 * nevt ) );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     // ... Create the "many-helicity" super-buffers of nGoodHel numerator and denominator buffers (dynamically allocated)
     // ... (calling reset here deletes the previously created "one-helicity" buffers used for helicity filtering)
