@@ -20,7 +20,7 @@
 namespace %(process_namespace)s {
 
     REX::eventBelongs get_comp();
-    std::shared_ptr<std::vector<FORTRANFPTYPE>> amp( int& nEvt, int& nPar, int& nMom, std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS, std::vector<FORTRANFPTYPE>& rndHel, std::vector<FORTRANFPTYPE>& rndCol, std::vector<int>& selHel, std::vector<int>& selCol, int& chanId, bool& goodHel );
+    std::shared_ptr<std::vector<FORTRANFPTYPE>> amp( int& nEvt, int& nPar, int& nMom, std::vector<FORTRANFPTYPE>& momenta, std::vector<FORTRANFPTYPE>& alphaS, std::vector<FORTRANFPTYPE>& rndHel, std::vector<FORTRANFPTYPE>& rndCol, std::vector<int>& selHel, std::vector<int>& selCol, std::vector<int>& iGraph, int& chanId, bool& goodHel );
     rwgt::fBridge bridgeConstr(size_t warpSize = 32);
     std::shared_ptr<REX::tea::procReweightor> make_reweightor(size_t warpSize = 32);
 
