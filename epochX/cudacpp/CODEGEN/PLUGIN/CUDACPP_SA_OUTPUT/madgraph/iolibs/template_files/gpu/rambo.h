@@ -60,7 +60,8 @@ namespace mg5amcCpu
   ramboGetMomentaFinal( const fptype energy,  // input: energy
                         const fptype* rndmom, // input: random numbers in [0,1] for one event or for a set of events
                         fptype* momenta,      // output: momenta for one event or for a set of events
-                        fptype* wgts )        // output: weights for one event or for a set of events
+                        fptype* wgts,         // output: weights for one event or for a set of events
+                        const fptype* massesFinal = nullptr ) // input: final-state masses (size nparf) or null (all massless)
   {
     /****************************************************************************
      *                       rambo                                              *
@@ -168,7 +169,7 @@ namespace mg5amcCpu
 
 #ifndef MGONGPUCPP_GPUIMPL
     // issue warnings if weight is too small or too large
-    static int iwarn[5] = { 0, 0, 0, 0, 0 };
+    static int iwarn[2] = { 0, 0 };
     if( wt < -180. )
     {
       if( iwarn[0] <= 5 ) std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
@@ -183,6 +184,87 @@ namespace mg5amcCpu
 
     // return for weighted massless momenta
     // nothing else to do in this event if all particles are massless (nm==0)
+    int nm = 0;
+    fptype xmt = 0;
+    for( int iparf = 0; iparf < nparf; iparf++ )
+    {
+      const fptype mass = ( massesFinal == nullptr ) ? 0 : massesFinal[iparf];
+      if( mass != 0 ) nm++;
+      xmt += fabs( mass );
+    }
+    if( nm == 0 ) return;
+
+    // massive particles: rescale the momenta by a factor x
+    if( xmt > energy ) return;
+    const fptype xmax = sqrt( 1. - pow( xmt / energy, 2 ) );
+    fptype xm2[nparf];
+    fptype p2[nparf];
+    fptype e[nparf];
+    fptype v[nparf];
+    for( int iparf = 0; iparf < nparf; iparf++ )
+    {
+      const fptype mass = ( massesFinal == nullptr ) ? 0 : massesFinal[iparf];
+      xm2[iparf] = mass * mass;
+      const fptype p0 = M_ACCESS::kernelAccessIp4Ipar( momenta, 0, iparf + npari );
+      p2[iparf] = p0 * p0;
+    }
+    constexpr fptype acc = 1e-14; // Newton-Raphson target accuracy (from legacy MG RAMBO implementation)
+    constexpr int itmax = 6;      // Newton-Raphson max iterations (from legacy MG RAMBO implementation)
+    int iter = 0;
+    fptype x = xmax;
+    const fptype accu = energy * acc;
+    while( true )
+    {
+      fptype f0 = -energy;
+      fptype g0 = 0.;
+      const fptype x2 = x * x;
+      for( int iparf = 0; iparf < nparf; iparf++ )
+      {
+        e[iparf] = sqrt( xm2[iparf] + x2 * p2[iparf] );
+        f0 += e[iparf];
+        g0 += p2[iparf] / e[iparf];
+      }
+      if( fabs( f0 ) <= accu ) break;
+      iter++;
+      if( iter > itmax ) break;
+      if( fabs( x * g0 ) <= accu ) break;
+      x = x - f0 / ( x * g0 );
+    }
+    for( int iparf = 0; iparf < nparf; iparf++ )
+    {
+      v[iparf] = x * M_ACCESS::kernelAccessIp4Ipar( momenta, 0, iparf + npari );
+      for( int i4 = 1; i4 < np4; i4++ )
+      {
+        M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf + npari ) = x * M_ACCESS::kernelAccessIp4Ipar( momenta, i4, iparf + npari );
+      }
+      M_ACCESS::kernelAccessIp4Ipar( momenta, 0, iparf + npari ) = e[iparf];
+    }
+
+    // calculate the mass-effect weight factor
+    fptype wt2 = 1.;
+    fptype wt3 = 0.;
+    for( int iparf = 0; iparf < nparf; iparf++ )
+    {
+      wt2 *= v[iparf] / e[iparf];
+      wt3 += v[iparf] * v[iparf] / e[iparf];
+    }
+    const fptype wtm = ( 2. * nparf - 3. ) * log( x ) + log( wt2 / wt3 * energy );
+
+    // return for weighted massive momenta
+    wt += wtm;
+#ifndef MGONGPUCPP_GPUIMPL
+    static int iwarnMass[2] = { 0, 0 };
+    if( wt < -180. )
+    {
+      if( iwarnMass[0] <= 5 ) std::cout << "Too small wt, risk for underflow: " << wt << std::endl;
+      iwarnMass[0] = iwarnMass[0] + 1;
+    }
+    if( wt > 174. )
+    {
+      if( iwarnMass[1] <= 5 ) std::cout << "Too large wt, risk for overflow: " << wt << std::endl;
+      iwarnMass[1] = iwarnMass[1] + 1;
+    }
+#endif
 
     return;
   }

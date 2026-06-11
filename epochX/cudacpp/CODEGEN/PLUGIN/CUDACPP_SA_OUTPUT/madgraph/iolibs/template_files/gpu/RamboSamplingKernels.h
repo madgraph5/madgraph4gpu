@@ -8,6 +8,7 @@
 
 #include "mgOnGpuConfig.h"
 
+#include "CPPProcess.h"
 #include "MemoryBuffers.h"
 
 #ifdef MGONGPUCPP_GPUIMPL
@@ -27,12 +28,14 @@ namespace mg5amcCpu
     SamplingKernelBase( const fptype energy,               // input: energy
                         const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
                         BufferMomenta& momenta,            // output: momenta
-                        BufferWeights& weights )           // output: weights
+                        BufferWeights& weights,            // output: weights
+                        const fptype* massesFinal = nullptr ) // input: final-state masses (size nparf)
       : m_energy( energy )
       , m_rndmom( rndmom )
       , m_momenta( momenta )
       , m_weights( weights )
     {
+      for( int iparf = 0; iparf < CPPProcess::nparf; iparf++ ) m_massesFinal[iparf] = ( massesFinal == nullptr ) ? 0 : massesFinal[iparf];
     }
 
   public:
@@ -49,6 +52,9 @@ namespace mg5amcCpu
     // Is this a host or device kernel?
     virtual bool isOnDevice() const = 0;
 
+    // Get final-state masses
+    const fptype* massesFinal() const { return m_massesFinal; }
+
   protected:
 
     // The energy
@@ -62,6 +68,9 @@ namespace mg5amcCpu
 
     // The buffer for the output weights
     BufferWeights& m_weights;
+
+    // The final-state masses
+    fptype m_massesFinal[CPPProcess::nparf];
   };
 
   //--------------------------------------------------------------------------
@@ -76,7 +85,8 @@ namespace mg5amcCpu
                              const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
                              BufferMomenta& momenta,            // output: momenta
                              BufferWeights& weights,            // output: weights
-                             const size_t nevt );
+                             const size_t nevt,
+                             const fptype* massesFinal = nullptr );
 
     // Destructor
     virtual ~RamboSamplingKernelHost() {}
@@ -105,10 +115,11 @@ namespace mg5amcCpu
                                BufferMomenta& momenta,            // output: momenta
                                BufferWeights& weights,            // output: weights
                                const size_t gpublocks,
-                               const size_t gputhreads );
+                               const size_t gputhreads,
+                               const fptype* massesFinal = nullptr );
 
     // Destructor
-    virtual ~RamboSamplingKernelDevice() {}
+    virtual ~RamboSamplingKernelDevice();
 
     // Get momenta of initial state particles
     void getMomentaInitial() override final;
@@ -126,6 +137,9 @@ namespace mg5amcCpu
 
     // The number of threads in the GPU grid
     size_t m_gputhreads;
+
+    // The final-state masses in device memory
+    fptype* m_massesFinalDevice;
   };
 #endif
 

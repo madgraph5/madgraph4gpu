@@ -328,6 +328,7 @@ main( int argc, char** argv )
   // FIXME: the CPPProcess should really be a singleton? (for instance, in bridge mode this will be called twice here?)
   CPPProcess process( verbose );
   process.initProc( "../../Cards/param_card.dat" );
+  const fptype* massesFinal = process.getMasses().data() + CPPProcess::npari;
   const fptype energy = 1500; // historical default, Ecms = 1500 GeV = 1.5 TeV (above the Z peak)
   //const fptype energy = 91.2; // Ecms = 91.2 GeV (Z peak)
   //const fptype energy = 0.100; // Ecms = 100 MeV (well below the Z peak, pure em scattering)
@@ -494,12 +495,12 @@ main( int argc, char** argv )
   std::unique_ptr<SamplingKernelBase> prsk;
   if( rmbsmp == RamboSamplingMode::RamboHost )
   {
-    prsk.reset( new RamboSamplingKernelHost( energy, hstRndmom, hstMomenta, hstWeights, nevt ) );
+    prsk.reset( new RamboSamplingKernelHost( energy, hstRndmom, hstMomenta, hstWeights, nevt, massesFinal ) );
   }
   else
   {
 #ifdef MGONGPUCPP_GPUIMPL
-    prsk.reset( new RamboSamplingKernelDevice( energy, devRndmom, devMomenta, devWeights, gpublocks, gputhreads ) );
+    prsk.reset( new RamboSamplingKernelDevice( energy, devRndmom, devMomenta, devWeights, gpublocks, gputhreads, massesFinal ) );
 #else
     throw std::logic_error( "RamboDevice is not supported on CPUs" ); // INTERNAL ERROR (no path to this statement)
 #endif
