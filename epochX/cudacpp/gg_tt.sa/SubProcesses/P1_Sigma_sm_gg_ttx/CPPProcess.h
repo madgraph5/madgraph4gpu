@@ -54,7 +54,7 @@ namespace mg5amcCpu
     static const std::string getCompiler();
 
     // Other methods of this instance (???)
-    //const std::vector<fptype>& getMasses() const { return m_masses; }
+    const std::vector<fptype>& getMasses() const { return m_masses; }
     //virtual int code() const{ return 1; }
     //void setInitial( int inid1, int inid2 ){ id1 = inid1; id2 = inid2; }
     //int getDim() const { return dim; }

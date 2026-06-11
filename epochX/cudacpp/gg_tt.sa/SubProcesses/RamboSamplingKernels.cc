@@ -26,8 +26,9 @@ namespace mg5amcCpu
                                                     const BufferRndNumMomenta& rndmom, // input: random numbers in [0,1]
                                                     BufferMomenta& momenta,            // output: momenta
                                                     BufferWeights& weights,            // output: weights
-                                                    const size_t nevt )
-    : SamplingKernelBase( energy, rndmom, momenta, weights )
+                                                    const size_t nevt,
+                                                    const fptype* massesFinal )
+    : SamplingKernelBase( energy, rndmom, momenta, weights, massesFinal )
     , NumberOfEvents( nevt )
   {
     if( m_rndmom.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelHost: rndmom must be a host array" );
@@ -85,7 +86,7 @@ namespace mg5amcCpu
       const fptype* ievtRndmom = MemoryAccessRandomNumbers::ieventAccessRecordConst( m_rndmom.data(), ievt );
       fptype* ievtMomenta = MemoryAccessMomenta::ieventAccessRecord( m_momenta.data(), ievt );
       fptype* ievtWeights = MemoryAccessWeights::ieventAccessRecord( m_weights.data(), ievt );
-      getMomentaFinal( m_energy, ievtRndmom, ievtMomenta, ievtWeights );
+      getMomentaFinal( m_energy, ievtRndmom, ievtMomenta, ievtWeights, this->massesFinal() );
     }
     // ** END LOOP ON IEVT **
   }
@@ -98,11 +99,13 @@ namespace mg5amcCpu
                                                         BufferMomenta& momenta,            // output: momenta
                                                         BufferWeights& weights,            // output: weights
                                                         const size_t gpublocks,
-                                                        const size_t gputhreads )
-    : SamplingKernelBase( energy, rndmom, momenta, weights )
+                                                        const size_t gputhreads,
+                                                        const fptype* massesFinal )
+    : SamplingKernelBase( energy, rndmom, momenta, weights, massesFinal )
     , NumberOfEvents( gpublocks * gputhreads )
     , m_gpublocks( gpublocks )
     , m_gputhreads( gputhreads )
+    , m_massesFinalDevice( nullptr )
   {
     if( !m_rndmom.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelDevice: rndmom must be a device array" );
     if( !m_momenta.isOnDevice() ) throw std::runtime_error( "RamboSamplingKernelDevice: momenta must be a device array" );
@@ -130,6 +133,18 @@ namespace mg5amcCpu
       sstr << "RamboSamplingKernelDevice: gputhreads should be a multiple of neppR=" << neppR;
       throw std::runtime_error( sstr.str() );
     }
+    gpuMalloc( &m_massesFinalDevice, CPPProcess::nparf * sizeof( fptype ) );
+    gpuMemcpy( m_massesFinalDevice, this->massesFinal(), CPPProcess::nparf * sizeof( fptype ), gpuMemcpyHostToDevice );
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL
+  RamboSamplingKernelDevice::~RamboSamplingKernelDevice()
+  {
+    if( m_massesFinalDevice != nullptr ) gpuFree( m_massesFinalDevice );
+    m_massesFinalDevice = nullptr;
   }
 #endif
 
@@ -162,10 +177,11 @@ namespace mg5amcCpu
   getMomentaFinalDevice( const fptype energy,
                          const fptype* rndmom,
                          fptype* momenta,
-                         fptype* wgts )
+                         fptype* wgts,
+                         const fptype* massesFinal )
   {
     constexpr auto getMomentaFinal = ramboGetMomentaFinal<DeviceAccessRandomNumbers, DeviceAccessMomenta, DeviceAccessWeights>;
-    return getMomentaFinal( energy, rndmom, momenta, wgts );
+    return getMomentaFinal( energy, rndmom, momenta, wgts, massesFinal );
   }
 #endif
 
@@ -175,7 +191,8 @@ namespace mg5amcCpu
   void
   RamboSamplingKernelDevice::getMomentaFinal()
   {
-    gpuLaunchKernel( getMomentaFinalDevice, m_gpublocks, m_gputhreads, m_energy, m_rndmom.data(), m_momenta.data(), m_weights.data() );
+    gpuLaunchKernel( getMomentaFinalDevice, m_gpublocks, m_gputhreads, m_energy, m_rndmom.data(), m_momenta.data(), m_weights.data(),
+                     m_massesFinalDevice );
   }
 #endif
 
