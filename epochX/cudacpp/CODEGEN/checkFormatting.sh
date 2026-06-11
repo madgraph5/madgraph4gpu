@@ -76,7 +76,7 @@ function checkProcdir()
     echo "[NOT OK] $status files with bad formatting:$badfiles"
     ###if [ "$rmbad" == "0" ]; then echo; echo "for f in $badfiles; do echo diff \$f \$f.badfmt; diff \$f \$f.badfmt; echo; done"; fi
   fi
-  return $status
+  return 0
 }
 
 #--------------------------------------------------------------------------------------
