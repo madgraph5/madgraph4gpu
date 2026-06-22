@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
-# Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: S. Hageboeck, D. Massaro, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2025) for the MG5aMC CUDACPP plugin.
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
@@ -41,6 +41,7 @@ UNAME_S := $(shell uname -s)
 # Detect architecture (x86_64, ppc64le...)
 UNAME_P := $(shell uname -p)
 ###$(info UNAME_P='$(UNAME_P)')
+UNAME_M := $(shell uname -m)
 
 #-------------------------------------------------------------------------------
 
@@ -56,30 +57,40 @@ endif
 
 #=== Redefine BACKEND if the current value is 'cppauto'
 
-# Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available: eventually use native instead?)
+# Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available)
+BACKEND_ORIG := $(BACKEND)
 ifeq ($(BACKEND),cppauto)
   ifeq ($(UNAME_P),ppc64le)
     override BACKEND = cppsse4
-  else ifeq ($(UNAME_P),arm)
+  else ifneq (,$(filter $(UNAME_M),arm64 aarch64))
     override BACKEND = cppsse4
   else ifeq ($(wildcard /proc/cpuinfo),)
     override BACKEND = cppnone
     ###$(warning Using BACKEND='$(BACKEND)' because host SIMD features cannot be read from /proc/cpuinfo)
   else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
     override BACKEND = cpp512y
-  else
+  else ifeq ($(shell grep -m1 -c avx2 /proc/cpuinfo),1)
     override BACKEND = cppavx2
     ###ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
     ###  $(warning Using BACKEND='$(BACKEND)' because host does not support avx512vl)
     ###else
     ###  $(warning Using BACKEND='$(BACKEND)' because this is faster than avx512vl for clang)
     ###endif
+  else ifeq ($(shell grep -m1 -c sse4_2 /proc/cpuinfo),1)
+    override BACKEND = cppsse4
+  else
+    override BACKEND = cppnone
   endif
   $(info BACKEND=$(BACKEND) (was cppauto))
 else
   $(info BACKEND='$(BACKEND)')
 endif
 
+# Create file with the resolved backend in case user chooses 'cppauto'
+BACKEND_LOG ?= .resolved-backend
+ifneq ($(BACKEND_ORIG),$(BACKEND))
+  $(shell echo '$(BACKEND)' > $(BACKEND_LOG))
+endif
 #-------------------------------------------------------------------------------
 
 #=== Configure the C++ compiler
@@ -180,15 +191,32 @@ ifeq ($(BACKEND),cuda)
   # NVidia CUDA architecture flags
   # See https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
   # See https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
-  # Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster).
-  # This will embed device code for 70, and PTX for 70+.
+  # Default: detect all compute capability (e.g., "8.0", "8.6", "9.0"), unique and sorted from lowest to higherst
+  # then we embed device code for each compute capability, and for the highest PTX (forward-compatible)
+  # use nvidia-smi and validate output with grep before going forward
+  DETECTED_CC := $(shell nvidia-smi --query-gpu=compute_cap --format=csv,noheader 2>/dev/null | grep -E '^[0-9]+\.[0-9]+$$' | tr -d '.' | sort -un)
   # One may pass MADGRAPH_CUDA_ARCHITECTURE (comma-separated list) to the make command to use another value or list of values (see #533).
   # Examples: use 60 for P100 (Piz Daint), 80 for A100 (Juwels Booster, NVidia raplab/Curiosity).
-  MADGRAPH_CUDA_ARCHITECTURE ?= 70
-  ###GPUARCHFLAGS = -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=compute_$(MADGRAPH_CUDA_ARCHITECTURE) -gencode arch=compute_$(MADGRAPH_CUDA_ARCHITECTURE),code=sm_$(MADGRAPH_CUDA_ARCHITECTURE) # Older implementation (AV): go back to this one for multi-GPU support #533
-  ###GPUARCHFLAGS = --gpu-architecture=compute_$(MADGRAPH_CUDA_ARCHITECTURE) --gpu-code=sm_$(MADGRAPH_CUDA_ARCHITECTURE),compute_$(MADGRAPH_CUDA_ARCHITECTURE)  # Newer implementation (SH): cannot use this as-is for multi-GPU support #533
   comma:=,
-  GPUARCHFLAGS = $(foreach arch,$(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE)),-gencode arch=compute_$(arch),code=compute_$(arch) -gencode arch=compute_$(arch),code=sm_$(arch))
+  MADGRAPH_CUDA_ARCHITECTURE ?= $(foreach arch,$(DETECTED_CC),$(arch)$(comma))
+  # Convert to space-separated list for looping
+  MADGRAPH_CUDA_ARCH_LIST ?= $(subst $(comma), ,$(MADGRAPH_CUDA_ARCHITECTURE))
+
+  # Fallback if detection failed (box has CUDA selected but probe failed)
+  ifeq ($(strip $(MADGRAPH_CUDA_ARCH_LIST)),)
+	# Default: use compute capability 70 for V100 (CERN lxbatch, CERN itscrd, Juwels Cluster)
+	# This will embed device code for 70, and PTX for 70+
+    MADGRAPH_CUDA_ARCHITECTURE := 70
+    MADGRAPH_CUDA_ARCH_LIST := 70
+    $(info Automatic compute capability detection failed; defaulting to $(MADGRAPH_CUDA_ARCHITECTURE))
+    $(info Override with: make MADGRAPH_CUDA_ARCHITECTURE=<comma-separated list of architectures>)
+  endif
+
+  # Build for every detected SM, and add one PTX for the highest SM (forward-compatibility)
+  HIGHEST_SM    := $(lastword $(MADGRAPH_CUDA_ARCH_LIST))
+  GENCODE_FLAGS := $(foreach arch,$(MADGRAPH_CUDA_ARCH_LIST),-gencode arch=compute_$(arch),code=sm_$(arch))
+  GENCODE_PTX   := -gencode arch=compute_$(HIGHEST_SM),code=compute_$(HIGHEST_SM)
+  GPUARCHFLAGS  := $(GENCODE_FLAGS) $(GENCODE_PTX)
   GPUFLAGS += $(GPUARCHFLAGS)
 
   # Other NVidia-specific flags
@@ -479,6 +507,34 @@ endif
 
 #-------------------------------------------------------------------------------
 
+#=== Configure defaults and check if user-defined choices exist for HASBLAS
+
+# Set the default HASBLAS (cuBLAS/hipBLAS) choice and check prior choices for HASBLAS
+
+ifeq ($(HASBLAS),)
+  ifeq ($(GPUCC),) # CPU-only build
+    override HASBLAS = hasNoBlas
+  else ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
+    ifeq ($(wildcard $(CUDA_HOME)/include/cublas_v2.h),)
+      # cuBLAS headers do not exist??
+      override HASBLAS = hasNoBlas
+    else
+      override HASBLAS = hasBlas
+    endif
+  else ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
+    ifeq ($(wildcard $(HIP_HOME)/include/hipblas/hipblas.h),)
+      # hipBLAS headers do not exist??
+      override HASBLAS = hasNoBlas
+    else
+      override HASBLAS = hasBlas
+    endif
+  else
+    override HASBLAS = hasNoBlas
+  endif
+endif
+
+#-------------------------------------------------------------------------------
+
 #=== Set the CUDA/HIP/C++ compiler flags appropriate to user-defined choices of AVX, FPTYPE, HELINL, HRDCOD
 
 # Set the build flags appropriate to OMPFLAGS
@@ -488,6 +544,7 @@ CXXFLAGS += $(OMPFLAGS)
 # Set the build flags appropriate to each BACKEND choice (example: "make BACKEND=cppnone")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
+# [Use 'g++ <buildflags> -E -dM - < /dev/null' to check which #define's are enabled]
 ifeq ($(UNAME_P),ppc64le)
   ifeq ($(BACKEND),cppsse4)
     override AVXFLAGS = -D__SSE4_2__ # Power9 VSX with 128 width (VSR registers)
@@ -498,15 +555,29 @@ ifeq ($(UNAME_P),ppc64le)
   else ifeq ($(BACKEND),cpp512z)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on PowerPC for the moment)
   endif
-else ifeq ($(UNAME_P),arm)
-  ifeq ($(BACKEND),cppsse4)
-    override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
+else ifeq ($(UNAME_M),arm64) # ARM on Apple silicon
+  ifeq ($(BACKEND),cppnone) # this internally undefines __ARM_NEON
+    override AVXFLAGS = -DMGONGPU_NOARMNEON
+  else ifeq ($(BACKEND),cppsse4) # __ARM_NEON is always defined on Apple silicon
+    override AVXFLAGS =
   else ifeq ($(BACKEND),cppavx2)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
   else ifeq ($(BACKEND),cpp512y)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
   else ifeq ($(BACKEND),cpp512z)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
+  endif
+else ifeq ($(UNAME_M),aarch64) # ARM on Linux
+  ifeq ($(BACKEND),cppnone) # +nosimd ensures __ARM_NEON is absent
+    override AVXFLAGS = -march=armv8-a+nosimd
+  else ifeq ($(BACKEND),cppsse4) # +simd ensures __ARM_NEON is present (128 width Q/quadword registers)
+    override AVXFLAGS = -march=armv8-a+simd
+  else ifeq ($(BACKEND),cppavx2)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on aarch64 for the moment)
+  else ifeq ($(BACKEND),cpp512y)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on aarch64 for the moment)
+  else ifeq ($(BACKEND),cpp512z)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on aarch64 for the moment)
   endif
 else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
   ifeq ($(BACKEND),cppnone)
@@ -598,6 +669,30 @@ endif
 
 #$(info RNDCXXFLAGS=$(RNDCXXFLAGS))
 #$(info RNDLIBFLAGS=$(RNDLIBFLAGS))
+
+#=== Set the CUDA/HIP/C++ compiler and linker flags appropriate to user-defined choices of HASBLAS
+
+$(info HASBLAS=$(HASBLAS))
+override BLASCXXFLAGS=
+override BLASLIBFLAGS=
+
+# Set the RNDCXXFLAGS and RNDLIBFLAGS build flags appropriate to each HASBLAS choice (example: "make HASBLAS=hasNoBlas")
+ifeq ($(HASBLAS),hasNoBlas)
+  override BLASCXXFLAGS += -DMGONGPU_HAS_NO_BLAS
+else ifeq ($(HASBLAS),hasBlas)
+  ifeq ($(findstring nvcc,$(GPUCC)),nvcc) # Nvidia GPU build
+    override BLASLIBFLAGS = -L$(CUDA_HOME)/lib64/ -lcublas
+  else ifeq ($(findstring hipcc,$(GPUCC)),hipcc) # AMD GPU build
+    override BLASLIBFLAGS = -L$(HIP_HOME)/lib/ -lhipblas
+  endif
+else
+  $(error Unknown HASBLAS='$(HASBLAS)': only 'hasBlas' and 'hasNoBlas' are supported)
+endif
+CXXFLAGS += $(BLASCXXFLAGS)
+GPUFLAGS += $(BLASCXXFLAGS)
+
+#$(info BLASCXXFLAGS=$(BLASCXXFLAGS))
+#$(info BLASLIBFLAGS=$(BLASLIBFLAGS))
 
 #-------------------------------------------------------------------------------
 
@@ -782,12 +877,12 @@ processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 ###$(info processid_short=$(processid_short))
 
 MG5AMC_CXXLIB = mg5amc_$(processid_short)_cpp
-cxx_objects_lib=$(BUILDDIR)/CPPProcess_cpp.o $(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o
+cxx_objects_lib=$(BUILDDIR)/CPPProcess_cpp.o $(BUILDDIR)/color_sum_cpp.o $(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o
 cxx_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_cpp.o $(BUILDDIR)/RamboSamplingKernels_cpp.o
 
 ifneq ($(GPUCC),)
 MG5AMC_GPULIB = mg5amc_$(processid_short)_$(GPUSUFFIX)
-gpu_objects_lib=$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o $(BUILDDIR)/MatrixElementKernels_$(GPUSUFFIX).o $(BUILDDIR)/BridgeKernels_$(GPUSUFFIX).o $(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o
+gpu_objects_lib=$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o $(BUILDDIR)/color_sum_$(GPUSUFFIX).o $(BUILDDIR)/MatrixElementKernels_$(GPUSUFFIX).o $(BUILDDIR)/BridgeKernels_$(GPUSUFFIX).o $(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o
 gpu_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/RamboSamplingKernels_$(GPUSUFFIX).o
 endif
 
@@ -801,7 +896,7 @@ ifneq ($(GPUCC),)
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: $(BUILDDIR)/fbridge_$(GPUSUFFIX).o
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: gpu_objects_lib += $(BUILDDIR)/fbridge_$(GPUSUFFIX).o
 $(LIBDIR)/lib$(MG5AMC_GPULIB).so: $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib)
-	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB)
+	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) $(BLASLIBFLAGS)
 # Bypass std::filesystem completely to ease portability on LUMI #803
 #ifneq ($(findstring hipcc,$(GPUCC)),)
 #	$(GPUCC) --shared -o $@ $(gpu_objects_lib) $(GPULIBFLAGSRPATH2) -L$(LIBDIR) -l$(MG5AMC_COMMONLIB) -lstdc++fs
@@ -834,6 +929,7 @@ else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
 $(gpu_checkmain): LIBFLAGS += -L$(patsubst %%bin/nvc++,%%lib,$(subst ccache ,,$(CXX))) -lnvhpcatm -lnvcpumath -lnvc
 endif
 $(gpu_checkmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(gpu_checkmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_checkmain): $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o
 	$(GPUCC) -o $@ $(BUILDDIR)/check_sa_$(GPUSUFFIX).o $(LIBFLAGS) -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) $(BUILDDIR)/CurandRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/HiprandRandomNumberKernel_$(GPUSUFFIX).o $(RNDLIBFLAGS)
 endif
@@ -878,6 +974,7 @@ ifeq ($(UNAME_S),Darwin)
 $(gpu_fcheckmain): LIBFLAGS += -L$(shell dirname $(shell $(FC) --print-file-name libgfortran.dylib)) # add path to libgfortran on Mac #375
 endif
 $(gpu_fcheckmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(gpu_fcheckmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_fcheckmain): $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBDIR)/lib$(MG5AMC_GPULIB).so $(gpu_objects_exe)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
 	$(FC) -o $@ $(BUILDDIR)/fcheck_sa_fortran.o $(BUILDDIR)/fsampler_$(GPUSUFFIX).o $(LIBFLAGS) -lgfortran -L$(LIBDIR) -l$(MG5AMC_GPULIB) $(gpu_objects_exe) -lstdc++ -L$(HIP_HOME)/lib -lamdhip64
@@ -979,6 +1076,7 @@ $(cxx_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(cxx_objects_lib) $(cxx_ob
 else # link only runTest_$(GPUSUFFIX).o (new: in the past, this was linking both runTest_cpp.o and runTest_$(GPUSUFFIX).o)
 ###$(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSASAN)
 $(gpu_testmain): LIBFLAGS += $(GPULIBFLAGSRPATH) # avoid the need for LD_LIBRARY_PATH
+$(gpu_testmain): LIBFLAGS += $(BLASLIBFLAGS)
 $(gpu_testmain): $(LIBDIR)/lib$(MG5AMC_COMMONLIB).so $(gpu_objects_lib) $(gpu_objects_exe) $(GTESTLIBS)
 ifneq ($(findstring hipcc,$(GPUCC)),) # link fortran/c++/hip using $FC when hipcc is used #802
 	$(FC) -o $@ $(gpu_objects_lib) $(gpu_objects_exe) -ldl $(LIBFLAGS) -lstdc++ -lpthread -L$(HIP_HOME)/lib -lamdhip64
@@ -1037,7 +1135,7 @@ bld512z:
 ifeq ($(UNAME_P),ppc64le)
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
 bldavxs: bldnone bldsse4
-else ifeq ($(UNAME_P),arm)
+else ifneq (,$(filter $(UNAME_M),arm64 aarch64))
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
 bldavxs: bldnone bldsse4
 else
@@ -1179,5 +1277,10 @@ endif
 # Target: cuda-memcheck (run the CUDA standalone executable gcheck.exe with a small number of events through cuda-memcheck)
 cuda-memcheck: all.$(TAG)
 	$(RUNTIME) $(CUDA_HOME)/bin/cuda-memcheck --check-api-memory-access yes --check-deprecated-instr yes --check-device-heap yes --demangle full --language c --leak-check full --racecheck-report all --report-api-errors all --show-backtrace yes --tool memcheck --track-unused-memory yes $(BUILDDIR)/check_$(GPUSUFFIX).exe -p 2 32 2
+
+# Detect backend (to be used in case of 'cppauto' to give info to the user)
+.PHONY: detect-backend
+detect-backend:
+	@echo "Resolved backend has already been written to $(BACKEND_LOG) at parse time."
 
 #-------------------------------------------------------------------------------

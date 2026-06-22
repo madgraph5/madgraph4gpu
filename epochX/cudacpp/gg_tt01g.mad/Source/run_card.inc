@@ -58,6 +58,10 @@
 
       IEVO_EVA = 0
 
+      EVAORDER = 0
+
+      EVA_XCUT = 1
+
       SCALEFACT = 1.000000000000000D+00
 
       ICKKW = 1
@@ -87,6 +91,8 @@
       CUT_DECAYS = .FALSE.
 
       DSQRT_SHAT = 0.000000000000000D+00
+
+      DSQRT_SHATMAX = -1
 
       LIMHEL = 0.000000000000000D+00
 

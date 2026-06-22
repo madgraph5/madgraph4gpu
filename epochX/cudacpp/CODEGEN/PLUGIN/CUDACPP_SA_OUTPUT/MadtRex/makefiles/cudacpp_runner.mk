@@ -41,6 +41,7 @@ UNAME_S := $(shell uname -s)
 # Detect architecture (x86_64, ppc64le...)
 UNAME_P := $(shell uname -p)
 ###$(info UNAME_P='$(UNAME_P)')
+UNAME_M := $(shell uname -m)
 
 #-------------------------------------------------------------------------------
 
@@ -56,24 +57,28 @@ endif
 
 #=== Redefine BACKEND if the current value is 'cppauto'
 
-# Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available: eventually use native instead?)
+# Set the default BACKEND choice corresponding to 'cppauto' (the 'best' C++ vectorization available)
 ifeq ($(BACKEND),cppauto)
   ifeq ($(UNAME_P),ppc64le)
     override BACKEND = cppsse4
-  else ifeq ($(UNAME_P),arm)
+  else ifneq (,$(filter $(UNAME_M),arm64 aarch64))
     override BACKEND = cppsse4
   else ifeq ($(wildcard /proc/cpuinfo),)
     override BACKEND = cppnone
     ###$(warning Using BACKEND='$(BACKEND)' because host SIMD features cannot be read from /proc/cpuinfo)
   else ifeq ($(shell grep -m1 -c avx512vl /proc/cpuinfo)$(shell $(CXX) --version | grep ^clang),1)
     override BACKEND = cpp512y
-  else
+  else ifeq ($(shell grep -m1 -c avx2 /proc/cpuinfo),1)
     override BACKEND = cppavx2
     ###ifneq ($(shell grep -m1 -c avx512vl /proc/cpuinfo),1)
     ###  $(warning Using BACKEND='$(BACKEND)' because host does not support avx512vl)
     ###else
     ###  $(warning Using BACKEND='$(BACKEND)' because this is faster than avx512vl for clang)
     ###endif
+  else ifeq ($(shell grep -m1 -c sse4_2 /proc/cpuinfo),1)
+    override BACKEND = cppsse4
+  else
+    override BACKEND = cppnone
   endif
   $(info BACKEND=$(BACKEND) (was cppauto))
 else
@@ -185,22 +190,34 @@ endif
 
 #=== Configure defaults for OMPFLAGS
 
-# Set the default OMPFLAGS choice
-ifneq ($(findstring hipcc,$(GPUCC)),)
-  override OMPFLAGS = # disable OpenMP MT when using hipcc #802
-else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
-  override OMPFLAGS = -fopenmp
-  ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
-else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
-  override OMPFLAGS = -fopenmp
-  ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
-###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
-else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
-  override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
-  ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+# Disable OpenMP by default: enable OpenMP only if USEOPENMP=1 (#758)
+ifeq ($(USEOPENMP),1)
+  ###$(info USEOPENMP==1: will build with OpenMP if possible)
+  ifneq ($(findstring hipcc,$(GPUCC)),)
+    override OMPFLAGS = # disable OpenMP MT when using hipcc #802
+  else ifneq ($(shell $(CXX) --version | egrep '^Intel'),)
+    override OMPFLAGS = -fopenmp
+    ###override OMPFLAGS = # disable OpenMP MT on Intel (was ok without GPUCC but not ok with GPUCC before #578)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 16'),)
+    ###override OMPFLAGS = # disable OpenMP on clang16 #904
+    $(error OpenMP is not supported by cudacpp on clang16 - issue #904)
+  else ifneq ($(shell $(CXX) --version | egrep '^clang version 17'),)
+    ###override OMPFLAGS = # disable OpenMP on clang17 #904
+    $(error OpenMP is not supported by cudacpp on clang17 - issue #904)
+  else ifneq ($(shell $(CXX) --version | egrep '^(clang)'),)
+    override OMPFLAGS = -fopenmp
+    ###override OMPFLAGS = # disable OpenMP MT on clang (was not ok without or with nvcc before #578)
+  ###else ifneq ($(shell $(CXX) --version | egrep '^(Apple clang)'),) # AV for Mac (Apple clang compiler)
+  else ifeq ($(UNAME_S),Darwin) # OM for Mac (any compiler)
+    override OMPFLAGS = # AV disable OpenMP MT on Apple clang (builds fail in the CI #578)
+    ###override OMPFLAGS = -fopenmp # OM reenable OpenMP MT on Apple clang? (AV Oct 2023: this still fails in the CI)
+  else
+    override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
+    ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+  endif
 else
-  override OMPFLAGS = -fopenmp # enable OpenMP MT by default on all other platforms
-  ###override OMPFLAGS = # disable OpenMP MT on all other platforms (default before #575)
+  ###$(info USEOPENMP!=1: will build without OpenMP)
+  override OMPFLAGS =
 endif
 
 #-------------------------------------------------------------------------------
@@ -259,6 +276,7 @@ CXXFLAGS += $(OMPFLAGS)
 
 # Set the build flags appropriate to each BACKEND choice (example: "make BACKEND=cppnone")
 # [NB MGONGPU_PVW512 is needed because "-mprefer-vector-width=256" is not exposed in a macro]
+# [Use 'g++ <buildflags> -E -dM - < /dev/null' to check which #define's are enabled]
 # [See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=96476]
 ifeq ($(UNAME_P),ppc64le)
   ifeq ($(BACKEND),cppsse4)
@@ -270,15 +288,29 @@ ifeq ($(UNAME_P),ppc64le)
   else ifeq ($(BACKEND),cpp512z)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on PowerPC for the moment)
   endif
-else ifeq ($(UNAME_P),arm)
-  ifeq ($(BACKEND),cppsse4)
-    override AVXFLAGS = -D__SSE4_2__ # ARM NEON with 128 width (Q/quadword registers)
+else ifeq ($(UNAME_M),arm64) # ARM on Apple silicon
+  ifeq ($(BACKEND),cppnone) # this internally undefines __ARM_NEON
+    override AVXFLAGS = -DMGONGPU_NOARMNEON
+  else ifeq ($(BACKEND),cppsse4) # __ARM_NEON is always defined on Apple silicon
+    override AVXFLAGS =
   else ifeq ($(BACKEND),cppavx2)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
   else ifeq ($(BACKEND),cpp512y)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
   else ifeq ($(BACKEND),cpp512z)
     $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on ARM for the moment)
+  endif
+else ifeq ($(UNAME_M),aarch64) # ARM on Linux
+  ifeq ($(BACKEND),cppnone) # +nosimd ensures __ARM_NEON is absent
+    override AVXFLAGS = -march=armv8-a+nosimd
+  else ifeq ($(BACKEND),cppsse4) # +simd ensures __ARM_NEON is present (128 width Q/quadword registers)
+    override AVXFLAGS = -march=armv8-a+simd
+  else ifeq ($(BACKEND),cppavx2)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on aarch64 for the moment)
+  else ifeq ($(BACKEND),cpp512y)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on aarch64 for the moment)
+  else ifeq ($(BACKEND),cpp512z)
+    $(error Invalid SIMD BACKEND='$(BACKEND)': only 'cppnone' and 'cppsse4' are supported on aarch64 for the moment)
   endif
 else ifneq ($(shell $(CXX) --version | grep ^nvc++),) # support nvc++ #531
   ifeq ($(BACKEND),cppnone)
@@ -521,12 +553,12 @@ processid_short=$(shell basename $(CURDIR) | awk -F_ '{print $$(NF-1)"_"$$NF}')
 ###$(info processid_short=$(processid_short))
 
 MG5AMC_CXXLIB = mg5amc_$(processid_short)_cpp
-cxx_objects_lib=$(BUILDDIR)/CPPProcess_cpp.o $(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o
+cxx_objects_lib=$(BUILDDIR)/CPPProcess_cpp.o $(BUILDDIR)/color_sum_cpp.o $(BUILDDIR)/MatrixElementKernels_cpp.o $(BUILDDIR)/BridgeKernels_cpp.o $(BUILDDIR)/CrossSectionKernels_cpp.o
 cxx_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_cpp.o $(BUILDDIR)/RamboSamplingKernels_cpp.o
 
 ifneq ($(GPUCC),)
 MG5AMC_GPULIB = mg5amc_$(processid_short)_$(GPUSUFFIX)
-gpu_objects_lib=$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o $(BUILDDIR)/MatrixElementKernels_$(GPUSUFFIX).o $(BUILDDIR)/BridgeKernels_$(GPUSUFFIX).o $(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o
+gpu_objects_lib=$(BUILDDIR)/CPPProcess_$(GPUSUFFIX).o $(BUILDDIR)/color_sum_$(GPUSUFFIX).o $(BUILDDIR)/MatrixElementKernels_$(GPUSUFFIX).o $(BUILDDIR)/BridgeKernels_$(GPUSUFFIX).o $(BUILDDIR)/CrossSectionKernels_$(GPUSUFFIX).o
 gpu_objects_exe=$(BUILDDIR)/CommonRandomNumberKernel_$(GPUSUFFIX).o $(BUILDDIR)/RamboSamplingKernels_$(GPUSUFFIX).o
 endif
 
@@ -729,7 +761,7 @@ bld512z:
 ifeq ($(UNAME_P),ppc64le)
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
 bldavxs: bldnone bldsse4
-else ifeq ($(UNAME_P),arm)
+else ifneq (,$(filter $(UNAME_M),arm64 aarch64))
 ###bldavxs: $(INCDIR)/fbridge.inc bldnone bldsse4
 bldavxs: bldnone bldsse4
 else

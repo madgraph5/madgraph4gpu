@@ -1,16 +1,19 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
-// Further modified by: J. Teig, A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
 
 #ifndef MATRIXELEMENTKERNELS_H
 #define MATRIXELEMENTKERNELS_H 1
 
 #include "mgOnGpuConfig.h"
 
+#include "CPPProcess.h"
+#include "GpuAbstraction.h"
 #include "MemoryBuffers.h"
 
 #include <map>
+#include <memory>
 
 #ifdef MGONGPUCPP_GPUIMPL
 namespace mg5amcGpu
@@ -42,6 +45,9 @@ namespace mg5amcCpu
 
     // Compute good helicities (returns nGoodHel, the number of good helicity combinations out of ncomb)
     virtual int computeGoodHelicities() = 0;
+
+    // Set the per-event MLM graph array (nullptr = no MLM matching; must be called before computeMatrixElements if needed)
+    void setigraph( const int* igraph ) { m_igraph = igraph; }
 
     // Compute matrix elements
     virtual void computeMatrixElements( const bool useChannelIds ) = 0;
@@ -80,6 +86,9 @@ namespace mg5amcCpu
 
     // The buffer for the channel ids for single-diagram enhancement
     const BufferChannelIds& m_channelIds;
+
+    // The per-event MLM graph array (nullptr = no MLM; set via setigraph before computeMatrixElements)
+    const int* m_igraph = nullptr;
 
     // The buffer for the output matrix elements
     BufferMatrixElements& m_matrixElements;
@@ -134,7 +143,7 @@ namespace mg5amcCpu
 
     // Does this host system support the SIMD used in the matrix element calculation?
     // [NB: this is private, SIMD vectorization in mg5amc C++ code is currently only used in the ME calculations below MatrixElementKernelHost!]
-    static bool hostSupportsSIMD( const bool verbose = true );
+    static bool hostSupportsSIMD( const bool verbose = false ); // ZW: default verbose false
 
   private:
 
@@ -191,12 +200,21 @@ namespace mg5amcCpu
     // The buffer for the event-by-event couplings that depends on alphas QCD
     DeviceBufferCouplings m_couplings;
 
-#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-    // The buffer for the event-by-event numerators of multichannel factors
-    DeviceBufferNumerators m_numerators;
+    // The super-buffer of nGoodHel ME buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelMEs;
 
-    // The buffer for the event-by-event denominators of multichannel factors
-    DeviceBufferDenominators m_denominators;
+    // The super-buffer of nGoodHel jamp buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelJamps;
+
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+    // The super-buffer of nGoodHel numerator buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelNumerators;
+
+    // The super-buffer of nGoodHel denominator buffers (dynamically allocated because nGoodHel is determined at runtime)
+    std::unique_ptr<DeviceBufferSimple> m_pHelDenominators;
+
+    // The super-buffer of ncolor jamp2 buffers
+    DeviceBufferSimple m_colJamp2s;
 #endif
 
 #ifdef MGONGPU_CHANNELID_DEBUG
@@ -204,6 +222,23 @@ namespace mg5amcCpu
     // FIXME? MEKD should accept a host buffer as an argument instead of a device buffer, so that a second copy can be avoided?
     PinnedHostBufferChannelIds m_hstChannelIds;
 #endif
+
+#ifndef MGONGPU_HAS_NO_BLAS
+    // Decide at runtime whether to use BLAS for color sums
+    bool m_blasColorSum;
+
+    // Decide at runtime whether TF32TENSOR math should be used in cuBLAS
+    bool m_blasTf32Tensor;
+
+    // The super-buffer of nGoodHel cuBLAS/hipBLAS temporary buffers
+    std::unique_ptr<DeviceBufferSimple2> m_pHelBlasTmp;
+
+    // The cuBLAS/hipBLAS handle (a single one for all good helicities)
+    gpuBlasHandle_t m_blasHandle;
+#endif
+
+    // The array of GPU streams (one for each good helicity)
+    gpuStream_t m_helStreams[CPPProcess::ncomb]; // reserve ncomb streams (but only nGoodHel <= ncomb will be used)
 
     // The number of blocks in the GPU grid
     size_t m_gpublocks;

@@ -5,6 +5,11 @@
 
 import os
 import sys
+import re
+from aloha import unitary_gauge
+
+#FD gauge check
+fd_gauge = (unitary_gauge == 3)
 
 # AV - PLUGIN_NAME can be one of PLUGIN/CUDACPP_OUTPUT or MG5aMC_PLUGIN/CUDACPP_OUTPUT
 PLUGIN_NAME = __name__.rsplit('.',1)[0]
@@ -111,6 +116,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # AV - improve formatting
     ###type2def['int'] = 'int '
     type2def['int'] = 'int'
+    type2def['int_v'] = 'int'
     ###type2def['double'] = 'fptype '
     type2def['double'] = 'fptype'
     ###type2def['complex'] = 'cxtype '
@@ -168,13 +174,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
     # [NB: this exists in ALOHAWriterForGPU but essentially falls back to ALOHAWriterForCPP]
     # [NB: no, actually this exists twice(!) in ForGPU and the 2nd version is not trivial! but I keep the ForCPP version]
     # This affects HelAmps_sm.h and HelAmps_sm.cc
-    def get_header_txt(self, name=None, couplings=None,mode=''):
+    def get_header_txt(self, name=None, couplings=None,mode='', combined=False):
         """Define the Header of the fortran file. This include
             - function tag
             - definition of variable
         """
         if name is None:
             name = self.name
+        if fd_gauge and name.count("_") > 1:  # FIXME ugly hack to get right header
+            combined = True
         if mode=='':
             mode = self.mode
         out = StringIO()
@@ -204,12 +212,16 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 args.append('double Ccoeff%s'% argname[7:]) # OM for 'unary minus' #628
             else:
                 args.append('%s %s%s'% (type, argname, list_arg))
+
+        indent = ' ' * len( '  %s( ' % name )
         if not self.offshell:
             ###output = '%(doublec)s%(pointer_vertex)s allvertexes' % {
             ###    'doublec': self.type2def['double'],
             ###    'pointer_vertex': self.type2def['pointer_vertex']}
             output = '%(doublec)s allvertexes[]' % {
                 'doublec': self.type2def['double']}
+            if combined:
+                output = output + ', ' + '\n%(indent)s%(doublec)s alltmp[]' % {'doublec': self.type2def['double'], 'indent': indent}
             comment_output = 'amplitude \'vertex\''
             template = 'template<class W_ACCESS, class A_ACCESS, class C_ACCESS>'
         else:
@@ -217,11 +229,14 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'doublec': self.type2def['double'],
                      'spin': self.particles[self.outgoing -1],
                      'id': self.outgoing}
+            if combined:
+                output = output + ', ' + '\n%(indent)s%(doublec)s all%(spin)stmp[]' % {'doublec': self.type2def['double'],
+                                                                                    'spin': self.particles[self.outgoing -1],
+                                                                                    'indent': indent}
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
             template = 'template<class W_ACCESS, class C_ACCESS>'
         comment = '// Compute the output %s from the input wavefunctions %s' % ( comment_output, ', '.join(comment_inputs) ) # AV
-        indent = ' ' * len( '  %s( ' % name )
         out.write('  %(comment)s\n  %(template)s\n  %(prefix)s void\n  %(name)s( const %(args)s,\n%(indent)s%(output)s )%(suffix)s' %
                   {'comment': comment, # AV - add comment
                    'template': template, # AV - add template
@@ -239,14 +254,25 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # This affects HelAmps_sm.cc
-    def get_foot_txt(self):
+    def get_foot_txt(self, combine=False):
         """Prototype for language specific footer"""
         ###return '}\n'
-        return '  }\n\n  //--------------------------------------------------------------------------' # AV
+
+        text = ' '
+        if not combine and fd_gauge:
+            if self.outgoing and 'P1N' not in self.tag:
+                name = self.particles[self.outgoing-1]
+                if name.startswith(('S','V')):
+                    text += '      multiply_propagator_factor<W_ACCESS>(all%(name)s%(i)s,%(mass)s%(i)s, all%(name)s%(i)s);\n' % \
+                            {'name':name, 'mass': 'M%s' % name[1:], 'i': self.outgoing }
+        text +='   mgDebug( 1, __FUNCTION__ );\n'
+        text +='    return;\n'
+        text += '  }\n\n  //--------------------------------------------------------------------------' # AV
+        return text
 
     # AV - modify aloha_writers.ALOHAWriterForCPP method (improve formatting)
     # This affects HelAmps_sm.cc
-    def get_declaration_txt(self, add_i=True):
+    def get_declaration_txt(self, add_i=True, combined=False):
         """ Prototype for how to write the declaration of variable
             Include the symmetry line (entry FFV_2)
         """
@@ -268,6 +294,19 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             access = 'W_ACCESS'
             allvname = 'all'+vname
         out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
+        if combined:
+            if not self.offshell:
+                vname = 'tmp'
+                allvname = 'alltmp'
+                access = 'A_ACCESS'
+            else:
+                vname = '%(spin)stmp' % { 'spin': self.particles[self.outgoing -1]}
+                access = 'W_ACCESS'
+                allvname = 'all'+vname
+            out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
+        if fd_gauge:
+            out.write('    cxtype_sv CZERO=cxzero_sv(); \n')
+            #out.writh('    int i; \n')
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
@@ -285,11 +324,15 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 elif name[0] in ['F','V']:
                     if aloha.loop_mode:
                         size = 8
+                    elif fd_gauge and name[0] == 'V':
+                        size = 7
                     else:
                         size = 6
                 elif name[0] == 'S':
                     if aloha.loop_mode:
                         size = 5
+                    elif fd_gauge:
+                        size = 7
                     else:
                         size = 3
                 elif name[0] in ['R','T']:
@@ -355,7 +398,14 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out.write( '    %s%s[%s] = %s;\n' % ( type, self.outgoing, i, ''.join(p) % dict_energy ) )
             if self.declaration.is_used( 'P%s' % self.outgoing ):
                 self.get_one_momenta_def( self.outgoing, out )
-        # Returning result
+
+        if self.offshell and fd_gauge:
+            type = self.particles[self.outgoing-1]
+            if type in ['S','V']:
+                for i in range(3,8):
+                    cppindex = i -1
+                    out.write("    %(type)s%(out)s[%(ind)s] = CZERO ;\n" % {'type': type, 'out':self.outgoing, 'ind':cppindex})
+                # Returning result
         ###print('."' + out.getvalue() + '"') # AV - FOR DEBUGGING
         return out.getvalue()
 
@@ -476,10 +526,10 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                     # This affects 'denom = COUP' in HelAmps_sm.cc
                     if self.routine.denominator:
                         if self.routine.denominator == '1':
-                            out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s\n' % mydict) # AV
+                            out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s;\n' % mydict) # AV
                         else:
                             mydict['denom'] = self.routine.denominator
-                            out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( %(denom)s )\n' % mydict) # AV
+                            out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( %(denom)s );\n' % mydict) # AV
                     else:
                         out.write('    %(declnamedenom)s = %(pre_coup)s%(coup)s%(post_coup)s / ( ( P%(i)s[0] * P%(i)s[0] ) - ( P%(i)s[1] * P%(i)s[1] ) - ( P%(i)s[2] * P%(i)s[2] ) - ( P%(i)s[3] * P%(i)s[3] ) - M%(i)s * ( M%(i)s - cI * W%(i)s ) );\n' % mydict) # AV
                 else:
@@ -493,14 +543,17 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 self.declaration.add((ptype,'P%s' % self.outgoing))
             else:
                 coeff = 'COUP'
+            shift = 1 - 1 #to correspond to the shift in fortran indicies with -1 for C++
+            if fd_gauge and self.outname[0] == "S":
+                shift = 5 - 1 #to correspond to the shift in fortran indicies with -1 for C++
             for ind in numerator.listindices():
                 # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cc
                 ###out.write('    %s[%d]= %s*%s;\n' % (self.outname,
                 out.write('    %s[%d] = %s * %s;\n' % (self.outname, # AV
-                                        self.pass_to_HELAS(ind), coeff,
+                                        self.pass_to_HELAS(ind) + shift, coeff,
                                         self.write_obj(numerator.get_rep(ind))))
-        out.write('    mgDebug( 1, __FUNCTION__ );\n') # AV
-        out.write('    return;\n') # AV
+        #out.write('    mgDebug( 1, __FUNCTION__ );\n') # AV
+        #out.write('    return;\n') # AV
         ###return out.getvalue() # AV
         # AV check if one, two, half or quarter are used and need to be defined (ugly hack for #291: can this be done better?)
         out2 = StringIO()
@@ -544,6 +597,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         return text % data
 
     # OM - overload aloha_writers.WriteALOHA and ALOHAWriterForCPP methods (handle 'unary minus' #628)
+    # should be ok for FD gauge
     def change_var_format(self, obj):
         """ """
         if obj.startswith('COUP'):
@@ -616,6 +670,103 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         ###print('....."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
         return file_str.getvalue()
 
+
+    # FS overload of upstream function
+    # used mainly for FD gauge
+    def write_combined_cc(self, lor_names, offshell=None, sym=True, mode=''):
+        """Return the content of the .cc file linked to multiple lorentz call."""
+        # Set some usefull command
+        if offshell is None:
+            offshell = self.offshell
+
+        name = combine_name(self.routine.name, lor_names, offshell, self.tag)
+        self.name = name
+        # write head - momenta - body - foot
+        text = StringIO()
+        routine = StringIO()
+        data = {}  # for the formating of the line
+
+
+        # write header
+        new_couplings = ['COUP%s' % (i + 1) for i in range(len(lor_names) + 1)]
+        text.write(self.get_header_txt(name=name, couplings=new_couplings, mode=mode, combined=True))
+        # Define which part of the routine should be called
+        data['addon'] = ''.join(self.tag) + '_%s' % self.offshell
+
+        # how to call the routine
+        argument = [name for format, name in self.define_argument_list(new_couplings)]
+        index = argument.index('COUP1')
+        data['before_coup'] = ','.join('all' + arg for arg in argument[:index])
+        data['after_coup'] = ','.join(argument[index + len(lor_names) + 1:])
+        if data['after_coup']:
+            data['after_coup'] = ',' + data['after_coup']
+
+        # to define accesses
+        if name.endswith('_0'):
+            data['access'] = '<W_ACCESS,A_ACCESS,C_ACCESS>'
+        else:
+            data['access'] = '<W_ACCESS,C_ACCESS>'
+
+        # names of functions to be combined
+        lor_list = (self.routine.name,) + lor_names
+        line = "    %(name)s%(addon)s%(access)s(%(before_coup)s,%(coup)s,%(ccoef)s%(after_coup)s,all%(out)s);\n"
+        main = '%(spin)s%(id)d' % {'spin': self.particles[self.offshell - 1],
+                                   'id': self.outgoing}
+        for i, name in enumerate(lor_list):
+            data['name'] = name
+            data['coup'] = 'allCOUP%d' % (i + 1)
+
+            if i == 0:
+                if not offshell:
+                    data['out'] = 'vertexes'
+                else:
+                    data['out'] = main
+            elif i == 1:
+                if self.offshell:
+                    type = self.particles[self.offshell - 1]
+                    self.declaration.add(('list_complex', '%stmp' % type))
+                else:
+                    type = ''
+                    self.declaration.add(('complex', '%stmp' % type))
+                data['out'] = '%stmp' % type
+            data['ccoef'] = 'Ccoeff%d' % (i + 1)
+            routine.write(line % data)
+            if i:
+                if not offshell:
+                    routine.write('    (*vertex) = (*vertex) + (*tmp);\n')
+                else:
+                    size = self.type_to_size[self.particles[offshell - 1]] - 2
+                    # routine.write(""" i= %s;\nwhile (i < %s)\n{\n""" % (self.momentum_size, self.momentum_size + size))
+                    # routine.write(" %(main)s[i] = %(main)s[i] + %(tmp)s[i];\n i++;\n" % \
+                    # {'main': main, 'tmp': data['out']})
+                    # routine.write('}\n')
+                    routine.write('   //unrolled upstream while\n')
+                    for index in range(self.momentum_size,
+                                       self.momentum_size + size):  # unrolling the upstream loop -1 for cpp
+                        routine.write('    %(main)s[%(index)d] = %(main)s[%(index)d] + %(tmp)s[%(index)d];\n' % \
+                                      {'main': main, 'tmp': data['out'], 'index': index})
+                    self.declaration.add(('int', 'i'))
+        self.declaration.discard(('complex', 'COUP'))
+        self.declaration.discard(('complex', 'denom'))
+        if self.outgoing:
+            self.declaration.discard(('list_double', 'P%s' % self.outgoing))
+            self.declaration.discard(('double', 'OM%s' % self.outgoing))
+
+        tmtmt = aloha.aloha_lib.KERNEL.reduced_expr2
+
+        for name in aloha.aloha_lib.KERNEL.reduced_expr2:
+            self.declaration.discard(('complex', name))
+
+        # clean pointless declaration
+        # self.declaration.discard
+        text.write(self.get_declaration_txt(add_i=False, combined=True))
+        text.write(routine.getvalue())
+        text.write(self.get_foot_txt(combine=True))
+
+        text = text.getvalue()
+        return text
+
+
 #------------------------------------------------------------------------------------
 
 from os.path import join as pjoin
@@ -662,7 +813,11 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         ###path = pjoin(MG5DIR, 'aloha','template_files')
         path = pjoin(PLUGINDIR, 'aloha', 'template_files')
         out = []
-        if ext == 'h': file = open(pjoin(path, self.helas_h)).read()
+        if not fd_gauge:
+            helas_temp_file = self.helas_h
+        else:
+            helas_temp_file = self.helas_h.replace('.h', '_fd.h')
+        if ext == 'h': file = open(pjoin(path, helas_temp_file)).read()
         else: file = open(pjoin(path, self.helas_cc)).read()
         file = '\n'.join( file.split('\n')[9:] ) # skip first 9 lines in helas.h/cu (copyright including ALOHA)
         out.append( file )
@@ -1068,7 +1223,10 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         # Read in the template .h and .cc files, stripped of compiler commands and namespaces
         template_h_files = self.read_aloha_template_files(ext = 'h')
         template_cc_files = self.read_aloha_template_files(ext = 'cc')
-        aloha_model = create_aloha.AbstractALOHAModel(self.model.get('name'), explicit_combine=True)
+        if(fd_gauge):
+            aloha_model = create_aloha.AbstractALOHAModel(self.model.get('name'), explicit_combine=False)
+        else:
+            aloha_model = create_aloha.AbstractALOHAModel(self.model.get('name'), explicit_combine=True)
         aloha_model.add_Lorentz_object(self.model.get('lorentz'))
         if self.wanted_lorentz:
             aloha_model.compute_subset(self.wanted_lorentz)
@@ -1171,6 +1329,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ###replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions() # how do I get HERE the right value of nwf, e.g. 5 for gg_tt?
         nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
         replace_dict['nincoming'] = nincoming
+        replace_dict['nwave'] = 6
+        if (fd_gauge): replace_dict['nwave'] += 1
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
@@ -1308,33 +1468,43 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             self.couplings2order = self.helas_call_writer.couplings2order
             self.params2order = self.helas_call_writer.params2order
             ret_lines.append("""
-  // Evaluate |M|^2 for each subprocess
-  // NB: calculate_wavefunctions ADDS |M|^2 for a given ihel to the running sum of |M|^2 over helicities for the given event(s)
-  // (similarly, it also ADDS the numerator and denominator for a given ihel to their running sums over helicities)
-  // In CUDA, this device function computes the ME for a single event
-  // In C++, this function computes the ME for a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
-  // *** NB: calculate_wavefunction accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898 ***
-  __device__ INLINE void /* clang-format off */
-  calculate_wavefunctions( int ihel,
-                           const fptype* allmomenta,      // input: momenta[nevt*npar*4]
-                           const fptype* allcouplings,    // input: couplings[nevt*ndcoup*2]
-                           fptype* allMEs,                // output: allMEs[nevt], |M|^2 running_sum_over_helicities
+  // Evaluate QCD partial amplitudes jamps for this given helicity from Feynman diagrams
+  // Also compute running sums over helicities adding jamp2, numerator, denominator
+  // (NB: this function no longer handles matrix elements as the color sum has now been moved to a separate function/kernel)
+  // In CUDA, this function processes a single event
+  // ** NB1: NEW Nov2024! In CUDA this is now a kernel function (it used to be a device function)
+  // ** NB2: NEW Nov2024! in CUDA this now takes a channelId array as input (it used to take a scalar channelId as input)
+  // In C++, this function processes a single event "page" or SIMD vector (or for two in "mixed" precision mode, nParity=2)
+  // *** NB: in C++, calculate_jamps accepts a SCALAR channelId because it is GUARANTEED that all events in a SIMD vector have the same channelId #898
+  __global__ void /* clang-format off */
+  calculate_jamps( int ihel,
+                   const fptype* allmomenta,          // input: momenta[nevt*npar*4]
+                   const fptype* allcouplings,        // input: couplings[nevt*ndcoup*2]
+#ifdef MGONGPUCPP_GPUIMPL
+                   fptype* allJamps,                  // output: jamp[2*ncolor*nevt] buffer for one helicity _within a super-buffer for dcNGoodHel helicities_
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
-                           const unsigned int channelId,  // input: multichannel SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
-                           fptype* allNumerators,         // output: multichannel numerators[nevt], running_sum_over_helicities
-                           fptype* allDenominators,       // output: multichannel denominators[nevt], running_sum_over_helicities
+                   const unsigned int* allChannelIds, // input: multichannel channelIds[nevt] (1 to #diagrams); nullptr to disable SDE (#899/#911)
+                   fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
+                   fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
+                   fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
 #endif
-                           fptype_sv* jamp2_sv            // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
-#ifndef MGONGPUCPP_GPUIMPL
-                           , const int ievt00             // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+                   const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
+#else
+                   cxtype_sv* allJamp_sv,             // output: jamp_sv[ncolor] (float/double) or jamp_sv[2*ncolor] (mixed) for this helicity
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+                   const unsigned int channelId,      // input: SCALAR channelId (1 to #diagrams, 0 to disable SDE) for this event or SIMD vector
+                   fptype* allNumerators,             // input/output: multichannel numerators[nevt], add helicity ihel
+                   fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
+                   fptype_sv* jamp2_sv,               // output: jamp2[nParity][ncolor][neppV] for color choice (nullptr if disabled)
 #endif
-                           )
+                   const int ievt00                   // input: first event number in current C++ event page (for CUDA, ievt depends on threadid)
+#endif
+                   )
   //ALWAYS_INLINE // attributes are not permitted in a function definition
   {
 #ifdef MGONGPUCPP_GPUIMPL
     using namespace mg5amcGpu;
     using M_ACCESS = DeviceAccessMomenta;         // non-trivial access: buffer includes all events
-    using E_ACCESS = DeviceAccessMatrixElements;  // non-trivial access: buffer includes all events
     using W_ACCESS = DeviceAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using A_ACCESS = DeviceAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = DeviceAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
@@ -1346,7 +1516,6 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #else
     using namespace mg5amcCpu;
     using M_ACCESS = HostAccessMomenta;         // non-trivial access: buffer includes all events
-    using E_ACCESS = HostAccessMatrixElements;  // non-trivial access: buffer includes all events
     using W_ACCESS = HostAccessWavefunctions;   // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using A_ACCESS = HostAccessAmplitudes;      // TRIVIAL ACCESS (no kernel splitting yet): buffer for one event
     using CD_ACCESS = HostAccessCouplings;      // non-trivial access (dependent couplings): buffer includes all events
@@ -1355,14 +1524,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     using NUM_ACCESS = HostAccessNumerators;    // non-trivial access: buffer includes all events
     using DEN_ACCESS = HostAccessDenominators;  // non-trivial access: buffer includes all events
 #endif
-#endif /* clang-format on */
+#endif
     mgDebug( 0, __FUNCTION__ );
     //bool debug = true;
 #ifndef MGONGPUCPP_GPUIMPL
     //debug = ( ievt00 >= 64 && ievt00 < 80 && ihel == 3 ); // example: debug #831
-    //if( debug ) printf( "calculate_wavefunctions: ievt00=%d\\n", ievt00 );
-#endif
-    //if( debug ) printf( "calculate_wavefunctions: ihel=%d\\n", ihel );""")
+    //if( debug ) printf( \"calculate_jamps: ievt00=%d ihel=%2d\\n\", ievt00, ihel );
+#else
+    //const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+    //debug = ( ievt == 0 );
+    //if( debug ) printf( \"calculate_jamps: ievt=%6d ihel=%2d\\n\", ievt, ihel );
+#endif /* clang-format on */""")
             nwavefuncs = self.matrix_elements[0].get_number_of_wavefunctions()
             ret_lines.append("""
     // The variable nwf (which is specific to each P1 subdirectory, #644) is only used here
@@ -1381,22 +1553,30 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     fptype* w_fp[nwf];
     for( int iwf = 0; iwf < nwf; iwf++ ) w_fp[iwf] = reinterpret_cast<fptype*>( w_sv[iwf] );
     fptype* amp_fp;
-    amp_fp = reinterpret_cast<fptype*>( amp_sv );
-
+    amp_fp = reinterpret_cast<fptype*>( amp_sv );""")
+            if fd_gauge:
+                ret_lines.append("""
+    // special temporary array to hold F/Vtmp values in the combined vertex functions while using the FD gauge
+    alignas(sizeof(cxtype_sv)/2) cxtype_sv w_tmp_sv[nw6]; //to ensure proper aligment for vector instructions
+    fptype* w_tmp_fp;
+    w_tmp_fp = reinterpret_cast<fptype*>( w_tmp_sv );
+    
+    // special one value to hold tmp vertex value inside the combined vertex functions while using the FD gauge
+    alignas(sizeof(cxtype_sv)/2) cxtype_sv amp_tmp_sv[1]; //to ensure proper aligment for vector instructions
+    fptype* amp_tmp_fp;
+    amp_tmp_fp = reinterpret_cast<fptype*>( amp_tmp_sv );
+    """)
+            ret_lines.append("""
     // Local variables for the given CUDA event (ievt) or C++ event page (ipagV)
     // [jamp: sum (for one event or event page) of the invariant amplitudes for all Feynman diagrams in a given color combination]
     cxtype_sv jamp_sv[ncolor] = {}; // all zeros (NB: vector cxtype_v IS initialized to 0, but scalar cxtype is NOT, if "= {}" is missing!)
 
     // === Calculate wavefunctions and amplitudes for all diagrams in all processes         ===
     // === (for one event in CUDA, for one - or two in mixed mode - SIMD event pages in C++ ===
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
-    // Mixed fptypes #537: float for color algebra and double elsewhere
-    // Delay color algebra and ME updates (only on even pages)
-    cxtype_sv jamp_sv_previous[ncolor] = {};
-    fptype* MEs_previous = 0;
-#endif
+
+    // START LOOP ON IPARITY
     for( int iParity = 0; iParity < nParity; ++iParity )
-    { // START LOOP ON IPARITY
+    {
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
 #endif""")
@@ -1413,6 +1593,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             file = self.get_matrix_single_process( i, me, color_amplitudes[i], class_name )
             file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_matrix.inc (copyright)
             file_extend.append( file )
+            assert i == 0, "more than one ME in get_all_sigmaKin_lines" # AV sanity check (added for color_sum.cc but valid independently)
         ret_lines.extend( file_extend )
         return '\n'.join(ret_lines)
 
@@ -1442,7 +1623,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         self.edit_check_sa()
         self.edit_mgonGPU()
         self.edit_processidfile() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
-        
+        self.edit_colorsum() # AV new file (NB this is Sigma-specific, should not be a symlink to Subprocesses)
         self.edit_testxxx() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memorybuffers() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
         self.edit_memoryaccesscouplings() # AV new file (NB this is generic in Subprocesses and then linked in Sigma-specific)
@@ -1523,6 +1704,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ff.write(template % replace_dict)
         ff.close()
 
+    # AV - new method
+    def edit_colorsum(self):
+        """Generate color_sum.cc"""
+        ###misc.sprint('Entering PLUGIN_OneProcessExporter.edit_colorsum')
+        template = open(pjoin(self.template_path,'gpu','color_sum.cc'),'r').read()
+        replace_dict = {}
+        # Extract color matrix again (this was also in get_matrix_single_process called within get_all_sigmaKin_lines)
+        replace_dict['color_matrix_lines'] = self.get_color_matrix_lines(self.matrix_elements[0])
+        ff = open(pjoin(self.path, 'color_sum.cc'),'w')
+        ff.write(template % replace_dict)
+        ff.close()
 
     def generate_subprocess_directory_end(self, **opt):
         """ opt contain all local variable of the fortran original function"""
@@ -1693,11 +1885,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         """Return the color matrix definition lines for this matrix element. Split rows in chunks of size n."""
         import madgraph.core.color_algebra as color
         if not matrix_element.get('color_matrix'):
-            return '\n'.join(['      static constexpr fptype2 denom[1] = {1.};', 'static const fptype2 cf[1][1] = {1.};'])
+            return '\n'.join(['  static constexpr fptype2 colorDenom[1] = {1.};', 'static const fptype2 cf[1][1] = {1.};'])
         else:
             color_denominators = matrix_element.get('color_matrix').\
                                                  get_line_denominators()
-            denom_string = '      static constexpr fptype2 denom[ncolor] = { %s }; // 1-D array[%i]' \
+            denom_string = '  static constexpr fptype2 colorDenom[ncolor] = { %s }; // 1-D array[%i]' \
                            % ( ', '.join(['%i' % denom for denom in color_denominators]), len(color_denominators) )
             matrix_strings = []
             my_cs = color.ColorString()
@@ -1705,12 +1897,12 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                 # Then write the numerators for the matrix elements
                 num_list = matrix_element.get('color_matrix').get_line_numerators(index, denominator)
                 matrix_strings.append('{ %s }' % ', '.join(['%d' % i for i in num_list]))
-            matrix_string = '      static constexpr fptype2 cf[ncolor][ncolor] = '
-            if len( matrix_strings ) > 1 : matrix_string += '{\n        ' + ',\n        '.join(matrix_strings) + ' };'
+            matrix_string = '  static constexpr fptype2 colorMatrix[ncolor][ncolor] = '
+            if len( matrix_strings ) > 1 : matrix_string += '{\n    ' + ',\n    '.join(matrix_strings) + ' };'
             else: matrix_string += '{ ' + matrix_strings[0] + ' };'
             matrix_string += ' // 2-D array[%i][%i]' % ( len(color_denominators), len(color_denominators) )
-            denom_comment = '\n      // The color denominators (initialize all array elements, with ncolor=%i)\n      // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
-            matrix_comment = '\n      // The color matrix (initialize all array elements, with ncolor=%i)\n      // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
+            denom_comment = '\n  // The color denominators (initialize all array elements, with ncolor=%i)\n  // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
+            matrix_comment = '\n  // The color matrix (initialize all array elements, with ncolor=%i)\n  // [NB do keep \'static\' for these constexpr arrays, see issue #283]\n' % len(color_denominators)
             denom_string = denom_comment + denom_string
             matrix_string = matrix_comment + matrix_string
             return '\n'.join([denom_string, matrix_string])
@@ -1905,7 +2097,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       const fptype* momenta = allmomenta;
       const fptype* COUPs[nxcoup];
       for( size_t ixcoup = 0; ixcoup < nxcoup; ixcoup++ ) COUPs[ixcoup] = allCOUPs[ixcoup];
-      fptype* MEs = allMEs;
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = allNumerators;
       fptype* denominators = allDenominators;
@@ -1919,7 +2110,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       //for( size_t iicoup = 0; iicoup < nicoup; iicoup++ ) // BUG #823
       for( size_t iicoup = 0; iicoup < nIPC; iicoup++ )     // FIX #823
         COUPs[ndcoup + iicoup] = allCOUPs[ndcoup + iicoup]; // independent couplings, fixed for all events
-      fptype* MEs = E_ACCESS::ieventAccessRecord( allMEs, ievt0 );
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* numerators = NUM_ACCESS::ieventAccessRecord( allNumerators, ievt0 );
       fptype* denominators = DEN_ACCESS::ieventAccessRecord( allDenominators, ievt0 );
@@ -1930,6 +2120,10 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
       for( int i = 0; i < ncolor; i++ ) { jamp_sv[i] = cxzero_sv(); }
 
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+#ifdef MGONGPUCPP_GPUIMPL
+      // SCALAR channelId for the current event (CUDA)
+      unsigned int channelId = gpu_channelId( allChannelIds );
+#endif
       // Numerators and denominators for the current event (CUDA) or SIMD event page (C++)
       fptype_sv& numerators_sv = NUM_ACCESS::kernelAccess( numerators );
       fptype_sv& denominators_sv = DEN_ACCESS::kernelAccess( denominators );
@@ -2160,14 +2354,19 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if isinstance(argument, helas_objects.HelasWavefunction):
                 #arg['out'] = 'w_sv[%(out)d]'
                 arg['out'] = 'w_fp[%(out)d]'
+                if fd_gauge and len(l) > 1: #FIXME: this is a hack to avoid a bug in the FD code
+                    arg['out'] = arg['out'] + ", &w_tmp_fp[0]"
                 if aloha.complex_mass:
                     arg['mass'] = 'm_pars->%(CM)s, '
                 else:
                     arg['mass'] = 'm_pars->%(M)s, m_pars->%(W)s, '
+
             else:
                 #arg['out'] = '&amp_sv[%(out)d]'
                 arg['out'] = '&amp_fp[%(out)d]'
                 arg['out2'] = 'amp_sv[%(out)d]'
+                if fd_gauge and len(l) > 1: #FIXME: this is a hack to avoid a bug in the FD code
+                    arg['out'] = arg['out'] + ", &amp_tmp_fp[0]"
                 arg['mass'] = ''
             call = call % arg
             # Now we have a line correctly formatted
@@ -2179,4 +2378,75 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
         else:
             self.add_amplitude(argument.get_call_key(), call_function)
 
+
+def combine_name(name, other_names, outgoing, tag=None, unknown_propa=False):
+    """ build the name for combined aloha function """
+
+    def myHash(target_string):
+        suffix = ''
+        if '%(propa)s' in target_string:
+            target_string = target_string.replace('%(propa)s', '')
+            suffix = '%(propa)s'
+
+        if len(target_string) < 50:
+            return '%s%s' % (target_string, suffix)
+        else:
+            return 'ALOHA_%s%s' % (str(hash(target_string.lower())).replace('-', 'm'), suffix)
+
+    if tag and any(t.startswith('P') for t in tag[:-1]):
+        # propagator need to be the last entry for the tag
+        for i, t in enumerate(tag):
+            if t.startswith('P'):
+                tag.pop(i)
+                tag.append(t)
+                break
+
+    # Two possible scheme FFV1C1_2_X or FFV1__FFV2C1_X
+    # If they are all in FFVX scheme then use the first
+    p = re.compile(r'^(?P<type>[RFSVT]{2,})(?P<id>\d+)$')
+    routine = ''
+    if p.search(name):
+        base, id = p.search(name).groups()
+        routine = name
+        for s in other_names:
+            try:
+                base2, id2 = p.search(s).groups()
+            except Exception:
+                routine = ''
+                break  # one matching not good -> other scheme
+            if base != base2:
+                routine = ''
+                break  # one matching not good -> other scheme
+            else:
+                routine += '_%s' % id2
+
+    if routine:
+        if tag is not None:
+            routine += ''.join(tag)
+        if unknown_propa and outgoing:
+            routine += '%(propa)s'
+        if outgoing is not None:
+            return myHash(routine) + '_%s' % outgoing
+        else:
+            return myHash(routine)
+
+    if tag is not None:
+        addon = ''.join(tag)
+    else:
+        addon = ''
+        if 'C' in name:
+            short_name, addon = name.split('C', 1)
+            try:
+                addon = 'C' + str(int(addon))
+            except Exception:
+                addon = ''
+            else:
+                name = short_name
+    if unknown_propa:
+        addon += '%(propa)s'
+
+    if outgoing is not None:
+        return myHash('_'.join((name,) + tuple(other_names))) + addon + '_%s' % outgoing
+    else:
+        return myHash('_'.join((name,) + tuple(other_names))) + addon
 #------------------------------------------------------------------------------------

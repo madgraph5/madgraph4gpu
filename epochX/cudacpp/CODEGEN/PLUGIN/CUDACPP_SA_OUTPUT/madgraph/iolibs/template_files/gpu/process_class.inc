@@ -42,7 +42,7 @@
 
     // Process-independent compile-time constants
     static constexpr int np4 = 4; // dimensions of 4-momenta (E,px,py,pz)
-    static constexpr int nw6 = 6; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
+    static constexpr int nw6 = %(nwave)d; // dimensions of each wavefunction (HELAS KEK 91-11): e.g. 6 for e+ e- -> mu+ mu- (fermions and vectors)
 
     // Process-dependent compile-time constants
     static constexpr int npari = %(nincoming)d; // #particles in the initial state (incoming): e.g. 2 (e+ e-) for e+ e- -> mu+ mu-
@@ -50,6 +50,7 @@
     static constexpr int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
     static constexpr int ncomb = %(nbhel)d; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
     static constexpr int ndiagrams = %(ndiagrams)d; // #Feynman diagrams: e.g. 3 for e+ e- -> mu+ mu-
+    static constexpr int ncolor = %(ncolor)s; // the number of leading colors: e.g. 1 for e+ e- -> mu+ mu-
 
     // Hardcoded parameters for this process (constant class variables)
     // [NB: this class assumes nprocesses==1 i.e. a single DSIG1 and no DSIG2 in Fortran (#272 and #343)]

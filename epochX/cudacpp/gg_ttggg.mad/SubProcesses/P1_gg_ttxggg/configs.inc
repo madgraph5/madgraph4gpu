@@ -16695,3 +16695,5 @@ C     Diagram 945
       DATA (SPROP(I,-5,945),I=1,1)/0/
 C     Number of configs
       DATA MAPCONFIG(0)/945/
+C     used fake id
+      DATA FAKE_ID/7/

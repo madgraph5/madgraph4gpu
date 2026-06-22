@@ -1,7 +1,7 @@
-# Copyright (C) 2020-2024 CERN and UCLouvain.
+# Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Aug 2023) for the MG5aMC CUDACPP plugin.
-# Further modified by: O. Mattelaer, A. Valassi (2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: O. Mattelaer, A. Valassi, Z. Wettersten (2024-2025) for the MG5aMC CUDACPP plugin.
 
 import logging
 import os
@@ -33,16 +33,31 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
         if 'cwd' in opts and os.path.basename(opts['cwd']) == 'Source':
             path = pjoin(opts['cwd'], 'make_opts')
             common_run_interface.CommonRunCmd.update_make_opts_full(path,
-                {'FPTYPE': self.run_card['floating_type'] })
+                {'override FPTYPE': self.run_card['floating_type'] })
             misc.sprint('FPTYPE checked')
         cudacpp_supported_backends = [ 'fortran', 'cuda', 'hip', 'cpp', 'cppnone', 'cppsse4', 'cppavx2', 'cpp512y', 'cpp512z', 'cppauto' ]
         if args and args[0][0] == 'madevent' and hasattr(self, 'run_card'):            
             cudacpp_backend = self.run_card['cudacpp_backend'].lower() # the default value is defined in launch_plugin.py
-            logger.info("Building madevent in madevent_interface.py with '%s' matrix elements"%cudacpp_backend)
+            if cudacpp_backend in ['cpp', 'cppauto']:
+                backend_log = pjoin(opts["cwd"], ".resolved-backend")
+                # try to remove old file if present
+                try:
+                    os.remove(backend_log)
+                except FileNotFoundError:
+                    pass
+                misc.compile(["-f", "cudacpp.mk", f"BACKEND=cppauto", f"BACKEND_LOG={backend_log}", "detect-backend"], **opts)
+                try:
+                    with open(backend_log, "r") as f:
+                        resolved_backend = f.read().strip()
+                    logger.info(f"Backend '{cudacpp_backend}' resolved as '{resolved_backend}'")
+                    cudacpp_backend = resolved_backend
+                except FileNotFoundError:
+                    raise RuntimeError("Could not resolve cudacpp_backend=cppauto|cpp; ensure Makefile detection runs properly.")
+            logger.info(f"Building madevent in madevent_interface.py with '{cudacpp_backend}' matrix elements")
             if cudacpp_backend in cudacpp_supported_backends :
                 args[0][0] = 'madevent_' + cudacpp_backend + '_link'
             else:
-                raise Exception( "Invalid cudacpp_backend='%s': supported backends are %s"%supported_backends )
+                raise Exception(f"Invalid cudacpp_backend='{cudacpp_backend}': supported backends are [ '" + "', '".join(cudacpp_supported_backends) + "' ]")
             return misc.compile(nb_core=self.options['nb_core'], *args, **opts)
         else:
             return misc.compile(nb_core=self.options['nb_core'], *args, **opts)
@@ -76,7 +91,7 @@ class CPPRunCard(banner_mod.RunCardLO):
         if not hasattr(self, 'path'):
             raise Exception
         if name == 'floating_type':
-            common_run_interface.CommonRunCmd.update_make_opts_full({'FPTYPE': new_value})
+            common_run_interface.CommonRunCmd.update_make_opts_full({'override FPTYPE': new_value})
         else:
             raise Exception
         Sourcedir = pjoin(os.path.dirname(os.path.dirname(self.path)), 'Source')
@@ -133,7 +148,8 @@ class GPURunCard(CPPRunCard):
         super().default_setup()
         # change default value:
         self['cudacpp_backend'] = 'cuda'
-        self['vector_size'] = 16384 # already setup in default class (just change value)
+        self['vector_size'] = 32 # ZW: default to 32, might want to change to 64 to utilise AMD GPUs better as well # 16384 # already setup in default class (just change value)
+        self['nb_warp'] = 512 # number of warps per kernel call, for now setting to 16 384 / vector_size
 
 MEINTERFACE = CPPMEInterface
 RunCard = CPPRunCard

@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2024 CERN and UCLouvain.
+// Copyright (C) 2020-2025 CERN and UCLouvain.
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: J. Teig (Jun 2023, based on earlier work by S. Roiser) for the MG5aMC CUDACPP plugin.
 // Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2025) for the MG5aMC CUDACPP plugin.
@@ -26,6 +26,22 @@ inline void assertGpu( gpuError_t code, const char* file, int line, bool abort =
     if( abort ) assert( code == gpuSuccess );
   }
 }
+#endif /* clang-format on */
+
+//--------------------------------------------------------------------------
+
+#ifdef MGONGPUCPP_GPUIMPL /* clang-format off */
+#ifndef MGONGPU_HAS_NO_BLAS
+#define checkGpuBlas( code ){ assertGpuBlas( code, __FILE__, __LINE__ ); }
+inline void assertGpuBlas( gpuBlasStatus_t code, const char *file, int line, bool abort = true )
+{
+  if ( code != GPUBLAS_STATUS_SUCCESS )
+  {
+    printf( "ERROR! assertGpuBlas: '%d' in %s:%d\n", code, file, line );
+    if( abort ) assert( code == GPUBLAS_STATUS_SUCCESS );
+  }
+}
+#endif
 #endif /* clang-format on */
 
 //--------------------------------------------------------------------------

@@ -42,3 +42,5 @@ C     Diagram 5
       DATA (SPROP(I,-2,5),I=1,1)/0/
 C     Number of configs
       DATA MAPCONFIG(0)/5/
+C     used fake id
+      DATA FAKE_ID/7/

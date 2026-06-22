@@ -976,9 +976,9 @@ c       There parton emissions with code <= jcode are not jets
      $     ' and jcentral is ',jcentral(1),jcentral(2)
 
       if (btest(mlevel,3)) then
-         write(*,'(a$)') 'QCD jets (final): '
+         write(*,'(a,$)') 'QCD jets (final): '
          do i=3,nexternal
-            if(iqjets(i).gt.0) write(*,'(i3$)') i
+            if(iqjets(i).gt.0) write(*,'(i3,$)') i
          enddo
          write(*,*)
       endif
@@ -1186,7 +1186,7 @@ c     Take care of case when jcentral are zero
             if(nexternal.gt.3) pt2ijcl(nexternal-3)=q2fact(2)
          else
             if(.not.fixed_fac_scale1) q2fact(1)=scalefact**2*pt2ijcl(nexternal-2)
-            if(.not.fixed_fac_scale2) q2fact(2)=scalefact**2*q2fact(1)
+            if(.not.fixed_fac_scale2) q2fact(2)=scalefact**2*pt2ijcl(nexternal-2)
          endif
       elseif(jcentral(1).eq.0)then
             if(.not.fixed_fac_scale1)  q2fact(1) = scalefact**2*pt2ijcl(jfirst(1))
@@ -1387,7 +1387,9 @@ C   local variables
       integer tstrategy(lmaxconfigs)
       integer sprop(maxsproc,-max_branch:-1,lmaxconfigs)
       integer tprid(-max_branch:-1,lmaxconfigs)
-      include 'configs.inc'
+      integer fake_id
+      common/to_sprop/sprop,tprid,fake_id
+c      include 'configs.inc'
       real*8 xptj,xptb,xpta,xptl,xmtc
       real*8 xetamin,xqcut,deltaeta
       common /to_specxpt/xptj,xptb,xpta,xptl,xmtc,xetamin,xqcut,deltaeta
@@ -1414,6 +1416,7 @@ c     ipart gives external particle number chain
       
       rewgt=1.0d0
       clustered=.false.
+      vec_igraph(ivec) = 0  ! default: no MLM graph selected for this event
 
       if(ickkw.le.0.and..not.use_syst) return
 
@@ -1465,6 +1468,7 @@ c         stop 1
         rewgt = 0d0
         return
       endif
+      vec_igraph(ivec) = igraphs(1)  ! save MLM-matched graph for this event
 
 
 c     Store pdf information for systematics studies (initial)
@@ -1588,6 +1592,8 @@ c          good parton lines; for FSR, just require one FS particle to be good
      $          ipdgcl(1,igraphs(1),iproc),ipart,.false.).and.
      $        (goodjet(idacl(n,1)).or.goodjet(idacl(n,2)))) then
 c       alpha_s weight
+
+           if(ipdgcl(imocl(n),igraphs(1),iproc).ne.fake_id)then
               rewgt=rewgt*alphas(alpsfact*sqrt(q2now))/asref
 c             Store information for systematics studies
               if(use_syst)then
@@ -1600,6 +1606,7 @@ c             Store information for systematics studies
                  write(*,*)'       as: ',alphas(alpsfact*dsqrt(q2now)),
      &                '/',asref,' -> ',alphas(alpsfact*dsqrt(q2now))/asref
                  write(*,*)' and G=',SQRT(4d0*PI*ALPHAS(scale))
+             endif
               endif
            endif
         endif
@@ -1898,7 +1905,7 @@ c      save firsttime
          else
             all_q2fact(1,i) = q2fact(1)
             all_q2fact(2,i) = q2fact(2)
-            vec_igraph1(i) = igraphs(1)
+            vec_igraph(i) = igraphs(1)
          endif
 c         call save_cl_val_to(i)
 c      endif
