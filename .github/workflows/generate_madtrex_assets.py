@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Dev-only script to (re)generate the MadtRex CI test assets for one process:
+"""Script to (re)generate the MadtRex CI test assets for one process:
  - an LHE event sample (test/MadtRex_baseline/<process>_events.lhe.gz)
  - the corresponding reweight baseline (test/MadtRex_baseline/<process>_rwgt.csv)
 
-This is NOT run in CI. Devs run it locally every now and then (whenever the
-generated *.mad code or the model/param/run cards change) and commit the
+This is NOT run in CI. The idea is to run it locally every now and then
+(whenever the generated *.mad code or something crucial changes) and commit the
 resulting files, the same way epochX/cudacpp/CODEGEN/allGenerateAndCompare.sh
 is used to regenerate reference outputs.
 
