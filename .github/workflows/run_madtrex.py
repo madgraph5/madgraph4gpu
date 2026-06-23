@@ -1,59 +1,26 @@
 #!/usr/bin/env python3
-import os
-import sys
+import shutil
 import subprocess
+import sys
 from pathlib import Path
-import csv
 
-ALLOWED_PROCESSES = [ "ee_mumu", "gg_tt", "gg_tt01g", "gg_ttg", "gg_ttgg", "gg_ttggg", "gq_ttq", "heft_gg_bb", "nobm_pp_ttW", "pp_tt012j", "smeft_gg_tttt", "susy_gg_t1t1", "susy_gg_tt" ]
-MADGRAPH_CLI = Path.cwd() / ".." / ".." / "MG5aMC" / "mg5amcnlo" / "bin" / "mg5_aMC"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import madtrex_common as common
 
-PROCESSES_NON_TRIVIAL_MODELS = {
-    "heft_gg_bb": "heft",
-    "smeft_gg_tttt": "SMEFTsim_topU3l_MwScheme_UFO-massless",
-    "susy_gg_t1t1": "MSSM_SLHA2",
-    "susy_gg_tt": "MSSM_SLHA2",
-}
+def generate_dat_content(process: str) -> str:
+    dat = common.model_import_lines(process)
+    dat += f"reweight {common.RUN_NAME} -from_cards --plugin=madtrex\n"
+    return dat
 
-def generate_dat_content(process_dir: Path, rwgt_card_path: Path, process_name: str) -> str:
-    run_card = f"launch {process_dir}\n"
-    run_card += "reweight=madtrex\n"
-    run_card += "set nevents 10000\n"
-    run_card += "set iseed 489\n"
-    run_card += f"{rwgt_card_path}\n"
-    # if the model of this process is not trivial, import it preventively
-    # so that if it is still Python 2, it will be converted before the
-    # reweighting procedure takes place
-    if process_name in PROCESSES_NON_TRIVIAL_MODELS:
-        model = PROCESSES_NON_TRIVIAL_MODELS[process_name]
-        run_card = f"set auto_convert_model True\nimport model {model}\n" + run_card
-    return run_card
-
-def is_executable(path: Path) -> bool:
-    return path.is_file() and os.access(path, os.X_OK)
-
-def write_rwgt_card(path: Path) -> None:
-    if path.exists():
-        return
-    content = """launch\nset sminputs 1 scan:[j for j in range(100,200,10)]\n"""
-    path.write_text(content, encoding="utf-8")
-
-
-def load_csv(path):
-    with open(path, newline="") as f:
-        reader = csv.DictReader(f, fieldnames=["RWGT", "VALUE", "ERROR"])
-        for row in reader:
-            yield float(row["VALUE"]), float(row["ERROR"])
-
-def dump_logs(stdout_log, stderr_log):
-    print("Dumping run logs...")
-    print("==== STDOUT ====")
-    with open(stdout_log, "r") as file:
-        print(file.read())
-    print("\n\n==== STDERR ====")
-    with open(stderr_log, "r") as file:
-        print(file.read())
-    print("================")
+def restore_lhe(lhe_asset: Path, process_path: Path) -> Path:
+    """Decompress the committed LHE asset into Events/<run_name>/unweighted_events.lhe.gz,
+    the location MadGraph expects for an existing run (no run database needed: the banner
+    is read straight from the LHE file itself)."""
+    events_dir = process_path / "Events" / common.RUN_NAME
+    events_dir.mkdir(parents=True, exist_ok=True)
+    lhe_dst = events_dir / "unweighted_events.lhe.gz"
+    shutil.copyfile(lhe_asset, lhe_dst)
+    return lhe_dst
 
 def main() -> int:
     # Name of the directory of the process to test
@@ -69,16 +36,16 @@ def main() -> int:
         print(f"ERROR: Process {process} not found at: {process_path}", file=sys.stderr)
         return 1
 
-    if process not in ALLOWED_PROCESSES:
+    if process not in common.ALLOWED_PROCESSES:
         print(
             f"ERROR: PROCESS '{process}' is not in the allowed list.\n"
-            f"Allowed: {sorted(ALLOWED_PROCESSES)}",
+            f"Allowed: {sorted(common.ALLOWED_PROCESSES)}",
             file=sys.stderr,
         )
         return 1
 
     # Check that baseline rwgt.csv exists
-    baseline_csv = HOME / "CODEGEN" / "PLUGIN" / "CUDACPP_SA_OUTPUT" / "test" / "MadtRex_baseline" / f"{process}_rwgt.csv"
+    baseline_csv = common.baseline_csv_path(HOME, process)
     if not baseline_csv.exists():
         print(
             f"ERROR: Baseline rwgt.csv not found at:\n  {baseline_csv}\n"
@@ -87,59 +54,62 @@ def main() -> int:
         )
         return 1
 
-    # Write rwgt_card.dat if not exists
-    rwgt_card_path = HOME / "rwgt_card.dat"
-    try:
-        write_rwgt_card(rwgt_card_path)
-    except Exception as e:
-        print(f"ERROR: Failed to write rwgt_card.dat: {e}", file=sys.stderr)
+    # Check that the pre-generated LHE asset exists, and restore it into the run directory
+    lhe_asset = common.baseline_lhe_path(HOME, process)
+    if not lhe_asset.exists():
+        print(
+            f"ERROR: LHE asset not found at:\n  {lhe_asset}\n"
+            f"Generate it with generate_madtrex_assets.py and commit it before running.",
+            file=sys.stderr,
+        )
         return 1
+    restore_lhe(lhe_asset, process_path)
+
+    # Write reweight_card.dat directly into the process Cards directory (consumed via -from_cards)
+    rwgt_card_path = process_path / "Cards" / "reweight_card.dat"
+    common.write_rwgt_card(rwgt_card_path)
 
     # Write PROCESS.dat to HOME
     dat_path = HOME / f"{process}.dat"
-    try:
-        dat_content = generate_dat_content(process_dir, rwgt_card_path, process)
-        dat_path.write_text(dat_content, encoding="utf-8")
-    except Exception as e:
-        print(f"ERROR: Failed to write {dat_path}: {e}", file=sys.stderr)
-        return 1
+    dat_path.write_text(generate_dat_content(process), encoding="utf-8")
 
-    # Run mg5_aMC with PROCESS.dat as argument, wait for completion
+    # Run bin/madevent with PROCESS.dat as argument, wait for completion
+    madevent_bin = process_path / "bin" / "madevent"
     LOGS = HOME / "logs"
     LOGS.mkdir(exist_ok=True)
     stdout_log = LOGS / f"mg5_{process}.stdout.log"
     stderr_log = LOGS / f"mg5_{process}.stderr.log"
-    print(f"Launching: {MADGRAPH_CLI} {dat_path}")
+    print(f"Launching: {madevent_bin} {dat_path}")
     try:
         with stdout_log.open("wb") as out, stderr_log.open("wb") as err:
             result = subprocess.run(
-                [str(MADGRAPH_CLI), str(dat_path)],
-                cwd=str(HOME),
+                [str(madevent_bin), str(dat_path)],
+                cwd=str(process_path),
                 stdout=out,
                 stderr=err,
                 check=False,
             )
         if result.returncode != 0:
             print(
-                f"ERROR: mg5_aMC exited with code {result.returncode}. "
+                f"ERROR: bin/madevent exited with code {result.returncode}. "
                 f"See logs:\n  stdout: {stdout_log}\n  stderr: {stderr_log}",
                 file=sys.stderr,
             )
-            dump_logs(stdout_log, stderr_log)
+            common.dump_logs(stdout_log, stderr_log)
             return result.returncode
         else:
-            print(f"mg5_aMC finished. Logs:\n  stdout: {stdout_log}\n  stderr: {stderr_log}")
+            print(f"bin/madevent finished. Logs:\n  stdout: {stdout_log}\n  stderr: {stderr_log}")
     except FileNotFoundError:
-        print(f"ERROR: Failed to launch {MADGRAPH_CLI}", file=sys.stderr)
+        print(f"ERROR: Failed to launch {madevent_bin}", file=sys.stderr)
         return 1
     except Exception as e:
-        print(f"ERROR: mg5_aMC run failed: {e}", file=sys.stderr)
+        print(f"ERROR: bin/madevent run failed: {e}", file=sys.stderr)
         return 1
 
     # Remove process.dat
     dat_path.unlink(missing_ok=True)
 
-    # Move rwgt_results.csv → HOME/baseline/PROCESS_rwgt.csv
+    # Get rwgt_results.csv results file
     madtrex_csv = process_path / "rw_me" / "SubProcesses" / "rwgt_results.csv"
     if not madtrex_csv.exists():
         print(
@@ -147,19 +117,10 @@ def main() -> int:
             f"Ensure the run produced rwgt_results.csv.",
             file=sys.stderr,
         )
-        dump_logs(stdout_log, stderr_log)
+        common.dump_logs(stdout_log, stderr_log)
         return 1
 
-    all_ok = True
-    for i, ((v_base, _), (v_mad, _)) in enumerate(zip(load_csv(baseline_csv), load_csv(madtrex_csv)), start=1):
-        diff = abs(v_base - v_mad)
-        tol = 0.05 * v_mad
-
-        if diff >= tol:
-            print(f"Error: Row {i}: |{v_base} - {v_mad}| = {diff} >= {tol}")
-            all_ok = False
-
-    if not all_ok:
+    if not common.compare_csv(baseline_csv, madtrex_csv):
         print(f"Some checks failed for process {process}.", file=sys.stderr)
         sys.exit(1)
     print(f"All checks passed for process {process}.")
