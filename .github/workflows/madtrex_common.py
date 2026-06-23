@@ -39,6 +39,23 @@ def model_import_lines(process: str) -> str:
 def is_executable(path: Path) -> bool:
     return path.is_file() and os.access(path, os.X_OK)
 
+def mg5amcnlo_dir(home: Path) -> Path:
+    """Location of the MG5aMC/mg5amcnlo checkout relative to HOME (epochX/cudacpp)."""
+    return home / ".." / ".." / "MG5aMC" / "mg5amcnlo"
+
+def check_cudacpp_plugin_present(home: Path) -> str:
+    """Check that PLUGIN/CUDACPP_OUTPUT exists (directory or symlink to one) inside
+    the mg5amcnlo checkout: it is required for MadtRex reweighting to work.
+    Returns an error message if missing, or an empty string if the check passes."""
+    plugin_dir = mg5amcnlo_dir(home) / "PLUGIN" / "CUDACPP_OUTPUT"
+    if not plugin_dir.is_dir():
+        return (
+            f"ERROR: CUDACPP_OUTPUT plugin not found at:\n  {plugin_dir}\n"
+            f"It is required for MadtRex reweighting. Create it, e.g. with:\n"
+            f"  cd {plugin_dir.parent} && ln -s ../../MG5aMC_PLUGIN/CUDACPP_OUTPUT ./"
+        )
+    return ""
+
 def write_rwgt_card(path: Path) -> None:
     if path.exists():
         return

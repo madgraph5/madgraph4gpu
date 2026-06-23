@@ -54,6 +54,12 @@ def main() -> int:
     dat_path = HOME / f"{process}.dat"
     dat_path.write_text(generate_dat_content(process_dir, rwgt_card_path, process), encoding="utf-8")
 
+    # Check that the CUDACPP_OUTPUT plugin is present: required for MadtRex reweighting
+    error = common.check_cudacpp_plugin_present(HOME)
+    if error:
+        print(error, file=sys.stderr)
+        return 1
+
     LOGS = HOME / "logs"
     LOGS.mkdir(exist_ok=True)
     stdout_log = LOGS / f"mg5_{process}.stdout.log"

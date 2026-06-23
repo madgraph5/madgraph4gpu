@@ -73,6 +73,12 @@ def main() -> int:
     dat_path = HOME / f"{process}.dat"
     dat_path.write_text(generate_dat_content(process), encoding="utf-8")
 
+    # Check that the CUDACPP_OUTPUT plugin is present: required for MadtRex reweighting
+    error = common.check_cudacpp_plugin_present(HOME)
+    if error:
+        print(error, file=sys.stderr)
+        return 1
+
     # Run bin/madevent with PROCESS.dat as argument, wait for completion
     madevent_bin = process_path / "bin" / "madevent"
     LOGS = HOME / "logs"
