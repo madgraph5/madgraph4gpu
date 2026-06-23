@@ -3,6 +3,7 @@
 dev-only asset regeneration script (generate_madtrex_assets.py)."""
 import csv
 import os
+import re
 from pathlib import Path
 
 ALLOWED_PROCESSES = [ "ee_mumu", "gg_tt", "gg_tt01g", "gg_ttg", "gg_ttgg", "gg_ttggg", "gq_ttq", "heft_gg_bb", "nobm_pp_ttW", "pp_tt012j", "smeft_gg_tttt", "susy_gg_t1t1", "susy_gg_tt" ]
@@ -55,6 +56,14 @@ def check_cudacpp_plugin_present(home: Path) -> str:
             f"  cd {plugin_dir.parent} && ln -s ../../MG5aMC_PLUGIN/CUDACPP_OUTPUT ./"
         )
     return ""
+
+def set_mg5_path(me5_configuration_path: Path, mg5_path: Path) -> None:
+    """Set (uncomment/overwrite) the mg5_path entry in me5_configuration.txt so that
+    bin/madevent can find the mg5amcnlo checkout needed for MadtRex reweighting,
+    without going through bin/mg5_aMC's 'launch' command."""
+    text = me5_configuration_path.read_text(encoding="utf-8")
+    text = re.sub(r"^#?\s*mg5_path\s*=.*$", f"mg5_path = {mg5_path}", text, flags=re.MULTILINE)
+    me5_configuration_path.write_text(text, encoding="utf-8")
 
 def write_rwgt_card(path: Path) -> None:
     if path.exists():

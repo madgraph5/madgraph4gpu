@@ -79,6 +79,13 @@ def main() -> int:
         print(error, file=sys.stderr)
         return 1
 
+    # Point me5_configuration.txt at this repo's mg5amcnlo checkout: required for
+    # MadtRex reweighting, which uses it directly instead of going through bin/mg5_aMC
+    common.set_mg5_path(
+        process_path / "Cards" / "me5_configuration.txt",
+        common.mg5amcnlo_dir(HOME).resolve(),
+    )
+
     # Run bin/madevent with PROCESS.dat as argument, wait for completion
     madevent_bin = process_path / "bin" / "madevent"
     LOGS = HOME / "logs"

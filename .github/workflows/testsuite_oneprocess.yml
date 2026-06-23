@@ -355,6 +355,13 @@ jobs:
           exit 1
         fi
 
+    - name: init_mg5_configuration
+      # Run mg5_aMC once (and immediately exit) so it generates input/mg5_configuration.txt:
+      # required for reweighting, which uses the mg5amcnlo checkout directly without
+      # going through bin/mg5_aMC's 'launch' command.
+      run: |
+          echo "exit" | MG5aMC/mg5amcnlo/bin/mg5_aMC
+
     - name: madtrex_test
       run: |
           cd epochX/cudacpp
