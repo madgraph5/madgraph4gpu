@@ -8,8 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import madtrex_common as common
 
 def generate_dat_content(process: str) -> str:
-    dat = common.model_import_lines(process)
-    dat += f"reweight {common.RUN_NAME} -from_cards --plugin=madtrex\n"
+    dat = f"reweight {common.RUN_NAME} -from_cards --plugin=madtrex\n"
     return dat
 
 def restore_lhe(lhe_asset: Path, process_path: Path) -> Path:

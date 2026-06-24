@@ -8,13 +8,6 @@ from pathlib import Path
 
 ALLOWED_PROCESSES = [ "ee_mumu", "gg_tt", "gg_tt01g", "gg_ttg", "gg_ttgg", "gg_ttggg", "gq_ttq", "heft_gg_bb", "nobm_pp_ttW", "pp_tt012j", "smeft_gg_tttt", "susy_gg_t1t1", "susy_gg_tt" ]
 
-PROCESSES_NON_TRIVIAL_MODELS = {
-    "heft_gg_bb": "heft",
-    "smeft_gg_tttt": "SMEFTsim_topU3l_MwScheme_UFO-massless",
-    "susy_gg_t1t1": "MSSM_SLHA2",
-    "susy_gg_tt": "MSSM_SLHA2",
-}
-
 # Run name used for the (real or restored) event sample: must match MadGraph's
 # default first-run naming, since the asset is restored without a results database.
 RUN_NAME = "run_01"
@@ -28,14 +21,6 @@ def baseline_csv_path(home: Path, process: str) -> Path:
 
 def baseline_lhe_path(home: Path, process: str) -> Path:
     return home / BASELINE_DIR / f"{process}_events.lhe.gz"
-
-def model_import_lines(process: str) -> str:
-    """Lines needed to pre-convert/import a non-trivial model before reweighting,
-    so that if it is still Python 2, it is converted before the procedure takes place."""
-    if process not in PROCESSES_NON_TRIVIAL_MODELS:
-        return ""
-    model = PROCESSES_NON_TRIVIAL_MODELS[process]
-    return f"set auto_convert_model True\nimport model {model}\n"
 
 def is_executable(path: Path) -> bool:
     return path.is_file() and os.access(path, os.X_OK)
