@@ -364,7 +364,7 @@ jobs:
       run: |
           model=$(awk '/import model/ { print $3 }' epochX/cudacpp/${{ inputs.process }}/mg5.in)
           rm -rf "MG5aMC/mg5amcnlo/models/$model/__pycache__" 2>/dev/null
-          echo "import model $model; exit" | MG5aMC/mg5amcnlo/bin/mg5_aMC
+          echo "set auto_convert_model T; import model $model; exit" | MG5aMC/mg5amcnlo/bin/mg5_aMC
 
     - name: madtrex_test
       run: |
