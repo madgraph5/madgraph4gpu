@@ -359,17 +359,12 @@ jobs:
       # Run mg5_aMC once (and immediately exit) so it generates input/mg5_configuration.txt:
       # required for reweighting, which uses the mg5amcnlo checkout directly without
       # going through bin/mg5_aMC's 'launch' command.
-      # additionally, re-import any needed model with auto_convert True to make
-      # sure the model is correctly used during reweighting
+      # additionally, re-import any needed model after having cleared the cache
+      # so that the model is re-built correctly to be used during reweighting
       run: |
           model=$(awk '/import model/ { print $3 }' epochX/cudacpp/${{ inputs.process }}/mg5.in)
-          mg5_command=""
-          if [[ -n "$model" ]]; then
-            rm -rf "MG5aMC/mg5amcnlo/models/$model"
-            mg5_command="set auto_convert_model T; import model $model;"
-          fi
-          mg5_command="$mg5_command exit"
-          echo "$mg5_command" | MG5aMC/mg5amcnlo/bin/mg5_aMC
+          rm -rf "MG5aMC/mg5amcnlo/models/$model/__pycache__" 2>/dev/null
+          echo "import model $model; exit" | MG5aMC/mg5amcnlo/bin/mg5_aMC
 
     - name: madtrex_test
       run: |
