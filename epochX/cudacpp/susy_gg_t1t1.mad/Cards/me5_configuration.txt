@@ -255,7 +255,7 @@
 # pineappl = pineappl
 
 
-#mg5_path = /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/mg5amcnlo 
+#mg5_path = /home/dmass/Development/madgraph4gpu/master/MG5aMC/mg5amcnlo 
 
 # MG5 MAIN DIRECTORY
-#mg5_path = /home/dmass/Development/madgraph4gpu/copilot-igraph/MG5aMC/mg5amcnlo
+#mg5_path = /home/dmass/Development/madgraph4gpu/master/MG5aMC/mg5amcnlo
