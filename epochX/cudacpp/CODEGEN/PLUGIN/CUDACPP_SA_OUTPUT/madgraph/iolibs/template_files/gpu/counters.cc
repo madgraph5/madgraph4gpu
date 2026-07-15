@@ -47,6 +47,36 @@ extern "C"
     return;
   }
 
+  // DM - print (once) the CUDACPP version banner read from CUDACPP_VERSION.txt
+  // This file is written at code-generation time at the root of the process directory.
+  // madevent runs from SubProcesses/P*/[G*], so search a few relative paths upward.
+  void cudacpp_version_banner_()
+  {
+    static bool printed = false;
+    if( printed ) return;
+    printed = true;
+    const char* candidates[] = { "CUDACPP_VERSION.txt",
+                                 "../CUDACPP_VERSION.txt",
+                                 "../../CUDACPP_VERSION.txt",
+                                 "../../../CUDACPP_VERSION.txt",
+                                 "../../../../CUDACPP_VERSION.txt" };
+    FILE* fp = nullptr;
+    for( unsigned int i = 0; i < sizeof( candidates ) / sizeof( candidates[0] ); i++ )
+    {
+      fp = fopen( candidates[i], "r" );
+      if( fp ) break;
+    }
+    if( !fp ) return; // silently skip if the file cannot be found
+    const char* rule = "--------------------------------------------------------------------------------";
+    printf( "%s\n", rule );
+    char line[512];
+    while( fgets( line, sizeof( line ), fp ) ) printf( "%s", line );
+    printf( "%s\n", rule );
+    fflush( stdout );
+    fclose( fp );
+    return;
+  }
+
   void counters_smatrix1multi_start_( const int* iimplF, const int* pnevt )
   {
     const unsigned int iimplC = iimplF2C( *iimplF );
