@@ -1,0 +1,59 @@
+# Copyright (C) 2020-2025 CERN and UCLouvain.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: D. Massaro (2026) for the MG5aMC CUDACPP plugin.
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+name: Version (master)
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+# On every push to master, (re)generate the non-release CUDACPP_SA_OUTPUT/VERSION.txt
+# describing the last commit, and commit it back. The auto commit uses '[skip ci]' so
+# that it does not re-trigger this workflow (which would otherwise loop forever): as a
+# result VERSION.txt always tracks the latest genuine commit on master.
+on:
+  push:
+    branches:
+      - master
+
+#----------------------------------------------------------------------------------------------------------------------------------
+
+jobs:
+
+  version:
+
+    runs-on: ubuntu-latest
+
+    # TEMPORARY! this mirrors the repository guard used in archiver.yml
+    if: |
+      ( github.repository == 'madgraph5/madgraph4gpu' )
+      || ( github.repository == 'valassi/madgraph4gpu' )
+
+    steps:
+
+    - name: checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+
+    - name: create_versiontxt
+      run: |
+        echo "Current directory is $(pwd)"
+        .github/workflows/version_master.sh
+
+    - name: commit_versiontxt
+      run: |
+        versiontxt=epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT/VERSION.txt
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        if [ -z "$(git status --porcelain ${versiontxt})" ]; then
+          echo "No changes detected in ${versiontxt}: nothing to commit"
+        else
+          echo "Commit and push ${versiontxt}"
+          # '[skip ci]' prevents this push from re-triggering the workflow (avoid infinite loop)
+          git commit -m "Update VERSION.txt [skip ci]" ${versiontxt}
+          git push
+        fi
+
+#----------------------------------------------------------------------------------------------------------------------------------
