@@ -11,7 +11,6 @@ c       ======================================================
       ENDIF
 
       IF( FBRIDGE_MODE .EQ. 1 .OR. FBRIDGE_MODE .LT. 0 ) THEN  ! (CppOnly=1 or BothQuiet=-1 or BothDebug=-2)
-        CALL CUDACPP_VERSION_BANNER()  ! DM - log the cudacpp version banner (printed only once)
         IF( LIMHEL.NE.0 ) THEN
           WRITE(6,*) 'ERROR! The cudacpp bridge only supports LIMHEL=0'
           STOP

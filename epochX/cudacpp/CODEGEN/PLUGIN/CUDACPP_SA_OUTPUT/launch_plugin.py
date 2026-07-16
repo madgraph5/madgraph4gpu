@@ -62,6 +62,17 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
         else:
             return misc.compile(nb_core=self.options['nb_core'], *args, **opts)
 
+    def do_generate_events(self, *args, **kwargs):
+        cudacpp_version = os.path.join(self.me_dir, "CUDACPP_VERSION.txt")
+        if os.path.exists(cudacpp_version):
+            with open(cudacpp_version, "r") as f:
+                lines = f.readlines()
+            logger.info("=================================================")
+            for line in lines:
+                logger.info(line.strip())
+            logger.info("=================================================")
+        return super().do_generate_events(*args, **kwargs)
+
 # Phase-Space Optimization ------------------------------------------------------------------------------------
 template_on = \
 """#***********************************************************************
