@@ -17,12 +17,14 @@ except ImportError:
     import internal.extended_cmd as extended_cmd
     import internal.banner as banner_mod
     import internal.common_run_interface as common_run_interface
+    import internal.files as files
 else:
     import madgraph.interface.madevent_interface as madevent_interface
     import madgraph.various.misc as misc
     import madgraph.interface.extended_cmd as extended_cmd
     import madgraph.various.banner as banner_mod
     import madgraph.interface.common_run_interface as common_run_interface
+    import madgraph.iolibs.files as files
 
 class CPPMEInterface(madevent_interface.MadEventCmdShell):
     def compile(self, *args, **opts):
@@ -72,6 +74,59 @@ class CPPMEInterface(madevent_interface.MadEventCmdShell):
                 logger.info(line.strip())
             logger.info("=================================================")
         return super().do_generate_events(*args, **kwargs)
+
+    def do_create_gridpack(self, *args, **kwargs):
+        """Overload to embed the CUDACPP_VERSION.txt banner into the gridpack.
+        The banner is not printed here (this runs at gridpack *creation* time); instead
+        it is packaged inside the tarball and printed at *run* time by run.sh, since a
+        gridpack run uses GridPackCmd and never goes through this plugin interface."""
+        self.embed_cudacpp_version_in_gridpack()
+        return super().do_create_gridpack(*args, **kwargs)
+
+    # DM - make the CUDACPP_VERSION.txt banner available (and printed) inside gridpacks
+    def embed_cudacpp_version_in_gridpack(self):
+        """Prepare the process directory so that make_gridpack packages the CUDACPP banner
+        and run.sh prints it at runtime. Only files copied into the tarball are touched:
+          - copy CUDACPP_VERSION.txt into bin/internal/ (bin/ is packaged into madevent/)
+          - patch bin/internal/Gridpack/run.sh (the template packaged as ./run.sh) to cat it
+        This must run *before* super().do_create_gridpack(), which invokes make_gridpack."""
+        version_src = pjoin(self.me_dir, 'CUDACPP_VERSION.txt')
+        if not os.path.exists(version_src):
+            logger.warning('CUDACPP_VERSION.txt not found in %s: the gridpack will not print '
+                           'the CUDACPP version banner' % self.me_dir)
+            return
+        # 1) copy the banner into a directory that make_gridpack moves into madevent/
+        #    (make_gridpack packages 'bin' but not the process-root CUDACPP_VERSION.txt)
+        files.cp(version_src, pjoin(self.me_dir, 'bin', 'internal', 'CUDACPP_VERSION.txt'))
+        # 2) patch the gridpack run.sh so it prints the banner at runtime (idempotent)
+        runsh = pjoin(self.me_dir, 'bin', 'internal', 'Gridpack', 'run.sh')
+        if not os.path.exists(runsh):
+            logger.warning('%s not found: the gridpack will not print the CUDACPP version banner'
+                           % runsh)
+            return
+        marker = '# CUDACPP version banner'
+        with open(runsh) as fsock:
+            content = fsock.read()
+        if marker in content:
+            return # already patched (e.g. create_gridpack called more than once)
+        # DIR (=./madevent when the gridpack is unpacked) is defined just above this anchor
+        anchor = '# For Linux'
+        banner_block = (
+            '%s (printed by the MG5aMC CUDACPP plugin)\n'
+            'if [ -f "${DIR}/bin/internal/CUDACPP_VERSION.txt" ]; then\n'
+            '    echo "================================================="\n'
+            '    cat "${DIR}/bin/internal/CUDACPP_VERSION.txt"\n'
+            '    echo "================================================="\n'
+            'fi\n\n' % marker
+        )
+        if anchor not in content:
+            logger.warning('Could not find the expected anchor in %s: the gridpack will not '
+                           'print the CUDACPP version banner' % runsh)
+            return
+        content = content.replace(anchor, banner_block + anchor, 1)
+        with open(runsh, 'w') as fsock:
+            fsock.write(content)
+        logger.info('Patched %s to print the CUDACPP version banner at gridpack runtime' % runsh)
 
 # Phase-Space Optimization ------------------------------------------------------------------------------------
 template_on = \
