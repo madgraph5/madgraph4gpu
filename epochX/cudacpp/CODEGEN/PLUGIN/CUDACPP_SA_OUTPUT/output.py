@@ -321,13 +321,13 @@ done"""
                     mg5_current = line.split('=', 1)[1].strip()
                     break
         # Assemble and write the 4-line banner
-        cudacpp_line = '[%s]' % sha_or_tag
+        cudacpp_line = '%s' % sha_or_tag
         if commit_message:
-            cudacpp_line += ' %s' % commit_message
+            cudacpp_line += ' "%s"' % commit_message
         banner = [ 'You are using MadGraph5_aMC@NLO + CUDACPP plugin:',
                    'CUDACPP version = %s' % cudacpp_line,
                    'Minimal MadGraph5 version supported = %s' % mg5_minimal,
-                   'Current MadGraph version: %s' % mg5_current ]
+                   'Current MadGraph5 version           = %s' % mg5_current ]
         outpath = pjoin(self.dir_path, 'CUDACPP_VERSION.txt')
         open(outpath, 'w').write('\n'.join(banner) + '\n')
         logger.info('Created CUDACPP_VERSION.txt in %s' % self.dir_path)
