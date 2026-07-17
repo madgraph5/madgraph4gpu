@@ -55,6 +55,7 @@ echo "VERSION.txt file available on ${topdir}/$(basename ${outfile})"
 cd ${topdir}/epochX/cudacpp/CODEGEN/PLUGIN/CUDACPP_SA_OUTPUT
 for file in $(git ls-tree --name-only HEAD -r); do
   if [ "${file/acceptance_tests}" != "${file}" ]; then continue; fi # acceptance_tests are not needed for code generation
+  if [ "${file}" == "VERSION.txt" ]; then continue; fi # skip the committed (non-release) VERSION.txt: the release-ready one generated above must win
   mkdir -p ${outdir}/$(dirname ${file})
   cp -dp ${file} ${outdir}/${file} # preserve symlinks for AUTHORS, COPYING, COPYING.LESSER and COPYRIGHT
 done

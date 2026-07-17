@@ -279,8 +279,58 @@ done"""
 
             # Additional patching (OM)
             self.add_madevent_plugin_fct() # Added by OM
+            # DM - write the CUDACPP_VERSION.txt banner file at the root of the process directory
+            self.write_cudacpp_version_file()
         # do not call standard finalize since is this is already done...
         #return super().finalize(matrix_element, cmdhistory, MG5options, outputflag)
+
+    # DM - build the CUDACPP_VERSION.txt file logged at runtime by the cudacpp bridge (see counters.cc/smatrix_multi.f)
+    def write_cudacpp_version_file(self):
+        """Write <dir_path>/CUDACPP_VERSION.txt, the 4-line version banner printed at runtime.
+        Information is gathered from two files:
+          - PLUGIN/CUDACPP_OUTPUT/VERSION.txt : cudacpp version/tag/commit and the minimal MG5 version supported
+          - <MG5DIR>/VERSION                  : the current MG5aMC version
+        The plugin VERSION.txt can be in two forms (release / non-release), see the plugin CLAUDE.md."""
+        sha_or_tag = 'unknown'
+        commit_message = ''
+        mg5_minimal = 'unknown'
+        mg5_current = 'unknown'
+        # Parse the plugin VERSION.txt (created by the archiver / master-push workflow)
+        version_txt = pjoin(PLUGINDIR, 'VERSION.txt')
+        if os.path.exists(version_txt):
+            keyval = {}   # lines of the form 'key = value'
+            commit_sha = None
+            for line in open(version_txt):
+                if '=' in line:
+                    key, val = line.split('=', 1)
+                    keyval[key.strip()] = val.strip()
+                elif line.startswith('commit '):     # 'commit         <sha>'
+                    commit_sha = line.split(None, 1)[1].strip() if len(line.split(None, 1)) > 1 else None
+                elif line.startswith('Message:'):     # 'Message:       "<msg>"'
+                    commit_message = line.split(':', 1)[1].strip().strip('"')
+            # <sha_or_tag>: the tagged cudacpp_version if this is a release, else the commit sha
+            sha_or_tag = keyval.get('cudacpp_version') or commit_sha or 'unknown'
+            mg5_minimal = keyval.get('mg5_version_minimal', 'unknown')
+        else:
+            logger.warning('CUDACPP VERSION.txt not found in %s: CUDACPP_VERSION.txt will be incomplete' % PLUGINDIR)
+        # Parse the current MG5aMC version
+        mg5_version_file = pjoin(MG5DIR, 'VERSION')
+        if os.path.exists(mg5_version_file):
+            for line in open(mg5_version_file):
+                if line.strip().startswith('version'):
+                    mg5_current = line.split('=', 1)[1].strip()
+                    break
+        # Assemble and write the 4-line banner
+        cudacpp_line = '%s' % sha_or_tag
+        if commit_message:
+            cudacpp_line += ' "%s"' % commit_message
+        banner = [ 'You are using MadGraph5_aMC@NLO + CUDACPP plugin:',
+                   'CUDACPP version = %s' % cudacpp_line,
+                   'Minimal MadGraph5 version supported = %s' % mg5_minimal,
+                   'Current MadGraph5 version           = %s' % mg5_current ]
+        outpath = pjoin(self.dir_path, 'CUDACPP_VERSION.txt')
+        open(outpath, 'w').write('\n'.join(banner) + '\n')
+        logger.info('Created CUDACPP_VERSION.txt in %s' % self.dir_path)
 
     # AV (default from OM's tutorial) - overload settings and add a debug printout
     def modify_grouping(self, matrix_element):
