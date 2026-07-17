@@ -28,7 +28,6 @@ jobs:
     # TEMPORARY! this mirrors the repository guard used in archiver.yml
     if: |
       ( github.repository == 'madgraph5/madgraph4gpu' )
-      || ( github.repository == 'valassi/madgraph4gpu' )
 
     steps:
 
