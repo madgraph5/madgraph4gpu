@@ -271,10 +271,10 @@
       const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
                                  ( sqp0p3 == 0. ? cxmake( -(fptype)nhel * fpsqrt( 2. * pvec0 ), 0. ) : cxmake( (fptype)nh * pvec1, pvec2 ) / sqp0p3 ) };
 #endif
-      fi[2] = im * chi[1];
-      fi[3] = im * chi[0];
-      fi[4] = ip * chi[0];
-      fi[5] = ip * chi[1];
+      fi[2] = (fptype)im * chi[1];
+      fi[3] = (fptype)im * chi[0];
+      fi[4] = (fptype)ip * chi[0];
+      fi[5] = (fptype)ip * chi[1];
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -303,8 +303,8 @@
     const int im = ( 1 - nh ) / 2;
     const cxtype_sv sqp0p3 = cxmake( fpsqrt( 2. * pvec3 ) * (fptype)nsf, 0. );
     fi[2] = fi[1];
-    fi[3] = ip * fi[1];
-    fi[4] = im * fi[1];
+    fi[3] = (fptype)ip * fi[1] + (fptype)im * sqp0p3;
+    fi[4] = (fptype)im * fi[1] + (fptype)ip * sqp0p3;
     fi[5] = fi[1];
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -334,8 +334,8 @@
     const cxtype_sv chi = cxmake( -(fptype)nhel * fpsqrt( -2. * pvec3 ), 0. );
     fi[3] = cxzero_sv();
     fi[4] = cxzero_sv();
-    fi[2] = im * chi;
-    fi[5] = ip * chi;
+    fi[2] = (fptype)im * chi;
+    fi[5] = (fptype)ip * chi;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -370,10 +370,10 @@
     const fptype_sv sqp0p3 = fpsqrt( pvec0 + pvec3 ) * (fptype)nsf;
     const cxtype_sv chi0 = cxmake( sqp0p3, 0. );
     const cxtype_sv chi1 = cxmake( (fptype)nh * pvec1 / sqp0p3, pvec2 / sqp0p3 );
-    fi[2] = im * chi1;
-    fi[3] = im * chi0;
-    fi[4] = ip * chi0;
-    fi[5] = ip * chi1;
+    fi[2] = (fptype)im * chi1;
+    fi[3] = (fptype)im * chi0;
+    fi[4] = (fptype)ip * chi0;
+    fi[5] = (fptype)ip * chi1;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -579,8 +579,8 @@
         fptype sqm[2] = { fpsqrt( std::abs( fmass ) ), 0. }; // possibility of negative fermion masses
         //sqm[1] = ( fmass < 0. ? -abs( sqm[0] ) : abs( sqm[0] ) ); // AV: why abs here?
         sqm[1] = ( fmass < 0. ? -sqm[0] : sqm[0] ); // AV: removed an abs here
-        const int ipp = -( ( 1 - nh ) / 2 ) * nhel;  // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
-        const int imp = ( 1 + nh ) / 2 * nhel;       // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
+        const int ipp = -im * nhel;                 // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
+        const int imp = ip * nhel;                  // NB: Fortran sqm(0:1) also has indexes 0,1 as in C++
         fo[2] = cxmake( imp * sqm[std::abs( ipp )], 0 );
         fo[3] = cxmake( ipp * nsf * sqm[std::abs( ipp )], 0 );
         fo[4] = cxmake( imp * nsf * sqm[std::abs( imp )], 0 );
@@ -662,10 +662,10 @@
       const cxtype_sv chi[2] = { cxmake( sqp0p3, 0. ),
                                  ( sqp0p3 == 0. ? cxmake( -nhel, 0. ) * fpsqrt( 2. * pvec0 ) : cxmake( (fptype)nh * pvec1, -pvec2 ) / sqp0p3 ) };
 #endif
-      fo[2] = ip * chi[0];
-      fo[3] = ip * chi[1];
-      fo[4] = im * chi[1];
-      fo[5] = im * chi[0];
+      fo[2] = (fptype)ip * chi[0];
+      fo[3] = (fptype)ip * chi[1];
+      fo[4] = (fptype)im * chi[1];
+      fo[5] = (fptype)im * chi[0];
     }
     mgDebug( 1, __FUNCTION__ );
     return;
@@ -695,8 +695,8 @@
     const cxtype_sv csqp0p3 = cxmake( fpsqrt( 2. * pvec3 ) * (fptype)nsf, 0. );
     fo[3] = cxzero_sv();
     fo[4] = cxzero_sv();
-    fo[2] = ip * csqp0p3;
-    fo[5] = im * csqp0p3;
+    fo[2] = (fptype)ip * csqp0p3;
+    fo[5] = (fptype)im * csqp0p3;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -724,10 +724,9 @@
     const int im = ( 1 - nh ) / 2;
     const cxtype_sv chi1 = cxmake( -nhel, 0. ) * fpsqrt( -2. * pvec3 );
     fo[2] = cxzero_sv();
-    fo[3] = ip * chi1;
-    fo[4] = im * chi1;
-    //fo[5] = chi1; // AV: BUG!
-    fo[5] = cxzero_sv(); // AV: BUG FIX
+    fo[3] = (fptype)ip * chi1;
+    fo[4] = (fptype)im * chi1;
+    fo[5] = cxzero_sv();
     mgDebug( 1, __FUNCTION__ );
     return;
   }
@@ -760,10 +759,10 @@
     const fptype_sv sqp0p3 = fpsqrt( pvec0 + pvec3 ) * (fptype)nsf;
     const cxtype_sv chi0 = cxmake( sqp0p3, 0. );
     const cxtype_sv chi1 = cxmake( (fptype)nh * pvec1 / sqp0p3, -pvec2 / sqp0p3 );
-    fo[2] = ip * chi0;
-    fo[3] = ip * chi1;
-    fo[4] = im * chi1;
-    fo[5] = im * chi0;
+    fo[2] = (fptype)ip * chi0;
+    fo[3] = (fptype)ip * chi1;
+    fo[4] = (fptype)im * chi1;
+    fo[5] = (fptype)im * chi0;
     mgDebug( 1, __FUNCTION__ );
     return;
   }
