@@ -25,7 +25,6 @@ test/googletest
 
 #=== Release assets ===
 cudacpp.tar.gz
-VERSION.txt
 
 #=== Other ===
 *.local.log

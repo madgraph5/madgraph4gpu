@@ -1,0 +1,8 @@
+mg5_version_minimal          = 3.7.1
+
+commit         79b88bf
+Author:        Daniele Massaro
+AuthorDate:    2026-07-17_13:39:39 UTC
+Committer:     GitHub
+CommitterDate: 2026-07-17_13:39:39 UTC
+Message:       "Merge pull request #1094 from Qubitol/log-sha"
