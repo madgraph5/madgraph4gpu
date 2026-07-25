@@ -194,7 +194,9 @@ namespace mg5amcCpu
     HostBufferSelectedHelicity m_hstSelHel;
     HostBufferSelectedColor m_hstSelCol;
     HostBufferChannelIds m_hstChannelIds;
-    std::unique_ptr<MatrixElementKernelHost> m_pmek;
+    // In fat binary builds, hold either MatrixElementKernelHostFat or MatrixElementKernelHost;
+    // use the common base class pointer to support both.
+    std::unique_ptr<MatrixElementKernelBase> m_pmek;
 #endif
   };
 
@@ -281,8 +283,13 @@ namespace mg5amcCpu
     std::cout << "WARNING! Instantiate host Bridge (nevt=" << m_nevt << ")"
               << std::endl;
 #endif
+#ifdef MGONGPU_CPPFAT
+    m_pmek.reset( new MatrixElementKernelHostFat(
+      m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstChannelIds, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
+#else
     m_pmek.reset( new MatrixElementKernelHost(
       m_hstMomentaC, m_hstGs, m_hstRndHel, m_hstRndCol, m_hstChannelIds, m_hstMEs, m_hstSelHel, m_hstSelCol, m_nevt ) );
+#endif // MGONGPU_CPPFAT
 #endif // MGONGPUCPP_GPUIMPL
     // Create a process object, read param card and set parameters
     // FIXME: the process instance can happily go out of scope because it is only
