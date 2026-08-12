@@ -51,6 +51,7 @@ namespace rwgt
         this->rndCol = std::vector<FORTRANFPTYPE>(fauxNEvt, 0.);
         this->selHel = std::vector<int>(fauxNEvt, 0.);
         this->selCol = std::vector<int>(fauxNEvt, 0.);
+        this->iGraph = std::vector<int>(fauxNEvt, 0.);
         this->goodHel = false;
     }
 
@@ -71,6 +72,7 @@ namespace rwgt
         this->rndCol = std::vector<FORTRANFPTYPE>(fauxNEvt, 0.);
         this->selHel = std::vector<int>(fauxNEvt, 0.);
         this->selCol = std::vector<int>(fauxNEvt, 0.);
+        this->iGraph = std::vector<int>(fauxNEvt, 0.);
         this->goodHel = false;
     }
 
@@ -84,6 +86,8 @@ namespace rwgt
         this->rndCol = std::vector<FORTRANFPTYPE>(fauxNEvt, 0.);
         this->selHel = std::vector<int>(fauxNEvt, 0.);
         this->selCol = std::vector<int>(fauxNEvt, 0.);
+        this->iGraph = std::vector<int>(fauxNEvt, 0.);
+        this->goodHel = false;
     }
     void fBridge::bridgeSetup(std::vector<FORTRANFPTYPE> &evVec, unsigned int warpSize)
     {
@@ -95,6 +99,8 @@ namespace rwgt
         this->rndCol = std::vector<FORTRANFPTYPE>(fauxNEvt, 0.);
         this->selHel = std::vector<int>(fauxNEvt, 0.);
         this->selCol = std::vector<int>(fauxNEvt, 0.);
+        this->iGraph = std::vector<int>(fauxNEvt, 0.);
+        this->goodHel = false;
     }
     void fBridge::bridgeSetup(std::shared_ptr<std::vector<FORTRANFPTYPE>> &evVec, unsigned int warpSize)
     {
@@ -113,6 +119,7 @@ namespace rwgt
         this->rndCol = std::vector<FORTRANFPTYPE>(fauxNEvt, 0.);
         this->selHel = std::vector<int>(fauxNEvt, 0.);
         this->selCol = std::vector<int>(fauxNEvt, 0.);
+        this->iGraph = std::vector<int>(fauxNEvt, 0.);
         this->goodHel = false;
     }
 
@@ -142,7 +149,8 @@ namespace rwgt
         auto evalScatAmps = this->bridge(
             fauxNEvt, nPar, nMom,
             momenta, gs, rndHel, rndCol,
-            selHel, selCol, chanId, goodHel);
+            selHel, selCol, iGraph,
+            chanId, goodHel);
         momenta.resize(nEvt * nPar * nMom);
         evalScatAmps->resize(nEvt);
         return evalScatAmps;

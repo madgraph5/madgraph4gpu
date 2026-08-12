@@ -38,6 +38,7 @@ C - IFLAV_VEC: the input array of flavor indices for the flavor combinations
 C - RNDHEL:    the input random number Fortran array for helicity selection
 C - RNDCOL:    the input random number Fortran array for color selection
 C - CHANID:    the input array of channels (Feynman diagrams) to enhance
+C - IGRAPH:    the input per-event MLM graph array (0 = no MLM graph)
 C - MES:       the output matrix element Fortran array
 C - SELHEL:    the output selected helicity Fortran array
 C - SELCOL:    the output selected color Fortran array
@@ -45,7 +46,7 @@ C - HELONLY:   input flag, quit after computing good helicities?
 C
       INTERFACE
          SUBROUTINE FBRIDGESEQUENCE(PBRIDGE, MOMENTA, GS,
-     &     IFLAV_VEC, RNDHEL, RNDCOL, CHANID, MES, SELHEL,
+     &     IFLAV_VEC, RNDHEL, RNDCOL, CHANID, IGRAPH, MES, SELHEL,
      &     SELCOL, HELONLY)
          INTEGER*8 PBRIDGE
          DOUBLE PRECISION MOMENTA(*)
@@ -54,6 +55,7 @@ C
          DOUBLE PRECISION RNDHEL(*)
          DOUBLE PRECISION RNDCOL(*)
          INTEGER*4 CHANID(*)
+         INTEGER*4 IGRAPH(*)
          DOUBLE PRECISION MES(*)
          INTEGER*4 SELHEL(*)
          INTEGER*4 SELCOL(*)
@@ -69,6 +71,7 @@ C - GS:        the input Gs (running QCD coupling constant alphas) Fortran array
 C - IFLAV_VEC: the input array of flavor indices for the flavor combinations
 C - RNDHEL:    the input random number Fortran array for helicity selection
 C - RNDCOL:    the input random number Fortran array for color selection
+C - IGRAPH:    the input per-event MLM graph array (0 = no MLM graph)
 C - MES:       the output matrix element Fortran array
 C - SELHEL:    the output selected helicity Fortran array
 C - SELCOL:    the output selected color Fortran array
@@ -76,13 +79,15 @@ C - HELONLY:   input flag, quit after computing good helicities?
 C
       INTERFACE
          SUBROUTINE FBRIDGESEQUENCE_NOMULTICHANNEL(PBRIDGE, MOMENTA, GS,
-     &     IFLAV_VEC, RNDHEL, RNDCOL, MES, SELHEL, SELCOL, HELONLY)
+     &     IFLAV_VEC, RNDHEL, RNDCOL, MES, IGRAPH, SELHEL, SELCOL,
+     &     HELONLY)
          INTEGER*8 PBRIDGE
          DOUBLE PRECISION MOMENTA(*)
          DOUBLE PRECISION GS(*)
          INTEGER*4 IFLAV_VEC(*)
          DOUBLE PRECISION RNDHEL(*)
          DOUBLE PRECISION RNDCOL(*)
+         INTEGER*4 IGRAPH(*)
          DOUBLE PRECISION MES(*)
          INTEGER*4 SELHEL(*)
          INTEGER*4 SELCOL(*)

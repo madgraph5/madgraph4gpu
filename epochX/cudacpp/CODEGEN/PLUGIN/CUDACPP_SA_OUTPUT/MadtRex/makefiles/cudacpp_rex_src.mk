@@ -175,10 +175,12 @@ define ATOMIC_COPY
 endef
 
 # Rex and teaRex: copy .so from src to LIBDIR atomically
-$(LIBDIR)/librex.so : ../src/librex.so 
+# (NB: $(LIBDIR)/.build.$(TAG) is listed as an extra prerequisite only to ensure that
+# $(LIBDIR) has already been created: otherwise this races against it under parallel make)
+$(LIBDIR)/librex.so : ../src/librex.so $(LIBDIR)/.build.$(TAG)
 	$(ATOMIC_COPY)
 
-$(LIBDIR)/libtearex.so : ../src/libtearex.so
+$(LIBDIR)/libtearex.so : ../src/libtearex.so $(LIBDIR)/.build.$(TAG)
 	$(ATOMIC_COPY)
 
 #-------------------------------------------------------------------------------

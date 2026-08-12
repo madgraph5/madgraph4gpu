@@ -25,12 +25,9 @@ import os
 import sys
 import re
 import math
-import six
-StringIO = six
-from six.moves import range
-if six.PY3:
-    import io
-    file = io.IOBase
+import io
+import io as StringIO
+file = io.IOBase
 import itertools
 import time
 
@@ -332,7 +329,7 @@ class Banner(dict):
         """set the lha_strategy: how the weight have to be handle by the shower"""
         
         if not (-4 <= int(value) <= 4):
-            six.reraise(Exception, "wrong value for lha_strategy", value)
+            raise Exception("wrong value for lha_strategy: %s" % value)
         if not self["init"]:
             raise Exception("No init block define")
         
@@ -1420,7 +1417,7 @@ class ConfigFile(dict):
             if targettype in ['str', 'int', 'float', 'bool']:
                 targettype = eval(targettype)
 
-        if (six.PY2 and not isinstance(value, (str,six.text_type)) or (six.PY3 and  not isinstance(value, str))):
+        if not isinstance(value, str):
             # just have to check that we have the correct format
             if isinstance(value, targettype):
                 pass # assignement at the end
@@ -2884,7 +2881,8 @@ class RunCard(ConfigFile):
     def read(self, finput, consistency=True, unknown_warning=True, **opt):
         """Read the input file, this can be a path to a file, 
            a file object, a str with the content of the file."""
-           
+        
+        self.path = None
         if isinstance(finput, str):
             if "\n" in finput:
                 finput = finput.split('\n')
@@ -2893,9 +2891,11 @@ class RunCard(ConfigFile):
             elif os.path.isfile(finput):
                 self.path = finput
                 finput = open(finput)
+                
             else:
                 raise Exception("No such file %s" % finput)
         
+
         for line in finput:
             line = line.split('#')[0]
             line = line.split('!')[0]
@@ -3249,8 +3249,9 @@ class RunCard(ConfigFile):
 
 
     def get_default(self, name, default=None, log_level=None):
-        """return self[name] if exist otherwise default. log control if we 
-        put a warning or not if we use the default value"""
+        """return self[name] if exist otherwise 
+        check run_card_default.dat otherwise python default. 
+        log control if we put a warning or not if we use the default value"""
 
         lower_name = name.lower()
         if lower_name not in self.user_set:
@@ -3268,11 +3269,41 @@ class RunCard(ConfigFile):
                         log_level = 10
                 else:
                     log_level = 20
+
+            def get_template_default(name):
+                try:
+                    if name.lower() in self.parameter_in_block:
+                            block = self.parameter_in_block[name.lower()]
+                            if block.status(self) != block.status(defaultcard):
+                                return  'python'
+                    if name.lower() in defaultcard.user_set:
+                        return 'defaultcard'
+                    else: 
+                        return 'python'
+                except Exception as err:
+                    return 'python'
+
+            
             if not default:
-                default = dict.__getitem__(self, name.lower())
+                info = ''
+                if hasattr(self, 'path') and self.path:
+                    try:
+                        defaultcard = RunCard(self.path.replace('.dat', '_default.dat'))
+                        previousdefault = defaultcard.__getitem__(name.lower())
+                        #check special case for parameter in block where the default card shows one block
+                        # but the user card shows another block. In that case we do not want to take the default value from the default card.
+                        if get_template_default(name) == 'defaultcard':
+                            info = ' from run_card_default.dat' 
+                            default = previousdefault
+                        else:
+                            default = dict.__getitem__(self, name.lower())
+                    except Exception as err:
+                        default = dict.__getitem__(self, name.lower())
+                else:
+                    default = dict.__getitem__(self, name.lower())
  
-            logger.log(log_level, '%s missed argument %s. Takes default: %s'
-                                   % (self.filename, name, default))
+            logger.log(log_level, '%s missed argument %s. Takes default: %s%s'
+                                   % (self.filename, name, default, info))
             self[name] = default
             return default
         else:
@@ -3735,15 +3766,15 @@ class RunCard(ConfigFile):
             if to_add or previous:
                 # remove previous definition of the commonblock
                 try:
-                    start = out.index('C START USER COMMON BLOCK')
+                    start = out.index('C     START USER COMMON BLOCK')
                 except ValueError:
                     pass
                 else:
-                    stop = out.index('C STOP USER COMMON BLOCK')
+                    stop = out.index('C     STOP USER COMMON BLOCK')
                     out = out[:start]+ out[stop+1:]
                 #add new common-block
                 if self.definition_path[incname]: 
-                    out.append("C START USER COMMON BLOCK")
+                    out.append("C     START USER COMMON BLOCK")
                     if isinstance(pathinc , str):
                         filename = os.path.basename(pathinc).split('.',1)[0]
                     elif hasattr(pathinc , "name"):
@@ -3754,7 +3785,7 @@ class RunCard(ConfigFile):
                         misc.sprint(incname, pathinc )
                     filename = filename.upper()
                     out.append("        COMMON/USER_CUSTOM_%s/%s" %(filename,','.join( self.definition_path[incname])))
-                    out.append('C STOP USER COMMON BLOCK')
+                    out.append('C     STOP USER COMMON BLOCK')
             
             if not output_file:
                 fsock.writelines(out)
@@ -4640,12 +4671,8 @@ class RunCardLO(RunCard):
                         logger.warning("Since 2.7.1 elastic photon from proton is using fixed scale value of muf [dsqrt_q2fact%s] as the cut in the Equivalent Photon Approximation (Budnev, et al) formula. Please edit it accordingly." % i)
 
 
-        if six.PY2 and self['hel_recycling']:
-            self['hel_recycling'] = False
-            logger.warning("""Helicity recycling optimization requires Python3. This optimzation is therefore deactivated automatically. 
-            In general this optimization speeds up the computation by a factor of two.""")
 
-                
+
         # check that ebeam is bigger than the associated mass.
         for i in [1,2]:
             if self['lpp%s' % i ] not in [1,2]:

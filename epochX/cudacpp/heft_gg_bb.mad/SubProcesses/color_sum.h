@@ -28,9 +28,9 @@ namespace mg5amcCpu
     static __device__ inline cxtype_ref
     kernelAccessIcolIhelNhel( fptype* buffer, const int icol, const int ihel, const int nhel )
     {
-      const int ncolor = CPPProcess::ncolor; // the number of leading colors
-      const int nevt = gridDim.x * blockDim.x;
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+      const size_t ncolor = CPPProcess::ncolor; // the number of leading colors
+      const size_t nevt = gridDim.x * blockDim.x;
+      const size_t ievt = blockDim.x * blockIdx.x + threadIdx.x;
       // (ONE HELICITY) Original "old" striding for CUDA kernels: ncolor separate 2*nevt matrices for each color (ievt last)
       //return cxtype_ref( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // "old"
       // (ONE HELICITY) New "new1" striding for cuBLAS: two separate ncolor*nevt matrices for each of real and imag (ievt last)
@@ -43,9 +43,9 @@ namespace mg5amcCpu
     static __device__ inline const cxtype
     kernelAccessIcolIhelNhelConst( const fptype* buffer, const int icol, const int ihel, const int nhel )
     {
-      const int ncolor = CPPProcess::ncolor; // the number of leading colors
-      const int nevt = gridDim.x * blockDim.x;
-      const int ievt = blockDim.x * blockIdx.x + threadIdx.x;
+      const size_t ncolor = CPPProcess::ncolor; // the number of leading colors
+      const size_t nevt = gridDim.x * blockDim.x;
+      const size_t ievt = blockDim.x * blockIdx.x + threadIdx.x;
       // (ONE HELICITY) Original "old" striding for CUDA kernels: ncolor separate 2*nevt matrices for each color (ievt last)
       //return cxtype_ref( buffer[icol * 2 * nevt + ievt], buffer[icol * 2 * nevt + nevt + ievt] ); // "old"
       // (ONE HELICITY) New "new1" striding for cuBLAS: two separate ncolor*nevt matrices for each of real and imag (ievt last)

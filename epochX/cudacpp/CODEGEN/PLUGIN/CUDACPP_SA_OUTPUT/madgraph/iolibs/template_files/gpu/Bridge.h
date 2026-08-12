@@ -126,7 +126,7 @@ namespace mg5amcCpu
    * @param selcol the pointer to the output selected colors
    * @param goodHelOnly quit after computing good helicities?
    */
-    void gpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, const unsigned int* iflavorVec, const FORTRANFPTYPE* rndhel, const FORTRANFPTYPE* rndcol, const unsigned int* channelIds, FORTRANFPTYPE* mes, int* selhel, int* selcol, const bool goodHelOnly = false );
+    void gpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, const unsigned int* iflavorVec, const FORTRANFPTYPE* rndhel, const FORTRANFPTYPE* rndcol, const unsigned int* channelIds, const int* igraph, FORTRANFPTYPE* mes, int* selhel, int* selcol, const bool goodHelOnly = false );
 #else
     /**
    * Sequence to be executed for the vectorized CPU matrix element calculation
@@ -145,7 +145,7 @@ namespace mg5amcCpu
    * @param selcol the pointer to the output selected colors
    * @param goodHelOnly quit after computing good helicities?
    */
-    void cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, const unsigned int* iflavorVec, const FORTRANFPTYPE* rndhel, const FORTRANFPTYPE* rndcol, const unsigned int* channelIds, FORTRANFPTYPE* mes, int* selhel, int* selcol, const bool goodHelOnly = false );
+    void cpu_sequence( const FORTRANFPTYPE* momenta, const FORTRANFPTYPE* gs, const unsigned int* iflavorVec, const FORTRANFPTYPE* rndhel, const FORTRANFPTYPE* rndcol, const unsigned int* channelIds, const int* igraph, FORTRANFPTYPE* mes, int* selhel, int* selcol, const bool goodHelOnly = false );
 #endif
 
     // Return the number of good helicities (-1 initially when they have not yet
@@ -351,6 +351,7 @@ paramCard; #endif
                                             const FORTRANFPTYPE* rndhel,
                                             const FORTRANFPTYPE* rndcol,
                                             const unsigned int* channelIds,
+                                            const int* igraph,
                                             FORTRANFPTYPE* mes,
                                             int* selhel,
                                             int* selcol,
@@ -405,6 +406,7 @@ paramCard; #endif
           "Bridge gpu_sequence: computeGoodHelicities returned nGoodHel<0" );
     }
     if( goodHelOnly ) return;
+    m_pmek->setigraph( igraph );
     m_pmek->computeMatrixElements( useChannelIds );
     copyHostFromDevice( m_hstMEs, m_devMEs );
 #ifdef MGONGPUCPP_VERBOSE
@@ -435,6 +437,7 @@ paramCard; #endif
                                             const FORTRANFPTYPE* rndhel,
                                             const FORTRANFPTYPE* rndcol,
                                             const unsigned int* channelIds,
+                                            const int* igraph,
                                             FORTRANFPTYPE* mes,
                                             int* selhel,
                                             int* selcol,
@@ -468,6 +471,7 @@ paramCard; #endif
           "Bridge cpu_sequence: computeGoodHelicities returned nGoodHel<0" );
     }
     if( goodHelOnly ) return;
+    m_pmek->setigraph( igraph );
     m_pmek->computeMatrixElements( useChannelIds );
 #ifdef MGONGPUCPP_VERBOSE
     flagAbnormalMEs( m_hstMEs.data(), m_nevt );

@@ -5,11 +5,6 @@
 
 import os
 import sys
-from aloha import unitary_gauge
-
-#FD gauge check
-fd_gauge = (unitary_gauge == 3)
-
 import math
 import re
 from aloha import unitary_gauge
@@ -251,12 +246,12 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                      'aloha_ref': self.type2def['aloha_ref'], 
                      'id': self.outgoing}
             if combined:
-                    output = output + ', ' + '\n{indent}{doublec} {aloha_ref} {spin}tmp'.format(
-                        doublec=self.type2def[alohatype],
-                        aloha_ref= self.type2def['aloha_ref'],
-                        spin=self.particles[self.outgoing -1],
-                        indent=indent,
-                    )
+                output = output + ', ' + '\n{indent}{doublec} {aloha_ref} {spin}tmp'.format(
+                    doublec=self.type2def[alohatype],
+                    aloha_ref= self.type2def['aloha_ref'],
+                    spin=self.particles[self.outgoing -1],
+                    indent=indent,
+                )
             ###self.declaration.add(('list_complex', output)) # AV BUG FIX - THIS IS NOT NEEDED AND IS WRONG (adds name 'cxtype_sv V3[]')
             comment_output = 'wavefunction \'%s%d[6]\'' % ( self.particles[self.outgoing -1], self.outgoing ) # AV (wavefuncsize=6)
             template = 'template<class W_ACCESS, class C_ACCESS>'
@@ -333,6 +328,11 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
             out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
         if fd_gauge:
             out.write('    cxtype_sv CZERO=cxzero_sv(); \n')
+                allvname = 'all'+vname
+            out.write('    cxtype_sv* %s = %s::kernelAccess( %s );\n' % ( vname, access, allvname ) )
+        if fd_gauge:
+            out.write('    cxtype_sv CZERO=cxzero_sv(); \n')
+            #out.writh('    int i; \n')
         # define the complex number CI = 0+1j
         if add_i:
             ###out.write(self.ci_definition)
@@ -350,7 +350,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 elif name[0] in ['F','V']:
                     if aloha.loop_mode:
                         size = 8
-                    elif fd_gauge and name[0]=='V':
+                    elif fd_gauge and name[0] == 'V':
                         size = 7
                     else:
                         size = 6
@@ -424,6 +424,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 out.write( '    %s%s.pvec[%s] = %s;\n' % ( type, self.outgoing, i, ''.join(p) % dict_energy ) )
             if self.declaration.is_used( 'P%s' % self.outgoing ):
                 self.get_one_momenta_def( self.outgoing, out )
+
         if self.offshell and fd_gauge:
             type = self.particles[self.outgoing-1]
             if type in ['S','V']:
@@ -676,6 +677,7 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
                 coeff = 'COUP'
             shift = 1 - 1 #to correspond to the shift in fortran indicies with -1 for C++
             if fd_gauge and "S" in self.outname:
+                shift = 5 - 1 #to correspond to the shift in fortran indicies with -1 for C++
             for ind in numerator.listindices():
                 # This affects 'V1[2] = ' and 'F1[2] = ' in HelAmps_sm.cc
                 ###out.write('    %s[%d]= %s*%s;\n' % (self.outname,
@@ -808,6 +810,103 @@ class PLUGIN_ALOHAWriter(aloha_writers.ALOHAWriterForGPU):
         file_str.write(' )')
         ###print('....."'+file_str.getvalue()+'"') # AV - FOR DEBUGGING
         return file_str.getvalue()
+
+
+    # FS overload of upstream function
+    # used mainly for FD gauge
+    def write_combined_cc(self, lor_names, offshell=None, sym=True, mode=''):
+        """Return the content of the .cc file linked to multiple lorentz call."""
+        # Set some usefull command
+        if offshell is None:
+            offshell = self.offshell
+
+        name = combine_name(self.routine.name, lor_names, offshell, self.tag)
+        self.name = name
+        # write head - momenta - body - foot
+        text = StringIO()
+        routine = StringIO()
+        data = {}  # for the formating of the line
+
+
+        # write header
+        new_couplings = ['COUP%s' % (i + 1) for i in range(len(lor_names) + 1)]
+        text.write(self.get_header_txt(name=name, couplings=new_couplings, mode=mode, combined=True))
+        # Define which part of the routine should be called
+        data['addon'] = ''.join(self.tag) + '_%s' % self.offshell
+
+        # how to call the routine
+        argument = [name for format, name in self.define_argument_list(new_couplings)]
+        index = argument.index('COUP1')
+        data['before_coup'] = ','.join('all' + arg for arg in argument[:index])
+        data['after_coup'] = ','.join(argument[index + len(lor_names) + 1:])
+        if data['after_coup']:
+            data['after_coup'] = ',' + data['after_coup']
+
+        # to define accesses
+        if name.endswith('_0'):
+            data['access'] = '<W_ACCESS,A_ACCESS,C_ACCESS>'
+        else:
+            data['access'] = '<W_ACCESS,C_ACCESS>'
+
+        # names of functions to be combined
+        lor_list = (self.routine.name,) + lor_names
+        line = "    %(name)s%(addon)s%(access)s(%(before_coup)s,%(coup)s,%(ccoef)s%(after_coup)s,all%(out)s);\n"
+        main = '%(spin)s%(id)d' % {'spin': self.particles[self.offshell - 1],
+                                   'id': self.outgoing}
+        for i, name in enumerate(lor_list):
+            data['name'] = name
+            data['coup'] = 'allCOUP%d' % (i + 1)
+
+            if i == 0:
+                if not offshell:
+                    data['out'] = 'vertexes'
+                else:
+                    data['out'] = main
+            elif i == 1:
+                if self.offshell:
+                    type = self.particles[self.offshell - 1]
+                    self.declaration.add(('list_complex', '%stmp' % type))
+                else:
+                    type = ''
+                    self.declaration.add(('complex', '%stmp' % type))
+                data['out'] = '%stmp' % type
+            data['ccoef'] = 'Ccoeff%d' % (i + 1)
+            routine.write(line % data)
+            if i:
+                if not offshell:
+                    routine.write('    (*vertex) = (*vertex) + (*tmp);\n')
+                else:
+                    size = self.type_to_size[self.particles[offshell - 1]] - 2
+                    # routine.write(""" i= %s;\nwhile (i < %s)\n{\n""" % (self.momentum_size, self.momentum_size + size))
+                    # routine.write(" %(main)s[i] = %(main)s[i] + %(tmp)s[i];\n i++;\n" % \
+                    # {'main': main, 'tmp': data['out']})
+                    # routine.write('}\n')
+                    routine.write('   //unrolled upstream while\n')
+                    for index in range(self.momentum_size,
+                                       self.momentum_size + size):  # unrolling the upstream loop -1 for cpp
+                        routine.write('    %(main)s[%(index)d] = %(main)s[%(index)d] + %(tmp)s[%(index)d];\n' % \
+                                      {'main': main, 'tmp': data['out'], 'index': index})
+                    self.declaration.add(('int', 'i'))
+        self.declaration.discard(('complex', 'COUP'))
+        self.declaration.discard(('complex', 'denom'))
+        if self.outgoing:
+            self.declaration.discard(('list_double', 'P%s' % self.outgoing))
+            self.declaration.discard(('double', 'OM%s' % self.outgoing))
+
+        tmtmt = aloha.aloha_lib.KERNEL.reduced_expr2
+
+        for name in aloha.aloha_lib.KERNEL.reduced_expr2:
+            self.declaration.discard(('complex', name))
+
+        # clean pointless declaration
+        # self.declaration.discard
+        text.write(self.get_declaration_txt(add_i=False, combined=True))
+        text.write(routine.getvalue())
+        text.write(self.get_foot_txt(combine=True))
+
+        text = text.getvalue()
+        return text
+
 
 #------------------------------------------------------------------------------------
 
@@ -955,7 +1054,7 @@ class PLUGIN_UFOModelConverter(PLUGIN_export_cpp.UFOModelConverterGPU):
         compiler options and namespace options, and return in a list"""
         ###path = pjoin(MG5DIR, 'aloha','template_files')
         path = pjoin(PLUGINDIR, 'aloha', 'template_files')
-        out = []        
+        out = []
         if not fd_gauge:
             helas_temp_file = self.helas_h
         else:
@@ -1527,6 +1626,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ###replace_dict['nwavefunc'] = self.matrix_elements[0].get_number_of_wavefunctions() # how do I get HERE the right value of nwf, e.g. 5 for gg_tt?
         nexternal, nincoming = self.matrix_elements[0].get_nexternal_ninitial()
         replace_dict['nincoming'] = nincoming
+        replace_dict['nwave'] = 6
+        if (fd_gauge): replace_dict['nwave'] += 1
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
@@ -1855,7 +1956,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     cxtype_sv w_sv_tmp[1][nw6]; 
     ALOHAOBJ aloha_obj_tmp[1];
     aloha_obj_tmp[0] = ALOHAOBJ{pvec_sv_tmp[0], w_sv_tmp[0]};
-    
+
     // special one value to hold tmp vertex value inside the combined vertex functions while using the FD gauge
     cxtype_sv amp_tmp_sv[1]; //to ensure proper aligment for vector instructions
     fptype* amp_tmp_fp;
@@ -2730,6 +2831,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     arg['mass'] = 'm_pars->%(CM)s, '
                 else:
                     arg['mass'] = 'm_pars->%(M)s, m_pars->%(W)s, '
+
             else:
                 #arg['out'] = '&amp_sv[%(out)d]'
                 arg['out'] = '&amp_fp[%(out)d]'

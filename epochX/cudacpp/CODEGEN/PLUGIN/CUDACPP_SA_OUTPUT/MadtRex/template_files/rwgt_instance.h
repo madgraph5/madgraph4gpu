@@ -30,7 +30,7 @@ namespace rwgt
     unsigned int warpRemain(unsigned int nEvt, unsigned int nWarp = 32);
 
     // ZW: bridgeWrapper needs args: nEvs, nPar, nMom, moms, gs, rndhel, rndcol, selhel, selcol, chanId
-    using bridgeWrapper = std::function<std::shared_ptr<std::vector<FORTRANFPTYPE>>(int &, int &, int &, std::vector<FORTRANFPTYPE> &, std::vector<FORTRANFPTYPE> &, std::vector<FORTRANFPTYPE> &, std::vector<FORTRANFPTYPE> &, std::vector<int> &, std::vector<int> &, unsigned int &, bool &)>;
+    using bridgeWrapper = std::function<std::shared_ptr<std::vector<FORTRANFPTYPE>>(int &, int &, int &, std::vector<FORTRANFPTYPE> &, std::vector<FORTRANFPTYPE> &, std::vector<FORTRANFPTYPE> &, std::vector<FORTRANFPTYPE> &, std::vector<int> &, std::vector<int> &, std::vector<int> &, unsigned int &, bool &)>;
 
     struct fBridge
     {
@@ -44,6 +44,7 @@ namespace rwgt
         std::vector<FORTRANFPTYPE> gs = {};
         std::vector<int> selHel = {};
         std::vector<int> selCol = {};
+        std::vector<int> iGraph = {};
         unsigned int chanId = 0;
         int nMom = 4;
         int nWarp;
