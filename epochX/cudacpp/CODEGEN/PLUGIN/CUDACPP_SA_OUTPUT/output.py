@@ -42,6 +42,7 @@ from madgraph import MG5DIR
 from os.path import join as pjoin
 import madgraph.iolibs.files as files
 import madgraph.iolibs.export_v4 as export_v4
+import madgraph.iolibs.export_fks as export_fks
 import madgraph.various.misc as misc
 
 from . import launch_plugin
@@ -379,20 +380,39 @@ class SIMD_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
     # Default class for the run_card to use
     run_card_class = launch_plugin.CPPRunCard
 
-    def change_output_args(args, cmd):
-        """ """
-        #cmd._export_format = "madevent_forplugin"
-        cmd._export_format = 'madevent'
-        cmd._export_plugin = FortranExporterBridge
+    # Per-exporter args defaults (used by change_output_args)
+    _me_exporter_name = 'standalone_simd'
+    _vector_size_default = '16'
+    _nb_wrap_default = '1'
+    # Bridge to wire the LO/NLO Fortran path; set by change_output_args.
+    # Subclasses (LO/NLO variants) override _export_format_target and _bridge_cls.
+    _export_format_target = 'madevent'
+    _bridge_cls = None  # set after FortranExporterBridgeLO is defined
+
+    @classmethod
+    def build(cls, args=None, order='lo', **kwargs):
+        """Return the LO or NLO concrete exporter class for this kind."""
+        if order == 'lo':
+            return cls
+        if order == 'nlo':
+            return SIMD_ProcessExporter_NLO
+        raise ValueError('Unknown order %r (expected "lo" or "nlo")' % order)
+
+    @classmethod
+    def change_output_args(cls, args, cmd):
+        cmd._export_format = cls._export_format_target
+        cmd._export_plugin = cls._bridge_cls
         args.append('--hel_recycling=False')
-        args.append('--me_exporter=standalone_simd')
+        args.append('--me_exporter=%s' % cls._me_exporter_name)
         if 'vector_size' not in ''.join(args):
-            args.append('--vector_size=16')
+            args.append('--vector_size=%s' % cls._vector_size_default)
         if 'nb_wrap' not in ''.join(args):
-            args.append('--nb_wrap=1')
+            args.append('--nb_wrap=%s' % cls._nb_wrap_default)
         return args
 
-class FortranExporterBridge(export_v4.ProcessExporterFortranMEGroup):
+
+class FortranExporterBridgeMixin(object):
+    """Plugin-specific Fortran modifications shared by LO and NLO bridges."""
     _file_path = export_v4._file_path
 
     def write_auto_dsig_file(self, writer, matrix_element, proc_id = ""):
@@ -553,17 +573,31 @@ class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
     # Default class for the run_card to use
     run_card_class = launch_plugin.GPURunCard
 
-    def change_output_args(args, cmd):
-        """ """
-        cmd._export_format = 'madevent'
-        cmd._export_plugin = FortranExporterBridge
+    _me_exporter_name = 'standalone_cuda'
+    _vector_size_default = '32'
+    _nb_wrap_default = '512'
+    _export_format_target = 'madevent'
+    _bridge_cls = None  # set after FortranExporterBridgeLO is defined
 
+    @classmethod
+    def build(cls, args=None, order='lo', **kwargs):
+        """Return the LO or NLO concrete exporter class for this kind."""
+        if order == 'lo':
+            return cls
+        if order == 'nlo':
+            return GPU_ProcessExporter_NLO
+        raise ValueError('Unknown order %r (expected "lo" or "nlo")' % order)
+
+    @classmethod
+    def change_output_args(cls, args, cmd):
+        cmd._export_format = cls._export_format_target
+        cmd._export_plugin = cls._bridge_cls
         args.append('--hel_recycling=False')
-        args.append('--me_exporter=standalone_cuda')
+        args.append('--me_exporter=%s' % cls._me_exporter_name)
         if 'vector_size' not in ''.join(args):
-            args.append('--vector_size=32')
+            args.append('--vector_size=%s' % cls._vector_size_default)
         if 'nb_wrap' not in ''.join(args):
-            args.append('--nb_wrap=512')
+            args.append('--nb_wrap=%s' % cls._nb_wrap_default)
         return args
 
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
@@ -574,5 +608,46 @@ class GPU_ProcessExporter(PLUGIN_ProcessExporter_MadEvent):
         text = text.replace('RunCard = CPPRunCard', 'RunCard = GPURunCard')
         open(pjoin(self.dir_path, 'bin', 'internal', 'launch_plugin.py'), 'w').write(text)
         return out
+
+#------------------------------------------------------------------------------------
+
+# Concrete Fortran bridges (mixin + upstream LO/NLO exporter)
+
+class FortranExporterBridgeLO(FortranExporterBridgeMixin,
+                              export_v4.ProcessExporterFortranMEGroup):
+    pass
+
+
+class FortranExporterBridgeNLO(FortranExporterBridgeMixin,
+                               export_fks.ProcessExporterFortranFKS):
+    # The mixin's write_auto_dsig_file / write_driver are LO-specific overrides
+    # of ProcessExporterFortranMEGroup methods that are not part of the FKS
+    # path. They are inert here but harmless. Real-emission CUDACPP wiring
+    # happens in ProcessExporterFortranFKS.write_real_matrix_elements via the
+    # second exporter passed by amcatnlo_interface.do_output.
+    pass
+
+
+# Backward compatibility alias for the original LO bridge name.
+FortranExporterBridge = FortranExporterBridgeLO
+
+# Wire bridge classes into the LO exporters now that they are defined.
+SIMD_ProcessExporter._bridge_cls = FortranExporterBridgeLO
+GPU_ProcessExporter._bridge_cls = FortranExporterBridgeLO
+
+#------------------------------------------------------------------------------------
+
+# NLO concrete ME exporters: same templates and ME generation as LO, but they
+# tell the orchestrator to use the FKS Fortran bridge and the 'NLO' export
+# format. They inherit everything else from the LO siblings.
+
+class SIMD_ProcessExporter_NLO(SIMD_ProcessExporter):
+    _export_format_target = 'NLO'
+    _bridge_cls = FortranExporterBridgeNLO
+
+
+class GPU_ProcessExporter_NLO(GPU_ProcessExporter):
+    _export_format_target = 'NLO'
+    _bridge_cls = FortranExporterBridgeNLO
 
 #------------------------------------------------------------------------------------
