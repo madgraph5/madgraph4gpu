@@ -62,6 +62,7 @@
  -1 = dynamical_scale_choice ! Choose one of the preselected dynamical choices
  1.0  = scalefact        ! scale factor for event-by-event scales
 
+
 #*********************************************************************
 # Type and output format
 #*********************************************************************
@@ -125,7 +126,7 @@
 # Parton level cuts definition *
 #*******************************
   0.0  = dsqrt_shat ! minimal shat for full process
-  -1  = dsqrt_shatmax ! maximum shat for full process
+  -1.0  = dsqrt_shatmax ! maximum shat for full process
 #                                                                    
 #
 #*********************************************************************

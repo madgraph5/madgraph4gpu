@@ -22,7 +22,9 @@ C     -------------------
 
 C     initialize the pdf set
       CALL FINDPDFPATH(LHAPATH)
-      CALL SETPDFPATH(LHAPATH)
+C     pass the path without its blank padding: some versions of the
+C     lhaglue interface keep the padding, making the path unusable
+      CALL SETPDFPATH(TRIM(LHAPATH))
       VALUE(1)=LHAID
       PARM(1)='DEFAULT'
       IF (PDLABEL.EQ.'lhapdf') THEN
