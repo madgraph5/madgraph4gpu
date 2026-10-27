@@ -35,6 +35,7 @@
 #endif
 
 #include <algorithm>
+#include <new> // AV road B: colour-linked Borns buffer (std::align_val_t)
 #include <array>
 #include <cfenv>  // for feenableexcept, fegetexcept and FE_XXX
 #include <cfloat> // for FLT_MIN
@@ -175,6 +176,46 @@ namespace mg5amcCpu
 #endif
   static int cNGoodHel;
   static int cGoodHel[ncomb];
+
+  // AV road B step 9i+9j, e+ e- > b b b~ b~ only: the ten COLOUR-LINKED BORNS
+  // B_mn = <M|T_m.T_n|M> for the coloured legs m,n in {3,4,5,6}, i.e. what the
+  // MadFKS Fortran routines B_SF_001..010 compute from the cached Born amplitudes.
+  // Each B_SF_00N maps the 16 amplitudes linearly onto JAMP1 (the plain Born colour
+  // flows, identical to jamp_sv here) and JAMP2 (the colour-linked flows), and
+  // returns Re(sum_ij CF(j,i) JAMP2(j) conj(JAMP1(i)))/IDEN summed over helicities.
+  // For this process JAMP2 is itself a fixed linear map of JAMP1 (both depend only
+  // on the two diagram groups 1-4,13-16 and 5-12), so each link collapses to a
+  // quadratic form in jamp_sv with small INTEGER coefficients (exact, derived with
+  // rational arithmetic from the Fortran coefficient tables):
+  //   B_k = S11[k]*|jamp0|^2 + S22[k]*|jamp1|^2 + 2*S12[k]*Re(conj(jamp0)*jamp1)
+  // i.e. the same shape as the colour sum for |M|^2 (cf = {{9,3},{3,9}}), with a
+  // different matrix per link. Link k follows the Fortran order B_SF_00k, i.e. the
+  // upper triangle (3,3) (3,4) (3,5) (3,6) (4,4) (4,5) (4,6) (5,5) (5,6) (6,6).
+  // Evaluated per helicity right after the jamps, hence vectorized over the events of
+  // a SIMD page for free, and normalised exactly like the MEs (/helcolDenominators,
+  // but WITHOUT the multichannel numerator/denominator factor).
+  // [381 port: the new cudacpp computes the jamps in calculate_jamps and the colour sum
+  // in a separate color_sum function, so the colour-linked Borns and JAMP2 are now
+  // computed in sigmaKin from the jamps of each helicity, while AMP2 stays in calculate_jamps]
+  constexpr int nbsf = 10;
+  // AV road B step 9i+9j: the same per-page buffer also carries,
+  // for each event, everything else that the Fortran SBORN returns and that
+  // its many callers need, so that mode C no longer has to run the scalar
+  // SBORN at all: the per-diagram |amp|^2 (Fortran AMP2, used by the
+  // multichannel single-diagram enhancement) and the per-colour-flow
+  // |jamp|^2 (Fortran JAMP2, used by the MC counterterms), both summed over
+  // helicities and NOT divided by the helicity/colour denominators (exactly
+  // like AMP2 and JAMP2 in the Fortran born.f).
+  constexpr int nbxDiag = CPPProcess::ndiagrams; // 16
+  constexpr int nbx = nbsf + nbxDiag + ncolor;   // per-event block: [bsf(10), amp2(16), jamp2(2)]
+  static_assert( nbx == CPPProcess::nbornextras, "nbx must match CPPProcess::nbornextras" );
+#ifndef MGONGPUCPP_GPUIMPL
+  static fptype_sv* s_bsfs = nullptr;      // [npagV][nbx]: results of the last sigmaKin call (aligned raw buffer
+                                           // as in MemoryBuffers.h: std::vector<fptype_sv> ignores the alignment attribute)
+  static int s_bsfsSize = 0;               // npagV * nbx for the allocated s_bsfs
+  static fptype_sv* s_bsfsAccum = nullptr; // = s_bsfs inside sigmaKin, else nullptr (e.g. sigmaKin_getGoodHel)
+  static int s_bsfsNevt = 0;               // nevt of the last sigmaKin call
+#endif
 
   //--------------------------------------------------------------------------
 
@@ -322,6 +363,8 @@ namespace mg5amcCpu
     {
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
+      // AV road B: this page's block in the colour-linked Born buffer (nullptr outside sigmaKin)
+      fptype_sv* bsfx_sv = s_bsfsAccum ? s_bsfsAccum + ( ievt0 / neppV ) * nbx : nullptr;
 #endif
       //constexpr size_t nxcoup = ndcoup + nicoup; // both dependent and independent couplings (BUG #823)
       constexpr size_t nxcoup = ndcoup + nIPC; // both dependent and independent couplings (FIX #823)
@@ -402,6 +445,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 6. * amp_sv[0];
       jamp_sv[1] += 1. / 2. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 0] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(1)
+#endif
 
       // *** DIAGRAM 2 OF 16 ***
 
@@ -416,6 +462,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 6. * amp_sv[0];
       jamp_sv[1] += 1. / 2. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 1] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(2)
+#endif
 
       // *** DIAGRAM 3 OF 16 ***
 
@@ -431,6 +480,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 6. * amp_sv[0];
       jamp_sv[1] += 1. / 2. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 2] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(3)
+#endif
 
       // *** DIAGRAM 4 OF 16 ***
 
@@ -445,6 +497,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 6. * amp_sv[0];
       jamp_sv[1] += 1. / 2. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 3] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(4)
+#endif
 
       // *** DIAGRAM 5 OF 16 ***
 
@@ -459,6 +514,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 2. * amp_sv[0];
       jamp_sv[1] += 1. / 6. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 4] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(5)
+#endif
 
       // *** DIAGRAM 6 OF 16 ***
 
@@ -473,6 +531,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 2. * amp_sv[0];
       jamp_sv[1] += 1. / 6. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 5] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(6)
+#endif
 
       // *** DIAGRAM 7 OF 16 ***
 
@@ -487,6 +548,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 2. * amp_sv[0];
       jamp_sv[1] += 1. / 6. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 6] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(7)
+#endif
 
       // *** DIAGRAM 8 OF 16 ***
 
@@ -501,6 +565,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 2. * amp_sv[0];
       jamp_sv[1] += 1. / 6. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 7] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(8)
+#endif
 
       // *** DIAGRAM 9 OF 16 ***
 
@@ -516,6 +583,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 2. * amp_sv[0];
       jamp_sv[1] += 1. / 6. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 8] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(9)
+#endif
 
       // *** DIAGRAM 10 OF 16 ***
 
@@ -530,6 +600,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 2. * amp_sv[0];
       jamp_sv[1] += 1. / 6. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 9] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(10)
+#endif
 
       // *** DIAGRAM 11 OF 16 ***
 
@@ -544,6 +617,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 2. * amp_sv[0];
       jamp_sv[1] += 1. / 6. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 10] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(11)
+#endif
 
       // *** DIAGRAM 12 OF 16 ***
 
@@ -558,6 +634,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 2. * amp_sv[0];
       jamp_sv[1] += 1. / 6. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 11] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(12)
+#endif
 
       // *** DIAGRAM 13 OF 16 ***
 
@@ -572,6 +651,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 6. * amp_sv[0];
       jamp_sv[1] += 1. / 2. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 12] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(13)
+#endif
 
       // *** DIAGRAM 14 OF 16 ***
 
@@ -586,6 +668,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 6. * amp_sv[0];
       jamp_sv[1] += 1. / 2. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 13] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(14)
+#endif
 
       // *** DIAGRAM 15 OF 16 ***
 
@@ -600,6 +685,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 6. * amp_sv[0];
       jamp_sv[1] += 1. / 2. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 14] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(15)
+#endif
 
       // *** DIAGRAM 16 OF 16 ***
 
@@ -614,6 +702,9 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= 1. / 6. * amp_sv[0];
       jamp_sv[1] += 1. / 2. * amp_sv[0];
+#ifndef MGONGPUCPP_GPUIMPL
+      if( bsfx_sv ) bsfx_sv[nbsf + 15] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(16)
+#endif
 
       // *** COLOR CHOICE BELOW ***
 
@@ -1359,6 +1450,16 @@ namespace mg5amcCpu
       denominators_sv = fptype_sv{ 0 };
 #endif
     }
+    // AV road B: reset the colour-linked Borns and enable their accumulation
+    if( s_bsfsSize != npagV * nbx )
+    {
+      if( s_bsfs ) ::operator delete[]( s_bsfs, std::align_val_t( mgOnGpu::cppAlign ) );
+      s_bsfs = new( std::align_val_t( mgOnGpu::cppAlign ) ) fptype_sv[npagV * nbx]();
+      s_bsfsSize = npagV * nbx;
+    }
+    for( int i = 0; i < s_bsfsSize; i++ ) s_bsfs[i] = fptype_sv{ 0 };
+    s_bsfsNevt = nevt;
+    s_bsfsAccum = s_bsfs;
 #endif
 
     // === PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS ===
@@ -1412,7 +1513,7 @@ namespace mg5amcCpu
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
-#define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
+#define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2, s_bsfsAccum
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #define _OMPLIST1 , allDenominators, allNumerators, allChannelIds, allIgraph, mgOnGpu::icolamp, mgOnGpu::channel2iconfig
 #else
@@ -1482,6 +1583,23 @@ namespace mg5amcCpu
 #endif
         color_sum_cpu( allMEs, jamp_sv, ievt00 );
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
+        // *** COLOUR-LINKED BORNS BELOW *** (AV road B, see nbsf above)
+        for( int iParity = 0; iParity < nParity; ++iParity )
+        {
+          // [NB keep 'static' for these constexpr arrays, as for cf (issue #283)]
+          static constexpr fptype cBsfS11[nbsf] = { 6, 0, -12, 0, 6, 0, -12, 6, 0, 6 };
+          static constexpr fptype cBsfS22[nbsf] = { 6, 0, 0, -12, 6, -12, 0, 6, 0, 6 };
+          static constexpr fptype cBsfS12[nbsf] = { 2, 4, -4, -4, 2, -4, -4, 2, 4, 2 };
+          const cxtype_sv* jampP_sv = jamp_sv + iParity * ncolor;
+          fptype_sv* bsfx_sv = s_bsfsAccum + ( ( ievt00 + iParity * neppV ) / neppV ) * nbx;
+          const fptype_sv bsfA11 = cxabs2( jampP_sv[0] );
+          const fptype_sv bsfA22 = cxabs2( jampP_sv[1] );
+          const fptype_sv bsfA12 = cxreal( jampP_sv[0] ) * cxreal( jampP_sv[1] ) + cximag( jampP_sv[0] ) * cximag( jampP_sv[1] );
+          for( int ibsf = 0; ibsf < nbsf; ibsf++ )
+            bsfx_sv[ibsf] += cBsfS11[ibsf] * bsfA11 + cBsfS22[ibsf] * bsfA22 + 2 * cBsfS12[ibsf] * bsfA12;
+          bsfx_sv[nbsf + nbxDiag + 0] += bsfA11; // AV road B: Fortran JAMP2(1)
+          bsfx_sv[nbsf + nbxDiag + 1] += bsfA22; // AV road B: Fortran JAMP2(2)
+        }
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
@@ -1674,12 +1792,93 @@ namespace mg5amcCpu
       //  printf( "sigmaKin: ievt=%2d me=%f\n", ievt, allMEs[ievt] );
       //}
     }
+    // AV road B: final colour-linked Borns (same denominators as the MEs, no multichannel factor)
+    // (only the links: amp2 and jamp2 are raw sums over helicities, like the Fortran AMP2 and JAMP2)
+    for( int ipagV = 0; ipagV < npagV; ++ipagV )
+      for( int ibsf = 0; ibsf < nbsf; ibsf++ )
+        s_bsfs[ipagV * nbx + ibsf] /= helcolDenominators[0];
+    s_bsfsAccum = nullptr;
 #endif
     mgDebugFinalise();
   }
 
   //--------------------------------------------------------------------------
 
+#ifndef MGONGPUCPP_GPUIMPL
+  // AV road B: copy out the colour-linked Borns computed by the last sigmaKin call
+  void
+  getColourLinkedBorns( const int nevt, double* bsfs ) // output: bsfs[nevt][nbsf] (Fortran BSF(NBSF,NEVT))
+  {
+    for( int ievt = 0; ievt < nevt; ievt++ )
+    {
+      const fptype_sv* bsfs_sv = s_bsfs + ( ievt / neppV ) * nbx;
+      for( int ibsf = 0; ibsf < nbsf; ibsf++ )
+      {
+#ifdef MGONGPU_CPPSIMD
+        bsfs[ievt * nbsf + ibsf] = bsfs_sv[ibsf][ievt % neppV];
+#else
+        bsfs[ievt * nbsf + ibsf] = bsfs_sv[ibsf];
+#endif
+      }
+    }
+  }
+
+  // AV road B (step 9i+9j): copy out the whole per-event block of the last sigmaKin call
+  void
+  getBornExtras( const int nevt, double* extras ) // output: extras[nevt][nbx] (Fortran EXTRAS(28,NEVT))
+  {
+    for( int ievt = 0; ievt < nevt; ievt++ )
+    {
+      const fptype_sv* bsfx_sv = s_bsfs + ( ievt / neppV ) * nbx;
+      for( int ibx = 0; ibx < nbx; ibx++ )
+      {
+#ifdef MGONGPU_CPPSIMD
+        extras[ievt * nbx + ibx] = bsfx_sv[ibx][ievt % neppV];
+#else
+        extras[ievt * nbx + ibx] = bsfx_sv[ibx];
+#endif
+      }
+    }
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+
 } // end namespace
 
 //==========================================================================
+
+// AV road B step 9i+9j, e+ e- > b b b~ b~ only: Fortran access to the ten
+// colour-linked Borns of the events of the LAST sequence call on this library.
+// CALL FBRIDGEGETBSF(NEVT, BSFS, STATUS) with DOUBLE PRECISION BSFS(10,NEVT):
+// STATUS=0 on success; 1 if NEVT does not match the last sigmaKin call.
+// [381 port: C++ only for now, the GPU version of step 10a is not ported yet]
+#ifndef MGONGPUCPP_GPUIMPL
+extern "C"
+{
+  void fbridgegetbsf_( const int* pnevt, double* bsfs, int* pstatus )
+  {
+    if( *pnevt != mg5amcCpu::s_bsfsNevt )
+    {
+      *pstatus = 1;
+      return;
+    }
+    mg5amcCpu::getColourLinkedBorns( *pnevt, bsfs );
+    *pstatus = 0;
+  }
+
+  // AV road B (step 9i+9j): the whole per-event block of the LAST sequence call:
+  // CALL FBRIDGEGETBORNEXTRAS(NEVT, EXTRAS, STATUS), DOUBLE PRECISION EXTRAS(28,NEVT)
+  // = the 10 colour-linked Borns, then AMP2(1:16), then JAMP2(1:2) (see nbx).
+  void fbridgegetbornextras_( const int* pnevt, double* extras, int* pstatus )
+  {
+    if( *pnevt != mg5amcCpu::s_bsfsNevt )
+    {
+      *pstatus = 1;
+      return;
+    }
+    mg5amcCpu::getBornExtras( *pnevt, extras );
+    *pstatus = 0;
+  }
+}
+#endif

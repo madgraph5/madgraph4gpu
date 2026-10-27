@@ -76,6 +76,7 @@ namespace mg5amcCpu
     static constexpr int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
     static constexpr int ncomb = 64; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
     static constexpr int ndiagrams = 16; // #Feynman diagrams: e.g. 3 for e+ e- -> mu+ mu-
+    static constexpr int nbornextras = 28; // AV road B: per-event block [colour-linked Borns(10), amp2(16), jamp2(2)] (see nbx in CPPProcess.cc)
     static constexpr int ncolor = 2; // the number of leading colors: e.g. 1 for e+ e- -> mu+ mu-
 
     // Hardcoded parameters for this process (constant class variables)
