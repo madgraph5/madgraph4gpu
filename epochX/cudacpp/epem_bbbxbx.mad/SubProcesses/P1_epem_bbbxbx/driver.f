@@ -287,7 +287,7 @@ c      write(*,*) 'Final xsec: ',xsec
       close(lun)
 
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
+      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE, .TRUE.) ! this must be at the end as it shuts down the CUDA device
       IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         WRITE(*,'(a,f10.8,a,e8.2)')
      &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MIN = ',
