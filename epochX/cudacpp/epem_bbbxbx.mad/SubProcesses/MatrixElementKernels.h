@@ -217,6 +217,12 @@ namespace mg5amcCpu
     DeviceBufferSimple m_colJamp2s;
 #endif
 
+    // AV road B (step 10a): the super-buffer of nGoodHel per-diagram |amp|^2 buffers (dynamically allocated)
+    std::unique_ptr<DeviceBufferSimple> m_pHelAmp2;
+
+    // AV road B (step 10a): the buffer for the event-by-event block of colour-linked Borns, amp2 and jamp2 [nevt*CPPProcess::nbornextras]
+    DeviceBufferSimple m_bornExtras;
+
 #ifdef MGONGPU_CHANNELID_DEBUG
     // The **host** buffer for the channelId array
     // FIXME? MEKD should accept a host buffer as an argument instead of a device buffer, so that a second copy can be avoided?
