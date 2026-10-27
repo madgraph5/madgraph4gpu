@@ -381,6 +381,9 @@ else ifneq ($(LOCALGTEST),)
 else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
   TESTDIR=$(TESTDIRCOMMON)
   GTEST_ROOT= $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
+else ifneq ($(wildcard ../../../test/include/MadgraphTest.h),)
+  TESTDIR=../../../test
+  GTEST_ROOT= $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
 else
   TESTDIR=
 endif
