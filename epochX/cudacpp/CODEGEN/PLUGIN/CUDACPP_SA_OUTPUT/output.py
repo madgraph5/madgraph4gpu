@@ -529,7 +529,7 @@ c     INCLUDE 'fbridge_common.inc'
 
         replace_dict['DRIVER_EXTRA_FINALISE'] += """
 #ifdef MG5AMC_MEEXPORTER_CUDACPP
-      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE""" + ( ', .TRUE.' if model_handling.vfold_bornextras.is_vfold(self.opt['output_options']) else '' ) + """) ! this must be at the end as it shuts down the CUDA device
+      CALL FBRIDGEDELETE(FBRIDGE_PBRIDGE) ! this must be at the end as it shuts down the CUDA device
       IF( FBRIDGE_MODE .LE. -1 ) THEN ! (BothQuiet=-1 or BothDebug=-2)
         WRITE(*,'(a,f10.8,a,e8.2)')
      &    ' [MERATIOS] ME ratio CudaCpp/Fortran: MIN = ',
