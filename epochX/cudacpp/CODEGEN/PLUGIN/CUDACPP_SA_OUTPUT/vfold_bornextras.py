@@ -2,7 +2,7 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Oct 2026) for the MG5aMC CUDACPP plugin.
 #
-# AV road B (vfold step 9i+9j): code generation of the per-event "Born extras" block
+# AV vfold (step 9i+9j): code generation of the per-event "Born extras" block
 # [colour-linked Borns, amp2, jamp2] that the cudacpp library returns to the MadFKS
 # Fortran SBORN (fbridgegetbsf_ and fbridgegetbornextras_), so that mode C of vfold
 # no longer needs to run the scalar Fortran SBORN at all.
@@ -108,15 +108,15 @@ def get_amp2_lines(idiag, first=True):
     [NB: the |amp|^2 of all amplitudes of a diagram are summed, as in the Fortran AMP2 without config_map]
     [NB: in CUDA the one-helicity buffer is not reset, so the first amplitude of a diagram assigns its value]"""
     return ['#ifndef MGONGPUCPP_GPUIMPL',
-            'if( bsfx_sv ) bsfx_sv[nbsf + %d] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(%d)' % (idiag, idiag + 1),
+            'if( bsfx_sv ) bsfx_sv[nbsf + %d] += cxabs2( amp_sv[0] ); // AV vfold: Fortran AMP2(%d)' % (idiag, idiag + 1),
             '#else',
-            'if( amp2_ev ) amp2_ev[%d * nevt] %s cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(%d) for this helicity' % (idiag, '=' if first else '+=', idiag + 1),
+            'if( amp2_ev ) amp2_ev[%d * nevt] %s cxabs2( amp_sv[0] ); // AV vfold: Fortran AMP2(%d) for this helicity' % (idiag, '=' if first else '+=', idiag + 1),
             '#endif']
 
 def get_amp2_lines_noamp(idiag):
     """The AMP2 of a diagram without amplitudes (in CUDA the one-helicity buffer must still be set)"""
     return ['#ifdef MGONGPUCPP_GPUIMPL',
-            'if( amp2_ev ) amp2_ev[%d * nevt] = 0; // AV road B: Fortran AMP2(%d) for this helicity' % (idiag, idiag + 1),
+            'if( amp2_ev ) amp2_ev[%d * nevt] = 0; // AV vfold: Fortran AMP2(%d) for this helicity' % (idiag, idiag + 1),
             '#endif']
 
 #------------------------------------------------------------------------------------
@@ -249,7 +249,7 @@ class VfoldBornExtras(object):
         """The definitions after cGoodHel in CPPProcess.cc"""
         ngroups = len(self.diagram_groups)
         lines = []
-        lines.append('  // AV road B step 9i+9j, %s only: the %s COLOUR-LINKED BORNS' % (self.process_string, number_word(self.nbsf)))
+        lines.append('  // AV vfold step 9i+9j, %s only: the %s COLOUR-LINKED BORNS' % (self.process_string, number_word(self.nbsf)))
         lines.append('  // B_mn = <M|T_m.T_n|M> for the coloured legs m,n in {%s}, i.e. what the' % ','.join(['%d' % n for n in self.colored_legs]))
         lines.append('  // MadFKS Fortran routines B_SF_001..%03d compute from the cached Born amplitudes.' % self.nbsf)
         lines.append('  // Each B_SF_00N maps the %d amplitudes linearly onto JAMP1 (the plain Born colour' % self.namp)
@@ -270,7 +270,7 @@ class VfoldBornExtras(object):
         lines.append('  // in a separate color_sum function, so the colour-linked Borns and JAMP2 are now')
         lines.append('  // computed in sigmaKin from the jamps of each helicity, while AMP2 stays in calculate_jamps]')
         lines.append('  constexpr int nbsf = %d;' % self.nbsf)
-        lines.append('  // AV road B step 9i+9j: the same per-page buffer also carries,')
+        lines.append('  // AV vfold step 9i+9j: the same per-page buffer also carries,')
         lines.append('  // for each event, everything else that the Fortran SBORN returns and that')
         lines.append('  // its many callers need, so that mode C no longer has to run the scalar')
         lines.append('  // SBORN at all: the per-diagram |amp|^2 (Fortran AMP2, used by the')
@@ -303,7 +303,7 @@ class VfoldBornExtras(object):
     def get_sigmakin_cpp(self):
         """The colour-linked Borns and JAMP2 in the C++ helicity loop of sigmaKin"""
         lines = []
-        lines.append('        // *** COLOUR-LINKED BORNS BELOW *** (AV road B, see nbsf above)')
+        lines.append('        // *** COLOUR-LINKED BORNS BELOW *** (AV vfold, see nbsf above)')
         lines.append('        for( int iParity = 0; iParity < nParity; ++iParity )')
         lines.append('        {')
         if self.nbsf > 0:
@@ -317,7 +317,7 @@ class VfoldBornExtras(object):
             lines.append('            bsfx_sv[ibsf] += %s;' % self.link_sum())
         for i in range(self.ncolor):
             s = self.suffix(i, i)
-            lines.append('          bsfx_sv[nbsf + nbxDiag + %d] += bsfA%s; // AV road B: Fortran JAMP2(%d)' % (i, s, i + 1))
+            lines.append('          bsfx_sv[nbsf + nbxDiag + %d] += bsfA%s; // AV vfold: Fortran JAMP2(%d)' % (i, s, i + 1))
         lines.append('        }')
         return '\n'.join(lines) + '\n'
 
@@ -325,7 +325,7 @@ class VfoldBornExtras(object):
         """The CUDA kernel summing the colour-linked Borns, AMP2 and JAMP2 over helicities (before sigmaKin)"""
         lines = []
         lines.append('#ifdef MGONGPUCPP_GPUIMPL')
-        lines.append('  // AV road B (step 10a): per-event block [bsf(%d), amp2(%d), jamp2(%d)] summed over the good helicities' % (self.nbsf, self.ndiagrams, self.ncolor))
+        lines.append('  // AV vfold (step 10a): per-event block [bsf(%d), amp2(%d), jamp2(%d)] summed over the good helicities' % (self.nbsf, self.ndiagrams, self.ncolor))
         lines.append('  // (in the order of cGoodHel, as in C++), from the jamps and per-diagram |amp|^2 of each helicity')
         lines.append('  __global__ void')
         lines.append('  compute_bornextras( fptype* allBsfx,             // output: per-event block [nevt*nbx]')
@@ -368,7 +368,7 @@ class VfoldBornExtras(object):
         """The extern C functions for Fortran at the end of CPPProcess.cc"""
         lines = []
         lines.append('')
-        lines.append('// AV road B step 9i+9j, %s only: Fortran access to the %s' % (self.process_string, number_word(self.nbsf)))
+        lines.append('// AV vfold step 9i+9j, %s only: Fortran access to the %s' % (self.process_string, number_word(self.nbsf)))
         lines.append('// colour-linked Borns of the events of the LAST sequence call on this library.')
         lines.append('// CALL FBRIDGEGETBSF(NEVT, BSFS, STATUS) with DOUBLE PRECISION BSFS(%d,NEVT):' % self.nbsf)
         lines.append('// STATUS=0 on success; 1 if NEVT does not match the last sigmaKin call.')
@@ -391,7 +391,7 @@ class VfoldBornExtras(object):
         lines.append('    *pstatus = 0;')
         lines.append('  }')
         lines.append('')
-        lines.append('  // AV road B (step 9i+9j): the whole per-event block of the LAST sequence call:')
+        lines.append('  // AV vfold (step 9i+9j): the whole per-event block of the LAST sequence call:')
         lines.append('  // CALL FBRIDGEGETBORNEXTRAS(NEVT, EXTRAS, STATUS), DOUBLE PRECISION EXTRAS(%d,NEVT)' % self.nbx)
         lines.append('  // = the %d colour-linked Borns, then AMP2(1:%d), then JAMP2(1:%d) (see nbx).' % (self.nbsf, self.ndiagrams, self.ncolor))
         lines.append('  // Step 10a: exported by the CUDA library too (copy from the device).')

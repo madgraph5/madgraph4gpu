@@ -218,10 +218,10 @@ namespace mg5amcCpu
 #endif
 
 %%VFOLD_BEGIN
-    // AV road B (step 10a): the super-buffer of nGoodHel per-diagram |amp|^2 buffers (dynamically allocated)
+    // AV vfold (step 10a): the super-buffer of nGoodHel per-diagram |amp|^2 buffers (dynamically allocated)
     std::unique_ptr<DeviceBufferSimple> m_pHelAmp2;
 
-    // AV road B (step 10a): the buffer for the event-by-event block of colour-linked Borns, amp2 and jamp2 [nevt*CPPProcess::nbornextras]
+    // AV vfold (step 10a): the buffer for the event-by-event block of colour-linked Borns, amp2 and jamp2 [nevt*CPPProcess::nbornextras]
     DeviceBufferSimple m_bornExtras;
 
 %%VFOLD_END

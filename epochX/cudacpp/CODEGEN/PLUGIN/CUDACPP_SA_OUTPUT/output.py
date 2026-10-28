@@ -174,7 +174,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         self.in_madevent_mode = False # see MR #747
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
         super().__init__(*args, **kwargs)
-        # AV road B (vfold) - generate the vfold extensions only with the --vfold output option
+        # AV vfold - generate the vfold extensions only with the --vfold output option
         # (pass this to the OneProcessExporter class, as in madevent mode it is instantiated by the Fortran exporter)
         self.vfold = model_handling.vfold_bornextras.is_vfold(self.opt['output_options'])
         self.oneprocessclass.vfold = self.vfold
@@ -196,7 +196,7 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             for key in self.from_template:
                 for f in self.from_template[key]:
                     PLUGIN_export_cpp.cp(f, key) # NB this assumes directory key exists...
-            # AV road B (vfold) - keep or remove the vfold-only blocks in the copied files
+            # AV vfold - keep or remove the vfold-only blocks in the copied files
             for key in self.from_template:
                 for f in self.from_template[key]:
                     fcopy = os.path.join(key, os.path.basename(f))

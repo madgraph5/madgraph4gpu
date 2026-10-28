@@ -390,13 +390,13 @@ namespace mg5amcCpu
       constexpr fptype_sv* allJamp2s = nullptr;        // no need for color selection during helicity filtering
       constexpr unsigned int* allChannelIds = nullptr; // disable multichannel single-diagram enhancement
 %%VFOLD_BEGIN
-      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, allChannelIds, allNumerators, allDenominators, allJamp2s, (fptype*)nullptr, gpublocks * gputhreads ); // AV road B: no amp2
+      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, allChannelIds, allNumerators, allDenominators, allJamp2s, (fptype*)nullptr, gpublocks * gputhreads ); // AV vfold: no amp2
 %%VFOLD_ELSE
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, allChannelIds, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
 %%VFOLD_END
 #else
 %%VFOLD_BEGIN
-      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, (fptype*)nullptr, gpublocks * gputhreads ); // AV road B: no amp2
+      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, (fptype*)nullptr, gpublocks * gputhreads ); // AV vfold: no amp2
 %%VFOLD_ELSE
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, gpublocks * gputhreads );
 %%VFOLD_END
@@ -702,8 +702,8 @@ namespace mg5amcCpu
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: jamp[2*ncolor*nGoodHel*nevt] super-buffer for nGoodHel <= ncomb individual helicities
 %%VFOLD_BEGIN
-            fptype* ghelAllAmp2,                // tmp: AV road B amp2[nGoodHel][ndiagrams][nevt] super-buffer (nullptr to disable)
-            fptype* allBsfx,                    // output: AV road B per-event block [nevt*nbx] (nullptr to disable)
+            fptype* ghelAllAmp2,                // tmp: AV vfold amp2[nGoodHel][ndiagrams][nevt] super-buffer (nullptr to disable)
+            fptype* allBsfx,                    // output: AV vfold per-event block [nevt*nbx] (nullptr to disable)
 %%VFOLD_END
             fptype2* ghelAllBlasTmp,            // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             gpuBlasHandle_t* pBlasHandle,       // input: cuBLAS/hipBLAS handle

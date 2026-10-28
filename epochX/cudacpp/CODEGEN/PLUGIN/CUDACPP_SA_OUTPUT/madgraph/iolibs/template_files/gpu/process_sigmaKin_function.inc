@@ -41,7 +41,7 @@
 #endif
     }
 %%VFOLD_BEGIN
-    // AV road B: reset the colour-linked Borns and enable their accumulation
+    // AV vfold: reset the colour-linked Borns and enable their accumulation
     if( s_bsfsSize != npagV * nbx )
     {
       if( s_bsfs ) ::operator delete[]( s_bsfs, std::align_val_t( mgOnGpu::cppAlign ) );
@@ -68,7 +68,7 @@
       const int ihel = cGoodHel[ighel];
       fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
 %%VFOLD_BEGIN
-      fptype* hAllAmp2 = ( ghelAllAmp2 && allBsfx ) ? ghelAllAmp2 + (size_t)ighel * nbxDiag * nevt : nullptr; // AV road B
+      fptype* hAllAmp2 = ( ghelAllAmp2 && allBsfx ) ? ghelAllAmp2 + (size_t)ighel * nbxDiag * nevt : nullptr; // AV vfold
 %%VFOLD_END
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
@@ -90,7 +90,7 @@
     color_sum_gpu( ghelAllMEs, ghelAllJamps, ghelAllBlasTmp, pBlasHandle, ghelStreams, cNGoodHel, gpublocks, gputhreads );
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
 %%VFOLD_BEGIN
-    // AV road B (step 10a): colour-linked Borns, AMP2 and JAMP2 summed over helicities (in a fixed order)
+    // AV vfold (step 10a): colour-linked Borns, AMP2 and JAMP2 summed over helicities (in a fixed order)
     if( allBsfx && ghelAllAmp2 )
       gpuLaunchKernel( compute_bornextras, gpublocks, gputhreads, allBsfx, ghelAllJamps, ghelAllAmp2, helcolDenominators[0] );
 %%VFOLD_END
@@ -388,7 +388,7 @@
       //}
     }
 %%VFOLD_BEGIN
-    // AV road B: final colour-linked Borns (same denominators as the MEs, no multichannel factor)
+    // AV vfold: final colour-linked Borns (same denominators as the MEs, no multichannel factor)
     // (only the links: amp2 and jamp2 are raw sums over helicities, like the Fortran AMP2 and JAMP2)
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
       for( int ibsf = 0; ibsf < nbsf; ibsf++ )
@@ -403,7 +403,7 @@
 %%VFOLD_BEGIN
 
 #ifndef MGONGPUCPP_GPUIMPL
-  // AV road B: copy out the colour-linked Borns computed by the last sigmaKin call
+  // AV vfold: copy out the colour-linked Borns computed by the last sigmaKin call
   void
   getColourLinkedBorns( const int nevt, double* bsfs ) // output: bsfs[nevt][nbsf] (Fortran BSF(NBSF,NEVT))
   {
@@ -421,7 +421,7 @@
     }
   }
 
-  // AV road B (step 9i+9j): copy out the whole per-event block of the last sigmaKin call
+  // AV vfold (step 9i+9j): copy out the whole per-event block of the last sigmaKin call
   void
   getBornExtras( const int nevt, double* extras ) // output: extras[nevt][nbx] (Fortran EXTRAS(%(vfold_nbx)d,NEVT))
   {
@@ -439,7 +439,7 @@
     }
   }
 #else
-  // AV road B (step 10a): register the device buffer [nevt*nbx] used by the last sigmaKin launch
+  // AV vfold (step 10a): register the device buffer [nevt*nbx] used by the last sigmaKin launch
   void
   registerBornExtrasDeviceBuffer( const fptype* devBsfx, const int nevt )
   {
@@ -447,7 +447,7 @@
     s_bsfsNevt = nevt;
   }
 
-  // AV road B (step 10a): forget the registered device buffer if it is being deleted
+  // AV vfold (step 10a): forget the registered device buffer if it is being deleted
   void
   unregisterBornExtrasDeviceBuffer( const fptype* devBsfx )
   {
@@ -456,7 +456,7 @@
     s_bsfsNevt = 0;
   }
 
-  // AV road B (step 10a): copy the whole per-event block of the last sigmaKin launch from the device
+  // AV vfold (step 10a): copy the whole per-event block of the last sigmaKin launch from the device
   // (one synchronous device-to-host copy of nevt*nbx values; returns a host pointer valid until the next call)
   static const fptype*
   copyBornExtrasToHost( const int nevt )
@@ -467,7 +467,7 @@
     return hstBsfs.data();
   }
 
-  // AV road B (step 10a): copy out the colour-linked Borns computed by the last sigmaKin launch
+  // AV vfold (step 10a): copy out the colour-linked Borns computed by the last sigmaKin launch
   void
   getColourLinkedBorns( const int nevt, double* bsfs ) // output: bsfs[nevt][nbsf] (Fortran BSF(NBSF,NEVT))
   {
@@ -477,7 +477,7 @@
         bsfs[ievt * nbsf + ibsf] = hstBsfs[ievt * nbx + ibsf];
   }
 
-  // AV road B (step 10a): copy out the whole per-event block of the last sigmaKin launch
+  // AV vfold (step 10a): copy out the whole per-event block of the last sigmaKin launch
   void
   getBornExtras( const int nevt, double* extras ) // output: extras[nevt][nbx] (Fortran EXTRAS(%(vfold_nbx)d,NEVT))
   {

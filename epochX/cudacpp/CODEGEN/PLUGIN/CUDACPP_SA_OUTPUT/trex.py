@@ -215,7 +215,7 @@ class TREX_ProcessExporter(output.PLUGIN_ProcessExporter):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.vfold: raise madgraph.InvalidCmd('The --vfold output option is not supported in standalone_trex') # AV road B (vfold)
+        if self.vfold: raise madgraph.InvalidCmd('The --vfold output option is not supported in standalone_trex') # AV vfold
         self.template_path = PLUGINDIR
         self.rwgt_names = []
         self.proc_lines = []

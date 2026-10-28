@@ -33,7 +33,7 @@ PLUGIN_export_cpp = sys.modules['%s.PLUGIN_export_cpp'%PLUGIN_NAME] # 2nd copy l
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
 
-# AV road B (vfold step 9i+9j) - import the module for the colour-linked Borns, amp2 and jamp2 returned to Fortran SBORN
+# AV vfold (step 9i+9j) - import the module for the colour-linked Borns, amp2 and jamp2 returned to Fortran SBORN
 __import__('%s.vfold_bornextras'%PLUGIN_NAME)
 vfold_bornextras = sys.modules['%s.vfold_bornextras'%PLUGIN_NAME]
 
@@ -1312,11 +1312,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
     __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
 
-    # AV road B (vfold) - generate the vfold extensions only with the --vfold output option
+    # AV vfold - generate the vfold extensions only with the --vfold output option
     # (this is set by PLUGIN_ProcessExporter, as in madevent mode this class is instantiated by the Fortran exporter)
     vfold = False
 
-    # AV road B (vfold) - keep or remove the vfold-only blocks of the template files
+    # AV vfold - keep or remove the vfold-only blocks of the template files
     @classmethod
     def read_template_file(cls, filename, classpath=False):
         """Open a template file and return the contents."""
@@ -1334,9 +1334,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ###misc.sprint(proc_id)
         self.proc_id = proc_id
         self.vfold_bornextras = None
-        self.helas_call_writer.vfold = self.vfold # AV road B (vfold)
+        self.helas_call_writer.vfold = self.vfold # AV vfold
 
-    # AV road B (vfold step 9i+9j) - the colour-linked Borns, amp2 and jamp2 returned to Fortran SBORN
+    # AV vfold (step 9i+9j) - the colour-linked Borns, amp2 and jamp2 returned to Fortran SBORN
     def get_vfold_bornextras(self):
         if self.vfold_bornextras is None:
             assert len(self.matrix_elements) == 1 # how to handle if this is not true?
@@ -1358,8 +1358,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
         if self.vfold:
-            replace_dict['nbsf'] = self.get_vfold_bornextras().nbsf # AV road B (vfold step 9i+9j)
-            replace_dict['nbornextras'] = self.get_vfold_bornextras().nbx # AV road B (vfold step 9i+9j)
+            replace_dict['nbsf'] = self.get_vfold_bornextras().nbsf # AV vfold (step 9i+9j)
+            replace_dict['nbornextras'] = self.get_vfold_bornextras().nbx # AV vfold (step 9i+9j)
         if( write ): # ZW: added dict return for uses in child exporters. Default argument is True so no need to modify other calls to this function
             file = self.read_template_file(self.process_class_template) % replace_dict 
             file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
@@ -1441,8 +1441,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
         replace_dict['ncolor'] = len(color_amplitudes[0])
         if self.vfold:
-            replace_dict['vfold_bsf_definitions'] = self.get_vfold_bornextras().get_definitions() # AV road B (vfold step 9i+9j)
-            replace_dict['vfold_bsf_kernel'] = self.get_vfold_bornextras().get_kernel_gpu() # AV road B (vfold step 10a)
+            replace_dict['vfold_bsf_definitions'] = self.get_vfold_bornextras().get_definitions() # AV vfold (step 9i+9j)
+            replace_dict['vfold_bsf_kernel'] = self.get_vfold_bornextras().get_kernel_gpu() # AV vfold (step 10a)
         else:
             replace_dict['vfold_bsf_kernel'] = ''
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
@@ -1467,7 +1467,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                             self.matrix_elements]
         replace_dict['den_factors'] = ",".join(den_factors)
 
-        # AV road B (vfold step 9i+9j) - colour-linked Borns, amp2 and jamp2
+        # AV vfold (step 9i+9j) - colour-linked Borns, amp2 and jamp2
         if self.vfold:
             replace_dict['vfold_bsf_sigmakin_cpp'] = self.get_vfold_bornextras().get_sigmakin_cpp()
             replace_dict['vfold_nbx'] = self.get_vfold_bornextras().nbx
@@ -1527,7 +1527,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                    fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
 #endif
 %%VFOLD_BEGIN
-                   fptype* allAmp2,                   // output: AV road B amp2[ndiagrams][nevt] buffer for one helicity (nullptr to disable)
+                   fptype* allAmp2,                   // output: AV vfold amp2[ndiagrams][nevt] buffer for one helicity (nullptr to disable)
 %%VFOLD_END
                    const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
@@ -1621,10 +1621,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
 %%VFOLD_BEGIN
-      // AV road B: this page's block in the colour-linked Born buffer (nullptr outside sigmaKin)
+      // AV vfold: this page's block in the colour-linked Born buffer (nullptr outside sigmaKin)
       fptype_sv* bsfx_sv = s_bsfsAccum ? s_bsfsAccum + ( ievt0 / neppV ) * nbx : nullptr;
 #else
-      // AV road B: this event's amp2 in the one-helicity buffer (nullptr in sigmaKin_getGoodHel)
+      // AV vfold: this event's amp2 in the one-helicity buffer (nullptr in sigmaKin_getGoodHel)
       fptype* amp2_ev = allAmp2 ? allAmp2 + blockDim.x * blockIdx.x + threadIdx.x : nullptr;
 %%VFOLD_END
 #endif""")
@@ -1643,7 +1643,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             file_extend.append( file )
             assert i == 0, "more than one ME in get_all_sigmaKin_lines" # AV sanity check (added for color_sum.cc but valid independently)
         ret_lines.extend( file_extend )
-        return vfold_bornextras.filter_vfold_blocks('\n'.join(ret_lines), self.vfold) # AV road B (vfold)
+        return vfold_bornextras.filter_vfold_blocks('\n'.join(ret_lines), self.vfold) # AV vfold
 
     # AV - modify export_cpp.OneProcessExporterGPU method (replace '# Process' by '// Process')
     def get_process_info_lines(self, matrix_element):
@@ -1886,7 +1886,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
         ###replace_dict['hel_amps_def'] = '\n#include \"../../src/HelAmps_%s.cu\"' % self.model_name
         replace_dict['hel_amps_h'] = '#include \"HelAmps_%s.h\"' % self.model_name # AV
-        replace_dict['vfold_bsf_fortran'] = self.get_vfold_bornextras().get_fortran_interface() if self.vfold else '' # AV road B (vfold step 9i+9j)
+        replace_dict['vfold_bsf_fortran'] = self.get_vfold_bornextras().get_fortran_interface() if self.vfold else '' # AV vfold (step 9i+9j)
         if writer:
             file = self.read_template_file(self.process_template_cc) % replace_dict
             # Write the file
@@ -2006,7 +2006,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     #      This class
 
 
-    # AV road B (vfold) - generate the vfold AMP2 lines only with the --vfold output option (set by PLUGIN_OneProcessExporter)
+    # AV vfold - generate the vfold AMP2 lines only with the --vfold output option (set by PLUGIN_OneProcessExporter)
     vfold = False
 
     def __init__(self, *args, **opts):
@@ -2199,7 +2199,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
             if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
             res.append('\n      // Amplitude(s) for diagram number %d' % diagram.get('number'))
-            first_amp2 = True # AV road B (vfold step 10a)
+            first_amp2 = True # AV vfold (step 10a)
             for amplitude in diagram.get('amplitudes'):
                 id_amp +=1
                 namp = amplitude.get('number')
@@ -2227,11 +2227,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     scoeff = scoeff.replace('/',' / ')
                     if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
                     else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
-                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines(diagram.get('number') - 1, first_amp2)) # AV road B (vfold step 9i+9j)
+                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines(diagram.get('number') - 1, first_amp2)) # AV vfold (step 9i+9j)
                 first_amp2 = False
             if len(diagram.get('amplitudes')) == 0 :
                 res.append('// (none)') # AV
-                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines_noamp(diagram.get('number') - 1)) # AV road B (vfold step 10a)
+                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines_noamp(diagram.get('number') - 1)) # AV vfold (step 10a)
         ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR MATRIX BELOW')
         return res
 

@@ -421,7 +421,7 @@ namespace mg5amcGpu
   {
     //std::cout << "DEBUG: MatrixElementKernelDevice::dtor " << this << std::endl;
 %%VFOLD_BEGIN
-    unregisterBornExtrasDeviceBuffer( m_bornExtras.data() ); // AV road B (step 10a)
+    unregisterBornExtrasDeviceBuffer( m_bornExtras.data() ); // AV vfold (step 10a)
 %%VFOLD_END
 #ifndef MGONGPU_HAS_NO_BLAS
     if( m_blasHandle ) gpuBlasDestroy( m_blasHandle );
@@ -485,7 +485,7 @@ namespace mg5amcGpu
     m_pHelDenominators.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
 #endif
 %%VFOLD_BEGIN
-    // AV road B (step 10a): create the "many-helicity" super-buffer of nGoodHel per-diagram |amp|^2 buffers
+    // AV vfold (step 10a): create the "many-helicity" super-buffer of nGoodHel per-diagram |amp|^2 buffers
     m_pHelAmp2.reset( new DeviceBufferSimple( static_cast<size_t>( nGoodHel ) * CPPProcess::ndiagrams * nevt ) );
 %%VFOLD_END
 #ifndef MGONGPU_HAS_NO_BLAS
@@ -538,7 +538,7 @@ namespace mg5amcGpu
     checkGpu( gpuPeekAtLastError() );   // is this needed?
     checkGpu( gpuDeviceSynchronize() ); // probably not needed? but it avoids errors in sigmaKin above from appearing later on in random places...
 %%VFOLD_BEGIN
-    registerBornExtrasDeviceBuffer( m_bornExtras.data(), nevt() ); // AV road B (step 10a): for fbridgegetbsf_ and fbridgegetbornextras_
+    registerBornExtrasDeviceBuffer( m_bornExtras.data(), nevt() ); // AV vfold (step 10a): for fbridgegetbsf_ and fbridgegetbornextras_
 %%VFOLD_END
   }
 
