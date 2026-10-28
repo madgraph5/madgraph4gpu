@@ -536,9 +536,10 @@ namespace mg5amcGpu
     MatrixElementKernelBase::updateNevtProcessedByChannel( pHstChannelIds, nevt() );
 #endif
     checkGpu( gpuPeekAtLastError() );   // is this needed?
-    checkGpu( gpuDeviceSynchronize() ); // probably not needed? but it avoids errors in sigmaKin above from appearing later on in random places...
+    checkGpu( gpuDeviceSynchronize() ); // not needed? but avoids errors in sigmaKin above from appearing later on in random places
 %%VFOLD_BEGIN
-    registerBornExtrasDeviceBuffer( m_bornExtras.data(), nevt() ); // AV vfold (step 10a): for fbridgegetbsf_ and fbridgegetbornextras_
+    // AV vfold (step 10a): for fbridgegetbsf_ and fbridgegetbornextras_
+    registerBornExtrasDeviceBuffer( m_bornExtras.data(), nevt() );
 %%VFOLD_END
   }
 

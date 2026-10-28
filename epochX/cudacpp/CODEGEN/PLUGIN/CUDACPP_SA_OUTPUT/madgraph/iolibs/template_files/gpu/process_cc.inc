@@ -33,10 +33,6 @@
 #endif
 
 #include <algorithm>
-%%VFOLD_BEGIN
-#include <new>    // AV vfold: colour-linked Borns buffer (std::align_val_t)
-#include <vector> // AV vfold: host copy of the colour-linked Borns (step 10a)
-%%VFOLD_END
 #include <array>
 #include <cfenv>  // for feenableexcept, fegetexcept and FE_XXX
 #include <cfloat> // for FLT_MIN
@@ -44,6 +40,10 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+%%VFOLD_BEGIN
+#include <new>    // AV vfold: colour-linked Borns buffer (std::align_val_t)
+#include <vector> // AV vfold: host copy of the colour-linked Borns (step 10a)
+%%VFOLD_END
 
 // Test ncu metrics for CUDA thread divergence
 #undef MGONGPU_TEST_DIVERGENCE
@@ -90,6 +90,5 @@ fpeEnable()
 #endif
 }
 
-%(process_function_definitions)s
+%(process_function_definitions)s%(vfold_bsf_fortran)s
 //==========================================================================
-%(vfold_bsf_fortran)s

@@ -108,9 +108,11 @@ def get_amp2_lines(idiag, first=True):
     [NB: the |amp|^2 of all amplitudes of a diagram are summed, as in the Fortran AMP2 without config_map]
     [NB: in CUDA the one-helicity buffer is not reset, so the first amplitude of a diagram assigns its value]"""
     return ['#ifndef MGONGPUCPP_GPUIMPL',
-            'if( bsfx_sv ) bsfx_sv[nbsf + %d] += cxabs2( amp_sv[0] ); // AV vfold: Fortran AMP2(%d)' % (idiag, idiag + 1),
+            '// AV vfold: Fortran AMP2(%d)' % (idiag + 1),
+            'if( bsfx_sv ) bsfx_sv[nbsf + %d] += cxabs2( amp_sv[0] );' % (idiag),
             '#else',
-            'if( amp2_ev ) amp2_ev[%d * nevt] %s cxabs2( amp_sv[0] ); // AV vfold: Fortran AMP2(%d) for this helicity' % (idiag, '=' if first else '+=', idiag + 1),
+            '// AV vfold: Fortran AMP2(%d) for this helicity' % (idiag + 1),
+            'if( amp2_ev ) amp2_ev[%d * nevt] %s cxabs2( amp_sv[0] );' % (idiag, '=' if first else '+='),
             '#endif']
 
 def get_amp2_lines_noamp(idiag):
@@ -297,7 +299,7 @@ class VfoldBornExtras(object):
         lines.append('#else')
         lines.append('  static const fptype* s_devBsfs = nullptr; // device buffer [nevt*nbx] used by the last sigmaKin launch (host variable)')
         lines.append('#endif')
-        lines.append('  static int s_bsfsNevt = 0;               // nevt of the last sigmaKin call')
+        lines.append('  static int s_bsfsNevt = 0; // nevt of the last sigmaKin call')
         return '\n'.join(lines) + '\n'
 
     def get_sigmakin_cpp(self):
@@ -328,9 +330,9 @@ class VfoldBornExtras(object):
         lines.append('  // AV vfold (step 10a): per-event block [bsf(%d), amp2(%d), jamp2(%d)] summed over the good helicities' % (self.nbsf, self.ndiagrams, self.ncolor))
         lines.append('  // (in the order of cGoodHel, as in C++), from the jamps and per-diagram |amp|^2 of each helicity')
         lines.append('  __global__ void')
-        lines.append('  compute_bornextras( fptype* allBsfx,             // output: per-event block [nevt*nbx]')
-        lines.append('                      const fptype* ghelAllJamps,  // input: jamps super-buffer[2][ncolor][nGoodHel][nevt]')
-        lines.append('                      const fptype* ghelAllAmp2,   // input: amp2 super-buffer[nGoodHel][ndiagrams][nevt]')
+        lines.append('  compute_bornextras( fptype* allBsfx,              // output: per-event block [nevt*nbx]')
+        lines.append('                      const fptype* ghelAllJamps,   // input: jamps super-buffer[2][ncolor][nGoodHel][nevt]')
+        lines.append('                      const fptype* ghelAllAmp2,    // input: amp2 super-buffer[nGoodHel][ndiagrams][nevt]')
         lines.append('                      const int helcolDenominator ) // input: helicity/colour denominator')
         lines.append('  {')
         lines.append('    using J_ACCESS = DeviceAccessJamp;')
@@ -367,6 +369,8 @@ class VfoldBornExtras(object):
     def get_fortran_interface(self):
         """The extern C functions for Fortran at the end of CPPProcess.cc"""
         lines = []
+        lines.append('')
+        lines.append('//==========================================================================')
         lines.append('')
         lines.append('// AV vfold step 9i+9j, %s only: Fortran access to the %s' % (self.process_string, number_word(self.nbsf)))
         lines.append('// colour-linked Borns of the events of the LAST sequence call on this library.')
@@ -406,7 +410,8 @@ class VfoldBornExtras(object):
         lines.append('    *pstatus = 0;')
         lines.append('  }')
         lines.append('}')
-        return '\n'.join(lines) + '\n'
+        lines.append('')
+        return '\n'.join(lines)
 
     @staticmethod
     def status_check():
