@@ -33,7 +33,7 @@ PLUGIN_export_cpp = sys.modules['%s.PLUGIN_export_cpp'%PLUGIN_NAME] # 2nd copy l
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
 
-# AV road B (vfold) - import the module for the vfold extensions
+# AV road B (vfold step 9i+9j) - import the module for the colour-linked Borns, amp2 and jamp2 returned to Fortran SBORN
 __import__('%s.vfold_bornextras'%PLUGIN_NAME)
 vfold_bornextras = sys.modules['%s.vfold_bornextras'%PLUGIN_NAME]
 
@@ -1333,7 +1333,15 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         else: proc_id = 0 # standalone_cudacpp
         ###misc.sprint(proc_id)
         self.proc_id = proc_id
+        self.vfold_bornextras = None
         self.helas_call_writer.vfold = self.vfold # AV road B (vfold)
+
+    # AV road B (vfold step 9i+9j) - the colour-linked Borns, amp2 and jamp2 returned to Fortran SBORN
+    def get_vfold_bornextras(self):
+        if self.vfold_bornextras is None:
+            assert len(self.matrix_elements) == 1 # how to handle if this is not true?
+            self.vfold_bornextras = vfold_bornextras.VfoldBornExtras(self.matrix_elements[0])
+        return self.vfold_bornextras
 
     # AV - overload export_cpp.OneProcessExporterGPU method (indent comments in process_lines)
     def get_process_class_definitions(self, write=True):
@@ -1349,6 +1357,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
+        if self.vfold:
+            replace_dict['nbsf'] = self.get_vfold_bornextras().nbsf # AV road B (vfold step 9i+9j)
+            replace_dict['nbornextras'] = self.get_vfold_bornextras().nbx # AV road B (vfold step 9i+9j)
         if( write ): # ZW: added dict return for uses in child exporters. Default argument is True so no need to modify other calls to this function
             file = self.read_template_file(self.process_class_template) % replace_dict 
             file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
@@ -1429,6 +1440,8 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
         replace_dict['ncolor'] = len(color_amplitudes[0])
+        if self.vfold:
+            replace_dict['vfold_bsf_definitions'] = self.get_vfold_bornextras().get_definitions() # AV road B (vfold step 9i+9j)
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
         if len(params) == 0: # remove cIPD from OpenMP pragma (issue #349)
             file_lines = file.split('\n')
@@ -1450,6 +1463,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         den_factors = [str(me.get_denominator_factor()) for me in \
                             self.matrix_elements]
         replace_dict['den_factors'] = ",".join(den_factors)
+
+        # AV road B (vfold step 9i+9j) - colour-linked Borns, amp2 and jamp2
+        if self.vfold:
+            replace_dict['vfold_bsf_sigmakin_cpp'] = self.get_vfold_bornextras().get_sigmakin_cpp()
+            replace_dict['vfold_nbx'] = self.get_vfold_bornextras().nbx
+        else:
+            replace_dict['vfold_bsf_sigmakin_cpp'] = ''
 
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
@@ -1594,6 +1614,10 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     {
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
+%%VFOLD_BEGIN
+      // AV road B: this page's block in the colour-linked Born buffer (nullptr outside sigmaKin)
+      fptype_sv* bsfx_sv = s_bsfsAccum ? s_bsfsAccum + ( ievt0 / neppV ) * nbx : nullptr;
+%%VFOLD_END
 #endif""")
             ret_lines += helas_calls
         else:
@@ -1610,7 +1634,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             file_extend.append( file )
             assert i == 0, "more than one ME in get_all_sigmaKin_lines" # AV sanity check (added for color_sum.cc but valid independently)
         ret_lines.extend( file_extend )
-        return '\n'.join(ret_lines)
+        return vfold_bornextras.filter_vfold_blocks('\n'.join(ret_lines), self.vfold) # AV road B (vfold)
 
     # AV - modify export_cpp.OneProcessExporterGPU method (replace '# Process' by '// Process')
     def get_process_info_lines(self, matrix_element):
@@ -1854,6 +1878,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
         ###replace_dict['hel_amps_def'] = '\n#include \"../../src/HelAmps_%s.cu\"' % self.model_name
         replace_dict['hel_amps_h'] = '#include \"HelAmps_%s.h\"' % self.model_name # AV
+        replace_dict['vfold_bsf_fortran'] = self.get_vfold_bornextras().get_fortran_interface() if self.vfold else '' # AV road B (vfold step 9i+9j)
         if writer:
             file = self.read_template_file(self.process_template_cc) % replace_dict
             # Write the file
@@ -2193,6 +2218,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     scoeff = scoeff.replace('/',' / ')
                     if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
                     else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
+                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines(diagram.get('number') - 1)) # AV road B (vfold step 9i+9j)
             if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
         ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR MATRIX BELOW')
         return res

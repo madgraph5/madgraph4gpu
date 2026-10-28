@@ -40,6 +40,18 @@
       denominators_sv = fptype_sv{ 0 };
 #endif
     }
+%%VFOLD_BEGIN
+    // AV road B: reset the colour-linked Borns and enable their accumulation
+    if( s_bsfsSize != npagV * nbx )
+    {
+      if( s_bsfs ) ::operator delete[]( s_bsfs, std::align_val_t( mgOnGpu::cppAlign ) );
+      s_bsfs = new( std::align_val_t( mgOnGpu::cppAlign ) ) fptype_sv[npagV * nbx]();
+      s_bsfsSize = npagV * nbx;
+    }
+    for( int i = 0; i < s_bsfsSize; i++ ) s_bsfs[i] = fptype_sv{ 0 };
+    s_bsfsNevt = nevt;
+    s_bsfsAccum = s_bsfs;
+%%VFOLD_END
 #endif
 
     // === PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS ===
@@ -93,7 +105,11 @@
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
+%%VFOLD_BEGIN
+#define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2, s_bsfsAccum
+%%VFOLD_ELSE
 #define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
+%%VFOLD_END
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #define _OMPLIST1 , allDenominators, allNumerators, allChannelIds, allIgraph, mgOnGpu::icolamp, mgOnGpu::channel2iconfig
 #else
@@ -163,7 +179,7 @@
 #endif
         color_sum_cpu( allMEs, jamp_sv, ievt00 );
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+%(vfold_bsf_sigmakin_cpp)s#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
       }
@@ -355,8 +371,58 @@
       //  printf( "sigmaKin: ievt=%%2d me=%%f\n", ievt, allMEs[ievt] );
       //}
     }
+%%VFOLD_BEGIN
+    // AV road B: final colour-linked Borns (same denominators as the MEs, no multichannel factor)
+    // (only the links: amp2 and jamp2 are raw sums over helicities, like the Fortran AMP2 and JAMP2)
+    for( int ipagV = 0; ipagV < npagV; ++ipagV )
+      for( int ibsf = 0; ibsf < nbsf; ibsf++ )
+        s_bsfs[ipagV * nbx + ibsf] /= helcolDenominators[0];
+    s_bsfsAccum = nullptr;
+%%VFOLD_END
 #endif
     mgDebugFinalise();
   }
 
   //--------------------------------------------------------------------------
+%%VFOLD_BEGIN
+
+#ifndef MGONGPUCPP_GPUIMPL
+  // AV road B: copy out the colour-linked Borns computed by the last sigmaKin call
+  void
+  getColourLinkedBorns( const int nevt, double* bsfs ) // output: bsfs[nevt][nbsf] (Fortran BSF(NBSF,NEVT))
+  {
+    for( int ievt = 0; ievt < nevt; ievt++ )
+    {
+      const fptype_sv* bsfs_sv = s_bsfs + ( ievt / neppV ) * nbx;
+      for( int ibsf = 0; ibsf < nbsf; ibsf++ )
+      {
+#ifdef MGONGPU_CPPSIMD
+        bsfs[ievt * nbsf + ibsf] = bsfs_sv[ibsf][ievt %% neppV];
+#else
+        bsfs[ievt * nbsf + ibsf] = bsfs_sv[ibsf];
+#endif
+      }
+    }
+  }
+
+  // AV road B (step 9i+9j): copy out the whole per-event block of the last sigmaKin call
+  void
+  getBornExtras( const int nevt, double* extras ) // output: extras[nevt][nbx] (Fortran EXTRAS(%(vfold_nbx)d,NEVT))
+  {
+    for( int ievt = 0; ievt < nevt; ievt++ )
+    {
+      const fptype_sv* bsfx_sv = s_bsfs + ( ievt / neppV ) * nbx;
+      for( int ibx = 0; ibx < nbx; ibx++ )
+      {
+#ifdef MGONGPU_CPPSIMD
+        extras[ievt * nbx + ibx] = bsfx_sv[ibx][ievt %% neppV];
+#else
+        extras[ievt * nbx + ibx] = bsfx_sv[ibx];
+#endif
+      }
+    }
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+%%VFOLD_END

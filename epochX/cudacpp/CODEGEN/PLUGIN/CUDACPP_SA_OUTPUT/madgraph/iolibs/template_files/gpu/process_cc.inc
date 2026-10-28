@@ -33,6 +33,9 @@
 #endif
 
 #include <algorithm>
+%%VFOLD_BEGIN
+#include <new> // AV road B: colour-linked Borns buffer (std::align_val_t)
+%%VFOLD_END
 #include <array>
 #include <cfenv>  // for feenableexcept, fegetexcept and FE_XXX
 #include <cfloat> // for FLT_MIN
@@ -88,3 +91,4 @@ fpeEnable()
 
 %(process_function_definitions)s
 //==========================================================================
+%(vfold_bsf_fortran)s

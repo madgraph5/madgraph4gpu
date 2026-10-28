@@ -94,6 +94,9 @@ namespace mg5amcCpu
   static int cNGoodHel;
   static int cGoodHel[ncomb];
 
+%%VFOLD_BEGIN
+%(vfold_bsf_definitions)s
+%%VFOLD_END
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL
