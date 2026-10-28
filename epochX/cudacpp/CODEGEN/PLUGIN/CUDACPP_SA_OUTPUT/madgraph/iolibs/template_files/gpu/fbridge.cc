@@ -59,15 +59,33 @@ extern "C"
    * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
    *
    * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
+%%VFOLD_BEGIN
+   * @param hwreset reset hardware on exit (GPU-only: call gpuDeviceReset)
+%%VFOLD_END
    */
+%%VFOLD_BEGIN
+  void fbridgedelete_( CppObjectInFortran** ppbridge,
+                       const bool* hwreset )
+%%VFOLD_ELSE
   void fbridgedelete_( CppObjectInFortran** ppbridge )
+%%VFOLD_END
   {
     Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
     if( pbridge == 0 ) throw std::runtime_error( "fbridgedelete_: invalid Bridge address" );
+%%VFOLD_BEGIN
+    delete pbridge;
+    if( *hwreset )
+    {
+#ifdef MGONGPUCPP_GPUIMPL
+      GpuRuntime::tearDown();
+#endif
+    }
+%%VFOLD_ELSE
     delete pbridge;
 #ifdef MGONGPUCPP_GPUIMPL
     GpuRuntime::tearDown();
 #endif
+%%VFOLD_END
   }
 
   /**

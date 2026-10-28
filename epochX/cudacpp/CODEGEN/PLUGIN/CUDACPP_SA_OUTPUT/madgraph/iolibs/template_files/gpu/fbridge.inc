@@ -22,10 +22,19 @@ C
 C
 C Delete a Bridge.
 C - PBRIDGE: the memory address of the C++ Bridge
+%%VFOLD_BEGIN
+C - HWRESET: call gpuDeviceReset on exit
+%%VFOLD_END
 C
       INTERFACE
+%%VFOLD_BEGIN
+         SUBROUTINE FBRIDGEDELETE(PBRIDGE, HWRESET)
+         INTEGER*8 PBRIDGE
+         LOGICAL HWRESET
+%%VFOLD_ELSE
          SUBROUTINE FBRIDGEDELETE(PBRIDGE)
          INTEGER*8 PBRIDGE
+%%VFOLD_END
          END SUBROUTINE FBRIDGEDELETE
       END INTERFACE
       

@@ -83,7 +83,7 @@ c         WRITE(6,*)
         END DO
       END DO
       CALL FSAMPLERDELETE(SAMPLER)
-      CALL FBRIDGEDELETE(BRIDGE) ! this must be at the end as it shuts down the CUDA device
+      CALL FBRIDGEDELETE(BRIDGE%(vfold_hwreset)s) ! this must be at the end as it shuts down the CUDA device
       WRITE(6,*) 'Average Matrix Element:', MES_SUM/NEVT/NITER
       WRITE(6,*) 'Abnormal MEs:', NEVT*NITER - NEVTOK
       END PROGRAM FCHECK_SA

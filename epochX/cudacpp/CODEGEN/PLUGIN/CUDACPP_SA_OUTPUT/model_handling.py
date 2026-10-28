@@ -1682,6 +1682,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['nexternal'], _ = self.matrix_elements[0].get_nexternal_ninitial()
         ###replace_dict['model'] = self.model_name
         ###replace_dict['numproc'] = len(self.matrix_elements)
+        replace_dict['vfold_hwreset'] = ', .TRUE.' if self.vfold else '' # AV road B (vfold step 8i+8j)
         ff = open(pjoin(self.path, 'fcheck_sa.f'),'w')
         template = open(pjoin(self.template_path,'gpu','fcheck_sa.f'),'r').read()
         ff.write(template % replace_dict)
