@@ -440,6 +440,9 @@
   }
 #else
   // AV vfold (step 10a): register the device buffer [nevt*nbx] used by the last sigmaKin launch
+  // (this must be in CPPProcess.cc and not in MatrixElementKernels.cc: the Fortran getters fbridgegetbsf_
+  // and fbridgegetbornextras_ in this file have no Bridge argument, so the buffer address is kept in
+  // the file-scope statics s_devBsfs and s_bsfsNevt of this file, like the host buffer s_bsfs on CPUs)
   void
   registerBornExtrasDeviceBuffer( const fptype* devBsfx, const int nevt )
   {
