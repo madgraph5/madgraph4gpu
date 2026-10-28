@@ -98,6 +98,10 @@ namespace mg5amcCpu
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: allJamps super-buffer[2][ncol][nGoodHel][nevt] for nGoodHel <= ncomb individual helicities
+%%VFOLD_BEGIN
+            fptype* ghelAllAmp2,                // tmp: AV road B amp2[nGoodHel][ndiagrams][nevt] super-buffer (nullptr to disable)
+            fptype* allBsfx,                    // output: AV road B per-event block [nevt*nbornextras] (nullptr to disable)
+%%VFOLD_END
             fptype2* ghelAllBlasTmp,            // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities
             gpuBlasHandle_t* pBlasHandle,       // input: cuBLAS/hipBLAS handle
             gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
@@ -124,6 +128,17 @@ namespace mg5amcCpu
 #endif /* clang-format on */
 
   //--------------------------------------------------------------------------
+%%VFOLD_BEGIN
+
+#ifdef MGONGPUCPP_GPUIMPL
+  // AV road B (step 10a): host functions to (un)register the device buffer [nevt*nbornextras] passed to
+  // the last sigmaKin launch, from which fbridgegetbsf_ and fbridgegetbornextras_ copy their values to the host
+  void registerBornExtrasDeviceBuffer( const fptype* devBsfx, const int nevt );
+  void unregisterBornExtrasDeviceBuffer( const fptype* devBsfx );
+
+  //--------------------------------------------------------------------------
+#endif
+%%VFOLD_END
 }
 
 #endif // MG5_%(process_file_name)s_H

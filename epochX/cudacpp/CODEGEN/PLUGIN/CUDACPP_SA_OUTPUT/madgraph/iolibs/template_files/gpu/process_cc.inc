@@ -34,7 +34,8 @@
 
 #include <algorithm>
 %%VFOLD_BEGIN
-#include <new> // AV road B: colour-linked Borns buffer (std::align_val_t)
+#include <new>    // AV road B: colour-linked Borns buffer (std::align_val_t)
+#include <vector> // AV road B: host copy of the colour-linked Borns (step 10a)
 %%VFOLD_END
 #include <array>
 #include <cfenv>  // for feenableexcept, fegetexcept and FE_XXX

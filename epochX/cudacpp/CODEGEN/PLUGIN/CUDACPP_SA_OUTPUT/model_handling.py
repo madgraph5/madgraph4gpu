@@ -1442,6 +1442,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['ncolor'] = len(color_amplitudes[0])
         if self.vfold:
             replace_dict['vfold_bsf_definitions'] = self.get_vfold_bornextras().get_definitions() # AV road B (vfold step 9i+9j)
+            replace_dict['vfold_bsf_kernel'] = self.get_vfold_bornextras().get_kernel_gpu() # AV road B (vfold step 10a)
+        else:
+            replace_dict['vfold_bsf_kernel'] = ''
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
         if len(params) == 0: # remove cIPD from OpenMP pragma (issue #349)
             file_lines = file.split('\n')
@@ -1523,6 +1526,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
                    fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
 #endif
+%%VFOLD_BEGIN
+                   fptype* allAmp2,                   // output: AV road B amp2[ndiagrams][nevt] buffer for one helicity (nullptr to disable)
+%%VFOLD_END
                    const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
                    cxtype_sv* allJamp_sv,             // output: jamp_sv[ncolor] (float/double) or jamp_sv[2*ncolor] (mixed) for this helicity
@@ -1617,6 +1623,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 %%VFOLD_BEGIN
       // AV road B: this page's block in the colour-linked Born buffer (nullptr outside sigmaKin)
       fptype_sv* bsfx_sv = s_bsfsAccum ? s_bsfsAccum + ( ievt0 / neppV ) * nbx : nullptr;
+#else
+      // AV road B: this event's amp2 in the one-helicity buffer (nullptr in sigmaKin_getGoodHel)
+      fptype* amp2_ev = allAmp2 ? allAmp2 + blockDim.x * blockIdx.x + threadIdx.x : nullptr;
 %%VFOLD_END
 #endif""")
             ret_lines += helas_calls
@@ -2191,6 +2200,7 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
             if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
             res.append('\n      // Amplitude(s) for diagram number %d' % diagram.get('number'))
+            first_amp2 = True # AV road B (vfold step 10a)
             for amplitude in diagram.get('amplitudes'):
                 id_amp +=1
                 namp = amplitude.get('number')
@@ -2218,8 +2228,11 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     scoeff = scoeff.replace('/',' / ')
                     if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
                     else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
-                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines(diagram.get('number') - 1)) # AV road B (vfold step 9i+9j)
-            if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
+                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines(diagram.get('number') - 1, first_amp2)) # AV road B (vfold step 9i+9j)
+                first_amp2 = False
+            if len(diagram.get('amplitudes')) == 0 :
+                res.append('// (none)') # AV
+                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines_noamp(diagram.get('number') - 1)) # AV road B (vfold step 10a)
         ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR MATRIX BELOW')
         return res
 

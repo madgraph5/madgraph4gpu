@@ -67,17 +67,33 @@
     {
       const int ihel = cGoodHel[ighel];
       fptype* hAllJamps = ghelAllJamps + ighel * nevt; // HACK: bypass DeviceAccessJamp (consistent with layout defined there)
+%%VFOLD_BEGIN
+      fptype* hAllAmp2 = ( ghelAllAmp2 && allBsfx ) ? ghelAllAmp2 + (size_t)ighel * nbxDiag * nevt : nullptr; // AV road B
+%%VFOLD_END
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
+%%VFOLD_BEGIN
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, hAllAmp2, nevt );
+%%VFOLD_ELSE
       gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
+%%VFOLD_END
 #else
+%%VFOLD_BEGIN
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, hAllAmp2, nevt );
+%%VFOLD_ELSE
       gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );
+%%VFOLD_END
 #endif
     }
     // (2) Then compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
     color_sum_gpu( ghelAllMEs, ghelAllJamps, ghelAllBlasTmp, pBlasHandle, ghelStreams, cNGoodHel, gpublocks, gputhreads );
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
+%%VFOLD_BEGIN
+    // AV road B (step 10a): colour-linked Borns, AMP2 and JAMP2 summed over helicities (in a fixed order)
+    if( allBsfx && ghelAllAmp2 )
+      gpuLaunchKernel( compute_bornextras, gpublocks, gputhreads, allBsfx, ghelAllJamps, ghelAllAmp2, helcolDenominators[0] );
+%%VFOLD_END
     // (3) Wait for all helicity streams to complete, then finally compute the ME sum over all helicities and choose one helicity and one color
     // Event-by-event random choice of helicity #403 and ME sum over helicities (defer this after the helicity loop to avoid breaking streams parallelism)
     gpuLaunchKernel( add_and_select_hel, gpublocks, gputhreads, allselhel, allrndhel, ghelAllMEs, allMEs, gpublocks * gputhreads );
@@ -421,6 +437,54 @@
 #endif
       }
     }
+  }
+#else
+  // AV road B (step 10a): register the device buffer [nevt*nbx] used by the last sigmaKin launch
+  void
+  registerBornExtrasDeviceBuffer( const fptype* devBsfx, const int nevt )
+  {
+    s_devBsfs = devBsfx;
+    s_bsfsNevt = nevt;
+  }
+
+  // AV road B (step 10a): forget the registered device buffer if it is being deleted
+  void
+  unregisterBornExtrasDeviceBuffer( const fptype* devBsfx )
+  {
+    if( s_devBsfs != devBsfx ) return;
+    s_devBsfs = nullptr;
+    s_bsfsNevt = 0;
+  }
+
+  // AV road B (step 10a): copy the whole per-event block of the last sigmaKin launch from the device
+  // (one synchronous device-to-host copy of nevt*nbx values; returns a host pointer valid until the next call)
+  static const fptype*
+  copyBornExtrasToHost( const int nevt )
+  {
+    static std::vector<fptype> hstBsfs;
+    if( (int)hstBsfs.size() < nevt * nbx ) hstBsfs.resize( nevt * nbx );
+    gpuMemcpy( hstBsfs.data(), s_devBsfs, nevt * nbx * sizeof( fptype ), gpuMemcpyDeviceToHost );
+    return hstBsfs.data();
+  }
+
+  // AV road B (step 10a): copy out the colour-linked Borns computed by the last sigmaKin launch
+  void
+  getColourLinkedBorns( const int nevt, double* bsfs ) // output: bsfs[nevt][nbsf] (Fortran BSF(NBSF,NEVT))
+  {
+    const fptype* hstBsfs = copyBornExtrasToHost( nevt );
+    for( int ievt = 0; ievt < nevt; ievt++ )
+      for( int ibsf = 0; ibsf < nbsf; ibsf++ )
+        bsfs[ievt * nbsf + ibsf] = hstBsfs[ievt * nbx + ibsf];
+  }
+
+  // AV road B (step 10a): copy out the whole per-event block of the last sigmaKin launch
+  void
+  getBornExtras( const int nevt, double* extras ) // output: extras[nevt][nbx] (Fortran EXTRAS(%(vfold_nbx)d,NEVT))
+  {
+    const fptype* hstBsfs = copyBornExtrasToHost( nevt );
+    for( int ievt = 0; ievt < nevt; ievt++ )
+      for( int ibx = 0; ibx < nbx; ibx++ )
+        extras[ievt * nbx + ibx] = hstBsfs[ievt * nbx + ibx];
   }
 #endif
 

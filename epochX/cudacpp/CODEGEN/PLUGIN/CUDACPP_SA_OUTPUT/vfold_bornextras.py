@@ -103,11 +103,20 @@ def join_words(items):
 
 #------------------------------------------------------------------------------------
 
-def get_amp2_lines(idiag):
+def get_amp2_lines(idiag, first=True):
     """The AMP2 accumulation after the jamp updates of each amplitude of diagram idiag (starting at 0)
-    [NB: the |amp|^2 of all amplitudes of a diagram are summed, as in the Fortran AMP2 without config_map]"""
+    [NB: the |amp|^2 of all amplitudes of a diagram are summed, as in the Fortran AMP2 without config_map]
+    [NB: in CUDA the one-helicity buffer is not reset, so the first amplitude of a diagram assigns its value]"""
     return ['#ifndef MGONGPUCPP_GPUIMPL',
             'if( bsfx_sv ) bsfx_sv[nbsf + %d] += cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(%d)' % (idiag, idiag + 1),
+            '#else',
+            'if( amp2_ev ) amp2_ev[%d * nevt] %s cxabs2( amp_sv[0] ); // AV road B: Fortran AMP2(%d) for this helicity' % (idiag, '=' if first else '+=', idiag + 1),
+            '#endif']
+
+def get_amp2_lines_noamp(idiag):
+    """The AMP2 of a diagram without amplitudes (in CUDA the one-helicity buffer must still be set)"""
+    return ['#ifdef MGONGPUCPP_GPUIMPL',
+            'if( amp2_ev ) amp2_ev[%d * nevt] = 0; // AV road B: Fortran AMP2(%d) for this helicity' % (idiag, idiag + 1),
             '#endif']
 
 #------------------------------------------------------------------------------------
@@ -272,13 +281,23 @@ class VfoldBornExtras(object):
         lines.append('  constexpr int nbxDiag = CPPProcess::ndiagrams; // %d' % self.ndiagrams)
         lines.append('  constexpr int nbx = nbsf + nbxDiag + ncolor;   // per-event block: [bsf(%d), amp2(%d), jamp2(%d)]' % (self.nbsf, self.ndiagrams, self.ncolor))
         lines.append('  static_assert( nbx == CPPProcess::nbornextras, "nbx must match CPPProcess::nbornextras" );')
+        lines.append('  // Step 10a: also on GPUs. There the per-event block lives in a device buffer')
+        lines.append('  // [nevt*nbx] owned by MatrixElementKernelDevice and passed to sigmaKin (argument allBsfx);')
+        lines.append('  // it is registered after each launch, so that fbridgegetbsf_ and fbridgegetbornextras_')
+        lines.append('  // can copy the values of the last call back to the host.')
+        lines.append('  // [381 port: the new cudacpp runs one GPU stream per good helicity, so AMP2 is written by')
+        lines.append('  // calculate_jamps into a per-helicity buffer ghelAllAmp2[nGoodHel][ndiagrams][nevt] and the')
+        lines.append('  // whole block is then summed over helicities in a fixed order in the compute_bornextras')
+        lines.append('  // kernel, from ghelAllAmp2 and ghelAllJamps (no atomicAdd: results are reproducible)]')
         lines.append('#ifndef MGONGPUCPP_GPUIMPL')
         lines.append('  static fptype_sv* s_bsfs = nullptr;      // [npagV][nbx]: results of the last sigmaKin call (aligned raw buffer')
         lines.append('                                           // as in MemoryBuffers.h: std::vector<fptype_sv> ignores the alignment attribute)')
         lines.append('  static int s_bsfsSize = 0;               // npagV * nbx for the allocated s_bsfs')
         lines.append('  static fptype_sv* s_bsfsAccum = nullptr; // = s_bsfs inside sigmaKin, else nullptr (e.g. sigmaKin_getGoodHel)')
-        lines.append('  static int s_bsfsNevt = 0;               // nevt of the last sigmaKin call')
+        lines.append('#else')
+        lines.append('  static const fptype* s_devBsfs = nullptr; // device buffer [nevt*nbx] used by the last sigmaKin launch (host variable)')
         lines.append('#endif')
+        lines.append('  static int s_bsfsNevt = 0;               // nevt of the last sigmaKin call')
         return '\n'.join(lines) + '\n'
 
     def get_sigmakin_cpp(self):
@@ -302,6 +321,49 @@ class VfoldBornExtras(object):
         lines.append('        }')
         return '\n'.join(lines) + '\n'
 
+    def get_kernel_gpu(self):
+        """The CUDA kernel summing the colour-linked Borns, AMP2 and JAMP2 over helicities (before sigmaKin)"""
+        lines = []
+        lines.append('#ifdef MGONGPUCPP_GPUIMPL')
+        lines.append('  // AV road B (step 10a): per-event block [bsf(%d), amp2(%d), jamp2(%d)] summed over the good helicities' % (self.nbsf, self.ndiagrams, self.ncolor))
+        lines.append('  // (in the order of cGoodHel, as in C++), from the jamps and per-diagram |amp|^2 of each helicity')
+        lines.append('  __global__ void')
+        lines.append('  compute_bornextras( fptype* allBsfx,             // output: per-event block [nevt*nbx]')
+        lines.append('                      const fptype* ghelAllJamps,  // input: jamps super-buffer[2][ncolor][nGoodHel][nevt]')
+        lines.append('                      const fptype* ghelAllAmp2,   // input: amp2 super-buffer[nGoodHel][ndiagrams][nevt]')
+        lines.append('                      const int helcolDenominator ) // input: helicity/colour denominator')
+        lines.append('  {')
+        lines.append('    using J_ACCESS = DeviceAccessJamp;')
+        if self.nbsf > 0:
+            lines.append("    // [NB keep 'static' for these constexpr arrays, as for cf (issue #283): needed in CUDA device code]")
+            lines += self.coefficient_arrays('    ')
+        lines.append('    const int nevt = gridDim.x * blockDim.x;')
+        lines.append('    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;')
+        lines.append('    fptype bsfx[nbx] = { 0 };')
+        lines.append('    for( int ighel = 0; ighel < dcNGoodHel; ighel++ )')
+        lines.append('    {')
+        for i in range(self.ncolor):
+            lines.append('      const cxtype jamp%d = J_ACCESS::kernelAccessIcolIhelNhelConst( ghelAllJamps, %d, ighel, dcNGoodHel );' % (i, i))
+        lines.append('      for( int idiag = 0; idiag < nbxDiag; idiag++ )')
+        lines.append('        bsfx[nbsf + idiag] += ghelAllAmp2[( (size_t)ighel * nbxDiag + idiag ) * nevt + ievt]; // Fortran AMP2')
+        lines += self.term_values('      ', 'fptype', lambda i: 'jamp%d' % i)
+        if self.nbsf > 0:
+            lines.append('      for( int ibsf = 0; ibsf < nbsf; ibsf++ )')
+            lines.append('        bsfx[ibsf] += %s;' % self.link_sum())
+        for i in range(self.ncolor):
+            s = self.suffix(i, i)
+            lines.append('      bsfx[nbsf + nbxDiag + %d] += bsfA%s; // Fortran JAMP2(%d)' % (i, s, i + 1))
+        lines.append('    }')
+        lines.append('    // Final colour-linked Borns (same denominators as the MEs, no multichannel factor; amp2 and jamp2 are raw sums)')
+        lines.append('    for( int ibsf = 0; ibsf < nbsf; ibsf++ ) bsfx[ibsf] /= helcolDenominator;')
+        lines.append('    for( int ibx = 0; ibx < nbx; ibx++ ) allBsfx[ievt * nbx + ibx] = bsfx[ibx];')
+        lines.append('  }')
+        lines.append('#endif')
+        lines.append('')
+        lines.append('  //--------------------------------------------------------------------------')
+        lines.append('')
+        return '\n'.join(lines) + '\n'
+
     def get_fortran_interface(self):
         """The extern C functions for Fortran at the end of CPPProcess.cc"""
         lines = []
@@ -310,34 +372,46 @@ class VfoldBornExtras(object):
         lines.append('// colour-linked Borns of the events of the LAST sequence call on this library.')
         lines.append('// CALL FBRIDGEGETBSF(NEVT, BSFS, STATUS) with DOUBLE PRECISION BSFS(%d,NEVT):' % self.nbsf)
         lines.append('// STATUS=0 on success; 1 if NEVT does not match the last sigmaKin call.')
-        lines.append('// [381 port: C++ only for now, the GPU version of step 10a is not ported yet]')
-        lines.append('#ifndef MGONGPUCPP_GPUIMPL')
+        lines.append('// Step 10a: exported by the CUDA library too (copy from the device).')
+        lines.append('#ifdef MGONGPUCPP_GPUIMPL')
+        lines.append('namespace mg5amcBsf = mg5amcGpu;')
+        lines.append('#else')
+        lines.append('namespace mg5amcBsf = mg5amcCpu;')
+        lines.append('#endif')
         lines.append('extern "C"')
         lines.append('{')
         lines.append('  void fbridgegetbsf_( const int* pnevt, double* bsfs, int* pstatus )')
         lines.append('  {')
-        lines.append('    if( *pnevt != mg5amcCpu::s_bsfsNevt )')
+        lines += self.status_check()
         lines.append('    {')
         lines.append('      *pstatus = 1;')
         lines.append('      return;')
         lines.append('    }')
-        lines.append('    mg5amcCpu::getColourLinkedBorns( *pnevt, bsfs );')
+        lines.append('    mg5amcBsf::getColourLinkedBorns( *pnevt, bsfs );')
         lines.append('    *pstatus = 0;')
         lines.append('  }')
         lines.append('')
         lines.append('  // AV road B (step 9i+9j): the whole per-event block of the LAST sequence call:')
         lines.append('  // CALL FBRIDGEGETBORNEXTRAS(NEVT, EXTRAS, STATUS), DOUBLE PRECISION EXTRAS(%d,NEVT)' % self.nbx)
         lines.append('  // = the %d colour-linked Borns, then AMP2(1:%d), then JAMP2(1:%d) (see nbx).' % (self.nbsf, self.ndiagrams, self.ncolor))
+        lines.append('  // Step 10a: exported by the CUDA library too (copy from the device).')
         lines.append('  void fbridgegetbornextras_( const int* pnevt, double* extras, int* pstatus )')
         lines.append('  {')
-        lines.append('    if( *pnevt != mg5amcCpu::s_bsfsNevt )')
+        lines += self.status_check()
         lines.append('    {')
         lines.append('      *pstatus = 1;')
         lines.append('      return;')
         lines.append('    }')
-        lines.append('    mg5amcCpu::getBornExtras( *pnevt, extras );')
+        lines.append('    mg5amcBsf::getBornExtras( *pnevt, extras );')
         lines.append('    *pstatus = 0;')
         lines.append('  }')
         lines.append('}')
-        lines.append('#endif')
         return '\n'.join(lines) + '\n'
+
+    @staticmethod
+    def status_check():
+        return ['#ifdef MGONGPUCPP_GPUIMPL',
+                '    if( *pnevt != mg5amcBsf::s_bsfsNevt || mg5amcBsf::s_devBsfs == nullptr )',
+                '#else',
+                '    if( *pnevt != mg5amcBsf::s_bsfsNevt )',
+                '#endif']
