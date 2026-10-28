@@ -76,7 +76,7 @@ namespace mg5amcCpu
     static constexpr int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
     static constexpr int ncomb = 64; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
     static constexpr int ndiagrams = 16; // #Feynman diagrams: e.g. 3 for e+ e- -> mu+ mu-
-    static constexpr int nbornextras = 28; // AV road B: per-event block [colour-linked Borns(10), amp2(16), jamp2(2)] (see nbx in CPPProcess.cc)
+    static constexpr int nbornextras = 28; // AV vfold: per-event block [colour-linked Borns(10), amp2(16), jamp2(2)] (see nbx in CPPProcess.cc)
     static constexpr int ncolor = 2; // the number of leading colors: e.g. 1 for e+ e- -> mu+ mu-
 
     // Hardcoded parameters for this process (constant class variables)
@@ -176,8 +176,8 @@ namespace mg5amcCpu
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: allJamps super-buffer[2][ncol][nGoodHel][nevt] for nGoodHel <= ncomb individual helicities
-            fptype* ghelAllAmp2,                // tmp: AV road B amp2[nGoodHel][ndiagrams][nevt] super-buffer (nullptr to disable)
-            fptype* allBsfx,                    // output: AV road B per-event block [nevt*nbornextras] (nullptr to disable)
+            fptype* ghelAllAmp2,                // tmp: AV vfold amp2[nGoodHel][ndiagrams][nevt] super-buffer (nullptr to disable)
+            fptype* allBsfx,                    // output: AV vfold per-event block [nevt*nbornextras] (nullptr to disable)
             fptype2* ghelAllBlasTmp,            // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities
             gpuBlasHandle_t* pBlasHandle,       // input: cuBLAS/hipBLAS handle
             gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
@@ -206,7 +206,7 @@ namespace mg5amcCpu
   //--------------------------------------------------------------------------
 
 #ifdef MGONGPUCPP_GPUIMPL
-  // AV road B (step 10a): host functions to (un)register the device buffer [nevt*nbornextras] passed to
+  // AV vfold (step 10a): host functions to (un)register the device buffer [nevt*nbornextras] passed to
   // the last sigmaKin launch, from which fbridgegetbsf_ and fbridgegetbornextras_ copy their values to the host
   void registerBornExtrasDeviceBuffer( const fptype* devBsfx, const int nevt );
   void unregisterBornExtrasDeviceBuffer( const fptype* devBsfx );

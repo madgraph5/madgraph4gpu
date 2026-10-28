@@ -418,7 +418,7 @@ namespace mg5amcGpu
   MatrixElementKernelDevice::~MatrixElementKernelDevice()
   {
     //std::cout << "DEBUG: MatrixElementKernelDevice::dtor " << this << std::endl;
-    unregisterBornExtrasDeviceBuffer( m_bornExtras.data() ); // AV road B (step 10a)
+    unregisterBornExtrasDeviceBuffer( m_bornExtras.data() ); // AV vfold (step 10a)
 #ifndef MGONGPU_HAS_NO_BLAS
     if( m_blasHandle ) gpuBlasDestroy( m_blasHandle );
 #endif
@@ -480,7 +480,7 @@ namespace mg5amcGpu
     m_pHelNumerators.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
     m_pHelDenominators.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
 #endif
-    // AV road B (step 10a): create the "many-helicity" super-buffer of nGoodHel per-diagram |amp|^2 buffers
+    // AV vfold (step 10a): create the "many-helicity" super-buffer of nGoodHel per-diagram |amp|^2 buffers
     m_pHelAmp2.reset( new DeviceBufferSimple( static_cast<size_t>( nGoodHel ) * CPPProcess::ndiagrams * nevt ) );
 #ifndef MGONGPU_HAS_NO_BLAS
     // Create the "many-helicity" super-buffers of real/imag ncolor*nevt temporary buffers for cuBLAS/hipBLAS intermediate results in color_sum_blas
@@ -522,8 +522,9 @@ namespace mg5amcGpu
     MatrixElementKernelBase::updateNevtProcessedByChannel( pHstChannelIds, nevt() );
 #endif
     checkGpu( gpuPeekAtLastError() );   // is this needed?
-    checkGpu( gpuDeviceSynchronize() ); // probably not needed? but it avoids errors in sigmaKin above from appearing later on in random places...
-    registerBornExtrasDeviceBuffer( m_bornExtras.data(), nevt() ); // AV road B (step 10a): for fbridgegetbsf_ and fbridgegetbornextras_
+    checkGpu( gpuDeviceSynchronize() ); // not needed? but avoids errors in sigmaKin above from appearing later on in random places
+    // AV vfold (step 10a): for fbridgegetbsf_ and fbridgegetbornextras_
+    registerBornExtrasDeviceBuffer( m_bornExtras.data(), nevt() );
   }
 
   //--------------------------------------------------------------------------

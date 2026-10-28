@@ -1,4 +1,4 @@
 set stdout_level DEBUG
 set zerowidth_tchannel F
 generate e+ e- > b b b~ b~
-output madevent_simd epem_bbbxbx.mad --hel_recycling=False --vector_size=32 
+output madevent_simd epem_bbbxbx.mad --hel_recycling=False --vector_size=32 --vfold
