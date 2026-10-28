@@ -173,7 +173,12 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     def __init__(self, *args, **kwargs):
         self.in_madevent_mode = False # see MR #747
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+        # AV road B (vfold) - generate the vfold extensions only with the --vfold output option
+        # (pass this to the OneProcessExporter class, as in madevent mode it is instantiated by the Fortran exporter)
+        self.vfold = model_handling.vfold_bornextras.is_vfold(self.opt['output_options'])
+        self.oneprocessclass.vfold = self.vfold
+        if self.vfold: logger.info('Generating the vfold extensions (--vfold)')
 
     # AV - overload the default version: create CMake directory, do not create lib directory
     def copy_template(self, model):
@@ -191,6 +196,15 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             for key in self.from_template:
                 for f in self.from_template[key]:
                     PLUGIN_export_cpp.cp(f, key) # NB this assumes directory key exists...
+            # AV road B (vfold) - keep or remove the vfold-only blocks in the copied files
+            for key in self.from_template:
+                for f in self.from_template[key]:
+                    fcopy = os.path.join(key, os.path.basename(f))
+                    if not os.path.isfile(fcopy): continue
+                    with open(fcopy, 'rb') as fh: text = fh.read()
+                    if b'%%VFOLD_' not in text: continue
+                    text = model_handling.vfold_bornextras.filter_vfold_blocks(text.decode(), self.vfold)
+                    with open(fcopy, 'w') as fh: fh.write(text)
             # Copy src makefile
             if self.template_src_make:
                 makefile_src = self.read_template_file(self.template_src_make) % {'model': self.get_model_name(model.get('name'))}

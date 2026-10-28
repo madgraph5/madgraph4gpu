@@ -33,6 +33,10 @@ PLUGIN_export_cpp = sys.modules['%s.PLUGIN_export_cpp'%PLUGIN_NAME] # 2nd copy l
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
 
+# AV road B (vfold) - import the module for the vfold extensions
+__import__('%s.vfold_bornextras'%PLUGIN_NAME)
+vfold_bornextras = sys.modules['%s.vfold_bornextras'%PLUGIN_NAME]
+
 #------------------------------------------------------------------------------------
 
 # AV - modify export_cpp.get_mg5_info_lines (replace '# ' by '//')
@@ -1308,6 +1312,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
     __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
 
+    # AV road B (vfold) - generate the vfold extensions only with the --vfold output option
+    # (this is set by PLUGIN_ProcessExporter, as in madevent mode this class is instantiated by the Fortran exporter)
+    vfold = False
+
+    # AV road B (vfold) - keep or remove the vfold-only blocks of the template files
+    @classmethod
+    def read_template_file(cls, filename, classpath=False):
+        """Open a template file and return the contents."""
+        return vfold_bornextras.filter_vfold_blocks(super().read_template_file(filename, classpath), cls.vfold)
+
     # AV - overload export_cpp.OneProcessExporterGPU constructor (rename gCPPProcess to CPPProcess, set include_multi_channel)
     def __init__(self, *args, **kwargs):
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.__init__')
@@ -1319,6 +1333,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         else: proc_id = 0 # standalone_cudacpp
         ###misc.sprint(proc_id)
         self.proc_id = proc_id
+        self.helas_call_writer.vfold = self.vfold # AV road B (vfold)
 
     # AV - overload export_cpp.OneProcessExporterGPU method (indent comments in process_lines)
     def get_process_class_definitions(self, write=True):
@@ -1956,6 +1971,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     #  - PLUGIN_GPUFOHelasCallWriter(GPUFOHelasCallWriter)
     #      This class
 
+
+    # AV road B (vfold) - generate the vfold AMP2 lines only with the --vfold output option (set by PLUGIN_OneProcessExporter)
+    vfold = False
 
     def __init__(self, *args, **opts):
 
