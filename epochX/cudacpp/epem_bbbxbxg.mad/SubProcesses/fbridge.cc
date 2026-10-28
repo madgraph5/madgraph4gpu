@@ -55,7 +55,7 @@ extern "C"
   }
 
   /**
-   * Delete a Bridge.
+   * Delete a Bridge and reset hardware on exit (GPU-only: call gpuDeviceReset).
    * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
    *
    * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
@@ -68,6 +68,19 @@ extern "C"
 #ifdef MGONGPUCPP_GPUIMPL
     GpuRuntime::tearDown();
 #endif
+  }
+
+  /**
+   * Delete a Bridge without resetting hardware on exit.
+   * This is a C symbol that should be called from the Fortran code (in auto_dsig1.f).
+   *
+   * @param ppbridge the pointer to the Bridge pointer (the Bridge pointer is handled in Fortran as an INTEGER*8 variable)
+   */
+  void fbridgedelete_nohwreset_( CppObjectInFortran** ppbridge )
+  {
+    Bridge<FORTRANFPTYPE>* pbridge = dynamic_cast<Bridge<FORTRANFPTYPE>*>( *ppbridge );
+    if( pbridge == 0 ) throw std::runtime_error( "fbridgedelete_nohwreset_: invalid Bridge address" );
+    delete pbridge;
   }
 
   /**

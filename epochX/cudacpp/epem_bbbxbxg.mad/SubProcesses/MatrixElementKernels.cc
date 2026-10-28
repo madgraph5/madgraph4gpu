@@ -517,7 +517,7 @@ namespace mg5amcGpu
     MatrixElementKernelBase::updateNevtProcessedByChannel( pHstChannelIds, nevt() );
 #endif
     checkGpu( gpuPeekAtLastError() );   // is this needed?
-    checkGpu( gpuDeviceSynchronize() ); // probably not needed? but it avoids errors in sigmaKin above from appearing later on in random places...
+    checkGpu( gpuDeviceSynchronize() ); // not needed? but avoids errors in sigmaKin above from appearing later on in random places
   }
 
   //--------------------------------------------------------------------------

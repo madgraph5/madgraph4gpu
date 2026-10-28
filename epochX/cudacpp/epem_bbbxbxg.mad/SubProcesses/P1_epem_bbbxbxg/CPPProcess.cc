@@ -1744,6 +1744,8 @@ namespace mg5amcCpu
       jamp_sv[0] -= 1. / 6. * amp_sv[0];
       jamp_sv[2] += 1. / 2. * amp_sv[0];
 
+#/* clang-format off */
+
       // *** COLOR CHOICE BELOW ***
 
       // Store the leading color flows for choice of color
@@ -1754,7 +1756,7 @@ namespace mg5amcCpu
         for( int icol = 0; icol < ncolor; icol++ )
           jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] ); // may underflow #831
       }
-#else /* clang-format off */
+#else
       assert( iParity == 0 ); // sanity check for J2_ACCESS
       using J2_ACCESS = DeviceAccessJamp2;
       if( colAllJamp2s ) // disable color choice if nullptr

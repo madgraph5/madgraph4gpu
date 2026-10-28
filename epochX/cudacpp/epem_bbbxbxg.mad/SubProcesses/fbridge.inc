@@ -20,13 +20,23 @@ C
       END INTERFACE
       
 C
-C Delete a Bridge.
+C Delete a Bridge and reset hardware on exit.
 C - PBRIDGE: the memory address of the C++ Bridge
 C
       INTERFACE
          SUBROUTINE FBRIDGEDELETE(PBRIDGE)
          INTEGER*8 PBRIDGE
          END SUBROUTINE FBRIDGEDELETE
+      END INTERFACE
+      
+C
+C Delete a Bridge without resetting hardware on exit.
+C - PBRIDGE: the memory address of the C++ Bridge
+C
+      INTERFACE
+         SUBROUTINE FBRIDGEDELETE_NOHWRESET(PBRIDGE)
+         INTEGER*8 PBRIDGE
+         END SUBROUTINE FBRIDGEDELETE_NOHWRESET
       END INTERFACE
       
 C
