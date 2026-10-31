@@ -181,6 +181,31 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         self.oneprocessclass.vfold = self.vfold
         if self.vfold: logger.info('Generating the vfold extensions (--vfold)')
 
+    # AV vfold - replace export_cpp.ProcessExporterCPP.generate_subprocess_directory (standalone_cudacpp mode only, see below):
+    # with --vfold, also generate the multichannel (single-diagram-enhancement) code of the madevent mode, i.e.
+    # MGONGPU_SUPPORTS_MULTICHANNEL, the numerators/denominators in CPPProcess.cc and coloramps.h, with the same
+    # diagram-to-config map as in madevent mode (computed by MG5aMC for a subprocess group with this process only)
+    def vfold_generate_subprocess_directory(self, matrix_element, cpp_helas_call_writer, proc_number=None):
+        import madgraph.core.helas_objects as helas_objects
+        import madgraph.iolibs.group_subprocs as group_subprocs
+        subproc_group = group_subprocs.SubProcessGroup()
+        subproc_group.set('matrix_elements', helas_objects.HelasMatrixElementList([matrix_element]))
+        config_map = subproc_group.get('diagram_maps')[0]
+        subproc_diagrams_for_config = subproc_group.get('diagrams_for_configs')
+        process_exporter_cpp = self.oneprocessclass(matrix_element, cpp_helas_call_writer)
+        dirpath = pjoin(self.dir_path, 'SubProcesses', 'P%d_%s' % (process_exporter_cpp.process_number,
+                                                                   process_exporter_cpp.process_name))
+        try: os.mkdir(dirpath)
+        except os.error as error: logger.warning(error.strerror + ' ' + dirpath)
+        with misc.chdir(dirpath):
+            logger.info('Creating files in directory %s (with multichannel support for --vfold)' % dirpath)
+            process_exporter_cpp.path = dirpath
+            process_exporter_cpp.generate_process_files_madevent(proc_id=None, config_map=config_map, subproc_number=None)
+            process_exporter_cpp.generate_subprocess_directory_end(subproc_diagrams_for_config=subproc_diagrams_for_config)
+            for file in self.to_link_in_P:
+                files.ln('../%s' % file)
+        return
+
     # AV - overload the default version: create CMake directory, do not create lib directory
     def copy_template(self, model):
         misc.sprint('Entering PLUGIN_ProcessExporter.copy_template (initialise the directory)')
@@ -239,6 +264,8 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         misc.sprint('  type(fortran_model)=%s'%type(fortran_model)) # e.g. madgraph.iolibs.helas_call_writers.GPUFOHelasCallWriter
         misc.sprint('  type(me)=%s me=%s'%(type(me) if me is not None else None, me)) # e.g. int
         misc.sprint("need to link", self.to_link_in_P)
+        if self.vfold and not self.in_madevent_mode: # AV vfold (standalone_cudacpp with multichannel support)
+            return self.vfold_generate_subprocess_directory(subproc_group, fortran_model, me)
         out = super().generate_subprocess_directory(subproc_group, fortran_model, me)
         return out
     # AV (default from OM's tutorial) - add a debug printout
