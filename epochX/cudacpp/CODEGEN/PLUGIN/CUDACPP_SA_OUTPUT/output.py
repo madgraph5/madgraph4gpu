@@ -242,11 +242,13 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         out = super().generate_subprocess_directory(subproc_group, fortran_model, me)
         return out
     # AV (default from OM's tutorial) - add a debug printout
-    def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
+    # AV - accept (and pass on) the additional keyword arguments of the base class: since MG5aMC 3.8.0,
+    # do_output passes npwave to the main exporter (this is the plugin itself in standalone_cudacpp mode)
+    def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[], **opts):
         if hasattr(model , 'cudacpp_wanted_ordered_couplings'):
             wanted_coupling = model.cudacpp_wanted_ordered_couplings
             del model.cudacpp_wanted_ordered_couplings
-        return super().convert_model(model, wanted_lorentz, wanted_coupling)
+        return super().convert_model(model, wanted_lorentz, wanted_coupling, **opts)
 
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):
