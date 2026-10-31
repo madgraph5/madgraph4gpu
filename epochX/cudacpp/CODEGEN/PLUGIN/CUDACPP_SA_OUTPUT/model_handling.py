@@ -1680,7 +1680,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # NB: this relies on the assumption that cudacpp code is generated before madevent code
         files.ln(pjoin(self.path, 'cudacpp.mk'), self.path, 'makefile')
         # Add link to makefile_original.mk, PR #1052
-        files.ln(pjoin(self.path, '..', 'makefile_original.mk'), self.path, 'makefile_original.mk')
+        # AV - only in madevent mode (proc_id>0): in standalone_cudacpp mode there is no ../makefile_original.mk (dangling link)
+        if self.proc_id > 0:
+            files.ln(pjoin(self.path, '..', 'makefile_original.mk'), self.path, 'makefile_original.mk')
         # Add symbolic links in the test directory
         files.ln(pjoin(self.path + '/../../test', 'cudacpp_test.mk'), self.path + '/../../test', 'makefile')
         # Add reference file in the test directory (if it exists for this process)
