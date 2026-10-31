@@ -5,6 +5,7 @@
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 ! Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+! Further modified by: A. Valassi (2026) for the MadVFold project (arXiv:2609.23500).
 !==========================================================================
 #include "GpuAbstraction.h"
 

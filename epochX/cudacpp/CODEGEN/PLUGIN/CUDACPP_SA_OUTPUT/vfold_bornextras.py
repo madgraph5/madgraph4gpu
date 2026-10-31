@@ -1,6 +1,6 @@
 # Copyright (C) 2020-2025 CERN and UCLouvain.
 # Licensed under the GNU Lesser General Public License (version 3 or later).
-# Created by: A. Valassi (Oct 2026) for the MG5aMC CUDACPP plugin.
+# Created by: A. Valassi (Oct 2026) for the MadVFold project (arXiv:2609.23500).
 #
 # AV vfold (step 9i+9j): code generation of the per-event "Born extras" block
 # [colour-linked Borns, amp2, jamp2] that the cudacpp library returns to the MadFKS

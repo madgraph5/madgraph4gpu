@@ -2,6 +2,7 @@ C Copyright (C) 2020-2024 CERN and UCLouvain.
 C Licensed under the GNU Lesser General Public License (version 3 or later).
 C Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
 C Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+C Further modified by: A. Valassi (2026) for the MadVFold project (arXiv:2609.23500).
 
 C
 C Create a Bridge and return its pointer

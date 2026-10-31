@@ -2,6 +2,7 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
 # Further modified by: O. Mattelaer, J. Teig, A. Valassi, Z. Wettersten (2021-2025) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2026) for the MadVFold project (arXiv:2609.23500).
 
 import os
 import sys
@@ -1362,7 +1363,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             replace_dict['nbornextras'] = self.get_vfold_bornextras().nbx # AV vfold (step 9i+9j)
         if( write ): # ZW: added dict return for uses in child exporters. Default argument is True so no need to modify other calls to this function
             file = self.read_template_file(self.process_class_template) % replace_dict 
-            file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
+            file = re.sub( r'\A(?:!.*\n)*', '', file ) # skip the leading '!' lines in process_class.inc (copyright) [AV vfold: not a fixed number of lines]
             return file
         else:
             return replace_dict
@@ -1450,7 +1451,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
             file_lines = file.split('\n')
             file_lines = [l.replace('cIPC, cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
             file = '\n'.join( file_lines )
-        file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_function_definitions.inc (copyright)
+        file = re.sub( r'\A(?:!.*\n)*', '', file ) # skip the leading '!' lines in process_function_definitions.inc (copyright) [AV vfold: not a fixed number of lines]
         return file
 
     # AV - modify export_cpp.OneProcessExporterGPU method (add debug printouts for multichannel #342)
@@ -1476,7 +1477,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
 
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
-            file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_sigmaKin_function.inc (copyright)
+            file = re.sub( r'\A(?:!.*\n)*', '', file ) # skip the leading '!' lines in process_sigmaKin_function.inc (copyright) [AV vfold: not a fixed number of lines]
             return file, replace_dict
         else:
             return replace_dict
@@ -1639,7 +1640,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         file_extend = []
         for i, me in enumerate(self.matrix_elements):
             file = self.get_matrix_single_process( i, me, color_amplitudes[i], class_name )
-            file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_matrix.inc (copyright)
+            file = re.sub( r'\A(?:!.*\n)*', '', file ) # skip the leading '!' lines in process_matrix.inc (copyright) [AV vfold: not a fixed number of lines]
             file_extend.append( file )
             assert i == 0, "more than one ME in get_all_sigmaKin_lines" # AV sanity check (added for color_sum.cc but valid independently)
         ret_lines.extend( file_extend )

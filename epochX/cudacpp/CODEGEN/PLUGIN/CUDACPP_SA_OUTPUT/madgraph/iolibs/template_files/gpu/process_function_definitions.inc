@@ -5,6 +5,7 @@
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 ! Further modified by: J. Teig, A. Valassi, Z. Wettersten (2021-2025) for the MG5aMC CUDACPP plugin.
+! Further modified by: A. Valassi (2026) for the MadVFold project (arXiv:2609.23500).
 !==========================================================================
 //==========================================================================
 // Class member functions for calculating the matrix elements for
