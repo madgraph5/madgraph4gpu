@@ -416,6 +416,7 @@ function codeGenAndDiff()
   elif [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
     autosuffix=${OUTBCK}
   fi
+  if [ "${vfoldopt}" != "" ]; then autosuffix=vfold.${autosuffix}; fi
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
   rm -rf ${OUTDIR}/${proc}.${autosuffix}.BKP
   if [ -d ${OUTDIR}/${proc}.${autosuffix} ]; then mv ${OUTDIR}/${proc}.${autosuffix} ${OUTDIR}/${proc}.${autosuffix}.BKP; fi
@@ -759,14 +760,16 @@ cleanup_MG5AMC_HOME
 
 # Check formatting in the auto-generated code
 if [ "${OUTBCK}" == "cudacpp" ]; then
-  echo -e "\n+++ Check code formatting in newly generated code ${proc}.sa\n"
-  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.sa; then
+  if [ "${vfoldopt}" != "" ]; then vfoldsuffix=.vfold; else vfoldsuffix=; fi
+  echo -e "\n+++ Check code formatting in newly generated code ${proc}${vfoldsuffix}.sa\n"
+  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}${vfoldsuffix}.sa; then
     echo "ERROR! Auto-generated code does not respect formatting policies"
     exit 1
   fi
 elif [ "${OUTBCK}" == "mad" ]; then
-  echo -e "\n+++ Check code formatting in newly generated code ${proc}.mad\n"
-  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.mad; then
+  if [ "${vfoldopt}" != "" ]; then vfoldsuffix=.vfold; else vfoldsuffix=; fi
+  echo -e "\n+++ Check code formatting in newly generated code ${proc}${vfoldsuffix}.mad\n"
+  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}${vfoldsuffix}.mad; then
     echo "ERROR! Auto-generated code does not respect formatting policies"
     exit 1
   fi
