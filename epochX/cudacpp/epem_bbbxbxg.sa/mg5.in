@@ -1,4 +1,4 @@
 set stdout_level DEBUG
 set zerowidth_tchannel F
 generate e+ e- > b b b~ b~ g
-output madevent_simd epem_bbbxbxg.mad --hel_recycling=False --vector_size=32 
+output standalone_cudacpp epem_bbbxbxg.sa
