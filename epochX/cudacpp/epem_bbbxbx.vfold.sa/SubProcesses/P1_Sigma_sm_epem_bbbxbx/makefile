@@ -1,1 +1,1 @@
-../makefile
+cudacpp.mk

@@ -1,1 +1,0 @@
-../ompnumthreads.cc

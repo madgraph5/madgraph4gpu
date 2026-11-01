@@ -1,4 +1,0 @@
-You are using MadGraph5_aMC@NLO + CUDACPP plugin:
-CUDACPP version = 0b4fe3b "Add first version of VERSION.txt and track it"
-Minimal MadGraph5 version supported = 3.7.1
-Current MadGraph5 version           = 3.8.1
