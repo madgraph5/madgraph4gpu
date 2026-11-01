@@ -1,5 +1,5 @@
 Running MG5 in debug mode
-('WARNING: loading of madgraph too slow!!!', 0.5289440155029297)
+('WARNING: loading of madgraph too slow!!!', 0.5717809200286865)
 Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 [1;34mPlugin MG5aMC_PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.8.1. 
 It has been validated for the last time with version: 3.7.1[0m
@@ -57,7 +57,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.003523588180541992 [0m
+[1;32mDEBUG: model prefixing  takes 0.003447294235229492 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -156,10 +156,10 @@ output madevent_simd ../TMPOUT/CODEGEN_mad_gg_tt --hel_recycling=False --vector_
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mAddition matrix-element will be done with PLUGIN: CUDACPP_OUTPUT[0m
 [1mOutput will be done with PLUGIN: CUDACPP_OUTPUT[0m
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 175][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter) [1;30m[output.py at line 176][0m [0m
 INFO: initialize a new directory: CODEGEN_mad_gg_tt 
 INFO: remove old information in CODEGEN_mad_gg_tt 
-[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 180][0m [0m
+[1;32mDEBUG:  Entering PLUGIN_ProcessExporter.copy_template (initialise the directory) [1;30m[output.py at line 211][0m [0m
 [1;34mWARNING: File exists /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt [0m
 INFO: Creating subdirectories in directory /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt 
 [1;34mWARNING: File exists /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt/Cards [0m
@@ -168,26 +168,26 @@ INFO: Organizing processes into subprocess groups
 INFO: Generating Helas calls for process: g g > t t~ WEIGHTED<=2 @1 
 INFO: Processing color information for process: g g > t t~ @1 
 INFO: Creating files in directory P1_gg_ttx 
-[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1314][0m [0m
+[1;32mDEBUG:  kwargs[prefix] = 0 [1;30m[model_handling.py at line 1329][0m [0m
 INFO: Creating files in directory . 
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.h
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for ././CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory ./. 
 INFO: Generating Feynman diagrams for Process: g g > t t~ WEIGHTED<=2 @1 
 INFO: Finding symmetric diagrams for subprocess group gg_ttx 
-[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 3 [1;30m[model_handling.py at line 1724][0m [0m
-[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1748][0m [0m
-[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1749][0m [0m
+[1;32mDEBUG:  len(subproc_diagrams_for_config) = [0m 3 [1;30m[model_handling.py at line 1775][0m [0m
+[1;32mDEBUG:  iconfig_to_diag = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1799][0m [0m
+[1;32mDEBUG:  diag_to_iconfig = [0m {1: 1, 2: 2, 3: 3} [1;30m[model_handling.py at line 1800][0m [0m
 Generated helas calls for 1 subprocesses (3 diagrams) in 0.005 s
-Wrote files for 10 helas calls in 0.058 s
+Wrote files for 10 helas calls in 0.061 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.093 s
+ALOHA: aloha creates 2 routines in  0.090 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 4 routines in  0.106 s
+ALOHA: aloha creates 4 routines in  0.084 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -207,7 +207,7 @@ INFO: Use Fortran compiler gfortran
 INFO: Use c++ compiler g++ 
 INFO: Generate jpeg diagrams 
 INFO: Generate web pages 
-[1;32mDEBUG:  result.returncode = [0m 0 [1;30m[output.py at line 273][0m [0m
+[1;32mDEBUG:  result.returncode = [0m 0 [1;30m[output.py at line 317][0m [0m
 INFO: Created CUDACPP_VERSION.txt in /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt 
 Output to directory /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt done.
 Type "launch" to generate events from this process, or see
@@ -215,10 +215,10 @@ Type "launch" to generate events from this process, or see
 Run "open index.html" to see more information about this process.
 quit
 
-real	0m3.248s
-user	0m2.018s
-sys	0m0.347s
-Code generation completed in 3 seconds
+real	0m2.855s
+user	0m2.034s
+sys	0m0.355s
+Code generation completed in 4 seconds
 /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_mad_gg_tt/bin/internal/file_writers.py:188: SyntaxWarning: invalid escape sequence '\s'
   keyword_pairs = {r'^if.+then\s*$': ('^end\s*if', 2),
 ************************************************************
