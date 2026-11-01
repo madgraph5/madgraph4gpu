@@ -21,6 +21,16 @@ while [ "$1" != "" ]; do
   fi
 done
 
+# VFOLD processes
+
+if [ "${bsm}" != "-bsmonly" ]; then
+
+  ./CODEGEN/generateAndCompare.sh epem_bbbxbx --vfold -c 'generate e+ e- > b b b~ b~'
+
+  ./CODEGEN/generateAndCompare.sh epem_bbbxbxg -c 'generate e+ e- > b b b~ b~ g'
+
+fi
+
 # SM processes (both mad and sa)
 
 if [ "${bsm}" != "-bsmonly" ]; then
