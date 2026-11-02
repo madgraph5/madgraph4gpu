@@ -1471,9 +1471,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # AV vfold (step 9i+9j) - colour-linked Borns, amp2 and jamp2
         if self.vfold:
             replace_dict['vfold_bsf_sigmakin_cpp'] = self.get_vfold_bornextras().get_sigmakin_cpp()
+            replace_dict['vfold_ans2_decl_cpp'] = self.get_vfold_bornextras().get_ans2_decl_cpp() # AV vfold (step 14g)
+            replace_dict['vfold_ans2_sum_cpp'] = self.get_vfold_bornextras().get_ans2_sum_cpp() # AV vfold (step 14g)
             replace_dict['vfold_nbx'] = self.get_vfold_bornextras().nbx
         else:
             replace_dict['vfold_bsf_sigmakin_cpp'] = ''
+            replace_dict['vfold_ans2_decl_cpp'] = ''
+            replace_dict['vfold_ans2_sum_cpp'] = ''
 
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict

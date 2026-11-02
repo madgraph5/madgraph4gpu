@@ -183,7 +183,27 @@ class VfoldBornExtras(object):
             self.links.append(link['link'])
             self.qforms.append([[(Q[i][l][0] + Q[l][i][0]) / 2 for l in range(self.ncolor)] for i in range(self.ncolor)])
         self.nbsf = len(self.links)
-        self.nbx = self.nbsf + self.ndiagrams + self.ncolor
+        # Step 14g: the second component ANS(2) of the Fortran SBORN, for each possible massless mother
+        # of an FKS splitting: the final-state massless coloured legs, in the order of the Born legs
+        # (the same legs as in vfold_ans2_index in vfold_bsf.inc, from madgraph/iolibs/export_fks.py).
+        # ANS(2) is the interference of the helicities of this leg: for each helicity with the helicity
+        # of this leg as in the first combination (BACK_HEL in Fortran), cAns2Partner gives the helicity
+        # that only differs by the opposite helicity of this leg
+        self.ans2legs = [leg.get('number') for leg in legs if leg.get('state')
+                         and model.get_particle(leg.get('id')).get('mass').lower() == 'zero'
+                         and model.get_particle(leg.get('id')).get('color') != 1]
+        self.nans2 = len(self.ans2legs)
+        helicities = [tuple(hel) for hel in matrix_element.get_helicity_matrix(allow_reverse=True)]
+        self.ncomb = len(helicities)
+        self.ans2partner = []
+        for number in self.ans2legs:
+            ileg = number - 1
+            partner = []
+            for hel in helicities:
+                if hel[ileg] != helicities[0][ileg]: partner.append(-1)
+                else: partner.append(helicities.index(hel[:ileg] + (-hel[ileg],) + hel[ileg + 1:]))
+            self.ans2partner.append(partner)
+        self.nbx = self.nbsf + self.ndiagrams + self.ncolor + 2 * self.nans2
         # The terms of the quadratic forms: diagonal first, then the upper triangle (skip terms that are always zero)
         self.terms = [(i, i) for i in range(self.ncolor)]
         self.terms += [(i, l) for i in range(self.ncolor) for l in range(i + 1, self.ncolor)
@@ -245,6 +265,64 @@ class VfoldBornExtras(object):
             else: parts.append('2 * cBsfS%s[ibsf] * bsfA%s' % (s, s))
         return ' + '.join(parts)
 
+    def ans2_arrays(self, indent):
+        """The static constexpr arrays for ANS(2): the partner helicities and the colour matrix"""
+        lines = []
+        lines.append('%sstatic constexpr short cAns2Partner[nans2][ncomb] = {' % indent)
+        for partner in self.ans2partner:
+            lines.append('%s  { %s },' % (indent, ', '.join(['%d' % p for p in partner])))
+        lines.append('%s};' % indent)
+        lines.append('%sstatic constexpr fptype cAns2Cf[ncolor][ncolor] = {' % indent)
+        for row in self.cf:
+            lines.append('%s  { %s },' % (indent, ', '.join([format_fraction(Fraction(x)) for x in row])))
+        lines.append('%s};' % indent)
+        return lines
+
+    def get_ans2_decl_cpp(self):
+        """Before the C++ helicity loop of sigmaKin: the jamps of all good helicities of this page are kept for ANS(2)"""
+        if self.nans2 == 0: return ''
+        lines = []
+        lines.append('      // AV vfold step 14g: the jamps of all good helicities of this page, for ANS(2)')
+        lines.append('      cxtype_sv jampAll_sv[ncomb * nParity * ncolor];')
+        return '\n'.join(lines) + '\n'
+
+    def get_ans2_sum_cpp(self):
+        """After the C++ helicity loop of sigmaKin: ANS(2) = sum_hel sum_ij CF(i,j) JAMP(+)_j conj(JAMP(-)_i)"""
+        if self.nans2 == 0: return ''
+        lines = []
+        lines.append('      // AV vfold step 14g: ANS(2) of the Fortran SBORN, for each possible massless mother (see nans2)')
+        lines.append('      {')
+        lines += self.ans2_arrays('        ')
+        lines.append('        int ighelOfHel[ncomb];')
+        lines.append('        for( int ihel = 0; ihel < ncomb; ihel++ ) ighelOfHel[ihel] = -1;')
+        lines.append('        for( int ighel = 0; ighel < cNGoodHel; ighel++ ) ighelOfHel[cGoodHel[ighel]] = ighel;')
+        lines.append('        for( int iParity = 0; iParity < nParity; ++iParity )')
+        lines.append('        {')
+        lines.append('          fptype_sv* bsfx_sv = s_bsfsAccum + ( ( ievt00 + iParity * neppV ) / neppV ) * nbx;')
+        lines.append('          for( int ians2 = 0; ians2 < nans2; ians2++ )')
+        lines.append('          {')
+        lines.append('            for( int ighel = 0; ighel < cNGoodHel; ighel++ )')
+        lines.append('            {')
+        lines.append('              const int ihel2 = cAns2Partner[ians2][cGoodHel[ighel]];')
+        lines.append('              if( ihel2 < 0 ) continue; // not the BACK_HEL of this leg')
+        lines.append('              const int ighel2 = ighelOfHel[ihel2];')
+        lines.append('              if( ighel2 < 0 ) continue; // the other helicity vanishes')
+        lines.append('              const cxtype_sv* jamp1_sv = jampAll_sv + ( ighel * nParity + iParity ) * ncolor;')
+        lines.append('              const cxtype_sv* jamp2_sv = jampAll_sv + ( ighel2 * nParity + iParity ) * ncolor;')
+        lines.append('              for( int icol = 0; icol < ncolor; icol++ )')
+        lines.append('              {')
+        lines.append('                for( int jcol = 0; jcol < ncolor; jcol++ )')
+        lines.append('                {')
+        lines.append('                  bsfx_sv[ibxAns2 + 2 * ians2] += cAns2Cf[icol][jcol] * ( cxreal( jamp2_sv[jcol] ) * cxreal( jamp1_sv[icol] ) + cximag( jamp2_sv[jcol] ) * cximag( jamp1_sv[icol] ) );')
+        lines.append('                  bsfx_sv[ibxAns2 + 2 * ians2 + 1] += cAns2Cf[icol][jcol] * ( cximag( jamp2_sv[jcol] ) * cxreal( jamp1_sv[icol] ) - cxreal( jamp2_sv[jcol] ) * cximag( jamp1_sv[icol] ) );')
+        lines.append('                }')
+        lines.append('              }')
+        lines.append('            }')
+        lines.append('          }')
+        lines.append('        }')
+        lines.append('      }')
+        return '\n'.join(lines) + '\n'
+
     #----------------------------------------------------------------------------------
 
     def get_definitions(self):
@@ -281,7 +359,11 @@ class VfoldBornExtras(object):
         lines.append('  // helicities and NOT divided by the helicity/colour denominators (exactly')
         lines.append('  // like AMP2 and JAMP2 in the Fortran born.f).')
         lines.append('  constexpr int nbxDiag = CPPProcess::ndiagrams; // %d' % self.ndiagrams)
-        lines.append('  constexpr int nbx = nbsf + nbxDiag + ncolor;   // per-event block: [bsf(%d), amp2(%d), jamp2(%d)]' % (self.nbsf, self.ndiagrams, self.ncolor))
+        lines.append('  // AV vfold step 14g: and the second component ANS(2) of the Fortran SBORN (real and imaginary parts), needed')
+        lines.append('  // if the mother of the FKS splitting is massless, for the legs {%s} (normalised like the MEs).' % ','.join(['%d' % n for n in self.ans2legs]))
+        lines.append('  constexpr int nans2 = %d;' % self.nans2)
+        lines.append('  constexpr int ibxAns2 = nbsf + nbxDiag + ncolor;')
+        lines.append('  constexpr int nbx = ibxAns2 + 2 * nans2;       // per-event block: [bsf(%d), amp2(%d), jamp2(%d), ans2(2*%d)]' % (self.nbsf, self.ndiagrams, self.ncolor, self.nans2))
         lines.append('  static_assert( nbx == CPPProcess::nbornextras, "nbx must match CPPProcess::nbornextras" );')
         lines.append('  // Step 10a: also on GPUs. There the per-event block lives in a device buffer')
         lines.append('  // [nevt*nbx] owned by MatrixElementKernelDevice and passed to sigmaKin (argument allBsfx);')
@@ -320,6 +402,8 @@ class VfoldBornExtras(object):
         for i in range(self.ncolor):
             s = self.suffix(i, i)
             lines.append('          bsfx_sv[nbsf + nbxDiag + %d] += bsfA%s; // AV vfold: Fortran JAMP2(%d)' % (i, s, i + 1))
+        if self.nans2 > 0:
+            lines.append('          for( int icol = 0; icol < ncolor; icol++ ) jampAll_sv[( ighel * nParity + iParity ) * ncolor + icol] = jampP_sv[icol]; // for ANS(2)')
         lines.append('        }')
         return '\n'.join(lines) + '\n'
 
@@ -327,7 +411,7 @@ class VfoldBornExtras(object):
         """The CUDA kernel summing the colour-linked Borns, AMP2 and JAMP2 over helicities (before sigmaKin)"""
         lines = []
         lines.append('#ifdef MGONGPUCPP_GPUIMPL')
-        lines.append('  // AV vfold (step 10a): per-event block [bsf(%d), amp2(%d), jamp2(%d)] summed over the good helicities' % (self.nbsf, self.ndiagrams, self.ncolor))
+        lines.append('  // AV vfold (step 10a): per-event block [bsf(%d), amp2(%d), jamp2(%d), ans2(2*%d)] summed over the good helicities' % (self.nbsf, self.ndiagrams, self.ncolor, self.nans2))
         lines.append('  // (in the order of cGoodHel, as in C++), from the jamps and per-diagram |amp|^2 of each helicity')
         lines.append('  __global__ void')
         lines.append('  compute_bornextras( fptype* allBsfx,              // output: per-event block [nevt*nbx]')
@@ -339,6 +423,8 @@ class VfoldBornExtras(object):
         if self.nbsf > 0:
             lines.append("    // [NB keep 'static' for these constexpr arrays, as for cf (issue #283): needed in CUDA device code]")
             lines += self.coefficient_arrays('    ')
+        if self.nans2 > 0:
+            lines += self.ans2_arrays('    ')
         lines.append('    const int nevt = gridDim.x * blockDim.x;')
         lines.append('    const int ievt = blockDim.x * blockIdx.x + threadIdx.x;')
         lines.append('    fptype bsfx[nbx] = { 0 };')
@@ -356,8 +442,34 @@ class VfoldBornExtras(object):
             s = self.suffix(i, i)
             lines.append('      bsfx[nbsf + nbxDiag + %d] += bsfA%s; // Fortran JAMP2(%d)' % (i, s, i + 1))
         lines.append('    }')
+        if self.nans2 > 0:
+            lines.append('    // Step 14g: ANS(2) of the Fortran SBORN, for each possible massless mother (see nans2)')
+            lines.append('    int ighelOfHel[ncomb];')
+            lines.append('    for( int ihel = 0; ihel < ncomb; ihel++ ) ighelOfHel[ihel] = -1;')
+            lines.append('    for( int ighel = 0; ighel < dcNGoodHel; ighel++ ) ighelOfHel[dcGoodHel[ighel]] = ighel;')
+            lines.append('    for( int ians2 = 0; ians2 < nans2; ians2++ )')
+            lines.append('    {')
+            lines.append('      for( int ighel = 0; ighel < dcNGoodHel; ighel++ )')
+            lines.append('      {')
+            lines.append('        const int ihel2 = cAns2Partner[ians2][dcGoodHel[ighel]];')
+            lines.append('        if( ihel2 < 0 ) continue; // not the BACK_HEL of this leg')
+            lines.append('        const int ighel2 = ighelOfHel[ihel2];')
+            lines.append('        if( ighel2 < 0 ) continue; // the other helicity vanishes')
+            lines.append('        for( int icol = 0; icol < ncolor; icol++ )')
+            lines.append('        {')
+            lines.append('          const cxtype jamp1 = J_ACCESS::kernelAccessIcolIhelNhelConst( ghelAllJamps, icol, ighel, dcNGoodHel );')
+            lines.append('          for( int jcol = 0; jcol < ncolor; jcol++ )')
+            lines.append('          {')
+            lines.append('            const cxtype jamp2 = J_ACCESS::kernelAccessIcolIhelNhelConst( ghelAllJamps, jcol, ighel2, dcNGoodHel );')
+            lines.append('            bsfx[ibxAns2 + 2 * ians2] += cAns2Cf[icol][jcol] * ( cxreal( jamp2 ) * cxreal( jamp1 ) + cximag( jamp2 ) * cximag( jamp1 ) );')
+            lines.append('            bsfx[ibxAns2 + 2 * ians2 + 1] += cAns2Cf[icol][jcol] * ( cximag( jamp2 ) * cxreal( jamp1 ) - cxreal( jamp2 ) * cximag( jamp1 ) );')
+            lines.append('          }')
+            lines.append('        }')
+            lines.append('      }')
+            lines.append('    }')
         lines.append('    // Final colour-linked Borns (same denominators as the MEs, no multichannel factor; amp2 and jamp2 are raw sums)')
         lines.append('    for( int ibsf = 0; ibsf < nbsf; ibsf++ ) bsfx[ibsf] /= helcolDenominator;')
+        lines.append('    for( int ibx = ibxAns2; ibx < nbx; ibx++ ) bsfx[ibx] /= helcolDenominator; // ANS(2)')
         lines.append('    for( int ibx = 0; ibx < nbx; ibx++ ) allBsfx[ievt * nbx + ibx] = bsfx[ibx];')
         lines.append('  }')
         lines.append('#endif')
@@ -397,7 +509,7 @@ class VfoldBornExtras(object):
         lines.append('')
         lines.append('  // AV vfold (step 9i+9j): the whole per-event block of the LAST sequence call:')
         lines.append('  // CALL FBRIDGEGETBORNEXTRAS(NEVT, EXTRAS, STATUS), DOUBLE PRECISION EXTRAS(%d,NEVT)' % self.nbx)
-        lines.append('  // = the %d colour-linked Borns, then AMP2(1:%d), then JAMP2(1:%d) (see nbx).' % (self.nbsf, self.ndiagrams, self.ncolor))
+        lines.append('  // = the %d colour-linked Borns, then AMP2(1:%d), then JAMP2(1:%d), then ANS(2) (see nbx).' % (self.nbsf, self.ndiagrams, self.ncolor))
         lines.append('  // Step 10a: exported by the CUDA library too (copy from the device).')
         lines.append('  void fbridgegetbornextras_( const int* pnevt, double* extras, int* pstatus )')
         lines.append('  {')
@@ -408,6 +520,13 @@ class VfoldBornExtras(object):
         lines.append('    }')
         lines.append('    mg5amcBsf::getBornExtras( *pnevt, extras );')
         lines.append('    *pstatus = 0;')
+        lines.append('  }')
+        lines.append('')
+        lines.append('  // AV vfold (step 14g): the size of the block returned by fbridgegetbornextras_, so that')
+        lines.append('  // the Fortran side can check that it was generated with the same version of this code')
+        lines.append('  void fbridgegetnbornextras_( int* pnbx )')
+        lines.append('  {')
+        lines.append('    *pnbx = mg5amcBsf::nbx;')
         lines.append('  }')
         lines.append('}')
         lines.append('')

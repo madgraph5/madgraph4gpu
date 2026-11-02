@@ -184,7 +184,7 @@
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       fptype_sv MEs_ighel2[ncomb] = {}; // sum of MEs for all good helicities up to ighel (for the second neppV page)
 #endif
-      for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+%(vfold_ans2_decl_cpp)s      for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
         cxtype_sv jamp_sv[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
@@ -200,7 +200,7 @@
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
       }
-      // Event-by-event random choice of helicity #403
+%(vfold_ans2_sum_cpp)s      // Event-by-event random choice of helicity #403
       for( int ieppV = 0; ieppV < neppV; ++ieppV )
       {
         const int ievt = ievt00 + ieppV;
@@ -394,6 +394,10 @@
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
       for( int ibsf = 0; ibsf < nbsf; ibsf++ )
         s_bsfs[ipagV * nbx + ibsf] /= helcolDenominators[0];
+    // AV vfold (step 14g): ANS(2) is normalised like the MEs too
+    for( int ipagV = 0; ipagV < npagV; ++ipagV )
+      for( int ibx = ibxAns2; ibx < nbx; ibx++ )
+        s_bsfs[ipagV * nbx + ibx] /= helcolDenominators[0];
     s_bsfsAccum = nullptr;
 %%VFOLD_END
 #endif
