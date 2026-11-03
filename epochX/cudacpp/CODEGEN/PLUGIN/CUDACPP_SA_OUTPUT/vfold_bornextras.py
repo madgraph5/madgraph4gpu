@@ -178,13 +178,13 @@ class VfoldBornExtras(object):
             self.qforms.append([[(Q[i][l][0] + Q[l][i][0]) / 2 for l in range(self.ncolor)] for i in range(self.ncolor)])
         self.nbsf = len(self.links)
         # Step 14g: the second component ANS(2) of the Fortran SBORN, for each possible massless mother
-        # of an FKS splitting: the final-state massless coloured legs, in the order of the Born legs
+        # of an FKS splitting: the massless coloured legs (step 14k: also in the initial state), in the order of the Born legs
         # (the same legs as in vfold_ans2_index in vfold_bsf.inc, from madgraph/iolibs/export_fks.py).
         # ANS(2) is the interference of the helicities of this leg: for each helicity with the helicity
         # of this leg as in the first combination (BACK_HEL in Fortran), cAns2Partner gives the helicity
         # that only differs by the opposite helicity of this leg
-        self.ans2legs = [leg.get('number') for leg in legs if leg.get('state')
-                         and model.get_particle(leg.get('id')).get('mass').lower() == 'zero'
+        self.ans2legs = [leg.get('number') for leg in legs
+                         if model.get_particle(leg.get('id')).get('mass').lower() == 'zero'
                          and model.get_particle(leg.get('id')).get('color') != 1]
         self.nans2 = len(self.ans2legs)
         helicities = [tuple(hel) for hel in matrix_element.get_helicity_matrix(allow_reverse=True)]
