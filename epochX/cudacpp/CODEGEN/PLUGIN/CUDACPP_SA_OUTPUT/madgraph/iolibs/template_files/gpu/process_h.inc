@@ -100,7 +100,7 @@ namespace mg5amcCpu
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: allJamps super-buffer[2][ncol][nGoodHel][nevt] for nGoodHel <= ncomb individual helicities
 %%VFOLD_BEGIN
-            fptype* ghelAllAmp2,                // tmp: AV vfold amp2[nGoodHel][ndiagrams][nevt] super-buffer (nullptr to disable)
+            fptype* ghelAllAmp2,                // tmp: AV vfold amp2[nGoodHel][nbornamps][nevt] super-buffer (nullptr to disable)
             fptype* allBsfx,                    // output: AV vfold per-event block [nevt*nbornextras] (nullptr to disable)
 %%VFOLD_END
             fptype2* ghelAllBlasTmp,            // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities

@@ -52,7 +52,8 @@
     static constexpr int ncomb = %(nbhel)d; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
     static constexpr int ndiagrams = %(ndiagrams)d; // #Feynman diagrams: e.g. 3 for e+ e- -> mu+ mu-
 %%VFOLD_BEGIN
-    static constexpr int nbornextras = %(nbornextras)d; // AV vfold: per-event block [colour-linked Borns(%(nbsf)d), amp2(%(ndiagrams)d), jamp2(%(ncolor)s)] (see nbx in CPPProcess.cc)
+    static constexpr int nbornamps = %(nbornamps)d; // AV vfold: #amplitudes, the size of the Fortran AMP2 (>ndiagrams with a 4-gluon vertex)
+    static constexpr int nbornextras = %(nbornextras)d; // AV vfold: per-event block [colour-linked Borns(%(nbsf)d), amp2(%(nbornamps)d), jamp2(%(ncolor)s)] (see nbx in CPPProcess.cc)
 %%VFOLD_END
     static constexpr int ncolor = %(ncolor)s; // the number of leading colors: e.g. 1 for e+ e- -> mu+ mu-
 

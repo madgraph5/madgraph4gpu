@@ -1361,6 +1361,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         if self.vfold:
             replace_dict['nbsf'] = self.get_vfold_bornextras().nbsf # AV vfold (step 9i+9j)
             replace_dict['nbornextras'] = self.get_vfold_bornextras().nbx # AV vfold (step 9i+9j)
+            replace_dict['nbornamps'] = self.get_vfold_bornextras().namp # AV vfold (step 14i)
         if( write ): # ZW: added dict return for uses in child exporters. Default argument is True so no need to modify other calls to this function
             file = self.read_template_file(self.process_class_template) % replace_dict 
             file = re.sub( r'\A(?:!.*\n)*', '', file ) # skip the leading '!' lines in process_class.inc (copyright) [AV vfold: not a fixed number of lines]
@@ -1532,7 +1533,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                    fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
 #endif
 %%VFOLD_BEGIN
-                   fptype* allAmp2,                   // output: AV vfold amp2[ndiagrams][nevt] buffer for one helicity (nullptr to disable)
+                   fptype* allAmp2,                   // output: AV vfold amp2[nbornamps][nevt] buffer for one helicity (nullptr to disable)
 %%VFOLD_END
                    const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
@@ -2206,7 +2207,6 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
             if len(diagram.get('wavefunctions')) == 0 : res.append('// (none)') # AV
             if res[-1][-1] == '\n' : res[-1] = res[-1][:-1]
             res.append('\n      // Amplitude(s) for diagram number %d' % diagram.get('number'))
-            first_amp2 = True # AV vfold (step 10a)
             for amplitude in diagram.get('amplitudes'):
                 id_amp +=1
                 namp = amplitude.get('number')
@@ -2234,11 +2234,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     scoeff = scoeff.replace('/',' / ')
                     if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
                     else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
-                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines(diagram.get('number') - 1, first_amp2)) # AV vfold (step 9i+9j)
-                first_amp2 = False
+                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines(namp - 1)) # AV vfold (step 9i+9j)
             if len(diagram.get('amplitudes')) == 0 :
                 res.append('// (none)') # AV
-                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines_noamp(diagram.get('number') - 1)) # AV vfold (step 10a)
         ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR MATRIX BELOW')
         return res
 

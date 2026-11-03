@@ -486,8 +486,8 @@ namespace mg5amcGpu
     m_pHelDenominators.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
 #endif
 %%VFOLD_BEGIN
-    // AV vfold (step 10a): create the "many-helicity" super-buffer of nGoodHel per-diagram |amp|^2 buffers
-    m_pHelAmp2.reset( new DeviceBufferSimple( static_cast<size_t>( nGoodHel ) * CPPProcess::ndiagrams * nevt ) );
+    // AV vfold (step 10a): create the "many-helicity" super-buffer of nGoodHel per-amplitude |amp|^2 buffers
+    m_pHelAmp2.reset( new DeviceBufferSimple( static_cast<size_t>( nGoodHel ) * CPPProcess::nbornamps * nevt ) );
 %%VFOLD_END
 #ifndef MGONGPU_HAS_NO_BLAS
     // Create the "many-helicity" super-buffers of real/imag ncolor*nevt temporary buffers for cuBLAS/hipBLAS intermediate results in color_sum_blas

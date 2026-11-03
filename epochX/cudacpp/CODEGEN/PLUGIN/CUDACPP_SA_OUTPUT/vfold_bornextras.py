@@ -103,22 +103,17 @@ def join_words(items):
 
 #------------------------------------------------------------------------------------
 
-def get_amp2_lines(idiag, first=True):
-    """The AMP2 accumulation after the jamp updates of each amplitude of diagram idiag (starting at 0)
-    [NB: the |amp|^2 of all amplitudes of a diagram are summed, as in the Fortran AMP2 without config_map]
-    [NB: in CUDA the one-helicity buffer is not reset, so the first amplitude of a diagram assigns its value]"""
+def get_amp2_lines(iamp):
+    """The AMP2 update after the jamp updates of amplitude iamp (starting at 0)
+    [NB: step 14i: the Fortran AMP2 has one entry per amplitude, not per diagram (a diagram with
+    a 4-gluon vertex has several amplitudes), and iamp is the index of the Fortran AMP]
+    [NB: in CUDA the one-helicity buffer is not reset, so its value is assigned]"""
     return ['#ifndef MGONGPUCPP_GPUIMPL',
-            '// AV vfold: Fortran AMP2(%d)' % (idiag + 1),
-            'if( bsfx_sv ) bsfx_sv[nbsf + %d] += cxabs2( amp_sv[0] );' % (idiag),
+            '// AV vfold: Fortran AMP2(%d)' % (iamp + 1),
+            'if( bsfx_sv ) bsfx_sv[nbsf + %d] += cxabs2( amp_sv[0] );' % (iamp),
             '#else',
-            '// AV vfold: Fortran AMP2(%d) for this helicity' % (idiag + 1),
-            'if( amp2_ev ) amp2_ev[%d * nevt] %s cxabs2( amp_sv[0] );' % (idiag, '=' if first else '+='),
-            '#endif']
-
-def get_amp2_lines_noamp(idiag):
-    """The AMP2 of a diagram without amplitudes (in CUDA the one-helicity buffer must still be set)"""
-    return ['#ifdef MGONGPUCPP_GPUIMPL',
-            'if( amp2_ev ) amp2_ev[%d * nevt] = 0; // AV vfold: Fortran AMP2(%d) for this helicity' % (idiag, idiag + 1),
+            '// AV vfold: Fortran AMP2(%d) for this helicity' % (iamp + 1),
+            'if( amp2_ev ) amp2_ev[%d * nevt] = cxabs2( amp_sv[0] );' % (iamp),
             '#endif']
 
 #------------------------------------------------------------------------------------
@@ -131,7 +126,6 @@ class VfoldBornExtras(object):
         amplitude = matrix_element.get('base_amplitude')
         process = amplitude.get('process')
         self.process_string = process.base_string()
-        self.ndiagrams = len(matrix_element.get('diagrams'))
         self.namp = matrix_element.get_number_of_amplitudes()
         col_basis = matrix_element.get('color_basis')
         color_amplitudes = matrix_element.get_color_amplitudes()
@@ -203,7 +197,7 @@ class VfoldBornExtras(object):
                 if hel[ileg] != helicities[0][ileg]: partner.append(-1)
                 else: partner.append(helicities.index(hel[:ileg] + (-hel[ileg],) + hel[ileg + 1:]))
             self.ans2partner.append(partner)
-        self.nbx = self.nbsf + self.ndiagrams + self.ncolor + 2 * self.nans2
+        self.nbx = self.nbsf + self.namp + self.ncolor + 2 * self.nans2
         # The terms of the quadratic forms: diagonal first, then the upper triangle (skip terms that are always zero)
         self.terms = [(i, i) for i in range(self.ncolor)]
         self.terms += [(i, l) for i in range(self.ncolor) for l in range(i + 1, self.ncolor)
@@ -358,19 +352,19 @@ class VfoldBornExtras(object):
         lines.append('  // |jamp|^2 (Fortran JAMP2, used by the MC counterterms), both summed over')
         lines.append('  // helicities and NOT divided by the helicity/colour denominators (exactly')
         lines.append('  // like AMP2 and JAMP2 in the Fortran born.f).')
-        lines.append('  constexpr int nbxDiag = CPPProcess::ndiagrams; // %d' % self.ndiagrams)
+        lines.append('  constexpr int nbxDiag = CPPProcess::nbornamps; // %d (amplitudes, as in the Fortran AMP2)' % self.namp)
         lines.append('  // AV vfold step 14g: and the second component ANS(2) of the Fortran SBORN (real and imaginary parts), needed')
         lines.append('  // if the mother of the FKS splitting is massless, for the legs {%s} (normalised like the MEs).' % ','.join(['%d' % n for n in self.ans2legs]))
         lines.append('  constexpr int nans2 = %d;' % self.nans2)
         lines.append('  constexpr int ibxAns2 = nbsf + nbxDiag + ncolor;')
-        lines.append('  constexpr int nbx = ibxAns2 + 2 * nans2;       // per-event block: [bsf(%d), amp2(%d), jamp2(%d), ans2(2*%d)]' % (self.nbsf, self.ndiagrams, self.ncolor, self.nans2))
+        lines.append('  constexpr int nbx = ibxAns2 + 2 * nans2; // per-event block: [bsf(%d), amp2(%d), jamp2(%d), ans2(2*%d)]' % (self.nbsf, self.namp, self.ncolor, self.nans2))
         lines.append('  static_assert( nbx == CPPProcess::nbornextras, "nbx must match CPPProcess::nbornextras" );')
         lines.append('  // Step 10a: also on GPUs. There the per-event block lives in a device buffer')
         lines.append('  // [nevt*nbx] owned by MatrixElementKernelDevice and passed to sigmaKin (argument allBsfx);')
         lines.append('  // it is registered after each launch, so that fbridgegetbsf_ and fbridgegetbornextras_')
         lines.append('  // can copy the values of the last call back to the host.')
         lines.append('  // [381 port: the new cudacpp runs one GPU stream per good helicity, so AMP2 is written by')
-        lines.append('  // calculate_jamps into a per-helicity buffer ghelAllAmp2[nGoodHel][ndiagrams][nevt] and the')
+        lines.append('  // calculate_jamps into a per-helicity buffer ghelAllAmp2[nGoodHel][nbornamps][nevt] and the')
         lines.append('  // whole block is then summed over helicities in a fixed order in the compute_bornextras')
         lines.append('  // kernel, from ghelAllAmp2 and ghelAllJamps (no atomicAdd: results are reproducible)]')
         lines.append('#ifndef MGONGPUCPP_GPUIMPL')
@@ -411,12 +405,12 @@ class VfoldBornExtras(object):
         """The CUDA kernel summing the colour-linked Borns, AMP2 and JAMP2 over helicities (before sigmaKin)"""
         lines = []
         lines.append('#ifdef MGONGPUCPP_GPUIMPL')
-        lines.append('  // AV vfold (step 10a): per-event block [bsf(%d), amp2(%d), jamp2(%d), ans2(2*%d)] summed over the good helicities' % (self.nbsf, self.ndiagrams, self.ncolor, self.nans2))
+        lines.append('  // AV vfold (step 10a): per-event block [bsf(%d), amp2(%d), jamp2(%d), ans2(2*%d)] summed over the good helicities' % (self.nbsf, self.namp, self.ncolor, self.nans2))
         lines.append('  // (in the order of cGoodHel, as in C++), from the jamps and per-diagram |amp|^2 of each helicity')
         lines.append('  __global__ void')
         lines.append('  compute_bornextras( fptype* allBsfx,              // output: per-event block [nevt*nbx]')
         lines.append('                      const fptype* ghelAllJamps,   // input: jamps super-buffer[2][ncolor][nGoodHel][nevt]')
-        lines.append('                      const fptype* ghelAllAmp2,    // input: amp2 super-buffer[nGoodHel][ndiagrams][nevt]')
+        lines.append('                      const fptype* ghelAllAmp2,    // input: amp2 super-buffer[nGoodHel][nbornamps][nevt]')
         lines.append('                      const int helcolDenominator ) // input: helicity/colour denominator')
         lines.append('  {')
         lines.append('    using J_ACCESS = DeviceAccessJamp;')
@@ -432,8 +426,8 @@ class VfoldBornExtras(object):
         lines.append('    {')
         for i in range(self.ncolor):
             lines.append('      const cxtype jamp%d = J_ACCESS::kernelAccessIcolIhelNhelConst( ghelAllJamps, %d, ighel, dcNGoodHel );' % (i, i))
-        lines.append('      for( int idiag = 0; idiag < nbxDiag; idiag++ )')
-        lines.append('        bsfx[nbsf + idiag] += ghelAllAmp2[( (size_t)ighel * nbxDiag + idiag ) * nevt + ievt]; // Fortran AMP2')
+        lines.append('      for( int iamp = 0; iamp < nbxDiag; iamp++ )')
+        lines.append('        bsfx[nbsf + iamp] += ghelAllAmp2[( (size_t)ighel * nbxDiag + iamp ) * nevt + ievt]; // Fortran AMP2')
         lines += self.term_values('      ', 'fptype', lambda i: 'jamp%d' % i)
         if self.nbsf > 0:
             lines.append('      for( int ibsf = 0; ibsf < nbsf; ibsf++ )')
@@ -509,7 +503,7 @@ class VfoldBornExtras(object):
         lines.append('')
         lines.append('  // AV vfold (step 9i+9j): the whole per-event block of the LAST sequence call:')
         lines.append('  // CALL FBRIDGEGETBORNEXTRAS(NEVT, EXTRAS, STATUS), DOUBLE PRECISION EXTRAS(%d,NEVT)' % self.nbx)
-        lines.append('  // = the %d colour-linked Borns, then AMP2(1:%d), then JAMP2(1:%d), then ANS(2) (see nbx).' % (self.nbsf, self.ndiagrams, self.ncolor))
+        lines.append('  // = the %d colour-linked Borns, then AMP2(1:%d), then JAMP2(1:%d), then ANS(2) (see nbx).' % (self.nbsf, self.namp, self.ncolor))
         lines.append('  // Step 10a: exported by the CUDA library too (copy from the device).')
         lines.append('  void fbridgegetbornextras_( const int* pnevt, double* extras, int* pstatus )')
         lines.append('  {')
