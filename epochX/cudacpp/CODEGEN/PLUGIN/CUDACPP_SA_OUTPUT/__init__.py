@@ -79,3 +79,9 @@ else:
     minimal_mg5amcnlo_version = (3,8,1)
     maximal_mg5amcnlo_version = (1000,1000,1000)
     latest_validated_version = (3,8,1)
+
+    # The MadGraph7 versions: MadGraph7 only reads these, and it reads them first
+    # (its numbering can not be compared to that of mg5amcnlo, which only reads those above)
+    minimal_mg7_version = (0,2,1)
+    maximal_mg7_version = (1000,1000,1000)
+    latest_validated_mg7_version = (0,2,1)
