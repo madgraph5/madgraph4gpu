@@ -208,15 +208,19 @@ namespace mg5amcCpu
   // |jamp|^2 (Fortran JAMP2, used by the MC counterterms), both summed over
   // helicities and NOT divided by the helicity/colour denominators (exactly
   // like AMP2 and JAMP2 in the Fortran born.f).
-  constexpr int nbxDiag = CPPProcess::ndiagrams; // 16
-  constexpr int nbx = nbsf + nbxDiag + ncolor;   // per-event block: [bsf(10), amp2(16), jamp2(2)]
+  constexpr int nbxDiag = CPPProcess::nbornamps; // 16 (amplitudes, as in the Fortran AMP2)
+  // AV vfold step 14g: and the second component ANS(2) of the Fortran SBORN (real and imaginary parts), needed
+  // if the mother of the FKS splitting is massless, for the legs {} (normalised like the MEs).
+  constexpr int nans2 = 0;
+  constexpr int ibxAns2 = nbsf + nbxDiag + ncolor;
+  constexpr int nbx = ibxAns2 + 2 * nans2; // per-event block: [bsf(10), amp2(16), jamp2(2), ans2(2*0)]
   static_assert( nbx == CPPProcess::nbornextras, "nbx must match CPPProcess::nbornextras" );
   // Step 10a: also on GPUs. There the per-event block lives in a device buffer
   // [nevt*nbx] owned by MatrixElementKernelDevice and passed to sigmaKin (argument allBsfx);
   // it is registered after each launch, so that fbridgegetbsf_ and fbridgegetbornextras_
   // can copy the values of the last call back to the host.
   // [381 port: the new cudacpp runs one GPU stream per good helicity, so AMP2 is written by
-  // calculate_jamps into a per-helicity buffer ghelAllAmp2[nGoodHel][ndiagrams][nevt] and the
+  // calculate_jamps into a per-helicity buffer ghelAllAmp2[nGoodHel][nbornamps][nevt] and the
   // whole block is then summed over helicities in a fixed order in the compute_bornextras
   // kernel, from ghelAllAmp2 and ghelAllJamps (no atomicAdd: results are reproducible)]
 #ifndef MGONGPUCPP_GPUIMPL
@@ -297,7 +301,7 @@ namespace mg5amcCpu
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
                    fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
 #endif
-                   fptype* allAmp2,                   // output: AV vfold amp2[ndiagrams][nevt] buffer for one helicity (nullptr to disable)
+                   fptype* allAmp2,                   // output: AV vfold amp2[nbornamps][nevt] buffer for one helicity (nullptr to disable)
                    const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
                    cxtype_sv* allJamp_sv,             // output: jamp_sv[ncolor] (float/double) or jamp_sv[2*ncolor] (mixed) for this helicity
@@ -1439,12 +1443,12 @@ namespace mg5amcCpu
   // Evaluate |M|^2, part independent of incoming flavour
 
 #ifdef MGONGPUCPP_GPUIMPL
-  // AV vfold (step 10a): per-event block [bsf(10), amp2(16), jamp2(2)] summed over the good helicities
+  // AV vfold (step 10a): per-event block [bsf(10), amp2(16), jamp2(2), ans2(2*0)] summed over the good helicities
   // (in the order of cGoodHel, as in C++), from the jamps and per-diagram |amp|^2 of each helicity
   __global__ void
   compute_bornextras( fptype* allBsfx,              // output: per-event block [nevt*nbx]
                       const fptype* ghelAllJamps,   // input: jamps super-buffer[2][ncolor][nGoodHel][nevt]
-                      const fptype* ghelAllAmp2,    // input: amp2 super-buffer[nGoodHel][ndiagrams][nevt]
+                      const fptype* ghelAllAmp2,    // input: amp2 super-buffer[nGoodHel][nbornamps][nevt]
                       const int helcolDenominator ) // input: helicity/colour denominator
   {
     using J_ACCESS = DeviceAccessJamp;
@@ -1459,8 +1463,8 @@ namespace mg5amcCpu
     {
       const cxtype jamp0 = J_ACCESS::kernelAccessIcolIhelNhelConst( ghelAllJamps, 0, ighel, dcNGoodHel );
       const cxtype jamp1 = J_ACCESS::kernelAccessIcolIhelNhelConst( ghelAllJamps, 1, ighel, dcNGoodHel );
-      for( int idiag = 0; idiag < nbxDiag; idiag++ )
-        bsfx[nbsf + idiag] += ghelAllAmp2[( (size_t)ighel * nbxDiag + idiag ) * nevt + ievt]; // Fortran AMP2
+      for( int iamp = 0; iamp < nbxDiag; iamp++ )
+        bsfx[nbsf + iamp] += ghelAllAmp2[( (size_t)ighel * nbxDiag + iamp ) * nevt + ievt]; // Fortran AMP2
       const fptype bsfA11 = cxabs2( jamp0 );
       const fptype bsfA22 = cxabs2( jamp1 );
       const fptype bsfA12 = cxreal( jamp0 ) * cxreal( jamp1 ) + cximag( jamp0 ) * cximag( jamp1 );
@@ -1471,6 +1475,7 @@ namespace mg5amcCpu
     }
     // Final colour-linked Borns (same denominators as the MEs, no multichannel factor; amp2 and jamp2 are raw sums)
     for( int ibsf = 0; ibsf < nbsf; ibsf++ ) bsfx[ibsf] /= helcolDenominator;
+    for( int ibx = ibxAns2; ibx < nbx; ibx++ ) bsfx[ibx] /= helcolDenominator; // ANS(2)
     for( int ibx = 0; ibx < nbx; ibx++ ) allBsfx[ievt * nbx + ibx] = bsfx[ibx];
   }
 #endif
@@ -1497,7 +1502,7 @@ namespace mg5amcCpu
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: jamp[2*ncolor*nGoodHel*nevt] super-buffer for nGoodHel <= ncomb individual helicities
-            fptype* ghelAllAmp2,                // tmp: AV vfold amp2[nGoodHel][ndiagrams][nevt] super-buffer (nullptr to disable)
+            fptype* ghelAllAmp2,                // tmp: AV vfold amp2[nGoodHel][nbornamps][nevt] super-buffer (nullptr to disable)
             fptype* allBsfx,                    // output: AV vfold per-event block [nevt*nbx] (nullptr to disable)
             fptype2* ghelAllBlasTmp,            // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             gpuBlasHandle_t* pBlasHandle,       // input: cuBLAS/hipBLAS handle
@@ -1928,6 +1933,10 @@ namespace mg5amcCpu
     for( int ipagV = 0; ipagV < npagV; ++ipagV )
       for( int ibsf = 0; ibsf < nbsf; ibsf++ )
         s_bsfs[ipagV * nbx + ibsf] /= helcolDenominators[0];
+    // AV vfold (step 14g): ANS(2) is normalised like the MEs too
+    for( int ipagV = 0; ipagV < npagV; ++ipagV )
+      for( int ibx = ibxAns2; ibx < nbx; ibx++ )
+        s_bsfs[ipagV * nbx + ibx] /= helcolDenominators[0];
     s_bsfsAccum = nullptr;
 #endif
     mgDebugFinalise();
@@ -2059,7 +2068,7 @@ extern "C"
 
   // AV vfold (step 9i+9j): the whole per-event block of the LAST sequence call:
   // CALL FBRIDGEGETBORNEXTRAS(NEVT, EXTRAS, STATUS), DOUBLE PRECISION EXTRAS(28,NEVT)
-  // = the 10 colour-linked Borns, then AMP2(1:16), then JAMP2(1:2) (see nbx).
+  // = the 10 colour-linked Borns, then AMP2(1:16), then JAMP2(1:2), then ANS(2) (see nbx).
   // Step 10a: exported by the CUDA library too (copy from the device).
   void fbridgegetbornextras_( const int* pnevt, double* extras, int* pstatus )
   {
@@ -2074,6 +2083,13 @@ extern "C"
     }
     mg5amcBsf::getBornExtras( *pnevt, extras );
     *pstatus = 0;
+  }
+
+  // AV vfold (step 14g): the size of the block returned by fbridgegetbornextras_, so that
+  // the Fortran side can check that it was generated with the same version of this code
+  void fbridgegetnbornextras_( int* pnbx )
+  {
+    *pnbx = mg5amcBsf::nbx;
   }
 }
 

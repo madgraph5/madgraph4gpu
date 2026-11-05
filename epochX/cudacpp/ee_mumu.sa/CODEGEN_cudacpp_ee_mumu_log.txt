@@ -1,8 +1,6 @@
 Running MG5 in debug mode
-('WARNING: loading of madgraph too slow!!!', 0.5633218288421631)
+('WARNING: loading of madgraph too slow!!!', 0.5219228267669678)
 Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
-[1;34mPlugin MG5aMC_PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.8.1. 
-It has been validated for the last time with version: 3.7.1[0m
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -57,7 +55,7 @@ generate e+ e- > mu+ mu-
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.003438234329223633 [0m
+[1;32mDEBUG: model prefixing  takes 0.0035126209259033203 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -174,7 +172,7 @@ ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFV2 routines[0m
 ALOHA: aloha creates FFV4 routines[0m
 ALOHA: aloha creates FFV2_4 routines[0m
-ALOHA: aloha creates 4 routines in  0.187 s
+ALOHA: aloha creates 4 routines in  0.185 s
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV2
@@ -193,7 +191,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. and /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_cudacpp_ee_mumu/src/. 
 quit
 
-real	0m1.690s
-user	0m0.935s
-sys	0m0.129s
+real	0m1.368s
+user	0m0.910s
+sys	0m0.122s
 Code generation completed in 2 seconds

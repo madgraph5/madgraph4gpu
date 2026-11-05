@@ -1,8 +1,6 @@
 Running MG5 in debug mode
-('WARNING: loading of madgraph too slow!!!', 0.573462724685669)
+('WARNING: loading of madgraph too slow!!!', 0.5416395664215088)
 Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
-[1;34mPlugin MG5aMC_PLUGIN.CUDACPP_OUTPUT has marked as NOT being validated with this version: 3.8.1. 
-It has been validated for the last time with version: 3.7.1[0m
 ************************************************************
 *                                                          *
 *                     W E L C O M E to                     *
@@ -57,7 +55,7 @@ generate g g > t t~
 No model currently active, so we import the Standard Model
 INFO: load particles 
 INFO: load vertices 
-[1;32mDEBUG: model prefixing  takes 0.003518819808959961 [0m
+[1;32mDEBUG: model prefixing  takes 0.003345966339111328 [0m
 INFO: Restrict model sm with file models/sm/restrict_default.dat . 
 [1;32mDEBUG: Simplifying conditional expressions [0m
 [1;32mDEBUG: remove interactions: u s w+ at order: QED=1 [0m
@@ -169,11 +167,11 @@ INFO: Creating files in directory /data/avalassi/NEGWGT2026/test-madgraph4gpu-38
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.h
 FileWriter <class 'MG5aMC_PLUGIN.CUDACPP_OUTPUT.model_handling.PLUGIN_CPPWriter'> for /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/./CPPProcess.cc
 INFO: Created files CPPProcess.h and CPPProcess.cc in directory /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/SubProcesses/P1_Sigma_sm_gg_ttx/. 
-Generated helas calls for 1 subprocesses (3 diagrams) in 0.006 s
+Generated helas calls for 1 subprocesses (3 diagrams) in 0.005 s
 ALOHA: aloha starts to compute helicity amplitudes
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
-ALOHA: aloha creates 2 routines in  0.092 s
+ALOHA: aloha creates 2 routines in  0.093 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -188,7 +186,7 @@ INFO: Created files Parameters_sm.h and Parameters_sm.cc in directory
 INFO: /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. and /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_cudacpp_gg_tt/src/. 
 quit
 
-real	0m1.409s
-user	0m0.849s
-sys	0m0.130s
+real	0m1.086s
+user	0m0.844s
+sys	0m0.121s
 Code generation completed in 2 seconds
