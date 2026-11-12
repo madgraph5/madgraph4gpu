@@ -2,7 +2,7 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
 # Further modified by: S. Hageboeck, D. Massaro, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2025) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2026) for the MadVFold project (arXiv:2609.23500).
+# Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
@@ -367,7 +367,7 @@ export CXXNAMESUFFIX
 # [AV vfold] googletest is always cloned, built and installed in <proc>/test/GTEST (via the <proc>/test makefile).
 # This directory is not created when the process directory is generated, but at build time (target gtestlibs below):
 # - as a symlink to ../../GTEST, if that exists, i.e. a googletest installation shared by all process directories
-#   in the same parent directory (e.g. epochX/cudacpp/GTEST in madgraph4gpu, or <proc>/CUDACPP/GTEST in MadVFold);
+#   in the same parent directory (e.g. epochX/cudacpp/GTEST in madgraph4gpu, or <proc>/CUDACPP/GTEST in MadVfold);
 # - otherwise as a local directory, for this process directory only.
 # Do not build the tests if USEGTEST is equal to 0 (default inside launch_plugin.py, see https://github.com/madgraph5/madgraph4gpu/issues/878)
 TESTDIR = ../../test

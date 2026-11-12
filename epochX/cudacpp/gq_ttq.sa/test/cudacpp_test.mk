@@ -2,7 +2,7 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Hageboeck (Dec 2020) for the CUDACPP plugin.
 # Further modified by: S. Roiser, A. Valassi (2020-2025) for the CUDACPP plugin.
-# Further modified by: A. Valassi (2026) for the MadVFold project (arXiv:2609.23500).
+# Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 
 THISDIR = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
