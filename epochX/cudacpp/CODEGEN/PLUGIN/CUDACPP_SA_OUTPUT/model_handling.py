@@ -1694,7 +1694,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         import pathlib
         pathlib.Path(self.path + '/../../test/ref/.keepme').touch()
         ###template_ref = 'dump_CPUTest.'+self.process_name+'.txt'
-        template_ref = self.template_path + '/../../../test/ref/' + 'dump_CPUTest.' + self.process_name + '.txt'
+        template_ref = self.template_path + '/../../../test/ref/' + 'dump_CPUTest.' + self.get_reference_name() + '.txt'
         for ref in template_ref, template_ref + '2' : # two different reference files for tests without/with multichannel #896
             if os.path.exists( ref ):
                 ###misc.sprint( 'Copying test reference file: ', ref )
@@ -1748,6 +1748,15 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ff.write(template % replace_dict)
         ff.close()
 
+    # AV vfold/mg7 - new method: the name of the test reference files in test/ref
+    # These keep the mg5amcnlo names 'dump_CPUTest.Sigma_<model>_<proc>.txt[2]', which
+    # are shared by mg5amcnlo and MadGraph7: MadGraph7 drops the 'Sigma_<model>_' prefix
+    # from the process name (get_process_name, MadGraph7 commit 3e452ad924, Aug 2025)
+    def get_reference_name(self):
+        name = self.get_process_name()
+        if not name.startswith('Sigma_'): name = 'Sigma_%s_%s' % (self.model_name, name)
+        return name
+
     # AV - new method
     def edit_processidfile(self):
         """Generate epoch_process_id.h"""
@@ -1756,6 +1765,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = {}
         replace_dict['processid'] = self.get_process_name()
         replace_dict['processid_uppercase'] = self.get_process_name().upper()
+        replace_dict['processrefname'] = self.get_reference_name() # AV vfold/mg7
         ff = open(pjoin(self.path, 'epoch_process_id.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
