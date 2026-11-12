@@ -2,7 +2,7 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: Z. Wettersten (Sep 2024) for the MG5aMC CUDACPP plugin.
 # Further modified by: Z. Wettersten (2024-2025) for the MG5aMC CUDACPP plugin.
-# Further modified by: A. Valassi (2026) for the MadVFold project (arXiv:2609.23500).
+# Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 
 import os
 import subprocess

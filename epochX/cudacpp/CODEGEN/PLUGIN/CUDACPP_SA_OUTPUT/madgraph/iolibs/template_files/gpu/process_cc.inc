@@ -5,7 +5,7 @@
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
 // Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
-// Further modified by: A. Valassi (2026) for the MadVFold project (arXiv:2609.23500).
+// Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 %(info_lines)s
