@@ -1,5 +1,5 @@
 Running MG5 in debug mode
-('WARNING: loading of madgraph too slow!!!', 0.5181558132171631)
+('WARNING: loading of madgraph too slow!!!', 0.5486948490142822)
 Loading plugin MG5aMC_PLUGIN.CUDACPP_OUTPUT
 ************************************************************
 *                                                          *
@@ -145,7 +145,7 @@ ALOHA: aloha creates VVS3 routines[0m
 ALOHA: aloha creates VVV1 set of routines with options: P0[0m
 ALOHA: aloha creates FFV1 routines[0m
 ALOHA: aloha creates FFS2 routines[0m
-ALOHA: aloha creates 4 routines in  0.181 s
+ALOHA: aloha creates 4 routines in  0.183 s
 <class 'aloha.create_aloha.AbstractRoutine'> VVS3
 <class 'aloha.create_aloha.AbstractRoutine'> VVV1
 <class 'aloha.create_aloha.AbstractRoutine'> FFV1
@@ -162,7 +162,7 @@ INFO: Created files Parameters_heft.h and Parameters_heft.cc in directory
 INFO: /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. and /data/avalassi/NEGWGT2026/test-madgraph4gpu-381/MG5aMC/TMPOUT/CODEGEN_cudacpp_heft_gg_bb/src/. 
 quit
 
-real	0m1.157s
-user	0m0.902s
-sys	0m0.106s
-Code generation completed in 1 seconds
+real	0m1.542s
+user	0m0.921s
+sys	0m0.119s
+Code generation completed in 2 seconds
