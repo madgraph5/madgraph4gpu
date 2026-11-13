@@ -5,9 +5,10 @@
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
 // Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
-// MadGraph5_aMC@NLO v. 3.7.1, 2026-04-29
+// MadGraph5_aMC@NLO v. 3.8.1, 2026-10-09
 // By the MadGraph5_aMC@NLO Development Team
 // Visit launchpad.net/madgraph5 and amcatnlo.web.cern.ch
 //==========================================================================
@@ -409,6 +410,8 @@ namespace mg5amcCpu
 #endif
       jamp_sv[0] -= amp_sv[0];
 
+#/* clang-format off */
+
       // *** COLOR CHOICE BELOW ***
 
       // Store the leading color flows for choice of color
@@ -419,7 +422,7 @@ namespace mg5amcCpu
         for( int icol = 0; icol < ncolor; icol++ )
           jamp2_sv[ncolor * iParity + icol] += cxabs2( jamp_sv[icol] ); // may underflow #831
       }
-#else /* clang-format off */
+#else
       assert( iParity == 0 ); // sanity check for J2_ACCESS
       using J2_ACCESS = DeviceAccessJamp2;
       if( colAllJamp2s ) // disable color choice if nullptr

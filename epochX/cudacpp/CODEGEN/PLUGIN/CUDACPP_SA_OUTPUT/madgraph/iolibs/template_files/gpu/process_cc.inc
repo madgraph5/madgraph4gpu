@@ -5,6 +5,7 @@
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
 // Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 %(info_lines)s
@@ -40,6 +41,10 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+%%VFOLD_BEGIN
+#include <new>    // AV vfold: colour-linked Borns buffer (std::align_val_t)
+#include <vector> // AV vfold: host copy of the colour-linked Borns (step 10a)
+%%VFOLD_END
 
 // Test ncu metrics for CUDA thread divergence
 #undef MGONGPU_TEST_DIVERGENCE
@@ -86,5 +91,5 @@ fpeEnable()
 #endif
 }
 
-%(process_function_definitions)s
+%(process_function_definitions)s%(vfold_bsf_fortran)s
 //==========================================================================

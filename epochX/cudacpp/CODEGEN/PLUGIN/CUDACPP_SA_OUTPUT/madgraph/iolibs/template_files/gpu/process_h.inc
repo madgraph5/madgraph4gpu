@@ -5,6 +5,7 @@
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Modified by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
 // Further modified by: O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2024) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 //==========================================================================
 // This file has been automatically generated for CUDA/C++ standalone by
 %(info_lines)s
@@ -98,6 +99,10 @@ namespace mg5amcCpu
 #endif
             fptype* ghelAllMEs,                 // tmp: allMEs super-buffer for nGoodHel <= ncomb individual helicities (index is ighel)
             fptype* ghelAllJamps,               // tmp: allJamps super-buffer[2][ncol][nGoodHel][nevt] for nGoodHel <= ncomb individual helicities
+%%VFOLD_BEGIN
+            fptype* ghelAllAmp2,                // tmp: AV vfold amp2[nGoodHel][nbornamps][nevt] super-buffer (nullptr to disable)
+            fptype* allBsfx,                    // output: AV vfold per-event block [nevt*nbornextras] (nullptr to disable)
+%%VFOLD_END
             fptype2* ghelAllBlasTmp,            // tmp: allBlasTmp super-buffer for nGoodHel <= ncomb individual helicities
             gpuBlasHandle_t* pBlasHandle,       // input: cuBLAS/hipBLAS handle
             gpuStream_t* ghelStreams,           // input: cuda streams (index is ighel: only the first nGoodHel <= ncomb are non-null)
@@ -124,6 +129,17 @@ namespace mg5amcCpu
 #endif /* clang-format on */
 
   //--------------------------------------------------------------------------
+%%VFOLD_BEGIN
+
+#ifdef MGONGPUCPP_GPUIMPL
+  // AV vfold (step 10a): host functions to (un)register the device buffer [nevt*nbornextras] passed to
+  // the last sigmaKin launch, from which fbridgegetbsf_ and fbridgegetbornextras_ copy their values to the host
+  void registerBornExtrasDeviceBuffer( const fptype* devBsfx, const int nevt );
+  void unregisterBornExtrasDeviceBuffer( const fptype* devBsfx );
+
+  //--------------------------------------------------------------------------
+#endif
+%%VFOLD_END
 }
 
 #endif // MG5_%(process_file_name)s_H

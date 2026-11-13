@@ -2,6 +2,7 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 # Further modified by: S. Hageboeck, O. Mattelaer, S. Roiser, J. Teig, A. Valassi, Z. Wettersten (2021-2024) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 
 import os
 import sys
@@ -173,7 +174,37 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
     def __init__(self, *args, **kwargs):
         self.in_madevent_mode = False # see MR #747
         misc.sprint('Entering PLUGIN_ProcessExporter.__init__ (initialise the exporter)')
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+        # AV vfold - generate the vfold extensions only with the --vfold output option
+        # (pass this to the OneProcessExporter class, as in madevent mode it is instantiated by the Fortran exporter)
+        self.vfold = model_handling.vfold_bornextras.is_vfold(self.opt['output_options'])
+        self.oneprocessclass.vfold = self.vfold
+        if self.vfold: logger.info('Generating the vfold extensions (--vfold)')
+
+    # AV vfold - replace export_cpp.ProcessExporterCPP.generate_subprocess_directory (standalone_cudacpp mode only, see below):
+    # with --vfold, also generate the multichannel (single-diagram-enhancement) code of the madevent mode, i.e.
+    # MGONGPU_SUPPORTS_MULTICHANNEL, the numerators/denominators in CPPProcess.cc and coloramps.h, with the same
+    # diagram-to-config map as in madevent mode (computed by MG5aMC for a subprocess group with this process only)
+    def vfold_generate_subprocess_directory(self, matrix_element, cpp_helas_call_writer, proc_number=None):
+        import madgraph.core.helas_objects as helas_objects
+        import madgraph.iolibs.group_subprocs as group_subprocs
+        subproc_group = group_subprocs.SubProcessGroup()
+        subproc_group.set('matrix_elements', helas_objects.HelasMatrixElementList([matrix_element]))
+        config_map = subproc_group.get('diagram_maps')[0]
+        subproc_diagrams_for_config = subproc_group.get('diagrams_for_configs')
+        process_exporter_cpp = self.oneprocessclass(matrix_element, cpp_helas_call_writer)
+        dirpath = pjoin(self.dir_path, 'SubProcesses', 'P%d_%s' % (process_exporter_cpp.process_number,
+                                                                   process_exporter_cpp.process_name))
+        try: os.mkdir(dirpath)
+        except os.error as error: logger.warning(error.strerror + ' ' + dirpath)
+        with misc.chdir(dirpath):
+            logger.info('Creating files in directory %s (with multichannel support for --vfold)' % dirpath)
+            process_exporter_cpp.path = dirpath
+            process_exporter_cpp.generate_process_files_madevent(proc_id=None, config_map=config_map, subproc_number=None)
+            process_exporter_cpp.generate_subprocess_directory_end(subproc_diagrams_for_config=subproc_diagrams_for_config)
+            for file in self.to_link_in_P:
+                files.ln('../%s' % file)
+        return
 
     # AV - overload the default version: create CMake directory, do not create lib directory
     def copy_template(self, model):
@@ -191,6 +222,15 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             for key in self.from_template:
                 for f in self.from_template[key]:
                     PLUGIN_export_cpp.cp(f, key) # NB this assumes directory key exists...
+            # AV vfold - keep or remove the vfold-only blocks in the copied files
+            for key in self.from_template:
+                for f in self.from_template[key]:
+                    fcopy = os.path.join(key, os.path.basename(f))
+                    if not os.path.isfile(fcopy): continue
+                    with open(fcopy, 'rb') as fh: text = fh.read()
+                    if b'%%VFOLD_' not in text: continue
+                    text = model_handling.vfold_bornextras.filter_vfold_blocks(text.decode(), self.vfold)
+                    with open(fcopy, 'w') as fh: fh.write(text)
             # Copy src makefile
             if self.template_src_make:
                 makefile_src = self.read_template_file(self.template_src_make) % {'model': self.get_model_name(model.get('name'))}
@@ -224,14 +264,18 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
         misc.sprint('  type(fortran_model)=%s'%type(fortran_model)) # e.g. madgraph.iolibs.helas_call_writers.GPUFOHelasCallWriter
         misc.sprint('  type(me)=%s me=%s'%(type(me) if me is not None else None, me)) # e.g. int
         misc.sprint("need to link", self.to_link_in_P)
+        if self.vfold and not self.in_madevent_mode: # AV vfold (standalone_cudacpp with multichannel support)
+            return self.vfold_generate_subprocess_directory(subproc_group, fortran_model, me)
         out = super().generate_subprocess_directory(subproc_group, fortran_model, me)
         return out
     # AV (default from OM's tutorial) - add a debug printout
-    def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[]):
+    # AV - accept (and pass on) the additional keyword arguments of the base class: since MG5aMC 3.8.0,
+    # do_output passes npwave to the main exporter (this is the plugin itself in standalone_cudacpp mode)
+    def convert_model(self, model, wanted_lorentz=[], wanted_coupling=[], **opts):
         if hasattr(model , 'cudacpp_wanted_ordered_couplings'):
             wanted_coupling = model.cudacpp_wanted_ordered_couplings
             del model.cudacpp_wanted_ordered_couplings
-        return super().convert_model(model, wanted_lorentz, wanted_coupling)
+        return super().convert_model(model, wanted_lorentz, wanted_coupling, **opts)
 
     # AV (default from OM's tutorial) - add a debug printout
     def finalize(self, matrix_element, cmdhistory, MG5options, outputflag):

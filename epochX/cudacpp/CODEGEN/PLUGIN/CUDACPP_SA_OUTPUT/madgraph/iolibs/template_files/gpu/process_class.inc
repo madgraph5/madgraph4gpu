@@ -5,6 +5,7 @@
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 ! Further modified by: A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+! Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 !==========================================================================
   //==========================================================================
   // A class for calculating the matrix elements for
@@ -50,6 +51,10 @@
     static constexpr int npar = npari + nparf; // #particles in total (external = initial + final): e.g. 4 for e+ e- -> mu+ mu-
     static constexpr int ncomb = %(nbhel)d; // #helicity combinations: e.g. 16 for e+ e- -> mu+ mu- (2**4 = fermion spin up/down ** npar)
     static constexpr int ndiagrams = %(ndiagrams)d; // #Feynman diagrams: e.g. 3 for e+ e- -> mu+ mu-
+%%VFOLD_BEGIN
+    static constexpr int nbornamps = %(nbornamps)d; // AV vfold: #amplitudes, the size of the Fortran AMP2 (>ndiagrams with a 4-gluon vertex)
+    static constexpr int nbornextras = %(nbornextras)d; // AV vfold: per-event block [colour-linked Borns(%(nbsf)d), amp2(%(nbornamps)d), jamp2(%(ncolor)s)] (see nbx in CPPProcess.cc)
+%%VFOLD_END
     static constexpr int ncolor = %(ncolor)s; // the number of leading colors: e.g. 1 for e+ e- -> mu+ mu-
 
     // Hardcoded parameters for this process (constant class variables)

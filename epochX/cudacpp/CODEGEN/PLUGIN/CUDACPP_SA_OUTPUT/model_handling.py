@@ -2,6 +2,7 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: O. Mattelaer (Sep 2021) for the MG5aMC CUDACPP plugin.
 # Further modified by: O. Mattelaer, J. Teig, A. Valassi, Z. Wettersten (2021-2025) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 
 import os
 import sys
@@ -32,6 +33,10 @@ __import__('%s.PLUGIN_export_cpp'%PLUGIN_NAME)
 PLUGIN_export_cpp = sys.modules['%s.PLUGIN_export_cpp'%PLUGIN_NAME] # 2nd copy loaded in the plugin's output.py (modified for MG5aMC_PLUGIN case)
 ###print('id(export_cpp)=%s'%id(export_cpp))
 ###print('id(PLUGIN_export_cpp)=%s'%id(PLUGIN_export_cpp))
+
+# AV vfold (step 9i+9j) - import the module for the colour-linked Borns, amp2 and jamp2 returned to Fortran SBORN
+__import__('%s.vfold_bornextras'%PLUGIN_NAME)
+vfold_bornextras = sys.modules['%s.vfold_bornextras'%PLUGIN_NAME]
 
 #------------------------------------------------------------------------------------
 
@@ -1308,6 +1313,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
     __template_path = os.path.join( PLUGINDIR, 'madgraph', 'iolibs', 'template_files' )
 
+    # AV vfold - generate the vfold extensions only with the --vfold output option
+    # (this is set by PLUGIN_ProcessExporter, as in madevent mode this class is instantiated by the Fortran exporter)
+    vfold = False
+
+    # AV vfold - keep or remove the vfold-only blocks of the template files
+    @classmethod
+    def read_template_file(cls, filename, classpath=False):
+        """Open a template file and return the contents."""
+        return vfold_bornextras.filter_vfold_blocks(super().read_template_file(filename, classpath), cls.vfold)
+
     # AV - overload export_cpp.OneProcessExporterGPU constructor (rename gCPPProcess to CPPProcess, set include_multi_channel)
     def __init__(self, *args, **kwargs):
         ###misc.sprint('Entering PLUGIN_OneProcessExporter.__init__')
@@ -1319,6 +1334,15 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         else: proc_id = 0 # standalone_cudacpp
         ###misc.sprint(proc_id)
         self.proc_id = proc_id
+        self.vfold_bornextras = None
+        self.helas_call_writer.vfold = self.vfold # AV vfold
+
+    # AV vfold (step 9i+9j) - the colour-linked Borns, amp2 and jamp2 returned to Fortran SBORN
+    def get_vfold_bornextras(self):
+        if self.vfold_bornextras is None:
+            assert len(self.matrix_elements) == 1 # how to handle if this is not true?
+            self.vfold_bornextras = vfold_bornextras.VfoldBornExtras(self.matrix_elements[0])
+        return self.vfold_bornextras
 
     # AV - overload export_cpp.OneProcessExporterGPU method (indent comments in process_lines)
     def get_process_class_definitions(self, write=True):
@@ -1334,9 +1358,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['noutcoming'] = nexternal - nincoming
         replace_dict['nbhel'] = self.matrix_elements[0].get_helicity_combinations() # number of helicity combinations
         replace_dict['ndiagrams'] = len(self.matrix_elements[0].get('diagrams')) # AV FIXME #910: elsewhere matrix_element.get('diagrams') and max(config[0]...
+        if self.vfold:
+            replace_dict['nbsf'] = self.get_vfold_bornextras().nbsf # AV vfold (step 9i+9j)
+            replace_dict['nbornextras'] = self.get_vfold_bornextras().nbx # AV vfold (step 9i+9j)
+            replace_dict['nbornamps'] = self.get_vfold_bornextras().namp # AV vfold (step 14i)
         if( write ): # ZW: added dict return for uses in child exporters. Default argument is True so no need to modify other calls to this function
             file = self.read_template_file(self.process_class_template) % replace_dict 
-            file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_class.inc (copyright)
+            file = re.sub( r'\A(?:!.*\n)*', '', file ) # skip the leading '!' lines in process_class.inc (copyright) [AV vfold: not a fixed number of lines]
             return file
         else:
             return replace_dict
@@ -1414,12 +1442,17 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
         replace_dict['ncolor'] = len(color_amplitudes[0])
+        if self.vfold:
+            replace_dict['vfold_bsf_definitions'] = self.get_vfold_bornextras().get_definitions() # AV vfold (step 9i+9j)
+            replace_dict['vfold_bsf_kernel'] = self.get_vfold_bornextras().get_kernel_gpu() # AV vfold (step 10a)
+        else:
+            replace_dict['vfold_bsf_kernel'] = ''
         file = self.read_template_file(self.process_definition_template) % replace_dict # HACK! ignore write=False case
         if len(params) == 0: # remove cIPD from OpenMP pragma (issue #349)
             file_lines = file.split('\n')
             file_lines = [l.replace('cIPC, cIPD','cIPC') for l in file_lines] # remove cIPD from OpenMP pragma
             file = '\n'.join( file_lines )
-        file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_function_definitions.inc (copyright)
+        file = re.sub( r'\A(?:!.*\n)*', '', file ) # skip the leading '!' lines in process_function_definitions.inc (copyright) [AV vfold: not a fixed number of lines]
         return file
 
     # AV - modify export_cpp.OneProcessExporterGPU method (add debug printouts for multichannel #342)
@@ -1436,9 +1469,20 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                             self.matrix_elements]
         replace_dict['den_factors'] = ",".join(den_factors)
 
+        # AV vfold (step 9i+9j) - colour-linked Borns, amp2 and jamp2
+        if self.vfold:
+            replace_dict['vfold_bsf_sigmakin_cpp'] = self.get_vfold_bornextras().get_sigmakin_cpp()
+            replace_dict['vfold_ans2_decl_cpp'] = self.get_vfold_bornextras().get_ans2_decl_cpp() # AV vfold (step 14g)
+            replace_dict['vfold_ans2_sum_cpp'] = self.get_vfold_bornextras().get_ans2_sum_cpp() # AV vfold (step 14g)
+            replace_dict['vfold_nbx'] = self.get_vfold_bornextras().nbx
+        else:
+            replace_dict['vfold_bsf_sigmakin_cpp'] = ''
+            replace_dict['vfold_ans2_decl_cpp'] = ''
+            replace_dict['vfold_ans2_sum_cpp'] = ''
+
         if write:
             file = self.read_template_file(self.process_sigmaKin_function_template) % replace_dict
-            file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_sigmaKin_function.inc (copyright)
+            file = re.sub( r'\A(?:!.*\n)*', '', file ) # skip the leading '!' lines in process_sigmaKin_function.inc (copyright) [AV vfold: not a fixed number of lines]
             return file, replace_dict
         else:
             return replace_dict
@@ -1488,6 +1532,9 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
                    fptype* allDenominators,           // input/output: multichannel denominators[nevt], add helicity ihel
                    fptype* colAllJamp2s,              // output: allJamp2s[ncolor][nevt] super-buffer, sum over col/hel (nullptr to disable)
 #endif
+%%VFOLD_BEGIN
+                   fptype* allAmp2,                   // output: AV vfold amp2[nbornamps][nevt] buffer for one helicity (nullptr to disable)
+%%VFOLD_END
                    const int nevt                     // input: #events (for cuda: nevt == ndim == gpublocks*gputhreads)
 #else
                    cxtype_sv* allJamp_sv,             // output: jamp_sv[ncolor] (float/double) or jamp_sv[2*ncolor] (mixed) for this helicity
@@ -1579,6 +1626,13 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
     {
 #ifndef MGONGPUCPP_GPUIMPL
       const int ievt0 = ievt00 + iParity * neppV;
+%%VFOLD_BEGIN
+      // AV vfold: this page's block in the colour-linked Born buffer (nullptr outside sigmaKin)
+      fptype_sv* bsfx_sv = s_bsfsAccum ? s_bsfsAccum + ( ievt0 / neppV ) * nbx : nullptr;
+#else
+      // AV vfold: this event's amp2 in the one-helicity buffer (nullptr in sigmaKin_getGoodHel)
+      fptype* amp2_ev = allAmp2 ? allAmp2 + blockDim.x * blockIdx.x + threadIdx.x : nullptr;
+%%VFOLD_END
 #endif""")
             ret_lines += helas_calls
         else:
@@ -1591,11 +1645,11 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         file_extend = []
         for i, me in enumerate(self.matrix_elements):
             file = self.get_matrix_single_process( i, me, color_amplitudes[i], class_name )
-            file = '\n'.join( file.split('\n')[8:] ) # skip first 8 lines in process_matrix.inc (copyright)
+            file = re.sub( r'\A(?:!.*\n)*', '', file ) # skip the leading '!' lines in process_matrix.inc (copyright) [AV vfold: not a fixed number of lines]
             file_extend.append( file )
             assert i == 0, "more than one ME in get_all_sigmaKin_lines" # AV sanity check (added for color_sum.cc but valid independently)
         ret_lines.extend( file_extend )
-        return '\n'.join(ret_lines)
+        return vfold_bornextras.filter_vfold_blocks('\n'.join(ret_lines), self.vfold) # AV vfold
 
     # AV - modify export_cpp.OneProcessExporterGPU method (replace '# Process' by '// Process')
     def get_process_info_lines(self, matrix_element):
@@ -1631,14 +1685,16 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         # NB: this relies on the assumption that cudacpp code is generated before madevent code
         files.ln(pjoin(self.path, 'cudacpp.mk'), self.path, 'makefile')
         # Add link to makefile_original.mk, PR #1052
-        files.ln(pjoin(self.path, '..', 'makefile_original.mk'), self.path, 'makefile_original.mk')
+        # AV - only in madevent mode (proc_id>0): in standalone_cudacpp mode there is no ../makefile_original.mk (dangling link)
+        if self.proc_id > 0:
+            files.ln(pjoin(self.path, '..', 'makefile_original.mk'), self.path, 'makefile_original.mk')
         # Add symbolic links in the test directory
         files.ln(pjoin(self.path + '/../../test', 'cudacpp_test.mk'), self.path + '/../../test', 'makefile')
         # Add reference file in the test directory (if it exists for this process)
         import pathlib
         pathlib.Path(self.path + '/../../test/ref/.keepme').touch()
         ###template_ref = 'dump_CPUTest.'+self.process_name+'.txt'
-        template_ref = self.template_path + '/../../../test/ref/' + 'dump_CPUTest.' + self.process_name + '.txt'
+        template_ref = self.template_path + '/../../../test/ref/' + 'dump_CPUTest.' + self.get_reference_name() + '.txt'
         for ref in template_ref, template_ref + '2' : # two different reference files for tests without/with multichannel #896
             if os.path.exists( ref ):
                 ###misc.sprint( 'Copying test reference file: ', ref )
@@ -1692,6 +1748,15 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         ff.write(template % replace_dict)
         ff.close()
 
+    # AV vfold/mg7 - new method: the name of the test reference files in test/ref
+    # These keep the mg5amcnlo names 'dump_CPUTest.Sigma_<model>_<proc>.txt[2]', which
+    # are shared by mg5amcnlo and MadGraph7: MadGraph7 drops the 'Sigma_<model>_' prefix
+    # from the process name (get_process_name, MadGraph7 commit 3e452ad924, Aug 2025)
+    def get_reference_name(self):
+        name = self.get_process_name()
+        if not name.startswith('Sigma_'): name = 'Sigma_%s_%s' % (self.model_name, name)
+        return name
+
     # AV - new method
     def edit_processidfile(self):
         """Generate epoch_process_id.h"""
@@ -1700,6 +1765,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = {}
         replace_dict['processid'] = self.get_process_name()
         replace_dict['processid_uppercase'] = self.get_process_name().upper()
+        replace_dict['processrefname'] = self.get_reference_name() # AV vfold/mg7
         ff = open(pjoin(self.path, 'epoch_process_id.h'),'w')
         ff.write(template % replace_dict)
         ff.close()
@@ -1838,6 +1904,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict = super(PLUGIN_export_cpp.OneProcessExporterGPU, self).write_process_cc_file(False)
         ###replace_dict['hel_amps_def'] = '\n#include \"../../src/HelAmps_%s.cu\"' % self.model_name
         replace_dict['hel_amps_h'] = '#include \"HelAmps_%s.h\"' % self.model_name # AV
+        replace_dict['vfold_bsf_fortran'] = self.get_vfold_bornextras().get_fortran_interface() if self.vfold else '' # AV vfold (step 9i+9j)
         if writer:
             file = self.read_template_file(self.process_template_cc) % replace_dict
             # Write the file
@@ -1956,6 +2023,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
     #  - PLUGIN_GPUFOHelasCallWriter(GPUFOHelasCallWriter)
     #      This class
 
+
+    # AV vfold - generate the vfold AMP2 lines only with the --vfold output option (set by PLUGIN_OneProcessExporter)
+    vfold = False
 
     def __init__(self, *args, **opts):
 
@@ -2174,7 +2244,9 @@ class PLUGIN_GPUFOHelasCallWriter(helas_call_writers.GPUFOHelasCallWriter):
                     scoeff = scoeff.replace('/',' / ')
                     if scoeff.startswith('-'): res.append('jamp_sv[%s] -= %samp_sv[0];' % (njamp, scoeff[1:])) # AV
                     else: res.append('jamp_sv[%s] += %samp_sv[0];' % (njamp, scoeff)) # AV
-            if len(diagram.get('amplitudes')) == 0 : res.append('// (none)') # AV
+                if self.vfold: res.extend(vfold_bornextras.get_amp2_lines(namp - 1)) # AV vfold (step 9i+9j)
+            if len(diagram.get('amplitudes')) == 0 :
+                res.append('// (none)') # AV
         ###res.append('\n    // *** END OF DIAGRAMS ***' ) # AV - no longer needed ('COLOR MATRIX BELOW')
         return res
 

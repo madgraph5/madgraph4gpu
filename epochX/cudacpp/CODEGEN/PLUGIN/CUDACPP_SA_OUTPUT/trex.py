@@ -2,6 +2,7 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: Z. Wettersten (Sep 2024) for the MG5aMC CUDACPP plugin.
 # Further modified by: Z. Wettersten (2024-2025) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 
 import os
 import subprocess
@@ -215,6 +216,7 @@ class TREX_ProcessExporter(output.PLUGIN_ProcessExporter):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if self.vfold: raise madgraph.InvalidCmd('The --vfold output option is not supported in standalone_trex') # AV vfold
         self.template_path = PLUGINDIR
         self.rwgt_names = []
         self.proc_lines = []

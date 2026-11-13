@@ -74,8 +74,14 @@ else:
     # The release infrastructure expects 'vN.NN.NN' tags with 1-digit major and 2-digit minor and patch versions
     # and it takes care of converting the python tuple '(1,0,1)' into a version string 'v1.00.01'
     # NB! Do not use '(1,00,01)' here: leading zeros in decimal integer literals are not permitted in python (#1013)
-    __version__ = (1,1,2)
+    __version__ = (1,2,0)
 
-    minimal_mg5amcnlo_version = (3,7,1)
+    minimal_mg5amcnlo_version = (3,8,1)
     maximal_mg5amcnlo_version = (1000,1000,1000)
-    latest_validated_version = (3,7,1)
+    latest_validated_version = (3,8,1)
+
+    # The MadGraph7 versions: MadGraph7 only reads these, and it reads them first
+    # (its numbering can not be compared to that of mg5amcnlo, which only reads those above)
+    minimal_mg7_version = (0,2,1)
+    maximal_mg7_version = (1000,1000,1000)
+    latest_validated_mg7_version = (0,2,1)

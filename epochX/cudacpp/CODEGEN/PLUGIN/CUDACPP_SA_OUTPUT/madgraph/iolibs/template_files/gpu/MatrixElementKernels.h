@@ -2,6 +2,7 @@
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
 // Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 
 #ifndef MATRIXELEMENTKERNELS_H
 #define MATRIXELEMENTKERNELS_H 1
@@ -217,6 +218,14 @@ namespace mg5amcCpu
     DeviceBufferSimple m_colJamp2s;
 #endif
 
+%%VFOLD_BEGIN
+    // AV vfold (step 10a): the super-buffer of nGoodHel per-diagram |amp|^2 buffers (dynamically allocated)
+    std::unique_ptr<DeviceBufferSimple> m_pHelAmp2;
+
+    // AV vfold (step 10a): the buffer for the event-by-event block of colour-linked Borns, amp2 and jamp2 [nevt*CPPProcess::nbornextras]
+    DeviceBufferSimple m_bornExtras;
+
+%%VFOLD_END
 #ifdef MGONGPU_CHANNELID_DEBUG
     // The **host** buffer for the channelId array
     // FIXME? MEKD should accept a host buffer as an argument instead of a device buffer, so that a second copy can be avoided?

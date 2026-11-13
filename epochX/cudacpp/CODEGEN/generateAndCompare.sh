@@ -3,6 +3,7 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 # Further modified by: A. Valassi (2021-2025) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 
 set -e # fail on error
 
@@ -276,13 +277,13 @@ function codeGenAndDiff()
     elif [ "${OUTBCK}" == "madonly" ]; then # $SCRBCK=cudacpp and $OUTBCK=madonly
       echo "output madevent ${outproc} ${helrecopt} --vector_size=${vecsize}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "mad" ]; then # $SCRBCK=cudacpp and $OUTBCK=mad
-      echo "output madevent_simd ${outproc} ${helrecopt} --vector_size=${vecsize} " >> ${outproc}.mg
+      echo "output madevent_simd ${outproc} ${helrecopt} --vector_size=${vecsize} ${vfoldopt}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madcpp" ]; then # $SCRBCK=cudacpp and $OUTBCK=madcpp
-      echo "output madevent_simd ${outproc} ${helrecopt} --vector_size=32" >> ${outproc}.mg
+      echo "output madevent_simd ${outproc} ${helrecopt} --vector_size=32${vfoldopt:+ ${vfoldopt}}" >> ${outproc}.mg
     elif [ "${OUTBCK}" == "madgpu" ]; then # $SCRBCK=cudacpp and $OUTBCK=madgpu
       echo "output madevent ${outproc} ${helrecopt} --vector_size=32 --me_exporter=standalone_gpu" >> ${outproc}.mg
     else # $SCRBCK=cudacpp and $OUTBCK=cudacpp, cpp or gpu
-      echo "output standalone_${OUTBCK} ${outproc}" >> ${outproc}.mg
+      echo "output standalone_${OUTBCK} ${outproc}${vfoldopt:+ ${vfoldopt}}" >> ${outproc}.mg
     fi
     echo "--------------------------------------------------"
     cat ${outproc}.mg
@@ -415,6 +416,7 @@ function codeGenAndDiff()
   elif [ "${OUTBCK}" == "madnovec" ] || [ "${OUTBCK}" == "madonly" ] || [ "${OUTBCK}" == "mad" ] || [ "${OUTBCK}" == "madcpp" ] || [ "${OUTBCK}" == "madgpu" ]; then
     autosuffix=${OUTBCK}
   fi
+  if [ "${vfoldopt}" != "" ]; then autosuffix=vfold.${autosuffix}; fi
   # Replace the existing generated code in the output source code directory by the newly generated code and create a .BKP
   rm -rf ${OUTDIR}/${proc}.${autosuffix}.BKP
   if [ -d ${OUTDIR}/${proc}.${autosuffix} ]; then mv ${OUTDIR}/${proc}.${autosuffix} ${OUTDIR}/${proc}.${autosuffix}.BKP; fi
@@ -500,11 +502,12 @@ function usage()
     echo "ERROR! alpaka mode is no longer supported by this script!"; exit 1
   else
     # NB: all options with $SCRBCK=cudacpp use the 311 branch by default and always disable helicity recycling
-    echo "Usage:   $0 [-q|--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [-c '<cmd>'] <proc>"
+    echo "Usage:   $0 [-q|--nobrief] [--cpp|--gpu|--madnovec|--madonly|--mad|--madcpp*|--madgpu] [--nopatch|--upstream] [--vfold] [-c '<cmd>'] <proc>"
     echo "         (*Note: the --madcpp option exists but code generation fails for it)"
     echo "         (**Note: <proc> will be used as a relative path in ${OUTDIR} and should not contain '/' characters"
     echo "Example: $0 gg_tt --mad"
     echo "Example: $0 gg_bb --mad -c 'generate g g > b b~'"
+    echo "Example: $0 epem_bbbxbx --mad --vfold -c 'generate e+ e- > b b b~ b~'"
   fi
   exit 1
 }
@@ -558,6 +561,9 @@ UNTARONLY=1
 PATCHLEVEL=
 patchlevel=2 # [DEFAULT] complete generation of cudacpp .sa/.mad (copy templates and apply patch commands)
 
+# Default: do not generate the vfold extensions (use --vfold to generate them, only with the cudacpp plugin outputs)
+vfoldopt=
+
 # Default for gridpacks: use helicity recycling (use --nohelrec to disable it)
 # (export the value to the untarGridpack.sh script)
 # Hardcoded for cudacpp and alpaka: disable helicity recycling (#400, #279) for the moment
@@ -599,6 +605,8 @@ while [ "$1" != "" ]; do
     export OUTBCK=${1#--}
   elif [ "$1" == "--madgpu" ] && [ "${SCRBCK}" == "cudacpp" ]; then
     export OUTBCK=${1#--}
+  elif [ "$1" == "--vfold" ] && [ "${SCRBCK}" == "cudacpp" ]; then
+    vfoldopt=--vfold
   elif [ "$1" == "-c" ] && [ "$2" != "" ]; then
     cmd="$2"
     shift
@@ -610,6 +618,7 @@ while [ "$1" != "" ]; do
   shift
 done
 if [ "$proc" == "" ]; then usage; fi
+if [ "${vfoldopt}" != "" ] && [ "${OUTBCK}" != "cudacpp" ] && [ "${OUTBCK}" != "mad" ] && [ "${OUTBCK}" != "madcpp" ]; then echo "ERROR! --vfold is not supported with --${OUTBCK}"; usage; fi
 if [ "${proc/\/}" != "${proc}" ]; then echo "ERROR! <proc> '${proc}' should not contain '/' characters"; usage; fi
 
 echo "SCRDIR=${SCRDIR}"
@@ -619,6 +628,7 @@ echo "OUTBCK=${OUTBCK}"
 
 echo "BRIEF=${BRIEF}"
 echo "QUIET=${QUIET}"
+echo "vfoldopt=${vfoldopt}"
 echo "proc=${proc}"
 
 # Make sure that python3 is installed
@@ -750,14 +760,16 @@ cleanup_MG5AMC_HOME
 
 # Check formatting in the auto-generated code
 if [ "${OUTBCK}" == "cudacpp" ]; then
-  echo -e "\n+++ Check code formatting in newly generated code ${proc}.sa\n"
-  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.sa; then
+  if [ "${vfoldopt}" != "" ]; then vfoldsuffix=.vfold; else vfoldsuffix=; fi
+  echo -e "\n+++ Check code formatting in newly generated code ${proc}${vfoldsuffix}.sa\n"
+  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}${vfoldsuffix}.sa; then
     echo "ERROR! Auto-generated code does not respect formatting policies"
     exit 1
   fi
 elif [ "${OUTBCK}" == "mad" ]; then
-  echo -e "\n+++ Check code formatting in newly generated code ${proc}.mad\n"
-  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}.mad; then
+  if [ "${vfoldopt}" != "" ]; then vfoldsuffix=.vfold; else vfoldsuffix=; fi
+  echo -e "\n+++ Check code formatting in newly generated code ${proc}${vfoldsuffix}.mad\n"
+  if ! $SCRDIR/checkFormatting.sh -q -q ${proc}${vfoldsuffix}.mad; then
     echo "ERROR! Auto-generated code does not respect formatting policies"
     exit 1
   fi

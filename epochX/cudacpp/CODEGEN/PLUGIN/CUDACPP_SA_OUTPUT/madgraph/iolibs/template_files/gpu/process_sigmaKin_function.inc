@@ -5,6 +5,7 @@
 ! Licensed under the GNU Lesser General Public License (version 3 or later).
 ! Modified by: A. Valassi (Sep 2021) for the MG5aMC CUDACPP plugin.
 ! Further modified by: O. Mattelaer, J. Teig, A. Valassi (2021-2024) for the MG5aMC CUDACPP plugin.
+! Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 !==========================================================================
 #include "GpuAbstraction.h"
 
@@ -40,6 +41,18 @@
       denominators_sv = fptype_sv{ 0 };
 #endif
     }
+%%VFOLD_BEGIN
+    // AV vfold: reset the colour-linked Borns and enable their accumulation
+    if( s_bsfsSize != npagV * nbx )
+    {
+      if( s_bsfs ) ::operator delete[]( s_bsfs, std::align_val_t( mgOnGpu::cppAlign ) );
+      s_bsfs = new( std::align_val_t( mgOnGpu::cppAlign ) ) fptype_sv[npagV * nbx]();
+      s_bsfsSize = npagV * nbx;
+    }
+    for( int i = 0; i < s_bsfsSize; i++ ) s_bsfs[i] = fptype_sv{ 0 };
+    s_bsfsNevt = nevt;
+    s_bsfsAccum = s_bsfs;
+%%VFOLD_END
 #endif
 
     // === PART 1 - HELICITY LOOP: CALCULATE WAVEFUNCTIONS ===
@@ -58,14 +71,30 @@
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
       fptype* hAllNumerators = ghelAllNumerators + ighel * nevt;
       fptype* hAllDenominators = ghelAllDenominators + ighel * nevt;
+%%VFOLD_BEGIN
+#endif
+      fptype* hAllAmp2 = ( ghelAllAmp2 && allBsfx ) ? ghelAllAmp2 + (size_t)ighel * nbxDiag * nevt : nullptr; // AV vfold
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, hAllAmp2, nevt );
+%%VFOLD_ELSE
       gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, allChannelIds, hAllNumerators, hAllDenominators, colAllJamp2s, nevt );
+%%VFOLD_END
 #else
+%%VFOLD_BEGIN
+      gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, hAllAmp2, nevt );
+%%VFOLD_ELSE
       gpuLaunchKernelStream( calculate_jamps, gpublocks, gputhreads, ghelStreams[ighel], ihel, allmomenta, allcouplings, hAllJamps, nevt );
+%%VFOLD_END
 #endif
     }
     // (2) Then compute the ME for that helicity from the color sum of QCD partial amplitudes jamps
     color_sum_gpu( ghelAllMEs, ghelAllJamps, ghelAllBlasTmp, pBlasHandle, ghelStreams, cNGoodHel, gpublocks, gputhreads );
     checkGpu( gpuDeviceSynchronize() ); // do not start helicity/color selection until the loop over helicities has completed
+%%VFOLD_BEGIN
+    // AV vfold (step 10a): colour-linked Borns, AMP2 and JAMP2 summed over helicities (in a fixed order)
+    if( allBsfx && ghelAllAmp2 )
+      gpuLaunchKernel( compute_bornextras, gpublocks, gputhreads, allBsfx, ghelAllJamps, ghelAllAmp2, helcolDenominators[0] );
+%%VFOLD_END
     // (3) Wait for all helicity streams to complete, then finally compute the ME sum over all helicities and choose one helicity and one color
     // Event-by-event random choice of helicity #403 and ME sum over helicities (defer this after the helicity loop to avoid breaking streams parallelism)
     gpuLaunchKernel( add_and_select_hel, gpublocks, gputhreads, allselhel, allrndhel, ghelAllMEs, allMEs, gpublocks * gputhreads );
@@ -93,7 +122,11 @@
     // - shared: as the name says
     // - private: give each thread its own copy, without initialising
     // - firstprivate: give each thread its own copy, and initialise with value from outside
+%%VFOLD_BEGIN
+#define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2, s_bsfsAccum
+%%VFOLD_ELSE
 #define _OMPLIST0 allcouplings, allMEs, allmomenta, allrndcol, allrndhel, allselcol, allselhel, cGoodHel, cNGoodHel, npagV2
+%%VFOLD_END
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
 #define _OMPLIST1 , allDenominators, allNumerators, allChannelIds, allIgraph, mgOnGpu::icolamp, mgOnGpu::channel2iconfig
 #else
@@ -151,7 +184,7 @@
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
       fptype_sv MEs_ighel2[ncomb] = {}; // sum of MEs for all good helicities up to ighel (for the second neppV page)
 #endif
-      for( int ighel = 0; ighel < cNGoodHel; ighel++ )
+%(vfold_ans2_decl_cpp)s      for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
         cxtype_sv jamp_sv[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
@@ -163,11 +196,11 @@
 #endif
         color_sum_cpu( allMEs, jamp_sv, ievt00 );
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
-#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+%(vfold_bsf_sigmakin_cpp)s#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
 #endif
       }
-      // Event-by-event random choice of helicity #403
+%(vfold_ans2_sum_cpp)s      // Event-by-event random choice of helicity #403
       for( int ieppV = 0; ieppV < neppV; ++ieppV )
       {
         const int ievt = ievt00 + ieppV;
@@ -355,8 +388,113 @@
       //  printf( "sigmaKin: ievt=%%2d me=%%f\n", ievt, allMEs[ievt] );
       //}
     }
+%%VFOLD_BEGIN
+    // AV vfold: final colour-linked Borns (same denominators as the MEs, no multichannel factor)
+    // (only the links: amp2 and jamp2 are raw sums over helicities, like the Fortran AMP2 and JAMP2)
+    for( int ipagV = 0; ipagV < npagV; ++ipagV )
+      for( int ibsf = 0; ibsf < nbsf; ibsf++ )
+        s_bsfs[ipagV * nbx + ibsf] /= helcolDenominators[0];
+    // AV vfold (step 14g): ANS(2) is normalised like the MEs too
+    for( int ipagV = 0; ipagV < npagV; ++ipagV )
+      for( int ibx = ibxAns2; ibx < nbx; ibx++ )
+        s_bsfs[ipagV * nbx + ibx] /= helcolDenominators[0];
+    s_bsfsAccum = nullptr;
+%%VFOLD_END
 #endif
     mgDebugFinalise();
   }
 
   //--------------------------------------------------------------------------
+%%VFOLD_BEGIN
+
+#ifndef MGONGPUCPP_GPUIMPL
+  // AV vfold: copy out the colour-linked Borns computed by the last sigmaKin call
+  void
+  getColourLinkedBorns( const int nevt, double* bsfs ) // output: bsfs[nevt][nbsf] (Fortran BSF(NBSF,NEVT))
+  {
+    for( int ievt = 0; ievt < nevt; ievt++ )
+    {
+      const fptype_sv* bsfs_sv = s_bsfs + ( ievt / neppV ) * nbx;
+      for( int ibsf = 0; ibsf < nbsf; ibsf++ )
+      {
+#ifdef MGONGPU_CPPSIMD
+        bsfs[ievt * nbsf + ibsf] = bsfs_sv[ibsf][ievt %% neppV];
+#else
+        bsfs[ievt * nbsf + ibsf] = bsfs_sv[ibsf];
+#endif
+      }
+    }
+  }
+
+  // AV vfold (step 9i+9j): copy out the whole per-event block of the last sigmaKin call
+  void
+  getBornExtras( const int nevt, double* extras ) // output: extras[nevt][nbx] (Fortran EXTRAS(%(vfold_nbx)d,NEVT))
+  {
+    for( int ievt = 0; ievt < nevt; ievt++ )
+    {
+      const fptype_sv* bsfx_sv = s_bsfs + ( ievt / neppV ) * nbx;
+      for( int ibx = 0; ibx < nbx; ibx++ )
+      {
+#ifdef MGONGPU_CPPSIMD
+        extras[ievt * nbx + ibx] = bsfx_sv[ibx][ievt %% neppV];
+#else
+        extras[ievt * nbx + ibx] = bsfx_sv[ibx];
+#endif
+      }
+    }
+  }
+#else
+  // AV vfold (step 10a): register the device buffer [nevt*nbx] used by the last sigmaKin launch
+  // (this must be in CPPProcess.cc and not in MatrixElementKernels.cc: the Fortran getters fbridgegetbsf_
+  // and fbridgegetbornextras_ in this file have no Bridge argument, so the buffer address is kept in
+  // the file-scope statics s_devBsfs and s_bsfsNevt of this file, like the host buffer s_bsfs on CPUs)
+  void
+  registerBornExtrasDeviceBuffer( const fptype* devBsfx, const int nevt )
+  {
+    s_devBsfs = devBsfx;
+    s_bsfsNevt = nevt;
+  }
+
+  // AV vfold (step 10a): forget the registered device buffer if it is being deleted
+  void
+  unregisterBornExtrasDeviceBuffer( const fptype* devBsfx )
+  {
+    if( s_devBsfs != devBsfx ) return;
+    s_devBsfs = nullptr;
+    s_bsfsNevt = 0;
+  }
+
+  // AV vfold (step 10a): copy the whole per-event block of the last sigmaKin launch from the device
+  // (one synchronous device-to-host copy of nevt*nbx values; returns a host pointer valid until the next call)
+  static const fptype*
+  copyBornExtrasToHost( const int nevt )
+  {
+    static std::vector<fptype> hstBsfs;
+    if( (int)hstBsfs.size() < nevt * nbx ) hstBsfs.resize( nevt * nbx );
+    gpuMemcpy( hstBsfs.data(), s_devBsfs, nevt * nbx * sizeof( fptype ), gpuMemcpyDeviceToHost );
+    return hstBsfs.data();
+  }
+
+  // AV vfold (step 10a): copy out the colour-linked Borns computed by the last sigmaKin launch
+  void
+  getColourLinkedBorns( const int nevt, double* bsfs ) // output: bsfs[nevt][nbsf] (Fortran BSF(NBSF,NEVT))
+  {
+    const fptype* hstBsfs = copyBornExtrasToHost( nevt );
+    for( int ievt = 0; ievt < nevt; ievt++ )
+      for( int ibsf = 0; ibsf < nbsf; ibsf++ )
+        bsfs[ievt * nbsf + ibsf] = hstBsfs[ievt * nbx + ibsf];
+  }
+
+  // AV vfold (step 10a): copy out the whole per-event block of the last sigmaKin launch
+  void
+  getBornExtras( const int nevt, double* extras ) // output: extras[nevt][nbx] (Fortran EXTRAS(%(vfold_nbx)d,NEVT))
+  {
+    const fptype* hstBsfs = copyBornExtrasToHost( nevt );
+    for( int ievt = 0; ievt < nevt; ievt++ )
+      for( int ibx = 0; ibx < nbx; ibx++ )
+        extras[ievt * nbx + ibx] = hstBsfs[ievt * nbx + ibx];
+  }
+#endif
+
+  //--------------------------------------------------------------------------
+%%VFOLD_END

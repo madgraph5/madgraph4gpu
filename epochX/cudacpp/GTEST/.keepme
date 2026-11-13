@@ -1,0 +1,9 @@
+# Copyright (C) 2026 CERN.
+# Licensed under the GNU Lesser General Public License (version 3 or later).
+# Created by: A. Valassi (Oct 2026) for the MadVfold project (arXiv:2609.23500).
+#
+# This directory holds the googletest installation shared by all cudacpp process
+# directories in epochX/cudacpp: the build of the cudacpp unit tests in each
+# <proc>/SubProcesses/P*_* (target gtestlibs in cudacpp.mk) creates <proc>/test/GTEST
+# as a symlink to ../../GTEST (this directory) and clones, builds and installs
+# googletest here (in GTEST/googletest).
