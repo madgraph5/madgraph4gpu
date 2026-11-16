@@ -187,6 +187,27 @@
 %(vfold_ans2_decl_cpp)s      for( int ighel = 0; ighel < cNGoodHel; ighel++ )
       {
         const int ihel = cGoodHel[ighel];
+        // Helicity-flip pairing: save the running sums if this helicity also stands for its flip partner
+        const bool hw2 = ( cGoodHelWeight[ighel] == 2 );
+        constexpr int nevtPage = nParity * neppV; // events in this (one or two) neppV page(s)
+        fptype me0[nevtPage];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+        fptype num0[nevtPage], den0[nevtPage];
+        fptype_sv jamp2_0[nParity * ncolor];
+#endif
+        if( hw2 )
+        {
+          for( int i = 0; i < nevtPage; i++ ) me0[i] = allMEs[ievt00 + i];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+          if( allChannelIds != nullptr )
+            for( int i = 0; i < nevtPage; i++ )
+            {
+              num0[i] = allNumerators[ievt00 + i];
+              den0[i] = allDenominators[ievt00 + i];
+            }
+          for( int i = 0; i < nParity * ncolor; i++ ) jamp2_0[i] = jamp2_sv[i];
+#endif
+        }
         cxtype_sv jamp_sv[nParity * ncolor] = {}; // fixed nasty bug (omitting 'nParity' caused memory corruptions after calling calculate_jamps)
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
         // **NB! in "mixed" precision, using SIMD, calculate_jamps computes MEs for TWO neppV pages with a single channelId! #924
@@ -195,6 +216,19 @@
         calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 );
 #endif
         color_sum_cpu( allMEs, jamp_sv, ievt00 );
+        if( hw2 ) // helicity-flip pairing: double the increments
+        {
+          for( int i = 0; i < nevtPage; i++ ) allMEs[ievt00 + i] = 2 * allMEs[ievt00 + i] - me0[i];
+#ifdef MGONGPU_SUPPORTS_MULTICHANNEL
+          if( allChannelIds != nullptr )
+            for( int i = 0; i < nevtPage; i++ )
+            {
+              allNumerators[ievt00 + i] = 2 * allNumerators[ievt00 + i] - num0[i];
+              allDenominators[ievt00 + i] = 2 * allDenominators[ievt00 + i] - den0[i];
+            }
+          for( int i = 0; i < nParity * ncolor; i++ ) jamp2_sv[i] = 2 * jamp2_sv[i] - jamp2_0[i];
+#endif
+        }
         MEs_ighel[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 ) );
 %(vfold_bsf_sigmakin_cpp)s#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
         MEs_ighel2[ighel] = E_ACCESS::kernelAccess( E_ACCESS::ieventAccessRecord( allMEs, ievt00 + neppV ) );
@@ -216,7 +250,17 @@
 #endif
           if( okhel )
           {
-            const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
+            int ihelC = cGoodHel[ighel];
+            if( cGoodHelWeight[ighel] == 2 ) // helicity-flip pairing: upper half of the interval -> flip partner
+            {
+#if defined MGONGPU_CPPSIMD
+              const fptype melo = ( ighel > 0 ? MEs_ighel[ighel - 1][ieppV] : 0 ), mehi = MEs_ighel[ighel][ieppV], metot = MEs_ighel[cNGoodHel - 1][ieppV];
+#else
+              const fptype melo = ( ighel > 0 ? MEs_ighel[ighel - 1] : 0 ), mehi = MEs_ighel[ighel], metot = MEs_ighel[cNGoodHel - 1];
+#endif
+              if( allrndhel[ievt] >= ( melo + mehi ) / 2 / metot ) ihelC = cGoodHelPartner[ighel];
+            }
+            const int ihelF = ihelC + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
             allselhel[ievt] = ihelF;
             //printf( "sigmaKin: ievt=%%4d ihel=%%4d\n", ievt, ihelF );
             break;
@@ -230,7 +274,13 @@
           //printf( "sigmaKin: ievt=%%4d ighel=%%d MEs_ighel=%%f\n", ievt2, ighel, MEs_ighel2[ighel][ieppV] );
           if( allrndhel[ievt2] < ( MEs_ighel2[ighel][ieppV] / MEs_ighel2[cNGoodHel - 1][ieppV] ) )
           {
-            const int ihelF = cGoodHel[ighel] + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
+            int ihelC = cGoodHel[ighel];
+            if( cGoodHelWeight[ighel] == 2 ) // helicity-flip pairing: upper half of the interval -> flip partner
+            {
+              const fptype melo = ( ighel > 0 ? MEs_ighel2[ighel - 1][ieppV] : 0 ), mehi = MEs_ighel2[ighel][ieppV], metot = MEs_ighel2[cNGoodHel - 1][ieppV];
+              if( allrndhel[ievt2] >= ( melo + mehi ) / 2 / metot ) ihelC = cGoodHelPartner[ighel];
+            }
+            const int ihelF = ihelC + 1; // NB Fortran [1,ncomb], cudacpp [0,ncomb-1]
             allselhel[ievt2] = ihelF;
             //printf( "sigmaKin: ievt=%%4d ihel=%%4d\n", ievt2, ihelF );
             break;

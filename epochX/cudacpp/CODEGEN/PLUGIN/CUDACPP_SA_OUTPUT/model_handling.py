@@ -1442,6 +1442,7 @@ class PLUGIN_OneProcessExporter(PLUGIN_export_cpp.OneProcessExporterGPU):
         replace_dict['all_helicities'] = replace_dict['all_helicities'] .replace('helicities', 'tHel')
         color_amplitudes = [me.get_color_amplitudes() for me in self.matrix_elements] # as in OneProcessExporterCPP.get_process_function_definitions
         replace_dict['ncolor'] = len(color_amplitudes[0])
+        replace_dict['helpair_label'] = self.get_process_name() # helicity-flip pairing (label for printouts)
         if self.vfold:
             replace_dict['vfold_bsf_definitions'] = self.get_vfold_bornextras().get_definitions() # AV vfold (step 9i+9j)
             replace_dict['vfold_bsf_kernel'] = self.get_vfold_bornextras().get_kernel_gpu() # AV vfold (step 10a)

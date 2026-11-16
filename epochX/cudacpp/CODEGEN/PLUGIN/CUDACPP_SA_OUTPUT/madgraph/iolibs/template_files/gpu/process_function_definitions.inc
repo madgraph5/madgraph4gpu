@@ -95,6 +95,16 @@ namespace mg5amcCpu
   static int cNGoodHel;
   static int cGoodHel[ncomb];
 
+  // Helicity-flip pairing (C++ only): as in the Fortran T_IDENT logic of the MadFKS matrix_N.f, a good helicity is
+  // not computed if its all-helicity-flip partner gives the same |M|^2: the partner is computed once with weight 2
+  // (only if CUDACPP_RUNTIME_HELPAIR=1; unset or 0, the default, means no pairing, as in earlier cudacpp versions)
+  // [NB: on GPUs, in the --vfold Born libraries and without pairing, sHelPairSet stays false and all weights are 1]
+  static bool sHelPairSet = false;   // true if pairing is enabled and sigmaKin_getGoodHel has filled sHelPairOf
+  static int sHelPairOf[ncomb];      // for each ihel: the flip partner iflip<ihel with the same |M|^2, or -1
+  static int cGoodHelWeight[ncomb];  // 1, or 2 if cGoodHel[ighel] also stands for its flip partner
+  static int cGoodHelPartner[ncomb]; // the flip partner of cGoodHel[ighel] (if weight 2), or -1
+  static const char* cHelPairLabel = "%(helpair_label)s";
+
 %%VFOLD_BEGIN
 %(vfold_bsf_definitions)s
 %%VFOLD_END
@@ -440,6 +450,7 @@ namespace mg5amcCpu
     //std::cout << "sigmaKin_getGoodHel nevt=" << nevt << " maxtry=" << maxtry << std::endl;
     // HELICITY LOOP: CALCULATE WAVEFUNCTIONS
     const int npagV = maxtry / neppV;
+    fptype mesHel[ncomb][maxtry0] = {}; // per-helicity |M|^2 of the maxtry events (for the helicity-flip pairing)
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT /* clang-format off */
     // Mixed fptypes #537: float for color algebra and double elsewhere
     // Delay color algebra and ME updates (only on even pages)
@@ -486,6 +497,10 @@ namespace mg5amcCpu
         {
           const int ievt = ievt00 + ieppV;
           //std::cout << "sigmaKin_getGoodHel allMEs[ievt]=" << allMEs[ievt] << std::endl;
+          mesHel[ihel][ievt] = allMEs[ievt]; // for the helicity-flip pairing
+#if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
+          mesHel[ihel][ievt00 + ieppV + neppV] = allMEs[ievt00 + ieppV + neppV]; // for the helicity-flip pairing
+#endif
           if( allMEs[ievt] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
           {
             //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
@@ -502,6 +517,51 @@ namespace mg5amcCpu
         }
       }
     }
+%%VFOLD_BEGIN
+    // AV vfold: no helicity-flip pairing in the --vfold Born libraries (the B_SF and ANS(2) extras use partner helicities)
+    (void)mesHel;
+%%VFOLD_ELSE
+    // Helicity-flip pairing: pair each good helicity with its all-helicity-flip partner if their |M|^2 agree
+    // to 1E-9 (relative) in all maxtry events (the Fortran T_IDENT in MadFKS matrix_N.f uses 1E-12 at one point,
+    // but -ffast-math rounding differences reach ~1E-10; a genuine asymmetry gives differences above ~1E-3)
+    // Runtime switches CUDACPP_RUNTIME_HELPAIR (pairing) and CUDACPP_RUNTIME_HELPAIRDEBUG (print the max relative
+    // difference of each candidate pair): unset, empty or 0 = off (the default), 1 = on, any other value = fatal error
+    auto getenvSwitch = []( const char* name ) -> bool
+    {
+      const char* env = getenv( name );
+      if( !env || env[0] == '\0' || ( env[0] == '0' && env[1] == '\0' ) ) return false;
+      if( env[0] == '1' && env[1] == '\0' ) return true;
+      throw std::runtime_error( std::string( "invalid " ) + name + "=" + env + " (must be unset, 0 or 1)" );
+    };
+    const bool helPair = getenvSwitch( "CUDACPP_RUNTIME_HELPAIR" );
+    const bool helPairDebug = getenvSwitch( "CUDACPP_RUNTIME_HELPAIRDEBUG" );
+    for( int ihel = 0; ihel < ncomb; ihel++ ) sHelPairOf[ihel] = -1;
+    for( int ihel = 0; ihel < ncomb && helPair; ihel++ )
+    {
+      if( !isGoodHel[ihel] ) continue;
+      int iflip = -1;
+      for( int jhel = 0; jhel < ihel && iflip < 0; jhel++ )
+      {
+        bool isFlip = true;
+        for( int ipar = 0; ipar < npar; ipar++ )
+          if( cHel[jhel][ipar] != -cHel[ihel][ipar] ) isFlip = false;
+        if( isFlip ) iflip = jhel;
+      }
+      if( iflip < 0 || !isGoodHel[iflip] || sHelPairOf[iflip] >= 0 ) continue;
+      bool same = true;
+      fptype maxRelDiff = 0;
+      for( int ievt = 0; ievt < maxtry; ievt++ )
+      {
+        const fptype me1 = mesHel[ihel][ievt], me2 = mesHel[iflip][ievt];
+        if( me2 == 0 ? me1 != 0 : std::abs( me1 / me2 - 1 ) > 1E-9 ) same = false;
+        if( me2 != 0 ) maxRelDiff = std::max( maxRelDiff, (fptype)std::abs( me1 / me2 - 1 ) );
+      }
+      if( helPairDebug )
+        printf( "DEBUG: [HELPAIR] %%s ihel=%%2d iflip=%%2d maxreldiff=%%.3e (%%d events)\n", cHelPairLabel, ihel, iflip, maxRelDiff, maxtry );
+      if( same ) sHelPairOf[ihel] = iflip;
+    }
+    sHelPairSet = helPair; // without pairing: all weights 1, no INFO printout (as in earlier cudacpp versions)
+%%VFOLD_END
   }
 #endif
 
@@ -511,16 +571,37 @@ namespace mg5amcCpu
   sigmaKin_setGoodHel( const bool* isGoodHel ) // input: isGoodHel[ncomb] - host array (CUDA and C++)
   {
     int nGoodHel = 0;
-    int goodHel[ncomb] = { 0 }; // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+    int goodHel[ncomb] = { 0 };        // all zeros https://en.cppreference.com/w/c/language/array_initialization#Notes
+    int goodHelWeight[ncomb] = { 0 };  // helicity-flip pairing: 2 if goodHel[ighel] also stands for its flip partner
+    int goodHelPartner[ncomb] = { 0 }; // helicity-flip pairing: the flip partner of goodHel[ighel] (if weight 2), or -1
+    int nGoodHelAll = 0;               // helicity-flip pairing: good helicities including the paired partners
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       //std::cout << "sigmaKin_setGoodHel ihel=" << ihel << ( isGoodHel[ihel] ? " true" : " false" ) << std::endl;
-      if( isGoodHel[ihel] )
+      if( isGoodHel[ihel] ) nGoodHelAll++;
+      if( isGoodHel[ihel] && !( sHelPairSet && sHelPairOf[ihel] >= 0 ) ) // skip the paired partners
       {
         goodHel[nGoodHel] = ihel;
+        goodHelWeight[nGoodHel] = 1;
+        goodHelPartner[nGoodHel] = -1;
+        if( sHelPairSet )
+          for( int jhel = ihel + 1; jhel < ncomb; jhel++ )
+            if( isGoodHel[jhel] && sHelPairOf[jhel] == ihel )
+            {
+              goodHelWeight[nGoodHel] = 2;
+              goodHelPartner[nGoodHel] = jhel;
+            }
         nGoodHel++;
       }
     }
+    for( int ighel = 0; ighel < ncomb; ighel++ )
+    {
+      cGoodHelWeight[ighel] = ( ighel < nGoodHel ? goodHelWeight[ighel] : 0 );
+      cGoodHelPartner[ighel] = ( ighel < nGoodHel ? goodHelPartner[ighel] : -1 );
+    }
+    if( sHelPairSet )
+      std::cout << "INFO: [HELPAIR] " << cHelPairLabel << ": " << nGoodHelAll << " good helicities, "
+                << nGoodHelAll - nGoodHel << " flip-paired, computing " << nGoodHel << std::endl;
 #ifdef MGONGPUCPP_GPUIMPL
     gpuMemcpyToSymbol( dcNGoodHel, &nGoodHel, sizeof( int ) );
     gpuMemcpyToSymbol( dcGoodHel, goodHel, ncomb * sizeof( int ) );
