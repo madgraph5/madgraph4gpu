@@ -107,6 +107,23 @@ namespace mg5amcCpu
 
 %%VFOLD_BEGIN
 %(vfold_bsf_definitions)s
+  // AV vfold: the good-helicity test of the --vfold Born (ENV_VFOLD_BORN_DIAGGOODHEL, the same test as in the Fortran Born
+  // of MadVfold): 0 = the old test, a helicity is good if its |M|^2 is not zero in one of the maxtry events (#630);
+  // 1 = the diagram-level test, a helicity is good if its |M|^2 or its sum over diagrams of |amp|^2 (Fortran AMP2) is
+  // not zero in one of the maxtry events; unset or empty = 1 (the Fortran default is 0 in mode F0 and 1 otherwise, but the
+  // cudacpp libraries are only used in mode C); any other value = fatal error. Some helicities have |M|^2 = 0
+  // through a cancellation between non-zero diagrams (e.g. 4 of the 16 of g g > t t~): their |M|^2 is ~1E-31 or exactly 0
+  // depending on rounding, but they contribute to AMP2 (the multichannel weights), which therefore depend on the first
+  // events with the old test. Returns true for the diagram-level test (also use the amp2), false for the old one.
+  inline bool
+  vfoldBornGoodHelAmp2()
+  {
+    const char* env = getenv( "ENV_VFOLD_BORN_DIAGGOODHEL" );
+    if( !env || env[0] == '\0' ) return true;
+    if( env[0] == '0' && env[1] == '\0' ) return false;
+    if( env[0] == '1' && env[1] == '\0' ) return true;
+    throw std::runtime_error( std::string( "invalid ENV_VFOLD_BORN_DIAGGOODHEL=" ) + env + " (must be unset, 0 or 1)" );
+  }
 %%VFOLD_END
   //--------------------------------------------------------------------------
 
@@ -388,6 +405,13 @@ namespace mg5amcCpu
     fptype hstMEs[maxtry0];
     const int maxtry = std::min( maxtry0, nevt ); // 16, but at most nevt (avoid invalid memory access if nevt<maxtry0)
     //std::cout << "sigmaKin_getGoodHel nevt=" << nevt << " maxtry=" << maxtry << std::endl;
+%%VFOLD_BEGIN
+    // AV vfold: the amp2[nbornamps][maxtry] of one helicity, for the good-helicity test (ENV_VFOLD_BORN_DIAGGOODHEL)
+    const bool goodHelAmp2 = vfoldBornGoodHelAmp2();
+    fptype* devAmp2 = nullptr; // nullptr (no amp2) unless goodHelAmp2
+    fptype hstAmp2[nbxDiag * maxtry0];
+    if( goodHelAmp2 ) gpuMalloc( (void**)&devAmp2, nbxDiag * maxtry * sizeof( fptype ) );
+%%VFOLD_END
     for( int ihel = 0; ihel < ncomb; ihel++ )
     {
       const int gpublocks = 1;
@@ -401,21 +425,24 @@ namespace mg5amcCpu
       constexpr fptype_sv* allJamp2s = nullptr;        // no need for color selection during helicity filtering
       constexpr unsigned int* allChannelIds = nullptr; // disable multichannel single-diagram enhancement
 %%VFOLD_BEGIN
-      // AV vfold: no amp2 (nullptr) in sigmaKin_getGoodHel
-      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, allChannelIds, allNumerators, allDenominators, allJamp2s, (fptype*)nullptr, gpublocks * gputhreads );
+      // AV vfold: amp2 only for the good-helicity test (devAmp2 is nullptr unless goodHelAmp2)
+      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, allChannelIds, allNumerators, allDenominators, allJamp2s, devAmp2, gpublocks * gputhreads );
 %%VFOLD_ELSE
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, allChannelIds, allNumerators, allDenominators, allJamp2s, gpublocks * gputhreads );
 %%VFOLD_END
 #else
 %%VFOLD_BEGIN
-      // AV vfold: no amp2 (nullptr) in sigmaKin_getGoodHel
-      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, (fptype*)nullptr, gpublocks * gputhreads );
+      // AV vfold: amp2 only for the good-helicity test (devAmp2 is nullptr unless goodHelAmp2)
+      gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, devAmp2, gpublocks * gputhreads );
 %%VFOLD_ELSE
       gpuLaunchKernel( calculate_jamps, gpublocks, gputhreads, ihel, allmomenta, allcouplings, allJamps, gpublocks * gputhreads );
 %%VFOLD_END
 #endif
       gpuLaunchKernel( color_sum_kernel, gpublocks, gputhreads, allMEs, allJamps, nOneHel );
       gpuMemcpy( hstMEs, allMEs, maxtry * sizeof( fptype ), gpuMemcpyDeviceToHost );
+%%VFOLD_BEGIN
+      if( goodHelAmp2 ) gpuMemcpy( hstAmp2, devAmp2, nbxDiag * maxtry * sizeof( fptype ), gpuMemcpyDeviceToHost );
+%%VFOLD_END
       //std::cout << "sigmaKin_getGoodHel ihel=" << ihel << std::endl;
       for( int ievt = 0; ievt < maxtry; ++ievt )
       {
@@ -425,8 +452,16 @@ namespace mg5amcCpu
           //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
           isGoodHel[ihel] = true;
         }
+%%VFOLD_BEGIN
+        // AV vfold: also good if one of its diagrams is not zero (ENV_VFOLD_BORN_DIAGGOODHEL)
+        for( int idiag = 0; idiag < nbxDiag && goodHelAmp2; idiag++ )
+          if( hstAmp2[idiag * maxtry + ievt] != 0 ) isGoodHel[ihel] = true;
+%%VFOLD_END
       }
     }
+%%VFOLD_BEGIN
+    if( goodHelAmp2 ) gpuFree( devAmp2 );
+%%VFOLD_END
   }
 #else
   void
@@ -459,6 +494,27 @@ namespace mg5amcCpu
 #else
     const int npagV2 = npagV; // loop on one SIMD page (neppV events) at a time
 #endif /* clang-format on */
+%%VFOLD_BEGIN
+    // AV vfold: for the good-helicity test (ENV_VFOLD_BORN_DIAGGOODHEL), calculate_jamps adds the amp2 of one helicity
+    // to a [npagV][nbx] block buffer like the one of sigmaKin (s_bsfsAccum, normally nullptr outside sigmaKin)
+    const bool goodHelAmp2 = vfoldBornGoodHelAmp2();
+    fptype_sv ghBsfx[( maxtry0 / neppV ) * nbx];
+    fptype_sv* const savedBsfsAccum = s_bsfsAccum;
+    auto ghAmp2Sum = [&]( const int ievt ) -> fptype // the sum over diagrams of the amp2 of event ievt
+    {
+      fptype sum = 0;
+      for( int idiag = 0; idiag < nbxDiag; idiag++ )
+      {
+        const fptype_sv& amp2_sv = ghBsfx[( ievt / neppV ) * nbx + nbsf + idiag];
+#ifdef MGONGPU_CPPSIMD
+        sum += amp2_sv[ievt %% neppV];
+#else
+        sum += amp2_sv;
+#endif
+      }
+      return sum;
+    };
+%%VFOLD_END
     for( int ipagV2 = 0; ipagV2 < npagV2; ++ipagV2 )
     {
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT /* clang-format off */
@@ -486,12 +542,22 @@ namespace mg5amcCpu
 #else
         cxtype_sv jamp_sv[ncolor] = {};  // all zeros
 #endif
+%%VFOLD_BEGIN
+        if( goodHelAmp2 )
+        {
+          for( fptype_sv& x: ghBsfx ) x = fptype_sv{};
+          s_bsfsAccum = ghBsfx;
+        }
+%%VFOLD_END
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL /* clang-format off */
         constexpr unsigned int channelId = 0; // disable multichannel single-diagram enhancement
         calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, channelId, allNumerators, allDenominators, jamp2_sv, ievt00 ); //maxtry?
 #else
         calculate_jamps( ihel, allmomenta, allcouplings, jamp_sv, ievt00 ); //maxtry?
-#endif /* clang-format on */
+#endif
+%%VFOLD_BEGIN
+        s_bsfsAccum = savedBsfsAccum;
+%%VFOLD_END
         color_sum_cpu( allMEs, jamp_sv, ievt00 );
         for( int ieppV = 0; ieppV < neppV; ++ieppV )
         {
@@ -506,6 +572,10 @@ namespace mg5amcCpu
             //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
             isGoodHel[ihel] = true;
           }
+%%VFOLD_BEGIN
+          // AV vfold: also good if one of its diagrams is not zero (ENV_VFOLD_BORN_DIAGGOODHEL)
+          if( goodHelAmp2 && ghAmp2Sum( ievt ) != 0 ) isGoodHel[ihel] = true;
+%%VFOLD_END
 #if defined MGONGPU_CPPSIMD and defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
           const int ievt2 = ievt00 + ieppV + neppV;
           if( allMEs[ievt2] != 0 ) // NEW IMPLEMENTATION OF GETGOODHEL (#630): COMPARE EACH HELICITY CONTRIBUTION TO 0
@@ -513,7 +583,10 @@ namespace mg5amcCpu
             //if ( !isGoodHel[ihel] ) std::cout << "sigmaKin_getGoodHel ihel=" << ihel << " TRUE" << std::endl;
             isGoodHel[ihel] = true;
           }
-#endif
+%%VFOLD_BEGIN
+          if( goodHelAmp2 && ghAmp2Sum( ievt2 ) != 0 ) isGoodHel[ihel] = true; // AV vfold (ENV_VFOLD_BORN_DIAGGOODHEL)
+%%VFOLD_END
+#endif /* clang-format on */
         }
       }
     }
