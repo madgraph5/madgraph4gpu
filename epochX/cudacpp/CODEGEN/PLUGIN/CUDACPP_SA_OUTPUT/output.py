@@ -268,6 +268,13 @@ class PLUGIN_ProcessExporter(PLUGIN_export_cpp.ProcessExporterGPU):
             return self.vfold_generate_subprocess_directory(subproc_group, fortran_model, me)
         out = super().generate_subprocess_directory(subproc_group, fortran_model, me)
         return out
+
+    # AV vfold (step 17f) - MadGraph7 only: do not write the standalone_cpp check_sa.cpp in each P directory
+    # (export_cpp.ProcessExporterCPP.generate_subprocess_directory calls write_check_sa_cpp in MadGraph7, but this
+    # standalone_cpp driver uses a CPPProcess API that does not exist in cudacpp and cannot be built here: the
+    # cudacpp driver is check_sa.cc); this is a no-op in MG5aMC, where write_check_sa_cpp is never called
+    def write_check_sa_cpp(self, matrix_element, dirpath):
+        return
     # AV (default from OM's tutorial) - add a debug printout
     # AV - accept (and pass on) the additional keyword arguments of the base class: since MG5aMC 3.8.0,
     # do_output passes npwave to the main exporter (this is the plugin itself in standalone_cudacpp mode)
