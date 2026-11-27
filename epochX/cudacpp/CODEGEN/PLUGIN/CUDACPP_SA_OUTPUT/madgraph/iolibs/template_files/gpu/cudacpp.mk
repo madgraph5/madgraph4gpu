@@ -2,6 +2,7 @@
 # Licensed under the GNU Lesser General Public License (version 3 or later).
 # Created by: S. Roiser (Feb 2020) for the MG5aMC CUDACPP plugin.
 # Further modified by: S. Hageboeck, D. Massaro, O. Mattelaer, S. Roiser, J. Teig, A. Valassi (2020-2025) for the MG5aMC CUDACPP plugin.
+# Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 
 #=== Determine the name of this makefile (https://ftp.gnu.org/old-gnu/Manuals/make-3.80/html_node/make_17.html)
 #=== NB: use ':=' to ensure that the value of CUDACPP_MAKEFILE is not modified further down after including make_opts
@@ -362,27 +363,18 @@ override CXXNAMESUFFIX = _$(CXXNAME)
 # Export CXXNAMESUFFIX (so that there is no need to check/define it again in cudacpp_test.mk)
 export CXXNAMESUFFIX
 
-# Dependency on test directory
-# Within the madgraph4gpu git repo: by default use a common gtest installation in <topdir>/test (optionally use an external or local gtest)
-# Outside the madgraph4gpu git repo: by default do not build the tests (optionally use an external or local gtest)
+# Dependency on googletest (for the cudacpp unit tests)
+# [AV vfold] googletest is always cloned, built and installed in <proc>/test/GTEST (via the <proc>/test makefile).
+# This directory is not created when the process directory is generated, but at build time (target gtestlibs below):
+# - as a symlink to ../../GTEST, if that exists, i.e. a googletest installation shared by all process directories
+#   in the same parent directory (e.g. epochX/cudacpp/GTEST in madgraph4gpu, or <proc>/CUDACPP/GTEST in MadVfold);
+# - otherwise as a local directory, for this process directory only.
 # Do not build the tests if USEGTEST is equal to 0 (default inside launch_plugin.py, see https://github.com/madgraph5/madgraph4gpu/issues/878)
-###GTEST_ROOT = /cvmfs/sft.cern.ch/lcg/releases/gtest/1.11.0-21e8c/x86_64-centos8-gcc11-opt/# example of an external gtest installation
-###LOCALGTEST = yes# comment this out (or use make LOCALGTEST=yes) to build tests using a local gtest installation
-TESTDIRCOMMON = ../../../../../test
-TESTDIRLOCAL = ../../test
+TESTDIR = ../../test
 ifeq ($(USEGTEST),0)
-  TESTDIR=
-  GTEST_ROOT=
-else ifneq ($(wildcard $(GTEST_ROOT)),)
-  TESTDIR=
-else ifneq ($(LOCALGTEST),)
-  TESTDIR=$(TESTDIRLOCAL)
-  GTEST_ROOT=$(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
-else ifneq ($(wildcard ../../../../../epochX/cudacpp/CODEGEN),)
-  TESTDIR=$(TESTDIRCOMMON)
-  GTEST_ROOT= $(TESTDIR)/googletest/install$(CXXNAMESUFFIX)
+  GTEST_ROOT =
 else
-  TESTDIR=
+  GTEST_ROOT = $(TESTDIR)/GTEST/googletest/install$(CXXNAMESUFFIX)
 endif
 ifneq ($(GTEST_ROOT),)
   GTESTLIBDIR = $(GTEST_ROOT)/lib64/
@@ -394,8 +386,6 @@ else
   GTESTINC =
 endif
 ###$(info GTEST_ROOT = $(GTEST_ROOT))
-###$(info LOCALGTEST = $(LOCALGTEST))
-###$(info TESTDIR = $(TESTDIR))
 
 #-------------------------------------------------------------------------------
 
@@ -1090,13 +1080,22 @@ ifneq ($(GTESTLIBS),)
 gtestlibs: $(GTESTLIBS)
 endif
 
+# Create $(TESTDIR)/GTEST if it does not exist yet: a symlink to the shared ../../GTEST if that exists, else a local directory
+# [AV vfold] 'ln -sn' and '|| true': another P* directory of the same process may be creating the same symlink in parallel
 # Use flock (Linux only, no Mac) to allow 'make -j' if googletest has not yet been downloaded https://stackoverflow.com/a/32666215
+# [AV vfold] the lock is in GTEST, so that it is shared by all process directories using the same googletest installation
 $(GTESTLIBS):
+	@if [ ! -e $(TESTDIR)/GTEST ]; then \
+	  if [ -d $(TESTDIR)/../../GTEST ]; then \
+	    echo "ln -sn ../../GTEST $(TESTDIR)/GTEST"; ln -sn ../../GTEST $(TESTDIR)/GTEST 2>/dev/null || true; \
+	  else \
+	    echo "mkdir -p $(TESTDIR)/GTEST"; mkdir -p $(TESTDIR)/GTEST; \
+	  fi; \
+	fi
 ifneq ($(shell which flock 2>/dev/null),)
-	@if [ ! -d $(BUILDDIR) ]; then echo "mkdir -p $(BUILDDIR)"; mkdir -p $(BUILDDIR); fi
-	flock $(BUILDDIR)/.make_test.lock $(MAKE) -C $(TESTDIR)
+	flock $(TESTDIR)/GTEST/.make_test.lock $(MAKE) -C $(TESTDIR)
 else
-	if [ -d $(TESTDIR) ]; then $(MAKE) -C $(TESTDIR); fi
+	$(MAKE) -C $(TESTDIR)
 endif
 
 #-------------------------------------------------------------------------------
@@ -1179,12 +1178,10 @@ cleanall:
 	$(MAKE) USEBUILDDIR=0 -C ../../src cleanall -f $(CUDACPP_SRC_MAKEFILE)
 	rm -rf build.*
 
-# Target: clean the builds as well as the gtest installation(s)
+# Target: clean the builds as well as the gtest installation
+# [AV vfold] this removes $(TESTDIR)/GTEST: only the symlink if this is a symlink (keep the shared googletest installation)
 distclean: cleanall
-ifneq ($(wildcard $(TESTDIRCOMMON)),)
-	$(MAKE) -C $(TESTDIRCOMMON) clean
-endif
-	$(MAKE) -C $(TESTDIRLOCAL) clean
+	$(MAKE) -C $(TESTDIR) clean
 
 #-------------------------------------------------------------------------------
 

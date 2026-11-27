@@ -101,7 +101,12 @@ c#endif
             im = (3-nh)/2
             sfomeg(1) = sf(1)*omega(ip)
             sfomeg(2) = sf(2)*omega(im)
-            pp3 = max(pp+p(3),rZero)
+c           Light-cone identity avoids the |p|+p3 cancellation.
+            if ( p(3).lt.rZero ) then
+               pp3 = max((p(1)**2+p(2)**2)/(pp-p(3)),rZero)
+            else
+               pp3 = max(pp+p(3),rZero)
+            endif
             chi(1) = dcmplx( dsqrt(pp3*rHalf/pp) )
             if ( pp3.eq.rZero ) then
                chi(2) = dcmplx(-nh )
@@ -121,7 +126,12 @@ c#endif
          if(p(1).eq.0d0.and.p(2).eq.0d0.and.p(3).lt.0d0) then
             sqp0p3 = 0d0
          else
-            sqp0p3 = dsqrt(max(p(0)+p(3),rZero))*nsf
+c           Light-cone identity avoids the E+p3 cancellation.
+            if ( p(3).lt.rZero .and. p(0)-p(3).gt.rZero ) then
+               sqp0p3 = dsqrt((p(1)**2+p(2)**2)/(p(0)-p(3)))*nsf
+            else
+               sqp0p3 = dsqrt(max(p(0)+p(3),rZero))*nsf
+            endif
          end if
          chi(1) = dcmplx( sqp0p3 )
          if ( sqp0p3.eq.rZero ) then
@@ -225,7 +235,12 @@ c$$$      fi(2) = dcmplx(p(1),p(2))*nsf*-1
             im = (3-nh)/2
             sfomeg(1) = sf(1)*omega(ip)
             sfomeg(2) = sf(2)*omega(im)
-            pp3 = max(pp+p(3),rZero)
+c           Light-cone identity avoids the |p|+p3 cancellation.
+            if ( p(3).lt.rZero ) then
+               pp3 = max((p(1)**2+p(2)**2)/(pp-p(3)),rZero)
+            else
+               pp3 = max(pp+p(3),rZero)
+            endif
             chi(1) = dcmplx( dsqrt(pp3*rHalf/pp) )
             if ( pp3.eq.rZero ) then
                chi(2) = dcmplx(-nh )
@@ -245,7 +260,12 @@ c$$$      fi(2) = dcmplx(p(1),p(2))*nsf*-1
          if(p(1).eq.0d0.and.p(2).eq.0d0.and.p(3).lt.0d0) then
             sqp0p3 = 0d0
          else
-            sqp0p3 = dsqrt(max(p(0)+p(3),rZero))*nsf
+c           Light-cone identity avoids the E+p3 cancellation.
+            if ( p(3).lt.rZero .and. p(0)-p(3).gt.rZero ) then
+               sqp0p3 = dsqrt((p(1)**2+p(2)**2)/(p(0)-p(3)))*nsf
+            else
+               sqp0p3 = dsqrt(max(p(0)+p(3),rZero))*nsf
+            endif
          end if
          chi(1) = dcmplx( sqp0p3 )
          if ( sqp0p3.eq.rZero ) then
@@ -351,7 +371,7 @@ c#endif
             fo(6) = ip     * sqm(abs(im))
          else
 
-c            pp = min(p(0),dsqrt(p(1)**2+p(2)**2+p(3)**2))
+            pp = min(p(0),dsqrt(p(1)**2+p(2)**2+p(3)**2))
             sf(1) = dble(1+nsf+(1-nsf)*nh)*rHalf
             sf(2) = dble(1+nsf-(1-nsf)*nh)*rHalf
             omega(1) = dsqrt(p(0)+pp)
@@ -360,7 +380,12 @@ c            pp = min(p(0),dsqrt(p(1)**2+p(2)**2+p(3)**2))
             im = (3-nh)/2
             sfomeg(1) = sf(1)*omega(ip)
             sfomeg(2) = sf(2)*omega(im)
-            pp3 = max(pp+p(3),rZero)
+c           Light-cone identity avoids the |p|+p3 cancellation.
+            if ( p(3).lt.rZero ) then
+               pp3 = max((p(1)**2+p(2)**2)/(pp-p(3)),rZero)
+            else
+               pp3 = max(pp+p(3),rZero)
+            endif
             chi(1) = dcmplx( dsqrt(pp3*rHalf/pp) )
             if ( pp3.eq.rZero ) then
                chi(2) = dcmplx(-nh )
@@ -380,7 +405,12 @@ c            pp = min(p(0),dsqrt(p(1)**2+p(2)**2+p(3)**2))
          if(p(1).eq.0d0.and.p(2).eq.0d0.and.p(3).lt.0d0) then
             sqp0p3 = 0d0
          else
-            sqp0p3 = dsqrt(max(p(0)+p(3),rZero))*nsf
+c           Light-cone identity avoids the E+p3 cancellation.
+            if ( p(3).lt.rZero .and. p(0)-p(3).gt.rZero ) then
+               sqp0p3 = dsqrt((p(1)**2+p(2)**2)/(p(0)-p(3)))*nsf
+            else
+               sqp0p3 = dsqrt(max(p(0)+p(3),rZero))*nsf
+            endif
          end if
          chi(1) = dcmplx( sqp0p3 )
          if ( sqp0p3.eq.rZero ) then
@@ -485,7 +515,12 @@ c$$$      fo(2) = dcmplx(p(1),p(2))*nsf
             im = (3-nh)/2
             sfomeg(1) = sf(1)*omega(ip)
             sfomeg(2) = sf(2)*omega(im)
-            pp3 = max(pp+p(3),rZero)
+c           Light-cone identity avoids the |p|+p3 cancellation.
+            if ( p(3).lt.rZero ) then
+               pp3 = max((p(1)**2+p(2)**2)/(pp-p(3)),rZero)
+            else
+               pp3 = max(pp+p(3),rZero)
+            endif
             chi(1) = dcmplx( dsqrt(pp3*rHalf/pp) )
             if ( pp3.eq.rZero ) then
                chi(2) = dcmplx(-nh )
@@ -505,7 +540,12 @@ c$$$      fo(2) = dcmplx(p(1),p(2))*nsf
          if(p(1).eq.0d0.and.p(2).eq.0d0.and.p(3).lt.0d0) then
             sqp0p3 = 0d0
          else
-            sqp0p3 = dsqrt(max(p(0)+p(3),rZero))*nsf
+c           Light-cone identity avoids the E+p3 cancellation.
+            if ( p(3).lt.rZero .and. p(0)-p(3).gt.rZero ) then
+               sqp0p3 = dsqrt((p(1)**2+p(2)**2)/(p(0)-p(3)))*nsf
+            else
+               sqp0p3 = dsqrt(max(p(0)+p(3),rZero))*nsf
+            endif
          end if
          chi(1) = dcmplx( sqp0p3 )
          if ( sqp0p3.eq.rZero ) then
@@ -936,6 +976,63 @@ c#endif
 
       endif
 c
+      return
+      end
+
+      subroutine onia_proj(p1, m1, nhel1, p2, m2, nhel2, p3, m3, nhel3,
+     $       spin, proj)
+c
+c This subroutine computes the spin projector for an onium states.
+c
+c input:
+c       real    p1(0:3)        : four-momentum of constituent particle
+c       real    p2(0:3)        : four-momentum of constituent anti-particle
+c       real    p3(0:3)        : four-momentum of onium state
+c       real    m1(0:3)        : mass          of constituent particle
+c       real    m2(0:3)        : mass          of constituent anti-particle
+c       real    m3(0:3)        : mass          of onium state
+c       integer nhel1          : helicity      of constituent particle
+c       integer nhel2          : helicity      of constituent anti-particle
+c       integer nhel3          : helicity      of onium state
+c       integer spin           : spin          of onium state
+c
+c output:
+c       complex proj           : value of the projector
+c
+      implicit none
+      double precision p1(0:3), p2(0:3), p3(0:3)
+      double precision m1, m2, m3
+      integer nhel1, nhel2, nhel3
+      integer spin
+      double complex proj
+
+      double complex fi(6),fo(6),vc(6)
+      double complex ci, tmp
+      parameter( ci = dcmplx(0.0d0,1.0d0) )
+
+      call ixxxxx(p1,m1,nhel1,+1,fi)
+      call oxxxxx(p2,m2,nhel2,-1,fo)
+      
+      if (spin.eq.0) then
+c     spin singlet    
+
+         tmp = -fi(3)*fo(3)-fi(4)*fo(4)+fi(5)*fo(5)+fi(6)*fo(6)
+
+      elseif (spin.eq.1) then
+c     spin triplet
+         call vxxxxx(p3,m3,nhel3,+1,vc)
+
+         tmp = (fi(3)*fo(6)-fi(5)*fo(4))*(vc(4)+ci*vc(5))+
+     &         (fi(4)*fo(5)-fi(6)*fo(3))*(vc(4)-ci*vc(5))+
+     &         (fi(3)*fo(5)+fi(6)*fo(4))*(vc(3)+vc(6))+
+     &         (fi(4)*fo(6)+fi(5)*fo(3))*(vc(3)-vc(6))
+      else
+         print *,"spin projector not yet implemented"
+         stop
+      endif
+
+      proj = 0.5d0/SQRT(2d0*m1*m2)*tmp
+
       return
       end
 

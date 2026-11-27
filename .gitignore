@@ -22,6 +22,10 @@ profile_*
 
 #=== Googletest ===
 test/googletest
+test/GTEST
+epochX/cudacpp/GTEST/googletest
+epochX/cudacpp/GTEST/.make_test.lock
+epochX/cudacpp/*/test/GTEST
 
 #=== Release assets ===
 cudacpp.tar.gz

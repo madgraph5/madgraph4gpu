@@ -1,0 +1,4 @@
+set stdout_level DEBUG
+set zerowidth_tchannel F
+generate e+ e- > b b b~ b~
+output standalone_cudacpp epem_bbbxbx.vfold.sa --vfold

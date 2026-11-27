@@ -2,6 +2,7 @@
 // Licensed under the GNU Lesser General Public License (version 3 or later).
 // Created by: A. Valassi (Jan 2022) for the MG5aMC CUDACPP plugin.
 // Further modified by: J. Teig, A. Valassi, Z. Wettersten (2022-2025) for the MG5aMC CUDACPP plugin.
+// Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 
 #include "MatrixElementKernels.h"
 
@@ -318,6 +319,10 @@ namespace mg5amcGpu
     , m_pHelDenominators()
     , m_colJamp2s( CPPProcess::ncolor * this->nevt() )
 #endif
+%%VFOLD_BEGIN
+    , m_pHelAmp2()
+    , m_bornExtras( CPPProcess::nbornextras * this->nevt() )
+%%VFOLD_END
 #ifdef MGONGPU_CHANNELID_DEBUG
     , m_hstChannelIds( this->nevt() )
 #endif
@@ -416,6 +421,9 @@ namespace mg5amcGpu
   MatrixElementKernelDevice::~MatrixElementKernelDevice()
   {
     //std::cout << "DEBUG: MatrixElementKernelDevice::dtor " << this << std::endl;
+%%VFOLD_BEGIN
+    unregisterBornExtrasDeviceBuffer( m_bornExtras.data() ); // AV vfold (step 10a)
+%%VFOLD_END
 #ifndef MGONGPU_HAS_NO_BLAS
     if( m_blasHandle ) gpuBlasDestroy( m_blasHandle );
 #endif
@@ -477,6 +485,10 @@ namespace mg5amcGpu
     m_pHelNumerators.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
     m_pHelDenominators.reset( new DeviceBufferSimple( nGoodHel * nevt ) );
 #endif
+%%VFOLD_BEGIN
+    // AV vfold (step 10a): create the "many-helicity" super-buffer of nGoodHel per-amplitude |amp|^2 buffers
+    m_pHelAmp2.reset( new DeviceBufferSimple( static_cast<size_t>( nGoodHel ) * CPPProcess::nbornamps * nevt ) );
+%%VFOLD_END
 #ifndef MGONGPU_HAS_NO_BLAS
     // Create the "many-helicity" super-buffers of real/imag ncolor*nevt temporary buffers for cuBLAS/hipBLAS intermediate results in color_sum_blas
 #if defined MGONGPU_FPTYPE_DOUBLE and defined MGONGPU_FPTYPE2_FLOAT
@@ -505,10 +517,18 @@ namespace mg5amcGpu
 #endif
 #ifdef MGONGPU_SUPPORTS_MULTICHANNEL
     const unsigned int* pChannelIds = ( useChannelIds ? m_channelIds.data() : nullptr );
+%%VFOLD_BEGIN
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_igraph, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_colJamp2s.data(), m_pHelNumerators->data(), m_pHelDenominators->data(), m_pHelMEs->data(), m_pHelJamps->data(), m_pHelAmp2->data(), m_bornExtras.data(), ghelAllBlasTmp, pBlasHandle, m_helStreams, m_gpublocks, m_gputhreads );
+%%VFOLD_ELSE
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_rndcol.data(), pChannelIds, m_igraph, m_matrixElements.data(), m_selhel.data(), m_selcol.data(), m_colJamp2s.data(), m_pHelNumerators->data(), m_pHelDenominators->data(), m_pHelMEs->data(), m_pHelJamps->data(), ghelAllBlasTmp, pBlasHandle, m_helStreams, m_gpublocks, m_gputhreads );
+%%VFOLD_END
 #else
     assert( useChannelIds == false );
+%%VFOLD_BEGIN
+    sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_pHelMEs->data(), m_pHelJamps->data(), m_pHelAmp2->data(), m_bornExtras.data(), ghelAllBlasTmp, pBlasHandle, m_helStreams, m_gpublocks, m_gputhreads );
+%%VFOLD_ELSE
     sigmaKin( m_momenta.data(), m_couplings.data(), m_rndhel.data(), m_matrixElements.data(), m_selhel.data(), m_pHelMEs->data(), m_pHelJamps->data(), ghelAllBlasTmp, pBlasHandle, m_helStreams, m_gpublocks, m_gputhreads );
+%%VFOLD_END
 #endif
 #ifdef MGONGPU_CHANNELID_DEBUG
     //std::cout << "DEBUG: MatrixElementKernelDevice::computeMatrixElements " << this << " " << ( useChannelIds ? "T" : "F" ) << " " << nevt() << std::endl;
@@ -517,7 +537,11 @@ namespace mg5amcGpu
     MatrixElementKernelBase::updateNevtProcessedByChannel( pHstChannelIds, nevt() );
 #endif
     checkGpu( gpuPeekAtLastError() );   // is this needed?
-    checkGpu( gpuDeviceSynchronize() ); // probably not needed? but it avoids errors in sigmaKin above from appearing later on in random places...
+    checkGpu( gpuDeviceSynchronize() ); // not needed? but avoids errors in sigmaKin above from appearing later on in random places
+%%VFOLD_BEGIN
+    // AV vfold (step 10a): for fbridgegetbsf_ and fbridgegetbornextras_
+    registerBornExtrasDeviceBuffer( m_bornExtras.data(), nevt() );
+%%VFOLD_END
   }
 
   //--------------------------------------------------------------------------

@@ -2,6 +2,7 @@ C Copyright (C) 2020-2024 CERN and UCLouvain.
 C Licensed under the GNU Lesser General Public License (version 3 or later).
 C Created by: A. Valassi (Feb 2022) for the MG5aMC CUDACPP plugin.
 C Further modified by: A. Valassi (2022-2024) for the MG5aMC CUDACPP plugin.
+C Further modified by: A. Valassi (2026) for the MadVfold project (arXiv:2609.23500).
 
 C
 C Create a Bridge and return its pointer
@@ -20,13 +21,23 @@ C
       END INTERFACE
       
 C
-C Delete a Bridge.
+C Delete a Bridge and reset hardware on exit.
 C - PBRIDGE: the memory address of the C++ Bridge
 C
       INTERFACE
          SUBROUTINE FBRIDGEDELETE(PBRIDGE)
          INTEGER*8 PBRIDGE
          END SUBROUTINE FBRIDGEDELETE
+      END INTERFACE
+      
+C
+C Delete a Bridge without resetting hardware on exit.
+C - PBRIDGE: the memory address of the C++ Bridge
+C
+      INTERFACE
+         SUBROUTINE FBRIDGEDELETE_NOHWRESET(PBRIDGE)
+         INTEGER*8 PBRIDGE
+         END SUBROUTINE FBRIDGEDELETE_NOHWRESET
       END INTERFACE
       
 C
